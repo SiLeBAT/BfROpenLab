@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source">
+    <name>Shapefile Reader</name>
+    
+    <shortDescription>
+        Reads a shapefile.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        	This node reads all data from a shapefile. This data is provided via the shapefile port, that
+        	can be used by the visualizer nodes.
+        </intro>
+                
+        <option name="Shapefile">
+        	Location of the shapefile (.shp).
+        </option>               
+    </fullDescription>
+    
+    <ports>               
+        <outPort index="0" name="Shapefile">
+        	Shapefile.
+        </outPort>        
+    </ports>
+</knimeNode>

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME GIS Nodes (Views)
+Bundle-SymbolicName: de.bund.bfr.knime.gis.views; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: de.bund.bfr.knime.gis.views.Activator
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.knime.ext.svg;visibility:=reexport,
+ de.bund.bfr.knime,
+ de.bund.bfr.knime.gis,
+ de.bund.bfr.knime.gis.views.canvas;visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.gis.views,
+ de.bund.bfr.knime.gis.views.graphvisualizer,
+ de.bund.bfr.knime.gis.views.locationtolocationvisualizer,
+ de.bund.bfr.knime.gis.views.locationvisualizer,
+ de.bund.bfr.knime.gis.views.regiontoregionvisualizer,
+ de.bund.bfr.knime.gis.views.regionvisualizer
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

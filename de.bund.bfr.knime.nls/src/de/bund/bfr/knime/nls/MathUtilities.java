@@ -1,0 +1,136 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
+ * 
+ * Developers and contributors are 
+ * Christian Thoens (BfR)
+ * Armin A. Weiser (BfR)
+ * Matthias Filter (BfR)
+ * Alexander Falenski (BfR)
+ * Annemarie Kaesbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+package de.bund.bfr.knime.nls;
+
+import java.util.List;
+
+import org.apache.commons.math3.distribution.TDistribution;
+import org.lsmp.djep.djep.DJep;
+import org.lsmp.djep.djep.DiffRulesI;
+import org.nfunk.jep.ASTFunNode;
+import org.nfunk.jep.Node;
+import org.nfunk.jep.ParseException;
+
+public class MathUtilities {
+
+	private MathUtilities() {
+	}
+
+	public static Double getMSE(int numParam, int numSample, double sse) {
+		if (numSample <= numParam) {
+			return null;
+		}
+
+		return sse / (numSample - numParam);
+	}
+
+	public static Double getRMSE(int numParam, int numSample, double sse) {
+		if (numSample <= numParam) {
+			return null;
+		}
+
+		return Math.sqrt(sse / (numSample - numParam));
+	}
+
+	public static Double getR2(double sse, List<Double> targetValues) {
+		if (targetValues.size() < 2) {
+			return null;
+		}
+
+		double targetSum = 0.0;
+
+		for (double v : targetValues) {
+			targetSum += v;
+		}
+
+		double targetMean = targetSum / targetValues.size();
+		double targetTotalSumOfSquares = 0.0;
+
+		for (int i = 0; i < targetValues.size(); i++) {
+			targetTotalSumOfSquares += Math.pow(targetValues.get(i)
+					- targetMean, 2.0);
+		}
+
+		double rSquared = 1 - sse / targetTotalSumOfSquares;
+
+		return Math.max(rSquared, 0.0);
+	}
+
+	public static Double getAic(int numParam, int numSample, double sse) {
+		if (numSample <= numParam + 2) {
+			return null;
+		}
+
+		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1) + 2
+				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
+	}
+
+	public static double getPValue(double tValue, int degreesOfFreedom) {
+		TDistribution dist = new TDistribution(degreesOfFreedom);
+
+		return 1.0 - dist.probability(-Math.abs(tValue), Math.abs(tValue));
+	}
+
+	public static DJep createParser() {
+		DJep parser = new DJep();
+
+		parser.setAllowAssignment(true);
+		parser.setAllowUndeclared(true);
+		parser.setImplicitMul(true);
+		parser.addStandardFunctions();
+		parser.addStandardDiffRules();
+		parser.removeVariable("x");
+		parser.addDiffRule(new ZeroDiffRule("<"));
+		parser.addDiffRule(new ZeroDiffRule(">"));
+		parser.addDiffRule(new ZeroDiffRule("<="));
+		parser.addDiffRule(new ZeroDiffRule(">="));
+		parser.addDiffRule(new ZeroDiffRule("&&"));
+		parser.addDiffRule(new ZeroDiffRule("||"));
+
+		return parser;
+	}
+
+	private static class ZeroDiffRule implements DiffRulesI {
+
+		private String name;
+
+		public ZeroDiffRule(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public Node differentiate(ASTFunNode node, String var, Node[] children,
+				Node[] dchildren, DJep djep) throws ParseException {
+			return djep.getNodeFactory().buildConstantNode(0.0);
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+	}
+
+}

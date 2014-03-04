@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Nonlinear Regression Nodes
+Bundle-SymbolicName: de.bund.bfr.knime.nls;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: de.bund.bfr.knime.nls.Activator
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.knime.ext.svg,
+ org.knime.ext.jfreechart,
+ org.knime.ext.jep,
+ org.apache.commons.math3,
+ de.bund.bfr.knime
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.nls,
+ de.bund.bfr.knime.nls.functioncreator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Visualizer">
+    <name>Location Visualizer</name>
+    
+    <shortDescription>
+    	Provides visualization of locations with latitude and longitude.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        	This node can visualize a geographical map with certain locations. The geographical map is read from
+        	the shapefile in port 0. The input table in port 1 must contain the locations coordinates (latitude and 
+        	longitude). Any other data in the input table can be used for highlighting (as explained below).        	 
+        </intro>
+                           
+        <tab name="Input">            
+            <option name="Latitude Column">
+            	Column containing the latitudes.
+            </option>
+            <option name="Longitude Column">
+            	Column containing the longitudes.
+            </option>   
+        </tab>
+        <tab name="Options Bar">
+            <option name="Border Alpha">
+            	Alpha value used to draw the geographical borders.
+            </option>
+            <option name="Location Size">
+            	Diameter of the location circles.
+            </option>
+        </tab>
+        <tab name="Context Menu">
+            <option name="Highlight Locations">
+            	Opens a dialog that allows specifying multiple highlight conditions for the locations. How to create
+            	a highlight condition is explained in the "Highlight Condition Dialog"-section.
+            </option>
+            <option name="Clear Location Highlights">
+            	Removes all highlight conditions.
+            </option>
+            <option name="Show Location Properties">
+            	Shows the properties of all highlighted locations.
+            </option>
+            <option name="Reset Layout">
+            	Resets the layout so that map perfectly fits in the window.
+            </option>
+            <option name="Save As ...">
+            	The image as can be saved as a PNG- or SVG-file 
+            </option>
+        </tab>
+        <tab name="Highlight Condition Dialog">
+            <option name="Type">
+            	Type of the condition. One option is a logical condition, which is an And/Or conjunction of logical 
+            	expressions like "City == Berlin" or "Inhabitants > 10". It can only be true or false. In the
+            	"Logical Condition"-section it is shown how to create a logical condition. The other option is a 
+            	value condition, for example "Log value of Inhabitants". In the "Value Condition"-section it is shown
+            	how to create a value condition.
+            </option>
+            <option name="Color">
+            	Color of the highlighted locations. For a logical conditions all true locations are painted. For a value
+            	condition all locations with values > 0 are painted (the higher the value the higher alpha value used for
+            	painting). 
+            </option>
+            <option name="Label">
+            	Property, that should be used as a label for all painted locations.
+            </option>     
+        </tab>
+        <tab name="Logical Condition">
+       		<option name="And/Or">
+            	When a logical conditions consists of multiple expressions, And/Or conjunctions between these expressions
+            	must be specified. "And"-conjunctions will be evaluated before "Or"-conjunctions.
+            </option>
+            <option name="Property">
+            	Property of the logical expression. Is compared to "Value".
+            </option>
+            <option name="Operation">
+            	Type of the logical expression.
+            </option>
+            <option name="Value">
+            	Value of the logical expression. Is compared to "Property".
+            </option>
+        </tab>
+        <tab name="Value Condition">
+        	<option name="Property">
+            	Property of the value condition.
+            </option>
+            <option name="Value Type">
+            	Type of the value condition. If "Log Value" is used, the logarithmic function with base 10
+            	is applied to all property values, before visualizing. For "Value" no function is applied.
+            </option>    	
+        </tab>        
+    </fullDescription>
+    
+    <ports>
+    	<inPort index="0" name="Shapefile">
+        	Shapefile to visualize.
+       	</inPort>
+        <inPort index="1" name="Location Table">
+        	Table with location coordinates and data.
+       	</inPort>        
+        <outPort index="0" name="Location Image">
+        	Image of the locations.
+        </outPort>        
+    </ports>        
+</knimeNode>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <!-- This is an example for providing an own category 
+      <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            description="Category containing my nodes"
+            icon="icons/default.png"
+            level-id="myNodes"
+            name="My nodes"
+            path="/"/>
+   </extension>
+   -->
+   
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            category-path="/"
+            factory-class="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"
+            id="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"/>
+      <node
+            category-path="/"
+            factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingViewNodeFactory"
+            id="de.bund.bfr.knime.openkrise.views.tracingview.TracingViewNodeFactory">
+      </node>
+      <node
+            category-path="/"
+            factory-class="de.bund.bfr.knime.openkrise.views.tracingview2.TracingView2NodeFactory"
+            id="de.bund.bfr.knime.openkrise.views.tracingview2.TracingView2NodeFactory">
+      </node>
+   </extension>
+   
+</plugin>

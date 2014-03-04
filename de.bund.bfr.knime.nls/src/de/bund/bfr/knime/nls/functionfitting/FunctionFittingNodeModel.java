@@ -1,0 +1,366 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
+ * 
+ * Developers and contributors are 
+ * Christian Thoens (BfR)
+ * Armin A. Weiser (BfR)
+ * Matthias Filter (BfR)
+ * Alexander Falenski (BfR)
+ * Annemarie Kaesbohrer (BfR)
+ * Bernd Appel (BfR)
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+package de.bund.bfr.knime.nls.functionfitting;
+
+import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataContainer;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionMonitor;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.port.PortType;
+import org.nfunk.jep.ParseException;
+
+import de.bund.bfr.knime.nls.Function;
+import de.bund.bfr.knime.nls.Utilities;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+
+/**
+ * This is the model implementation of FunctionFitting.
+ * 
+ * 
+ * @author Christian Thoens
+ */
+public class FunctionFittingNodeModel extends NodeModel {
+
+	private FunctionFittingSettings set;
+
+	/**
+	 * Constructor for the node model.
+	 */
+	protected FunctionFittingNodeModel() {
+		super(
+				new PortType[] { FunctionPortObject.TYPE,
+						BufferedDataTable.TYPE }, new PortType[] {
+						BufferedDataTable.TYPE, BufferedDataTable.TYPE });
+		set = new FunctionFittingSettings();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
+			throws Exception {
+		FunctionPortObject functionObject = (FunctionPortObject) inObjects[0];
+		BufferedDataTable table = (BufferedDataTable) inObjects[1];
+		Map<String, ParameterOptimizer> values = doEstimation(
+				functionObject.getFunction(), table, exec);
+		PortObjectSpec[] outSpec = configure(new PortObjectSpec[] {
+				functionObject.getSpec(), table.getSpec() });
+		DataTableSpec outSpec1 = (DataTableSpec) outSpec[0];
+		DataTableSpec outSpec2 = (DataTableSpec) outSpec[1];
+		BufferedDataContainer container1 = exec.createDataContainer(outSpec1);
+		BufferedDataContainer container2 = exec.createDataContainer(outSpec2);
+		int i1 = 0;
+		int i2 = 0;
+
+		for (String id : values.keySet()) {
+			ParameterOptimizer result = values.get(id);
+			DataCell[] cells1 = new DataCell[outSpec1.getNumColumns()];
+
+			for (String param1 : functionObject.getFunction().getParameters()) {
+				cells1[outSpec1.findColumnIndex(param1)] = Utilities
+						.createCell(result.getParameterValues().get(param1));
+
+				DataCell[] cells2 = new DataCell[outSpec2.getNumColumns()];
+
+				cells2[outSpec2.findColumnIndex(Utilities.ID_COLUMN)] = Utilities
+						.createCell(id);
+				cells2[outSpec2.findColumnIndex(Utilities.PARAM_COLUMN)] = Utilities
+						.createCell(param1);
+
+				for (String param2 : functionObject.getFunction()
+						.getParameters()) {
+					cells2[outSpec2.findColumnIndex(param2)] = Utilities
+							.createCell(result.getCovariances().get(param1)
+									.get(param2));
+				}
+
+				container2.addRowToTable(new DefaultRow(i2 + "", cells2));
+				i2++;
+			}
+
+			cells1[outSpec1.findColumnIndex(Utilities.ID_COLUMN)] = Utilities
+					.createCell(id);
+			cells1[outSpec1.findColumnIndex(Utilities.SSE_COLUMN)] = Utilities
+					.createCell(result.getSSE());
+			cells1[outSpec1.findColumnIndex(Utilities.MSE_COLUMN)] = Utilities
+					.createCell(result.getMSE());
+			cells1[outSpec1.findColumnIndex(Utilities.RMSE_COLUMN)] = Utilities
+					.createCell(result.getRMSE());
+			cells1[outSpec1.findColumnIndex(Utilities.R2_COLUMN)] = Utilities
+					.createCell(result.getR2());
+			cells1[outSpec1.findColumnIndex(Utilities.AIC_COLUMN)] = Utilities
+					.createCell(result.getAIC());
+			cells1[outSpec1.findColumnIndex(Utilities.DOF_COLUMN)] = Utilities
+					.createCell(result.getDOF());
+
+			container1.addRowToTable(new DefaultRow(i1 + "", cells1));
+			i1++;
+		}
+
+		container1.close();
+		container2.close();
+
+		return new PortObject[] { container1.getTable(), container2.getTable() };
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void reset() {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
+			throws InvalidSettingsException {
+		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
+		DataTableSpec spec = (DataTableSpec) inSpecs[1];
+		List<String> variables = function.getVariables();
+		List<String> parameters = function.getParameters();
+		List<String> stringColumns = Utilities.getStringColumns(spec);
+		List<String> doubleColumns = Utilities.getDoubleColumns(spec);
+
+		if (!stringColumns.contains(Utilities.ID_COLUMN)) {
+			throw new InvalidSettingsException(
+					"Input Table must contain String Column named \""
+							+ Utilities.ID_COLUMN + "\"");
+		}
+
+		for (String var : variables) {
+			if (!doubleColumns.contains(var)) {
+				throw new InvalidSettingsException(
+						"Input Table must contain Double Column named \"" + var
+								+ "\"");
+			}
+		}
+
+		List<DataColumnSpec> specs1 = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> specs2 = new ArrayList<DataColumnSpec>();
+
+		specs1.add(new DataColumnSpecCreator(Utilities.ID_COLUMN,
+				StringCell.TYPE).createSpec());
+		specs2.add(new DataColumnSpecCreator(Utilities.ID_COLUMN,
+				StringCell.TYPE).createSpec());
+		specs2.add(new DataColumnSpecCreator(Utilities.PARAM_COLUMN,
+				StringCell.TYPE).createSpec());
+
+		for (String param : parameters) {
+			specs1.add(new DataColumnSpecCreator(param, DoubleCell.TYPE)
+					.createSpec());
+			specs2.add(new DataColumnSpecCreator(param, DoubleCell.TYPE)
+					.createSpec());
+		}
+
+		specs1.add(new DataColumnSpecCreator(Utilities.SSE_COLUMN,
+				DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(Utilities.MSE_COLUMN,
+				DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(Utilities.RMSE_COLUMN,
+				DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(Utilities.R2_COLUMN,
+				DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(Utilities.AIC_COLUMN,
+				DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(Utilities.DOF_COLUMN, IntCell.TYPE)
+				.createSpec());
+
+		return new PortObjectSpec[] {
+				new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
+				new DataTableSpec(specs2.toArray(new DataColumnSpec[0])) };
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		set.saveSettings(settings);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+		set.loadSettings(settings);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(final NodeSettingsRO settings)
+			throws InvalidSettingsException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void loadInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void saveInternals(final File internDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+	}
+
+	private Map<String, ParameterOptimizer> doEstimation(Function function,
+			BufferedDataTable table, ExecutionContext exec)
+			throws CanceledExecutionException, InterruptedException,
+			ParseException {
+		Map<String, Point2D.Double> parameterGuesses;
+		int nParameterSpace;
+		int nLevenberg;
+		boolean stopWhenSuccessful;
+
+		if (set.isExpertSettings()) {
+			parameterGuesses = set.getParameterGuesses();
+			nParameterSpace = set.getnParameterSpace();
+			nLevenberg = set.getnLevenberg();
+			stopWhenSuccessful = set.isStopWhenSuccessful();
+		} else {
+			parameterGuesses = null;
+			nParameterSpace = FunctionFittingSettings.DEFAULT_N_PARAMETER_SPACE;
+			nLevenberg = FunctionFittingSettings.DEFAULT_N_LEVENBERG;
+			stopWhenSuccessful = FunctionFittingSettings.DEFAULT_STOP_WHEN_SUCCESSFUL;
+		}
+
+		String formula = function.getTerm();
+		List<String> parameters = new ArrayList<String>();
+		List<Double> minParameterValues = new ArrayList<Double>();
+		List<Double> maxParameterValues = new ArrayList<Double>();
+
+		for (String param : function.getParameters()) {
+			Double min = null;
+			Double max = null;
+
+			if (parameterGuesses != null && parameterGuesses.containsKey(param)) {
+				Point2D.Double range = parameterGuesses.get(param);
+
+				if (!Double.isNaN(range.x)) {
+					min = range.x;
+				}
+
+				if (!Double.isNaN(range.y)) {
+					max = range.y;
+				}
+			}
+
+			parameters.add(param);
+			minParameterValues.add(min);
+			maxParameterValues.add(max);
+		}
+
+		DataTableSpec spec = table.getSpec();
+		Map<String, List<Double>> targetValues = new LinkedHashMap<String, List<Double>>();
+		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<String, Map<String, List<Double>>>();
+
+		for (DataRow row : table) {
+			String id = Utilities.getString(row.getCell(spec
+					.findColumnIndex(Utilities.ID_COLUMN)));
+			Map<String, Double> values = new LinkedHashMap<String, Double>();
+
+			for (String var : function.getVariables()) {
+				values.put(var, Utilities.getDouble(row.getCell(spec
+						.findColumnIndex(var))));
+			}
+
+			if (id == null || values.values().contains(null)) {
+				continue;
+			}
+
+			if (!targetValues.containsKey(id)) {
+				targetValues.put(id, new ArrayList<Double>());
+				argumentValues.put(id,
+						new LinkedHashMap<String, List<Double>>());
+
+				for (String indep : function.getIndependentVariables()) {
+					argumentValues.get(id).put(indep, new ArrayList<Double>());
+				}
+			}
+
+			targetValues.get(id).add(
+					values.get(function.getDependentVariable()));
+
+			for (String indep : function.getIndependentVariables()) {
+				argumentValues.get(id).get(indep).add(values.get(indep));
+			}
+		}
+
+		Map<String, ParameterOptimizer> results = new LinkedHashMap<String, ParameterOptimizer>();
+
+		for (String id : targetValues.keySet()) {
+			ParameterOptimizer optimizer = new ParameterOptimizer(formula,
+					parameters, minParameterValues, maxParameterValues,
+					targetValues.get(id), argumentValues.get(id),
+					set.isEnforceLimits());
+
+			optimizer.optimize(new AtomicInteger(), nParameterSpace,
+					nLevenberg, stopWhenSuccessful);
+			results.put(id, optimizer);
+		}
+
+		return results;
+	}
+
+}

@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Canvas for KNIME GIS Nodes (Views)
+Bundle-SymbolicName: de.bund.bfr.knime.gis.views.canvas; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: de.bund.bfr.knime.gis.views.canvas.Activator
+Bundle-Vendor: Christian Thoens
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.gis.views.canvas,
+ de.bund.bfr.knime.gis.views.canvas.dialogs,
+ de.bund.bfr.knime.gis.views.canvas.element,
+ de.bund.bfr.knime.gis.views.canvas.highlighting,
+ de.bund.bfr.knime.gis.views.canvas.listener,
+ de.bund.bfr.knime.gis.views.canvas.transformer
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.ext.svg,
+ edu.uci.ics.jung;visibility:=reexport,
+ de.bund.bfr.knime,
+ de.bund.bfr.knime.gis
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+
