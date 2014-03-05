@@ -28,8 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -48,7 +46,6 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.GisVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 /**
  * <code>NodeDialog</code> for the "RegionVisualizer" Node.
@@ -161,8 +158,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 						JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
-			gisCanvas = new RegionCanvas(new ArrayList<RegionNode>(),
-					new LinkedHashMap<String, Class<?>>());
+			gisCanvas = new RegionCanvas(false);
 			gisCanvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
 
 			if (showWarning) {

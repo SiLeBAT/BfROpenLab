@@ -60,22 +60,33 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private Set<Edge<RegionNode>> edges;
 	private Set<Edge<RegionNode>> invisibleEdges;
 
+	public RegionCanvas(boolean allowEdges) {
+		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
+				new LinkedHashMap<String, Class<?>>(),
+				new LinkedHashMap<String, Class<?>>(), null, null, allowEdges);
+	}
+
 	public RegionCanvas(List<RegionNode> nodes,
-			Map<String, Class<?>> nodeProperties) {
+			Map<String, Class<?>> nodeProperties, String nodeIdProperty) {
 		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeProperties,
-				new LinkedHashMap<String, Class<?>>(), false);
+				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
+				false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties) {
-		this(nodes, edges, nodeProperties, edgeProperties, true);
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty) {
+		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty, true);
 	}
 
 	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, boolean allowEdges) {
-		super(nodes, nodeProperties, edgeProperties);
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty, boolean allowEdges) {
+		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty);
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(edges);
 		setAllowEdges(allowEdges);

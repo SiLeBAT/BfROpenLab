@@ -86,9 +86,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getEdgeFromColumn(),
 				set.getEdgeToColumn(), set.isJoinEdges());
+		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn());
+				set.getNodeIdColumn(), edgeIdProperty);
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());
@@ -133,8 +135,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 		List<Edge<RegionNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, idToRegionMap, set.getEdgeFromColumn(),
 				set.getEdgeToColumn(), set.isJoinEdges());
+		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+				edgeProperties);
 		RegionCanvas canvas = new RegionCanvas(new ArrayList<RegionNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties);
+				nodes.values()), edges, nodeProperties, edgeProperties,
+				set.getNodeIdColumn(), edgeIdProperty);
 
 		canvas.setCanvasSize(set.getGisCanvasSize());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());

@@ -23,10 +23,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview2;
 
-import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,12 +34,9 @@ import java.util.Set;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
@@ -54,12 +49,18 @@ public class TracingCanvas extends GraphCanvas {
 	private boolean joinEdges;
 	private boolean enforceTemporalOrder;
 
+	public TracingCanvas() {
+		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
+				new LinkedHashMap<String, Class<?>>(),
+				new LinkedHashMap<String, Class<?>>(), null, false, false);
+	}
+
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			MyNewTracing tracing, boolean joinEdges,
-			boolean enforceTemporalOrder) {
-		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty);
+			Map<String, Class<?>> edgeProperties, MyNewTracing tracing,
+			boolean joinEdges, boolean enforceTemporalOrder) {
+		super(nodes, edges, nodeProperties, edgeProperties,
+				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
 		this.tracing = tracing;
 		this.joinEdges = joinEdges;
 		this.enforceTemporalOrder = enforceTemporalOrder;
@@ -155,56 +156,6 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		updateTracing();
-	}
-
-	@Override
-	protected void highlightSelectedNodes() {
-		HighlightListDialog dialog = openNodeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedNodeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					TracingConstants.ID_COLUMN,
-					LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setLocationRelativeTo(this);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setNodeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	@Override
-	protected void highlightSelectedEdges() {
-		HighlightListDialog dialog = openEdgeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedEdgeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					TracingConstants.ID_COLUMN,
-					LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setLocationRelativeTo(this);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setEdgeHighlightConditions(dialog.getHighlightConditions());
-		}
 	}
 
 	@Override

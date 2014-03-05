@@ -60,26 +60,40 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private JTextField locationSizeField;
 	private JButton locationSizeButton;
 
+	public LocationCanvas(boolean allowEdges) {
+		this(new ArrayList<LocationNode>(),
+				new ArrayList<Edge<LocationNode>>(),
+				new LinkedHashMap<String, Class<?>>(),
+				new LinkedHashMap<String, Class<?>>(), null, null,
+				new ArrayList<RegionNode>(), allowEdges);
+	}
+
 	public LocationCanvas(List<LocationNode> nodes,
-			Map<String, Class<?>> nodeProperties, List<RegionNode> regions) {
+			Map<String, Class<?>> nodeProperties, String nodeIdProperty,
+			List<RegionNode> regions) {
 		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeProperties,
-				new LinkedHashMap<String, Class<?>>(), regions, false);
+				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
+				regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, List<RegionNode> regions) {
-		this(nodes, edges, nodeProperties, edgeProperties, regions, true);
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty, List<RegionNode> regions) {
+		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty, regions, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	private LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, List<RegionNode> regionNodes,
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty, List<RegionNode> regionNodes,
 			boolean allowEdges) {
-		super(regionNodes, nodeProperties, edgeProperties);
+		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty);
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(edges);
 		setAllowEdges(allowEdges);

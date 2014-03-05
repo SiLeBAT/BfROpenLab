@@ -134,8 +134,7 @@ public class TracingView2CanvasCreator {
 				set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, tracing, set.isJoinEdges(),
-				set.isEnforeTemporalOrder());
+				tracing, set.isJoinEdges(), set.isEnforeTemporalOrder());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

@@ -62,8 +62,10 @@ public class LocationVisualizerCanvasCreator {
 			return null;
 		}
 
+		String nodeIdProperty = ViewUtilities.createNewIdProperty(nodes,
+				nodeProperties);
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
-				regions);
+				nodeIdProperty, regions);
 
 		canvas.setCanvasSize(set.getCanvasSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());

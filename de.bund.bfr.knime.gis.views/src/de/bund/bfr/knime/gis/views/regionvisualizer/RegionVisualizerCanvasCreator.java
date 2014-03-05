@@ -69,7 +69,8 @@ public class RegionVisualizerCanvasCreator {
 			return null;
 		}
 
-		RegionCanvas canvas = new RegionCanvas(nodes, nodeProperties);
+		RegionCanvas canvas = new RegionCanvas(nodes, nodeProperties,
+				set.getNodeRegionColumn());
 
 		canvas.setCanvasSize(set.getCanvasSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());

@@ -26,6 +26,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -95,20 +96,26 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
 
-	private String nodeIdProperty;
 	private Random random;
+
+	public GraphCanvas() {
+		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
+				new LinkedHashMap<String, Class<?>>(),
+				new LinkedHashMap<String, Class<?>>(), null, null);
+	}
 
 	@SuppressWarnings("unchecked")
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty) {
-		super(addMetaNodeProperty(nodeProperties), edgeProperties);
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty) {
+		super(addMetaNodeProperty(nodeProperties), edgeProperties,
+				nodeIdProperty, edgeIdProperty);
 		setAllowEdges(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<GraphNode>(this.allNodes);
 		this.edges = new LinkedHashSet<Edge<GraphNode>>(this.allEdges);
-		this.nodeIdProperty = nodeIdProperty;
 		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
 		invisibleNodes = new LinkedHashSet<GraphNode>();
@@ -534,13 +541,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					node.getProperties());
 		}
 
-		if (nodeIdProperty != null) {
-			Class<?> type = getNodeProperties().get(nodeIdProperty);
+		if (getNodeIdProperty() != null) {
+			Class<?> type = getNodeProperties().get(getNodeIdProperty());
 
 			if (type == String.class) {
-				properties.put(nodeIdProperty, id);
+				properties.put(getNodeIdProperty(), id);
 			} else if (type == Integer.class) {
-				properties.put(nodeIdProperty, Integer.parseInt(id));
+				properties.put(getNodeIdProperty(), Integer.parseInt(id));
 			}
 		}
 

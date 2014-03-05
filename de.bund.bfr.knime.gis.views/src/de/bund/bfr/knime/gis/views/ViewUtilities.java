@@ -63,6 +63,7 @@ import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -481,6 +482,19 @@ public class ViewUtilities {
 		}
 
 		return edges;
+	}
+
+	public static String createNewIdProperty(List<? extends Element> elements,
+			Map<String, Class<?>> properties) {
+		String name = CanvasUtilities.createNewProperty("ID", properties);
+
+		properties.put(name, String.class);
+
+		for (Element element : elements) {
+			element.getProperties().put(name, element.getId());
+		}
+
+		return name;
 	}
 
 	private static void addToProperties(Map<String, Object> properties,

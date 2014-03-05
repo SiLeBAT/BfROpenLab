@@ -59,7 +59,6 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.listener.HighlightListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
@@ -184,20 +183,13 @@ public class LocationToLocationVisualizerNodeDialog extends
 			gisCanvas.addSelectionListener(gisSelectionListener);
 			gisCanvas.addHighlightListener(gisHighlightListener);
 		} else {
-			graphCanvas = new GraphCanvas(new ArrayList<GraphNode>(),
-					new ArrayList<Edge<GraphNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>(), null);
+			graphCanvas = new GraphCanvas();
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 			graphCanvas
 					.setLayoutType(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_LAYOUT);
 			graphCanvas.setAllowCollapse(false);
-			gisCanvas = new LocationCanvas(new ArrayList<LocationNode>(),
-					new ArrayList<Edge<LocationNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new ArrayList<RegionNode>());
+			gisCanvas = new LocationCanvas(true);
 			gisCanvas
 					.setCanvasSize(GisToGisVisualizerSettings.DEFAULT_GIS_CANVAS_SIZE);
 

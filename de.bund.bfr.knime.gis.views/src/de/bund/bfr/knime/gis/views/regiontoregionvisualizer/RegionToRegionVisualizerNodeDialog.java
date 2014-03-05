@@ -184,19 +184,13 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 						JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
-			graphCanvas = new GraphCanvas(new ArrayList<GraphNode>(),
-					new ArrayList<Edge<GraphNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>(), null);
+			graphCanvas = new GraphCanvas();
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 			graphCanvas
 					.setLayoutType(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_LAYOUT);
 			graphCanvas.setAllowCollapse(false);
-			gisCanvas = new RegionCanvas(new ArrayList<RegionNode>(),
-					new ArrayList<Edge<RegionNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>());
+			gisCanvas = new RegionCanvas(true);
 			gisCanvas
 					.setCanvasSize(GisToGisVisualizerSettings.DEFAULT_GIS_CANVAS_SIZE);
 

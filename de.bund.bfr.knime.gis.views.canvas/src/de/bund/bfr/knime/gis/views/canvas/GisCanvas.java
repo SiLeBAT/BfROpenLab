@@ -56,13 +56,14 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private int borderAlpha;
 
 	private JSlider borderAlphaSlider;
-	private JButton borderAlphaButton;
+	private JButton borderAlphaButton;	
 
 	@SuppressWarnings("unchecked")
 	public GisCanvas(List<RegionNode> regions,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties) {
-		super(nodeProperties, edgeProperties);
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty) {
+		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty);
 		setAllowCollapse(false);
 		this.regions = regions;
 		borderAlpha = DEFAULT_BORDER_ALPHA;

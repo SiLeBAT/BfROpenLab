@@ -77,7 +77,9 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.ImageFileChooser;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.listener.HighlightListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
@@ -144,12 +146,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private Map<String, Class<?>> nodeProperties;
 	private Map<String, Class<?>> edgeProperties;
+	private String nodeIdProperty;
+	private String edgeIdProperty;
 
 	@SuppressWarnings("unchecked")
 	public Canvas(Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties) {
+			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
+			String edgeIdProperty) {
 		this.nodeProperties = nodeProperties;
 		this.edgeProperties = edgeProperties;
+		this.nodeIdProperty = nodeIdProperty;
+		this.edgeIdProperty = edgeIdProperty;
 		this.allowEdges = DEFAULT_ALLOW_EDGES;
 		this.allowHighlighting = DEFAULT_ALLOW_HIGHLIGHTING;
 		this.allowCollapse = DEFAULT_ALLOW_COLLAPSE;
@@ -269,6 +276,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public Map<String, Class<?>> getEdgeProperties() {
 		return edgeProperties;
+	}
+
+	public String getNodeIdProperty() {
+		return nodeIdProperty;
+	}
+
+	public String getEdgeIdProperty() {
+		return edgeIdProperty;
 	}
 
 	public void setSelectedNodes(Set<V> selectedNodes) {
@@ -526,9 +541,49 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == edgePropertiesItem) {
 			showEdgeProperties();
 		} else if (e.getSource() == highlightSelectedNodesItem) {
-			highlightSelectedNodes();
+			HighlightListDialog dialog = openNodeHighlightDialog();
+			List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+			for (String id : getSelectedNodeIds()) {
+				LogicalHighlightCondition c = new LogicalHighlightCondition(
+						nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE,
+						id);
+
+				conditions.add(Arrays.asList(c));
+			}
+
+			AndOrHighlightCondition condition = new AndOrHighlightCondition(
+					conditions, Color.RED, false, false, null);
+
+			dialog.setAutoAddCondition(condition);
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				setNodeHighlightConditions(dialog.getHighlightConditions());
+			}
 		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			highlightSelectedEdges();
+			HighlightListDialog dialog = openEdgeHighlightDialog();
+			List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+			for (String id : getSelectedEdgeIds()) {
+				LogicalHighlightCondition c = new LogicalHighlightCondition(
+						edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE,
+						id);
+
+				conditions.add(Arrays.asList(c));
+			}
+
+			AndOrHighlightCondition condition = new AndOrHighlightCondition(
+					conditions, Color.RED, false, false, null);
+
+			dialog.setAutoAddCondition(condition);
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				setEdgeHighlightConditions(dialog.getHighlightConditions());
+			}
 		} else if (e.getSource() == collapseToNodeItem) {
 			collapseToNode();
 		} else if (e.getSource() == expandFromNodeItem) {
@@ -623,14 +678,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		dialog.setLocationRelativeTo(this);
 		dialog.setVisible(true);
-	}
-
-	protected void highlightSelectedNodes() {
-		// TODO
-	}
-
-	protected void highlightSelectedEdges() {
-		// TODO
 	}
 
 	protected abstract void resetLayout();

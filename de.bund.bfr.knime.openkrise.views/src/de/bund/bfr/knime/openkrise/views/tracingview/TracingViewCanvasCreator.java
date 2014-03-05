@@ -44,7 +44,7 @@ public class TracingViewCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private TracingViewSettings set;
 
-	private Set<Integer> connectedNodes;	
+	private Set<Integer> connectedNodes;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable, TracingViewSettings set) {
@@ -54,7 +54,7 @@ public class TracingViewCanvasCreator {
 
 		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
 				TracingConstants.ID_COLUMN, edgeTable,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);		
+				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 	}
 
 	public GraphCanvas createGraphCanvas() {
@@ -76,7 +76,7 @@ public class TracingViewCanvasCreator {
 				set.isJoinEdges());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN);
+				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

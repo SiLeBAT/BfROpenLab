@@ -30,7 +30,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -49,8 +48,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewInputDialog;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings;
@@ -181,11 +178,7 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 		graphCanvas = creator.createGraphCanvas();
 
 		if (graphCanvas == null) {
-			graphCanvas = new TracingCanvas(new ArrayList<GraphNode>(),
-					new ArrayList<Edge<GraphNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>(), null, tracing,
-					set.isJoinEdges(), set.isEnforeTemporalOrder());
+			graphCanvas = new TracingCanvas();
 			graphCanvas
 					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 			graphCanvas.setLayoutType(TracingViewSettings.DEFAULT_GRAPH_LAYOUT);

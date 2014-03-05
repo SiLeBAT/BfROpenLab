@@ -198,6 +198,21 @@ public class CanvasUtilities {
 		return result;
 	}
 
+	public static String createNewProperty(String name,
+			Map<String, Class<?>> properties) {
+		if (!properties.containsKey(name)) {
+			return name;
+		}
+
+		for (int i = 2;; i++) {
+			String newName = name + "_" + i;
+
+			if (!properties.containsKey(newName)) {
+				return newName;
+			}
+		}
+	}
+
 	public static <V extends Node, E extends Edge<V>> void applyNodeHighlights(
 			VisualizationViewer<V, E> viewer, Collection<V> nodes,
 			Collection<E> edges, Collection<V> invisibleNodes,

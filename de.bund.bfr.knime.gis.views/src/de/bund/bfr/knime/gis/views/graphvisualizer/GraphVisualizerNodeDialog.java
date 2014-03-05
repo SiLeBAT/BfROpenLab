@@ -30,7 +30,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -51,8 +50,6 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerInputDialog;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 
 /**
  * <code>NodeDialog</code> for the "GraphVisualizer" Node.
@@ -158,10 +155,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		graphCanvas = creator.createGraphCanvas();
 
 		if (graphCanvas == null) {
-			graphCanvas = new GraphCanvas(new ArrayList<GraphNode>(),
-					new ArrayList<Edge<GraphNode>>(),
-					new LinkedHashMap<String, Class<?>>(),
-					new LinkedHashMap<String, Class<?>>(), null);
+			graphCanvas = new GraphCanvas();
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 			graphCanvas
