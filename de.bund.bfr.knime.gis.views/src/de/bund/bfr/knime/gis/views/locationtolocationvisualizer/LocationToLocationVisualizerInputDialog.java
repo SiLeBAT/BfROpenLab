@@ -79,7 +79,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
 		nodeIdBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(nodeSpec));
+				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
 		nodeLatitudeBox = new ColumnComboBox(false,
 				KnimeUtilities.getDoubleColumns(nodeSpec));
@@ -90,10 +90,10 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		edgeFromBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(edgeSpec));
+				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
 		edgeToBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(edgeSpec));
+				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
 		joinEdgesBox = new JCheckBox("Join Edges with same Origin/Dest.");
 		joinEdgesBox.setSelected(set.isJoinEdges());

@@ -74,10 +74,10 @@ public class RegionVisualizerInputDialog extends JDialog implements
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(shapeSpec));
+				KnimeUtilities.getStringIntColumns(shapeSpec));
 		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
 		nodeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(nodeSpec));
+				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

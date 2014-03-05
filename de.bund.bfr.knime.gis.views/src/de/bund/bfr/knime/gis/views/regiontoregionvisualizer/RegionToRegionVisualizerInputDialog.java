@@ -79,21 +79,21 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(shapeSpec));
+				KnimeUtilities.getStringIntColumns(shapeSpec));
 		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
 		nodeIdBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(nodeSpec));
+				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
 		nodeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(nodeSpec));
+				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		edgeFromBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(edgeSpec));
+				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
 		edgeToBox = new ColumnComboBox(false,
-				KnimeUtilities.getAllColumns(edgeSpec));
+				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
 		joinEdgesBox = new JCheckBox("Join Edges with same Origin/Dest.");
 		joinEdgesBox.setSelected(set.isJoinEdges());

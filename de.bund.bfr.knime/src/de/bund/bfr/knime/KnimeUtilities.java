@@ -114,4 +114,17 @@ public class KnimeUtilities {
 
 		return columns.toArray(new DataColumnSpec[0]);
 	}
+
+	public static DataColumnSpec[] getStringIntColumns(DataTableSpec spec) {
+		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+
+		for (DataColumnSpec column : spec) {
+			if (column.getType() == StringCell.TYPE
+					|| column.getType() == IntCell.TYPE) {
+				columns.add(column);
+			}
+		}
+
+		return columns.toArray(new DataColumnSpec[0]);
+	}
 }

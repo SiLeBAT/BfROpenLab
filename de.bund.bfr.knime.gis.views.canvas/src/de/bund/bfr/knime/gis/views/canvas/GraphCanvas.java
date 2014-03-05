@@ -535,7 +535,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (nodeIdProperty != null) {
-			properties.put(nodeIdProperty, id);
+			Class<?> type = getNodeProperties().get(nodeIdProperty);
+
+			if (type == String.class) {
+				properties.put(nodeIdProperty, id);
+			} else if (type == Integer.class) {
+				properties.put(nodeIdProperty, Integer.parseInt(id));
+			}
 		}
 
 		properties.put(IS_META_NODE, true);
@@ -568,7 +574,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Class<?>> newProperties = new LinkedHashMap<String, Class<?>>(
 				properties);
 
-		newProperties.put(IS_META_NODE, String.class);
+		newProperties.put(IS_META_NODE, Boolean.class);
 
 		return newProperties;
 	}
