@@ -67,13 +67,13 @@ public class KnimeUtilities {
 		for (int i = 0; i < spec.getNumColumns(); i++) {
 			DataColumnSpec cSpec = spec.getColumnSpec(i);
 
-			if (cSpec.getType() == StringCell.TYPE) {
+			if (cSpec.getType().equals(StringCell.TYPE)) {
 				tableColumns.put(cSpec.getName(), String.class);
-			} else if (cSpec.getType() == IntCell.TYPE) {
+			} else if (cSpec.getType().equals(IntCell.TYPE)) {
 				tableColumns.put(cSpec.getName(), Integer.class);
-			} else if (cSpec.getType() == DoubleCell.TYPE) {
+			} else if (cSpec.getType().equals(DoubleCell.TYPE)) {
 				tableColumns.put(cSpec.getName(), Double.class);
-			} else if (cSpec.getType() == BooleanCell.TYPE) {
+			} else if (cSpec.getType().equals(BooleanCell.TYPE)) {
 				tableColumns.put(cSpec.getName(), Boolean.class);
 			}
 		}
@@ -95,7 +95,7 @@ public class KnimeUtilities {
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
 
 		for (DataColumnSpec column : spec) {
-			if (column.getType() == StringCell.TYPE) {
+			if (column.getType().equals(StringCell.TYPE)) {
 				columns.add(column);
 			}
 		}
@@ -107,7 +107,7 @@ public class KnimeUtilities {
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
 
 		for (DataColumnSpec column : spec) {
-			if (column.getType() == DoubleCell.TYPE) {
+			if (column.getType().equals(DoubleCell.TYPE)) {
 				columns.add(column);
 			}
 		}
@@ -119,8 +119,8 @@ public class KnimeUtilities {
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
 
 		for (DataColumnSpec column : spec) {
-			if (column.getType() == StringCell.TYPE
-					|| column.getType() == IntCell.TYPE) {
+			if (column.getType().equals(StringCell.TYPE)
+					|| column.getType().equals(IntCell.TYPE)) {
 				columns.add(column);
 			}
 		}
