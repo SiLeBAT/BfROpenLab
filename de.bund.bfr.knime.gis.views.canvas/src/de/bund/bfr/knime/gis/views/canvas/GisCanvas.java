@@ -56,7 +56,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private int borderAlpha;
 
 	private JSlider borderAlphaSlider;
-	private JButton borderAlphaButton;	
+	private JButton borderAlphaButton;
 
 	@SuppressWarnings("unchecked")
 	public GisCanvas(List<RegionNode> regions,

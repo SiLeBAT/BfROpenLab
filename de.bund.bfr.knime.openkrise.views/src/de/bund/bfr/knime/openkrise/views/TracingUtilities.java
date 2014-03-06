@@ -81,13 +81,15 @@ public class TracingUtilities {
 	}
 
 	public static Set<Integer> getConnectedNodes(BufferedDataTable nodeTable,
-			String nodeIdColumn, BufferedDataTable edgeTable,
-			String edgeFromColumn, String edgeToColumn) {
+			BufferedDataTable edgeTable) {
 		Set<Integer> nodes = new LinkedHashSet<Integer>();
 		Set<Integer> connectedNodes = new LinkedHashSet<Integer>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
-		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
-		int edgeToIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
+		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
+		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int edgeToIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
 
 		if (nodeIdIndex != -1 && edgeFromIndex != -1 && edgeToIndex != -1) {
 			for (DataRow row : nodeTable) {
@@ -109,13 +111,15 @@ public class TracingUtilities {
 	}
 
 	public static Set<Integer> getSimpleSuppliers(BufferedDataTable nodeTable,
-			String nodeIdColumn, BufferedDataTable edgeTable,
-			String edgeFromColumn, String edgeToColumn) {
+			BufferedDataTable edgeTable) {
 		Map<Integer, Set<Integer>> customers = new LinkedHashMap<Integer, Set<Integer>>();
 		Set<Integer> simpleSuppliers = new LinkedHashSet<Integer>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
-		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
-		int edgeToIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
+		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
+		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int edgeToIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
 
 		if (nodeIdIndex != -1 && edgeFromIndex != -1 && edgeToIndex != -1) {
 			for (DataRow row : nodeTable) {
@@ -146,10 +150,10 @@ public class TracingUtilities {
 
 	public static Map<Integer, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			Set<Integer> connectedNodes, String nodeIdColumn,
-			boolean skipEdgelessNodes) {
+			Set<Integer> connectedNodes, boolean skipEdgelessNodes) {
 		Map<Integer, GraphNode> nodes = new LinkedHashMap<Integer, GraphNode>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
+		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
 
 		if (nodeIdIndex == -1) {
 			return nodes;
@@ -175,12 +179,14 @@ public class TracingUtilities {
 
 	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
 			Map<String, Class<?>> edgeProperties,
-			Map<Integer, GraphNode> nodes, String edgeIdColumn,
-			String edgeFromColumn, String edgeToColumn, boolean joinEdges) {
+			Map<Integer, GraphNode> nodes, boolean joinEdges) {
 		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>();
-		int idIndex = edgeTable.getSpec().findColumnIndex(edgeIdColumn);
-		int fromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
-		int toIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
+		int idIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
+		int fromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int toIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
 
 		if (fromIndex == -1 || toIndex == -1) {
 			return edges;
@@ -236,7 +242,7 @@ public class TracingUtilities {
 					if (n1 != null && n2 != null) {
 						Map<String, Object> map = edgeMap.get(from).get(to);
 
-						map.put(edgeIdColumn, edgeIndex);
+						map.put(TracingConstants.ID_COLUMN, edgeIndex);
 						edges.add(new Edge<GraphNode>(edgeIndex + "", edgeMap
 								.get(from).get(to), n1, n2));
 						edgeIndex++;
@@ -246,7 +252,7 @@ public class TracingUtilities {
 		}
 
 		return edges;
-	}	
+	}
 
 	private static void addToProperties(Map<String, Object> properties,
 			Map<String, Class<?>> propertyTypes, BufferedDataTable table,

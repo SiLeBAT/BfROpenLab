@@ -178,7 +178,7 @@ public class UI {
 			col.setPreferredWidth(width);
 		}
 	}
-	
+
 	public static int findColumn(JTable table, String columnName) {
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			if (table.getColumnName(i).equals(columnName)) {

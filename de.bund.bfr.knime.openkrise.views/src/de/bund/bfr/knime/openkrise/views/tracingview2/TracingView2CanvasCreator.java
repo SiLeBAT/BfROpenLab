@@ -57,11 +57,9 @@ public class TracingView2CanvasCreator {
 		this.set = set;
 
 		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
-				TracingConstants.ID_COLUMN, edgeTable,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				edgeTable);
 		simpleSuppliers = TracingUtilities.getSimpleSuppliers(nodeTable,
-				TracingConstants.ID_COLUMN, edgeTable,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				edgeTable);
 	}
 
 	public TracingCanvas createGraphCanvas() {
@@ -117,7 +115,7 @@ public class TracingView2CanvasCreator {
 
 		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties, connectedNodes,
-				TracingConstants.ID_COLUMN, set.isSkipEdgelessNodes());
+				set.isSkipEdgelessNodes());
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -129,9 +127,7 @@ public class TracingView2CanvasCreator {
 		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN,
-				set.isJoinEdges());
+				edgeProperties, nodes, set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				tracing, set.isJoinEdges(), set.isEnforeTemporalOrder());

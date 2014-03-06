@@ -110,8 +110,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
 		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
 		Set<Integer> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
-				nodeTable, TracingConstants.ID_COLUMN, edgeTable,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				nodeTable, edgeTable);
 
 		for (int id : set.getFilter().keySet()) {
 			Boolean value = set.getFilter().get(id);

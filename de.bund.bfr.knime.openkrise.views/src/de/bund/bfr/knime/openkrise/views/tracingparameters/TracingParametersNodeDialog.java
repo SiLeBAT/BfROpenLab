@@ -41,7 +41,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 
 /**
@@ -97,7 +96,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		nodeProperties = KnimeUtilities.getTableColumns(nodeTable.getSpec());
 		nodes = TracingUtilities.readGraphNodes(nodeTable, nodeProperties,
-				null, TracingConstants.ID_COLUMN, false).values();
+				null, false).values();
 		weightPanel.update(nodes, nodeProperties, set.getCaseWeights(),
 				set.getWeightCondition());
 		contaminationPanel.update(nodes, nodeProperties,

@@ -252,7 +252,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		for (int row = 0; row < inputTable.getRowCount(); row++) {
 			inputTable.setValueAt(value, row, 0);
 		}
-		
+
 		editingStopped(null);
 	}
 

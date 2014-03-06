@@ -275,7 +275,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	@Override
-	public void windowActivated(WindowEvent e) {		
+	public void windowActivated(WindowEvent e) {
 	}
 
 	@Override

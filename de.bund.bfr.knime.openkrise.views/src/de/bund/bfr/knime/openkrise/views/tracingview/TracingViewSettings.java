@@ -40,7 +40,7 @@ import de.bund.bfr.knime.openkrise.views.TracingSettings;
 
 public class TracingViewSettings extends TracingSettings {
 
-	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;	
+	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	public static final boolean DEFAULT_JOIN_EDGES = true;
 	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
 
@@ -50,7 +50,7 @@ public class TracingViewSettings extends TracingSettings {
 	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
 			400, 600);
 
-	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";	
+	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 
@@ -69,7 +69,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_GRAPH_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
 	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
 
-	private boolean skipEdgelessNodes;	
+	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
 	private boolean exportAsSvg;
 
@@ -89,7 +89,7 @@ public class TracingViewSettings extends TracingSettings {
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
 	public TracingViewSettings() {
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;		
+		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
 
@@ -115,7 +115,7 @@ public class TracingViewSettings extends TracingSettings {
 		try {
 			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
 		} catch (InvalidSettingsException e) {
-		}		
+		}
 
 		try {
 			joinEdges = settings.getBoolean(CFG_JOIN_EDGES);
@@ -209,7 +209,7 @@ public class TracingViewSettings extends TracingSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);		
+		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 
@@ -242,7 +242,7 @@ public class TracingViewSettings extends TracingSettings {
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		this.skipEdgelessNodes = skipEdgelessNodes;
-	}	
+	}
 
 	public boolean isJoinEdges() {
 		return joinEdges;

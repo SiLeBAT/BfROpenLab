@@ -53,8 +53,7 @@ public class TracingViewCanvasCreator {
 		this.set = set;
 
 		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
-				TracingConstants.ID_COLUMN, edgeTable,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				edgeTable);
 	}
 
 	public GraphCanvas createGraphCanvas() {
@@ -64,16 +63,14 @@ public class TracingViewCanvasCreator {
 				.getTableColumns(edgeTable.getSpec());
 		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties, connectedNodes,
-				TracingConstants.ID_COLUMN, set.isSkipEdgelessNodes());
+				set.isSkipEdgelessNodes());
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN,
-				set.isJoinEdges());
+				edgeProperties, nodes, set.isJoinEdges());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);

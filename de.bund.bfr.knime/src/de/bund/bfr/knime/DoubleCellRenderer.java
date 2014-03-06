@@ -26,7 +26,7 @@ package de.bund.bfr.knime;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class DoubleCellRenderer extends DefaultTableCellRenderer {
@@ -34,9 +34,10 @@ public class DoubleCellRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 1L;
 
 	public DoubleCellRenderer() {
-		setHorizontalAlignment(JLabel.RIGHT);
+		setHorizontalAlignment(SwingConstants.RIGHT);
 	}
 
+	@Override
 	public void setValue(Object value) {
 		setText((value == null) ? "" : NumberFormat.getInstance(Locale.US)
 				.format(value));

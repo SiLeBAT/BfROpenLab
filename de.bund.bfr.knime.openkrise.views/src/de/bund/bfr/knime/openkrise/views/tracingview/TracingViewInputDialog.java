@@ -95,7 +95,7 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			approved = true;
-			set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());			
+			set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 			set.setJoinEdges(joinEdgesBox.isSelected());
 			set.setExportAsSvg(exportAsSvgBox.isSelected());
 			dispose();
