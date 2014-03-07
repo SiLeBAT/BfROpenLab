@@ -55,6 +55,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -729,34 +730,34 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		saveAsItem = new JMenuItem("Save As ...");
 		saveAsItem.addActionListener(this);
 
-		clearSelectNodesItem = new JMenuItem("Clear Node Selection");
+		clearSelectNodesItem = new JMenuItem("Clear");
 		clearSelectNodesItem.addActionListener(this);
-		nodePropertiesItem = new JMenuItem("Show Node Properties");
+		nodePropertiesItem = new JMenuItem("Show Properties");
 		nodePropertiesItem.addActionListener(this);
 
-		selectConnectingItem = new JMenuItem("Select Connecting Edges");
-		selectConnectingItem.addActionListener(this);
-		clearSelectEdgesItem = new JMenuItem("Clear Edge Selection");
-		clearSelectEdgesItem.addActionListener(this);
-		edgePropertiesItem = new JMenuItem("Show Edge Properties");
+		edgePropertiesItem = new JMenuItem("Show Properties");
 		edgePropertiesItem.addActionListener(this);
+		clearSelectEdgesItem = new JMenuItem("Clear");
+		clearSelectEdgesItem.addActionListener(this);
+		selectConnectingItem = new JMenuItem("Select Connections");
+		selectConnectingItem.addActionListener(this);
 
-		highlightNodesItem = new JMenuItem("Highlight Nodes");
+		highlightNodesItem = new JMenuItem("Edit");
 		highlightNodesItem.addActionListener(this);
-		clearHighlightNodesItem = new JMenuItem("Clear Node Highlights");
+		clearHighlightNodesItem = new JMenuItem("Clear");
 		clearHighlightNodesItem.addActionListener(this);
-		selectHighlightedNodesItem = new JMenuItem("Select Highlighted Nodes");
+		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedNodesItem.addActionListener(this);
-		highlightSelectedNodesItem = new JMenuItem("Highlight Selected Nodes");
+		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedNodesItem.addActionListener(this);
 
-		highlightEdgesItem = new JMenuItem("Highlight Edges");
+		highlightEdgesItem = new JMenuItem("Edit");
 		highlightEdgesItem.addActionListener(this);
-		clearHighlightEdgesItem = new JMenuItem("Clear Edge Highlights");
+		clearHighlightEdgesItem = new JMenuItem("Clear");
 		clearHighlightEdgesItem.addActionListener(this);
-		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted Edges");
+		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
-		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected Edges");
+		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedEdgesItem.addActionListener(this);
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
@@ -771,35 +772,50 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (allowEdges) {
 			popup.add(new JSeparator());
-			popup.add(clearSelectNodesItem);
-			popup.add(nodePropertiesItem);
-			popup.add(new JSeparator());
-			popup.add(selectConnectingItem);
-			popup.add(clearSelectEdgesItem);
-			popup.add(edgePropertiesItem);
+			
+			JMenu nodeSelectionMenu = new JMenu("Node Selection");
+			JMenu edgeSelectionMenu = new JMenu("Edge Selection");
+
+			nodeSelectionMenu.add(nodePropertiesItem);
+			nodeSelectionMenu.add(clearSelectNodesItem);
+			nodeSelectionMenu.add(selectConnectingItem);
+			edgeSelectionMenu.add(edgePropertiesItem);
+			edgeSelectionMenu.add(clearSelectEdgesItem);
+			popup.add(nodeSelectionMenu);
+			popup.add(edgeSelectionMenu);
 
 			if (allowHighlighting) {
-				popup.add(new JSeparator());
-				popup.add(highlightNodesItem);
-				popup.add(clearHighlightNodesItem);
-				popup.add(selectHighlightedNodesItem);
-				popup.add(highlightSelectedNodesItem);
-				popup.add(new JSeparator());
-				popup.add(highlightEdgesItem);
-				popup.add(clearHighlightEdgesItem);
-				popup.add(selectHighlightedEdgesItem);
-				popup.add(highlightSelectedEdgesItem);
+				JMenu nodeHighlightMenu = new JMenu("Node Highlighting");
+				JMenu edgeHighlightMenu = new JMenu("Edge Highlighting");
+
+				nodeHighlightMenu.add(highlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(highlightSelectedNodesItem);
+				edgeHighlightMenu.add(highlightEdgesItem);
+				edgeHighlightMenu.add(clearHighlightEdgesItem);
+				edgeHighlightMenu.add(selectHighlightedEdgesItem);
+				edgeHighlightMenu.add(highlightSelectedEdgesItem);
+				popup.add(nodeHighlightMenu);
+				popup.add(edgeHighlightMenu);
 			}
 		} else {
 			popup.add(new JSeparator());
-			popup.add(clearSelectNodesItem);
-			popup.add(nodePropertiesItem);
+			
+			JMenu nodeSelectionMenu = new JMenu("Node Selection");			
+
+			nodeSelectionMenu.add(nodePropertiesItem);
+			nodeSelectionMenu.add(clearSelectNodesItem);					
+			popup.add(nodeSelectionMenu);						
 
 			if (allowHighlighting) {
-				popup.add(highlightNodesItem);
-				popup.add(clearHighlightNodesItem);
-				popup.add(selectHighlightedNodesItem);
-				popup.add(highlightSelectedNodesItem);
+				JMenu nodeHighlightMenu = new JMenu("Node Highlighting");
+
+				nodeHighlightMenu.add(highlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(highlightSelectedNodesItem);				
+				popup.add(nodeHighlightMenu);				
 			}
 		}
 
