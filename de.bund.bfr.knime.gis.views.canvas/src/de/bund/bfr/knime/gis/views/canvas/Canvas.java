@@ -772,13 +772,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (allowEdges) {
 			popup.add(new JSeparator());
-			
+
 			JMenu nodeSelectionMenu = new JMenu("Node Selection");
 			JMenu edgeSelectionMenu = new JMenu("Edge Selection");
 
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectNodesItem);
 			nodeSelectionMenu.add(selectConnectingItem);
+
+			if (allowCollapse) {
+				nodeSelectionMenu.add(collapseToNodeItem);
+				nodeSelectionMenu.add(expandFromNodeItem);
+			}
+
 			edgeSelectionMenu.add(edgePropertiesItem);
 			edgeSelectionMenu.add(clearSelectEdgesItem);
 			popup.add(nodeSelectionMenu);
@@ -801,12 +807,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		} else {
 			popup.add(new JSeparator());
-			
-			JMenu nodeSelectionMenu = new JMenu("Node Selection");			
+
+			JMenu nodeSelectionMenu = new JMenu("Node Selection");
 
 			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);					
-			popup.add(nodeSelectionMenu);						
+			nodeSelectionMenu.add(clearSelectNodesItem);
+			popup.add(nodeSelectionMenu);
 
 			if (allowHighlighting) {
 				JMenu nodeHighlightMenu = new JMenu("Node Highlighting");
@@ -814,15 +820,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				nodeHighlightMenu.add(highlightNodesItem);
 				nodeHighlightMenu.add(clearHighlightNodesItem);
 				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(highlightSelectedNodesItem);				
-				popup.add(nodeHighlightMenu);				
+				nodeHighlightMenu.add(highlightSelectedNodesItem);
+				popup.add(nodeHighlightMenu);
 			}
-		}
-
-		if (allowCollapse) {
-			popup.add(new JSeparator());
-			popup.add(collapseToNodeItem);
-			popup.add(expandFromNodeItem);
 		}
 
 		viewer.setComponentPopupMenu(popup);
