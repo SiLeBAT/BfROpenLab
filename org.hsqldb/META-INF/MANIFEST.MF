@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HSQLDB
 Bundle-SymbolicName: org.hsqldb
-Bundle-Version: 2.3.0
+Bundle-Version: 2.3.2
 Bundle-Vendor: HSQLDB
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: lib/hsqldb.jar
