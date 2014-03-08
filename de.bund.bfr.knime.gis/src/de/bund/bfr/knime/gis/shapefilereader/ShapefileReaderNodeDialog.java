@@ -193,6 +193,6 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 			systemField.setEditable(false);
 		}
 
-		systemLabel.getParent().revalidate();
+		((JPanel) systemLabel.getParent()).revalidate();
 	}
 }
