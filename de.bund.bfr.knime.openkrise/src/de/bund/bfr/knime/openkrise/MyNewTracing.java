@@ -434,4 +434,27 @@ public class MyNewTracing {
 		}
 		return forwardStationsWithCases;
 	}
+	
+	public void checkDeliveries(HashSet<Integer> allDeliveries) {
+		Integer[] set = this.allDeliveries.keySet().toArray(new Integer[0]);
+		HashSet<Integer> missingEdges = new HashSet<Integer>();
+		for (Integer id : set) {
+			if (!allDeliveries.contains(id)) {
+				missingEdges.add(id);
+			}
+		}
+		for (Integer id : missingEdges) {
+			this.allDeliveries.remove(id);
+			for (Integer id1 : this.allDeliveries.keySet()) {
+				MyDelivery md = this.allDeliveries.get(id1); 
+				if (md.getAllNextIDs().contains(id)) {
+					md.removeNext(id);
+				}
+				if (md.getAllPreviousIDs().contains(id)) {
+					md.removePrevious(id);
+				}
+			}
+		}
+		
+	}
 }

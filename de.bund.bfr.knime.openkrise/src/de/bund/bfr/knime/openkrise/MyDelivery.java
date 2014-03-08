@@ -99,10 +99,22 @@ public class MyDelivery {
 		return deliveryDateAsMillis;
 	}
 
+	public void removeNext(Integer nextID) {
+		if (nextID == null) System.err.println("next = null...");
+		else {
+			allNextIDs.remove(nextID);
+		}
+	}
 	public void addNext(Integer nextID) {
 		if (nextID == null) System.err.println("next = null...");
 		else {
 			allNextIDs.add(nextID);
+		}
+	}
+	public void removePrevious(Integer previousID) {
+		if (previousID == null) System.err.println("previous = null...");
+		else {
+			allPreviousIDs.remove(previousID);
 		}
 	}
 	public void addPrevious(Integer previousID) {
