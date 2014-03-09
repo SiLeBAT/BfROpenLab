@@ -134,7 +134,7 @@ public class TracingView2CanvasCreator {
 			int id = Integer.parseInt(edge.getId());
 			allEdgesInt.add(id);
 		}
-		tracing.checkDeliveries(allEdgesInt);
+		tracing.syncDeliveries(allEdgesInt);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(

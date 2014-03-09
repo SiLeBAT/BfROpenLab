@@ -268,7 +268,7 @@ public class MyNewTracing {
 		mergeStations(toBeMerged, -1);
 	}
 	public void mergeStations(HashSet<Integer> toBeMerged, Integer mergedStationID) {
-		getClone();
+		if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
 		allDeliveries = new HashMap<Integer, MyDelivery>();
 		for (Integer key : allDeliveriesOrig.keySet()) {
 			MyDelivery md = allDeliveriesOrig.get(key);
@@ -289,11 +289,11 @@ public class MyNewTracing {
 	public void resetMergedStations() {
 		mergeStations(null);
 	}
-	public HashMap<Integer, MyDelivery> getClone() {
-		if (allDeliveriesOrig == null) {
-			allDeliveriesOrig = new HashMap<Integer, MyDelivery>();
-			for (Integer key : allDeliveries.keySet()) {
-				MyDelivery md = allDeliveries.get(key);
+	public HashMap<Integer, MyDelivery> getClone(HashMap<Integer, MyDelivery> allDeliveriesSrc) {
+		//if (allDeliveriesOrig == null) {
+		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
+			for (Integer key : allDeliveriesSrc.keySet()) {
+				MyDelivery md = allDeliveriesSrc.get(key);
 				MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDate());
 				for (Integer next : md.getAllNextIDs()) {
 					mdNew.addNext(next);
@@ -301,10 +301,9 @@ public class MyNewTracing {
 				for (Integer previous : md.getAllPreviousIDs()) {
 					mdNew.addPrevious(previous);
 				}
-				allDeliveriesOrig.put(key, mdNew);
+				allDeliveriesCloned.put(key, mdNew);
 			}
-		}
-		return allDeliveriesOrig;
+		return allDeliveriesCloned;
 	}
 	/*
 	public void setCrossContaminationDelivery(int deliveryID, boolean possible) {
@@ -435,11 +434,13 @@ public class MyNewTracing {
 		return forwardStationsWithCases;
 	}
 	
-	public void checkDeliveries(HashSet<Integer> allDeliveries) {
-		Integer[] set = this.allDeliveries.keySet().toArray(new Integer[0]);
+	public void syncDeliveries(HashSet<Integer> newDeliverySet) {
+		if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
+		allDeliveries = getClone(allDeliveriesOrig);
+		Integer[] set = this.allDeliveriesOrig.keySet().toArray(new Integer[0]);
 		HashSet<Integer> missingEdges = new HashSet<Integer>();
 		for (Integer id : set) {
-			if (!allDeliveries.contains(id)) {
+			if (!newDeliverySet.contains(id)) {
 				missingEdges.add(id);
 			}
 		}
