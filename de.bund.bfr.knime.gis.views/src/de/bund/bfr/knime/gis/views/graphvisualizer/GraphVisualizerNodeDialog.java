@@ -47,7 +47,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerInputDialog;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 
@@ -132,7 +131,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		SimpleGraphVisualizerInputDialog dialog = new SimpleGraphVisualizerInputDialog(
+		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog(
 				(JButton) e.getSource(), nodeTable.getSpec(),
 				edgeTable.getSpec(), set);
 

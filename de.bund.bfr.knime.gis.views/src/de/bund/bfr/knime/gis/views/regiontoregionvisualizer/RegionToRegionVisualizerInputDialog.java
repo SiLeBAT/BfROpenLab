@@ -95,7 +95,7 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		edgeToBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
-		joinEdgesBox = new JCheckBox("Join Edges with same Origin/Dest.");
+		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
 		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
@@ -115,8 +115,8 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 				new JLabel()), Arrays.asList(nodeIdBox, nodeRegionBox,
 				skipEdgelessNodesBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
-				new JLabel("Origin Node ID Column:"), new JLabel(
-						"Destination Node ID Column:"), new JLabel()), Arrays
+				new JLabel("Source Node ID Column:"), new JLabel(
+						"Target Node ID Column:"), new JLabel()), Arrays
 				.asList(edgeFromBox, edgeToBox, joinEdgesBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));

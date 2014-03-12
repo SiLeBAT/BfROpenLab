@@ -64,7 +64,7 @@ public class TracingCanvas extends GraphCanvas {
 		this.tracing = tracing;
 		this.joinEdges = joinEdges;
 		this.enforceTemporalOrder = enforceTemporalOrder;
-		updateTracing();
+		applyTracing();
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -94,7 +94,7 @@ public class TracingCanvas extends GraphCanvas {
 					caseWeights.get(node.getId()));
 		}
 
-		updateTracing();
+		applyTracing();
 	}
 
 	public Map<String, Boolean> getCrossContaminations() {
@@ -125,7 +125,7 @@ public class TracingCanvas extends GraphCanvas {
 					crossContaminations.get(node.getId()));
 		}
 
-		updateTracing();
+		applyTracing();
 	}
 
 	public Map<String, Boolean> getFilter() {
@@ -155,7 +155,7 @@ public class TracingCanvas extends GraphCanvas {
 					filter.get(node.getId()));
 		}
 
-		updateTracing();
+		applyTracing();
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class TracingCanvas extends GraphCanvas {
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			updateTracing();
+			applyTracing();
 			setSelectedNodeIds(pickedIds);
 		}
 	}
@@ -216,7 +216,7 @@ public class TracingCanvas extends GraphCanvas {
 									dialog.setVisible(true);
 
 									if (dialog.isApproved()) {
-										updateTracing();
+										applyTracing();
 									}
 								}
 							} else if (edge != null) {
@@ -233,7 +233,7 @@ public class TracingCanvas extends GraphCanvas {
 				});
 	}
 
-	private void updateTracing() {
+	private void applyTracing() {
 		for (GraphNode node : getAllNodes()) {
 			int id = Integer.parseInt(node.getId());
 			Double caseValue = (Double) node.getProperties().get(

@@ -60,7 +60,7 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
-		joinEdgesBox = new JCheckBox("Join Edges with same Origin/Dest.");
+		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
 		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

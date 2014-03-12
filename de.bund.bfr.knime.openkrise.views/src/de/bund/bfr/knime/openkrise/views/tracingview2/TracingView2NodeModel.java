@@ -95,17 +95,18 @@ public class TracingView2NodeModel extends NodeModel {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		MyNewTracing tracing = getTracing((BufferedDataTable) inObjects[2]);
-		TracingView2CanvasCreator creator = new TracingView2CanvasCreator(
-				nodeTable, edgeTable, tracing, set);
-		TracingCanvas canvas = creator.createGraphCanvas();
+		TracingCanvas canvas = new TracingView2CanvasCreator(nodeTable,
+				edgeTable, tracing, set).createGraphCanvas();
+		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
+				edgeTable, tracing, set);
 		Map<Integer, GraphNode> nodesById = new LinkedHashMap<Integer, GraphNode>();
 		Map<Integer, Edge<GraphNode>> edgesById = new LinkedHashMap<Integer, Edge<GraphNode>>();
 
-		for (GraphNode node : canvas.getAllNodes()) {
+		for (GraphNode node : allEdgesCanvas.getAllNodes()) {
 			nodesById.put(Integer.parseInt(node.getId()), node);
 		}
 
-		for (Edge<GraphNode> edge : canvas.getAllEdges()) {
+		for (Edge<GraphNode> edge : allEdgesCanvas.getAllEdges()) {
 			edgesById.put(Integer.parseInt(edge.getId()), edge);
 		}
 
@@ -382,6 +383,21 @@ public class TracingView2NodeModel extends NodeModel {
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
+	}
+
+	private static TracingCanvas createAllEdgesCanvas(
+			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			MyNewTracing tracing, TracingView2Settings set) {
+		boolean joinEdges = set.isJoinEdges();
+
+		set.setJoinEdges(false);
+
+		TracingCanvas canvas = new TracingView2CanvasCreator(nodeTable,
+				edgeTable, tracing, set).createGraphCanvas();
+
+		set.setJoinEdges(joinEdges);
+
+		return canvas;
 	}
 
 }

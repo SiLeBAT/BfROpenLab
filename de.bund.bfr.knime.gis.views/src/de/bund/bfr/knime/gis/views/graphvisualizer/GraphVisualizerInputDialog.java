@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.views;
+package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -44,8 +44,9 @@ import org.knime.core.data.DataTableSpec;
 import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 
-public class SimpleGraphVisualizerInputDialog extends JDialog implements
+public class GraphVisualizerInputDialog extends JDialog implements
 		ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -63,9 +64,8 @@ public class SimpleGraphVisualizerInputDialog extends JDialog implements
 	private SimpleGraphVisualizerSettings set;
 
 	@SuppressWarnings("unchecked")
-	public SimpleGraphVisualizerInputDialog(JComponent owner,
-			DataTableSpec nodeSpec, DataTableSpec edgeSpec,
-			SimpleGraphVisualizerSettings set) {
+	public GraphVisualizerInputDialog(JComponent owner, DataTableSpec nodeSpec,
+			DataTableSpec edgeSpec, SimpleGraphVisualizerSettings set) {
 		super(SwingUtilities.getWindowAncestor(owner), "Input",
 				DEFAULT_MODALITY_TYPE);
 		this.set = set;
@@ -82,7 +82,7 @@ public class SimpleGraphVisualizerInputDialog extends JDialog implements
 		edgeToBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
-		joinEdgesBox = new JCheckBox("Join Edges with same Origin/Dest.");
+		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
 		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
@@ -98,8 +98,8 @@ public class SimpleGraphVisualizerInputDialog extends JDialog implements
 				Arrays.asList(new JLabel("Node ID column:"), new JLabel()),
 				Arrays.asList(nodeIdBox, skipEdgelessNodesBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
-				new JLabel("Origin Node ID Column:"), new JLabel(
-						"Destination Node ID Column:"), new JLabel()), Arrays
+				new JLabel("Source Node ID Column:"), new JLabel(
+						"Target Node ID Column:"), new JLabel()), Arrays
 				.asList(edgeFromBox, edgeToBox, joinEdgesBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
