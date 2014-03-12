@@ -213,7 +213,7 @@ public class CanvasUtilities {
 		}
 	}
 
-	public static <V extends Node, E extends Edge<V>> void applyNodeHighlights(
+	public static <V extends Node, E extends Edge<V>> boolean applyNodeHighlights(
 			VisualizationViewer<V, E> viewer, Collection<V> nodes,
 			Collection<E> edges, Collection<V> invisibleNodes,
 			Collection<E> invisibleEdges,
@@ -292,27 +292,39 @@ public class CanvasUtilities {
 		}
 
 		Graph<V, E> graph = viewer.getGraphLayout().getGraph();
+		boolean graphChanged = false;
 
 		for (V node : nodes) {
-			if (invisibleNodes.contains(node)) {
-				graph.removeVertex(node);
-			} else if (!graph.containsVertex(node)) {
-				graph.addVertex(node);
+			if (graph.containsVertex(node)) {
+				if (invisibleNodes.contains(node)) {
+					graph.removeVertex(node);
+					graphChanged = true;
+				}
+			} else {
+				if (!invisibleNodes.contains(node)) {
+					graph.addVertex(node);
+					graphChanged = true;
+				}
 			}
 		}
 
 		for (E edge : edges) {
-			if (graph.containsEdge(edge)
-					&& (!graph.containsVertex(edge.getFrom()) || !graph
-							.containsVertex(edge.getFrom()))) {
-				graph.removeEdge(edge);
-			} else if (!invisibleEdges.contains(edge)
-					&& !graph.containsEdge(edge)
-					&& graph.containsVertex(edge.getFrom())
-					&& graph.containsVertex(edge.getTo())) {
-				graph.addEdge(edge, edge.getFrom(), edge.getTo());
+			if (graph.containsEdge(edge)) {
+				if (invisibleEdges.contains(edge)
+						|| !graph.containsVertex(edge.getFrom())
+						|| !graph.containsVertex(edge.getFrom())) {
+					graph.removeEdge(edge);
+					graphChanged = true;
+				}
+			} else {
+				if (!invisibleEdges.contains(edge)
+						&& graph.containsVertex(edge.getFrom())
+						&& graph.containsVertex(edge.getTo())) {
+					graph.addEdge(edge, edge.getFrom(), edge.getTo());
+					graphChanged = true;
+				}
 			}
-		}	
+		}
 
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<V>(nodeSize, thicknessValues));
@@ -321,9 +333,11 @@ public class CanvasUtilities {
 		viewer.getRenderContext().setVertexLabelTransformer(
 				new LabelTransformer<V>(labels));
 		viewer.repaint();
+
+		return graphChanged;
 	}
 
-	public static <V extends Node, E extends Edge<V>> void applyEdgeHighlights(
+	public static <V extends Node, E extends Edge<V>> boolean applyEdgeHighlights(
 			VisualizationViewer<V, E> viewer, Collection<E> edges,
 			Collection<E> invisibleEdges,
 			HighlightConditionList edgeHighlightConditions) {
@@ -392,13 +406,21 @@ public class CanvasUtilities {
 		}
 
 		Graph<V, E> graph = viewer.getGraphLayout().getGraph();
+		boolean graphChanged = false;
 
 		for (E edge : edges) {
-			if (invisibleEdges.contains(edge)) {
-				graph.removeEdge(edge);
-			} else if (graph.containsVertex(edge.getFrom())
-					&& graph.containsVertex(edge.getTo())) {
-				graph.addEdge(edge, edge.getFrom(), edge.getTo());
+			if (graph.containsEdge(edge)) {
+				if (invisibleEdges.contains(edge)) {
+					graph.removeEdge(edge);
+					graphChanged = true;
+				}
+			} else {
+				if (!invisibleEdges.contains(edge)
+						&& graph.containsVertex(edge.getFrom())
+						&& graph.containsVertex(edge.getTo())) {
+					graph.addEdge(edge, edge.getFrom(), edge.getTo());
+					graphChanged = true;
+				}
 			}
 		}
 
@@ -409,6 +431,8 @@ public class CanvasUtilities {
 		viewer.getRenderContext().setEdgeLabelTransformer(
 				new LabelTransformer<E>(labels));
 		viewer.repaint();
+
+		return graphChanged;
 	}
 
 	public static boolean placeDialogAt(Dialog dialog, Point location) {

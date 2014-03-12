@@ -123,7 +123,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		random = new Random();
 
 		applyLayout();
-		applyNodeHighlights();
+		applyHighlights();
 
 		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
 				FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT,
@@ -241,7 +241,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
 		nodeSizeField.setText(nodeSize + "");
-		applyNodeHighlights();
+		applyHighlights();
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		} else if (e.getSource() == nodeSizeButton) {
 			try {
 				nodeSize = Integer.parseInt(nodeSizeField.getText());
-				applyNodeHighlights();
+				applyHighlights();
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
 						"Node Size must be Integer Value", "Error",
@@ -281,16 +281,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void applyNodeHighlights() {
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes, edges,
-				invisibleNodes, invisibleEdges, getNodeHighlightConditions(),
-				nodeSize, false);
-	}
+	protected boolean applyHighlights() {
+		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
+				nodes, edges, invisibleNodes, invisibleEdges,
+				getNodeHighlightConditions(), nodeSize, false);
+		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
+				edges, invisibleEdges, getEdgeHighlightConditions());
 
-	@Override
-	protected void applyEdgeHighlights() {
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges, invisibleEdges,
-				getEdgeHighlightConditions());
+		return changed1 || changed2;
 	}
 
 	@Override
@@ -524,8 +522,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
-		applyNodeHighlights();
-		applyEdgeHighlights();
+		applyHighlights();
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {

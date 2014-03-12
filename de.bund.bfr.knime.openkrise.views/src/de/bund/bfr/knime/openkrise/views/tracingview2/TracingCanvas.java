@@ -234,7 +234,18 @@ public class TracingCanvas extends GraphCanvas {
 		applyTracing();
 	}
 
-	protected void applyTracing() {
+	@Override
+	protected boolean applyHighlights() {		
+		if (super.applyHighlights()) {
+			applyTracing();
+			
+			return true;
+		}
+		
+		return false;
+	}
+
+	private void applyTracing() {
 		Set<Integer> edgeIds = new LinkedHashSet<Integer>();
 
 		for (Edge<GraphNode> edge : getVisibleEdges()) {
@@ -341,8 +352,7 @@ public class TracingCanvas extends GraphCanvas {
 				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
 			}
 		}
-
-		applyNodeHighlights();
-		applyEdgeHighlights();
+		
+		applyHighlights();
 	}
 }

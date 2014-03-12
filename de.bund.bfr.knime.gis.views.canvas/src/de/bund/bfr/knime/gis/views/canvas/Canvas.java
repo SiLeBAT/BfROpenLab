@@ -334,7 +334,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setNodeHighlightConditions(
 			HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
-		applyNodeHighlights();
+		applyHighlights();
 		fireNodeHighlightingChanged();
 	}
 
@@ -345,7 +345,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setEdgeHighlightConditions(
 			HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
-		applyEdgeHighlights();
+		applyHighlights();
 		fireEdgeHighlightingChanged();
 	}
 
@@ -687,9 +687,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
-	protected abstract void applyNodeHighlights();
-
-	protected abstract void applyEdgeHighlights();
+	protected abstract boolean applyHighlights();	
 
 	protected abstract void applyTransform();
 

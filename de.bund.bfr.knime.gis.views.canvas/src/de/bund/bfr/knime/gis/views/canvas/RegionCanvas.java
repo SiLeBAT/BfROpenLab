@@ -145,15 +145,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyNodeHighlights() {
+	protected boolean applyHighlights() {
 		flushImage();
 		getViewer().repaint();
-	}
 
-	@Override
-	protected void applyEdgeHighlights() {
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges, invisibleEdges,
-				getEdgeHighlightConditions());
+		return CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+				invisibleEdges, getEdgeHighlightConditions());
 	}
 
 	@Override

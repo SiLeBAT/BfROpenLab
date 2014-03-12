@@ -143,7 +143,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	public void setLocationSize(int locationSize) {
 		this.locationSize = locationSize;
 		locationSizeField.setText(locationSize + "");
-		applyNodeHighlights();
+		applyHighlights();
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		if (e.getSource() == locationSizeButton) {
 			try {
 				locationSize = Integer.parseInt(locationSizeField.getText());
-				applyNodeHighlights();
+				applyHighlights();
 			} catch (NumberFormatException ex) {
 			}
 		}
@@ -172,16 +172,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void applyNodeHighlights() {
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes, edges,
-				invisibleNodes, invisibleEdges, getNodeHighlightConditions(),
-				locationSize, !isAllowEdges());
-	}
+	protected boolean applyHighlights() {
+		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
+				nodes, edges, invisibleNodes, invisibleEdges,
+				getNodeHighlightConditions(), locationSize, !isAllowEdges());
+		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
+				edges, invisibleEdges, getEdgeHighlightConditions());
 
-	@Override
-	protected void applyEdgeHighlights() {
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges, invisibleEdges,
-				getEdgeHighlightConditions());
+		return changed1 || changed2;
 	}
 
 	@Override
