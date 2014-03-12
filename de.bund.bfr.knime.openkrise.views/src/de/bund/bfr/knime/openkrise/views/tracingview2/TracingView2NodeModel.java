@@ -27,10 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.data.DataCell;
@@ -38,6 +36,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
@@ -101,114 +100,92 @@ public class TracingView2NodeModel extends NodeModel {
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
 				edgeTable, tracing, set);
-		Map<Integer, GraphNode> nodesById = new LinkedHashMap<Integer, GraphNode>();
-		Map<Integer, Edge<GraphNode>> edgesById = new LinkedHashMap<Integer, Edge<GraphNode>>();
-
-		for (GraphNode node : allEdgesCanvas.getAllNodes()) {
-			nodesById.put(Integer.parseInt(node.getId()), node);
-		}
-
-		for (Edge<GraphNode> edge : allEdgesCanvas.getAllEdges()) {
-			edgesById.put(Integer.parseInt(edge.getId()), edge);
-		}
 
 		int index = 0;
-		DataTableSpec nodeInSpec = nodeTable.getSpec();
-		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeInSpec);
+		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
 		BufferedDataContainer nodeContainer = exec
 				.createDataContainer(nodeOutSpec);
 
-		for (DataRow row : nodeTable) {
-			int id = IO.getInt(row.getCell(nodeInSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+		for (GraphNode node : allEdgesCanvas.getNodes()) {
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : nodeInSpec) {
-				cells[nodeOutSpec.findColumnIndex(column.getName())] = row
-						.getCell(nodeInSpec.findColumnIndex(column.getName()));
+			for (int i = 0; i < cells.length; i++) {
+				cells[i] = DataType.getMissingCell();
 			}
 
-			Map<String, Object> properties;
+			for (String property : allEdgesCanvas.getNodeProperties().keySet()) {
+				int column = nodeOutSpec.findColumnIndex(property);
 
-			if (nodesById.containsKey(id)) {
-				properties = nodesById.get(id).getProperties();
-			} else {
-				properties = new LinkedHashMap<String, Object>();
+				if (column != -1) {
+					Class<?> type = allEdgesCanvas.getNodeProperties().get(
+							property);
+
+					if (type == String.class) {
+						cells[column] = IO.createCell((String) node
+								.getProperties().get(property));
+					} else if (type == Integer.class) {
+						cells[column] = IO.createCell((Integer) node
+								.getProperties().get(property));
+					} else if (type == Double.class) {
+						cells[column] = IO.createCell((Double) node
+								.getProperties().get(property));
+					} else if (type == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) node
+								.getProperties().get(property));
+					}
+				}
 			}
 
-			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
-					.createCell((Double) properties
-							.get(TracingConstants.CASE_WEIGHT_COLUMN));
-			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.CROSS_CONTAMINATION_COLUMN));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
-					.createCell((Double) properties
-							.get(TracingConstants.SCORE_COLUMN));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.FILTER_COLUMN));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.BACKWARD_COLUMN));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.FORWARD_COLUMN));
-			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.SIMPLE_SUPPLIER_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.SIMPLE_SUPPLIER_COLUMN));
-
-			nodeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
+			nodeContainer.addRowToTable(new DefaultRow(index + "", cells));
 			exec.checkCanceled();
 			exec.setProgress((double) index
-					/ (double) (nodeTable.getRowCount() + edgeTable
-							.getRowCount()));
+					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas
+							.getEdges().size()));
 			index++;
 		}
 
 		nodeContainer.close();
 
-		DataTableSpec edgeInSpec = edgeTable.getSpec();
-		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeInSpec);
+		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeTable.getSpec());
 		BufferedDataContainer edgeContainer = exec
 				.createDataContainer(edgeOutSpec);
 
-		for (DataRow row : edgeTable) {
-			int id = IO.getInt(row.getCell(edgeInSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+		for (Edge<GraphNode> edge : allEdgesCanvas.getEdges()) {
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : edgeInSpec) {
-				cells[edgeOutSpec.findColumnIndex(column.getName())] = row
-						.getCell(edgeInSpec.findColumnIndex(column.getName()));
+			for (int i = 0; i < cells.length; i++) {
+				cells[i] = DataType.getMissingCell();
 			}
 
-			Map<String, Object> properties;
+			for (String property : allEdgesCanvas.getEdgeProperties().keySet()) {
+				int column = edgeOutSpec.findColumnIndex(property);
 
-			if (edgesById.containsKey(id)) {
-				properties = edgesById.get(id).getProperties();
-			} else {
-				properties = new LinkedHashMap<String, Object>();
+				if (column != -1) {
+					Class<?> type = allEdgesCanvas.getEdgeProperties().get(
+							property);
+
+					if (type == String.class) {
+						cells[column] = IO.createCell((String) edge
+								.getProperties().get(property));
+					} else if (type == Integer.class) {
+						cells[column] = IO.createCell((Integer) edge
+								.getProperties().get(property));
+					} else if (type == Double.class) {
+						cells[column] = IO.createCell((Double) edge
+								.getProperties().get(property));
+					} else if (type == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) edge
+								.getProperties().get(property));
+					}
+				}
 			}
 
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
-					.createCell((Double) properties
-							.get(TracingConstants.SCORE_COLUMN));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.BACKWARD_COLUMN));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO
-					.createCell((Boolean) properties
-							.get(TracingConstants.FORWARD_COLUMN));
-
-			edgeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
+			edgeContainer.addRowToTable(new DefaultRow((index - allEdgesCanvas
+					.getNodes().size()) + "", cells));
 			exec.checkCanceled();
 			exec.setProgress((double) index
-					/ (double) (nodeTable.getRowCount() + edgeTable
-							.getRowCount()));
+					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas
+							.getEdges().size()));
 			index++;
 		}
 

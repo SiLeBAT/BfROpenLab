@@ -39,7 +39,6 @@ import javax.swing.text.JTextComponent;
 import de.bund.bfr.knime.BooleanCellRenderer;
 import de.bund.bfr.knime.DoubleCellRenderer;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
@@ -144,15 +143,13 @@ public class EditablePropertiesTable extends JTable {
 
 		private List<String> columnNames;
 		private List<Class<?>> columnTypes;
-		private List<List<Object>> columnValueTuples;
-		private int metaNodeColumn;
+		private List<List<Object>> columnValueTuples;		
 
 		public PropertiesTableModel(List<String> columnNames,
 				List<Class<?>> columnTypes, List<List<Object>> columnValueTuples) {
 			this.columnNames = columnNames;
 			this.columnTypes = columnTypes;
-			this.columnValueTuples = columnValueTuples;
-			metaNodeColumn = columnNames.indexOf(GraphCanvas.IS_META_NODE);
+			this.columnValueTuples = columnValueTuples;			
 		}
 
 		@Override
@@ -182,12 +179,6 @@ public class EditablePropertiesTable extends JTable {
 
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			Boolean isMetaNode = (Boolean) getValueAt(rowIndex, metaNodeColumn);
-
-			if (isMetaNode != null && isMetaNode == true) {
-				return false;
-			}
-
 			String column = columnNames.get(columnIndex);
 
 			return column.equals(TracingConstants.CASE_WEIGHT_COLUMN)

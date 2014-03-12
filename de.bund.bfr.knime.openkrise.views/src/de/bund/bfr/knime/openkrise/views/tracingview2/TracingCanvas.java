@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview2;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -74,7 +75,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Double> getCaseWeights() {
 		Map<String, Double> caseWeights = new LinkedHashMap<String, Double>();
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			Double value = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 
@@ -93,7 +94,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			node.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
 					caseWeights.get(node.getId()));
 		}
@@ -104,7 +105,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getCrossContaminations() {
 		Map<String, Boolean> contaminations = new LinkedHashMap<String, Boolean>();
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN);
 
@@ -123,7 +124,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			node.getProperties().put(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN,
 					crossContaminations.get(node.getId()));
@@ -135,7 +136,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getFilter() {
 		Map<String, Boolean> filter = new LinkedHashMap<String, Boolean>();
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
 
@@ -154,7 +155,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			node.getProperties().put(TracingConstants.FILTER_COLUMN,
 					filter.get(node.getId()));
 		}
@@ -199,29 +200,16 @@ public class TracingCanvas extends GraphCanvas {
 											e.getX(), e.getY());
 
 							if (node != null) {
-								Boolean isMetaNode = (Boolean) node
-										.getProperties().get(IS_META_NODE);
+								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
+										e.getComponent(), node,
+										getNodeProperties());
 
-								if (isMetaNode != null && isMetaNode == true) {
-									SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
-											e.getComponent(), node,
-											getNodeProperties());
+								CanvasUtilities.placeDialogAt(dialog,
+										e.getLocationOnScreen());
+								dialog.setVisible(true);
 
-									CanvasUtilities.placeDialogAt(dialog,
-											e.getLocationOnScreen());
-									dialog.setVisible(true);
-								} else {
-									EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
-											e.getComponent(), node,
-											getNodeProperties());
-
-									CanvasUtilities.placeDialogAt(dialog,
-											e.getLocationOnScreen());
-									dialog.setVisible(true);
-
-									if (dialog.isApproved()) {
-										applyTracing();
-									}
+								if (dialog.isApproved()) {
+									applyTracing();
 								}
 							} else if (edge != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
@@ -237,11 +225,30 @@ public class TracingCanvas extends GraphCanvas {
 				});
 	}
 
-	private void applyTracing() {
+	@Override
+	protected void applyNodeCollapse() {
+		super.applyNodeCollapse();
+		applyTracing();
+	}
+
+	protected void applyTracing() {
 		MyNewTracing tracing = new MyNewTracing(deliveries, null, null, 0.0);
 
-		for (GraphNode node : getAllNodes()) {
-			int id = Integer.parseInt(node.getId());
+		for (String metaNodeIdString : getCollapsedNodes().keySet()) {
+			int metaNodeId = Integer.parseInt(metaNodeIdString);
+			Set<String> nodeIdStrings = getCollapsedNodes().get(
+					metaNodeIdString).keySet();
+			HashSet<Integer> nodeIds = new HashSet<Integer>();
+
+			for (String idString : nodeIdStrings) {
+				nodeIds.add(Integer.parseInt(idString));
+			}
+
+			tracing.mergeStations(nodeIds, metaNodeId);
+		}
+
+		for (GraphNode node : getNodes()) {
+			int id = Integer.parseInt(node.getId());			
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
@@ -268,7 +275,7 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
 		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			int id = Integer.parseInt(node.getId());
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
@@ -282,7 +289,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		for (GraphNode node : getAllNodes()) {
+		for (GraphNode node : getNodes()) {
 			int id = Integer.parseInt(node.getId());
 
 			node.getProperties().put(TracingConstants.SCORE_COLUMN,
@@ -294,7 +301,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		if (!joinEdges) {
-			for (Edge<GraphNode> edge : getAllEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
 				int id = Integer.parseInt(edge.getId());
 
 				edge.getProperties().put(TracingConstants.SCORE_COLUMN,
@@ -305,7 +312,7 @@ public class TracingCanvas extends GraphCanvas {
 						forwardEdges.contains(id));
 			}
 		} else {
-			for (Edge<GraphNode> edge : getAllEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
 				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
 				edge.getProperties()
 						.put(TracingConstants.BACKWARD_COLUMN, null);
@@ -313,6 +320,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		applyNodeCollapse();
+		applyNodeHighlights();
+		applyEdgeHighlights();
 	}
 }
