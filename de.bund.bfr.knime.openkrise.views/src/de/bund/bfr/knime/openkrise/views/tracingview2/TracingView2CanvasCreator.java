@@ -24,7 +24,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview2;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ import org.knime.core.node.BufferedDataTable;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 
@@ -43,18 +43,18 @@ public class TracingView2CanvasCreator {
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
-	private MyNewTracing tracing;
+	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingView2Settings set;
 
 	private Set<Integer> connectedNodes;
 	private Set<Integer> simpleSuppliers;
 
 	public TracingView2CanvasCreator(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, MyNewTracing tracing,
+			BufferedDataTable edgeTable, HashMap<Integer, MyDelivery> tracing,
 			TracingView2Settings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
-		this.tracing = tracing;
+		this.deliveries = tracing;
 		this.set = set;
 
 		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
@@ -129,17 +129,19 @@ public class TracingView2CanvasCreator {
 
 		List<Edge<GraphNode>> allEdges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, false);
-		HashSet<Integer> allEdgesInt = new HashSet<Integer>();
+		HashMap<Integer, MyDelivery> newDeliveries = new HashMap<Integer, MyDelivery>();
+
 		for (Edge<GraphNode> edge : allEdges) {
 			int id = Integer.parseInt(edge.getId());
-			allEdgesInt.add(id);
+
+			newDeliveries.put(id, deliveries.get(id));
 		}
-		tracing.syncDeliveries(allEdgesInt);
+
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				tracing, set.isJoinEdges(), set.isEnforeTemporalOrder());
+				newDeliveries, set.isJoinEdges(), set.isEnforeTemporalOrder());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

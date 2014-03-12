@@ -25,6 +25,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview2;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,6 +38,7 @@ import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
@@ -45,23 +47,25 @@ public class TracingCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
-	private MyNewTracing tracing;
+	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean joinEdges;
 	private boolean enforceTemporalOrder;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, false, false);
+				new LinkedHashMap<String, Class<?>>(),
+				new HashMap<Integer, MyDelivery>(), false, false);
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, MyNewTracing tracing,
-			boolean joinEdges, boolean enforceTemporalOrder) {
+			Map<String, Class<?>> edgeProperties,
+			HashMap<Integer, MyDelivery> deliveries, boolean joinEdges,
+			boolean enforceTemporalOrder) {
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
-		this.tracing = tracing;
+		this.deliveries = deliveries;
 		this.joinEdges = joinEdges;
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		applyTracing();
@@ -234,6 +238,8 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	private void applyTracing() {
+		MyNewTracing tracing = new MyNewTracing(deliveries, null, null, 0.0);
+
 		for (GraphNode node : getAllNodes()) {
 			int id = Integer.parseInt(node.getId());
 			Double caseValue = (Double) node.getProperties().get(

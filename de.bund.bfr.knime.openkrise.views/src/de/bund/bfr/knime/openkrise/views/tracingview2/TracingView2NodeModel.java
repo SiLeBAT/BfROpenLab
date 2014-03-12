@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview2;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -61,6 +62,7 @@ import com.thoughtworks.xstream.XStream;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
@@ -94,7 +96,7 @@ public class TracingView2NodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		MyNewTracing tracing = getTracing((BufferedDataTable) inObjects[2]);
+		HashMap<Integer, MyDelivery> tracing = getDeliveries((BufferedDataTable) inObjects[2]);
 		TracingCanvas canvas = new TracingView2CanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
@@ -281,8 +283,8 @@ public class TracingView2NodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static MyNewTracing getTracing(BufferedDataTable dataTable)
-			throws NotConfigurableException {
+	protected static HashMap<Integer, MyDelivery> getDeliveries(
+			BufferedDataTable dataTable) throws NotConfigurableException {
 		if (dataTable.getRowCount() == 0) {
 			throw new NotConfigurableException("Tracing Table is empty");
 		}
@@ -298,7 +300,7 @@ public class TracingView2NodeModel extends NodeModel {
 		String xml = ((StringValue) cell).getStringValue();
 		XStream xstream = MyNewTracing.getXStream();
 
-		return (MyNewTracing) xstream.fromXML(xml);
+		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) {
@@ -387,13 +389,13 @@ public class TracingView2NodeModel extends NodeModel {
 
 	private static TracingCanvas createAllEdgesCanvas(
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
-			MyNewTracing tracing, TracingView2Settings set) {
+			HashMap<Integer, MyDelivery> deliveries, TracingView2Settings set) {
 		boolean joinEdges = set.isJoinEdges();
 
 		set.setJoinEdges(false);
 
 		TracingCanvas canvas = new TracingView2CanvasCreator(nodeTable,
-				edgeTable, tracing, set).createGraphCanvas();
+				edgeTable, deliveries, set).createGraphCanvas();
 
 		set.setJoinEdges(joinEdges);
 

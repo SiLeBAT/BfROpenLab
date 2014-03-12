@@ -30,6 +30,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -48,7 +49,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewInputDialog;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings;
 
@@ -73,7 +74,7 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
-	private MyNewTracing tracing;
+	private HashMap<Integer, MyDelivery> deliveries;
 
 	private TracingView2Settings set;
 
@@ -108,8 +109,8 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
-		tracing = TracingView2NodeModel
-				.getTracing((BufferedDataTable) input[2]);
+		deliveries = TracingView2NodeModel
+				.getDeliveries((BufferedDataTable) input[2]);
 		set.loadSettings(settings);
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 		updateGraphCanvas(false);
@@ -173,7 +174,7 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		TracingView2CanvasCreator creator = new TracingView2CanvasCreator(
-				nodeTable, edgeTable, tracing, set);
+				nodeTable, edgeTable, deliveries, set);
 
 		graphCanvas = creator.createGraphCanvas();
 

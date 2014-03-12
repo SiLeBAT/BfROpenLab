@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.views.tracingparameters;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,7 @@ import org.knime.core.node.NotConfigurableException;
 import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
@@ -84,7 +86,8 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable dataTable = inData[2];
-		MyNewTracing tracing = getTracing(dataTable);
+		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable), null,
+				null, 0);
 
 		for (int id : set.getCaseWeights().keySet()) {
 			Double value = set.getCaseWeights().get(id);
@@ -267,8 +270,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static MyNewTracing getTracing(BufferedDataTable dataTable)
-			throws NotConfigurableException {
+	protected static HashMap<Integer, MyDelivery> getDeliveries(
+			BufferedDataTable dataTable) throws NotConfigurableException {
 		if (dataTable.getRowCount() == 0) {
 			throw new NotConfigurableException("Tracing Table is empty");
 		}
@@ -284,7 +287,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		String xml = ((StringValue) cell).getStringValue();
 		XStream xstream = MyNewTracing.getXStream();
 
-		return (MyNewTracing) xstream.fromXML(xml);
+		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) {

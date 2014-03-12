@@ -38,6 +38,9 @@ public class MyNewTracing {
 		this.caseSum = caseSum;
 		calcRecsSuppls();
 	}
+	public HashMap<Integer, MyDelivery> getAllDeliveries() {
+		return allDeliveries;
+	}
 	private void calcRecsSuppls() {
 		if (allIncoming == null || allOutgoing == null) {
 			allIncoming = new HashMap<Integer, HashSet<MyDelivery>>();
