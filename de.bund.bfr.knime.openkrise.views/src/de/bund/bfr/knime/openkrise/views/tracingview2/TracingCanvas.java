@@ -50,24 +50,27 @@ public class TracingCanvas extends GraphCanvas {
 
 	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean joinEdges;
+	private Map<String, Set<String>> joinMap;
 	private boolean enforceTemporalOrder;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new HashMap<Integer, MyDelivery>(), false, false);
+				new HashMap<Integer, MyDelivery>(), false,
+				new LinkedHashMap<String, Set<String>>(), false);
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties,
 			HashMap<Integer, MyDelivery> deliveries, boolean joinEdges,
-			boolean enforceTemporalOrder) {
+			Map<String, Set<String>> joinMap, boolean enforceTemporalOrder) {
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
 		this.deliveries = deliveries;
 		this.joinEdges = joinEdges;
+		this.joinMap = joinMap;
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		applyTracing();
 	}
@@ -232,7 +235,26 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	protected void applyTracing() {
-		MyNewTracing tracing = new MyNewTracing(deliveries, null, null, 0.0);
+		Set<Integer> edgeIds = new LinkedHashSet<Integer>();
+
+		for (Edge<GraphNode> edge : getVisibleEdges()) {
+			if (!joinEdges) {
+				edgeIds.add(Integer.parseInt(edge.getId()));
+			} else {
+				for (String idString : joinMap.get(edge.getId())) {
+					edgeIds.add(Integer.parseInt(idString));
+				}
+			}
+		}
+
+		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<Integer, MyDelivery>();
+
+		for (int id : edgeIds) {
+			activeDeliveries.put(id, deliveries.get(id));
+		}		
+
+		MyNewTracing tracing = new MyNewTracing(activeDeliveries, null, null,
+				0.0);
 
 		for (String metaNodeIdString : getCollapsedNodes().keySet()) {
 			int metaNodeId = Integer.parseInt(metaNodeIdString);
@@ -248,7 +270,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		for (GraphNode node : getNodes()) {
-			int id = Integer.parseInt(node.getId());			
+			int id = Integer.parseInt(node.getId());
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(

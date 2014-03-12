@@ -32,10 +32,11 @@ public class MyNewTracing {
 	private boolean enforceTemporalOrder = false;
 	
 	public MyNewTracing(HashMap<Integer, MyDelivery> allDeliveries, HashMap<Integer, Double> caseStations, HashSet<Integer> ccStations, double caseSum) {
-		this.allDeliveries = allDeliveries;
+		this.allDeliveries = getClone(allDeliveries);
 		this.caseStations = caseStations;
 		this.ccStations = ccStations;
 		this.caseSum = caseSum;
+		removeEmptyIds(this.allDeliveries);
 		calcRecsSuppls();
 	}
 	public HashMap<Integer, MyDelivery> getAllDeliveries() {
@@ -292,7 +293,7 @@ public class MyNewTracing {
 	public void resetMergedStations() {
 		mergeStations(null);
 	}
-	public HashMap<Integer, MyDelivery> getClone(HashMap<Integer, MyDelivery> allDeliveriesSrc) {
+	private static HashMap<Integer, MyDelivery> getClone(HashMap<Integer, MyDelivery> allDeliveriesSrc) {
 		//if (allDeliveriesOrig == null) {
 		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
 			for (Integer key : allDeliveriesSrc.keySet()) {
@@ -437,28 +438,10 @@ public class MyNewTracing {
 		return forwardStationsWithCases;
 	}
 	
-	public void syncDeliveries(HashSet<Integer> newDeliverySet) {
-		if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
-		allDeliveries = getClone(allDeliveriesOrig);
-		Integer[] set = this.allDeliveriesOrig.keySet().toArray(new Integer[0]);
-		HashSet<Integer> missingEdges = new HashSet<Integer>();
-		for (Integer id : set) {
-			if (!newDeliverySet.contains(id)) {
-				missingEdges.add(id);
-			}
+	private static void removeEmptyIds(HashMap<Integer, MyDelivery> deliveries) {		
+		for (MyDelivery delivery : deliveries.values()) {
+			delivery.getAllNextIDs().retainAll(deliveries.keySet());
+			delivery.getAllPreviousIDs().retainAll(deliveries.keySet());			
 		}
-		for (Integer id : missingEdges) {
-			this.allDeliveries.remove(id);
-			for (Integer id1 : this.allDeliveries.keySet()) {
-				MyDelivery md = this.allDeliveries.get(id1); 
-				if (md.getAllNextIDs().contains(id)) {
-					md.removeNext(id);
-				}
-				if (md.getAllPreviousIDs().contains(id)) {
-					md.removePrevious(id);
-				}
-			}
-		}
-		
 	}
 }

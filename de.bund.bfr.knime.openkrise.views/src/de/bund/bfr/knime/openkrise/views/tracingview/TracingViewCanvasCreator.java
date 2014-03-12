@@ -69,8 +69,9 @@ public class TracingViewCanvasCreator {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, set.isJoinEdges());
+		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>(
+				TracingUtilities.readEdges(edgeTable, edgeProperties, nodes,
+						set.isJoinEdges()).keySet());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);

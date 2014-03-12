@@ -155,6 +155,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return allEdges;
 	}
 
+	public Collection<GraphNode> getVisibleNodes() {
+		return getViewer().getGraphLayout().getGraph().getVertices();
+	}
+
+	public Collection<Edge<GraphNode>> getVisibleEdges() {
+		return getViewer().getGraphLayout().getGraph().getEdges();
+	}
+
 	public Map<String, Point2D> getNodePositions() {
 		Map<String, Point2D> map = new LinkedHashMap<String, Point2D>();
 		Layout<GraphNode, Edge<GraphNode>> layout = getViewer()

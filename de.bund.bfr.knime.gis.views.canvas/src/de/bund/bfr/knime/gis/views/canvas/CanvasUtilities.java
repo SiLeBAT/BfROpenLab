@@ -292,26 +292,27 @@ public class CanvasUtilities {
 		}
 
 		Graph<V, E> graph = viewer.getGraphLayout().getGraph();
-		boolean nodesAdded = false;
 
 		for (V node : nodes) {
 			if (invisibleNodes.contains(node)) {
 				graph.removeVertex(node);
 			} else if (!graph.containsVertex(node)) {
 				graph.addVertex(node);
-				nodesAdded = true;
 			}
 		}
 
-		if (nodesAdded) {
-			for (E edge : edges) {
-				if (!invisibleEdges.contains(edge) && !graph.containsEdge(edge)
-						&& graph.containsVertex(edge.getFrom())
-						&& graph.containsVertex(edge.getTo())) {
-					graph.addEdge(edge, edge.getFrom(), edge.getTo());
-				}
+		for (E edge : edges) {
+			if (graph.containsEdge(edge)
+					&& (!graph.containsVertex(edge.getFrom()) || !graph
+							.containsVertex(edge.getFrom()))) {
+				graph.removeEdge(edge);
+			} else if (!invisibleEdges.contains(edge)
+					&& !graph.containsEdge(edge)
+					&& graph.containsVertex(edge.getFrom())
+					&& graph.containsVertex(edge.getTo())) {
+				graph.addEdge(edge, edge.getFrom(), edge.getTo());
 			}
-		}
+		}	
 
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<V>(nodeSize, thicknessValues));

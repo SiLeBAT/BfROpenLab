@@ -25,8 +25,8 @@ package de.bund.bfr.knime.openkrise.views.tracingview2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -127,21 +127,19 @@ public class TracingView2CanvasCreator {
 					simpleSuppliers.contains(Integer.parseInt(node.getId())));
 		}
 
-		List<Edge<GraphNode>> allEdges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, false);
-		HashMap<Integer, MyDelivery> newDeliveries = new HashMap<Integer, MyDelivery>();
+		Map<Edge<GraphNode>, Set<String>> edges = TracingUtilities.readEdges(
+				edgeTable, edgeProperties, nodes, set.isJoinEdges());
+		Map<String, Set<String>> joinMap = new LinkedHashMap<String, Set<String>>();
 
-		for (Edge<GraphNode> edge : allEdges) {
-			int id = Integer.parseInt(edge.getId());
-
-			newDeliveries.put(id, deliveries.get(id));
+		for (Edge<GraphNode> edge : edges.keySet()) {
+			joinMap.put(edge.getId(), edges.get(edge));
 		}
 
-		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				newDeliveries, set.isJoinEdges(), set.isEnforeTemporalOrder());
+				nodes.values()),
+				new ArrayList<Edge<GraphNode>>(edges.keySet()), nodeProperties,
+				edgeProperties, deliveries, set.isJoinEdges(), joinMap,
+				set.isEnforeTemporalOrder());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());
