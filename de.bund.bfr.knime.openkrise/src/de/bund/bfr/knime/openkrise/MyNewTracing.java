@@ -267,10 +267,7 @@ public class MyNewTracing {
 		else if (ccStations.contains(stationID)) ccStations.remove(stationID);  
 		sortedStations = null;
 		sortedDeliveries = null;
-	}
-	public void mergeStations(HashSet<Integer> toBeMerged) {
-		mergeStations(toBeMerged, -1);
-	}
+	}	
 	public void mergeStations(HashSet<Integer> toBeMerged, Integer mergedStationID) {
 		if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
 		allDeliveries = new HashMap<Integer, MyDelivery>();
@@ -289,10 +286,7 @@ public class MyNewTracing {
 		sortedStations = null;
 		sortedDeliveries = null;
 		fillDeliveries(enforceTemporalOrder);
-	}
-	public void resetMergedStations() {
-		mergeStations(null);
-	}
+	}	
 	private static HashMap<Integer, MyDelivery> getClone(HashMap<Integer, MyDelivery> allDeliveriesSrc) {
 		//if (allDeliveriesOrig == null) {
 		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
