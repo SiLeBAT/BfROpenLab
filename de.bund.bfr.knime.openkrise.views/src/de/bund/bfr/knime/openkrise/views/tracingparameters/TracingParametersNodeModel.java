@@ -27,8 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.data.DataCell;
@@ -36,6 +38,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
@@ -290,51 +293,60 @@ public class TracingParametersNodeModel extends NodeModel {
 		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
-	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) {
+	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
+			throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<DataColumnSpec>();
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+
+		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
+				BooleanCell.TYPE);
 
 		for (DataColumnSpec column : nodeSpec) {
+			if (newColumns.containsKey(column.getName())) {
+				throw new InvalidSettingsException("Column name \""
+						+ column.getName() + "\" is not allowed in input table");
+			}
+
 			newNodeSpec.add(column);
 		}
 
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE)
-				.createSpec());
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.CROSS_CONTAMINATION_COLUMN, BooleanCell.TYPE)
-				.createSpec());
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.SCORE_COLUMN, DoubleCell.TYPE).createSpec());
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.FILTER_COLUMN, BooleanCell.TYPE).createSpec());
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE)
-				.createSpec());
-		newNodeSpec
-				.add(new DataColumnSpecCreator(TracingConstants.FORWARD_COLUMN,
-						BooleanCell.TYPE).createSpec());
-		newNodeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.SIMPLE_SUPPLIER_COLUMN, BooleanCell.TYPE)
-				.createSpec());
+		for (String column : newColumns.keySet()) {
+			newNodeSpec.add(new DataColumnSpecCreator(column, newColumns
+					.get(column)).createSpec());
+		}
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) {
+	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
+			throws InvalidSettingsException {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : edgeSpec) {
+			if (newColumns.containsKey(column.getName())) {
+				throw new InvalidSettingsException("Column name \""
+						+ column.getName() + "\" is not allowed in input table");
+			}
+
 			newEdgeSpec.add(column);
 		}
 
-		newEdgeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.SCORE_COLUMN, DoubleCell.TYPE).createSpec());
-		newEdgeSpec.add(new DataColumnSpecCreator(
-				TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE)
-				.createSpec());
-		newEdgeSpec
-				.add(new DataColumnSpecCreator(TracingConstants.FORWARD_COLUMN,
-						BooleanCell.TYPE).createSpec());
+		for (String column : newColumns.keySet()) {
+			newEdgeSpec.add(new DataColumnSpecCreator(column, newColumns
+					.get(column)).createSpec());
+		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
