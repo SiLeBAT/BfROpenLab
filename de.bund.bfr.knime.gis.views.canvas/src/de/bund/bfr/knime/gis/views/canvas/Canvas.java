@@ -118,6 +118,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private double translationX;
 	private double translationY;
 
+	private JMenu nodeSelectionMenu;
+	private JMenu edgeSelectionMenu;
+	private JMenu nodeHighlightMenu;
+	private JMenu edgeHighlightMenu;
+
 	private JMenuItem resetLayoutItem;
 	private JMenuItem saveAsItem;
 	private JMenuItem selectConnectingItem;
@@ -205,7 +210,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
-
+		
+		createPopupMenuItems();
 		applyPopupMenu();
 		applyMouseModel();
 	}
@@ -595,8 +601,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItem() instanceof Node) {
+			if (viewer.getPickedVertexState().getPicked().isEmpty()) {
+				nodeSelectionMenu.setEnabled(false);
+			} else {
+				nodeSelectionMenu.setEnabled(true);
+			}
+
 			fireNodeSelectionChanged();
 		} else if (e.getItem() instanceof Edge) {
+			if (viewer.getPickedEdgeState().getPicked().isEmpty()) {
+				edgeSelectionMenu.setEnabled(false);
+			} else {
+				edgeSelectionMenu.setEnabled(true);
+			}
+
 			fireEdgeSelectionChanged();
 		}
 	}
@@ -687,7 +705,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
-	protected abstract boolean applyHighlights();	
+	protected abstract boolean applyHighlights();
 
 	protected abstract void applyTransform();
 
@@ -720,9 +738,85 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		server.paint(svgGenerator);
 		svgGenerator.stream(outsvg, true);
 		outsvg.close();
-	}
+	}	
 
 	private void applyPopupMenu() {
+		JPopupMenu popup = new JPopupMenu();
+
+		popup.add(resetLayoutItem);
+		popup.add(saveAsItem);
+
+		if (allowEdges) {
+			nodeSelectionMenu.add(nodePropertiesItem);
+			nodeSelectionMenu.add(clearSelectNodesItem);
+			nodeSelectionMenu.add(selectConnectingItem);
+
+			if (allowCollapse) {
+				nodeSelectionMenu.add(collapseToNodeItem);
+				nodeSelectionMenu.add(expandFromNodeItem);
+			}
+
+			edgeSelectionMenu.add(edgePropertiesItem);
+			edgeSelectionMenu.add(clearSelectEdgesItem);
+
+			popup.add(new JSeparator());
+			popup.add(nodeSelectionMenu);
+			popup.add(edgeSelectionMenu);
+
+			if (allowHighlighting) {
+				nodeHighlightMenu.add(highlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(highlightSelectedNodesItem);
+
+				edgeHighlightMenu.add(highlightEdgesItem);
+				edgeHighlightMenu.add(clearHighlightEdgesItem);
+				edgeHighlightMenu.add(selectHighlightedEdgesItem);
+				edgeHighlightMenu.add(highlightSelectedEdgesItem);
+
+				popup.add(nodeHighlightMenu);
+				popup.add(edgeHighlightMenu);
+			}
+		} else {
+			nodeSelectionMenu.add(nodePropertiesItem);
+			nodeSelectionMenu.add(clearSelectNodesItem);
+
+			popup.add(new JSeparator());
+			popup.add(nodeSelectionMenu);
+
+			if (allowHighlighting) {
+				nodeHighlightMenu.add(highlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(highlightSelectedNodesItem);
+
+				popup.add(nodeHighlightMenu);
+			}
+		}
+
+		viewer.setComponentPopupMenu(popup);
+	}
+
+	private void applyMouseModel() {
+		GraphMouse<V, Edge<V>> mouseModel = createMouseModel();
+
+		if (editingMode.equals(TRANSFORMING_MODE)) {
+			mouseModel.setMode(Mode.TRANSFORMING);
+		} else {
+			mouseModel.setMode(Mode.PICKING);
+		}
+
+		viewer.setGraphMouse(mouseModel);
+	}
+	
+	private void createPopupMenuItems() {
+		nodeSelectionMenu = new JMenu("Node Selection");
+		nodeSelectionMenu.setEnabled(false);
+		edgeSelectionMenu = new JMenu("Edge Selection");
+		edgeSelectionMenu.setEnabled(false);
+		nodeHighlightMenu = new JMenu("Node Highlighting");
+		edgeHighlightMenu = new JMenu("Edge Highlighting");
+
 		resetLayoutItem = new JMenuItem("Reset Layout");
 		resetLayoutItem.addActionListener(this);
 		saveAsItem = new JMenuItem("Save As ...");
@@ -762,80 +856,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		collapseToNodeItem.addActionListener(this);
 		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
 		expandFromNodeItem.addActionListener(this);
-
-		JPopupMenu popup = new JPopupMenu();
-
-		popup.add(resetLayoutItem);
-		popup.add(saveAsItem);
-
-		if (allowEdges) {
-			popup.add(new JSeparator());
-
-			JMenu nodeSelectionMenu = new JMenu("Node Selection");
-			JMenu edgeSelectionMenu = new JMenu("Edge Selection");
-
-			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
-			nodeSelectionMenu.add(selectConnectingItem);
-
-			if (allowCollapse) {
-				nodeSelectionMenu.add(collapseToNodeItem);
-				nodeSelectionMenu.add(expandFromNodeItem);
-			}
-
-			edgeSelectionMenu.add(edgePropertiesItem);
-			edgeSelectionMenu.add(clearSelectEdgesItem);
-			popup.add(nodeSelectionMenu);
-			popup.add(edgeSelectionMenu);
-
-			if (allowHighlighting) {
-				JMenu nodeHighlightMenu = new JMenu("Node Highlighting");
-				JMenu edgeHighlightMenu = new JMenu("Edge Highlighting");
-
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(highlightSelectedNodesItem);
-				edgeHighlightMenu.add(highlightEdgesItem);
-				edgeHighlightMenu.add(clearHighlightEdgesItem);
-				edgeHighlightMenu.add(selectHighlightedEdgesItem);
-				edgeHighlightMenu.add(highlightSelectedEdgesItem);
-				popup.add(nodeHighlightMenu);
-				popup.add(edgeHighlightMenu);
-			}
-		} else {
-			popup.add(new JSeparator());
-
-			JMenu nodeSelectionMenu = new JMenu("Node Selection");
-
-			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
-			popup.add(nodeSelectionMenu);
-
-			if (allowHighlighting) {
-				JMenu nodeHighlightMenu = new JMenu("Node Highlighting");
-
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(highlightSelectedNodesItem);
-				popup.add(nodeHighlightMenu);
-			}
-		}
-
-		viewer.setComponentPopupMenu(popup);
-	}
-
-	private void applyMouseModel() {
-		GraphMouse<V, Edge<V>> mouseModel = createMouseModel();
-
-		if (editingMode.equals(TRANSFORMING_MODE)) {
-			mouseModel.setMode(Mode.TRANSFORMING);
-		} else {
-			mouseModel.setMode(Mode.PICKING);
-		}
-
-		viewer.setGraphMouse(mouseModel);
 	}
 
 	private void fireNodeSelectionChanged() {
