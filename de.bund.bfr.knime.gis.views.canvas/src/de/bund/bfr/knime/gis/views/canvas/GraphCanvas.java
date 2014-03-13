@@ -71,12 +71,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public static final String SPRING_LAYOUT = "Spring Layout";
 	public static final String SPRING_LAYOUT_2 = "Spring Layout 2";
 
-	public static final String IS_META_NODE = "IsMetaNode";
-
 	private static final long serialVersionUID = 1L;
 
 	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
+	private static final String IS_META_NODE = "IsMetaNode";
 
 	private String layoutType;
 	private int nodeSize;
@@ -95,6 +94,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
 
+	private String metaNodeProperty;
 	private Random random;
 
 	public GraphCanvas() {
@@ -108,8 +108,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty) {
-		super(addMetaNodeProperty(nodeProperties), edgeProperties,
-				nodeIdProperty, edgeIdProperty);
+		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty);
 		setAllowEdges(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
@@ -120,6 +119,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		invisibleNodes = new LinkedHashSet<GraphNode>();
 		invisibleEdges = new LinkedHashSet<Edge<GraphNode>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+		metaNodeProperty = CanvasUtilities.createNewProperty(IS_META_NODE,
+				getNodeProperties());
+		getNodeProperties().put(metaNodeProperty, Boolean.class);
 		random = new Random();
 
 		applyLayout();
@@ -555,7 +557,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		properties.put(IS_META_NODE, true);
+		properties.put(metaNodeProperty, true);
 
 		return new GraphNode(id, properties, null);
 	}
@@ -578,15 +580,5 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		return graph;
-	}
-
-	private static Map<String, Class<?>> addMetaNodeProperty(
-			Map<String, Class<?>> properties) {
-		Map<String, Class<?>> newProperties = new LinkedHashMap<String, Class<?>>(
-				properties);
-
-		newProperties.put(IS_META_NODE, Boolean.class);
-
-		return newProperties;
 	}
 }
