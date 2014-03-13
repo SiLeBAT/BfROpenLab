@@ -192,6 +192,18 @@ public class MyNewTracing {
 		
 		return deliveries;
 	}
+	public Set<Integer> getForwardStations2(int id) {		
+		return getForwardStations(allDeliveries.get(id));
+	}
+	public Set<Integer> getBackwardStations2(int id) {		
+		return getBackwardStations(allDeliveries.get(id));
+	}
+	public Set<Integer> getForwardDeliveries2(int id) {
+		return getForwardDeliveries(allDeliveries.get(id));
+	}
+	public Set<Integer> getBackwardDeliveries2(int id) {		
+		return getBackwardDeliveries(allDeliveries.get(id));
+	}
 	private Set<MyDelivery> getOutgoingDeliveries(int stationID) {
 		Set<MyDelivery> outgoing = new LinkedHashSet<MyDelivery>();
 		
