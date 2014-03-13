@@ -94,7 +94,7 @@ public class LogicalHighlightCondition implements Serializable {
 
 		try {
 			doubleValue = Double.parseDouble(value);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			doubleValue = null;
 		}
 
@@ -165,23 +165,13 @@ public class LogicalHighlightCondition implements Serializable {
 
 	private boolean isEqual(Object nodeValue) {
 		if (nodeValue instanceof Boolean && booleanValue != null) {
-			if (((Boolean) nodeValue).booleanValue() == booleanValue) {
-				return true;
-			} else {
-				return false;
-			}
+			return ((Boolean) nodeValue).booleanValue() == booleanValue;
 		} else if (nodeValue instanceof Number && doubleValue != null) {
-			if (((Number) nodeValue).doubleValue() == doubleValue) {
-				return true;
-			} else {
-				return false;
-			}
+			return ((Number) nodeValue).doubleValue() == doubleValue;
 		} else if (nodeValue instanceof String && value != null) {
-			if (((String) nodeValue).equalsIgnoreCase(value)) {
-				return true;
-			} else {
-				return false;
-			}
+			return ((String) nodeValue).equalsIgnoreCase(value);
+		} else if (nodeValue == null) {
+			return value == null || value.isEmpty();
 		} else {
 			return false;
 		}
@@ -189,11 +179,7 @@ public class LogicalHighlightCondition implements Serializable {
 
 	private boolean isGreater(Object nodeValue) {
 		if (nodeValue instanceof Number && doubleValue != null) {
-			if (((Number) nodeValue).doubleValue() > doubleValue) {
-				return true;
-			} else {
-				return false;
-			}
+			return ((Number) nodeValue).doubleValue() > doubleValue;
 		} else {
 			return false;
 		}
@@ -201,11 +187,7 @@ public class LogicalHighlightCondition implements Serializable {
 
 	private boolean isLess(Object nodeValue) {
 		if (nodeValue instanceof Number && doubleValue != null) {
-			if (((Number) nodeValue).doubleValue() < doubleValue) {
-				return true;
-			} else {
-				return false;
-			}
+			return ((Number) nodeValue).doubleValue() < doubleValue;
 		} else {
 			return false;
 		}
@@ -217,11 +199,9 @@ public class LogicalHighlightCondition implements Serializable {
 			Matcher matcher = Pattern.compile(value, flags).matcher(
 					(String) nodeValue);
 
-			if (matcher.matches()) {
-				return true;
-			} else {
-				return false;
-			}
+			return matcher.matches();
+		} else if (nodeValue == null) {
+			return value == null || value.isEmpty();
 		} else {
 			return false;
 		}
