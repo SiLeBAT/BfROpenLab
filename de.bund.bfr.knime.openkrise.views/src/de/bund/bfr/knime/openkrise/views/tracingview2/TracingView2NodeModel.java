@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -280,85 +280,65 @@ public class TracingView2NodeModel extends NodeModel {
 		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
-	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) {
+	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
+			throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<DataColumnSpec>();
-		Set<String> columnNames = new LinkedHashSet<String>();
+		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
 
 		for (DataColumnSpec column : nodeSpec) {
 			newNodeSpec.add(column);
-			columnNames.add(column.getName());
+			columns.put(column.getName(), column.getType());
 		}
 
-		if (!columnNames.contains(TracingConstants.CASE_WEIGHT_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE)
-					.createSpec());
-		}
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
 
-		if (!columnNames.contains(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN,
-					BooleanCell.TYPE).createSpec());
-		}
+		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
+				BooleanCell.TYPE);
 
-		if (!columnNames.contains(TracingConstants.SCORE_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.SCORE_COLUMN, DoubleCell.TYPE)
-					.createSpec());
-		}
-
-		if (!columnNames.contains(TracingConstants.FILTER_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.FILTER_COLUMN, BooleanCell.TYPE)
-					.createSpec());
-		}
-
-		if (!columnNames.contains(TracingConstants.BACKWARD_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE)
-					.createSpec());
-		}
-
-		if (!columnNames.contains(TracingConstants.FORWARD_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE)
-					.createSpec());
-		}
-
-		if (!columnNames.contains(TracingConstants.SIMPLE_SUPPLIER_COLUMN)) {
-			newNodeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.SIMPLE_SUPPLIER_COLUMN, BooleanCell.TYPE)
-					.createSpec());
+		for (String column : newColumns.keySet()) {
+			if (!columns.containsKey(column)) {
+				newNodeSpec.add(new DataColumnSpecCreator(column, newColumns
+						.get(column)).createSpec());
+			} else if (!columns.get(column).equals(newColumns.get(column))) {
+				throw new InvalidSettingsException("Type of column \"" + column
+						+ "\" must be \"" + newColumns.get(column) + "\"");
+			}
 		}
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) {
+	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
+			throws InvalidSettingsException {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
-		Set<String> columnNames = new LinkedHashSet<String>();
+		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
 
 		for (DataColumnSpec column : edgeSpec) {
 			newEdgeSpec.add(column);
-			columnNames.add(column.getName());
+			columns.put(column.getName(), column.getType());
 		}
 
-		if (!columnNames.contains(TracingConstants.SCORE_COLUMN)) {
-			newEdgeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.SCORE_COLUMN, DoubleCell.TYPE)
-					.createSpec());
-		}
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
 
-		if (!columnNames.contains(TracingConstants.BACKWARD_COLUMN)) {
-			newEdgeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE)
-					.createSpec());
-		}
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 
-		if (!columnNames.contains(TracingConstants.FORWARD_COLUMN)) {
-			newEdgeSpec.add(new DataColumnSpecCreator(
-					TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE)
-					.createSpec());
+		for (String column : newColumns.keySet()) {
+			if (!columns.containsKey(column)) {
+				newEdgeSpec.add(new DataColumnSpecCreator(column, newColumns
+						.get(column)).createSpec());
+			} else if (!columns.get(column).equals(newColumns.get(column))) {
+				throw new InvalidSettingsException("Type of column \"" + column
+						+ "\" must be \"" + newColumns.get(column) + "\"");
+			}
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
