@@ -1,6 +1,5 @@
 package de.bund.bfr.knime.openkrise;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -304,7 +303,7 @@ public class MyNewTracing {
 		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
 			for (Integer key : allDeliveriesSrc.keySet()) {
 				MyDelivery md = allDeliveriesSrc.get(key);
-				MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDate());
+				MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDay(), md.getDeliveryMonth(), md.getDeliveryYear());
 				for (Integer next : md.getAllNextIDs()) {
 					mdNew.addNext(next);
 				}
@@ -353,19 +352,21 @@ public class MyNewTracing {
 		}
 	}
 	private boolean is1Newer(MyDelivery md1, MyDelivery md2) { // e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-		Calendar cal1 = md1.getDeliveryDate();
-		Calendar cal2 = md2.getDeliveryDate();
-		if (cal1 == null || cal2 == null) return true;
-		if (cal1.get(Calendar.HOUR_OF_DAY) == 12) { // day unknown, means: any day in month possible... this is specified in LieferkettenImporterEFSA
-			Calendar cal = (Calendar) cal1.clone();
-			if (cal.get(Calendar.MONTH) == 0) { // if January, any month in year is possible...
-				cal.set(Calendar.MONTH, 11); // MONTH is 0-based
+		Integer year1 = md1.getDeliveryYear();
+		Integer year2 = md2.getDeliveryYear();
+		if (year1 == null || year2 == null || year1 > year2) return true;
+		if (year1 < year2) return false;
+		else { // year1 = year2!
+			Integer month1 = md1.getDeliveryMonth();
+			Integer month2 = md2.getDeliveryMonth();
+			if (month1 == null || month2 == null || month1 > month2) return true;
+			if (month1 < month2) return false;
+			else { // month1 = month2!
+				Integer day1 = md1.getDeliveryDay();
+				Integer day2 = md2.getDeliveryDay();
+				if (day1 == null || day2 == null || day1 >= day2) return true;
+				else return false;
 			}
-			cal.set(Calendar.DAY_OF_MONTH, 31); // DAY_OF_MONTH is 1-based, should be no problem for e.g. february, we are generous...
-			return cal.getTimeInMillis() >= cal2.getTimeInMillis();
-		}
-		else {
-			return md1.getDeliveryDateAsMillis() >= md2.getDeliveryDateAsMillis();
 		}
 	}
 	private void searchFFCases(MyDelivery md, HashSet<Integer> headingStationsWithCases,boolean includeStationWithoutCases,HashSet<Integer> headingDeliveries) {

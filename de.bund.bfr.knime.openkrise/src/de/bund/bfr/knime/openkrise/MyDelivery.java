@@ -1,14 +1,14 @@
 package de.bund.bfr.knime.openkrise;
 
-import java.util.Calendar;
 import java.util.HashSet;
 
 public class MyDelivery {
 
 	private int id;
 	private int supplierID, recipientID;
-	private Calendar deliveryDate;
-	private Long deliveryDateAsMillis;
+	private Integer deliveryDay;
+	private Integer deliveryMonth;
+	private Integer deliveryYear;
 	
 	private HashSet<Integer> allNextIDs;
 	private HashSet<Integer> allPreviousIDs;
@@ -20,12 +20,13 @@ public class MyDelivery {
 	private HashSet<Integer> forwardDeliveries;
 	private HashSet<Integer> backwardDeliveries;
 	
-	public MyDelivery(int id, int supplierID, int recipientID, Calendar deliveryDate) {
+	public MyDelivery(int id, int supplierID, int recipientID, Integer deliveryDay, Integer deliveryMonth, Integer deliveryYear) {
 		this.id = id;
 		this.supplierID = supplierID;
 		this.recipientID = recipientID;
-		this.deliveryDate = deliveryDate;
-		deliveryDateAsMillis = (deliveryDate != null) ? deliveryDate.getTimeInMillis() : 0;
+		this.deliveryDay = deliveryDay;
+		this.deliveryMonth = deliveryMonth;
+		this.deliveryYear = deliveryYear;
 		
 		allNextIDs = new HashSet<Integer>();
 		allPreviousIDs = new HashSet<Integer>();
@@ -92,11 +93,14 @@ public class MyDelivery {
 	public int getId() {
 		return id;
 	}
-	public Calendar getDeliveryDate() {
-		return deliveryDate;
+	public Integer getDeliveryDay() {
+		return deliveryDay;
 	}
-	public Long getDeliveryDateAsMillis() {
-		return deliveryDateAsMillis;
+	public Integer getDeliveryMonth() {
+		return deliveryMonth;
+	}
+	public Integer getDeliveryYear() {
+		return deliveryYear;
 	}
 
 	public void removeNext(Integer nextID) {
