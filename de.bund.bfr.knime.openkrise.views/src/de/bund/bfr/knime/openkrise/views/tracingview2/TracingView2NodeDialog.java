@@ -39,6 +39,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.StringValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -111,11 +114,30 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 		edgeTable = (BufferedDataTable) input[1];
 		deliveries = TracingView2NodeModel
 				.getDeliveries((BufferedDataTable) input[2]);
-		set.loadSettings(settings);
+
+		String inXml = getXml(input[3]);
+		if (inXml != null) {
+			set.setXml(inXml);
+		}
+		else {
+			set.loadSettings(settings);			
+		}
+
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 		updateGraphCanvas(false);
 		resized = false;
 	}
+    private String getXml(PortObject inObject) {
+    	if (inObject != null) {
+        	BufferedDataTable table = (BufferedDataTable) inObject;    		
+        	for (DataRow row : table) {
+        		DataCell cell = row.getCell(0);
+        		String xml = ((StringValue) cell).getStringValue();
+        		return xml;
+            }
+    	}
+    	return null;
+    }
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)

@@ -25,13 +25,13 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Stations">Stations</inPort>
+        <inPort index="1" name="Deliveries">Deliveries</inPort>
+        <inPort index="2" name="Data model">Data model</inPort>
+        <inPort index="3" name="Xml Settings">Xml Settings</inPort>
+        <outPort index="0" name="Stations">Stations</outPort>
+        <outPort index="1" name="Deliveries">Deliveries</outPort>
+        <outPort index="2" name="Image">Image</outPort>
+        <outPort index="3" name="Xml Settings">Xml Settings</outPort>
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

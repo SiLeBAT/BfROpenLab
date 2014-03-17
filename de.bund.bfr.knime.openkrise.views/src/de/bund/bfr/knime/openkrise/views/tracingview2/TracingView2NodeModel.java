@@ -41,6 +41,8 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.xml.XMLCell;
+import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -80,10 +82,10 @@ public class TracingView2NodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected TracingView2NodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				ImagePortObject.TYPE });
+		super(
+				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE, new PortType(BufferedDataTable.class, true) },
+				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE, BufferedDataTable.TYPE }
+		);
 		set = new TracingView2Settings();
 	}
 
@@ -96,6 +98,7 @@ public class TracingView2NodeModel extends NodeModel {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		HashMap<Integer, MyDelivery> tracing = getDeliveries((BufferedDataTable) inObjects[2]);
+
 		TracingCanvas canvas = new TracingView2CanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
@@ -191,9 +194,14 @@ public class TracingView2NodeModel extends NodeModel {
 
 		edgeContainer.close();
 
+    	BufferedDataContainer buf = exec.createDataContainer(getSettingsSpec());
+    	buf.addRowToTable(new DefaultRow("0", XMLCellFactory.create(set.getXml())));
+    	buf.close();
+    	
 		return new PortObject[] { nodeContainer.getTable(),
 				edgeContainer.getTable(),
-				TracingUtilities.getImage(canvas, set.isExportAsSvg()) };
+				TracingUtilities.getImage(canvas, set.isExportAsSvg()),
+				buf.getTable()};
 	}
 
 	/**
@@ -214,7 +222,8 @@ public class TracingView2NodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec),
 				createEdgeOutSpec(edgeSpec),
-				TracingUtilities.getImageSpec(set.isExportAsSvg()) };
+				TracingUtilities.getImageSpec(set.isExportAsSvg()),
+				getSettingsSpec()};
 	}
 
 	/**
@@ -260,6 +269,11 @@ public class TracingView2NodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
+    private DataTableSpec getSettingsSpec() {
+    	DataColumnSpec[] spec = new DataColumnSpec[1];
+    	spec[0] = new DataColumnSpecCreator("SettingsXml", XMLCell.TYPE).createSpec();
+    	return new DataTableSpec(spec);
+    }
 	protected static HashMap<Integer, MyDelivery> getDeliveries(
 			BufferedDataTable dataTable) throws NotConfigurableException {
 		if (dataTable.getRowCount() == 0) {
