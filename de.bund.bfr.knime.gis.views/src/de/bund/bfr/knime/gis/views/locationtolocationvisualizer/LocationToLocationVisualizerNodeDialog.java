@@ -42,6 +42,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataRow;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -121,10 +123,29 @@ public class LocationToLocationVisualizerNodeDialog extends
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
-		set.loadSettings(settings);
+		
+		String inXml = getXml(input[3]);
+		if (inXml != null) {
+			set.setXml(inXml);
+		}
+		else {
+			set.loadSettings(settings);			
+		}
+
 		updateSplitPane(false);
 		resized = false;
 	}
+    private String getXml(PortObject inObject) {
+    	if (inObject != null) {
+        	BufferedDataTable table = (BufferedDataTable) inObject;    		
+        	for (DataRow row : table) {
+        		DataCell cell = row.getCell(0);
+        		String xml = ((org.knime.core.data.StringValue) cell).getStringValue();
+        		return xml;
+            }
+    	}
+    	return null;
+    }
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
