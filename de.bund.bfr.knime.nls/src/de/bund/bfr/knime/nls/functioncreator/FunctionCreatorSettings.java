@@ -24,42 +24,80 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls.functioncreator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class FunctionCreatorSettings extends NlsNodeSettings {
 
-	private static final String CFG_FUNCTION = "Function";
+	private static final String CFG_DEPENDENT_VARIABLE = "DependentVariable";
+	private static final String CFG_TERM = "Term";
+	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";
 
-	private Function function;
+	private String dependentVariable;
+	private String term;
+	private List<String> independentVariables;
 
 	public FunctionCreatorSettings() {
-		function = null;
+		dependentVariable = null;
+		term = null;
+		independentVariables = new ArrayList<String>();
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			function = (Function) SERIALIZER.fromXml(settings
-					.getString(CFG_FUNCTION));
+			dependentVariable = settings.getString(CFG_DEPENDENT_VARIABLE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			term = settings.getString(CFG_TERM);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			independentVariables = new ArrayList<String>(Arrays.asList(settings
+					.getStringArray(CFG_INDEPENDENT_VARIABLES)));
 		} catch (InvalidSettingsException e) {
 		}
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_FUNCTION, SERIALIZER.toXml(function));
+		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
+		settings.addString(CFG_TERM, term);
+		settings.addStringArray(CFG_INDEPENDENT_VARIABLES,
+				independentVariables.toArray(new String[0]));
 	}
 
-	public Function getFunction() {
-		return function;
+	public String getDependentVariable() {
+		return dependentVariable;
 	}
 
-	public void setFunction(Function function) {
-		this.function = function;
+	public void setDependentVariable(String dependentVariable) {
+		this.dependentVariable = dependentVariable;
+	}
+
+	public String getTerm() {
+		return term;
+	}
+
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	public List<String> getIndependentVariables() {
+		return independentVariables;
+	}
+
+	public void setIndependentVariables(List<String> independentVariables) {
+		this.independentVariables = independentVariables;
 	}
 }

@@ -33,11 +33,8 @@ public class Function implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String term;
-
 	private String dependentVariable;
-
 	private List<String> independentVariables;
-
 	private List<String> parameters;
 
 	public Function() {
@@ -56,32 +53,16 @@ public class Function implements Serializable {
 		return term;
 	}
 
-	public void setTerm(String expression) {
-		this.term = expression;
-	}
-
 	public String getDependentVariable() {
 		return dependentVariable;
-	}
-
-	public void setDependentVariable(String dependentVariable) {
-		this.dependentVariable = dependentVariable;
 	}
 
 	public List<String> getIndependentVariables() {
 		return independentVariables;
 	}
 
-	public void setIndependentVariables(List<String> independentVariables) {
-		this.independentVariables = independentVariables;
-	}
-
 	public List<String> getParameters() {
 		return parameters;
-	}
-
-	public void setParameters(List<String> parameters) {
-		this.parameters = parameters;
 	}
 
 	public List<String> getVariables() {

@@ -24,6 +24,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -32,10 +34,43 @@ import org.lsmp.djep.djep.DiffRulesI;
 import org.nfunk.jep.ASTFunNode;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
+import org.nfunk.jep.TokenMgrError;
 
 public class MathUtilities {
 
 	private MathUtilities() {
+	}
+
+	public static Function createFunction(String term,
+			String dependentVariable, List<String> independentVariables) {
+		List<String> parameters = getSymbols(term);
+
+		parameters.removeAll(independentVariables);
+		Collections.sort(parameters);
+
+		return new Function(term, dependentVariable, independentVariables,
+				parameters);
+	}
+
+	public static List<String> getSymbols(String formula) {
+		List<String> symbols = new ArrayList<String>();
+		DJep parser = MathUtilities.createParser();
+
+		try {
+			parser.parse(formula);
+		} catch (ParseException e) {
+			return symbols;
+		} catch (NullPointerException e) {
+			return symbols;
+		} catch (TokenMgrError e) {
+			return symbols;
+		}
+
+		for (Object symbol : parser.getSymbolTable().keySet()) {
+			symbols.add(symbol.toString());
+		}
+
+		return symbols;
 	}
 
 	public static Double getMSE(int numParam, int numSample, double sse) {

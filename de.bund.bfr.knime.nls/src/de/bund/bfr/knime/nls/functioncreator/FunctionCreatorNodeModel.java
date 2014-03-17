@@ -38,6 +38,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import de.bund.bfr.knime.nls.MathUtilities;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 
@@ -65,7 +66,10 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		return new PortObject[] { new FunctionPortObject(set.getFunction()) };
+		return new PortObject[] { new FunctionPortObject(
+				MathUtilities.createFunction(set.getTerm(),
+						set.getDependentVariable(),
+						set.getIndependentVariables())) };
 	}
 
 	/**
@@ -81,12 +85,15 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (set.getFunction() == null) {
+		if (set.getTerm() == null || set.getDependentVariable() == null
+				|| set.getIndependentVariables().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				set.getFunction()) };
+				MathUtilities.createFunction(set.getTerm(),
+						set.getDependentVariable(),
+						set.getIndependentVariables())) };
 	}
 
 	/**

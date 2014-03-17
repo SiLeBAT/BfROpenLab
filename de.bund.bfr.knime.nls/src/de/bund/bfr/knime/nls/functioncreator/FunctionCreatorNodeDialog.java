@@ -47,12 +47,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.lsmp.djep.djep.DJep;
-import org.nfunk.jep.ParseException;
-import org.nfunk.jep.TokenMgrError;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.MathUtilities;
 import de.bund.bfr.knime.nls.ui.StringTextArea;
 import de.bund.bfr.knime.nls.ui.StringTextField;
@@ -105,27 +101,26 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		functionPanel = createFunctionPanel();
 		mainPanel.add(functionPanel, BorderLayout.NORTH);
 		mainPanel.revalidate();
-
-		if (set.getFunction() != null) {
-			usedIndeps = set.getFunction().getIndependentVariables();
-		} else {
-			usedIndeps = new ArrayList<String>();
-		}
+		usedIndeps = set.getIndependentVariables();
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (set.getFunction().getDependentVariable() == null) {
-			throw new InvalidSettingsException("Dependent Variable Missing");
-		}
-
-		if (set.getFunction() == null || set.getFunction().getTerm() == null) {
+		if (set.getTerm() == null) {
 			throw new InvalidSettingsException("Formula Missing");
 		}
 
-		if (getSymbols(set.getFunction().getTerm()).isEmpty()) {
+		if (MathUtilities.getSymbols(set.getTerm()).isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
+		}
+
+		if (set.getDependentVariable() == null) {
+			throw new InvalidSettingsException("Dependent Variable Missing");
+		}
+
+		if (set.getIndependentVariables().isEmpty()) {
+			throw new InvalidSettingsException("Independent Variables Missing");
 		}
 
 		set.saveSettings(settings);
@@ -133,12 +128,10 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void textChanged(Object source) {
-		Function function = set.getFunction();
-
 		if (source == depVarField) {
-			function.setDependentVariable(depVarField.getValue());
+			set.setDependentVariable(depVarField.getValue());
 		} else if (source == termField) {
-			set.getFunction().setTerm(termField.getValue());
+			set.setTerm(termField.getValue());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel();
@@ -151,14 +144,13 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (indepVarBoxes != null && indepVarBoxes.contains(e.getSource())) {
-			Function function = set.getFunction();
 			String name = ((JCheckBox) e.getSource()).getText();
 
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				function.getIndependentVariables().add(name);
+				set.getIndependentVariables().add(name);
 				usedIndeps.add(name);
 			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-				function.getIndependentVariables().remove(name);
+				set.getIndependentVariables().remove(name);
 				usedIndeps.remove(name);
 			}
 
@@ -171,20 +163,14 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createFunctionPanel() {
-		if (set.getFunction() == null) {
-			set.setFunction(new Function());
-		}
-
-		Function function = set.getFunction();
-
 		depVarField = new StringTextField(false, 10);
-		depVarField.setValue(set.getFunction().getDependentVariable());
+		depVarField.setValue(set.getDependentVariable());
 		depVarField.addTextListener(this);
 
 		if (termField == null || termField.getValue() == null
-				|| !termField.getValue().equals(function.getTerm())) {
+				|| !termField.getValue().equals(set.getTerm())) {
 			termField = new StringTextArea(false, 3, 100);
-			termField.setValue(function.getTerm());
+			termField.setValue(set.getTerm());
 			termField.addTextListener(this);
 		}
 
@@ -214,11 +200,8 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		Function function = set.getFunction();
-		List<String> elements = new ArrayList<String>();
+		List<String> elements = MathUtilities.getSymbols(set.getTerm());
 
-		elements.addAll(function.getIndependentVariables());
-		elements.addAll(function.getParameters());
 		Collections.sort(elements);
 
 		JPanel panel = new JPanel();
@@ -229,7 +212,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		for (String el : elements) {
 			JCheckBox box = new JCheckBox(el);
 
-			if (function.getIndependentVariables().contains(el)) {
+			if (set.getIndependentVariables().contains(el)) {
 				box.setSelected(true);
 			} else {
 				box.setSelected(false);
@@ -244,11 +227,10 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		Function function = set.getFunction();
-		List<String> params = getSymbols(function.getTerm());
+		List<String> params = MathUtilities.getSymbols(set.getTerm());
 		List<String> indeps = new ArrayList<String>();
 
-		for (String indep : function.getIndependentVariables()) {
+		for (String indep : set.getIndependentVariables()) {
 			if (params.contains(indep)) {
 				indeps.add(indep);
 				params.remove(indep);
@@ -265,29 +247,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 		Collections.sort(indeps);
 		Collections.sort(params);
-		function.setIndependentVariables(indeps);
-		function.setParameters(params);
-	}
-
-	private static List<String> getSymbols(String formula) {
-		List<String> symbols = new ArrayList<String>();
-		DJep parser = MathUtilities.createParser();
-
-		try {
-			parser.parse(formula);
-		} catch (ParseException e) {
-			return symbols;
-		} catch (NullPointerException e) {
-			return symbols;
-		} catch (TokenMgrError e) {
-			return symbols;
-		}
-
-		for (Object symbol : parser.getSymbolTable().keySet()) {
-			symbols.add(symbol.toString());
-		}
-
-		return symbols;
+		set.setIndependentVariables(indeps);
 	}
 
 	private static GridBagConstraints createConstraints(int x, int y) {
