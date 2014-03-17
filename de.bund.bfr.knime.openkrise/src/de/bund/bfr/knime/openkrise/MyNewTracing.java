@@ -342,7 +342,7 @@ public class MyNewTracing {
 						if (
 								//d.getRecipientID() == md.getSupplierID() &&
 								(!enforceTemporalOrder ||
-								(is1Newer(md, d)))) {
+								(is1MaybeNewer(md, d)))) {
 										//md.getDeliveryDateAsSeconds() >= d.getDeliveryDateAsSeconds()))) {
 							searchFBCases(d, stemmingStationsWithCases,includeStationWithoutCases,stemmingDeliveries);
 						}
@@ -351,8 +351,24 @@ public class MyNewTracing {
 			}			
 		}
 	}
-	private boolean is1Newer(MyDelivery md1, MyDelivery md2) { // e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-		Integer year1 = md1.getDeliveryYear();
+	private boolean is1MaybeNewer(MyDelivery md1, MyDelivery md2) { // e.g. Jan 2012 vs. 18.Jan 2012 - be generous
+	    Integer year1 = md1.getDeliveryYear();
+		Integer year2 = md2.getDeliveryYear();
+		if (year1 == null || year2 == null) return true;
+		if (year1 > year2) return true;
+		if (year1 < year2) return false;
+		Integer month1 = md1.getDeliveryMonth();
+		Integer month2 = md2.getDeliveryMonth();
+		if (month1 == null || month2 == null) return true;
+		if (month1 > month2) return true;
+		if (month1 < month2) return false;
+		Integer day1 = md1.getDeliveryDay();
+		Integer day2 = md2.getDeliveryDay();
+		if (day1 == null || day2 == null) return true;
+		if (day1 >= day2) return true;
+	    return false;
+/*
+	    Integer year1 = md1.getDeliveryYear();
 		Integer year2 = md2.getDeliveryYear();
 		if (year1 == null || year2 == null || year1 > year2) return true;
 		if (year1 < year2) return false;
@@ -368,6 +384,7 @@ public class MyNewTracing {
 				else return false;
 			}
 		}
+		*/
 	}
 	private void searchFFCases(MyDelivery md, HashSet<Integer> headingStationsWithCases,boolean includeStationWithoutCases,HashSet<Integer> headingDeliveries) {
 		if (caseStations == null) caseStations = new HashMap<Integer, Double>();
@@ -389,7 +406,7 @@ public class MyNewTracing {
 						if (
 								//d.getSupplierID() == md.getRecipientID() &&
 								(!enforceTemporalOrder ||
-								(is1Newer(d, md)))) {
+								(is1MaybeNewer(d, md)))) {
 										//md.getDeliveryDateAsSeconds() <= d.getDeliveryDateAsSeconds()))) {
 							searchFFCases(d, headingStationsWithCases,includeStationWithoutCases,headingDeliveries);
 						}
