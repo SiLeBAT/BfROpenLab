@@ -115,12 +115,10 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 		deliveries = TracingView2NodeModel
 				.getDeliveries((BufferedDataTable) input[2]);
 
+		set.loadSettings(settings);			
 		String inXml = getXml(input[3]);
 		if (inXml != null) {
 			set.setXml(inXml);
-		}
-		else {
-			set.loadSettings(settings);			
 		}
 
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
