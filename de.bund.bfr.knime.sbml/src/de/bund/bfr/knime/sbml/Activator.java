@@ -2,7 +2,7 @@
  * $Revision$ $Date$ $Author$
  *
  */
-package de.bund.bfr.knime.sbmlreader;
+package de.bund.bfr.knime.sbml;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
@@ -16,14 +16,14 @@ import org.osgi.framework.BundleContext;
  *
  * @author Christian Thoens
  */
-public class SbmlReaderNodePlugin extends Plugin {
+public class Activator extends Plugin {
     // The shared instance.
-    private static SbmlReaderNodePlugin plugin;
+    private static Activator plugin;
 
     /**
      * The constructor.
      */
-    public SbmlReaderNodePlugin() {
+    public Activator() {
         super();
         plugin = this;
     }
@@ -57,7 +57,7 @@ public class SbmlReaderNodePlugin extends Plugin {
      * 
      * @return Singleton instance of the Plugin
      */
-    public static SbmlReaderNodePlugin getDefault() {
+    public static Activator getDefault() {
         return plugin;
     }
 

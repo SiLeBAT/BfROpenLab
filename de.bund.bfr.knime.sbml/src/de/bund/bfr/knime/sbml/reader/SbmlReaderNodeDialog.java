@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.sbmlreader;
+package de.bund.bfr.knime.sbml.reader;
 
 import javax.swing.JFileChooser;
 

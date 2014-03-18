@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.sbmlreader;
+package de.bund.bfr.knime.sbml.reader;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.sbmlreader;
+package de.bund.bfr.knime.sbml.reader;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
