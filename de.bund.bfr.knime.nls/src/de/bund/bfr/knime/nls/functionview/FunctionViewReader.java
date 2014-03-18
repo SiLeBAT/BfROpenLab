@@ -52,8 +52,8 @@ public class FunctionViewReader {
 	private Map<String, String> legend;
 
 	public FunctionViewReader(FunctionPortObject functionObject,
-			BufferedDataTable paramTable, BufferedDataTable covarianceTable,
-			BufferedDataTable varTable, String indep) {
+			BufferedDataTable paramTable, BufferedDataTable varTable,
+			BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns = getQualityColumns(paramTable, f);
 
@@ -107,13 +107,20 @@ public class FunctionViewReader {
 
 				plotable.setFunction(f.getTerm());
 				plotable.setFunctionParameters(getParameters(paramTable, id, f));
-				plotable.setCovariances(getCovariances(covarianceTable, id, f));
 				plotable.setFunctionArguments(getVariables(indep, fixed));
 				plotable.setMinArguments(new LinkedHashMap<String, Double>());
 				plotable.setMaxArguments(new LinkedHashMap<String, Double>());
 				plotable.setFunctionValue(f.getDependentVariable());
-				plotable.setDegreesOfFreedom(qualityValues.get(
-						Utilities.DOF_COLUMN).intValue());
+
+				if (covarianceTable != null) {
+					plotable.setCovariances(getCovariances(covarianceTable, id,
+							f));
+				}
+
+				if (qualityValues.get(Utilities.DOF_COLUMN) != null) {
+					plotable.setDegreesOfFreedom(qualityValues.get(
+							Utilities.DOF_COLUMN).intValue());
+				}
 
 				Map<String, List<Double>> values = getVariableValues(varTable,
 						id, f, fixed);

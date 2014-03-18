@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,24 @@ import org.knime.core.data.def.StringCell;
 public class KnimeUtilities {
 
 	private KnimeUtilities() {
+	}
+
+	public static String listToString(List<String> list) {
+		String result = "";
+
+		for (String s : list) {
+			result += s + ",";
+		}
+
+		if (!result.isEmpty()) {
+			result = result.substring(0, result.length() - 1);
+		}
+
+		return result;
+	}
+
+	public static List<String> stringToList(String s) {
+		return new ArrayList<String>(Arrays.asList(s.split(",")));
 	}
 
 	public static File getFile(String fileName) throws FileNotFoundException {

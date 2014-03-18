@@ -67,20 +67,6 @@ public class IO {
 		return DataType.getMissingCell();
 	}
 
-	public static DataCell createCellFromObject(Object o) {
-		if (o instanceof String) {
-			return createCell((String) o);
-		} else if (o instanceof Integer) {
-			return createCell((Integer) o);
-		} else if (o instanceof Double) {
-			return createCell((Double) o);
-		} else if (o instanceof Boolean) {
-			return createCell((Boolean) o);
-		}
-
-		return DataType.getMissingCell();
-	}
-
 	public static String getToString(DataCell cell) {
 		if (cell.isMissing()) {
 			return null;
