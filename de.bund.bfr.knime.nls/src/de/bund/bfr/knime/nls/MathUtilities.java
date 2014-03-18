@@ -31,6 +31,8 @@ import java.util.List;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.lsmp.djep.djep.DJep;
 import org.lsmp.djep.djep.DiffRulesI;
+import org.lsmp.djep.djep.diffRules.MacroDiffRules;
+import org.lsmp.djep.xjep.MacroFunction;
 import org.nfunk.jep.ASTFunNode;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -137,12 +139,26 @@ public class MathUtilities {
 		parser.addStandardFunctions();
 		parser.addStandardDiffRules();
 		parser.removeVariable("x");
-		parser.addDiffRule(new ZeroDiffRule("<"));
-		parser.addDiffRule(new ZeroDiffRule(">"));
-		parser.addDiffRule(new ZeroDiffRule("<="));
-		parser.addDiffRule(new ZeroDiffRule(">="));
-		parser.addDiffRule(new ZeroDiffRule("&&"));
-		parser.addDiffRule(new ZeroDiffRule("||"));
+
+		try {
+			parser.removeFunction("log");
+			parser.addFunction("log", new MacroFunction("log", 1, "ln(x)",
+					parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
+			parser.addFunction("log10", new MacroFunction("log10", 1,
+					"ln(x)/ln(10)", parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log10",
+					"1/(x*ln(10))"));			
+
+			parser.addDiffRule(new ZeroDiffRule("<"));
+			parser.addDiffRule(new ZeroDiffRule(">"));
+			parser.addDiffRule(new ZeroDiffRule("<="));
+			parser.addDiffRule(new ZeroDiffRule(">="));
+			parser.addDiffRule(new ZeroDiffRule("&&"));
+			parser.addDiffRule(new ZeroDiffRule("||"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 
 		return parser;
 	}
