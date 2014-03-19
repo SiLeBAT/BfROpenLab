@@ -154,8 +154,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				File shpFile = KnimeUtilities.getFile(set.getFileName());
 				Map<String, URL> map = new HashMap<String, URL>();
 
-				map.put("url", KnimeUtilities.getFile(set.getFileName())
-						.toURI().toURL());
+				map.put("url", shpFile.toURI().toURL());
 
 				DataStore dataStore = DataStoreFinder.getDataStore(map);
 				String typeName = dataStore.getTypeNames()[0];
