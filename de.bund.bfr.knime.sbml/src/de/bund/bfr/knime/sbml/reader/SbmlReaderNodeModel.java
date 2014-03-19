@@ -25,6 +25,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
@@ -62,6 +63,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	private static final String PARAMETERS = "Parameters";
 
 	private static final String UNIT = " Unit";
+	private static final String MIN_MAX = " MinMax";
 
 	/**
 	 * Constructor for the node model.
@@ -215,6 +217,11 @@ public class SbmlReaderNodeModel extends NodeModel {
 		}
 
 		AlgebraicRule rule = getAssignmentRule(model.getListOfRules());
+		Map<String, AlgebraicRule> minMaxRules = new LinkedHashMap<String, AlgebraicRule>();
+
+		for (AlgebraicRule r : getMinMaxRules(model.getListOfRules())) {
+			minMaxRules.put(getParam(r.getMath()), r);
+		}
 
 		if (!columns.containsKey(FORMULA_LEFT)) {
 			columns.put(FORMULA_LEFT, StringCell.TYPE);
@@ -237,6 +244,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 			if (!param.isConstant()) {
 				String name = param.getId();
 				UnitDefinition unit = param.getUnitsInstance();
+				AlgebraicRule minMax = minMaxRules.get(name);
 
 				if (!columns.containsKey(name + UNIT)) {
 					columns.put(name + UNIT, StringCell.TYPE);
@@ -246,6 +254,17 @@ public class SbmlReaderNodeModel extends NodeModel {
 					row.put(name + UNIT, IO.createCell(unit.toString()));
 				} else {
 					row.put(name + UNIT, IO.createCell("No Unit"));
+				}
+
+				if (!columns.containsKey(name + MIN_MAX)) {
+					columns.put(name + MIN_MAX, StringCell.TYPE);
+				}
+
+				if (minMax != null) {
+					row.put(name + MIN_MAX,
+							IO.createCell(minMax.getMath().toFormula()));
+				} else {
+					row.put(name + MIN_MAX, IO.createCell(""));
 				}
 
 				if (dependentVariable == null) {
@@ -305,6 +324,32 @@ public class SbmlReaderNodeModel extends NodeModel {
 
 	private static AlgebraicRule getAssignmentRule(ListOf<Rule> rules) {
 		return (AlgebraicRule) rules.get(0);
+	}
+
+	private static List<AlgebraicRule> getMinMaxRules(ListOf<Rule> rules) {
+		List<AlgebraicRule> minMaxRules = new ArrayList<AlgebraicRule>();
+
+		for (int i = 1; i < rules.size(); i++) {
+			minMaxRules.add((AlgebraicRule) rules.get(i));
+		}
+
+		return minMaxRules;
+	}
+
+	private static String getParam(ASTNode node) {
+		if (node.getType() == ASTNode.Type.NAME) {
+			return node.getName();
+		}
+
+		for (ASTNode n : node.getListOfNodes()) {
+			String param = getParam(n);
+
+			if (param != null) {
+				return param;
+			}
+		}
+
+		return null;
 	}
 
 }
