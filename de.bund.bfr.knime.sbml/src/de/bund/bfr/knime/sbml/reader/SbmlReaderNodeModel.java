@@ -238,12 +238,14 @@ public class SbmlReaderNodeModel extends NodeModel {
 				String name = param.getId();
 				UnitDefinition unit = param.getUnitsInstance();
 
-				if (unit != null) {
-					if (!columns.containsKey(name + UNIT)) {
-						columns.put(name + UNIT, StringCell.TYPE);
-					}
+				if (!columns.containsKey(name + UNIT)) {
+					columns.put(name + UNIT, StringCell.TYPE);
+				}
 
+				if (unit != null) {
 					row.put(name + UNIT, IO.createCell(unit.toString()));
+				} else {
+					row.put(name + UNIT, IO.createCell("No Unit"));
 				}
 
 				if (dependentVariable == null) {
