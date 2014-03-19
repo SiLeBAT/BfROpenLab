@@ -112,8 +112,12 @@ public class SbmlReaderNodeModel extends NodeModel {
 		for (Map<String, DataCell> row : rows) {
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-			for (int i = 0; i < spec.getNumColumns(); i++) {
+			for (int i = 0; i < spec.getNumColumns(); i++) {				
 				cells[i] = row.get(spec.getColumnNames()[i]);
+				
+				if (cells[i] == null) {
+					cells[i] = DataType.getMissingCell();
+				}
 			}
 
 			container.addRowToTable(new DefaultRow(index2 + "", cells));
