@@ -88,12 +88,19 @@ public class SbmlReaderNodeModel extends NodeModel {
 		int index1 = 0;
 
 		for (File file : files) {
-			SBMLDocument doc = SBMLReader.read(file);
+			SBMLDocument doc = null;
 
-			readSBML(doc, columns, rows);
-			exec.checkCanceled();
-			exec.setProgress((double) index1 / (double) files.length);
-			index1++;
+			try {
+				doc = SBMLReader.read(file);
+			} catch (Exception e) {
+			}
+
+			if (doc != null) {
+				readSBML(doc, columns, rows);
+				exec.checkCanceled();
+				exec.setProgress((double) index1 / (double) files.length);
+				index1++;
+			}
 		}
 
 		DataTableSpec spec = createSpec(columns);
