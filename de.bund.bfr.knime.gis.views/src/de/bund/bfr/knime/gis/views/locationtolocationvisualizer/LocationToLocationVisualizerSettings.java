@@ -23,12 +23,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -43,8 +38,6 @@ public class LocationToLocationVisualizerSettings extends
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_GIS_LOCATION_SIZE = "GisLocationSize";
 
-	private ByteArrayOutputStream xmlBaos;
-	
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
 	private int gisLocationSize;
@@ -58,12 +51,6 @@ public class LocationToLocationVisualizerSettings extends
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-		try {
-			xmlBaos = new ByteArrayOutputStream();
-			settings.saveToXML(xmlBaos);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 
 		try {
 			nodeLatitudeColumn = settings.getString(CFG_NODE_LATITUDE_COLUMN);
@@ -78,17 +65,6 @@ public class LocationToLocationVisualizerSettings extends
 		try {
 			gisLocationSize = settings.getInt(CFG_GIS_LOCATION_SIZE);
 		} catch (InvalidSettingsException e) {
-		}
-	}
-	public String getXml() {
-		return xmlBaos == null ? "" : xmlBaos.toString();
-	}
-	public void setXml(String xml) {
-		ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes());
-		try {
-			loadSettings(NodeSettings.loadFromXML(in));
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 

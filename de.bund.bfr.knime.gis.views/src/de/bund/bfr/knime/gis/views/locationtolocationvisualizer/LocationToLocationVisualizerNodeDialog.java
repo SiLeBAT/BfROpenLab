@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -42,8 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -53,6 +52,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
@@ -124,26 +124,20 @@ public class LocationToLocationVisualizerNodeDialog extends
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
 		
-		set.loadSettings(settings);			
-		String inXml = getXml(input[3]);
-		if (inXml != null) {
-			set.setXml(inXml);
+		set.loadSettings(settings);
+		
+		if (input[3] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) input[3]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		updateSplitPane(false);
 		resized = false;
 	}
-    private String getXml(PortObject inObject) {
-    	if (inObject != null) {
-        	BufferedDataTable table = (BufferedDataTable) inObject;    		
-        	for (DataRow row : table) {
-        		DataCell cell = row.getCell(0);
-        		String xml = ((org.knime.core.data.StringValue) cell).getStringValue();
-        		return xml;
-            }
-    	}
-    	return null;
-    }
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)

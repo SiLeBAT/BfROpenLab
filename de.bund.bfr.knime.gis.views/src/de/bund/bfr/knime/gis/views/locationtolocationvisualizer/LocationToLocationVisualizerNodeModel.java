@@ -26,13 +26,6 @@ package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 import java.io.File;
 import java.io.IOException;
 
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.xml.XMLCell;
-import org.knime.core.data.xml.XMLCellFactory;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -46,6 +39,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 
 /**
@@ -63,8 +57,10 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 */
 	protected LocationToLocationVisualizerNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE, BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE,
+				new PortType(BufferedDataTable.class, true) }, new PortType[] {
+				ImagePortObject.TYPE, ImagePortObject.TYPE,
+				BufferedDataTable.TYPE });
 		set = new LocationToLocationVisualizerSettings();
 	}
 
@@ -80,16 +76,12 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 
-    	BufferedDataContainer buf = exec.createDataContainer(getSettingsSpec());
-    	buf.addRowToTable(new DefaultRow("0", XMLCellFactory.create(set.getXml())));
-    	buf.close();
-
 		return new PortObject[] {
 				ViewUtilities.getImage(creator.createGraphCanvas(),
 						set.isExportAsSvg()),
 				ViewUtilities.getImage(creator.createLocationCanvas(),
 						set.isExportAsSvg()),
-						buf.getTable()};
+				KnimeUtilities.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -108,7 +100,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		return new PortObjectSpec[] {
 				ViewUtilities.getImageSpec(set.isExportAsSvg()),
 				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				getSettingsSpec()};
+				KnimeUtilities.getXmlSpec() };
 	}
 
 	/**
@@ -153,10 +145,4 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 	}
-
-	private DataTableSpec getSettingsSpec() {
-    	DataColumnSpec[] spec = new DataColumnSpec[1];
-    	spec[0] = new DataColumnSpecCreator("SettingsXml", XMLCell.TYPE).createSpec();
-    	return new DataTableSpec(spec);
-    }
 }

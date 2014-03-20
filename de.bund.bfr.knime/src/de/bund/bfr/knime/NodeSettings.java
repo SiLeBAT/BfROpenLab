@@ -23,6 +23,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -31,4 +35,23 @@ public abstract class NodeSettings {
 	public abstract void loadSettings(NodeSettingsRO settings);
 
 	public abstract void saveSettings(NodeSettingsWO settings);
+
+	public String toXml() throws IOException {
+		org.knime.core.node.NodeSettings settings = new org.knime.core.node.NodeSettings(
+				"ID");
+
+		saveSettings(settings);
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		settings.saveToXML(out);
+
+		return out.toString();
+	}
+
+	public void loadFromXml(String xml) throws IOException {
+		ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes());
+
+		loadSettings(org.knime.core.node.NodeSettings.loadFromXML(in));
+	}
 }

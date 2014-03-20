@@ -23,14 +23,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview2;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -44,8 +40,6 @@ public class TracingView2Settings extends TracingViewSettings {
 	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
 	private static final String CFG_FILTER = "Filter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
-
-	private ByteArrayOutputStream xmlBaos;
 	
 	private Map<String, Double> caseWeights;
 	private Map<String, Boolean> crossContaminations;
@@ -63,12 +57,6 @@ public class TracingView2Settings extends TracingViewSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-		try {
-			xmlBaos = new ByteArrayOutputStream();
-			settings.saveToXML(xmlBaos);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 
 		try {
 			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
@@ -92,17 +80,6 @@ public class TracingView2Settings extends TracingViewSettings {
 			enforeTemporalOrder = settings
 					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
 		} catch (InvalidSettingsException e) {
-		}
-	}
-	public String getXml() {
-		return xmlBaos == null ? "" : xmlBaos.toString();
-	}
-	public void setXml(String xml) {
-		ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes());
-		try {
-			loadSettings(NodeSettings.loadFromXML(in));
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 

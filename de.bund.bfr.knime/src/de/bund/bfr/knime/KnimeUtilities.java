@@ -25,6 +25,7 @@ package de.bund.bfr.knime;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -33,16 +34,56 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCell;
+import org.knime.core.data.xml.XMLCellFactory;
+import org.knime.core.node.BufferedDataContainer;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.ExecutionContext;
+import org.xml.sax.SAXException;
 
 public class KnimeUtilities {
 
 	private KnimeUtilities() {
+	}
+
+	public static DataTableSpec getXmlSpec() {
+		return new DataTableSpec(
+				new DataColumnSpec[] { new DataColumnSpecCreator("XML",
+						XMLCell.TYPE).createSpec() });
+	}
+
+	public static BufferedDataTable xmlToTable(String xml, ExecutionContext exec)
+			throws IOException, ParserConfigurationException, SAXException,
+			XMLStreamException {
+		BufferedDataContainer container = exec
+				.createDataContainer(getXmlSpec());
+
+		container
+				.addRowToTable(new DefaultRow("0", XMLCellFactory.create(xml)));
+		container.close();
+
+		return container.getTable();
+	}
+
+	public static String tableToXml(BufferedDataTable table) {
+		for (DataRow row : table) {
+			return ((StringValue) row.getCell(0)).getStringValue();
+		}
+
+		return null;
 	}
 
 	public static String listToString(List<String> list) {
