@@ -78,7 +78,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), set.isJoinEdges());
+				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
@@ -98,6 +98,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 				.getGraphSelectedEdges()));
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -128,7 +129,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 
 		List<Edge<LocationNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), set.isJoinEdges());
+				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<LocationNode>(
@@ -146,6 +147,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
 		canvas.setEditingMode(set.getGisEditingMode());
+		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGisScaleX())
 				&& !Double.isNaN(set.getGisScaleY())

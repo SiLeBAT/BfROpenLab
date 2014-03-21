@@ -393,7 +393,7 @@ public class ViewUtilities {
 	public static <V extends Node> List<Edge<V>> readEdges(
 			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
 			Map<String, V> nodes, Map<String, String> idToRegionMap,
-			String edgeFromColumn, String edgeToColumn, boolean joinEdges) {
+			String edgeFromColumn, String edgeToColumn) {
 		List<Edge<V>> edges = new ArrayList<Edge<V>>();
 		int fromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
 		int toIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
@@ -405,79 +405,29 @@ public class ViewUtilities {
 		edgeProperties.put(edgeFromColumn, String.class);
 		edgeProperties.put(edgeToColumn, String.class);
 
-		if (!joinEdges) {
-			int edgeIndex = 0;
+		int edgeIndex = 0;
 
-			for (DataRow row : edgeTable) {
-				String from = IO.getToCleanString(row.getCell(fromIndex));
-				String to = IO.getToCleanString(row.getCell(toIndex));
+		for (DataRow row : edgeTable) {
+			String from = IO.getToCleanString(row.getCell(fromIndex));
+			String to = IO.getToCleanString(row.getCell(toIndex));
 
-				if (idToRegionMap != null) {
-					from = idToRegionMap.get(from);
-					to = idToRegionMap.get(to);
-				}
-
-				V node1 = nodes.get(from);
-				V node2 = nodes.get(to);
-
-				if (node1 != null && node2 != null) {
-					Map<String, Object> properties = new LinkedHashMap<String, Object>();
-
-					ViewUtilities.addToProperties(properties, edgeProperties,
-							edgeTable, row);
-					properties.put(edgeFromColumn, from);
-					properties.put(edgeToColumn, to);
-					edges.add(new Edge<V>(edgeIndex + "", properties, node1,
-							node2));
-					edgeIndex++;
-				}
-			}
-		} else {
-			Map<String, Map<String, Map<String, Object>>> edgeMap = new LinkedHashMap<String, Map<String, Map<String, Object>>>();
-
-			for (DataRow row : edgeTable) {
-				String from = IO.getToCleanString(row.getCell(fromIndex));
-				String to = IO.getToCleanString(row.getCell(toIndex));
-
-				if (idToRegionMap != null) {
-					from = idToRegionMap.get(from);
-					to = idToRegionMap.get(to);
-				}
-
-				if (from != null && to != null) {
-					if (!edgeMap.containsKey(from)) {
-						edgeMap.put(
-								from,
-								new LinkedHashMap<String, Map<String, Object>>());
-					}
-
-					if (!edgeMap.get(from).containsKey(to)) {
-						edgeMap.get(from).put(to,
-								new LinkedHashMap<String, Object>());
-					}
-
-					Map<String, Object> map = edgeMap.get(from).get(to);
-
-					ViewUtilities.addToProperties(map, edgeProperties,
-							edgeTable, row);
-					map.put(edgeFromColumn, from);
-					map.put(edgeToColumn, to);
-				}
+			if (idToRegionMap != null) {
+				from = idToRegionMap.get(from);
+				to = idToRegionMap.get(to);
 			}
 
-			int edgeIndex = 0;
+			V node1 = nodes.get(from);
+			V node2 = nodes.get(to);
 
-			for (String from : edgeMap.keySet()) {
-				for (String to : edgeMap.get(from).keySet()) {
-					V n1 = nodes.get(from);
-					V n2 = nodes.get(to);
+			if (node1 != null && node2 != null) {
+				Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
-					if (n1 != null && n2 != null) {
-						edges.add(new Edge<V>(edgeIndex + "", edgeMap.get(from)
-								.get(to), n1, n2));
-						edgeIndex++;
-					}
-				}
+				ViewUtilities.addToProperties(properties, edgeProperties,
+						edgeTable, row);
+				properties.put(edgeFromColumn, from);
+				properties.put(edgeToColumn, to);
+				edges.add(new Edge<V>(edgeIndex + "", properties, node1, node2));
+				edgeIndex++;
 			}
 		}
 

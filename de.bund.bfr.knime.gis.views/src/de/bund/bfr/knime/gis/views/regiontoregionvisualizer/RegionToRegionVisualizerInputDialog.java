@@ -58,7 +58,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
-	private JCheckBox joinEdgesBox;
 	private JCheckBox exportAsSvgBox;
 	private JButton okButton;
 	private JButton cancelButton;
@@ -95,8 +94,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		edgeToBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
-		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
-		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -116,8 +113,8 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 				skipEdgelessNodesBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
-						"Target Node ID Column:"), new JLabel()), Arrays
-				.asList(edgeFromBox, edgeToBox, joinEdgesBox)));
+						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
+				edgeToBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
@@ -173,7 +170,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromColumn.getName());
 				set.setEdgeToColumn(edgeToColumn.getName());
-				set.setJoinEdges(joinEdgesBox.isSelected());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

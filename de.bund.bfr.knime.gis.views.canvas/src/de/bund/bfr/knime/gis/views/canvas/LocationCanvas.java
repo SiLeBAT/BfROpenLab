@@ -41,6 +41,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
@@ -50,6 +51,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private static final int DEFAULT_LOCATIONSIZE = 4;
 
+	private List<LocationNode> allNodes;
+	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 	private Set<LocationNode> invisibleNodes;
@@ -94,8 +97,10 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.nodes = new LinkedHashSet<LocationNode>(nodes);
-		this.edges = new LinkedHashSet<Edge<LocationNode>>(edges);
+		this.allNodes = nodes;
+		this.allEdges = edges;
+		this.nodes = new LinkedHashSet<LocationNode>(allNodes);
+		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		setAllowEdges(allowEdges);
 		locationSize = DEFAULT_LOCATIONSIZE;
 		invisibleNodes = new LinkedHashSet<LocationNode>();
@@ -105,26 +110,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			invisibleNodes.addAll(this.nodes);
 		}
 
-		Layout<LocationNode, Edge<LocationNode>> layout = getViewer()
-				.getGraphLayout();
-		Graph<LocationNode, Edge<LocationNode>> graph = layout.getGraph();
-
-		for (LocationNode node : this.nodes) {
-			if (!allowEdges) {
-				graph.addVertex(node);
-			}
-
-			layout.setLocation(node, node.getCenter());
-		}
-
-		for (Edge<LocationNode> edge : this.edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
-		}
-
 		locationSizeField = new JTextField("" + locationSize, 5);
 		locationSizeButton = new JButton("Apply");
 		locationSizeButton.addActionListener(this);
 		addOptionsItem("Location Size", locationSizeField, locationSizeButton);
+
+		createGraph();
 	}
 
 	public Set<LocationNode> getNodes() {
@@ -229,7 +220,36 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
-		// TODO Auto-generated method stub
+		if (isJoinEdges()) {
+			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
+					getEdgeIdProperty(), getEdgeFromProperty(),
+					getEdgeToProperty()).keySet();
+		} else {
+			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
+		}
+
+		createGraph();
+		applyHighlights();
+	}
+
+	private void createGraph() {
+		Layout<LocationNode, Edge<LocationNode>> layout = getViewer()
+				.getGraphLayout();
+		Graph<LocationNode, Edge<LocationNode>> graph = new DirectedSparseMultigraph<LocationNode, Edge<LocationNode>>();
+
+		for (LocationNode node : this.nodes) {
+			if (!invisibleNodes.contains(node)) {
+				graph.addVertex(node);
+			}
+
+			layout.setLocation(node, node.getCenter());
+		}
+
+		for (Edge<LocationNode> edge : this.edges) {
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
+		}
+
+		layout.setGraph(graph);
 	}
 
 }

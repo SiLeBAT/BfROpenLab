@@ -185,6 +185,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
+		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);

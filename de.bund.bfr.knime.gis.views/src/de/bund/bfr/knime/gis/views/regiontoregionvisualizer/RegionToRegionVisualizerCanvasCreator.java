@@ -85,7 +85,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), set.isJoinEdges());
+				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
@@ -95,7 +95,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());
-		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setNodePositions(set.getGraphNodePositions());		
 		canvas.setAllowCollapse(false);
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
@@ -105,6 +105,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				.getGraphSelectedEdges()));
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -135,7 +136,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		List<Edge<RegionNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, idToRegionMap, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), set.isJoinEdges());
+				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		RegionCanvas canvas = new RegionCanvas(new ArrayList<RegionNode>(
@@ -144,7 +145,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getEdgeToColumn());
 
 		canvas.setCanvasSize(set.getGisCanvasSize());
-		canvas.setBorderAlpha(set.getGisBorderAlpha());
+		canvas.setBorderAlpha(set.getGisBorderAlpha());		
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGisSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
@@ -152,6 +153,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
 		canvas.setEditingMode(set.getGisEditingMode());
+		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGisScaleX())
 				&& !Double.isNaN(set.getGisScaleY())

@@ -55,7 +55,6 @@ public class GraphVisualizerInputDialog extends JDialog implements
 	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
-	private JCheckBox joinEdgesBox;
 	private JCheckBox exportAsSvgBox;
 	private JButton okButton;
 	private JButton cancelButton;
@@ -65,7 +64,7 @@ public class GraphVisualizerInputDialog extends JDialog implements
 
 	@SuppressWarnings("unchecked")
 	public GraphVisualizerInputDialog(JComponent owner, DataTableSpec nodeSpec,
-			DataTableSpec edgeSpec, SimpleGraphVisualizerSettings set) {
+			DataTableSpec edgeSpec, GraphVisualizerSettings set) {
 		super(SwingUtilities.getWindowAncestor(owner), "Input",
 				DEFAULT_MODALITY_TYPE);
 		this.set = set;
@@ -82,8 +81,6 @@ public class GraphVisualizerInputDialog extends JDialog implements
 		edgeToBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
-		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
-		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -99,8 +96,8 @@ public class GraphVisualizerInputDialog extends JDialog implements
 				Arrays.asList(nodeIdBox, skipEdgelessNodesBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
-						"Target Node ID Column:"), new JLabel()), Arrays
-				.asList(edgeFromBox, edgeToBox, joinEdgesBox)));
+						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
+				edgeToBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
@@ -140,8 +137,7 @@ public class GraphVisualizerInputDialog extends JDialog implements
 				set.setNodeIdColumn(nodeIdColumn.getName());
 				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromColumn.getName());
-				set.setEdgeToColumn(edgeToColumn.getName());
-				set.setJoinEdges(joinEdgesBox.isSelected());
+				set.setEdgeToColumn(edgeToColumn.getName());				
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

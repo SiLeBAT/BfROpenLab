@@ -44,7 +44,6 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private JCheckBox skipEdgelessNodesBox;
-	private JCheckBox joinEdgesBox;
 	private JCheckBox exportAsSvgBox;
 	private JButton okButton;
 	private JButton cancelButton;
@@ -60,8 +59,6 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
-		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
-		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -75,8 +72,6 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 		mainPanel.add(UI.createOptionsPanel("Node Table",
 				Arrays.asList(skipEdgelessNodesBox),
 				Arrays.asList(new JLabel())));
-		mainPanel.add(UI.createOptionsPanel("Edge Table",
-				Arrays.asList(joinEdgesBox), Arrays.asList(new JLabel())));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
@@ -96,8 +91,7 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			approved = true;
-			set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
-			set.setJoinEdges(joinEdgesBox.isSelected());
+			set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());			
 			set.setExportAsSvg(exportAsSvgBox.isSelected());
 			dispose();
 		} else if (e.getSource() == cancelButton) {

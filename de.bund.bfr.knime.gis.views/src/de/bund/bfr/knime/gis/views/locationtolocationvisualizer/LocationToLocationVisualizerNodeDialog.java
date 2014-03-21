@@ -242,6 +242,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
+		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);
 		set.setGraphNodeHighlightConditions(graphCanvas

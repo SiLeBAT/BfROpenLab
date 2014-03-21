@@ -114,8 +114,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setAllowEdges(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
-		this.nodes = new LinkedHashSet<GraphNode>(this.allNodes);
-		this.edges = new LinkedHashSet<Edge<GraphNode>>(this.allEdges);
+		this.nodes = new LinkedHashSet<GraphNode>(allNodes);
+		this.edges = new LinkedHashSet<Edge<GraphNode>>(allEdges);
 		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
 		invisibleNodes = new LinkedHashSet<GraphNode>();

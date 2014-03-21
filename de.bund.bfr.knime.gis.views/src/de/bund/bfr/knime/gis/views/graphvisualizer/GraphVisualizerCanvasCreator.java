@@ -71,7 +71,7 @@ public class GraphVisualizerCanvasCreator {
 
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), set.isJoinEdges());
+				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
@@ -84,7 +84,7 @@ public class GraphVisualizerCanvasCreator {
 		canvas.setNodePositions(set.getGraphNodePositions());
 		canvas.setAllowCollapse(true);
 		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());
+		canvas.setNodeSize(set.getGraphNodeSize());		
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
@@ -92,6 +92,7 @@ public class GraphVisualizerCanvasCreator {
 				.getGraphSelectedEdges()));
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())

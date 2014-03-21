@@ -58,7 +58,6 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
-	private JCheckBox joinEdgesBox;
 	private JCheckBox exportAsSvgBox;
 	private JButton okButton;
 	private JButton cancelButton;
@@ -95,8 +94,6 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		edgeToBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
-		joinEdgesBox = new JCheckBox("Join Edges with same Source/Target");
-		joinEdgesBox.setSelected(set.isJoinEdges());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -117,8 +114,8 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 				skipEdgelessNodesBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
-						"Target Node ID Column:"), new JLabel()), Arrays
-				.asList(edgeFromBox, edgeToBox, joinEdgesBox)));
+						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
+				edgeToBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
@@ -171,8 +168,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 						.getSelectedColumnName());
 				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromBox.getSelectedColumnName());
-				set.setEdgeToColumn(edgeToBox.getSelectedColumnName());
-				set.setJoinEdges(joinEdgesBox.isSelected());
+				set.setEdgeToColumn(edgeToBox.getSelectedColumnName());				
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}
