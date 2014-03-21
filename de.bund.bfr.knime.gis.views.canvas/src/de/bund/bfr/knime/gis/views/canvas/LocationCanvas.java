@@ -26,7 +26,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -85,7 +84,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				edgeIdProperty, regions, true);
 	}
 
-	@SuppressWarnings("unchecked")
 	private LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges,
 			Map<String, Class<?>> nodeProperties,
@@ -124,8 +122,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		locationSizeField = new JTextField("" + locationSize, 5);
 		locationSizeButton = new JButton("Apply");
 		locationSizeButton.addActionListener(this);
-		addToOptionsPanel("Location Size",
-				Arrays.asList(locationSizeField, locationSizeButton));
+		addOptionsItem("Location Size", locationSizeField,
+				locationSizeButton);
 	}
 
 	public Set<LocationNode> getNodes() {

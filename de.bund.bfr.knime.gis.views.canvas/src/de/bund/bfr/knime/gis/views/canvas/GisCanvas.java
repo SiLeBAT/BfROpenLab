@@ -30,7 +30,6 @@ import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +57,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private JSlider borderAlphaSlider;
 	private JButton borderAlphaButton;
 
-	@SuppressWarnings("unchecked")
 	public GisCanvas(List<RegionNode> regions,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
@@ -87,8 +85,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
-		addToOptionsPanel("Border Alpha",
-				Arrays.asList(borderAlphaSlider, borderAlphaButton));
+		addOptionsItem("Border Alpha", borderAlphaSlider, borderAlphaButton);
 	}
 
 	public List<RegionNode> getRegions() {

@@ -102,8 +102,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new LinkedHashMap<String, Class<?>>(),
 				new LinkedHashMap<String, Class<?>>(), null, null);
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
@@ -133,12 +132,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		layoutBox.setSelectedItem(layoutType);
 		layoutButton = new JButton("Apply");
 		layoutButton.addActionListener(this);
-		addToOptionsPanel("Layout", Arrays.asList(layoutBox, layoutButton));
+		addOptionsItem("Layout", layoutBox, layoutButton);
 		nodeSizeField = new JTextField("" + nodeSize, 5);
 		nodeSizeButton = new JButton("Apply");
 		nodeSizeButton.addActionListener(this);
-		addToOptionsPanel("Node Size",
-				Arrays.asList(nodeSizeField, nodeSizeButton));
+		addOptionsItem("Node Size", nodeSizeField, nodeSizeButton);
 	}
 
 	public Set<GraphNode> getNodes() {

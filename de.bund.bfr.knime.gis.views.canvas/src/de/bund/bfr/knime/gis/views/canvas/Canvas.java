@@ -61,6 +61,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -155,7 +156,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private String nodeIdProperty;
 	private String edgeIdProperty;
 
-	@SuppressWarnings("unchecked")
 	public Canvas(Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty) {
@@ -203,14 +203,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				PICKING_MODE });
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
-		addToOptionsPanel("Editing Mode", Arrays.asList(modeBox));
+		addOptionsItem("Editing Mode", modeBox);
 
 		selectionListeners = new ArrayList<SelectionListener<V>>();
 		highlightListeners = new ArrayList<HighlightListener>();
 
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
-		
+
 		createPopupMenuItems();
 		applyPopupMenu();
 		applyMouseModel();
@@ -647,8 +647,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return viewer;
 	}
 
-	protected void addToOptionsPanel(String name,
-			List<? extends JComponent> components) {
+	protected void addOptionsItem(String name, JComponent... components) {
 		JPanel panel = new JPanel();
 
 		panel.setBorder(BorderFactory.createTitledBorder(name));
@@ -660,6 +659,41 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		optionsPanel.add(panel);
 		optionsPanel.add(Box.createHorizontalStrut(5));
+	}
+
+	protected void setOptionsItemVisible(String name, boolean visible) {
+		int index = -1;
+
+		for (int i = 0; i < optionsPanel.getComponentCount(); i++) {
+			if (optionsPanel.getComponent(i) instanceof JPanel) {
+				JPanel c = (JPanel) optionsPanel.getComponent(i);
+
+				if (c.getBorder() instanceof TitledBorder) {
+					TitledBorder b = (TitledBorder) c.getBorder();
+
+					if (b.getTitle().equals(name)) {
+						index = i;
+						break;
+					}
+				}
+			}
+		}
+
+		if (index == -1) {
+			return;
+		}
+
+		JPanel panel = (JPanel) optionsPanel.getComponent(index);
+
+		if (visible && panel.getPreferredSize().width != 0) {
+			panel.setPreferredSize(new Dimension(0, 0));
+			optionsPanel.remove(index + 1);
+			optionsPanel.revalidate();
+		} else if (!visible && panel.getPreferredSize().width == 0) {
+			panel.setPreferredSize(panel.getMinimumSize());
+			optionsPanel.add(Box.createHorizontalStrut(5), index + 1);
+			optionsPanel.revalidate();
+		}
 	}
 
 	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
@@ -738,7 +772,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		server.paint(svgGenerator);
 		svgGenerator.stream(outsvg, true);
 		outsvg.close();
-	}	
+	}
 
 	private void applyPopupMenu() {
 		JPopupMenu popup = new JPopupMenu();
@@ -808,7 +842,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		viewer.setGraphMouse(mouseModel);
 	}
-	
+
 	private void createPopupMenuItems() {
 		nodeSelectionMenu = new JMenu("Node Selection");
 		nodeSelectionMenu.setEnabled(false);
