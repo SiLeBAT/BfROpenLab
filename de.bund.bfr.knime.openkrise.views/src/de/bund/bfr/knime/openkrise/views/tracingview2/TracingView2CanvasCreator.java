@@ -25,8 +25,8 @@ package de.bund.bfr.knime.openkrise.views.tracingview2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -127,19 +127,11 @@ public class TracingView2CanvasCreator {
 					simpleSuppliers.contains(Integer.parseInt(node.getId())));
 		}
 
-		Map<Edge<GraphNode>, Set<String>> edges = TracingUtilities.readEdges(
-				edgeTable, edgeProperties, nodes, set.isJoinEdges());
-		Map<String, Set<String>> joinMap = new LinkedHashMap<String, Set<String>>();
-
-		for (Edge<GraphNode> edge : edges.keySet()) {
-			joinMap.put(edge.getId(), edges.get(edge));
-		}
-
+		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+				edgeProperties, nodes, set.isJoinEdges());
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
-				nodes.values()),
-				new ArrayList<Edge<GraphNode>>(edges.keySet()), nodeProperties,
-				edgeProperties, deliveries, set.isJoinEdges(), joinMap,
-				set.isEnforeTemporalOrder());
+				nodes.values()), edges, nodeProperties, edgeProperties,
+				deliveries, set.isEnforeTemporalOrder());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

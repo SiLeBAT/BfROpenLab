@@ -26,9 +26,10 @@ package de.bund.bfr.knime.openkrise.views;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -176,10 +177,10 @@ public class TracingUtilities {
 		return nodes;
 	}
 
-	public static Map<Edge<GraphNode>, Set<String>> readEdges(
-			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
+	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
+			Map<String, Class<?>> edgeProperties,
 			Map<Integer, GraphNode> nodes, boolean joinEdges) {
-		Map<Edge<GraphNode>, Set<String>> edges = new LinkedHashMap<Edge<GraphNode>, Set<String>>();
+		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>();
 		int idIndex = edgeTable.getSpec().findColumnIndex(
 				TracingConstants.ID_COLUMN);
 		int fromIndex = edgeTable.getSpec().findColumnIndex(
@@ -204,37 +205,31 @@ public class TracingUtilities {
 
 					TracingUtilities.addToProperties(properties,
 							edgeProperties, edgeTable, row);
-					edges.put(new Edge<GraphNode>(id + "", properties, node1,
-							node2),
-							new LinkedHashSet<String>(Arrays.asList(id + "")));
+					edges.add(new Edge<GraphNode>(id + "", properties, node1,
+							node2));
 				}
 			}
 		} else {
 			Map<Integer, Map<Integer, Map<String, Object>>> edgeMap = new LinkedHashMap<Integer, Map<Integer, Map<String, Object>>>();
-			Map<Integer, Map<Integer, Set<String>>> idMap = new LinkedHashMap<Integer, Map<Integer, Set<String>>>();
 
 			for (DataRow row : edgeTable) {
-				int id = IO.getInt(row.getCell(idIndex));
 				int from = IO.getInt(row.getCell(fromIndex));
 				int to = IO.getInt(row.getCell(toIndex));
 
 				if (!edgeMap.containsKey(from)) {
 					edgeMap.put(from,
 							new LinkedHashMap<Integer, Map<String, Object>>());
-					idMap.put(from, new LinkedHashMap<Integer, Set<String>>());
 				}
 
 				if (!edgeMap.get(from).containsKey(to)) {
 					edgeMap.get(from).put(to,
 							new LinkedHashMap<String, Object>());
-					idMap.get(from).put(to, new LinkedHashSet<String>());
 				}
 
 				Map<String, Object> map = edgeMap.get(from).get(to);
 
 				TracingUtilities.addToProperties(map, edgeProperties,
 						edgeTable, row);
-				idMap.get(from).get(to).add(id + "");
 			}
 
 			int edgeIndex = 0;
@@ -248,9 +243,8 @@ public class TracingUtilities {
 						Map<String, Object> map = edgeMap.get(from).get(to);
 
 						map.put(TracingConstants.ID_COLUMN, edgeIndex);
-						edges.put(new Edge<GraphNode>(edgeIndex + "", edgeMap
-								.get(from).get(to), n1, n2), idMap.get(from)
-								.get(to));
+						edges.add(new Edge<GraphNode>(edgeIndex + "", edgeMap
+								.get(from).get(to), n1, n2));
 						edgeIndex++;
 					}
 				}

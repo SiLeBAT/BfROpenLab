@@ -86,6 +86,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private Set<Edge<GraphNode>> edges;
 	private Set<GraphNode> invisibleNodes;
 	private Set<Edge<GraphNode>> invisibleEdges;
+	private Map<Edge<GraphNode>, Set<Edge<GraphNode>>> joinMap;
 
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
@@ -119,6 +120,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSize = DEFAULT_NODESIZE;
 		invisibleNodes = new LinkedHashSet<GraphNode>();
 		invisibleEdges = new LinkedHashSet<Edge<GraphNode>>();
+		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = CanvasUtilities.createNewProperty(IS_META_NODE,
 				getNodeProperties());
@@ -160,6 +162,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Collection<Edge<GraphNode>> getVisibleEdges() {
 		return getViewer().getGraphLayout().getGraph().getEdges();
+	}
+
+	public Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
+		return joinMap;
 	}
 
 	public Map<String, Point2D> getNodePositions() {
@@ -445,8 +451,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Edge<GraphNode>> oldEdgesById = CanvasUtilities
 				.getElementsById(edges);
 
-		nodes.clear();
-		edges.clear();
+		nodes = new LinkedHashSet<GraphNode>();
+		edges = new LinkedHashSet<Edge<GraphNode>>();
 
 		Map<String, String> collapseTo = new LinkedHashMap<String, String>();
 
@@ -515,6 +521,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
+		if (isJoinEdges()) {
+			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+					getEdgeIdProperty(), getEdgeFromProperty(),
+					getEdgeToProperty());
+			edges = joinMap.keySet();
+		} else {
+			joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
+		}
+
 		invisibleNodes.clear();
 		invisibleEdges.clear();
 		getViewer().getGraphLayout().setGraph(createGraph());
@@ -526,7 +541,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
-		// TODO Auto-generated method stub
+		applyNodeCollapse();
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {

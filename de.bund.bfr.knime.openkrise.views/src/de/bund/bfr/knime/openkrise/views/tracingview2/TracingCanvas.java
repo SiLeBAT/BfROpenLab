@@ -49,31 +49,25 @@ public class TracingCanvas extends GraphCanvas {
 	private static final long serialVersionUID = 1L;
 
 	private HashMap<Integer, MyDelivery> deliveries;
-	private boolean joinEdges;
-	private Map<String, Set<String>> joinMap;
 	private boolean enforceTemporalOrder;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new HashMap<Integer, MyDelivery>(), false,
-				new LinkedHashMap<String, Set<String>>(), false);
+				new HashMap<Integer, MyDelivery>(), false);
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties,
-			HashMap<Integer, MyDelivery> deliveries, boolean joinEdges,
-			Map<String, Set<String>> joinMap, boolean enforceTemporalOrder) {
+			HashMap<Integer, MyDelivery> deliveries,
+			boolean enforceTemporalOrder) {
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 		this.deliveries = deliveries;
-		this.joinEdges = joinEdges;
-		this.joinMap = joinMap;
 		this.enforceTemporalOrder = enforceTemporalOrder;
-		applyTracing();
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -250,11 +244,11 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> edgeIds = new LinkedHashSet<Integer>();
 
 		for (Edge<GraphNode> edge : getVisibleEdges()) {
-			if (!joinEdges) {
+			if (!isJoinEdges()) {
 				edgeIds.add(Integer.parseInt(edge.getId()));
 			} else {
-				for (String idString : joinMap.get(edge.getId())) {
-					edgeIds.add(Integer.parseInt(idString));
+				for (Edge<GraphNode> e : getJoinMap().get(edge)) {
+					edgeIds.add(Integer.parseInt(e.getId()));
 				}
 			}
 		}
@@ -334,7 +328,7 @@ public class TracingCanvas extends GraphCanvas {
 					forwardNodes.contains(id));
 		}
 
-		if (!joinEdges) {
+		if (!isJoinEdges()) {
 			for (Edge<GraphNode> edge : getEdges()) {
 				int id = Integer.parseInt(edge.getId());
 

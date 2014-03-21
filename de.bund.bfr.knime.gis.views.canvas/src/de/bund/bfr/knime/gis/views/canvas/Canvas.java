@@ -159,6 +159,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private Map<String, Class<?>> edgeProperties;
 	private String nodeIdProperty;
 	private String edgeIdProperty;
+	private String edgeFromProperty;
+	private String edgeToProperty;
 
 	public Canvas(Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
@@ -168,6 +170,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeProperties = edgeProperties;
 		this.nodeIdProperty = nodeIdProperty;
 		this.edgeIdProperty = edgeIdProperty;
+		this.edgeFromProperty = edgeFromProperty;
+		this.edgeToProperty = edgeToProperty;
 		this.allowEdges = DEFAULT_ALLOW_EDGES;
 		this.allowHighlighting = DEFAULT_ALLOW_HIGHLIGHTING;
 		this.allowCollapse = DEFAULT_ALLOW_COLLAPSE;
@@ -308,6 +312,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public String getEdgeIdProperty() {
 		return edgeIdProperty;
+	}
+
+	public String getEdgeFromProperty() {
+		return edgeFromProperty;
+	}
+
+	public String getEdgeToProperty() {
+		return edgeToProperty;
 	}
 
 	public void setSelectedNodes(Set<V> selectedNodes) {
@@ -454,6 +466,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		if (e.getSource() == modeBox) {
 			editingMode = (String) modeBox.getSelectedItem();
 			applyMouseModel();
+		} else if (e.getSource() == joinBox) {
+			joinEdges = joinBox.isSelected();
+			applyEdgeJoin();
 		} else if (e.getSource() == saveAsItem) {
 			ImageFileChooser chooser = new ImageFileChooser();
 

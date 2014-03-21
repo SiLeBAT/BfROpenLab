@@ -91,7 +91,7 @@ public class CanvasUtilities {
 		return new Point2D.Double(x, y);
 	}
 
-	public static <V extends Node> Set<Edge<V>> joinEdges(
+	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(
 			Collection<Edge<V>> edges, Map<String, Class<?>> properties,
 			String idProperty, String fromProperty, String toProperty) {
 		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<V, Map<V, Set<Edge<V>>>>();
@@ -111,7 +111,7 @@ public class CanvasUtilities {
 			edgeMap.get(from).get(to).add(edge);
 		}
 
-		Set<Edge<V>> joined = new LinkedHashSet<Edge<V>>();
+		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<Edge<V>, Set<Edge<V>>>();
 		int index = 0;
 
 		for (V from : edgeMap.keySet()) {
@@ -141,7 +141,8 @@ public class CanvasUtilities {
 					prop.put(toProperty, Integer.parseInt(to.getId()));
 				}
 
-				joined.add(new Edge<V>(index + "", prop, from, to));
+				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
+						.get(from).get(to));
 				index++;
 			}
 		}
