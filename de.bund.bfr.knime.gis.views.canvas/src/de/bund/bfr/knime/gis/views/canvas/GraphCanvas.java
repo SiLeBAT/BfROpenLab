@@ -45,6 +45,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -138,6 +139,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSizeButton = new JButton("Apply");
 		nodeSizeButton.addActionListener(this);
 		addOptionsItem("Node Size", nodeSizeField, nodeSizeButton);
+
+		getViewer().getRenderContext().setVertexShapeTransformer(
+				new NodeShapeTransformer<GraphNode>(nodeSize,
+						new LinkedHashMap<GraphNode, Double>()));
+		applyLayout();
 	}
 
 	public Set<GraphNode> getNodes() {
@@ -420,31 +426,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				});
 	}
 
-	protected void applyLayout() {
-		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
-		Layout<GraphNode, Edge<GraphNode>> layout = null;
-
-		if (layoutType.equals(CIRCLE_LAYOUT)) {
-			layout = new CircleLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(FR_LAYOUT)) {
-			layout = new FRLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(FR_LAYOUT_2)) {
-			layout = new FRLayout2<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(ISOM_LAYOUT)) {
-			layout = new ISOMLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(KK_LAYOUT)) {
-			layout = new KKLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(SPRING_LAYOUT)) {
-			layout = new SpringLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(SPRING_LAYOUT_2)) {
-			layout = new SpringLayout2<GraphNode, Edge<GraphNode>>(graph);
-		}
-
-		layout.setSize(getViewer().getSize());
-		setTransform(1.0, 1.0, 0.0, 0.0);
-		getViewer().setGraphLayout(layout);
-	}
-
 	protected void applyNodeCollapse() {
 		Map<String, GraphNode> oldNodesById = CanvasUtilities
 				.getElementsById(nodes);
@@ -542,6 +523,31 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	protected void applyEdgeJoin() {
 		applyNodeCollapse();
+	}
+	
+	private void applyLayout() {
+		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
+		Layout<GraphNode, Edge<GraphNode>> layout = null;
+
+		if (layoutType.equals(CIRCLE_LAYOUT)) {
+			layout = new CircleLayout<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(FR_LAYOUT)) {
+			layout = new FRLayout<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(FR_LAYOUT_2)) {
+			layout = new FRLayout2<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(ISOM_LAYOUT)) {
+			layout = new ISOMLayout<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(KK_LAYOUT)) {
+			layout = new KKLayout<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(SPRING_LAYOUT)) {
+			layout = new SpringLayout<GraphNode, Edge<GraphNode>>(graph);
+		} else if (layoutType.equals(SPRING_LAYOUT_2)) {
+			layout = new SpringLayout2<GraphNode, Edge<GraphNode>>(graph);
+		}
+
+		layout.setSize(getViewer().getSize());
+		setTransform(1.0, 1.0, 0.0, 0.0);
+		getViewer().setGraphLayout(layout);
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {

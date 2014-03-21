@@ -40,6 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -115,6 +116,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		locationSizeButton.addActionListener(this);
 		addOptionsItem("Location Size", locationSizeField, locationSizeButton);
 
+		getViewer().getRenderContext().setVertexShapeTransformer(
+				new NodeShapeTransformer<LocationNode>(locationSize,
+						new LinkedHashMap<LocationNode, Double>()));
 		createGraph();
 	}
 

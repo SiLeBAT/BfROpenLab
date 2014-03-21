@@ -225,6 +225,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		addOptionsItem("Editing Mode", modeBox);
 		addOptionsItem("Join Edges", joinBox);
 		createPopupMenuItems();
+		applyPopupMenu();
+		applyMouseModel();
 	}
 
 	public void addSelectionListener(SelectionListener<V> listener) {
@@ -295,6 +297,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setJoinEdges(boolean joinEdges) {
 		this.joinEdges = joinEdges;
+		joinBox.setSelected(joinEdges);
 		applyEdgeJoin();
 	}
 
