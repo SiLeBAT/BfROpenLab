@@ -83,7 +83,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty);
+				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
+				set.getEdgeToColumn());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());
@@ -132,7 +133,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 				edgeProperties);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<LocationNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty, regionNodes);
+				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
+				set.getEdgeToColumn(), regionNodes);
 
 		canvas.setCanvasSize(set.getGisCanvasSize());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());

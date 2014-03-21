@@ -60,8 +60,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	public GisCanvas(List<RegionNode> regions,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty) {
-		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty);
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty) {
+		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
+				edgeFromProperty, edgeToProperty);
 		setAllowCollapse(false);
 		this.regions = regions;
 		borderAlpha = DEFAULT_BORDER_ALPHA;

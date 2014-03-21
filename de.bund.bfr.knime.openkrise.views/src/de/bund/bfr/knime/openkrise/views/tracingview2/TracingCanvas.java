@@ -67,7 +67,8 @@ public class TracingCanvas extends GraphCanvas {
 			HashMap<Integer, MyDelivery> deliveries, boolean joinEdges,
 			Map<String, Set<String>> joinMap, boolean enforceTemporalOrder) {
 		super(nodes, edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
+				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
+				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 		this.deliveries = deliveries;
 		this.joinEdges = joinEdges;
 		this.joinMap = joinMap;
@@ -235,13 +236,13 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected boolean applyHighlights() {		
+	protected boolean applyHighlights() {
 		if (super.applyHighlights()) {
 			applyTracing();
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -262,7 +263,7 @@ public class TracingCanvas extends GraphCanvas {
 
 		for (int id : edgeIds) {
 			activeDeliveries.put(id, deliveries.get(id));
-		}		
+		}
 
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries, null, null,
 				0.0);
@@ -352,7 +353,7 @@ public class TracingCanvas extends GraphCanvas {
 				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
 			}
 		}
-		
+
 		applyHighlights();
 	}
 }

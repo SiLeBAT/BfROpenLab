@@ -76,7 +76,8 @@ public class GraphVisualizerCanvasCreator {
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty);
+				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
+				set.getEdgeToColumn());
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

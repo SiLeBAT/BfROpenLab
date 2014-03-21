@@ -91,6 +91,64 @@ public class CanvasUtilities {
 		return new Point2D.Double(x, y);
 	}
 
+	public static <V extends Node> Set<Edge<V>> joinEdges(
+			Collection<Edge<V>> edges, Map<String, Class<?>> properties,
+			String idProperty, String fromProperty, String toProperty) {
+		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<V, Map<V, Set<Edge<V>>>>();
+
+		for (Edge<V> edge : edges) {
+			V from = edge.getFrom();
+			V to = edge.getTo();
+
+			if (!edgeMap.containsKey(from)) {
+				edgeMap.put(from, new LinkedHashMap<V, Set<Edge<V>>>());
+			}
+
+			if (!edgeMap.get(from).containsKey(to)) {
+				edgeMap.get(from).put(to, new LinkedHashSet<Edge<V>>());
+			}
+
+			edgeMap.get(from).get(to).add(edge);
+		}
+
+		Set<Edge<V>> joined = new LinkedHashSet<Edge<V>>();
+		int index = 0;
+
+		for (V from : edgeMap.keySet()) {
+			for (V to : edgeMap.get(from).keySet()) {
+				Map<String, Object> prop = new LinkedHashMap<String, Object>();
+
+				for (Edge<V> edge : edgeMap.get(from).get(to)) {
+					CanvasUtilities.addMapToMap(prop, properties,
+							edge.getProperties());
+				}
+
+				if (properties.get(idProperty) == String.class) {
+					prop.put(idProperty, index + "");
+				} else if (properties.get(idProperty) == Integer.class) {
+					prop.put(idProperty, index);
+				}
+
+				if (properties.get(fromProperty) == String.class) {
+					prop.put(fromProperty, from.getId());
+				} else if (properties.get(fromProperty) == Integer.class) {
+					prop.put(fromProperty, Integer.parseInt(from.getId()));
+				}
+
+				if (properties.get(toProperty) == String.class) {
+					prop.put(toProperty, to.getId());
+				} else if (properties.get(toProperty) == Integer.class) {
+					prop.put(toProperty, Integer.parseInt(to.getId()));
+				}
+
+				joined.add(new Edge<V>(index + "", prop, from, to));
+				index++;
+			}
+		}
+
+		return joined;
+	}
+
 	public static void addMapToMap(Map<String, Object> map,
 			Map<String, Class<?>> properties, Map<String, Object> addMap) {
 		for (String property : properties.keySet()) {

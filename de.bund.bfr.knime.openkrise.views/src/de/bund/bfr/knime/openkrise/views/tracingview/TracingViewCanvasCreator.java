@@ -74,7 +74,8 @@ public class TracingViewCanvasCreator {
 						set.isJoinEdges()).keySet());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN);
+				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
+				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setLayoutType(set.getGraphLayout());

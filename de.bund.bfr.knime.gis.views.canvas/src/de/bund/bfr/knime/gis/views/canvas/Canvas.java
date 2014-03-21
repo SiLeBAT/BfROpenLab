@@ -162,7 +162,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public Canvas(Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty) {
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty) {
 		this.nodeProperties = nodeProperties;
 		this.edgeProperties = edgeProperties;
 		this.nodeIdProperty = nodeIdProperty;
@@ -766,7 +767,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void expandFromNode();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
-	
+
 	private void applyPopupMenu() {
 		JPopupMenu popup = new JPopupMenu();
 

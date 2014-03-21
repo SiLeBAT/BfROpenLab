@@ -100,14 +100,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public GraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null);
+				new LinkedHashMap<String, Class<?>>(), null, null, null, null);
 	}
-	
+
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty) {
-		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty);
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty) {
+		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
+				edgeFromProperty, edgeToProperty);
 		setAllowEdges(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
@@ -521,10 +523,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getPickedVertexState().clear();
 		applyHighlights();
 	}
-	
+
 	@Override
 	protected void applyEdgeJoin() {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {

@@ -63,30 +63,33 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null, allowEdges);
+				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
+				allowEdges);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes,
 			Map<String, Class<?>> nodeProperties, String nodeIdProperty) {
 		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeProperties,
 				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
-				false);
+				null, null, false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty) {
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty) {
 		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, true);
+				edgeIdProperty, edgeFromProperty, edgeToProperty, true);
 	}
 
 	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, boolean allowEdges) {
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty, boolean allowEdges) {
 		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty);
+				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(edges);
 		setAllowEdges(allowEdges);
@@ -152,7 +155,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		return CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
 				invisibleEdges, getEdgeHighlightConditions());
 	}
-	
+
 	@Override
 	protected void applyEdgeJoin() {
 		// TODO Auto-generated method stub

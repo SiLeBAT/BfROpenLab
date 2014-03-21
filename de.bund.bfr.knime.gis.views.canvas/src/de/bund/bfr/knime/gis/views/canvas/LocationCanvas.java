@@ -63,7 +63,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this(new ArrayList<LocationNode>(),
 				new ArrayList<Edge<LocationNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null,
+				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
 				new ArrayList<RegionNode>(), allowEdges);
 	}
 
@@ -72,26 +72,28 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			List<RegionNode> regions) {
 		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeProperties,
 				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
-				regions, false);
+				null, null, regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, List<RegionNode> regions) {
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty, List<RegionNode> regions) {
 		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, regions, true);
+				edgeIdProperty, edgeFromProperty, edgeToProperty, regions, true);
 	}
 
 	private LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, List<RegionNode> regionNodes,
+			String edgeIdProperty, String edgeFromProperty,
+			String edgeToProperty, List<RegionNode> regionNodes,
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty);
+				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(edges);
 		setAllowEdges(allowEdges);
@@ -122,8 +124,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		locationSizeField = new JTextField("" + locationSize, 5);
 		locationSizeButton = new JButton("Apply");
 		locationSizeButton.addActionListener(this);
-		addOptionsItem("Location Size", locationSizeField,
-				locationSizeButton);
+		addOptionsItem("Location Size", locationSizeField, locationSizeButton);
 	}
 
 	public Set<LocationNode> getNodes() {
@@ -228,7 +229,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 	}
 
 }
