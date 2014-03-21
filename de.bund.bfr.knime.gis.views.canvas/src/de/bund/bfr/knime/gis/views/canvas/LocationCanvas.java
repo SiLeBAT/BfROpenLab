@@ -226,4 +226,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				});
 	}
 
+	@Override
+	protected void applyEdgeJoin() {
+		// TODO Auto-generated method stub	
+	}
+
 }

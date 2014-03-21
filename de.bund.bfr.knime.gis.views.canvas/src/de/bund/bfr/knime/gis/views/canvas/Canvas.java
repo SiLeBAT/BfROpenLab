@@ -52,6 +52,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -107,6 +108,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
+	private static final boolean DEFAULT_JOIN_EDGES = true;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -144,6 +146,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private String editingMode;
 	private JComboBox<String> modeBox;
+	private boolean joinEdges;
+	private JCheckBox joinBox;
 
 	private List<SelectionListener<V>> selectionListeners;
 	private List<HighlightListener> highlightListeners;
@@ -171,6 +175,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		translationX = Double.NaN;
 		translationY = Double.NaN;
 		editingMode = DEFAULT_MODE;
+		joinEdges = DEFAULT_JOIN_EDGES;
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -191,29 +196,30 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 
+		selectionListeners = new ArrayList<SelectionListener<V>>();
+		highlightListeners = new ArrayList<HighlightListener>();
+		nodeHighlightConditions = new HighlightConditionList();
+		edgeHighlightConditions = new HighlightConditionList();
+
 		optionsPanel = new JPanel();
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		setLayout(new BorderLayout());
-		add(viewer, BorderLayout.CENTER);
-		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
 
 		modeBox = new JComboBox<String>(new String[] { TRANSFORMING_MODE,
 				PICKING_MODE });
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
+
+		joinBox = new JCheckBox("Activate");
+		joinBox.setSelected(joinEdges);
+		joinBox.addActionListener(this);
+
+		setLayout(new BorderLayout());
+		add(viewer, BorderLayout.CENTER);
+		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
 		addOptionsItem("Editing Mode", modeBox);
-
-		selectionListeners = new ArrayList<SelectionListener<V>>();
-		highlightListeners = new ArrayList<HighlightListener>();
-
-		nodeHighlightConditions = new HighlightConditionList();
-		edgeHighlightConditions = new HighlightConditionList();
-
+		addOptionsItem("Join Edges", joinBox);
 		createPopupMenuItems();
-		applyPopupMenu();
-		applyMouseModel();
 	}
 
 	public void addSelectionListener(SelectionListener<V> listener) {
@@ -247,6 +253,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setAllowEdges(boolean allowEdges) {
 		this.allowEdges = allowEdges;
 		applyPopupMenu();
+		setOptionsItemVisible("Join Edges", allowEdges);
 	}
 
 	public boolean isAllowHighlighting() {
@@ -275,6 +282,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.editingMode = editingMode;
 		modeBox.setSelectedItem(editingMode);
 		applyMouseModel();
+	}
+
+	public boolean isJoinEdges() {
+		return joinEdges;
+	}
+
+	public void setJoinEdges(boolean joinEdges) {
+		this.joinEdges = joinEdges;
+		applyEdgeJoin();
 	}
 
 	public Map<String, Class<?>> getNodeProperties() {
@@ -685,11 +701,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		JPanel panel = (JPanel) optionsPanel.getComponent(index);
 
-		if (visible && panel.getPreferredSize().width != 0) {
+		if (!visible && panel.getPreferredSize().width != 0) {
 			panel.setPreferredSize(new Dimension(0, 0));
 			optionsPanel.remove(index + 1);
 			optionsPanel.revalidate();
-		} else if (!visible && panel.getPreferredSize().width == 0) {
+		} else if (visible && panel.getPreferredSize().width == 0) {
 			panel.setPreferredSize(panel.getMinimumSize());
 			optionsPanel.add(Box.createHorizontalStrut(5), index + 1);
 			optionsPanel.revalidate();
@@ -733,6 +749,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 	}
 
+	protected abstract void applyEdgeJoin();
+
 	protected abstract void resetLayout();
 
 	protected abstract HighlightListDialog openNodeHighlightDialog();
@@ -748,32 +766,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void expandFromNode();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
-
-	private void saveAsPng(File file) throws IOException {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
-		BufferedImage img = new BufferedImage(viewer.getWidth(),
-				viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-		server.paint(img.getGraphics());
-		ImageIO.write(img, "png", file);
-	}
-
-	private void saveAsSvg(File file) throws IOException {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
-		DOMImplementation domImpl = GenericDOMImplementation
-				.getDOMImplementation();
-		Document document = domImpl.createDocument(null, "svg", null);
-		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-		Writer outsvg = new OutputStreamWriter(new FileOutputStream(file),
-				"UTF-8");
-
-		svgGenerator.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer
-				.getHeight()));
-		server.paint(svgGenerator);
-		svgGenerator.stream(outsvg, true);
-		outsvg.close();
-	}
-
+	
 	private void applyPopupMenu() {
 		JPopupMenu popup = new JPopupMenu();
 
@@ -841,6 +834,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		viewer.setGraphMouse(mouseModel);
+	}
+
+	private void saveAsPng(File file) throws IOException {
+		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
+		BufferedImage img = new BufferedImage(viewer.getWidth(),
+				viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+		server.paint(img.getGraphics());
+		ImageIO.write(img, "png", file);
+	}
+
+	private void saveAsSvg(File file) throws IOException {
+		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
+		DOMImplementation domImpl = GenericDOMImplementation
+				.getDOMImplementation();
+		Document document = domImpl.createDocument(null, "svg", null);
+		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+		Writer outsvg = new OutputStreamWriter(new FileOutputStream(file),
+				"UTF-8");
+
+		svgGenerator.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer
+				.getHeight()));
+		server.paint(svgGenerator);
+		svgGenerator.stream(outsvg, true);
+		outsvg.close();
 	}
 
 	private void createPopupMenuItems() {

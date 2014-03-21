@@ -152,6 +152,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		return CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
 				invisibleEdges, getEdgeHighlightConditions());
 	}
+	
+	@Override
+	protected void applyEdgeJoin() {
+		// TODO Auto-generated method stub
+	}
 
 	@Override
 	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel() {

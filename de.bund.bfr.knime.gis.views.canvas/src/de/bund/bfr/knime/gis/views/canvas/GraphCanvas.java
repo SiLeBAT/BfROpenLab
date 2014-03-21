@@ -123,9 +123,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 		random = new Random();
 
-		applyLayout();
-		applyHighlights();
-
 		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
 				FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT,
 				SPRING_LAYOUT_2 });
@@ -523,6 +520,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
 		applyHighlights();
+	}
+	
+	@Override
+	protected void applyEdgeJoin() {
+		// TODO Auto-generated method stub		
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
