@@ -82,7 +82,8 @@ public class TracingViewInputDialog extends JDialog implements ActionListener {
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
-		add(UI.createButtonPanel(okButton, cancelButton), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
+				BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
 	}

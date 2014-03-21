@@ -133,7 +133,8 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 		setLayout(new BorderLayout());
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)),
 				BorderLayout.CENTER);
-		add(UI.createButtonPanel(okButton, cancelButton), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
+				BorderLayout.SOUTH);
 		pack();
 	}
 

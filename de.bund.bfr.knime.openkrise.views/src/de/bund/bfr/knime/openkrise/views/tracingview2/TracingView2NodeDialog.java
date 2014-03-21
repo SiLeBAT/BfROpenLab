@@ -99,7 +99,7 @@ public class TracingView2NodeDialog extends DataAwareNodeDialogPane implements
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createButtonPanel(inputButton,
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(inputButton,
 				forgetConfigButton, enforceTempBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 

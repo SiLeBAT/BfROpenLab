@@ -222,7 +222,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		setAllButton = new JButton("Set All To");
 		setAllButton.addActionListener(this);
 
-		return UI.createWestPanel(UI.createButtonPanel(filterButton,
+		return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
 				setAllButton));
 	}
 

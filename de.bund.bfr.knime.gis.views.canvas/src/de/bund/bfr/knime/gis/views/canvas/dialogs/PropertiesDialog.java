@@ -63,7 +63,7 @@ public class PropertiesDialog extends JDialog implements ActionListener {
 		bottomPanel.setLayout(new BorderLayout());
 		bottomPanel.add(UI.createEmptyBorderPanel(numberLabel),
 				BorderLayout.WEST);
-		bottomPanel.add(UI.createButtonPanel(okButton), BorderLayout.CENTER);
+		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);

@@ -92,25 +92,25 @@ public class UI {
 		return panel;
 	}
 
-	public static JPanel createButtonPanel(JComponent... buttons) {
+	public static JPanel createHorizontalPanel(JComponent... components) {
 		JPanel buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		for (JComponent button : buttons) {
+		for (JComponent button : components) {
 			buttonPanel.add(Box.createHorizontalStrut(5));
 			buttonPanel.add(button);
 		}
 
 		buttonPanel.remove(0);
 
-		return UI.createEastPanel(buttonPanel);
+		return buttonPanel;
 	}
 
 	public static JPanel createOptionsPanel(String name,
 			List<? extends JComponent> leftComponents,
-			List<? extends JComponent> rightOComponents) {
+			List<? extends JComponent> rightComponents) {
 		int n = leftComponents.size();
 
 		JPanel leftPanel = new JPanel();
@@ -121,7 +121,7 @@ public class UI {
 
 		for (int i = 0; i < n; i++) {
 			leftPanel.add(leftComponents.get(i));
-			rightPanel.add(rightOComponents.get(i));
+			rightPanel.add(rightComponents.get(i));
 		}
 
 		JPanel innerPanel = new JPanel();

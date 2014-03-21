@@ -237,8 +237,8 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		bottomPanel.setLayout(new BorderLayout());
 		bottomPanel.add(new JSeparator(), BorderLayout.NORTH);
-		bottomPanel.add(UI.createButtonPanel(okButton, cancelButton),
-				BorderLayout.CENTER);
+		bottomPanel.add(UI.createHorizontalPanel(okButton, cancelButton),
+				BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
 		add(upperPanel, BorderLayout.NORTH);

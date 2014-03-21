@@ -286,7 +286,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		panel.setBorder(BorderFactory
 				.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createButtonPanel(clearButton,
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton,
 				limitsBox)), BorderLayout.NORTH);
 		panel.add(new JScrollPane(rangePanel), BorderLayout.CENTER);
 

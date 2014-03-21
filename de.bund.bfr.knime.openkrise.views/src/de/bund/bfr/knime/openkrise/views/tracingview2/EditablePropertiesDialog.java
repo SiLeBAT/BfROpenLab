@@ -82,11 +82,11 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		southPanel.add(
 				UI.createEmptyBorderPanel(new JLabel("Number of Elements: "
 						+ elements.size())), BorderLayout.WEST);
-		southPanel.add(UI.createButtonPanel(okButton, cancelButton),
-				BorderLayout.CENTER);
+		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton),
+				BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
-		add(UI.createWestPanel(UI.createButtonPanel(weightButton,
+		add(UI.createWestPanel(UI.createHorizontalPanel(weightButton,
 				contaminationButton, filterButton)), BorderLayout.NORTH);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
