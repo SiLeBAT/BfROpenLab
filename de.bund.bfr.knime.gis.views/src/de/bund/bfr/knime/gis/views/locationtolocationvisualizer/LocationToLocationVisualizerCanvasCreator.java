@@ -90,8 +90,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setLayoutType(set.getGraphLayout());
-		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setLayoutType(set.getGraphLayout());		
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
@@ -99,6 +98,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedEdges()));
+		canvas.setNodePositions(set.getGraphNodePositions());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())

@@ -447,8 +447,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		for (GraphNode node : allNodes) {
 			if (!collapseTo.keySet().contains(node.getId())) {
-				nodes.add(node);
-				nodesById.put(node.getId(), node);
+				GraphNode newNode = oldNodesById.get(node.getId());
+
+				if (newNode == null) {
+					newNode = new GraphNode(node.getId(),
+							new LinkedHashMap<String, Object>(
+									node.getProperties()), node.getRegion());
+				}
+
+				nodes.add(newNode);
+				nodesById.put(node.getId(), newNode);
 			}
 		}
 
@@ -473,32 +481,39 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		for (Edge<GraphNode> edge : allEdges) {
-			GraphNode from = edge.getFrom();
-			GraphNode to = edge.getTo();
+			GraphNode from = nodesById.get(edge.getFrom().getId());
+			GraphNode to = nodesById.get(edge.getTo().getId());
 
-			if (collapseTo.containsKey(from.getId())
-					|| collapseTo.containsKey(to.getId())) {
+			if (from == null || to == null) {
 				Edge<GraphNode> newEdge = oldEdgesById.get(edge.getId());
 
-				if (collapseTo.containsKey(from.getId())) {
-					from = nodesById.get(collapseTo.get(from.getId()));
+				if (from == null) {
+					from = nodesById
+							.get(collapseTo.get(edge.getFrom().getId()));
 				}
 
-				if (collapseTo.containsKey(to.getId())) {
-					to = nodesById.get(collapseTo.get(to.getId()));
+				if (to == null) {
+					to = nodesById.get(collapseTo.get(edge.getTo().getId()));
 				}
 
-				if (newEdge == null || !newEdge.getFrom().equals(from)
-						|| !newEdge.getTo().equals(to)) {
+				if (newEdge == null) {
 					newEdge = new Edge<GraphNode>(edge.getId(),
-							edge.getProperties(), from, to);
+							new LinkedHashMap<String, Object>(
+									edge.getProperties()), from, to);
+				} else if (!newEdge.getFrom().equals(from)
+						|| !newEdge.getTo().equals(to)) {
+					newEdge = new Edge<GraphNode>(newEdge.getId(),
+							newEdge.getProperties(), from, to);
 				}
 
 				if (!newEdge.getFrom().equals(newEdge.getTo())) {
 					edges.add(newEdge);
 				}
 			} else {
-				edges.add(edge);
+				edges.add(new Edge<GraphNode>(
+						edge.getId(),
+						new LinkedHashMap<String, Object>(edge.getProperties()),
+						from, to));
 			}
 		}
 
@@ -524,7 +539,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected void applyEdgeJoin() {
 		applyNodeCollapse();
 	}
-	
+
 	private void applyLayout() {
 		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
