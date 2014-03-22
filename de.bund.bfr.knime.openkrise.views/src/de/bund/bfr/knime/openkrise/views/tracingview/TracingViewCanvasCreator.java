@@ -76,20 +76,20 @@ public class TracingViewCanvasCreator {
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 
-		canvas.setCanvasSize(set.getGraphCanvasSize());
-		canvas.setLayoutType(set.getGraphLayout());
-		canvas.setNodePositions(set.getGraphNodePositions());
 		canvas.setAllowCollapse(true);
+		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
+		canvas.setLayoutType(set.getGraphLayout());
+		canvas.setNodePositions(set.getGraphNodePositions());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
+		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedEdges()));
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())

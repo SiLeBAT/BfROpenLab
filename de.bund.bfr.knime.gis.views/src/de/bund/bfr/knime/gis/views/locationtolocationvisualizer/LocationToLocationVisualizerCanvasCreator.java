@@ -86,19 +86,19 @@ public class LocationToLocationVisualizerCanvasCreator {
 				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
 				set.getEdgeToColumn());
 
-		canvas.setCanvasSize(set.getGraphCanvasSize());
-		canvas.setLayoutType(set.getGraphLayout());
-		canvas.setNodePositions(set.getGraphNodePositions());
 		canvas.setAllowCollapse(false);
+		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
+		canvas.setLayoutType(set.getGraphLayout());
+		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setJoinEdges(set.isJoinEdges());
+		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedEdges()));
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
-		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -138,16 +138,16 @@ public class LocationToLocationVisualizerCanvasCreator {
 				set.getEdgeToColumn(), regionNodes);
 
 		canvas.setCanvasSize(set.getGisCanvasSize());
+		canvas.setEditingMode(set.getGisEditingMode());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());
 		canvas.setLocationSize(set.getGisLocationSize());
+		canvas.setJoinEdges(set.isJoinEdges());
+		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGisSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
 				.getGisSelectedEdges()));
-		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
-		canvas.setEditingMode(set.getGisEditingMode());
-		canvas.setJoinEdges(set.isJoinEdges());
 
 		if (!Double.isNaN(set.getGisScaleX())
 				&& !Double.isNaN(set.getGisScaleY())
