@@ -303,14 +303,16 @@ public class MyNewTracing {
 		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
 			for (Integer key : allDeliveriesSrc.keySet()) {
 				MyDelivery md = allDeliveriesSrc.get(key);
-				MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDay(), md.getDeliveryMonth(), md.getDeliveryYear());
-				for (Integer next : md.getAllNextIDs()) {
-					mdNew.addNext(next);
+				if (md != null) {
+					MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDay(), md.getDeliveryMonth(), md.getDeliveryYear());
+					for (Integer next : md.getAllNextIDs()) {
+						mdNew.addNext(next);
+					}
+					for (Integer previous : md.getAllPreviousIDs()) {
+						mdNew.addPrevious(previous);
+					}
+					allDeliveriesCloned.put(key, mdNew);
 				}
-				for (Integer previous : md.getAllPreviousIDs()) {
-					mdNew.addPrevious(previous);
-				}
-				allDeliveriesCloned.put(key, mdNew);
 			}
 		return allDeliveriesCloned;
 	}
