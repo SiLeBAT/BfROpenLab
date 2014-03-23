@@ -192,62 +192,19 @@ public class TracingUtilities {
 			return edges;
 		}
 
-		if (!joinEdges) {
-			for (DataRow row : edgeTable) {
-				int id = IO.getInt(row.getCell(idIndex));
-				int from = IO.getInt(row.getCell(fromIndex));
-				int to = IO.getInt(row.getCell(toIndex));
-				GraphNode node1 = nodes.get(from);
-				GraphNode node2 = nodes.get(to);
+		for (DataRow row : edgeTable) {
+			int id = IO.getInt(row.getCell(idIndex));
+			int from = IO.getInt(row.getCell(fromIndex));
+			int to = IO.getInt(row.getCell(toIndex));
+			GraphNode node1 = nodes.get(from);
+			GraphNode node2 = nodes.get(to);
 
-				if (node1 != null && node2 != null) {
-					Map<String, Object> properties = new LinkedHashMap<String, Object>();
+			if (node1 != null && node2 != null) {
+				Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
-					TracingUtilities.addToProperties(properties,
-							edgeProperties, edgeTable, row);
-					edges.add(new Edge<GraphNode>(id + "", properties, node1,
-							node2));
-				}
-			}
-		} else {
-			Map<Integer, Map<Integer, Map<String, Object>>> edgeMap = new LinkedHashMap<Integer, Map<Integer, Map<String, Object>>>();
-
-			for (DataRow row : edgeTable) {
-				int from = IO.getInt(row.getCell(fromIndex));
-				int to = IO.getInt(row.getCell(toIndex));
-
-				if (!edgeMap.containsKey(from)) {
-					edgeMap.put(from,
-							new LinkedHashMap<Integer, Map<String, Object>>());
-				}
-
-				if (!edgeMap.get(from).containsKey(to)) {
-					edgeMap.get(from).put(to,
-							new LinkedHashMap<String, Object>());
-				}
-
-				Map<String, Object> map = edgeMap.get(from).get(to);
-
-				TracingUtilities.addToProperties(map, edgeProperties,
+				TracingUtilities.addToProperties(properties, edgeProperties,
 						edgeTable, row);
-			}
-
-			int edgeIndex = 0;
-
-			for (int from : edgeMap.keySet()) {
-				for (int to : edgeMap.get(from).keySet()) {
-					GraphNode n1 = nodes.get(from);
-					GraphNode n2 = nodes.get(to);
-
-					if (n1 != null && n2 != null) {
-						Map<String, Object> map = edgeMap.get(from).get(to);
-
-						map.put(TracingConstants.ID_COLUMN, edgeIndex);
-						edges.add(new Edge<GraphNode>(edgeIndex + "", edgeMap
-								.get(from).get(to), n1, n2));
-						edgeIndex++;
-					}
-				}
+				edges.add(new Edge<GraphNode>(id + "", properties, node1, node2));
 			}
 		}
 
