@@ -537,7 +537,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
+		Set<String> selectedNodes = getSelectedNodeIds();
+
 		applyNodeCollapse();
+		setSelectedNodeIds(selectedNodes);
 	}
 
 	private void applyLayout() {
