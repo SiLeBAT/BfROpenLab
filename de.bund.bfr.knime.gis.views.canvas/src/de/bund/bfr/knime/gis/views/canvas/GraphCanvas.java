@@ -427,6 +427,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyNodeCollapse() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 		Map<String, GraphNode> oldNodesById = CanvasUtilities
 				.getElementsById(nodes);
 		Map<String, Edge<GraphNode>> oldEdgesById = CanvasUtilities
@@ -533,11 +535,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
 		applyHighlights();
+		setSelectedNodeIds(selectedNodeIds);
+		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	@Override
 	protected void applyEdgeJoin() {
-		applyNodeCollapse();
+		applyNodeCollapse();		
 	}
 
 	private void applyLayout() {
