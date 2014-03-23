@@ -541,7 +541,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
-		applyNodeCollapse();		
+		applyNodeCollapse();
 	}
 
 	private void applyLayout() {
