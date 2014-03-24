@@ -93,7 +93,8 @@ public class CanvasUtilities {
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(
 			Collection<Edge<V>> edges, Map<String, Class<?>> properties,
-			String idProperty, String fromProperty, String toProperty) {
+			String idProperty, String fromProperty, String toProperty,
+			Set<String> usedIds) {
 		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<V, Map<V, Set<Edge<V>>>>();
 
 		for (Edge<V> edge : edges) {
@@ -141,9 +142,12 @@ public class CanvasUtilities {
 					prop.put(toProperty, Integer.parseInt(to.getId()));
 				}
 
+				while (!usedIds.add(index + "")) {
+					index++;
+				}
+
 				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
 						.get(from).get(to));
-				index++;
 			}
 		}
 

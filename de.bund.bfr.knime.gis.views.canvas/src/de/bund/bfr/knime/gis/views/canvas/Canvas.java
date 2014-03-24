@@ -83,9 +83,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.listener.EdgeJoinListener;
-import de.bund.bfr.knime.gis.views.canvas.listener.HighlightListener;
-import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
+import de.bund.bfr.knime.gis.views.canvas.listener.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -150,9 +148,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private boolean joinEdges;
 	private JCheckBox joinBox;
 
-	private List<SelectionListener<V>> selectionListeners;
-	private List<HighlightListener> highlightListeners;
-	private List<EdgeJoinListener> edgeJoinListeners;
+	private List<CanvasListener> canvasListeners;
 
 	private HighlightConditionList nodeHighlightConditions;
 	private HighlightConditionList edgeHighlightConditions;
@@ -203,9 +199,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 
-		selectionListeners = new ArrayList<SelectionListener<V>>();
-		highlightListeners = new ArrayList<HighlightListener>();
-		edgeJoinListeners = new ArrayList<EdgeJoinListener>();
+		canvasListeners = new ArrayList<CanvasListener>();
 
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
@@ -233,28 +227,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyMouseModel();
 	}
 
-	public void addSelectionListener(SelectionListener<V> listener) {
-		selectionListeners.add(listener);
+	public void addCanvasListener(CanvasListener listener) {
+		canvasListeners.add(listener);
 	}
 
-	public void removeSelectionListener(SelectionListener<V> listener) {
-		selectionListeners.remove(listener);
-	}
-
-	public void addHighlightListener(HighlightListener listener) {
-		highlightListeners.add(listener);
-	}
-
-	public void removeHighlightListener(HighlightListener listener) {
-		highlightListeners.remove(listener);
-	}
-
-	public void addEdgeJoinListener(EdgeJoinListener listener) {
-		edgeJoinListeners.add(listener);
-	}
-
-	public void removeEdgeJoinListener(EdgeJoinListener listener) {
-		edgeJoinListeners.remove(listener);
+	public void removeCanvasListener(CanvasListener listener) {
+		canvasListeners.remove(listener);
 	}
 
 	public Dimension getCanvasSize() {
@@ -356,6 +334,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.getPickedEdgeState().pick(edge, false);
 			}
 		}
+	}
+
+	public Set<V> getSelectedNodes() {
+		return viewer.getPickedVertexState().getPicked();
+	}
+
+	public Set<Edge<V>> getSelectedEdges() {
+		return viewer.getPickedEdgeState().getPicked();
 	}
 
 	public Set<String> getSelectedNodeIds() {
@@ -944,34 +930,32 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	private void fireNodeSelectionChanged() {
-		for (SelectionListener<V> listener : selectionListeners) {
-			listener.nodeSelectionChanged(viewer.getPickedVertexState()
-					.getPicked());
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodeSelectionChanged(this);
 		}
 	}
 
 	private void fireEdgeSelectionChanged() {
-		for (SelectionListener<V> listener : selectionListeners) {
-			listener.edgeSelectionChanged(viewer.getPickedEdgeState()
-					.getPicked());
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeSelectionChanged(this);
 		}
 	}
 
 	private void fireNodeHighlightingChanged() {
-		for (HighlightListener listener : highlightListeners) {
-			listener.nodeHighlightingChanged(nodeHighlightConditions);
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodeHighlightingChanged(this);
 		}
 	}
 
 	private void fireEdgeHighlightingChanged() {
-		for (HighlightListener listener : highlightListeners) {
-			listener.edgeHighlightingChanged(edgeHighlightConditions);
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeHighlightingChanged(this);
 		}
 	}
-	
+
 	private void fireEdgeJoinChanged() {
-		for (EdgeJoinListener listener : edgeJoinListeners) {
-			listener.edgesJoinChanged(joinEdges);
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeJoinChanged(this);
 		}
 	}
 }

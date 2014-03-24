@@ -522,7 +522,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		if (isJoinEdges()) {
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty());
+					getEdgeToProperty(),
+					CanvasUtilities.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();

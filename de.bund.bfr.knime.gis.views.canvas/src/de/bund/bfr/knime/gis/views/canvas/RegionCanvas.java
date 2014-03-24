@@ -151,16 +151,20 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+		
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty()).keySet();
+					getEdgeToProperty(),
+					CanvasUtilities.getElementIds(allEdges)).keySet();
 		} else {
 			edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		}
 
 		createGraph();
 		applyHighlights();
+		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	@Override

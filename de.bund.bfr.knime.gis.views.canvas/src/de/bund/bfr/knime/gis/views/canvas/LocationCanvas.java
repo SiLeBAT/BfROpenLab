@@ -224,16 +224,20 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected void applyEdgeJoin() {
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+		
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty()).keySet();
+					getEdgeToProperty(),
+					CanvasUtilities.getElementIds(allEdges)).keySet();
 		} else {
 			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		}
 
 		createGraph();
 		applyHighlights();
+		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	private void createGraph() {

@@ -54,13 +54,13 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.gis.views.canvas.listener.EdgeJoinListener;
-import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
+import de.bund.bfr.knime.gis.views.canvas.listener.CanvasListener;
 
 /**
  * <code>NodeDialog</code> for the "RegionToRegionVisualizer" Node.
@@ -74,7 +74,7 @@ import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
  * @author Christian Thoens
  */
 public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ComponentListener {
+		implements ActionListener, ComponentListener, CanvasListener {
 
 	private JPanel panel;
 	private JSplitPane splitPane;
@@ -88,11 +88,6 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	private BufferedDataTable edgeTable;
 
 	private RegionToRegionVisualizerSettings set;
-
-	private SelectionListener<GraphNode> graphSelectionListener;
-	private SelectionListener<RegionNode> gisSelectionListener;
-	private EdgeJoinListener graphEdgeJoinListener;
-	private EdgeJoinListener gisEdgeJoinListener;
 
 	/**
 	 * New pane for configuring the RegionToRegionVisualizer node.
@@ -111,7 +106,6 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
-		createListeners();
 	}
 
 	@Override
@@ -165,6 +159,184 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	public void componentShown(ComponentEvent e) {
 	}
 
+	@Override
+	public void nodeSelectionChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			Set<RegionNode> selectedGisNodes = new LinkedHashSet<RegionNode>();
+			Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<String, RegionNode>();
+
+			for (RegionNode gisNode : gisCanvas.getNodes()) {
+				gisNodesByRegion.put(gisNode.getId(), gisNode);
+			}
+
+			for (GraphNode graphNode : graphCanvas.getSelectedNodes()) {
+				RegionNode gisNode = gisNodesByRegion
+						.get(graphNode.getRegion());
+
+				if (gisNode != null) {
+					selectedGisNodes.add(gisNode);
+				}
+			}
+
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSelectedNodes(selectedGisNodes);
+			gisCanvas.addCanvasListener(this);
+			gisCanvas.repaint();
+		} else if (source == gisCanvas) {
+			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<GraphNode>();
+			Map<String, List<GraphNode>> graphNodesByRegion = new LinkedHashMap<String, List<GraphNode>>();
+
+			for (GraphNode graphNode : graphCanvas.getNodes()) {
+				if (!graphNodesByRegion.containsKey(graphNode.getRegion())) {
+					graphNodesByRegion.put(graphNode.getRegion(),
+							new ArrayList<GraphNode>());
+				}
+
+				graphNodesByRegion.get(graphNode.getRegion()).add(graphNode);
+			}
+
+			for (RegionNode gisNode : gisCanvas.getSelectedNodes()) {
+				List<GraphNode> graphNodes = graphNodesByRegion.get(gisNode
+						.getId());
+
+				if (graphNodes != null) {
+					selectedGraphNodes.addAll(graphNodes);
+				}
+			}
+
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSelectedNodes(selectedGraphNodes);
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
+	@Override
+	public void edgeSelectionChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<Edge<RegionNode>>();
+
+			if (!set.isJoinEdges()) {
+				Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<String, Edge<RegionNode>>();
+
+				for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
+					gisEdgesById.put(gisEdge.getId(), gisEdge);
+				}
+
+				for (String graphEdgeId : graphCanvas.getSelectedEdgeIds()) {
+					selectedGisEdges.add(gisEdgesById.get(graphEdgeId));
+				}
+			} else {
+				Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<String, Map<String, Edge<RegionNode>>>();
+
+				for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
+					String fromRegion = gisEdge.getFrom().getId();
+					String toRegion = gisEdge.getTo().getId();
+
+					if (!gisEdgesByRegion.containsKey(fromRegion)) {
+						gisEdgesByRegion.put(fromRegion,
+								new LinkedHashMap<String, Edge<RegionNode>>());
+					}
+
+					gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
+				}
+
+				for (Edge<GraphNode> graphEdge : graphCanvas.getSelectedEdges()) {
+					String fromRegion = graphEdge.getFrom().getRegion();
+					String toRegion = graphEdge.getTo().getRegion();
+
+					if (gisEdgesByRegion.containsKey(fromRegion)) {
+						Edge<RegionNode> gisEdge = gisEdgesByRegion.get(
+								fromRegion).get(toRegion);
+
+						if (gisEdge != null) {
+							selectedGisEdges.add(gisEdge);
+						}
+					}
+				}
+			}
+
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSelectedEdges(selectedGisEdges);
+			gisCanvas.addCanvasListener(this);
+			gisCanvas.repaint();
+		} else if (source == gisCanvas) {
+			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<Edge<GraphNode>>();
+
+			if (!set.isJoinEdges()) {
+				Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<String, Edge<GraphNode>>();
+
+				for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
+					graphEdgesById.put(graphEdge.getId(), graphEdge);
+				}
+
+				for (String gisEdgeId : gisCanvas.getSelectedEdgeIds()) {
+					selectedGraphEdges.add(graphEdgesById.get(gisEdgeId));
+				}
+			} else {
+				Map<String, Map<String, List<Edge<GraphNode>>>> graphEdgesByRegion = new LinkedHashMap<String, Map<String, List<Edge<GraphNode>>>>();
+
+				for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
+					String fromRegion = graphEdge.getFrom().getRegion();
+					String toRegion = graphEdge.getTo().getRegion();
+
+					if (!graphEdgesByRegion.containsKey(fromRegion)) {
+						graphEdgesByRegion
+								.put(fromRegion,
+										new LinkedHashMap<String, List<Edge<GraphNode>>>());
+					}
+
+					if (!graphEdgesByRegion.get(fromRegion).containsKey(
+							toRegion)) {
+						graphEdgesByRegion.get(fromRegion).put(toRegion,
+								new ArrayList<Edge<GraphNode>>());
+					}
+
+					graphEdgesByRegion.get(fromRegion).get(toRegion)
+							.add(graphEdge);
+				}
+
+				for (Edge<RegionNode> gisEdge : gisCanvas.getSelectedEdges()) {
+					String fromRegion = gisEdge.getFrom().getId();
+					String toRegion = gisEdge.getTo().getId();
+
+					if (graphEdgesByRegion.containsKey(fromRegion)) {
+						List<Edge<GraphNode>> graphEdges = graphEdgesByRegion
+								.get(fromRegion).get(toRegion);
+
+						if (graphEdges != null) {
+							selectedGraphEdges.addAll(graphEdges);
+						}
+					}
+				}
+			}
+
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSelectedEdges(selectedGraphEdges);
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
+	@Override
+	public void nodeHighlightingChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void edgeHighlightingChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void edgeJoinChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setJoinEdges(graphCanvas.isJoinEdges());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setJoinEdges(gisCanvas.isJoinEdges());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);
@@ -177,10 +349,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		gisCanvas = creator.createGISCanvas();
 
 		if (graphCanvas != null && gisCanvas != null) {
-			graphCanvas.addSelectionListener(graphSelectionListener);
-			graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
-			gisCanvas.addSelectionListener(gisSelectionListener);
-			gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
+			graphCanvas.addCanvasListener(this);
+			gisCanvas.addCanvasListener(this);
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
@@ -260,196 +430,5 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
 			set.setGisCanvasSize(gisCanvas.getCanvasSize());
 		}
-	}
-
-	private void createListeners() {
-		graphSelectionListener = new SelectionListener<GraphNode>() {
-
-			@Override
-			public void nodeSelectionChanged(Set<GraphNode> selectedNodes) {
-				Set<RegionNode> selectedGisNodes = new LinkedHashSet<RegionNode>();
-				Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<String, RegionNode>();
-
-				for (RegionNode gisNode : gisCanvas.getNodes()) {
-					gisNodesByRegion.put(gisNode.getId(), gisNode);
-				}
-
-				for (GraphNode graphNode : selectedNodes) {
-					RegionNode gisNode = gisNodesByRegion.get(graphNode
-							.getRegion());
-
-					if (gisNode != null) {
-						selectedGisNodes.add(gisNode);
-					}
-				}
-
-				gisCanvas.removeSelectionListener(gisSelectionListener);
-				gisCanvas.setSelectedNodes(selectedGisNodes);
-				gisCanvas.addSelectionListener(gisSelectionListener);
-				gisCanvas.repaint();
-			}
-
-			@Override
-			public void edgeSelectionChanged(Set<Edge<GraphNode>> selectedEdges) {
-				Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<Edge<RegionNode>>();
-
-				if (!set.isJoinEdges()) {
-					Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<String, Edge<RegionNode>>();
-
-					for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
-						gisEdgesById.put(gisEdge.getId(), gisEdge);
-					}
-
-					for (Edge<GraphNode> graphEdge : selectedEdges) {
-						selectedGisEdges
-								.add(gisEdgesById.get(graphEdge.getId()));
-					}
-				} else {
-					Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<String, Map<String, Edge<RegionNode>>>();
-
-					for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
-						String fromRegion = gisEdge.getFrom().getId();
-						String toRegion = gisEdge.getTo().getId();
-
-						if (!gisEdgesByRegion.containsKey(fromRegion)) {
-							gisEdgesByRegion
-									.put(fromRegion,
-											new LinkedHashMap<String, Edge<RegionNode>>());
-						}
-
-						gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
-					}
-
-					for (Edge<GraphNode> graphEdge : selectedEdges) {
-						String fromRegion = graphEdge.getFrom().getRegion();
-						String toRegion = graphEdge.getTo().getRegion();
-
-						if (gisEdgesByRegion.containsKey(fromRegion)) {
-							Edge<RegionNode> gisEdge = gisEdgesByRegion.get(
-									fromRegion).get(toRegion);
-
-							if (gisEdge != null) {
-								selectedGisEdges.add(gisEdge);
-							}
-						}
-					}
-				}
-
-				gisCanvas.removeSelectionListener(gisSelectionListener);
-				gisCanvas.setSelectedEdges(selectedGisEdges);
-				gisCanvas.addSelectionListener(gisSelectionListener);
-				gisCanvas.repaint();
-			}
-		};
-
-		gisSelectionListener = new SelectionListener<RegionNode>() {
-
-			@Override
-			public void nodeSelectionChanged(Set<RegionNode> selectedNodes) {
-				Set<GraphNode> selectedGraphNodes = new LinkedHashSet<GraphNode>();
-				Map<String, List<GraphNode>> graphNodesByRegion = new LinkedHashMap<String, List<GraphNode>>();
-
-				for (GraphNode graphNode : graphCanvas.getNodes()) {
-					if (!graphNodesByRegion.containsKey(graphNode.getRegion())) {
-						graphNodesByRegion.put(graphNode.getRegion(),
-								new ArrayList<GraphNode>());
-					}
-
-					graphNodesByRegion.get(graphNode.getRegion())
-							.add(graphNode);
-				}
-
-				for (RegionNode gisNode : selectedNodes) {
-					List<GraphNode> graphNodes = graphNodesByRegion.get(gisNode
-							.getId());
-
-					if (graphNodes != null) {
-						selectedGraphNodes.addAll(graphNodes);
-					}
-				}
-
-				graphCanvas.removeSelectionListener(graphSelectionListener);
-				graphCanvas.setSelectedNodes(selectedGraphNodes);
-				graphCanvas.addSelectionListener(graphSelectionListener);
-			}
-
-			@Override
-			public void edgeSelectionChanged(Set<Edge<RegionNode>> selectedEdges) {
-				Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<Edge<GraphNode>>();
-
-				if (!set.isJoinEdges()) {
-					Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<String, Edge<GraphNode>>();
-
-					for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
-						graphEdgesById.put(graphEdge.getId(), graphEdge);
-					}
-
-					for (Edge<RegionNode> gisEdge : selectedEdges) {
-						selectedGraphEdges.add(graphEdgesById.get(gisEdge
-								.getId()));
-					}
-				} else {
-					Map<String, Map<String, List<Edge<GraphNode>>>> graphEdgesByRegion = new LinkedHashMap<String, Map<String, List<Edge<GraphNode>>>>();
-
-					for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
-						String fromRegion = graphEdge.getFrom().getRegion();
-						String toRegion = graphEdge.getTo().getRegion();
-
-						if (!graphEdgesByRegion.containsKey(fromRegion)) {
-							graphEdgesByRegion
-									.put(fromRegion,
-											new LinkedHashMap<String, List<Edge<GraphNode>>>());
-						}
-
-						if (!graphEdgesByRegion.get(fromRegion).containsKey(
-								toRegion)) {
-							graphEdgesByRegion.get(fromRegion).put(toRegion,
-									new ArrayList<Edge<GraphNode>>());
-						}
-
-						graphEdgesByRegion.get(fromRegion).get(toRegion)
-								.add(graphEdge);
-					}
-
-					for (Edge<RegionNode> gisEdge : selectedEdges) {
-						String fromRegion = gisEdge.getFrom().getId();
-						String toRegion = gisEdge.getTo().getId();
-
-						if (graphEdgesByRegion.containsKey(fromRegion)) {
-							List<Edge<GraphNode>> graphEdges = graphEdgesByRegion
-									.get(fromRegion).get(toRegion);
-
-							if (graphEdges != null) {
-								selectedGraphEdges.addAll(graphEdges);
-							}
-						}
-					}
-				}
-
-				graphCanvas.removeSelectionListener(graphSelectionListener);
-				graphCanvas.setSelectedEdges(selectedGraphEdges);
-				graphCanvas.addSelectionListener(graphSelectionListener);
-			}
-		};
-
-		graphEdgeJoinListener = new EdgeJoinListener() {
-
-			@Override
-			public void edgesJoinChanged(boolean joined) {
-				gisCanvas.removeEdgeJoinListener(gisEdgeJoinListener);
-				gisCanvas.setJoinEdges(joined);
-				gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
-			}
-		};
-
-		gisEdgeJoinListener = new EdgeJoinListener() {
-
-			@Override
-			public void edgesJoinChanged(boolean joined) {
-				graphCanvas.removeEdgeJoinListener(graphEdgeJoinListener);
-				graphCanvas.setJoinEdges(joined);
-				graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
-			}
-		};
 	}
 }
