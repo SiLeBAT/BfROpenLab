@@ -62,6 +62,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.listener.EdgeJoinListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.HighlightListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
 
@@ -96,6 +97,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 	private SelectionListener<LocationNode> gisSelectionListener;
 	private HighlightListener graphHighlightListener;
 	private HighlightListener gisHighlightListener;
+	private EdgeJoinListener graphEdgeJoinListener;
+	private EdgeJoinListener gisEdgeJoinListener;
 
 	/**
 	 * New pane for configuring the LocationToLocationVisualizer node.
@@ -193,8 +196,10 @@ public class LocationToLocationVisualizerNodeDialog extends
 		if (graphCanvas != null && gisCanvas != null) {
 			graphCanvas.addSelectionListener(graphSelectionListener);
 			graphCanvas.addHighlightListener(graphHighlightListener);
+			graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
 			gisCanvas.addSelectionListener(gisSelectionListener);
 			gisCanvas.addHighlightListener(gisHighlightListener);
+			gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
 		} else {
 			graphCanvas = new GraphCanvas();
 			graphCanvas
@@ -385,6 +390,26 @@ public class LocationToLocationVisualizerNodeDialog extends
 				graphCanvas.removeHighlightListener(graphHighlightListener);
 				graphCanvas.setEdgeHighlightConditions(edgeHighlightConditions);
 				graphCanvas.addHighlightListener(graphHighlightListener);
+			}
+		};
+		
+		graphEdgeJoinListener = new EdgeJoinListener() {
+			
+			@Override
+			public void edgesJoinChanged(boolean joined) {
+				gisCanvas.removeEdgeJoinListener(gisEdgeJoinListener);
+				gisCanvas.setJoinEdges(joined);
+				gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
+			}
+		};
+		
+		gisEdgeJoinListener = new EdgeJoinListener() {
+			
+			@Override
+			public void edgesJoinChanged(boolean joined) {
+				graphCanvas.removeEdgeJoinListener(graphEdgeJoinListener);
+				graphCanvas.setJoinEdges(joined);
+				graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
 			}
 		};
 	}

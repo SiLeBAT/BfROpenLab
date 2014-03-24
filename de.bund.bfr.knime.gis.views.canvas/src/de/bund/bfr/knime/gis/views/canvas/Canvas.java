@@ -83,6 +83,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.listener.EdgeJoinListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.HighlightListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
@@ -151,6 +152,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private List<SelectionListener<V>> selectionListeners;
 	private List<HighlightListener> highlightListeners;
+	private List<EdgeJoinListener> edgeJoinListeners;
 
 	private HighlightConditionList nodeHighlightConditions;
 	private HighlightConditionList edgeHighlightConditions;
@@ -203,6 +205,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		selectionListeners = new ArrayList<SelectionListener<V>>();
 		highlightListeners = new ArrayList<HighlightListener>();
+		edgeJoinListeners = new ArrayList<EdgeJoinListener>();
+
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
@@ -243,6 +247,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void removeHighlightListener(HighlightListener listener) {
 		highlightListeners.remove(listener);
+	}
+
+	public void addEdgeJoinListener(EdgeJoinListener listener) {
+		edgeJoinListeners.add(listener);
+	}
+
+	public void removeEdgeJoinListener(EdgeJoinListener listener) {
+		edgeJoinListeners.remove(listener);
 	}
 
 	public Dimension getCanvasSize() {
@@ -299,6 +311,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.joinEdges = joinEdges;
 		joinBox.setSelected(joinEdges);
 		applyEdgeJoin();
+		fireEdgeJoinChanged();
 	}
 
 	public Map<String, Class<?>> getNodeProperties() {
@@ -472,6 +485,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == joinBox) {
 			joinEdges = joinBox.isSelected();
 			applyEdgeJoin();
+			fireEdgeJoinChanged();
 		} else if (e.getSource() == saveAsItem) {
 			ImageFileChooser chooser = new ImageFileChooser();
 
@@ -952,6 +966,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireEdgeHighlightingChanged() {
 		for (HighlightListener listener : highlightListeners) {
 			listener.edgeHighlightingChanged(edgeHighlightConditions);
+		}
+	}
+	
+	private void fireEdgeJoinChanged() {
+		for (EdgeJoinListener listener : edgeJoinListeners) {
+			listener.edgesJoinChanged(joinEdges);
 		}
 	}
 }

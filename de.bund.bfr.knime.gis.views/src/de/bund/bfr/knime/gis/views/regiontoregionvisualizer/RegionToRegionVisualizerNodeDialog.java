@@ -59,6 +59,7 @@ import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.listener.EdgeJoinListener;
 import de.bund.bfr.knime.gis.views.canvas.listener.SelectionListener;
 
 /**
@@ -90,6 +91,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 	private SelectionListener<GraphNode> graphSelectionListener;
 	private SelectionListener<RegionNode> gisSelectionListener;
+	private EdgeJoinListener graphEdgeJoinListener;
+	private EdgeJoinListener gisEdgeJoinListener;
 
 	/**
 	 * New pane for configuring the RegionToRegionVisualizer node.
@@ -175,7 +178,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		if (graphCanvas != null && gisCanvas != null) {
 			graphCanvas.addSelectionListener(graphSelectionListener);
+			graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
 			gisCanvas.addSelectionListener(gisSelectionListener);
+			gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
@@ -424,6 +429,26 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 				graphCanvas.removeSelectionListener(graphSelectionListener);
 				graphCanvas.setSelectedEdges(selectedGraphEdges);
 				graphCanvas.addSelectionListener(graphSelectionListener);
+			}
+		};
+
+		graphEdgeJoinListener = new EdgeJoinListener() {
+
+			@Override
+			public void edgesJoinChanged(boolean joined) {
+				gisCanvas.removeEdgeJoinListener(gisEdgeJoinListener);
+				gisCanvas.setJoinEdges(joined);
+				gisCanvas.addEdgeJoinListener(gisEdgeJoinListener);
+			}
+		};
+
+		gisEdgeJoinListener = new EdgeJoinListener() {
+
+			@Override
+			public void edgesJoinChanged(boolean joined) {
+				graphCanvas.removeEdgeJoinListener(graphEdgeJoinListener);
+				graphCanvas.setJoinEdges(joined);
+				graphCanvas.addEdgeJoinListener(graphEdgeJoinListener);
 			}
 		};
 	}
