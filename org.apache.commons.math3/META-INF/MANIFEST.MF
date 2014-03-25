@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache Commons Math
 Bundle-SymbolicName: org.apache.commons.math3
-Bundle-Version: 3.2
+Bundle-Version: 3.2.0
 Bundle-Vendor: Apache Software Foundation
 Export-Package: org.apache.commons.math3,
  org.apache.commons.math3.analysis,
