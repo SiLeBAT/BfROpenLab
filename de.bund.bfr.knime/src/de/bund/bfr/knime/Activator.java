@@ -35,7 +35,7 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * (non-Javadoc)
+	 * (non-Javadoc )
 	 * 
 	 * @see
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
