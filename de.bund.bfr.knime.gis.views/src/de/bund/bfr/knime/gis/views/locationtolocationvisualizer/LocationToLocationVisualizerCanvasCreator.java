@@ -90,7 +90,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setLayoutType(set.getGraphLayout());		
+		canvas.setLayoutType(set.getGraphLayout());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
@@ -142,12 +142,12 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setBorderAlpha(set.getGisBorderAlpha());
 		canvas.setLocationSize(set.getGisLocationSize());
 		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
+		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
-				.getGisSelectedNodes()));
+				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGisSelectedEdges()));
+				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGisScaleX())
 				&& !Double.isNaN(set.getGisScaleY())

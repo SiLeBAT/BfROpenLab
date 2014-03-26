@@ -329,16 +329,10 @@ public class LocationToLocationVisualizerNodeDialog extends
 		List<String> selectedGraphNodes = new ArrayList<String>(
 				graphCanvas.getSelectedNodeIds());
 		List<String> selectedGraphEdges = new ArrayList<String>(
-				graphCanvas.getSelectedEdgeIds());
-		List<String> selectedGisNodes = new ArrayList<String>(
-				gisCanvas.getSelectedNodeIds());
-		List<String> selectedGisEdges = new ArrayList<String>(
-				gisCanvas.getSelectedEdgeIds());
+				graphCanvas.getSelectedEdgeIds());		
 
 		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);
-		Collections.sort(selectedGisNodes);
-		Collections.sort(selectedGisEdges);
+		Collections.sort(selectedGraphEdges);		
 
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
@@ -361,12 +355,6 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGisTranslationY(gisCanvas.getTranslationY());
 		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
 		set.setGisLocationSize(gisCanvas.getLocationSize());
-		set.setGisSelectedNodes(selectedGisNodes);
-		set.setGisSelectedEdges(selectedGisEdges);
-		set.setGisNodeHighlightConditions(gisCanvas
-				.getNodeHighlightConditions());
-		set.setGisEdgeHighlightConditions(gisCanvas
-				.getEdgeHighlightConditions());
 		set.setGisEditingMode(gisCanvas.getEditingMode());
 
 		if (resized) {

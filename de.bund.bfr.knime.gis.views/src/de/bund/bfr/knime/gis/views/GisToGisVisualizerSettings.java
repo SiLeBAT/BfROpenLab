@@ -24,15 +24,12 @@
 package de.bund.bfr.knime.gis.views;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
 public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
@@ -48,10 +45,6 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private static final String CFG_GIS_TRANSLATION_X = "GisTranslationX";
 	private static final String CFG_GIS_TRANSLATION_Y = "GisTranslationY";
 	private static final String CFG_GIS_BORDER_ALPHA = "GisBorderAlpha";
-	private static final String CFG_GIS_SELECTED_NODES = "GisSelectedNodes";
-	private static final String CFG_GIS_SELECTED_EDGES = "GisSelectedEdges";
-	private static final String CFG_GIS_NODE_HIGHLIGHT_CONDITIONS = "GisNodeHighlightConditions";
-	private static final String CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS = "GisEdgeHighlightConditions";
 	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode";
 	private static final String CFG_GIS_CANVAS_SIZE = "GisCanvasSize";
 
@@ -64,10 +57,6 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private int gisBorderAlpha;
 	private String gisEditingMode;
 	private Dimension gisCanvasSize;
-	private List<String> gisSelectedNodes;
-	private List<String> gisSelectedEdges;
-	private HighlightConditionList gisNodeHighlightConditions;
-	private HighlightConditionList gisEdgeHighlightConditions;
 
 	public GisToGisVisualizerSettings() {
 		shapeColumn = null;
@@ -77,15 +66,10 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		gisTranslationX = Double.NaN;
 		gisTranslationY = Double.NaN;
 		gisBorderAlpha = DEFAULT_GIS_BORDER_ALPHA;
-		gisSelectedNodes = new ArrayList<String>();
-		gisSelectedEdges = new ArrayList<String>();
-		gisNodeHighlightConditions = new HighlightConditionList();
-		gisEdgeHighlightConditions = new HighlightConditionList();
 		gisEditingMode = DEFAULT_GIS_EDITING_MODE;
 		gisCanvasSize = DEFAULT_GIS_CANVAS_SIZE;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
@@ -121,32 +105,6 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		}
 
 		try {
-			gisSelectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_GIS_SELECTED_NODES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisSelectedEdges = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_GIS_SELECTED_EDGES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisNodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings
-							.getString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisEdgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings
-							.getString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			gisEditingMode = settings.getString(CFG_GIS_EDITING_MODE);
 		} catch (InvalidSettingsException e) {
 		}
@@ -168,14 +126,6 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		settings.addDouble(CFG_GIS_TRANSLATION_X, gisTranslationX);
 		settings.addDouble(CFG_GIS_TRANSLATION_Y, gisTranslationY);
 		settings.addInt(CFG_GIS_BORDER_ALPHA, gisBorderAlpha);
-		settings.addString(CFG_GIS_SELECTED_NODES,
-				SERIALIZER.toXml(gisSelectedNodes));
-		settings.addString(CFG_GIS_SELECTED_EDGES,
-				SERIALIZER.toXml(gisSelectedEdges));
-		settings.addString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(gisNodeHighlightConditions));
-		settings.addString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(gisEdgeHighlightConditions));
 		settings.addString(CFG_GIS_EDITING_MODE, gisEditingMode);
 		settings.addString(CFG_GIS_CANVAS_SIZE, SERIALIZER.toXml(gisCanvasSize));
 	}
@@ -242,40 +192,6 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public void setGisCanvasSize(Dimension gisCanvasSize) {
 		this.gisCanvasSize = gisCanvasSize;
-	}
-
-	public List<String> getGisSelectedNodes() {
-		return gisSelectedNodes;
-	}
-
-	public void setGisSelectedNodes(List<String> gisSelectedNodes) {
-		this.gisSelectedNodes = gisSelectedNodes;
-	}
-
-	public List<String> getGisSelectedEdges() {
-		return gisSelectedEdges;
-	}
-
-	public void setGisSelectedEdges(List<String> gisSelectedEdges) {
-		this.gisSelectedEdges = gisSelectedEdges;
-	}
-
-	public HighlightConditionList getGisNodeHighlightConditions() {
-		return gisNodeHighlightConditions;
-	}
-
-	public void setGisNodeHighlightConditions(
-			HighlightConditionList gisNodeHighlightConditions) {
-		this.gisNodeHighlightConditions = gisNodeHighlightConditions;
-	}
-
-	public HighlightConditionList getGisEdgeHighlightConditions() {
-		return gisEdgeHighlightConditions;
-	}
-
-	public void setGisEdgeHighlightConditions(
-			HighlightConditionList gisEdgeHighlightConditions) {
-		this.gisEdgeHighlightConditions = gisEdgeHighlightConditions;
 	}
 
 }
