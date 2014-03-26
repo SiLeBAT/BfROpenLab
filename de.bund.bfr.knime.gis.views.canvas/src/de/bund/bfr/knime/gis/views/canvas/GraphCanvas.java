@@ -455,6 +455,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					newNode = new GraphNode(node.getId(),
 							new LinkedHashMap<String, Object>(
 									node.getProperties()), node.getRegion());
+					getViewer().getGraphLayout().setLocation(newNode,
+							getViewer().getGraphLayout().transform(node));
 				}
 
 				nodes.add(newNode);
