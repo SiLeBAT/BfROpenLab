@@ -3,4 +3,5 @@
    <feature url="features/de.bund.bfr.knime.gis.feature_1.0.0.qualifier.jar" id="de.bund.bfr.knime.gis.feature" version="1.0.0.qualifier"/>
    <feature url="features/de.bund.bfr.knime.nls.feature_0.9.0.qualifier.jar" id="de.bund.bfr.knime.nls.feature" version="0.9.0.qualifier"/>
    <feature url="features/de.bund.bfr.knime.sbml.feature_1.0.0.qualifier.jar" id="de.bund.bfr.knime.sbml.feature" version="1.0.0.qualifier"/>
+   <feature url="features/de.bund.bfr.knime.krise.feature_1.0.0.qualifier.jar" id="de.bund.bfr.knime.krise.feature" version="1.0.0.qualifier"/>
 </site>
