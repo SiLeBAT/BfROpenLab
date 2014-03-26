@@ -162,21 +162,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void nodeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<RegionNode> selectedGisNodes = new LinkedHashSet<RegionNode>();
-			Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<String, RegionNode>();
-
-			for (RegionNode gisNode : gisCanvas.getNodes()) {
-				gisNodesByRegion.put(gisNode.getId(), gisNode);
-			}
-
-			for (GraphNode graphNode : graphCanvas.getSelectedNodes()) {
-				RegionNode gisNode = gisNodesByRegion
-						.get(graphNode.getRegion());
-
-				if (gisNode != null) {
-					selectedGisNodes.add(gisNode);
-				}
-			}
+			Set<RegionNode> selectedGisNodes = RegionToRegionVisualizerCanvasCreator
+					.getSelectedGisNodes(gisCanvas.getNodes(),
+							graphCanvas.getSelectedNodes());
 
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedNodes(selectedGisNodes);
@@ -213,47 +201,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void edgeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<Edge<RegionNode>>();
-
-			if (!set.isJoinEdges()) {
-				Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<String, Edge<RegionNode>>();
-
-				for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
-					gisEdgesById.put(gisEdge.getId(), gisEdge);
-				}
-
-				for (String graphEdgeId : graphCanvas.getSelectedEdgeIds()) {
-					selectedGisEdges.add(gisEdgesById.get(graphEdgeId));
-				}
-			} else {
-				Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<String, Map<String, Edge<RegionNode>>>();
-
-				for (Edge<RegionNode> gisEdge : gisCanvas.getEdges()) {
-					String fromRegion = gisEdge.getFrom().getId();
-					String toRegion = gisEdge.getTo().getId();
-
-					if (!gisEdgesByRegion.containsKey(fromRegion)) {
-						gisEdgesByRegion.put(fromRegion,
-								new LinkedHashMap<String, Edge<RegionNode>>());
-					}
-
-					gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
-				}
-
-				for (Edge<GraphNode> graphEdge : graphCanvas.getSelectedEdges()) {
-					String fromRegion = graphEdge.getFrom().getRegion();
-					String toRegion = graphEdge.getTo().getRegion();
-
-					if (gisEdgesByRegion.containsKey(fromRegion)) {
-						Edge<RegionNode> gisEdge = gisEdgesByRegion.get(
-								fromRegion).get(toRegion);
-
-						if (gisEdge != null) {
-							selectedGisEdges.add(gisEdge);
-						}
-					}
-				}
-			}
+			Set<Edge<RegionNode>> selectedGisEdges = RegionToRegionVisualizerCanvasCreator
+					.getSelectedGisEdges(gisCanvas.getEdges(),
+							graphCanvas.getSelectedEdges(), set.isJoinEdges());
 
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedEdges(selectedGisEdges);
@@ -346,7 +296,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 				shapeTable, nodeTable, edgeTable, set);
 
 		graphCanvas = creator.createGraphCanvas();
-		gisCanvas = creator.createGISCanvas();
+		gisCanvas = creator.createGISCanvas(graphCanvas);
 
 		if (graphCanvas != null && gisCanvas != null) {
 			graphCanvas.addCanvasListener(this);
@@ -388,15 +338,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 				graphCanvas.getSelectedNodeIds());
 		List<String> selectedGraphEdges = new ArrayList<String>(
 				graphCanvas.getSelectedEdgeIds());
-		List<String> selectedGisNodes = new ArrayList<String>(
-				gisCanvas.getSelectedNodeIds());
-		List<String> selectedGisEdges = new ArrayList<String>(
-				gisCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
-		Collections.sort(selectedGisNodes);
-		Collections.sort(selectedGisEdges);
 
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
@@ -418,8 +362,6 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGisTranslationX(gisCanvas.getTranslationX());
 		set.setGisTranslationY(gisCanvas.getTranslationY());
 		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setGisSelectedNodes(selectedGisNodes);
-		set.setGisSelectedEdges(selectedGisEdges);
 		set.setGisNodeHighlightConditions(gisCanvas
 				.getNodeHighlightConditions());
 		set.setGisEdgeHighlightConditions(gisCanvas

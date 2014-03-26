@@ -24,6 +24,7 @@
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setLayoutType(set.getGraphLayout());		
+		canvas.setLayoutType(set.getGraphLayout());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
@@ -118,7 +119,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public RegionCanvas createGISCanvas() {
+	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
 				shapeTable, set.getShapeColumn(), set.getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
@@ -150,10 +151,10 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
-		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
-				.getGisSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGisSelectedEdges()));
+		canvas.setSelectedNodes(getSelectedGisNodes(canvas.getNodes(),
+				graphCanvas.getSelectedNodes()));
+		canvas.setSelectedEdges(getSelectedGisEdges(canvas.getEdges(),
+				graphCanvas.getSelectedEdges(), set.isJoinEdges()));
 
 		if (!Double.isNaN(set.getGisScaleX())
 				&& !Double.isNaN(set.getGisScaleY())
@@ -168,5 +169,73 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 	public Set<String> getNonExistingRegions() {
 		return nonExistingRegions;
+	}
+
+	public static Set<RegionNode> getSelectedGisNodes(Set<RegionNode> gisNodes,
+			Set<GraphNode> selectedGraphNodes) {
+		Set<RegionNode> selectedGisNodes = new LinkedHashSet<RegionNode>();
+		Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<String, RegionNode>();
+
+		for (RegionNode gisNode : gisNodes) {
+			gisNodesByRegion.put(gisNode.getId(), gisNode);
+		}
+
+		for (GraphNode graphNode : selectedGraphNodes) {
+			RegionNode gisNode = gisNodesByRegion.get(graphNode.getRegion());
+
+			if (gisNode != null) {
+				selectedGisNodes.add(gisNode);
+			}
+		}
+
+		return selectedGisNodes;
+	}
+
+	public static Set<Edge<RegionNode>> getSelectedGisEdges(
+			Set<Edge<RegionNode>> gisEdges,
+			Set<Edge<GraphNode>> graphSelectedEdges, boolean joinEdges) {
+		Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<Edge<RegionNode>>();
+
+		if (!joinEdges) {
+			Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<String, Edge<RegionNode>>();
+
+			for (Edge<RegionNode> gisEdge : gisEdges) {
+				gisEdgesById.put(gisEdge.getId(), gisEdge);
+			}
+
+			for (Edge<GraphNode> graphEdge : graphSelectedEdges) {
+				selectedGisEdges.add(gisEdgesById.get(graphEdge.getId()));
+			}
+		} else {
+			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<String, Map<String, Edge<RegionNode>>>();
+
+			for (Edge<RegionNode> gisEdge : gisEdges) {
+				String fromRegion = gisEdge.getFrom().getId();
+				String toRegion = gisEdge.getTo().getId();
+
+				if (!gisEdgesByRegion.containsKey(fromRegion)) {
+					gisEdgesByRegion.put(fromRegion,
+							new LinkedHashMap<String, Edge<RegionNode>>());
+				}
+
+				gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
+			}
+
+			for (Edge<GraphNode> graphEdge : graphSelectedEdges) {
+				String fromRegion = graphEdge.getFrom().getRegion();
+				String toRegion = graphEdge.getTo().getRegion();
+
+				if (gisEdgesByRegion.containsKey(fromRegion)) {
+					Edge<RegionNode> gisEdge = gisEdgesByRegion.get(fromRegion)
+							.get(toRegion);
+
+					if (gisEdge != null) {
+						selectedGisEdges.add(gisEdge);
+					}
+				}
+			}
+		}
+
+		return selectedGisEdges;
 	}
 }

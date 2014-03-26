@@ -23,9 +23,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -38,31 +35,24 @@ public class RegionToRegionVisualizerSettings extends
 
 	private static final String CFG_SHAPE_REGION_COLUMN = "ShapeRegionColumn";
 	private static final String CFG_NODE_REGION_COLUMN = "NodeRegionColumn";
-
-	private static final String CFG_GIS_SELECTED_NODES = "GisSelectedNodes";
-	private static final String CFG_GIS_SELECTED_EDGES = "GisSelectedEdges";
+	
 	private static final String CFG_GIS_NODE_HIGHLIGHT_CONDITIONS = "GisNodeHighlightConditions";
 	private static final String CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS = "GisEdgeHighlightConditions";
 
 	private String shapeRegionColumn;
 	private String nodeRegionColumn;
-
-	private List<String> gisSelectedNodes;
-	private List<String> gisSelectedEdges;
+	
 	private HighlightConditionList gisNodeHighlightConditions;
 	private HighlightConditionList gisEdgeHighlightConditions;
 
 	public RegionToRegionVisualizerSettings() {
 		shapeRegionColumn = null;
 		nodeRegionColumn = null;
-
-		gisSelectedNodes = new ArrayList<String>();
-		gisSelectedEdges = new ArrayList<String>();
+		
 		gisNodeHighlightConditions = new HighlightConditionList();
 		gisEdgeHighlightConditions = new HighlightConditionList();
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
@@ -74,18 +64,6 @@ public class RegionToRegionVisualizerSettings extends
 
 		try {
 			nodeRegionColumn = settings.getString(CFG_NODE_REGION_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisSelectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_GIS_SELECTED_NODES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisSelectedEdges = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_GIS_SELECTED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -109,11 +87,7 @@ public class RegionToRegionVisualizerSettings extends
 		super.saveSettings(settings);
 		settings.addString(CFG_SHAPE_REGION_COLUMN, shapeRegionColumn);
 		settings.addString(CFG_NODE_REGION_COLUMN, nodeRegionColumn);
-
-		settings.addString(CFG_GIS_SELECTED_NODES,
-				SERIALIZER.toXml(gisSelectedNodes));
-		settings.addString(CFG_GIS_SELECTED_EDGES,
-				SERIALIZER.toXml(gisSelectedEdges));
+		
 		settings.addString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(gisNodeHighlightConditions));
 		settings.addString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS,
@@ -134,22 +108,6 @@ public class RegionToRegionVisualizerSettings extends
 
 	public void setNodeRegionColumn(String nodeRegionColumn) {
 		this.nodeRegionColumn = nodeRegionColumn;
-	}
-	
-	public List<String> getGisSelectedNodes() {
-		return gisSelectedNodes;
-	}
-
-	public void setGisSelectedNodes(List<String> gisSelectedNodes) {
-		this.gisSelectedNodes = gisSelectedNodes;
-	}
-
-	public List<String> getGisSelectedEdges() {
-		return gisSelectedEdges;
-	}
-
-	public void setGisSelectedEdges(List<String> gisSelectedEdges) {
-		this.gisSelectedEdges = gisSelectedEdges;
 	}
 
 	public HighlightConditionList getGisNodeHighlightConditions() {
