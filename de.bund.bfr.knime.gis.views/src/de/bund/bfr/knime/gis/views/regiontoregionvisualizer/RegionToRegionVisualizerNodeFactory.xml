@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./default.png" type="Visualizer">
-    <name>Region To Region Visualizer</name>
+    <name>Region To Region View</name>
     
     <shortDescription>
         Provides geographic and network visualization of a graph.
