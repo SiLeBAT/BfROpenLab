@@ -40,7 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	public static final boolean DEFAULT_JOIN_EDGES = false;
+	public static final boolean DEFAULT_JOIN_EDGES = true;
 
 	public static final String DEFAULT_GRAPH_LAYOUT = GraphCanvas.FR_LAYOUT;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;

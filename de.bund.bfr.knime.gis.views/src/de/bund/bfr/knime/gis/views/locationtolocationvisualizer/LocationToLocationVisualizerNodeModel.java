@@ -73,6 +73,16 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
+
+		if (inObjects[3] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) inObjects[3]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 
