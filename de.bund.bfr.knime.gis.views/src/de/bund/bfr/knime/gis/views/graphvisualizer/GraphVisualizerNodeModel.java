@@ -39,6 +39,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 
 /**
@@ -55,9 +56,9 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected GraphVisualizerNodeModel() {
-		super(
-				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
-				new PortType[] { ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				new PortType(BufferedDataTable.class, true) }, new PortType[] {
+				ImagePortObject.TYPE, BufferedDataTable.TYPE });
 		set = new GraphVisualizerSettings();
 	}
 
@@ -69,11 +70,23 @@ public class GraphVisualizerNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
+
+		if (inObjects[2] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) inObjects[2]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
-		return new PortObject[] { ViewUtilities.getImage(
-				creator.createGraphCanvas(), set.isExportAsSvg()) };
+		return new PortObject[] {
+				ViewUtilities.getImage(creator.createGraphCanvas(),
+						set.isExportAsSvg()),
+				KnimeUtilities.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -89,8 +102,9 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ViewUtilities.getImageSpec(set
-				.isExportAsSvg()) };
+		return new PortObjectSpec[] {
+				ViewUtilities.getImageSpec(set.isExportAsSvg()),
+				KnimeUtilities.getXmlSpec() };
 	}
 
 	/**

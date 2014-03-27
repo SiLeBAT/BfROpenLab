@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -98,7 +100,18 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
+
 		set.loadSettings(settings);
+
+		if (input[2] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) input[2]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		updateGraphCanvas(false);
 		resized = false;
 	}
