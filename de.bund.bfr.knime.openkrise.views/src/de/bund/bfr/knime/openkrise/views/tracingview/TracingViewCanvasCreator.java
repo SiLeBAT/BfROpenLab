@@ -24,6 +24,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +33,9 @@ import java.util.Set;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.KnimeUtilities;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 
@@ -42,25 +43,77 @@ public class TracingViewCanvasCreator {
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
 	private Set<Integer> connectedNodes;
+	private Set<Integer> simpleSuppliers;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, TracingViewSettings set) {
+			BufferedDataTable edgeTable, HashMap<Integer, MyDelivery> tracing,
+			TracingViewSettings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
+		this.deliveries = tracing;
 		this.set = set;
 
 		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
 				edgeTable);
+		simpleSuppliers = TracingUtilities.getSimpleSuppliers(nodeTable,
+				edgeTable);
 	}
 
-	public GraphCanvas createGraphCanvas() {
+	public TracingCanvas createGraphCanvas() {
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
+
+		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
+			nodeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
+					Double.class);
+		}
+
+		if (!nodeProperties
+				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+			nodeProperties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+					Boolean.class);
+		}
+
+		if (!nodeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
+			nodeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
+		}
+
+		if (!nodeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
+			nodeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
+		}
+
+		if (!nodeProperties.containsKey(TracingConstants.BACKWARD_COLUMN)) {
+			nodeProperties.put(TracingConstants.BACKWARD_COLUMN, Boolean.class);
+		}
+
+		if (!nodeProperties.containsKey(TracingConstants.FORWARD_COLUMN)) {
+			nodeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
+		}
+
+		if (!nodeProperties
+				.containsKey(TracingConstants.SIMPLE_SUPPLIER_COLUMN)) {
+			nodeProperties.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
+					Boolean.class);
+		}
+
+		if (!edgeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
+			edgeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
+		}
+
+		if (!edgeProperties.containsKey(TracingConstants.BACKWARD_COLUMN)) {
+			edgeProperties.put(TracingConstants.BACKWARD_COLUMN, Boolean.class);
+		}
+
+		if (!edgeProperties.containsKey(TracingConstants.FORWARD_COLUMN)) {
+			edgeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
+		}
+
 		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties, connectedNodes,
 				set.isSkipEdgelessNodes());
@@ -69,12 +122,16 @@ public class TracingViewCanvasCreator {
 			return null;
 		}
 
+		for (GraphNode node : nodes.values()) {
+			node.getProperties().put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
+					simpleSuppliers.contains(Integer.parseInt(node.getId())));
+		}
+
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes, set.isJoinEdges());
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
+		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				deliveries, set.isEnforeTemporalOrder());
 
 		canvas.setAllowCollapse(true);
 		canvas.setCanvasSize(set.getGraphCanvasSize());
@@ -85,6 +142,9 @@ public class TracingViewCanvasCreator {
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setCaseWeights(set.getCaseWeights());
+		canvas.setCrossContaminations(set.getCrossContaminations());
+		canvas.setFilter(set.getFilter());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set

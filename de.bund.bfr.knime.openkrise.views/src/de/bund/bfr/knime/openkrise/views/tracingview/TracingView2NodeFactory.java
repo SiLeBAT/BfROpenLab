@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingview2;
+package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -33,14 +33,14 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class TracingView2NodeFactory extends NodeFactory<TracingView2NodeModel> {
+public class TracingView2NodeFactory extends NodeFactory<TracingViewNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TracingView2NodeModel createNodeModel() {
-		return new TracingView2NodeModel();
+	public TracingViewNodeModel createNodeModel() {
+		return new TracingViewNodeModel();
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class TracingView2NodeFactory extends NodeFactory<TracingView2NodeModel> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<TracingView2NodeModel> createNodeView(final int viewIndex,
-			final TracingView2NodeModel nodeModel) {
+	public NodeView<TracingViewNodeModel> createNodeView(final int viewIndex,
+			final TracingViewNodeModel nodeModel) {
 		return null;
 	}
 
@@ -73,7 +73,7 @@ public class TracingView2NodeFactory extends NodeFactory<TracingView2NodeModel> 
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new TracingView2NodeDialog();
+		return new TracingViewNodeDialog();
 	}
 
 }

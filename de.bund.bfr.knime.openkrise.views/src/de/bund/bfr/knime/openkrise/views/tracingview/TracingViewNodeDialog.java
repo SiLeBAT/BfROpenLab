@@ -28,11 +28,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -46,8 +49,9 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -64,14 +68,19 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		ActionListener, ComponentListener {
 
 	private JPanel panel;
-	private GraphCanvas graphCanvas;
+	private TracingCanvas graphCanvas;
 
 	private boolean resized;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private HashMap<Integer, MyDelivery> deliveries;
 
 	private TracingViewSettings set;
+
+	private JButton inputButton;
+	private JButton forgetConfigButton;
+	private JCheckBox enforceTempBox;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -79,14 +88,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
 
-		JButton inputButton = new JButton("Input");
-
+		inputButton = new JButton("Input");
 		inputButton.addActionListener(this);
+		forgetConfigButton = new JButton("Forget Tracing Config");
+		forgetConfigButton.addActionListener(this);
+		enforceTempBox = new JCheckBox("Enforce Temporal Order");
+		enforceTempBox.addActionListener(this);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(inputButton,
+				forgetConfigButton, enforceTempBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -97,7 +109,21 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
+		deliveries = TracingViewNodeModel
+				.getDeliveries((BufferedDataTable) input[2]);
+
 		set.loadSettings(settings);
+
+		if (input[3] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) input[3]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 		updateGraphCanvas(false);
 		resized = false;
 	}
@@ -130,14 +156,26 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		TracingViewInputDialog dialog = new TracingViewInputDialog(
-				(JButton) e.getSource(), set);
+		if (e.getSource() == inputButton) {
+			TracingViewInputDialog dialog = new TracingViewInputDialog(
+					(JButton) e.getSource(), set);
 
-		dialog.setVisible(true);
+			dialog.setVisible(true);
 
-		if (dialog.isApproved()) {
+			if (dialog.isApproved()) {
+				updateSettings();
+				updateGraphCanvas(true);
+			}
+		} else if (e.getSource() == forgetConfigButton) {
 			updateSettings();
-			updateGraphCanvas(true);
+			set.getCaseWeights().clear();
+			set.getCrossContaminations().clear();
+			set.getFilter().clear();
+			updateGraphCanvas(false);
+		} else if (e.getSource() == enforceTempBox) {
+			updateSettings();
+			set.setEnforeTemporalOrder(enforceTempBox.isSelected());
+			updateGraphCanvas(false);
 		}
 	}
 
@@ -147,12 +185,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, set);
+				nodeTable, edgeTable, deliveries, set);
 
 		graphCanvas = creator.createGraphCanvas();
 
 		if (graphCanvas == null) {
-			graphCanvas = new GraphCanvas();
+			graphCanvas = new TracingCanvas();
 			graphCanvas
 					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 			graphCanvas.setLayoutType(TracingViewSettings.DEFAULT_GRAPH_LAYOUT);
@@ -194,6 +232,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphEdgeHighlightConditions(graphCanvas
 				.getEdgeHighlightConditions());
 		set.setGraphEditingMode(graphCanvas.getEditingMode());
+		set.setCaseWeights(graphCanvas.getCaseWeights());
+		set.setCrossContaminations(graphCanvas.getCrossContaminations());
+		set.setFilter(graphCanvas.getFilter());
 
 		if (resized) {
 			set.setGraphCanvasSize(graphCanvas.getCanvasSize());

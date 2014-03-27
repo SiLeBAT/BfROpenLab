@@ -38,11 +38,13 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.TracingSettings;
 
+
 public class TracingViewSettings extends TracingSettings {
 
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	public static final boolean DEFAULT_JOIN_EDGES = true;
 	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
+	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 
 	public static final String DEFAULT_GRAPH_LAYOUT = GraphCanvas.FR_LAYOUT;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
@@ -53,6 +55,10 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
+	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
+	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
+	private static final String CFG_FILTER = "Filter";
+	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
 	private static final String CFG_GRAPH_SCALE_X = "GraphScaleX";
 	private static final String CFG_GRAPH_SCALE_Y = "GraphScaleY";
@@ -72,6 +78,10 @@ public class TracingViewSettings extends TracingSettings {
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
 	private boolean exportAsSvg;
+	private Map<String, Double> caseWeights;
+	private Map<String, Boolean> crossContaminations;
+	private Map<String, Boolean> filter;
+	private boolean enforeTemporalOrder;
 
 	private double graphScaleX;
 	private double graphScaleY;
@@ -92,6 +102,10 @@ public class TracingViewSettings extends TracingSettings {
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
+		caseWeights = new LinkedHashMap<String, Double>();
+		crossContaminations = new LinkedHashMap<String, Boolean>();
+		filter = new LinkedHashMap<String, Boolean>();
+		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 
 		graphScaleX = Double.NaN;
 		graphScaleY = Double.NaN;
@@ -124,6 +138,30 @@ public class TracingViewSettings extends TracingSettings {
 
 		try {
 			exportAsSvg = settings.getBoolean(CFG_EXPORT_AS_SVG);
+		} catch (InvalidSettingsException e) {
+		}
+		
+		try {
+			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_CASE_WEIGHTS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			crossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_CROSS_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			filter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_FILTER));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			enforeTemporalOrder = settings
+					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -212,6 +250,11 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
+		settings.addString(CFG_CASE_WEIGHTS, SERIALIZER.toXml(caseWeights));
+		settings.addString(CFG_CROSS_CONTAMINATIONS,
+				SERIALIZER.toXml(crossContaminations));
+		settings.addString(CFG_FILTER, SERIALIZER.toXml(filter));
+		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 
 		settings.addDouble(CFG_GRAPH_SCALE_X, graphScaleX);
 		settings.addDouble(CFG_GRAPH_SCALE_Y, graphScaleY);
@@ -258,6 +301,38 @@ public class TracingViewSettings extends TracingSettings {
 
 	public void setExportAsSvg(boolean exportAsSvg) {
 		this.exportAsSvg = exportAsSvg;
+	}
+	
+	public Map<String, Double> getCaseWeights() {
+		return caseWeights;
+	}
+
+	public void setCaseWeights(Map<String, Double> caseWeights) {
+		this.caseWeights = caseWeights;
+	}
+
+	public Map<String, Boolean> getCrossContaminations() {
+		return crossContaminations;
+	}
+
+	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
+		this.crossContaminations = crossContaminations;
+	}
+
+	public Map<String, Boolean> getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Map<String, Boolean> filter) {
+		this.filter = filter;
+	}
+
+	public boolean isEnforeTemporalOrder() {
+		return enforeTemporalOrder;
+	}
+
+	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
+		this.enforeTemporalOrder = enforeTemporalOrder;
 	}
 
 	public double getGraphScaleX() {
@@ -374,4 +449,5 @@ public class TracingViewSettings extends TracingSettings {
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
+	
 }

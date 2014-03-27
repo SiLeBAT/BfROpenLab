@@ -22,13 +22,8 @@
             id="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"/>
       <node
             category-path="/"
-            factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingViewNodeFactory"
-            id="de.bund.bfr.knime.openkrise.views.tracingview.TracingViewNodeFactory">
-      </node>
-      <node
-            category-path="/"
-            factory-class="de.bund.bfr.knime.openkrise.views.tracingview2.TracingView2NodeFactory"
-            id="de.bund.bfr.knime.openkrise.views.tracingview2.TracingView2NodeFactory">
+            factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory"
+            id="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory">
       </node>
    </extension>
    

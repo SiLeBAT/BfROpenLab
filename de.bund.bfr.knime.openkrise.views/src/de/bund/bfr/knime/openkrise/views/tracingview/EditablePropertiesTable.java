@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingview2;
+package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.Component;
 import java.util.ArrayList;

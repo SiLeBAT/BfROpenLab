@@ -25,7 +25,23 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -34,11 +50,21 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import com.thoughtworks.xstream.XStream;
+
+import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 
 /**
@@ -55,9 +81,11 @@ public class TracingViewNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected TracingViewNodeModel() {
-		super(
-				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
-				new PortType[] { ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE,
+				new PortType(BufferedDataTable.class, true) }, new PortType[] {
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				ImagePortObject.TYPE, BufferedDataTable.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -69,11 +97,116 @@ public class TracingViewNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, set);
+		HashMap<Integer, MyDelivery> tracing = getDeliveries((BufferedDataTable) inObjects[2]);
 
-		return new PortObject[] { TracingUtilities.getImage(
-				creator.createGraphCanvas(), set.isExportAsSvg()) };
+		if (inObjects[3] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) inObjects[3]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
+				edgeTable, tracing, set).createGraphCanvas();
+		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
+				edgeTable, tracing, set);
+
+		int index = 0;
+		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
+		BufferedDataContainer nodeContainer = exec
+				.createDataContainer(nodeOutSpec);
+
+		for (GraphNode node : allEdgesCanvas.getNodes()) {
+			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
+
+			for (int i = 0; i < cells.length; i++) {
+				cells[i] = DataType.getMissingCell();
+			}
+
+			for (String property : allEdgesCanvas.getNodeProperties().keySet()) {
+				int column = nodeOutSpec.findColumnIndex(property);
+
+				if (column != -1) {
+					Class<?> type = allEdgesCanvas.getNodeProperties().get(
+							property);
+
+					if (type == String.class) {
+						cells[column] = IO.createCell((String) node
+								.getProperties().get(property));
+					} else if (type == Integer.class) {
+						cells[column] = IO.createCell((Integer) node
+								.getProperties().get(property));
+					} else if (type == Double.class) {
+						cells[column] = IO.createCell((Double) node
+								.getProperties().get(property));
+					} else if (type == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) node
+								.getProperties().get(property));
+					}
+				}
+			}
+
+			nodeContainer.addRowToTable(new DefaultRow(index + "", cells));
+			exec.checkCanceled();
+			exec.setProgress((double) index
+					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas
+							.getEdges().size()));
+			index++;
+		}
+
+		nodeContainer.close();
+
+		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeTable.getSpec());
+		BufferedDataContainer edgeContainer = exec
+				.createDataContainer(edgeOutSpec);
+
+		for (Edge<GraphNode> edge : allEdgesCanvas.getEdges()) {
+			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
+
+			for (int i = 0; i < cells.length; i++) {
+				cells[i] = DataType.getMissingCell();
+			}
+
+			for (String property : allEdgesCanvas.getEdgeProperties().keySet()) {
+				int column = edgeOutSpec.findColumnIndex(property);
+
+				if (column != -1) {
+					Class<?> type = allEdgesCanvas.getEdgeProperties().get(
+							property);
+
+					if (type == String.class) {
+						cells[column] = IO.createCell((String) edge
+								.getProperties().get(property));
+					} else if (type == Integer.class) {
+						cells[column] = IO.createCell((Integer) edge
+								.getProperties().get(property));
+					} else if (type == Double.class) {
+						cells[column] = IO.createCell((Double) edge
+								.getProperties().get(property));
+					} else if (type == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) edge
+								.getProperties().get(property));
+					}
+				}
+			}
+
+			edgeContainer.addRowToTable(new DefaultRow((index - allEdgesCanvas
+					.getNodes().size()) + "", cells));
+			exec.checkCanceled();
+			exec.setProgress((double) index
+					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas
+							.getEdges().size()));
+			index++;
+		}
+
+		edgeContainer.close();
+
+		return new PortObject[] { nodeContainer.getTable(),
+				edgeContainer.getTable(),
+				TracingUtilities.getImage(canvas, set.isExportAsSvg()),
+				KnimeUtilities.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -89,8 +222,13 @@ public class TracingViewNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { TracingUtilities.getImageSpec(set
-				.isExportAsSvg()) };
+		DataTableSpec nodeSpec = (DataTableSpec) inSpecs[0];
+		DataTableSpec edgeSpec = (DataTableSpec) inSpecs[1];
+
+		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec),
+				createEdgeOutSpec(edgeSpec),
+				TracingUtilities.getImageSpec(set.isExportAsSvg()),
+				KnimeUtilities.getXmlSpec() };
 	}
 
 	/**
@@ -134,6 +272,105 @@ public class TracingViewNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	protected static HashMap<Integer, MyDelivery> getDeliveries(
+			BufferedDataTable dataTable) throws NotConfigurableException {
+		if (dataTable.getRowCount() == 0) {
+			throw new NotConfigurableException("Tracing Table is empty");
+		}
+
+		DataRow row = null;
+
+		for (DataRow r : dataTable) {
+			row = r;
+			break;
+		}
+
+		DataCell cell = row.getCell(0);
+		String xml = ((StringValue) cell).getStringValue();
+		XStream xstream = MyNewTracing.getXStream();
+
+		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
+	}
+
+	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
+			throws InvalidSettingsException {
+		List<DataColumnSpec> newNodeSpec = new ArrayList<DataColumnSpec>();
+		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
+
+		for (DataColumnSpec column : nodeSpec) {
+			newNodeSpec.add(column);
+			columns.put(column.getName(), column.getType());
+		}
+
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+
+		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
+				BooleanCell.TYPE);
+
+		for (String column : newColumns.keySet()) {
+			if (!columns.containsKey(column)) {
+				newNodeSpec.add(new DataColumnSpecCreator(column, newColumns
+						.get(column)).createSpec());
+			} else if (!columns.get(column).equals(newColumns.get(column))) {
+				throw new InvalidSettingsException("Type of column \"" + column
+						+ "\" must be \"" + newColumns.get(column) + "\"");
+			}
+		}
+
+		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
+	}
+
+	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
+			throws InvalidSettingsException {
+		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
+		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
+
+		for (DataColumnSpec column : edgeSpec) {
+			newEdgeSpec.add(column);
+			columns.put(column.getName(), column.getType());
+		}
+
+		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+
+		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+
+		for (String column : newColumns.keySet()) {
+			if (!columns.containsKey(column)) {
+				newEdgeSpec.add(new DataColumnSpecCreator(column, newColumns
+						.get(column)).createSpec());
+			} else if (!columns.get(column).equals(newColumns.get(column))) {
+				throw new InvalidSettingsException("Type of column \"" + column
+						+ "\" must be \"" + newColumns.get(column) + "\"");
+			}
+		}
+
+		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
+	}
+
+	private static TracingCanvas createAllEdgesCanvas(
+			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set) {
+		boolean joinEdges = set.isJoinEdges();
+
+		set.setJoinEdges(false);
+
+		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
+				edgeTable, deliveries, set).createGraphCanvas();
+
+		set.setJoinEdges(joinEdges);
+
+		return canvas;
 	}
 
 }
