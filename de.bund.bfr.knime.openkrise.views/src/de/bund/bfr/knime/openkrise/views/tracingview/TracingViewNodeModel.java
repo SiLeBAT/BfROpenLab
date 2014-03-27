@@ -98,16 +98,6 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		HashMap<Integer, MyDelivery> tracing = getDeliveries((BufferedDataTable) inObjects[2]);
-
-		if (inObjects[3] != null) {
-			try {
-				set.loadFromXml(KnimeUtilities
-						.tableToXml((BufferedDataTable) inObjects[3]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,

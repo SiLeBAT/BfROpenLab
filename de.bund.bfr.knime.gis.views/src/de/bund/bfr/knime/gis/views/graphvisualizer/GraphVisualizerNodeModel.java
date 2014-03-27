@@ -70,16 +70,6 @@ public class GraphVisualizerNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-
-		if (inObjects[2] != null) {
-			try {
-				set.loadFromXml(KnimeUtilities
-						.tableToXml((BufferedDataTable) inObjects[2]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
