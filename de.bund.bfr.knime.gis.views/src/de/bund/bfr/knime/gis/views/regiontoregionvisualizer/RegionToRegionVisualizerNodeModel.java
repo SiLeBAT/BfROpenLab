@@ -39,6 +39,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
@@ -58,8 +59,10 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	 */
 	protected RegionToRegionVisualizerNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE });
+				BufferedDataTable.TYPE,
+				new PortType(BufferedDataTable.class, true) }, new PortType[] {
+				ImagePortObject.TYPE, ImagePortObject.TYPE,
+				BufferedDataTable.TYPE });
 		set = new RegionToRegionVisualizerSettings();
 	}
 
@@ -72,6 +75,16 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
+
+		if (inObjects[3] != null) {
+			try {
+				set.loadFromXml(KnimeUtilities
+						.tableToXml((BufferedDataTable) inObjects[3]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
@@ -84,7 +97,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 		return new PortObject[] {
 				ViewUtilities.getImage(graphCanvas, set.isExportAsSvg()),
-				ViewUtilities.getImage(gisCanvas, set.isExportAsSvg()) };
+				ViewUtilities.getImage(gisCanvas, set.isExportAsSvg()),
+				KnimeUtilities.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -102,7 +116,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
 				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				ViewUtilities.getImageSpec(set.isExportAsSvg()) };
+				ViewUtilities.getImageSpec(set.isExportAsSvg()),
+				KnimeUtilities.getXmlSpec() };
 	}
 
 	/**
