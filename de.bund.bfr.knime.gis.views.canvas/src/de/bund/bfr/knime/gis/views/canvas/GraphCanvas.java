@@ -162,14 +162,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return allEdges;
 	}
 
-	public Collection<GraphNode> getVisibleNodes() {
-		return getViewer().getGraphLayout().getGraph().getVertices();
-	}
-
-	public Collection<Edge<GraphNode>> getVisibleEdges() {
-		return getViewer().getGraphLayout().getGraph().getEdges();
-	}
-
 	public Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
 		return joinMap;
 	}

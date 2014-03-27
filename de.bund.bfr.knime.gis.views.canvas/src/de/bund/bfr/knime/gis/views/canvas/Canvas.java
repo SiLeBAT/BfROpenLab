@@ -42,6 +42,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -289,6 +290,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		joinBox.setSelected(joinEdges);
 		applyEdgeJoin();
 		fireEdgeJoinChanged();
+	}
+
+	public Collection<V> getVisibleNodes() {
+		return getViewer().getGraphLayout().getGraph().getVertices();
+	}
+
+	public Collection<Edge<V>> getVisibleEdges() {
+		return getViewer().getGraphLayout().getGraph().getEdges();
 	}
 
 	public Map<String, Class<?>> getNodeProperties() {
@@ -745,7 +754,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		Set<V> picked = new LinkedHashSet<V>(viewer.getPickedVertexState()
 				.getPicked());
 
-		picked.retainAll(viewer.getGraphLayout().getGraph().getVertices());
+		picked.retainAll(getVisibleNodes());
 
 		PropertiesDialog dialog = new PropertiesDialog(this, picked,
 				nodeProperties);
@@ -758,7 +767,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(viewer
 				.getPickedEdgeState().getPicked());
 
-		picked.retainAll(viewer.getGraphLayout().getGraph().getEdges());
+		picked.retainAll(getVisibleEdges());
 
 		PropertiesDialog dialog = new PropertiesDialog(this, picked,
 				edgeProperties);

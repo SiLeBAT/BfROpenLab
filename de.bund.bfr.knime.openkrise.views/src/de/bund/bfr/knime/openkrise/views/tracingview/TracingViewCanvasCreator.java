@@ -102,6 +102,10 @@ public class TracingViewCanvasCreator {
 					Boolean.class);
 		}
 
+		if (!edgeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
+			edgeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
+		}
+
 		if (!edgeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
 			edgeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
 		}
@@ -137,7 +141,7 @@ public class TracingViewCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setLayoutType(set.getGraphLayout());		
+		canvas.setLayoutType(set.getGraphLayout());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
@@ -145,6 +149,7 @@ public class TracingViewCanvasCreator {
 		canvas.setCaseWeights(set.getCaseWeights());
 		canvas.setCrossContaminations(set.getCrossContaminations());
 		canvas.setFilter(set.getFilter());
+		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set

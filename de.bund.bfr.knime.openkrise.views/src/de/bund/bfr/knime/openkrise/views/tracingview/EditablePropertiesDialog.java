@@ -26,7 +26,9 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -39,7 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
 public class EditablePropertiesDialog extends JDialog implements ActionListener {
@@ -57,7 +59,8 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 	private boolean approved;
 
 	public EditablePropertiesDialog(JComponent parent,
-			Collection<GraphNode> elements, Map<String, Class<?>> properties) {
+			Collection<? extends Element> elements,
+			Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 
@@ -85,9 +88,23 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton),
 				BorderLayout.EAST);
 
+		List<JButton> buttons = new ArrayList<JButton>();
+
+		if (properties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
+			buttons.add(weightButton);
+		}
+
+		if (properties.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+			buttons.add(contaminationButton);
+		}
+
+		if (properties.containsKey(TracingConstants.FILTER_COLUMN)) {
+			buttons.add(filterButton);
+		}
+
 		setLayout(new BorderLayout());
-		add(UI.createWestPanel(UI.createHorizontalPanel(weightButton,
-				contaminationButton, filterButton)), BorderLayout.NORTH);
+		add(UI.createWestPanel(UI.createHorizontalPanel(buttons
+				.toArray(new JButton[0]))), BorderLayout.NORTH);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
 		pack();

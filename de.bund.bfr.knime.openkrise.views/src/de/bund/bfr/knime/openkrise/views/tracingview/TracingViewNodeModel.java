@@ -331,6 +331,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
 
+		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);

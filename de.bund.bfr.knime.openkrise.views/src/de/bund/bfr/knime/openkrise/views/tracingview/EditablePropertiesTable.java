@@ -40,16 +40,15 @@ import de.bund.bfr.knime.BooleanCellRenderer;
 import de.bund.bfr.knime.DoubleCellRenderer;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
 public class EditablePropertiesTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Collection<GraphNode> elements;
+	private Collection<? extends Element> elements;
 
-	public EditablePropertiesTable(Collection<GraphNode> elements,
+	public EditablePropertiesTable(Collection<? extends Element> elements,
 			Map<String, Class<?>> properties) {
 		this.elements = elements;
 
@@ -62,7 +61,7 @@ public class EditablePropertiesTable extends JTable {
 			columnTypes.add(entry.getValue());
 		}
 
-		for (GraphNode element : elements) {
+		for (Element element : elements) {
 			List<Object> tuple = new ArrayList<Object>();
 
 			for (String property : columnNames) {
@@ -79,8 +78,18 @@ public class EditablePropertiesTable extends JTable {
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setDefaultRenderer(Boolean.class, new BooleanCellRenderer());
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
-		getColumn(TracingConstants.CROSS_CONTAMINATION_COLUMN).setCellRenderer(
-				new JTable().getDefaultRenderer(Boolean.class));
+
+		if (properties.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+			getColumn(TracingConstants.CROSS_CONTAMINATION_COLUMN)
+					.setCellRenderer(
+							new JTable().getDefaultRenderer(Boolean.class));
+		}
+
+		if (properties.containsKey(TracingConstants.FILTER_COLUMN)) {
+			getColumn(TracingConstants.FILTER_COLUMN).setCellRenderer(
+					new JTable().getDefaultRenderer(Boolean.class));
+		}
+
 		UI.packColumns(this);
 	}
 
@@ -89,9 +98,9 @@ public class EditablePropertiesTable extends JTable {
 			getCellEditor().stopCellEditing();
 		}
 
-		Map<Integer, GraphNode> elementsById = new LinkedHashMap<Integer, GraphNode>();
+		Map<Integer, Element> elementsById = new LinkedHashMap<Integer, Element>();
 
-		for (GraphNode element : elements) {
+		for (Element element : elements) {
 			elementsById.put(Integer.parseInt(element.getId()), element);
 		}
 
@@ -143,13 +152,13 @@ public class EditablePropertiesTable extends JTable {
 
 		private List<String> columnNames;
 		private List<Class<?>> columnTypes;
-		private List<List<Object>> columnValueTuples;		
+		private List<List<Object>> columnValueTuples;
 
 		public PropertiesTableModel(List<String> columnNames,
 				List<Class<?>> columnTypes, List<List<Object>> columnValueTuples) {
 			this.columnNames = columnNames;
 			this.columnTypes = columnTypes;
-			this.columnValueTuples = columnValueTuples;			
+			this.columnValueTuples = columnValueTuples;
 		}
 
 		@Override

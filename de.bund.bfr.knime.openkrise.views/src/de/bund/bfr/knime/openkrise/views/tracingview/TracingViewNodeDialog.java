@@ -235,6 +235,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setCaseWeights(graphCanvas.getCaseWeights());
 		set.setCrossContaminations(graphCanvas.getCrossContaminations());
 		set.setFilter(graphCanvas.getFilter());
+		set.setEdgeFilter(graphCanvas.getEdgeFilter());
 
 		if (resized) {
 			set.setGraphCanvasSize(graphCanvas.getCanvasSize());

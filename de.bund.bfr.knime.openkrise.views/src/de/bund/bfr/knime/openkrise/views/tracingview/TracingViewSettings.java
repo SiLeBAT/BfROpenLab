@@ -38,7 +38,6 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.TracingSettings;
 
-
 public class TracingViewSettings extends TracingSettings {
 
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
@@ -58,6 +57,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
 	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
 	private static final String CFG_FILTER = "Filter";
+	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
 	private static final String CFG_GRAPH_SCALE_X = "GraphScaleX";
@@ -81,6 +81,7 @@ public class TracingViewSettings extends TracingSettings {
 	private Map<String, Double> caseWeights;
 	private Map<String, Boolean> crossContaminations;
 	private Map<String, Boolean> filter;
+	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
 
 	private double graphScaleX;
@@ -105,6 +106,7 @@ public class TracingViewSettings extends TracingSettings {
 		caseWeights = new LinkedHashMap<String, Double>();
 		crossContaminations = new LinkedHashMap<String, Boolean>();
 		filter = new LinkedHashMap<String, Boolean>();
+		edgeFilter = new LinkedHashMap<String, Boolean>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 
 		graphScaleX = Double.NaN;
@@ -140,7 +142,7 @@ public class TracingViewSettings extends TracingSettings {
 			exportAsSvg = settings.getBoolean(CFG_EXPORT_AS_SVG);
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
 					.getString(CFG_CASE_WEIGHTS));
@@ -156,6 +158,12 @@ public class TracingViewSettings extends TracingSettings {
 		try {
 			filter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
 					.getString(CFG_FILTER));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -254,6 +262,7 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addString(CFG_CROSS_CONTAMINATIONS,
 				SERIALIZER.toXml(crossContaminations));
 		settings.addString(CFG_FILTER, SERIALIZER.toXml(filter));
+		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 
 		settings.addDouble(CFG_GRAPH_SCALE_X, graphScaleX);
@@ -302,7 +311,7 @@ public class TracingViewSettings extends TracingSettings {
 	public void setExportAsSvg(boolean exportAsSvg) {
 		this.exportAsSvg = exportAsSvg;
 	}
-	
+
 	public Map<String, Double> getCaseWeights() {
 		return caseWeights;
 	}
@@ -325,6 +334,14 @@ public class TracingViewSettings extends TracingSettings {
 
 	public void setFilter(Map<String, Boolean> filter) {
 		this.filter = filter;
+	}
+
+	public Map<String, Boolean> getEdgeFilter() {
+		return edgeFilter;
+	}
+
+	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
+		this.edgeFilter = edgeFilter;
 	}
 
 	public boolean isEnforeTemporalOrder() {
@@ -449,5 +466,5 @@ public class TracingViewSettings extends TracingSettings {
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
-	
+
 }

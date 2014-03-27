@@ -42,7 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
 public class EditableSingleElementPropertiesDialog extends JDialog implements
@@ -50,7 +50,7 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 
 	private static final long serialVersionUID = 1L;
 
-	private GraphNode element;
+	private Element element;
 
 	private JButton okButton;
 	private JButton cancelButton;
@@ -62,7 +62,7 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 	private boolean approved;
 
 	public EditableSingleElementPropertiesDialog(Component parent,
-			GraphNode element, Map<String, Class<?>> properties) {
+			Element element, Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 		this.element = element;
@@ -145,27 +145,35 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
-			if (caseField.getText().isEmpty()) {
-				element.getProperties().put(
-						TracingConstants.CASE_WEIGHT_COLUMN, null);
-			} else {
-				try {
+			if (caseField != null) {
+				if (caseField.getText().isEmpty()) {
 					element.getProperties().put(
-							TracingConstants.CASE_WEIGHT_COLUMN,
-							Double.parseDouble(caseField.getText()));
-				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(this,
-							"Please enter valid number for "
-									+ TracingConstants.CASE_WEIGHT_COLUMN,
-							"Error", JOptionPane.ERROR_MESSAGE);
+							TracingConstants.CASE_WEIGHT_COLUMN, null);
+				} else {
+					try {
+						element.getProperties().put(
+								TracingConstants.CASE_WEIGHT_COLUMN,
+								Double.parseDouble(caseField.getText()));
+					} catch (NumberFormatException ex) {
+						JOptionPane.showMessageDialog(this,
+								"Please enter valid number for "
+										+ TracingConstants.CASE_WEIGHT_COLUMN,
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			}
 
-			element.getProperties().put(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN,
-					contaminationBox.isSelected());
-			element.getProperties().put(TracingConstants.FILTER_COLUMN,
-					filterBox.isSelected());
+			if (contaminationBox != null) {
+				element.getProperties().put(
+						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+						contaminationBox.isSelected());
+			}
+
+			if (filterBox != null) {
+				element.getProperties().put(TracingConstants.FILTER_COLUMN,
+						filterBox.isSelected());
+			}
+
 			approved = true;
 			dispose();
 		} else if (e.getSource() == cancelButton) {

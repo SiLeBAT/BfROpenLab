@@ -36,7 +36,6 @@ import java.util.Set;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
@@ -161,13 +160,43 @@ public class TracingCanvas extends GraphCanvas {
 		applyTracing();
 	}
 
+	public Map<String, Boolean> getEdgeFilter() {
+		Map<String, Boolean> edgeFilter = new LinkedHashMap<String, Boolean>();
+
+		if (!isJoinEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
+				Boolean value = (Boolean) edge.getProperties().get(
+						TracingConstants.FILTER_COLUMN);
+
+				if (value == null) {
+					value = false;
+				}
+
+				edgeFilter.put(edge.getId(), value);
+			}
+		}
+
+		return edgeFilter;
+	}
+
+	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
+		if (edgeFilter.isEmpty() || isJoinEdges()) {
+			return;
+		}
+
+		for (Edge<GraphNode> edge : getEdges()) {
+			edge.getProperties().put(TracingConstants.FILTER_COLUMN,
+					edgeFilter.get(edge.getId()));
+		}
+
+		applyTracing();
+	}
+
 	@Override
 	protected void showNodeProperties() {
-		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getViewer()
-				.getPickedVertexState().getPicked());
-		Set<String> pickedIds = CanvasUtilities.getElementIds(picked);
+		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getSelectedNodes());
 
-		picked.retainAll(getViewer().getGraphLayout().getGraph().getVertices());
+		picked.retainAll(getVisibleNodes());
 
 		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
 				picked, getNodeProperties());
@@ -177,7 +206,24 @@ public class TracingCanvas extends GraphCanvas {
 
 		if (dialog.isApproved()) {
 			applyTracing();
-			setSelectedNodeIds(pickedIds);
+		}
+	}
+
+	@Override
+	protected void showEdgeProperties() {
+		Set<Edge<GraphNode>> picked = new LinkedHashSet<Edge<GraphNode>>(
+				getSelectedEdges());
+
+		picked.retainAll(getVisibleEdges());
+
+		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
+				picked, getEdgeProperties());
+
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			applyTracing();
 		}
 	}
 
@@ -210,13 +256,17 @@ public class TracingCanvas extends GraphCanvas {
 									applyTracing();
 								}
 							} else if (edge != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
 
 								CanvasUtilities.placeDialogAt(dialog,
 										e.getLocationOnScreen());
 								dialog.setVisible(true);
+
+								if (dialog.isApproved()) {
+									applyTracing();
+								}
 							}
 						}
 					}
@@ -297,7 +347,6 @@ public class TracingCanvas extends GraphCanvas {
 
 		tracing.fillDeliveries(enforceTemporalOrder);
 
-		Set<Integer> filterNodes = new LinkedHashSet<Integer>();
 		Set<Integer> backwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> forwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
@@ -309,11 +358,25 @@ public class TracingCanvas extends GraphCanvas {
 					TracingConstants.FILTER_COLUMN);
 
 			if (value != null && value == true) {
-				filterNodes.add(id);
 				backwardNodes.addAll(tracing.getBackwardStations(id));
 				forwardNodes.addAll(tracing.getForwardStations(id));
 				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
 				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+			}
+		}
+
+		if (!isJoinEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
+				int id = Integer.parseInt(edge.getId());
+				Boolean value = (Boolean) edge.getProperties().get(
+						TracingConstants.FILTER_COLUMN);
+
+				if (value != null && value == true) {
+					backwardNodes.addAll(tracing.getBackwardStations2(id));
+					forwardNodes.addAll(tracing.getForwardStations2(id));
+					backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
+					forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+				}
 			}
 		}
 
@@ -341,6 +404,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		} else {
 			for (Edge<GraphNode> edge : getEdges()) {
+				edge.getProperties().put(TracingConstants.FILTER_COLUMN, null);
 				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
 				edge.getProperties()
 						.put(TracingConstants.BACKWARD_COLUMN, null);
