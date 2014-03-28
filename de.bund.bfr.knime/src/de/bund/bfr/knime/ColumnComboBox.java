@@ -38,16 +38,16 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private JComboBox<DataColumnSpec> selectionBox;
+	private JComboBox selectionBox;
 	private JCheckBox enableBox;
 
 	public ColumnComboBox(boolean optional, DataColumnSpec[] columns) {
 		setLayout(new BorderLayout(5, 5));
 
 		if (columns != null) {
-			selectionBox = new JComboBox<DataColumnSpec>(columns);
+			selectionBox = new JComboBox(columns);
 		} else {
-			selectionBox = new JComboBox<DataColumnSpec>();
+			selectionBox = new JComboBox();
 		}
 
 		add(selectionBox, BorderLayout.CENTER);
@@ -102,7 +102,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 
 	public void setSelectedColumnName(String columnName) {
 		for (int i = 0; i < selectionBox.getItemCount(); i++) {
-			DataColumnSpec item = selectionBox.getItemAt(i);
+			DataColumnSpec item = (DataColumnSpec) selectionBox.getItemAt(i);
 
 			if (item != null && item.getName().equals(columnName)) {
 				selectionBox.setEnabled(true);

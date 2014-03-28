@@ -69,22 +69,22 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 	private String conditionType;
 
-	private JComboBox<String> conditionTypeBox;
+	private JComboBox conditionTypeBox;
 	private JButton colorButton;
 	private JCheckBox colorBox;
 	private JCheckBox invisibleBox;
 	private JCheckBox thicknessBox;
-	private JComboBox<String> labelBox;
+	private JComboBox labelBox;
 	private JPanel conditionPanel;
 	private JButton okButton;
 	private JButton cancelButton;
 
-	private JComboBox<String> valuePropertyBox;
-	private JComboBox<String> valueTypeBox;
+	private JComboBox valuePropertyBox;
+	private JComboBox valueTypeBox;
 
-	private List<JComboBox<String>> logicalAndOrBoxes;
-	private List<JComboBox<String>> logicalPropertyBoxes;
-	private List<JComboBox<String>> logicalTypeBoxes;
+	private List<JComboBox> logicalAndOrBoxes;
+	private List<JComboBox> logicalPropertyBoxes;
+	private List<JComboBox> logicalTypeBoxes;
 	private List<JTextField> logicalValueFields;
 	private List<JButton> logicalAddButtons;
 	private List<JButton> logicalRemoveButtons;
@@ -113,11 +113,11 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		approved = false;
 
 		if (allowValueCondition) {
-			conditionTypeBox = new JComboBox<String>(
+			conditionTypeBox = new JComboBox(
 					new String[] { LOGICAL_CONDITION, VALUE_CONDITION,
 							LOGICAL_VALUE_CONDITION });
 		} else {
-			conditionTypeBox = new JComboBox<String>(
+			conditionTypeBox = new JComboBox(
 					new String[] { LOGICAL_CONDITION });
 		}
 
@@ -163,7 +163,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			choices.add("");
 			choices.addAll(nodeProperties.keySet());
 
-			labelBox = new JComboBox<String>(choices.toArray(new String[0]));
+			labelBox = new JComboBox(choices.toArray(new String[0]));
 			labelBox.setSelectedItem("");
 			conditionTypePanel.add(Box.createHorizontalStrut(5));
 			conditionTypePanel.add(new JLabel("Label:"));
@@ -309,9 +309,9 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 	@SuppressWarnings("unchecked")
 	private JPanel createLogicalPanel(AndOrHighlightCondition condition) {
-		logicalAndOrBoxes = new ArrayList<JComboBox<String>>();
-		logicalPropertyBoxes = new ArrayList<JComboBox<String>>();
-		logicalTypeBoxes = new ArrayList<JComboBox<String>>();
+		logicalAndOrBoxes = new ArrayList<JComboBox>();
+		logicalPropertyBoxes = new ArrayList<JComboBox>();
+		logicalTypeBoxes = new ArrayList<JComboBox>();
 		logicalValueFields = new ArrayList<JTextField>();
 		logicalAddButtons = new ArrayList<JButton>();
 		logicalRemoveButtons = new ArrayList<JButton>();
@@ -338,9 +338,9 @@ public class HighlightDialog extends JDialog implements ActionListener {
 				LogicalHighlightCondition cond = condition.getConditions()
 						.get(i).get(j);
 
-				JComboBox<String> propertyBox = new JComboBox<String>(
+				JComboBox propertyBox = new JComboBox(
 						nodeProperties.keySet().toArray(new String[0]));
-				JComboBox<String> typeBox = new JComboBox<String>(
+				JComboBox typeBox = new JComboBox(
 						LogicalHighlightCondition.TYPES);
 				JTextField valueField = new JTextField(20);
 				JButton addButton = new JButton("Add");
@@ -354,7 +354,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 				removeButton.addActionListener(this);
 
 				if (row != 1) {
-					JComboBox<String> andOrBox = new JComboBox<String>(
+					JComboBox andOrBox = new JComboBox(
 							AndOrHighlightCondition.TYPES);
 
 					if (j == 0) {
@@ -403,9 +403,9 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			}
 		}
 
-		valuePropertyBox = new JComboBox<String>(
+		valuePropertyBox = new JComboBox(
 				numberProperties.toArray(new String[0]));
-		valueTypeBox = new JComboBox<String>(ValueHighlightCondition.TYPES);
+		valueTypeBox = new JComboBox(ValueHighlightCondition.TYPES);
 
 		if (condition != null) {
 			valuePropertyBox.setSelectedItem(condition.getProperty());

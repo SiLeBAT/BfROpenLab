@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -48,7 +49,7 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 
 	private static final long serialVersionUID = 1L;
 
-	private JList<HighlightCondition> list;
+	private JList list;
 	private JButton okButton;
 	private JButton cancelButton;
 
@@ -62,7 +63,7 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 		this.highlightConditions = null;
 		approved = false;
 
-		list = new JList<HighlightCondition>();
+		list = new JList();
 		list.getSelectionModel().setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());
@@ -107,7 +108,9 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
-			highlightConditions = list.getSelectedValuesList();
+			highlightConditions = Arrays.asList(Arrays.asList(
+					list.getSelectedValues())
+					.toArray(new HighlightCondition[0]));
 			approved = true;
 			dispose();
 		} else if (e.getSource() == cancelButton) {

@@ -73,7 +73,6 @@ public class ShapeViewNodeView extends NodeView<ShapeViewNodeModel> implements
 
 	private int m_hiliteFilter = FILTER_NONE;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected ShapeViewNodeView(final ShapeViewNodeModel nodeModel) {
 		super(nodeModel);
 
