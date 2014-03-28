@@ -171,6 +171,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getCaseWeights().clear();
 			set.getCrossContaminations().clear();
 			set.getFilter().clear();
+			set.getEdgeFilter().clear();
 			updateGraphCanvas(false);
 		} else if (e.getSource() == enforceTempBox) {
 			updateSettings();

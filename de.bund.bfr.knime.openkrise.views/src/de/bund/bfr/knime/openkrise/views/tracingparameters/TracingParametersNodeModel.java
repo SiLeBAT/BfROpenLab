@@ -111,6 +111,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		tracing.fillDeliveries(set.isEnforeTemporalOrder());
 
 		Set<Integer> filterNodes = new LinkedHashSet<Integer>();
+		Set<Integer> filderEdges = new LinkedHashSet<Integer>();
 		Set<Integer> backwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> forwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
@@ -127,6 +128,18 @@ public class TracingParametersNodeModel extends NodeModel {
 				forwardNodes.addAll(tracing.getForwardStations(id));
 				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
 				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+			}
+		}
+
+		for (int id : set.getEdgeFilter().keySet()) {
+			Boolean value = set.getEdgeFilter().get(id);
+
+			if (value != null && value == true) {
+				filderEdges.add(id);
+				backwardNodes.addAll(tracing.getBackwardStations2(id));
+				forwardNodes.addAll(tracing.getForwardStations2(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
 			}
 		}
 
@@ -189,6 +202,8 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(edgeInSpec.findColumnIndex(column.getName()));
 			}
 
+			cells[edgeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
+					.createCell(filderEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
 					.createCell(tracing.getDeliveryScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
@@ -330,6 +345,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
 		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
 
+		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);

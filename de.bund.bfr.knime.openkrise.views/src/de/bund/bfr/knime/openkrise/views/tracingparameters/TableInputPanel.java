@@ -53,7 +53,7 @@ import javax.swing.event.RowSorterListener;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
@@ -67,8 +67,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private Map<Integer, T> values;
 	private AndOrHighlightCondition condition;
 
-	private Map<String, Class<?>> nodeProperties;
-	private Collection<GraphNode> nodes;
+	private Map<String, Class<?>> properties;
+	private Collection<? extends Element> elements;
 
 	private JPanel tablePanel;
 
@@ -88,18 +88,18 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		add(tablePanel, BorderLayout.CENTER);
 	}
 
-	public void update(Collection<GraphNode> nodes,
-			Map<String, Class<?>> nodeProperties, Map<Integer, T> values,
+	public void update(Collection<? extends Element> elements,
+			Map<String, Class<?>> properties, Map<Integer, T> values,
 			AndOrHighlightCondition condition) {
-		this.nodes = nodes;
-		this.nodeProperties = nodeProperties;
+		this.elements = elements;
+		this.properties = properties;
 		this.values = values;
 		this.condition = condition;
 
 		tablePanel.removeAll();
-		tablePanel
-				.add(createInputPanel(filterNodes(nodes, condition),
-						nodeProperties), BorderLayout.CENTER);
+		tablePanel.add(
+				createInputPanel(filterElements(elements, condition),
+						properties), BorderLayout.CENTER);
 	}
 
 	public Map<Integer, T> getValues() {
@@ -131,8 +131,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
 			HighlightDialog dialog = new HighlightDialog(filterButton,
-					nodeProperties, false, false, false, false, false,
-					condition);
+					properties, false, false, false, false, false, condition);
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);
@@ -142,8 +141,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 						.getHighlightCondition();
 				tablePanel.removeAll();
 				tablePanel.add(
-						createInputPanel(filterNodes(nodes, condition),
-								nodeProperties), BorderLayout.CENTER);
+						createInputPanel(filterElements(elements, condition),
+								properties), BorderLayout.CENTER);
 				tablePanel.revalidate();
 			}
 		} else if (e.getSource() == setAllButton) {
@@ -226,7 +225,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 				setAllButton));
 	}
 
-	private JComponent createInputPanel(Collection<GraphNode> nodes,
+	private JComponent createInputPanel(Collection<? extends Element> nodes,
 			Map<String, Class<?>> nodeProperties) {
 		table = new PropertiesTable(nodes, nodeProperties);
 		inputTable = new InputTable(type, table.getRowCount());
@@ -256,16 +255,16 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		editingStopped(null);
 	}
 
-	private static Collection<GraphNode> filterNodes(
-			Collection<GraphNode> nodes, AndOrHighlightCondition condition) {
+	private static <T extends Element> Collection<T> filterElements(
+			Collection<T> nodes, AndOrHighlightCondition condition) {
 		if (condition == null) {
 			return nodes;
 		}
 
-		Collection<GraphNode> filteredNodes = new ArrayList<GraphNode>();
-		Map<GraphNode, Double> values = condition.getValues(nodes);
+		Collection<T> filteredNodes = new ArrayList<T>();
+		Map<T, Double> values = condition.getValues(nodes);
 
-		for (GraphNode node : values.keySet()) {
+		for (T node : values.keySet()) {
 			if (values.get(node) != 0.0) {
 				filteredNodes.add(node);
 			}

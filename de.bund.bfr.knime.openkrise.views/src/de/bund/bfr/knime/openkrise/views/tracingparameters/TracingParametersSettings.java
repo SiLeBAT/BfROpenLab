@@ -40,26 +40,32 @@ public class TracingParametersSettings extends TracingSettings {
 	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
 	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
 	private static final String CFG_FILTER = "Filter";
+	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_WEIGHT_CONDITION = "WeightCondition";
 	private static final String CFG_CONTAMINATION_CONDITION = "ContaminationCondition";
 	private static final String CFG_FILTER_CONDITION = "FilterCondition";
+	private static final String CFG_EDGE_FILTER_CONDITION = "EdgeFilterCondition";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
 	private Map<Integer, Double> caseWeights;
 	private Map<Integer, Boolean> crossContaminations;
 	private Map<Integer, Boolean> filter;
+	private Map<Integer, Boolean> edgeFilter;
 	private AndOrHighlightCondition weightCondition;
 	private AndOrHighlightCondition contaminationCondition;
 	private AndOrHighlightCondition filterCondition;
+	private AndOrHighlightCondition edgeFilterCondition;
 	private boolean enforeTemporalOrder;
 
 	public TracingParametersSettings() {
 		caseWeights = new LinkedHashMap<Integer, Double>();
 		crossContaminations = new LinkedHashMap<Integer, Boolean>();
 		filter = new LinkedHashMap<Integer, Boolean>();
+		edgeFilter = new LinkedHashMap<Integer, Boolean>();
 		weightCondition = null;
 		contaminationCondition = null;
 		filterCondition = null;
+		edgeFilterCondition = null;
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 	}
 
@@ -85,6 +91,12 @@ public class TracingParametersSettings extends TracingSettings {
 		}
 
 		try {
+			edgeFilter = (Map<Integer, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_FILTER));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			weightCondition = (AndOrHighlightCondition) SERIALIZER
 					.fromXml(settings.getString(CFG_WEIGHT_CONDITION));
 		} catch (InvalidSettingsException e) {
@@ -103,6 +115,12 @@ public class TracingParametersSettings extends TracingSettings {
 		}
 
 		try {
+			edgeFilterCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_FILTER_CONDITION));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			enforeTemporalOrder = settings
 					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
 		} catch (InvalidSettingsException e) {
@@ -115,12 +133,15 @@ public class TracingParametersSettings extends TracingSettings {
 		settings.addString(CFG_CROSS_CONTAMINATIONS,
 				SERIALIZER.toXml(crossContaminations));
 		settings.addString(CFG_FILTER, SERIALIZER.toXml(filter));
+		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addString(CFG_WEIGHT_CONDITION,
 				SERIALIZER.toXml(weightCondition));
 		settings.addString(CFG_CONTAMINATION_CONDITION,
 				SERIALIZER.toXml(contaminationCondition));
 		settings.addString(CFG_FILTER_CONDITION,
 				SERIALIZER.toXml(filterCondition));
+		settings.addString(CFG_EDGE_FILTER_CONDITION,
+				SERIALIZER.toXml(edgeFilterCondition));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 
@@ -148,6 +169,14 @@ public class TracingParametersSettings extends TracingSettings {
 		this.filter = filter;
 	}
 
+	public Map<Integer, Boolean> getEdgeFilter() {
+		return edgeFilter;
+	}
+
+	public void setEdgeFilter(Map<Integer, Boolean> edgeFilter) {
+		this.edgeFilter = edgeFilter;
+	}
+
 	public AndOrHighlightCondition getWeightCondition() {
 		return weightCondition;
 	}
@@ -171,6 +200,14 @@ public class TracingParametersSettings extends TracingSettings {
 
 	public void setFilterCondition(AndOrHighlightCondition filterCondition) {
 		this.filterCondition = filterCondition;
+	}
+
+	public AndOrHighlightCondition getEdgeFilterCondition() {
+		return edgeFilterCondition;
+	}
+
+	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
+		this.edgeFilterCondition = edgeFilterCondition;
 	}
 
 	public boolean isEnforeTemporalOrder() {

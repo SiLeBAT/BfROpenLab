@@ -24,7 +24,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingparameters;
 
 import java.awt.BorderLayout;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
@@ -40,6 +40,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 
@@ -57,12 +58,11 @@ import de.bund.bfr.knime.openkrise.views.TracingUtilities;
 public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 	private TracingParametersSettings set;
-	private Map<String, Class<?>> nodeProperties;
-	private Collection<GraphNode> nodes;
 
 	private TableInputPanel<Double> weightPanel;
 	private TableInputPanel<Boolean> contaminationPanel;
 	private TableInputPanel<Boolean> filterPanel;
+	private TableInputPanel<Boolean> edgeFilterPanel;
 	private JCheckBox enforceTempBox;
 
 	/**
@@ -73,6 +73,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		weightPanel = new TableInputPanel<Double>(Double.class);
 		contaminationPanel = new TableInputPanel<Boolean>(Boolean.class);
 		filterPanel = new TableInputPanel<Boolean>(Boolean.class);
+		edgeFilterPanel = new TableInputPanel<Boolean>(Boolean.class);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
 		JPanel contPanel = new JPanel();
@@ -85,24 +86,34 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		addTab("Case Weights", weightPanel);
 		addTab("Cross Contaminations", contPanel);
 		addTab("Filter", filterPanel);
+		addTab("Edge Filter", edgeFilterPanel);
 	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		BufferedDataTable nodeTable = input[0];
+		BufferedDataTable edgeTable = input[1];
 
 		set.loadSettings(settings);
 
-		nodeProperties = KnimeUtilities.getTableColumns(nodeTable.getSpec());
-		nodes = TracingUtilities.readGraphNodes(nodeTable, nodeProperties,
-				null, false).values();
-		weightPanel.update(nodes, nodeProperties, set.getCaseWeights(),
-				set.getWeightCondition());
-		contaminationPanel.update(nodes, nodeProperties,
+		Map<String, Class<?>> nodeProperties = KnimeUtilities
+				.getTableColumns(nodeTable.getSpec());
+		Map<String, Class<?>> edgeProperties = KnimeUtilities
+				.getTableColumns(edgeTable.getSpec());
+		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
+				nodeTable, nodeProperties, null, false);
+		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+				edgeProperties, nodes, false);
+
+		weightPanel.update(nodes.values(), nodeProperties,
+				set.getCaseWeights(), set.getWeightCondition());
+		contaminationPanel.update(nodes.values(), nodeProperties,
 				set.getCrossContaminations(), set.getContaminationCondition());
-		filterPanel.update(nodes, nodeProperties, set.getFilter(),
+		filterPanel.update(nodes.values(), nodeProperties, set.getFilter(),
 				set.getFilterCondition());
+		edgeFilterPanel.update(edges, edgeProperties, set.getEdgeFilter(),
+				set.getEdgeFilterCondition());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 	}
 
@@ -115,6 +126,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		set.setContaminationCondition(contaminationPanel.getCondition());
 		set.setFilter(filterPanel.getValues());
 		set.setFilterCondition(filterPanel.getCondition());
+		set.setEdgeFilter(edgeFilterPanel.getValues());
+		set.setEdgeFilterCondition(edgeFilterPanel.getCondition());
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 		set.saveSettings(settings);
 	}
