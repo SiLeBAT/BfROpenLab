@@ -57,7 +57,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 	private static final long serialVersionUID = 1L;
 
-	private JList list;
+	private JList<HighlightCondition> list;
 	private JButton addButton;
 	private JButton removeButton;
 	private JCheckBox prioritizeBox;
@@ -95,7 +95,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		autoAddCondition = null;
 		approved = false;
 
-		list = new JList();
+		list = new JList<HighlightCondition>();
 		list.getSelectionModel().setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());

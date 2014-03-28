@@ -144,7 +144,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem expandFromNodeItem;
 
 	private String editingMode;
-	private JComboBox modeBox;
+	private JComboBox<String> modeBox;
 	private boolean joinEdges;
 	private JCheckBox joinBox;
 
@@ -208,7 +208,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		modeBox = new JComboBox(new String[] { TRANSFORMING_MODE,
+		modeBox = new JComboBox<String>(new String[] { TRANSFORMING_MODE,
 				PICKING_MODE });
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);

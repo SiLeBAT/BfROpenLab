@@ -91,7 +91,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
-	private JComboBox layoutBox;
+	private JComboBox<String> layoutBox;
 	private JButton layoutButton;
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
@@ -128,7 +128,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 		random = new Random();
 
-		layoutBox = new JComboBox(new String[] { CIRCLE_LAYOUT,
+		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
 				FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT,
 				SPRING_LAYOUT_2 });
 		layoutBox.setSelectedItem(layoutType);

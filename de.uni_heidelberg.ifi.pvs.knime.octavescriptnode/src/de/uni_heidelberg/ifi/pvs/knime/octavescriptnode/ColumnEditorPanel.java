@@ -121,7 +121,7 @@ public class ColumnEditorPanel extends JPanel {
 		outputPanel.add(outputMainPanel);
 
 		TableColumn typeColumn = table.getColumnModel().getColumn(1);
-		JComboBox typeSelector = new JComboBox();
+		JComboBox<String> typeSelector = new JComboBox<String>();
 
 		typeSelector.addItem("Double");
 		typeSelector.addItem("Integer");

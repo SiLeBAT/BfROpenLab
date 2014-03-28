@@ -77,10 +77,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private DoubleTextField maxXField;
 	private DoubleTextField maxYField;
 
-	private JComboBox xBox;
-	private JComboBox yBox;
-	private JComboBox xTransBox;
-	private JComboBox yTransBox;
+	private JComboBox<String> xBox;
+	private JComboBox<String> yBox;
+	private JComboBox<String> xTransBox;
+	private JComboBox<String> yTransBox;
 	private String lastParamX;
 	private Map<String, Double> parametersX;
 	private Map<String, Double> minParamValuesX;
@@ -171,12 +171,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 		mainPanel.add(outerRangePanel, createConstraints(1));
 
-		xBox = new JComboBox();
+		xBox = new JComboBox<String>();
 		xBox.addActionListener(this);
-		yBox = new JComboBox();
-		xTransBox = new JComboBox(ChartUtilities.TRANSFORMS);
+		yBox = new JComboBox<String>();
+		xTransBox = new JComboBox<String>(ChartUtilities.TRANSFORMS);
 		xTransBox.addActionListener(this);
-		yTransBox = new JComboBox(ChartUtilities.TRANSFORMS);
+		yTransBox = new JComboBox<String>(ChartUtilities.TRANSFORMS);
 		yTransBox.addActionListener(this);
 
 		JPanel parametersPanel = new JPanel();

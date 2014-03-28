@@ -95,7 +95,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
 		selectTable
-				.setRowHeight((new JComboBox()).getPreferredSize().height);
+				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(
 				(SelectTableModel) selectTable.getModel()));
 		selectTable.getColumn(ChartUtilities.ID).setMinWidth(0);
@@ -112,7 +112,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		selectTable.getColumn(ChartUtilities.COLOR).setCellRenderer(
 				new ColorRenderer());
 		selectTable.getColumn(ChartUtilities.SHAPE).setCellEditor(
-				new DefaultCellEditor(new JComboBox(
+				new DefaultCellEditor(new JComboBox<String>(
 						ColorAndShapeCreator.SHAPE_NAMES)));
 		selectTable.getColumn(ChartUtilities.COLOR).getCellEditor()
 				.addCellEditorListener(this);
