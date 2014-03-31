@@ -506,10 +506,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					edges.add(newEdge);
 				}
 			} else {
-				edges.add(new Edge<GraphNode>(
-						edge.getId(),
-						new LinkedHashMap<String, Object>(edge.getProperties()),
-						from, to));
+				Edge<GraphNode> newEdge = oldEdgesById.get(edge.getId());
+
+				if (newEdge == null) {
+					newEdge = new Edge<GraphNode>(edge.getId(),
+							new LinkedHashMap<String, Object>(
+									edge.getProperties()), from, to);
+				}
+
+				edges.add(newEdge);
 			}
 		}
 
