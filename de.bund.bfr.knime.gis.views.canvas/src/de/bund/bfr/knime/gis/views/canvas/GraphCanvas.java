@@ -167,32 +167,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public Map<String, Point2D> getNodePositions() {
-		Map<String, Point2D> map = new LinkedHashMap<String, Point2D>();
-		Layout<GraphNode, Edge<GraphNode>> layout = getViewer()
-				.getGraphLayout();
-
-		for (GraphNode node : nodes) {
-			Point2D pos = layout.transform(node);
-
-			if (pos != null) {
-				if (collapsedNodes.containsKey(node.getId())) {
-					Map<String, Point2D> absPos = new LinkedHashMap<String, Point2D>();
-					Map<String, Point2D> relPos = collapsedNodes.get(node
-							.getId());
-
-					for (String id : relPos.keySet()) {
-						absPos.put(id,
-								CanvasUtilities.addPoints(relPos.get(id), pos));
-					}
-
-					map.putAll(absPos);
-				} else {
-					map.put(node.getId(), pos);
-				}
-			}
-		}
-
-		return map;
+		return getNodePositions(nodes);
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
@@ -575,7 +550,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				.getGraphLayout();
 
 		for (GraphNode node : nodes) {
-			map.put(node.getId(), layout.transform(node));
+			Point2D pos = layout.transform(node);
+
+			if (pos != null) {
+				map.put(node.getId(), pos);
+			}
 		}
 
 		return map;
