@@ -418,52 +418,67 @@ public class MyNewTracing {
 		}
 	}
 	private HashSet<Integer> getForwardDeliveries(MyDelivery md) {
-		HashSet<Integer> forwardDeliveries = md.getForwardDeliveries();
-		if (forwardDeliveries == null) {
-			forwardDeliveries = new HashSet<Integer>();			
-			searchFFCases(md, new HashSet<Integer>(),true,forwardDeliveries);
-			md.setForwardDeliveries(forwardDeliveries);
+		if (md != null) {
+			HashSet<Integer> forwardDeliveries = md.getForwardDeliveries();
+			if (forwardDeliveries == null) {
+				forwardDeliveries = new HashSet<Integer>();			
+				searchFFCases(md, new HashSet<Integer>(),true,forwardDeliveries);
+				md.setForwardDeliveries(forwardDeliveries);
+			}
+			return forwardDeliveries;
 		}
-		return forwardDeliveries;
+		else return null;
 	}
 	private HashSet<Integer> getBackwardDeliveries(MyDelivery md) {
-		HashSet<Integer> backwardDeliveries = md.getBackwardDeliveries();
-		if (backwardDeliveries == null) {
-			backwardDeliveries = new HashSet<Integer>();			
-			searchFBCases(md, new HashSet<Integer>(),true,backwardDeliveries);
-			md.setBackwardDeliveries(backwardDeliveries);
+		if (md != null) {
+			HashSet<Integer> backwardDeliveries = md.getBackwardDeliveries();
+			if (backwardDeliveries == null) {
+				backwardDeliveries = new HashSet<Integer>();			
+				searchFBCases(md, new HashSet<Integer>(),true,backwardDeliveries);
+				md.setBackwardDeliveries(backwardDeliveries);
+			}
+			return backwardDeliveries;
 		}
-		return backwardDeliveries;
+		else return null;
 	}
 	private HashSet<Integer> getForwardStations(MyDelivery md) {
-		HashSet<Integer> forwardStations = md.getForwardStations();
-		if (forwardStations == null) {
-			forwardStations = new HashSet<Integer>();			
-			searchFFCases(md, forwardStations,true,new HashSet<Integer>());
-			md.setForwardStations(forwardStations);
+		if (md != null) {
+			HashSet<Integer> forwardStations = md.getForwardStations();
+			if (forwardStations == null) {
+				forwardStations = new HashSet<Integer>();			
+				searchFFCases(md, forwardStations,true,new HashSet<Integer>());
+				md.setForwardStations(forwardStations);
+			}
+			return forwardStations;
 		}
-		return forwardStations;
+		else return null;
 	}
 	private HashSet<Integer> getBackwardStations(MyDelivery md) {
-		HashSet<Integer> backwardStations = md.getBackwardStations();
-		if (backwardStations == null) {
-			backwardStations = new HashSet<Integer>();			
-			searchFBCases(md, backwardStations,true,new HashSet<Integer>());
-			md.setBackwardStations(backwardStations);
+		if (md != null) {
+			HashSet<Integer> backwardStations = md.getBackwardStations();
+			if (backwardStations == null) {
+				backwardStations = new HashSet<Integer>();			
+				searchFBCases(md, backwardStations,true,new HashSet<Integer>());
+				md.setBackwardStations(backwardStations);
+			}
+			return backwardStations;
 		}
-		return backwardStations;
+		else return null;
 	}
 	
 	private HashSet<Integer> getForwardStationsWithCases(MyDelivery md) {
-		HashSet<Integer> forwardStationsWithCases = md.getForwardStationsWithCases();
-		if (forwardStationsWithCases == null) {
-			forwardStationsWithCases = new HashSet<Integer>();			
-			searchFFCases(md, forwardStationsWithCases,false,new HashSet<Integer>());
-			md.setForwardStationsWithCases(forwardStationsWithCases);
+		if (md != null) {
+			HashSet<Integer> forwardStationsWithCases = md.getForwardStationsWithCases();
+			if (forwardStationsWithCases == null) {
+				forwardStationsWithCases = new HashSet<Integer>();			
+				searchFFCases(md, forwardStationsWithCases,false,new HashSet<Integer>());
+				md.setForwardStationsWithCases(forwardStationsWithCases);
+			}
+			return forwardStationsWithCases;
 		}
-		return forwardStationsWithCases;
+		else return null;
 	}
-	
+		
 	private static void removeEmptyIds(HashMap<Integer, MyDelivery> deliveries) {		
 		for (MyDelivery delivery : deliveries.values()) {
 			delivery.getAllNextIDs().retainAll(deliveries.keySet());
