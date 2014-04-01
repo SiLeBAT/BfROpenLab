@@ -2,7 +2,7 @@
 <feature
       id="de.uni_heidelberg.ifi.pvs.knime.octavescriptnode.feature"
       label="OctaveScriptNode-Node extension for KNIME Workbench"
-      version="0.9.1.qualifier"
+      version="0.9.1"
       provider-name="PVS University of Heidelberg">
 
    <description url="http://www.example.com/description">
@@ -10,7 +10,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-   Copyright (C)     
+      Copyright (C)
    </copyright>
 
    <license url="http://www.example.com/license">
