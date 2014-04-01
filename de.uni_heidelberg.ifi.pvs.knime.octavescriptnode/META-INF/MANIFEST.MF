@@ -17,7 +17,7 @@ Bundle-ClassPath: octavescriptnode.jar,
  lib/hamcrest-all-1.3.0RC2.jar,
  lib/javaoctave-0.6.2-pvshd-1.jar,
  lib/testng.jar
-Bundle-Version: 0.9.1.qualifier
+Bundle-Version: 0.9.1
 Bundle-Name: OctaveScriptNode-Node extension for KNIME Workbench
 Bundle-ManifestVersion: 2
 Bundle-Activator: de.uni_heidelberg.ifi.pvs.knime.octavescriptnode.Oct
