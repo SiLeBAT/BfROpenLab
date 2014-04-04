@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source">
+    <name>Supply Chain Analyzer</name>
+    
+    <shortDescription>
+        
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Insert long description here...</intro>
+        
+        
+        <option name="short name of first option (like in the dialog)">description of first option</option>
+        <option name="short name of second option (like in the dialog)">description of second option</option>
+    </fullDescription>
+    
+    <ports>
+        <outPort index="0" name="Nodes33">Nodes33</outPort>
+        <outPort index="1" name="Links33">Links33</outPort>
+        <outPort index="2" name="Tracing-DataModel">Tracing-DataModel</outPort>
+    </ports>    
+</knimeNode>

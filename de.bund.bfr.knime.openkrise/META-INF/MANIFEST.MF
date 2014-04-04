@@ -1,14 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Openkrise
-Bundle-SymbolicName: de.bund.bfr.knime.openkrise
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: de.bund.bfr.knime.openkrise.Activator
-Bundle-Vendor: BfR
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Bundle-Name: MyKrisenInterfaces-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.openkrise; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: mykriseninterfaces.jar
+Bundle-Activator: de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodePlugin
+Bundle-Vendor: Armin Weiser
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.hsh.bfr.db,
  com.thoughtworks.xstream;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
 Export-Package: de.bund.bfr.knime.openkrise
+
