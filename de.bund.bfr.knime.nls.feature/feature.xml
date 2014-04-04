@@ -37,6 +37,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.ext.svg"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
+      <import plugin="org.apache.commons.math3"/>
    </requires>
 
    <plugin
@@ -45,12 +46,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.math3"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime"
