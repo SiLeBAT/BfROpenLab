@@ -238,7 +238,7 @@ outputWordle.close();
              int from = id1;//id2Code.get(id1);
              int to = id2;//id2Code.get(id2);
              RowKey key = RowKey.createRowKey(rowNumber);
-             DataCell[] cells = new DataCell[22];
+             DataCell[] cells = new DataCell[21];
              cells[0] = new IntCell(from);
              cells[1] = new IntCell(to);
              //cells[2] = new StringCell("black"); // black
