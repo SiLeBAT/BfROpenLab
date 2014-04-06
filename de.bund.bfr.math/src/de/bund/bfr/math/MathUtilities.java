@@ -42,6 +42,55 @@ public class MathUtilities {
 	private MathUtilities() {
 	}
 
+	public static double computeSum(List<Double> values) {
+		double sum = 0.0;
+
+		for (double v : values) {
+			sum += v;
+		}
+
+		return sum;
+	}
+
+	public static String replaceVariable(String formula, String var,
+			String newVar) {
+		if (var.equals(newVar)) {
+			return formula;
+		}
+
+		String newFormular = " " + formula + " ";
+		boolean foundReplacement = true;
+
+		while (foundReplacement) {
+			foundReplacement = false;
+
+			for (int i = 1; i < newFormular.length() - var.length(); i++) {
+				boolean matches = newFormular.substring(i, i + var.length())
+						.equals(var);
+				boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
+				boolean end = !isVariableCharacter(newFormular.charAt(i
+						+ var.length()));
+
+				if (matches && start && end) {
+					String orginal = newFormular.substring(i - 1,
+							i + var.length() + 1);
+					String replacement = newFormular.charAt(i - 1) + newVar
+							+ newFormular.charAt(i + var.length());
+
+					newFormular = newFormular.replace(orginal, replacement);
+					foundReplacement = true;
+					break;
+				}
+			}
+		}
+
+		return newFormular.replace(" ", "");
+	}
+
+	public static boolean isVariableCharacter(char ch) {
+		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
+	}
+
 	public static List<String> getSymbols(String formula) {
 		List<String> symbols = new ArrayList<String>();
 		DJep parser = MathUtilities.createParser();
@@ -136,7 +185,7 @@ public class MathUtilities {
 			parser.addFunction("log10", new MacroFunction("log10", 1,
 					"ln(x)/ln(10)", parser));
 			parser.addDiffRule(new MacroDiffRules(parser, "log10",
-					"1/(x*ln(10))"));			
+					"1/(x*ln(10))"));
 
 			parser.addDiffRule(new ZeroDiffRule("<"));
 			parser.addDiffRule(new ZeroDiffRule(">"));
