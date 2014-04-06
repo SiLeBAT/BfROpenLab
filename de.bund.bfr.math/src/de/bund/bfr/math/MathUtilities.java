@@ -42,16 +42,6 @@ public class MathUtilities {
 	private MathUtilities() {
 	}
 
-	public static double computeSum(List<Double> values) {
-		double sum = 0.0;
-
-		for (double v : values) {
-			sum += v;
-		}
-
-		return sum;
-	}
-
 	public static String replaceVariable(String formula, String var,
 			String newVar) {
 		if (var.equals(newVar)) {
