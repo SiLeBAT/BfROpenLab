@@ -57,6 +57,7 @@ import org.knime.core.node.port.PortType;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.Utilities;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -171,8 +172,10 @@ public class FunctionFittingNodeModel extends NodeModel {
 		DataTableSpec spec = (DataTableSpec) inSpecs[1];
 		List<String> variables = function.getVariables();
 		List<String> parameters = function.getParameters();
-		List<String> stringColumns = Utilities.getStringColumns(spec);
-		List<String> doubleColumns = Utilities.getDoubleColumns(spec);
+		List<String> stringColumns = KnimeUtilities
+				.getColumnNames(KnimeUtilities.getStringColumns(spec));
+		List<String> doubleColumns = KnimeUtilities
+				.getColumnNames(KnimeUtilities.getDoubleColumns(spec));
 
 		if (!stringColumns.contains(Utilities.ID_COLUMN)) {
 			throw new InvalidSettingsException(

@@ -187,4 +187,14 @@ public class KnimeUtilities {
 
 		return columns.toArray(new DataColumnSpec[0]);
 	}
+
+	public static List<String> getColumnNames(DataColumnSpec[] columns) {
+		List<String> names = new ArrayList<String>();
+
+		for (DataColumnSpec column : columns) {
+			names.add(column.getName());
+		}
+
+		return names;
+	}
 }

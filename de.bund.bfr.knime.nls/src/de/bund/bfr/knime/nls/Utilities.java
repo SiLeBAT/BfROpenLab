@@ -24,14 +24,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.math.MathUtilities;
 
@@ -55,34 +49,6 @@ public class Utilities {
 		} else {
 			return transform + "(" + attr + ")";
 		}
-	}
-
-	public static List<String> getStringColumns(DataTableSpec spec) {
-		List<String> columns = new ArrayList<String>();
-
-		for (int i = 0; i < spec.getNumColumns(); i++) {
-			DataColumnSpec cSpec = spec.getColumnSpec(i);
-
-			if (cSpec.getType() == StringCell.TYPE) {
-				columns.add(cSpec.getName());
-			}
-		}
-
-		return columns;
-	}
-
-	public static List<String> getDoubleColumns(DataTableSpec spec) {
-		List<String> columns = new ArrayList<String>();
-
-		for (int i = 0; i < spec.getNumColumns(); i++) {
-			DataColumnSpec cSpec = spec.getColumnSpec(i);
-
-			if (cSpec.getType() == DoubleCell.TYPE) {
-				columns.add(cSpec.getName());
-			}
-		}
-
-		return columns;
 	}
 
 	public static Function createFunction(String term,
