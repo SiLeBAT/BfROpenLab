@@ -37,6 +37,7 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.Utilities;
 import de.bund.bfr.knime.nls.chart.Plotable;
@@ -162,7 +163,7 @@ public class FunctionViewReader {
 		List<String> ids = new ArrayList<String>();
 
 		for (DataRow row : table) {
-			String id = Utilities.getString(row.getCell(table.getSpec()
+			String id = IO.getString(row.getCell(table.getSpec()
 					.findColumnIndex(Utilities.ID_COLUMN)));
 
 			if (id != null) {
@@ -193,15 +194,15 @@ public class FunctionViewReader {
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(Utilities.getString(row.getCell(spec
+			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN))))) {
 				for (String column : columns) {
 					DataCell cell = row.getCell(spec.findColumnIndex(column));
 
-					if (Utilities.getDouble(cell) != null) {
-						values.put(column, Utilities.getDouble(cell));
-					} else if (Utilities.getInt(cell) != null) {
-						values.put(column, Utilities.getInt(cell).doubleValue());
+					if (IO.getDouble(cell) != null) {
+						values.put(column, IO.getDouble(cell));
+					} else if (IO.getInt(cell) != null) {
+						values.put(column, IO.getInt(cell).doubleValue());
 					} else {
 						values.put(column, null);
 					}
@@ -220,10 +221,10 @@ public class FunctionViewReader {
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(Utilities.getString(row.getCell(spec
+			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN))))) {
 				for (String param : f.getParameters()) {
-					params.put(param, Utilities.getDouble(row.getCell(spec
+					params.put(param, IO.getDouble(row.getCell(spec
 							.findColumnIndex(param))));
 				}
 
@@ -240,14 +241,14 @@ public class FunctionViewReader {
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(Utilities.getString(row.getCell(spec
+			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN))))) {
 				Map<String, Double> cov = new LinkedHashMap<String, Double>();
-				String param1 = Utilities.getString(row.getCell(spec
+				String param1 = IO.getString(row.getCell(spec
 						.findColumnIndex(Utilities.PARAM_COLUMN)));
 
 				for (String param2 : f.getParameters()) {
-					cov.put(param2, Utilities.getDouble(row.getCell(spec
+					cov.put(param2, IO.getDouble(row.getCell(spec
 							.findColumnIndex(param2))));
 				}
 
@@ -279,12 +280,12 @@ public class FunctionViewReader {
 		}
 
 		for (DataRow row : table) {
-			if (id.equals(Utilities.getString(row.getCell(spec
+			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<String, Double>();
 
 				for (String var : f.getVariables()) {
-					v.put(var, Utilities.getDouble(row.getCell(spec
+					v.put(var, IO.getDouble(row.getCell(spec
 							.findColumnIndex(var))));
 				}
 
@@ -314,13 +315,13 @@ public class FunctionViewReader {
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(Utilities.getString(row.getCell(spec
+			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<String, Double>();
 
 				for (String var : f.getIndependentVariables()) {
 					if (!var.equals(indep)) {
-						v.put(var, Utilities.getDouble(row.getCell(spec
+						v.put(var, IO.getDouble(row.getCell(spec
 								.findColumnIndex(var))));
 					}
 				}

@@ -49,10 +49,10 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.nls.MathUtilities;
 import de.bund.bfr.knime.nls.ui.StringTextArea;
 import de.bund.bfr.knime.nls.ui.StringTextField;
 import de.bund.bfr.knime.nls.ui.TextListener;
+import de.bund.bfr.math.MathUtilities;
 
 /**
  * <code>NodeDialog</code> for the "FunctionCreator" Node.

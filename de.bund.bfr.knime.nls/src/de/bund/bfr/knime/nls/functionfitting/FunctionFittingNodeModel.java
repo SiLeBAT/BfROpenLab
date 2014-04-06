@@ -56,10 +56,12 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.Utilities;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.ParameterOptimizer;
 
 /**
  * This is the model implementation of FunctionFitting.
@@ -106,19 +108,19 @@ public class FunctionFittingNodeModel extends NodeModel {
 			DataCell[] cells1 = new DataCell[outSpec1.getNumColumns()];
 
 			for (String param1 : functionObject.getFunction().getParameters()) {
-				cells1[outSpec1.findColumnIndex(param1)] = Utilities
-						.createCell(result.getParameterValues().get(param1));
+				cells1[outSpec1.findColumnIndex(param1)] = IO.createCell(result
+						.getParameterValues().get(param1));
 
 				DataCell[] cells2 = new DataCell[outSpec2.getNumColumns()];
 
-				cells2[outSpec2.findColumnIndex(Utilities.ID_COLUMN)] = Utilities
+				cells2[outSpec2.findColumnIndex(Utilities.ID_COLUMN)] = IO
 						.createCell(id);
-				cells2[outSpec2.findColumnIndex(Utilities.PARAM_COLUMN)] = Utilities
+				cells2[outSpec2.findColumnIndex(Utilities.PARAM_COLUMN)] = IO
 						.createCell(param1);
 
 				for (String param2 : functionObject.getFunction()
 						.getParameters()) {
-					cells2[outSpec2.findColumnIndex(param2)] = Utilities
+					cells2[outSpec2.findColumnIndex(param2)] = IO
 							.createCell(result.getCovariances().get(param1)
 									.get(param2));
 				}
@@ -127,19 +129,19 @@ public class FunctionFittingNodeModel extends NodeModel {
 				i2++;
 			}
 
-			cells1[outSpec1.findColumnIndex(Utilities.ID_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.ID_COLUMN)] = IO
 					.createCell(id);
-			cells1[outSpec1.findColumnIndex(Utilities.SSE_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.SSE_COLUMN)] = IO
 					.createCell(result.getSSE());
-			cells1[outSpec1.findColumnIndex(Utilities.MSE_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.MSE_COLUMN)] = IO
 					.createCell(result.getMSE());
-			cells1[outSpec1.findColumnIndex(Utilities.RMSE_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.RMSE_COLUMN)] = IO
 					.createCell(result.getRMSE());
-			cells1[outSpec1.findColumnIndex(Utilities.R2_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.R2_COLUMN)] = IO
 					.createCell(result.getR2());
-			cells1[outSpec1.findColumnIndex(Utilities.AIC_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.AIC_COLUMN)] = IO
 					.createCell(result.getAIC());
-			cells1[outSpec1.findColumnIndex(Utilities.DOF_COLUMN)] = Utilities
+			cells1[outSpec1.findColumnIndex(Utilities.DOF_COLUMN)] = IO
 					.createCell(result.getDOF());
 
 			container1.addRowToTable(new DefaultRow(i1 + "", cells1));
@@ -316,13 +318,13 @@ public class FunctionFittingNodeModel extends NodeModel {
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<String, Map<String, List<Double>>>();
 
 		for (DataRow row : table) {
-			String id = Utilities.getString(row.getCell(spec
+			String id = IO.getString(row.getCell(spec
 					.findColumnIndex(Utilities.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<String, Double>();
 
 			for (String var : function.getVariables()) {
-				values.put(var, Utilities.getDouble(row.getCell(spec
-						.findColumnIndex(var))));
+				values.put(var,
+						IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 			}
 
 			if (id == null || values.values().contains(null)) {
@@ -352,6 +354,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 		for (String id : targetValues.keySet()) {
 			ParameterOptimizer optimizer = new ParameterOptimizer(formula,
 					parameters, minParameterValues, maxParameterValues,
+					minParameterValues, maxParameterValues,
 					targetValues.get(id), argumentValues.get(id),
 					set.isEnforceLimits());
 

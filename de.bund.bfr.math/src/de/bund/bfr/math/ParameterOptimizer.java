@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionfitting;
+package de.bund.bfr.math;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,8 +48,6 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.knime.nls.MathUtilities;
-
 public class ParameterOptimizer {
 
 	private static final double EPSILON = 0.00001;
@@ -57,8 +55,8 @@ public class ParameterOptimizer {
 	private static final double COV_THRESHOLD = 1e-14;
 
 	private List<String> parameters;
-	private Map<String, Double> minParameterValues;
-	private Map<String, Double> maxParameterValues;
+	private Map<String, Double> minStartValues;
+	private Map<String, Double> maxStartValues;
 	private List<Double> targetValues;
 	private Map<String, List<Double>> argumentValues;
 
@@ -83,13 +81,15 @@ public class ParameterOptimizer {
 	private Double aic;
 
 	public ParameterOptimizer(String formula, List<String> parameters,
+			Map<String, Double> minStartValues,
+			Map<String, Double> maxStartValues,
 			Map<String, Double> minParameterValues,
 			Map<String, Double> maxParameterValues, List<Double> targetValues,
 			Map<String, List<Double>> argumentValues, boolean enforceLimits)
 			throws ParseException {
 		this.parameters = parameters;
-		this.minParameterValues = minParameterValues;
-		this.maxParameterValues = maxParameterValues;
+		this.minStartValues = minStartValues;
+		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 		this.argumentValues = argumentValues;
 
@@ -148,8 +148,8 @@ public class ParameterOptimizer {
 		int maxStepCount = 10;
 
 		for (String param : parameters) {
-			Double min = minParameterValues.get(param);
-			Double max = maxParameterValues.get(param);
+			Double min = minStartValues.get(param);
+			Double max = maxStartValues.get(param);
 
 			if (min != null && max != null) {
 				paramsWithRange++;
@@ -164,8 +164,8 @@ public class ParameterOptimizer {
 		}
 
 		for (String param : parameters) {
-			Double min = minParameterValues.get(param);
-			Double max = maxParameterValues.get(param);
+			Double min = minStartValues.get(param);
+			Double max = maxStartValues.get(param);
 
 			if (min != null && max != null) {
 				paramMin.add(min);

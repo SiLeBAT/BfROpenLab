@@ -22,10 +22,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls;
+package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -41,17 +40,6 @@ import org.nfunk.jep.TokenMgrError;
 public class MathUtilities {
 
 	private MathUtilities() {
-	}
-
-	public static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
-		List<String> parameters = getSymbols(term);
-
-		parameters.removeAll(independentVariables);
-		Collections.sort(parameters);
-
-		return new Function(term, dependentVariable, independentVariables,
-				parameters);
 	}
 
 	public static List<String> getSymbols(String formula) {

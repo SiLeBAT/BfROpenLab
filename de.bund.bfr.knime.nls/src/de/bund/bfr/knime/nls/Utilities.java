@@ -25,15 +25,15 @@
 package de.bund.bfr.knime.nls;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+
+import de.bund.bfr.math.MathUtilities;
 
 public class Utilities {
 
@@ -85,52 +85,15 @@ public class Utilities {
 		return columns;
 	}
 
-	public static DataCell createCell(String s) {
-		if (s != null) {
-			return new StringCell(s);
-		}
+	public static Function createFunction(String term,
+			String dependentVariable, List<String> independentVariables) {
+		List<String> parameters = MathUtilities.getSymbols(term);
 
-		return DataType.getMissingCell();
-	}
+		parameters.removeAll(independentVariables);
+		Collections.sort(parameters);
 
-	public static DataCell createCell(Integer i) {
-		if (i != null) {
-			return new IntCell(i);
-		}
-
-		return DataType.getMissingCell();
-	}
-
-	public static DataCell createCell(Double d) {
-		if (d != null) {
-			return new DoubleCell(d);
-		}
-
-		return DataType.getMissingCell();
-	}
-
-	public static String getString(DataCell cell) {
-		if (cell instanceof StringCell) {
-			return ((StringCell) cell).getStringValue();
-		}
-
-		return null;
-	}
-
-	public static Integer getInt(DataCell cell) {
-		if (cell instanceof IntCell) {
-			return ((IntCell) cell).getIntValue();
-		}
-
-		return null;
-	}
-
-	public static Double getDouble(DataCell cell) {
-		if (cell instanceof DoubleCell) {
-			return ((DoubleCell) cell).getDoubleValue();
-		}
-
-		return null;
+		return new Function(term, dependentVariable, independentVariables,
+				parameters);
 	}
 
 }

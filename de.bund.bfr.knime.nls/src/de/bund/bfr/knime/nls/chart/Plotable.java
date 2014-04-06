@@ -38,7 +38,7 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.knime.nls.MathUtilities;
+import de.bund.bfr.math.MathUtilities;
 
 public class Plotable {
 
