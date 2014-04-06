@@ -26,16 +26,20 @@ package de.bund.bfr.knime;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -44,6 +48,46 @@ import javax.swing.table.TableColumn;
 public class UI {
 
 	private UI() {
+	}
+	
+	public static void select(JComboBox<?> box, Object item) {
+		box.setSelectedItem(item);
+
+		if (box.getSelectedItem() != null
+				&& !box.getSelectedItem().equals(item)) {
+			box.setSelectedItem(null);
+		}
+	}
+
+	public static void adjustDialog(JDialog dialog) {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
+				dialog.getGraphicsConfiguration());
+		int maxWidth = screenSize.width - insets.left - insets.right;
+		int maxHeight = screenSize.height - insets.top - insets.bottom;
+
+		dialog.setSize(Math.min(dialog.getWidth(), maxWidth),
+				Math.min(dialog.getHeight(), maxHeight));
+
+		int minX = insets.left;
+		int minY = insets.top;
+		int maxX = screenSize.width - insets.right - dialog.getWidth();
+		int maxY = screenSize.height - insets.bottom - dialog.getHeight();
+
+		dialog.setLocation(Math.max(dialog.getX(), minX),
+				Math.max(dialog.getY(), minY));
+		dialog.setLocation(Math.min(dialog.getX(), maxX),
+				Math.min(dialog.getY(), maxY));
+	}
+
+	public static JPanel createTitledPanel(JComponent comp, String title) {
+		JPanel p = new JPanel();
+
+		p.setBorder(BorderFactory.createTitledBorder(title));
+		p.setLayout(new BorderLayout());
+		p.add(comp, BorderLayout.CENTER);
+
+		return p;
 	}
 
 	public static JPanel createNorthPanel(JComponent component) {
