@@ -24,21 +24,14 @@
 package de.bund.bfr.knime.gis.shapefilereader;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.FilenameUtils;
 import org.knime.core.data.DataTableSpec;
@@ -50,39 +43,29 @@ import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.FileListener;
+import de.bund.bfr.knime.ui.FilePanel;
+import de.bund.bfr.knime.ui.StandardFileFilter;
 
 public class ShapefileReaderNodeDialog extends NodeDialogPane implements
-		ActionListener, DocumentListener {
+		FileListener {
 
 	private ShapefileReaderSettings set;
 
-	private JTextField fileField;
-	private JButton fileButton;
+	private FilePanel filePanel;
 	private JLabel systemLabel;
 	private JTextField systemField;
 
 	public ShapefileReaderNodeDialog() {
 		set = new ShapefileReaderSettings();
 
-		fileField = new JTextField();
-		fileField.getDocument().addDocumentListener(this);
-		fileButton = new JButton("Browse...");
-		fileButton.addActionListener(this);
+		filePanel = new FilePanel("Shapefile", FilePanel.OPEN_DIALOG);
+		filePanel.setAcceptAllFiles(false);
+		filePanel.addFileFilter(new StandardFileFilter(".shp",
+				"Shapefile (*.shp)"));
+		filePanel.addFileListener(this);
 		systemLabel = new JLabel();
 		systemField = new JTextField();
-
-		JPanel innerFilePanel = new JPanel();
-
-		innerFilePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		innerFilePanel.setLayout(new BorderLayout(5, 5));
-		innerFilePanel.add(fileField, BorderLayout.CENTER);
-		innerFilePanel.add(fileButton, BorderLayout.EAST);
-
-		JPanel outerFilePanel = new JPanel();
-
-		outerFilePanel.setBorder(BorderFactory.createTitledBorder("Shapefile"));
-		outerFilePanel.setLayout(new BorderLayout());
-		outerFilePanel.add(innerFilePanel, BorderLayout.CENTER);
 
 		JPanel innerSystemPanel = new JPanel();
 
@@ -101,7 +84,7 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(outerFilePanel);
+		panel.add(filePanel);
 		panel.add(outerSystemPanel);
 
 		addTab("Options", UI.createNorthPanel(panel));
@@ -111,7 +94,7 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
-		fileField.setText(set.getFileName() != null ? set.getFileName() : "");
+		filePanel.setFileName(set.getFileName());
 		systemField.setText(set.getSystemCode() != null ? set.getSystemCode()
 				: "");
 	}
@@ -125,58 +108,14 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 			set.setSystemCode(null);
 		}
 
-		set.setFileName(fileField.getText());
+		set.setFileName(filePanel.getFileName());
 		set.saveSettings(settings);
 	}
-
+	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		JFileChooser fileChooser;
-
+	public void fileChanged(FilePanel source) {
 		try {
-			fileChooser = new JFileChooser(new File(fileField.getText()));
-		} catch (Exception ex) {
-			fileChooser = new JFileChooser();
-		}
-
-		fileChooser.setAcceptAllFileFilterUsed(false);
-		fileChooser.addChoosableFileFilter(new FileFilter() {
-
-			@Override
-			public String getDescription() {
-				return "Shapefile (*.shp)";
-			}
-
-			@Override
-			public boolean accept(File f) {
-				return f.isDirectory()
-						|| f.getName().toLowerCase().endsWith(".shp");
-			}
-		});
-
-		if (fileChooser.showOpenDialog(fileButton) == JFileChooser.APPROVE_OPTION) {
-			fileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
-		}
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		updateSystemPanel();
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		updateSystemPanel();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		updateSystemPanel();
-	}
-
-	private void updateSystemPanel() {
-		try {
-			File shpFile = KnimeUtilities.getFile(fileField.getText());
+			File shpFile = KnimeUtilities.getFile(filePanel.getFileName());
 
 			try {
 				KnimeUtilities.getFile(FilenameUtils.removeExtension(shpFile
@@ -195,4 +134,5 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 
 		((JPanel) systemLabel.getParent()).revalidate();
 	}
+
 }

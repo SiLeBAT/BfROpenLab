@@ -37,7 +37,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
-
 public class FilePanel extends JPanel implements ActionListener, TextListener {
 
 	public static final int OPEN_DIALOG = 1;
@@ -172,11 +171,6 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	@Override
 	public void textChanged(Object source) {
 		fireFileChanged();
-	}
-
-	public static interface FileListener {
-
-		public void fileChanged(FilePanel source);
 	}
 
 }

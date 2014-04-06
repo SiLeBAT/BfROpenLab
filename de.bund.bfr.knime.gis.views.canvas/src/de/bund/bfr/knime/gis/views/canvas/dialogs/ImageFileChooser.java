@@ -28,6 +28,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import de.bund.bfr.knime.ui.StandardFileFilter;
+
 public class ImageFileChooser extends JFileChooser {
 
 	public static int NO_FORMAT = -1;
@@ -36,10 +38,17 @@ public class ImageFileChooser extends JFileChooser {
 
 	private static final long serialVersionUID = 1L;
 
+	private FileFilter pngFilter;
+	private FileFilter svgFilter;
+
 	public ImageFileChooser() {
+		pngFilter = new StandardFileFilter(".png",
+				"Portable Network Graphics (*.png)");
+		svgFilter = new StandardFileFilter(".svg", "SVG Vector Graphic (*.svg)");
+
 		setAcceptAllFileFilterUsed(false);
-		addChoosableFileFilter(new PngFilter());
-		addChoosableFileFilter(new SvgFilter());
+		addChoosableFileFilter(pngFilter);
+		addChoosableFileFilter(svgFilter);
 	}
 
 	public File getImageFile() {
@@ -61,40 +70,12 @@ public class ImageFileChooser extends JFileChooser {
 	public int getFileFormat() {
 		FileFilter filter = getFileFilter();
 
-		if (filter instanceof PngFilter) {
+		if (filter == pngFilter) {
 			return PNG_FORMAT;
-		} else if (filter instanceof SvgFilter) {
+		} else if (filter == svgFilter) {
 			return SVG_FORMAT;
 		}
 
 		return NO_FORMAT;
 	}
-
-	private static class PngFilter extends FileFilter {
-
-		@Override
-		public String getDescription() {
-			return "Portable Network Graphics (*.png)";
-		}
-
-		@Override
-		public boolean accept(File f) {
-			return f.isDirectory()
-					|| f.getName().toLowerCase().endsWith(".png");
-		}
-	};
-
-	private static class SvgFilter extends FileFilter {
-
-		@Override
-		public String getDescription() {
-			return "SVG Vector Graphic (*.svg)";
-		}
-
-		@Override
-		public boolean accept(File f) {
-			return f.isDirectory()
-					|| f.getName().toLowerCase().endsWith(".svg");
-		}
-	};
 }
