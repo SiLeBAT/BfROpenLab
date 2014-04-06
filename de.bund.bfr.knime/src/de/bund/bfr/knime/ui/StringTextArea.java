@@ -22,51 +22,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.ui;
+package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JTextField;
+import javax.swing.BorderFactory;
+import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class DoubleTextField extends JTextField implements DocumentListener,
-		FocusListener {
+public class StringTextArea extends JTextArea implements DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private double minValue;
-	private double maxValue;
+	private List<TextListener> listeners;
+
 	private boolean optional;
 
 	private boolean isValueValid;
-	private Double value;
+	private String value;
 
-	private List<TextListener> listeners;
-
-	public DoubleTextField(boolean optional, int columns) {
-		super(columns);
-		this.minValue = Double.NEGATIVE_INFINITY;
-		this.maxValue = Double.POSITIVE_INFINITY;
+	public StringTextArea(boolean optional, int rows, int columns) {
+		super(null, null, rows, columns);
 		this.optional = optional;
+		setLineWrap(true);
+		setBorder(BorderFactory.createLoweredBevelBorder());
 		getDocument().addDocumentListener(this);
-		addFocusListener(this);
 		listeners = new ArrayList<TextListener>();
-		textChanged();
-		formatText();
-	}
-
-	public void setMinValue(int minValue) {
-		this.minValue = minValue;
-		textChanged();
-	}
-
-	public void setMaxValue(int maxValue) {
-		this.maxValue = maxValue;
 		textChanged();
 	}
 
@@ -82,19 +66,21 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		return isValueValid;
 	}
 
-	public Double getValue() {
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(Double value) {
+	public void setValue(String value) {
+		getDocument().removeDocumentListener(this);
+
 		if (value != null) {
-			setText(value.toString());
+			setText(value);
 		} else {
 			setText("");
 		}
 
-		formatText();
-		setCaretPosition(0);
+		getDocument().addDocumentListener(this);
+		textChanged();
 	}
 
 	@Override
@@ -110,16 +96,6 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		textChanged();
-	}
-
-	@Override
-	public void focusGained(FocusEvent e) {
-		selectAll();
-	}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		formatText();
 	}
 
 	@Override
@@ -141,39 +117,18 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		}
 	}
 
-	protected void formatText() {
-		if (value != null) {
-			setText(getText().replace(",", "."));
-		}
-	}
-
 	private void textChanged() {
-		if (getText().trim().isEmpty()) {
+		value = getText();
+
+		if (value.trim().isEmpty() && !optional) {
+			isValueValid = false;
 			value = null;
-
-			if (optional) {
-				isValueValid = true;
-			} else {
-				isValueValid = false;
-			}
 		} else {
-			try {
-				value = Double.parseDouble(getText().replace(",", "."));
-
-				if (value >= minValue && value <= maxValue) {
-					isValueValid = true;
-				} else {
-					isValueValid = false;
-				}
-			} catch (NumberFormatException e) {
-				value = null;
-				isValueValid = false;
-			}
+			isValueValid = true;
 		}
 
 		for (TextListener listener : listeners) {
 			listener.textChanged(this);
 		}
 	}
-
 }

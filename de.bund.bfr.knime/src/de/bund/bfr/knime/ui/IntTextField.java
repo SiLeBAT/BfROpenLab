@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.ui;
+package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
 import java.util.ArrayList;

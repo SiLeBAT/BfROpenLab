@@ -49,8 +49,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.bund.bfr.knime.nls.ui.DoubleTextField;
-import de.bund.bfr.knime.nls.ui.TextListener;
+import de.bund.bfr.knime.ui.DoubleTextField;
+import de.bund.bfr.knime.ui.TextListener;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {

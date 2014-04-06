@@ -22,18 +22,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.ui;
+package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class StringTextArea extends JTextArea implements DocumentListener {
+public class StringTextField extends JTextField implements DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -44,11 +43,9 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 	private boolean isValueValid;
 	private String value;
 
-	public StringTextArea(boolean optional, int rows, int columns) {
-		super(null, null, rows, columns);
+	public StringTextField(boolean optional, int columns) {
+		super(columns);
 		this.optional = optional;
-		setLineWrap(true);
-		setBorder(BorderFactory.createLoweredBevelBorder());
 		getDocument().addDocumentListener(this);
 		listeners = new ArrayList<TextListener>();
 		textChanged();
@@ -122,7 +119,6 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 
 		if (value.trim().isEmpty() && !optional) {
 			isValueValid = false;
-			value = null;
 		} else {
 			isValueValid = true;
 		}
@@ -131,4 +127,5 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 			listener.textChanged(this);
 		}
 	}
+
 }

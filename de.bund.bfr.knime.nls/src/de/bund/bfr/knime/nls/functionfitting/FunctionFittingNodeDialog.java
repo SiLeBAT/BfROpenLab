@@ -55,8 +55,8 @@ import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
-import de.bund.bfr.knime.nls.ui.DoubleTextField;
-import de.bund.bfr.knime.nls.ui.IntTextField;
+import de.bund.bfr.knime.ui.DoubleTextField;
+import de.bund.bfr.knime.ui.IntTextField;
 
 /**
  * <code>NodeDialog</code> for the "FunctionFitting" Node.
