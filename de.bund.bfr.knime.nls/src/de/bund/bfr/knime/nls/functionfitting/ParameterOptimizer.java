@@ -57,8 +57,8 @@ public class ParameterOptimizer {
 	private static final double COV_THRESHOLD = 1e-14;
 
 	private List<String> parameters;
-	private List<Double> minParameterValues;
-	private List<Double> maxParameterValues;
+	private Map<String, Double> minParameterValues;
+	private Map<String, Double> maxParameterValues;
 	private List<Double> targetValues;
 	private Map<String, List<Double>> argumentValues;
 
@@ -83,8 +83,8 @@ public class ParameterOptimizer {
 	private Double aic;
 
 	public ParameterOptimizer(String formula, List<String> parameters,
-			List<Double> minParameterValues, List<Double> maxParameterValues,
-			List<Double> targetValues,
+			Map<String, Double> minParameterValues,
+			Map<String, Double> maxParameterValues, List<Double> targetValues,
 			Map<String, List<Double>> argumentValues, boolean enforceLimits)
 			throws ParseException {
 		this.parameters = parameters;
@@ -94,16 +94,16 @@ public class ParameterOptimizer {
 		this.argumentValues = argumentValues;
 
 		if (enforceLimits) {
-			for (int i = 0; i < parameters.size(); i++) {
-				Double min = minParameterValues.get(i);
-				Double max = maxParameterValues.get(i);
+			for (String param : parameters) {
+				Double min = minParameterValues.get(param);
+				Double max = maxParameterValues.get(param);
+
 				if (min != null) {
-					formula += "+1000000*(" + parameters.get(i) + "<" + min
-							+ ")";
+					formula += "+1000000*(" + param + "<" + min + ")";
 				}
+
 				if (max != null) {
-					formula += "+1000000*(" + parameters.get(i) + ">" + max
-							+ ")";
+					formula += "+1000000*(" + param + ">" + max + ")";
 				}
 			}
 		}
@@ -147,9 +147,9 @@ public class ParameterOptimizer {
 		int paramsWithRange = 0;
 		int maxStepCount = 10;
 
-		for (int i = 0; i < parameters.size(); i++) {
-			Double min = minParameterValues.get(i);
-			Double max = maxParameterValues.get(i);
+		for (String param : parameters) {
+			Double min = minParameterValues.get(param);
+			Double max = maxParameterValues.get(param);
 
 			if (min != null && max != null) {
 				paramsWithRange++;
@@ -163,9 +163,9 @@ public class ParameterOptimizer {
 			maxStepCount = Math.min(maxStepCount, 10);
 		}
 
-		for (int i = 0; i < parameters.size(); i++) {
-			Double min = minParameterValues.get(i);
-			Double max = maxParameterValues.get(i);
+		for (String param : parameters) {
+			Double min = minParameterValues.get(param);
+			Double max = maxParameterValues.get(param);
 
 			if (min != null && max != null) {
 				paramMin.add(min);

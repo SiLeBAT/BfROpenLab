@@ -287,8 +287,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 		String formula = function.getTerm();
 		List<String> parameters = new ArrayList<String>();
-		List<Double> minParameterValues = new ArrayList<Double>();
-		List<Double> maxParameterValues = new ArrayList<Double>();
+		Map<String, Double> minParameterValues = new LinkedHashMap<String, Double>();
+		Map<String, Double> maxParameterValues = new LinkedHashMap<String, Double>();
 
 		for (String param : function.getParameters()) {
 			Double min = null;
@@ -307,8 +307,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 			}
 
 			parameters.add(param);
-			minParameterValues.add(min);
-			maxParameterValues.add(max);
+			minParameterValues.put(param, min);
+			maxParameterValues.put(param, max);
 		}
 
 		DataTableSpec spec = table.getSpec();
@@ -362,5 +362,4 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 		return results;
 	}
-
 }
