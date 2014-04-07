@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.Transform;
 
 public class Utilities {
 
@@ -43,8 +44,8 @@ public class Utilities {
 	private Utilities() {
 	}
 
-	public static String getName(String attr, String transform) {
-		if (transform == null || transform.equals("")) {
+	public static String getName(String attr, Transform transform) {
+		if (transform == null || transform == Transform.NO_TRANSFORM) {
 			return attr;
 		} else {
 			return transform + "(" + attr + ")";

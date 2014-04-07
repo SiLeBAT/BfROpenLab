@@ -39,7 +39,7 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.ChartUtilities;
+import de.bund.bfr.math.Transform;
 
 public class FunctionViewSettings extends NlsNodeSettings {
 
@@ -52,7 +52,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	public static final boolean DEFAULT_SHOW_LEGEND = true;
 	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
 	public static final boolean DEFAULT_SHOW_CONFIDENCE = false;
-	public static final String DEFAULT_TRANSFORM = ChartUtilities.NO_TRANSFORM;
+	public static final Transform DEFAULT_TRANSFORM = Transform.NO_TRANSFORM;
 	public static final boolean DEFAULT_SELECT_ALL = false;
 
 	private static final String CFG_MANUAL_RANGE = "ManualRange";
@@ -82,8 +82,8 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	private boolean exportAsSvg;
 	private boolean showConfidence;
 	private String currentParamX;
-	private String transformX;
-	private String transformY;
+	private Transform transformX;
+	private Transform transformY;
 	private boolean selectAll;
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
@@ -162,13 +162,15 @@ public class FunctionViewSettings extends NlsNodeSettings {
 		}
 
 		try {
-			transformX = settings.getString(CFG_TRANSFORM_X);
+			transformX = Transform.valueOf(settings.getString(CFG_TRANSFORM_X));
 		} catch (InvalidSettingsException e) {
+		} catch (IllegalArgumentException e) {
 		}
 
 		try {
-			transformY = settings.getString(CFG_TRANSFORM_Y);
+			transformY = Transform.valueOf(settings.getString(CFG_TRANSFORM_Y));
 		} catch (InvalidSettingsException e) {
+		} catch (IllegalArgumentException e) {
 		}
 
 		try {
@@ -207,8 +209,8 @@ public class FunctionViewSettings extends NlsNodeSettings {
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SHOW_CONFIDENCE, showConfidence);
 		settings.addString(CFG_CURRENT_PARAM_X, currentParamX);
-		settings.addString(CFG_TRANSFORM_X, transformX);
-		settings.addString(CFG_TRANSFORM_Y, transformY);
+		settings.addString(CFG_TRANSFORM_X, transformX.name());
+		settings.addString(CFG_TRANSFORM_Y, transformY.name());
 		settings.addBoolean(CFG_SELECT_ALL, selectAll);
 		settings.addString(CFG_SELECTED_IDS, SERIALIZER.toXml(selectedIDs));
 		settings.addString(CFG_COLORS, SERIALIZER.toXml(colors));
@@ -358,19 +360,19 @@ public class FunctionViewSettings extends NlsNodeSettings {
 		this.currentParamX = currentParamX;
 	}
 
-	public String getTransformX() {
+	public Transform getTransformX() {
 		return transformX;
 	}
 
-	public void setTransformX(String transformX) {
+	public void setTransformX(Transform transformX) {
 		this.transformX = transformX;
 	}
 
-	public String getTransformY() {
+	public Transform getTransformY() {
 		return transformY;
 	}
 
-	public void setTransformY(String transformY) {
+	public void setTransformY(Transform transformY) {
 		this.transformY = transformY;
 	}
 

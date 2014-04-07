@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.TextListener;
+import de.bund.bfr.math.Transform;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -79,8 +80,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private JComboBox<String> xBox;
 	private JComboBox<String> yBox;
-	private JComboBox<String> xTransBox;
-	private JComboBox<String> yTransBox;
+	private JComboBox<Transform> xTransBox;
+	private JComboBox<Transform> yTransBox;
 	private String lastParamX;
 	private Map<String, Double> parametersX;
 	private Map<String, Double> minParamValuesX;
@@ -174,9 +175,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xBox = new JComboBox<String>();
 		xBox.addActionListener(this);
 		yBox = new JComboBox<String>();
-		xTransBox = new JComboBox<String>(ChartUtilities.TRANSFORMS);
+		xTransBox = new JComboBox<Transform>(Transform.values());
 		xTransBox.addActionListener(this);
-		yTransBox = new JComboBox<String>(ChartUtilities.TRANSFORMS);
+		yTransBox = new JComboBox<Transform>(Transform.values());
 		yTransBox.addActionListener(this);
 
 		JPanel parametersPanel = new JPanel();
@@ -347,19 +348,19 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		return (String) yBox.getSelectedItem();
 	}
 
-	public String getTransformX() {
-		return (String) xTransBox.getSelectedItem();
+	public Transform getTransformX() {
+		return (Transform) xTransBox.getSelectedItem();
 	}
 
-	public void setTransformX(String transformX) {
+	public void setTransformX(Transform transformX) {
 		xTransBox.setSelectedItem(transformX);
 	}
 
-	public String getTransformY() {
-		return (String) yTransBox.getSelectedItem();
+	public Transform getTransformY() {
+		return (Transform) yTransBox.getSelectedItem();
 	}
 
-	public void setTransformY(String transformY) {
+	public void setTransformY(Transform transformY) {
 		yTransBox.setSelectedItem(transformY);
 	}
 

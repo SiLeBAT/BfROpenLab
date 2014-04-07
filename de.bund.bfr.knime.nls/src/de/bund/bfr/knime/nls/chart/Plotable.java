@@ -39,6 +39,7 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.Transform;
 
 public class Plotable {
 
@@ -157,7 +158,7 @@ public class Plotable {
 	}
 
 	public double[][] getPoints(String paramX, String paramY,
-			String transformX, String transformY) {
+			Transform transformX, Transform transformY) {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
 
@@ -169,8 +170,8 @@ public class Plotable {
 				xList.size());
 
 		for (int i = 0; i < xList.size(); i++) {
-			Double x = ChartUtilities.transform(xList.get(i), transformX);
-			Double y = ChartUtilities.transform(yList.get(i), transformY);
+			Double x = Transform.transform(xList.get(i), transformX);
+			Double y = Transform.transform(yList.get(i), transformY);
 
 			if (MathUtilities.isValidDouble(x)
 					&& MathUtilities.isValidDouble(y)) {
@@ -197,8 +198,8 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
-			String transformX, String transformY, double minX, double maxX,
-			double minY, double maxY) {
+			Transform transformX, Transform transformY, double minX,
+			double maxX, double minY, double maxY) {
 		if (function == null) {
 			return null;
 		}
@@ -242,14 +243,14 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					ChartUtilities.inverseTransform(x, transformX));
+					Transform.inverseTransform(x, transformX));
 
 			try {
 				Object number = parser.evaluate(f);
 				Double y;
 
 				if (number instanceof Double) {
-					y = ChartUtilities.transform((Double) number, transformY);
+					y = Transform.transform((Double) number, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
@@ -269,8 +270,8 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
-			String transformX, String transformY, double minX, double maxX,
-			double minY, double maxY) {
+			Transform transformX, Transform transformY, double minX,
+			double maxX, double minY, double maxY) {
 		if (function == null) {
 			return null;
 		}
@@ -327,7 +328,7 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					ChartUtilities.inverseTransform(x, transformX));
+					Transform.inverseTransform(x, transformX));
 
 			try {
 				Double y = 0.0;
@@ -375,7 +376,7 @@ public class Plotable {
 
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
-					y = ChartUtilities.transform(y, transformY);
+					y = Transform.transform(y, transformY);
 
 					if (y != null) {
 						points[1][n] = y;

@@ -46,6 +46,7 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
 import de.bund.bfr.knime.nls.Utilities;
+import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends ChartPanel {
 
@@ -62,8 +63,8 @@ public class ChartCreator extends ChartPanel {
 
 	private String paramX;
 	private String paramY;
-	private String transformX;
-	private String transformY;
+	private Transform transformX;
+	private Transform transformY;
 	private boolean useManualRange;
 	private double minX;
 	private double minY;
@@ -140,9 +141,9 @@ public class ChartCreator extends ChartPanel {
 
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.BOTH) {
-					Double minArg = ChartUtilities.transform(plotable
+					Double minArg = Transform.transform(plotable
 							.getMinArguments().get(paramX), transformX);
-					Double maxArg = ChartUtilities.transform(plotable
+					Double maxArg = Transform.transform(plotable
 							.getMaxArguments().get(paramX), transformX);
 
 					if (minArg != null) {
@@ -171,9 +172,9 @@ public class ChartCreator extends ChartPanel {
 						}
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION) {
-					Double minArg = ChartUtilities.transform(plotable
+					Double minArg = Transform.transform(plotable
 							.getMinArguments().get(paramX), transformX);
-					Double maxArg = ChartUtilities.transform(plotable
+					Double maxArg = Transform.transform(plotable
 							.getMaxArguments().get(paramX), transformX);
 
 					if (minArg != null) {
@@ -255,11 +256,11 @@ public class ChartCreator extends ChartPanel {
 		this.paramY = paramY;
 	}
 
-	public void setTransformX(String transformX) {
+	public void setTransformX(Transform transformX) {
 		this.transformX = transformX;
 	}
 
-	public void setTransformY(String transformY) {
+	public void setTransformY(Transform transformY) {
 		this.transformY = transformY;
 	}
 

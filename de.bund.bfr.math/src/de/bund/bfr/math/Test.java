@@ -33,7 +33,7 @@ import org.nfunk.jep.ParseException;
 
 public class Test {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		try {
 			nls();
 		} catch (ParseException e) {

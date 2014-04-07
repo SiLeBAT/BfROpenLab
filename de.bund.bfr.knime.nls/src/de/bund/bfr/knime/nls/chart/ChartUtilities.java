@@ -53,72 +53,12 @@ public class ChartUtilities {
 	public static final String FAILED = "Failed";
 	public static final String NO_COVARIANCE = "No Cov. Matrix";
 
-	public static final String NO_TRANSFORM = "";
-	public static final String SQRT_TRANSFORM = "sqrt";
-	public static final String LN_TRANSFORM = "ln";
-	public static final String LOG_TRANSFORM = "log";
-	public static final String EXP_TRANSFORM = "exp";
-	public static final String EXP10_TRANSFORM = "10^";
-	public static final String DIVX_TRANSFORM = "1/x";
-	public static final String DIVX2_TRANSFORM = "1/x^2";
-	public static final String[] TRANSFORMS = { NO_TRANSFORM, SQRT_TRANSFORM,
-			LN_TRANSFORM, LOG_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM,
-			DIVX_TRANSFORM, DIVX2_TRANSFORM };
-
 	public static final String ID = "ID";
 	public static final String SELECTED = "Selected";
 	public static final String COLOR = "Color";
 	public static final String SHAPE = "Shape";
 
 	private ChartUtilities() {
-	}
-
-	public static Double transform(Double value, String transform) {
-		if (value == null) {
-			return null;
-		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
-			return value;
-		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
-			return Math.sqrt(value);
-		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
-			return Math.log(value);
-		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
-			return Math.log10(value);
-		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
-			return Math.exp(value);
-		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
-			return Math.pow(10.0, value);
-		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
-			return 1 / value;
-		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
-			return 1 / value / value;
-		}
-
-		return null;
-	}
-
-	public static Double inverseTransform(Double value, String transform) {
-		if (value == null) {
-			return null;
-		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
-			return value;
-		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
-			return value * value;
-		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
-			return Math.exp(value);
-		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
-			return Math.pow(10.0, value);
-		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
-			return Math.log(value);
-		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
-			return Math.log10(value);
-		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
-			return 1 / value;
-		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
-			return 1 / Math.sqrt(value);
-		}
-
-		return null;
 	}
 
 	public static void saveChartAs(JFreeChart chart, String fileName,
