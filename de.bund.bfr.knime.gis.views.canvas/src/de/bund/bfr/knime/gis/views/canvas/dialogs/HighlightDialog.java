@@ -63,13 +63,43 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String LOGICAL_CONDITION = "Logical Condition";
-	private static final String VALUE_CONDITION = "Value Condition";
-	private static final String LOGICAL_VALUE_CONDITION = "Logical Value Condition";
+	private static enum Type {
+		LOGICAL_CONDITION, VALUE_CONDITION, LOGICAL_VALUE_CONDITION;
 
-	private String conditionType;
+		@Override
+		public String toString() {
+			switch (this) {
+			case LOGICAL_CONDITION:
+				return "Logical Condition";
+			case VALUE_CONDITION:
+				return "Value Condition";
+			case LOGICAL_VALUE_CONDITION:
+				return "Logical Value Condition";
+			}
 
-	private JComboBox<String> conditionTypeBox;
+			return super.toString();
+		}
+	}
+
+	private static enum AndOr {
+		AND, OR;
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case AND:
+				return "And";
+			case OR:
+				return "Or";
+			}
+
+			return super.toString();
+		}
+	}
+
+	private Type type;
+
+	private JComboBox<Type> conditionTypeBox;
 	private JButton colorButton;
 	private JCheckBox colorBox;
 	private JCheckBox invisibleBox;
@@ -82,7 +112,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	private JComboBox<String> valuePropertyBox;
 	private JComboBox<String> valueTypeBox;
 
-	private List<JComboBox<String>> logicalAndOrBoxes;
+	private List<JComboBox<AndOr>> logicalAndOrBoxes;
 	private List<JComboBox<String>> logicalPropertyBoxes;
 	private List<JComboBox<String>> logicalTypeBoxes;
 	private List<JTextField> logicalValueFields;
@@ -113,12 +143,10 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		approved = false;
 
 		if (allowValueCondition) {
-			conditionTypeBox = new JComboBox<String>(
-					new String[] { LOGICAL_CONDITION, VALUE_CONDITION,
-							LOGICAL_VALUE_CONDITION });
+			conditionTypeBox = new JComboBox<Type>(Type.values());
 		} else {
-			conditionTypeBox = new JComboBox<String>(
-					new String[] { LOGICAL_CONDITION });
+			conditionTypeBox = new JComboBox<Type>(
+					new Type[] { Type.LOGICAL_CONDITION });
 		}
 
 		JPanel conditionTypePanel = new JPanel();
@@ -179,17 +207,17 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		if (initialCondition != null) {
 			if (initialCondition instanceof AndOrHighlightCondition) {
-				conditionType = LOGICAL_CONDITION;
+				type = Type.LOGICAL_CONDITION;
 				conditionPanel = createLogicalPanel((AndOrHighlightCondition) initialCondition);
 			} else if (initialCondition instanceof ValueHighlightCondition) {
-				conditionType = VALUE_CONDITION;
+				type = Type.VALUE_CONDITION;
 				conditionPanel = createValuePanel((ValueHighlightCondition) initialCondition);
 			} else if (initialCondition instanceof LogicalValueHighlightCondition) {
-				conditionType = LOGICAL_VALUE_CONDITION;
+				type = Type.LOGICAL_VALUE_CONDITION;
 				conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) initialCondition);
 			}
 
-			conditionTypeBox.setSelectedItem(conditionType);
+			conditionTypeBox.setSelectedItem(type);
 
 			if (initialCondition.isInvisible()) {
 				invisibleBox.setSelected(true);
@@ -212,8 +240,8 @@ public class HighlightDialog extends JDialog implements ActionListener {
 				labelBox.setSelectedItem(initialCondition.getLabelProperty());
 			}
 		} else {
-			conditionTypeBox.setSelectedItem(LOGICAL_CONDITION);
-			conditionType = LOGICAL_CONDITION;
+			conditionTypeBox.setSelectedItem(Type.LOGICAL_CONDITION);
+			type = Type.LOGICAL_CONDITION;
 			conditionPanel = createLogicalPanel(null);
 
 			if (allowColor) {
@@ -256,12 +284,11 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		} else if (e.getSource() == cancelButton) {
 			dispose();
 		} else if (e.getSource() == conditionTypeBox) {
-			if (!conditionType.equals(conditionTypeBox.getSelectedItem())) {
+			if (!type.equals(conditionTypeBox.getSelectedItem())) {
 				remove(conditionPanel);
 
-				if (conditionTypeBox.getSelectedItem()
-						.equals(LOGICAL_CONDITION)) {
-					if (conditionType.equals(LOGICAL_VALUE_CONDITION)) {
+				if (conditionTypeBox.getSelectedItem() == Type.LOGICAL_CONDITION) {
+					if (type == Type.LOGICAL_VALUE_CONDITION) {
 						LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
 
 						conditionPanel = createLogicalPanel(c
@@ -269,23 +296,21 @@ public class HighlightDialog extends JDialog implements ActionListener {
 					} else {
 						conditionPanel = createLogicalPanel(null);
 					}
-				} else if (conditionTypeBox.getSelectedItem().equals(
-						VALUE_CONDITION)) {
-					if (conditionType.equals(LOGICAL_VALUE_CONDITION)) {
+				} else if (conditionTypeBox.getSelectedItem() == Type.VALUE_CONDITION) {
+					if (type == Type.LOGICAL_VALUE_CONDITION) {
 						LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
 
 						conditionPanel = createValuePanel(c.getValueCondition());
 					} else {
 						conditionPanel = createValuePanel(null);
 					}
-				} else if (conditionTypeBox.getSelectedItem().equals(
-						LOGICAL_VALUE_CONDITION)) {
-					if (conditionType.equals(LOGICAL_CONDITION)) {
+				} else if (conditionTypeBox.getSelectedItem() == Type.LOGICAL_VALUE_CONDITION) {
+					if (type == Type.LOGICAL_CONDITION) {
 						AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
 
 						conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(
 								null, c));
-					} else if (conditionType.equals(VALUE_CONDITION)) {
+					} else if (type == Type.VALUE_CONDITION) {
 						ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
 
 						conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(
@@ -295,7 +320,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 					}
 				}
 
-				conditionType = (String) conditionTypeBox.getSelectedItem();
+				type = (Type) conditionTypeBox.getSelectedItem();
 				add(conditionPanel, BorderLayout.CENTER);
 				pack();
 			}
@@ -332,7 +357,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 	@SuppressWarnings("unchecked")
 	private JPanel createLogicalPanel(AndOrHighlightCondition condition) {
-		logicalAndOrBoxes = new ArrayList<JComboBox<String>>();
+		logicalAndOrBoxes = new ArrayList<JComboBox<AndOr>>();
 		logicalPropertyBoxes = new ArrayList<JComboBox<String>>();
 		logicalTypeBoxes = new ArrayList<JComboBox<String>>();
 		logicalValueFields = new ArrayList<JTextField>();
@@ -377,13 +402,13 @@ public class HighlightDialog extends JDialog implements ActionListener {
 				removeButton.addActionListener(this);
 
 				if (row != 1) {
-					JComboBox<String> andOrBox = new JComboBox<String>(
-							AndOrHighlightCondition.TYPES);
+					JComboBox<AndOr> andOrBox = new JComboBox<AndOr>(
+							AndOr.values());
 
 					if (j == 0) {
-						andOrBox.setSelectedItem(AndOrHighlightCondition.OR_TYPE);
+						andOrBox.setSelectedItem(AndOr.OR);
 					} else {
-						andOrBox.setSelectedItem(AndOrHighlightCondition.AND_TYPE);
+						andOrBox.setSelectedItem(AndOr.AND);
 					}
 
 					logicalAndOrBoxes.add(andOrBox);
@@ -485,13 +510,13 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			labelProperty = null;
 		}
 
-		if (conditionType.equals(LOGICAL_CONDITION)) {
+		if (type == Type.LOGICAL_CONDITION) {
 			return createLogicalCondition(color, invisible, useThickness,
 					labelProperty);
-		} else if (conditionType.equals(VALUE_CONDITION)) {
+		} else if (type == Type.VALUE_CONDITION) {
 			return createValueCondition(color, invisible, useThickness,
 					labelProperty);
-		} else if (conditionType.equals(LOGICAL_VALUE_CONDITION)) {
+		} else if (type == Type.LOGICAL_VALUE_CONDITION) {
 			return new LogicalValueHighlightCondition(createValueCondition(
 					color, invisible, useThickness, labelProperty),
 					createLogicalCondition(color, invisible, useThickness,
@@ -508,10 +533,10 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		for (int i = 0; i < logicalPropertyBoxes.size(); i++) {
 			if (i != 0) {
-				String operation = (String) logicalAndOrBoxes.get(i - 1)
+				AndOr operation = (AndOr) logicalAndOrBoxes.get(i - 1)
 						.getSelectedItem();
 
-				if (operation.equals(AndOrHighlightCondition.OR_TYPE)) {
+				if (operation == AndOr.OR) {
 					conditions.add(andList);
 					andList = new ArrayList<LogicalHighlightCondition>();
 				}

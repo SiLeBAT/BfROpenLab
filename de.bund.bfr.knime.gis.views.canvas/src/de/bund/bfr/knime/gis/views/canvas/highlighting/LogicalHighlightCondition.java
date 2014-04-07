@@ -110,53 +110,21 @@ public class LogicalHighlightCondition implements Serializable {
 			Object nodeValue = element.getProperties().get(property);
 
 			if (type.equals(EQUAL_TYPE)) {
-				if (isEqual(nodeValue)) {
-					values.put(element, 1.0);
-				} else {
-					values.put(element, 0.0);
-				}
+				values.put(element, isEqual(nodeValue) ? 1.0 : 0.0);
 			} else if (type.equals(NOT_EQUAL_TYPE)) {
-				if (isEqual(nodeValue)) {
-					values.put(element, 0.0);
-				} else {
-					values.put(element, 1.0);
-				}
+				values.put(element, isEqual(nodeValue) ? 0.0 : 1.0);
 			} else if (type.equals(GREATER_TYPE)) {
-				if (isGreater(nodeValue)) {
-					values.put(element, 1.0);
-				} else {
-					values.put(element, 0.0);
-				}
+				values.put(element, isGreater(nodeValue) ? 1.0 : 0.0);
 			} else if (type.equals(LESS_TYPE)) {
-				if (isLess(nodeValue)) {
-					values.put(element, 1.0);
-				} else {
-					values.put(element, 0.0);
-				}
+				values.put(element, isLess(nodeValue) ? 1.0 : 0.0);
 			} else if (type.equals(REGEX_EQUAL_TYPE)) {
-				if (isEqualRegex(nodeValue, false)) {
-					values.put(element, 1.0);
-				} else {
-					values.put(element, 0.0);
-				}
+				values.put(element, isEqualRegex(nodeValue, false) ? 1.0 : 0.0);
 			} else if (type.equals(REGEX_NOT_EQUAL_TYPE)) {
-				if (isEqualRegex(nodeValue, false)) {
-					values.put(element, 0.0);
-				} else {
-					values.put(element, 1.0);
-				}
+				values.put(element, isEqualRegex(nodeValue, false) ? 0.0 : 1.0);
 			} else if (type.equals(REGEX_EQUAL_IGNORE_CASE_TYPE)) {
-				if (isEqualRegex(nodeValue, true)) {
-					values.put(element, 1.0);
-				} else {
-					values.put(element, 0.0);
-				}
+				values.put(element, isEqualRegex(nodeValue, true) ? 1.0 : 0.0);
 			} else if (type.equals(REGEX_NOT_EQUAL_IGNORE_CASE_TYPE)) {
-				if (isEqualRegex(nodeValue, true)) {
-					values.put(element, 0.0);
-				} else {
-					values.put(element, 1.0);
-				}
+				values.put(element, isEqualRegex(nodeValue, true) ? 0.0 : 1.0);
 			}
 		}
 

@@ -36,10 +36,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 public class AndOrHighlightCondition implements HighlightCondition,
 		Serializable {
 
-	public static final String AND_TYPE = "And";
-	public static final String OR_TYPE = "Or";
-	public static final String[] TYPES = { AND_TYPE, OR_TYPE };
-
 	private static final long serialVersionUID = 1L;
 
 	private List<List<LogicalHighlightCondition>> conditions;
