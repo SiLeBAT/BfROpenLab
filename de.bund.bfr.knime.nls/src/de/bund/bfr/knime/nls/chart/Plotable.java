@@ -169,18 +169,11 @@ public class Plotable {
 				xList.size());
 
 		for (int i = 0; i < xList.size(); i++) {
-			Double x = xList.get(i);
-			Double y = yList.get(i);
+			Double x = ChartUtilities.transform(xList.get(i), transformX);
+			Double y = ChartUtilities.transform(yList.get(i), transformY);
 
-			if (x != null) {
-				x = transform(x, transformX);
-			}
-
-			if (y != null) {
-				y = transform(y, transformY);
-			}
-
-			if (isValidValue(x) && isValidValue(y)) {
+			if (MathUtilities.isValidDouble(x)
+					&& MathUtilities.isValidDouble(y)) {
 				points.add(new Point2D.Double(x, y));
 			}
 		}
@@ -248,15 +241,15 @@ public class Plotable {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, inverseTransform(x, transformX));
+			parser.setVarValue(paramX,
+					ChartUtilities.inverseTransform(x, transformX));
 
 			try {
 				Object number = parser.evaluate(f);
 				Double y;
 
 				if (number instanceof Double) {
-					y = (Double) number;
-					y = transform(y, transformY);
+					y = ChartUtilities.transform((Double) number, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
@@ -268,9 +261,6 @@ public class Plotable {
 				points[0][j] = x;
 				points[1][j] = y;
 			} catch (ParseException e) {
-				points[0][j] = x;
-				points[1][j] = Double.NaN;
-			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
 		}
@@ -336,7 +326,8 @@ public class Plotable {
 			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, inverseTransform(x, transformX));
+			parser.setVarValue(paramX,
+					ChartUtilities.inverseTransform(x, transformX));
 
 			try {
 				Double y = 0.0;
@@ -384,7 +375,7 @@ public class Plotable {
 
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
-					y = transform(y, transformY);
+					y = ChartUtilities.transform(y, transformY);
 
 					if (y != null) {
 						points[1][n] = y;
@@ -395,8 +386,6 @@ public class Plotable {
 					points[1][n] = Double.NaN;
 				}
 			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
 		}
@@ -445,7 +434,8 @@ public class Plotable {
 
 		if (xs != null && ys != null) {
 			for (int i = 0; i < xs.size(); i++) {
-				if (isValidValue(xs.get(i)) && isValidValue(ys.get(i))) {
+				if (MathUtilities.isValidDouble(xs.get(i))
+						&& MathUtilities.isValidDouble(ys.get(i))) {
 					dataSetPlotable = true;
 					break;
 				}
@@ -457,7 +447,7 @@ public class Plotable {
 			boolean notValid = false;
 
 			for (Double value : functionParameters.values()) {
-				if (!isValidValue(value)) {
+				if (!MathUtilities.isValidDouble(value)) {
 					notValid = true;
 					break;
 				}
@@ -477,57 +467,5 @@ public class Plotable {
 		}
 
 		return false;
-	}
-
-	private boolean isValidValue(Double value) {
-		return value != null && !value.isNaN() && !value.isInfinite();
-	}
-
-	public static Double transform(Double value, String transform) {
-		if (value == null) {
-			return null;
-		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
-			return value;
-		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
-			return Math.sqrt(value);
-		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
-			return Math.log(value);
-		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
-			return Math.log10(value);
-		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
-			return Math.exp(value);
-		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
-			return Math.pow(10.0, value);
-		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
-			return 1 / value;
-		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
-			return 1 / value / value;
-		}
-
-		return null;
-	}
-
-	public static Double inverseTransform(Double value, String transform) {
-		if (value == null) {
-			return null;
-		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
-			return value;
-		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
-			return value * value;
-		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
-			return Math.exp(value);
-		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
-			return Math.pow(10.0, value);
-		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
-			return Math.log(value);
-		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
-			return Math.log10(value);
-		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
-			return 1 / value;
-		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
-			return 1 / Math.sqrt(value);
-		}
-
-		return null;
 	}
 }

@@ -140,9 +140,9 @@ public class ChartCreator extends ChartPanel {
 
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.BOTH) {
-					Double minArg = Plotable.transform(plotable
+					Double minArg = ChartUtilities.transform(plotable
 							.getMinArguments().get(paramX), transformX);
-					Double maxArg = Plotable.transform(plotable
+					Double maxArg = ChartUtilities.transform(plotable
 							.getMaxArguments().get(paramX), transformX);
 
 					if (minArg != null) {
@@ -171,9 +171,9 @@ public class ChartCreator extends ChartPanel {
 						}
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION) {
-					Double minArg = Plotable.transform(plotable
+					Double minArg = ChartUtilities.transform(plotable
 							.getMinArguments().get(paramX), transformX);
-					Double maxArg = Plotable.transform(plotable
+					Double maxArg = ChartUtilities.transform(plotable
 							.getMaxArguments().get(paramX), transformX);
 
 					if (minArg != null) {

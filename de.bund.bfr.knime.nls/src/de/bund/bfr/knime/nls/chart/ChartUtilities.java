@@ -73,6 +73,54 @@ public class ChartUtilities {
 	private ChartUtilities() {
 	}
 
+	public static Double transform(Double value, String transform) {
+		if (value == null) {
+			return null;
+		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
+			return value;
+		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
+			return Math.sqrt(value);
+		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
+			return Math.log(value);
+		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
+			return Math.log10(value);
+		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
+			return Math.exp(value);
+		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
+			return Math.pow(10.0, value);
+		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
+			return 1 / value;
+		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
+			return 1 / value / value;
+		}
+
+		return null;
+	}
+
+	public static Double inverseTransform(Double value, String transform) {
+		if (value == null) {
+			return null;
+		} else if (transform.equals(ChartUtilities.NO_TRANSFORM)) {
+			return value;
+		} else if (transform.equals(ChartUtilities.SQRT_TRANSFORM)) {
+			return value * value;
+		} else if (transform.equals(ChartUtilities.LN_TRANSFORM)) {
+			return Math.exp(value);
+		} else if (transform.equals(ChartUtilities.LOG_TRANSFORM)) {
+			return Math.pow(10.0, value);
+		} else if (transform.equals(ChartUtilities.EXP_TRANSFORM)) {
+			return Math.log(value);
+		} else if (transform.equals(ChartUtilities.EXP10_TRANSFORM)) {
+			return Math.log10(value);
+		} else if (transform.equals(ChartUtilities.DIVX_TRANSFORM)) {
+			return 1 / value;
+		} else if (transform.equals(ChartUtilities.DIVX2_TRANSFORM)) {
+			return 1 / Math.sqrt(value);
+		}
+
+		return null;
+	}
+
 	public static void saveChartAs(JFreeChart chart, String fileName,
 			int width, int height) {
 		if (fileName.toLowerCase().endsWith(".png")) {
