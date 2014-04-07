@@ -49,6 +49,24 @@ public class Plotable {
 		DATASET, FUNCTION, BOTH
 	}
 
+	public static enum Status {
+		OK, FAILED, NO_COVARIANCE;
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case OK:
+				return "Ok";
+			case FAILED:
+				return "Failed";
+			case NO_COVARIANCE:
+				return "No Cov. Matrix";
+			}
+
+			return super.toString();
+		}
+	}
+
 	private Type type;
 	private Map<String, List<Double>> valueLists;
 	private String function;
@@ -340,14 +358,14 @@ public class Plotable {
 		return points;
 	}
 
-	public String getStatus() {
+	public Status getStatus() {
 		if (!isPlotable()) {
-			return ChartUtilities.FAILED;
+			return Status.FAILED;
 		} else if (covarianceMatrixMissing()) {
-			return ChartUtilities.NO_COVARIANCE;
+			return Status.NO_COVARIANCE;
 		}
 
-		return ChartUtilities.OK;
+		return Status.OK;
 	}
 
 	private boolean isPlotable() {

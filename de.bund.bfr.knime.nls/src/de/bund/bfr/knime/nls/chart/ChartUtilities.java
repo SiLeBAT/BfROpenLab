@@ -46,17 +46,13 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
-public class ChartUtilities {
-
-	public static final String STATUS = "Status";
-	public static final String OK = "Ok";
-	public static final String FAILED = "Failed";
-	public static final String NO_COVARIANCE = "No Cov. Matrix";
+public class ChartUtilities {	
 
 	public static final String ID = "ID";
 	public static final String SELECTED = "Selected";
 	public static final String COLOR = "Color";
 	public static final String SHAPE = "Shape";
+	public static final String STATUS = "Status";
 
 	private ChartUtilities() {
 	}

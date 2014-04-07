@@ -133,7 +133,7 @@ public class FunctionViewReader {
 				}
 
 				stringColumns.get(ChartUtilities.STATUS).add(
-						plotable.getStatus());
+						plotable.getStatus().toString());
 				plotables.put(newId, plotable);
 			}
 		}

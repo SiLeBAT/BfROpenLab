@@ -521,7 +521,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 				String statusValue = (String) table.getValueAt(row,
 						statusColumn);
 
-				if (statusValue.equals(ChartUtilities.OK)) {
+				if (statusValue.equals(Plotable.Status.OK.toString())) {
 					if (isSelected) {
 						setForeground(table.getSelectionForeground());
 						setBackground(table.getSelectionBackground());
@@ -529,10 +529,12 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 						setForeground(table.getForeground());
 						setBackground(table.getBackground());
 					}
-				} else if (statusValue.equals(ChartUtilities.FAILED)) {
+				} else if (statusValue
+						.equals(Plotable.Status.FAILED.toString())) {
 					setForeground(Color.RED);
 					setBackground(Color.RED);
-				} else if (statusValue.equals(ChartUtilities.NO_COVARIANCE)) {
+				} else if (statusValue.equals(Plotable.Status.NO_COVARIANCE
+						.toString())) {
 					setForeground(Color.YELLOW);
 					setBackground(Color.YELLOW);
 				}
