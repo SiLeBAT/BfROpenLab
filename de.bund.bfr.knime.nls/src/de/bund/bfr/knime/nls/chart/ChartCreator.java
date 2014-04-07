@@ -139,7 +139,7 @@ public class ChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null) {
-				if (plotable.getType() == Plotable.BOTH) {
+				if (plotable.getType() == Plotable.Type.BOTH) {
 					Double minArg = Transform.transform(plotable
 							.getMinArguments().get(paramX), transformX);
 					Double maxArg = Transform.transform(plotable
@@ -160,7 +160,7 @@ public class ChartCreator extends ChartPanel {
 						usedMinX = Math.min(usedMinX, points[0][i]);
 						usedMaxX = Math.max(usedMaxX, points[0][i]);
 					}
-				} else if (plotable.getType() == Plotable.DATASET) {
+				} else if (plotable.getType() == Plotable.Type.DATASET) {
 					double[][] points = plotable.getPoints(paramX, paramY,
 							transformX, transformY);
 
@@ -170,7 +170,7 @@ public class ChartCreator extends ChartPanel {
 							usedMaxX = Math.max(usedMaxX, points[0][i]);
 						}
 					}
-				} else if (plotable.getType() == Plotable.FUNCTION) {
+				} else if (plotable.getType() == Plotable.Type.FUNCTION) {
 					Double minArg = Transform.transform(plotable
 							.getMinArguments().get(paramX), transformX);
 					Double maxArg = Transform.transform(plotable
@@ -213,7 +213,7 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null && plotable.getType() == Plotable.DATASET) {
+			if (plotable != null && plotable.getType() == Plotable.Type.DATASET) {
 				plotDataSet(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index));
@@ -224,7 +224,8 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null && plotable.getType() == Plotable.FUNCTION) {
+			if (plotable != null
+					&& plotable.getType() == Plotable.Type.FUNCTION) {
 				plotFunction(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);
@@ -235,7 +236,7 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null && plotable.getType() == Plotable.BOTH) {
+			if (plotable != null && plotable.getType() == Plotable.Type.BOTH) {
 				plotBoth(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);

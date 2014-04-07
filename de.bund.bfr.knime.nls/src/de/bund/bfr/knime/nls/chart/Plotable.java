@@ -45,11 +45,11 @@ public class Plotable {
 
 	private static final int FUNCTION_STEPS = 1000;
 
-	public static final int DATASET = 0;
-	public static final int FUNCTION = 1;
-	public static final int BOTH = 2;
+	public static enum Type {
+		DATASET, FUNCTION, BOTH
+	}
 
-	private int type;
+	private Type type;
 	private Map<String, List<Double>> valueLists;
 	private String function;
 	private String functionValue;
@@ -61,7 +61,7 @@ public class Plotable {
 	private Map<String, Double> maxArguments;
 	private Integer degreesOfFreedom;
 
-	public Plotable(int type) {
+	public Plotable(Type type) {
 		this.type = type;
 		valueLists = new LinkedHashMap<String, List<Double>>();
 		functionConstants = new LinkedHashMap<String, Double>();
@@ -73,7 +73,7 @@ public class Plotable {
 		degreesOfFreedom = null;
 	}
 
-	public int getType() {
+	public Type getType() {
 		return type;
 	}
 
@@ -395,7 +395,7 @@ public class Plotable {
 	}
 
 	public boolean isPlotable() {
-		if (type == FUNCTION) {
+		if (type == Type.FUNCTION) {
 			for (String param : functionParameters.keySet()) {
 				if (functionParameters.get(param) == null) {
 					return false;
@@ -407,9 +407,9 @@ public class Plotable {
 			List<String> paramsX = new ArrayList<String>(valueLists.keySet());
 			List<String> paramsY = new ArrayList<String>();
 
-			if (type == DATASET) {
+			if (type == Type.DATASET) {
 				paramsY = paramsX;
-			} else if (type == BOTH) {
+			} else if (type == Type.BOTH) {
 				if (functionValue != null) {
 					paramsY = Arrays.asList(functionValue);
 				}
@@ -459,11 +459,11 @@ public class Plotable {
 			}
 		}
 
-		if (type == DATASET) {
+		if (type == Type.DATASET) {
 			return dataSetPlotable;
-		} else if (type == FUNCTION) {
+		} else if (type == Type.FUNCTION) {
 			return functionPlotable;
-		} else if (type == BOTH) {
+		} else if (type == Type.BOTH) {
 			return dataSetPlotable && functionPlotable;
 		}
 

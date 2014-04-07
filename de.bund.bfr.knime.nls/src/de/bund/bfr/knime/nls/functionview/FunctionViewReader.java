@@ -104,7 +104,7 @@ public class FunctionViewReader {
 					doubleColumns.get(q).add(qualityValues.get(q));
 				}
 
-				Plotable plotable = new Plotable(Plotable.BOTH);
+				Plotable plotable = new Plotable(Plotable.Type.BOTH);
 
 				plotable.setFunction(f.getTerm());
 				plotable.setFunctionParameters(getParameters(paramTable, id, f));
