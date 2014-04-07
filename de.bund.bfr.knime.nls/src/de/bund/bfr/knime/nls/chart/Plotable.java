@@ -200,37 +200,14 @@ public class Plotable {
 	public double[][] getFunctionPoints(String paramX, String paramY,
 			Transform transformX, Transform transformY, double minX,
 			double maxX, double minY, double maxY) {
-		if (function == null) {
+		DJep parser = createParser(paramX);
+
+		if (function == null || parser == null) {
 			return null;
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		DJep parser = MathUtilities.createParser();
 		Node f = null;
-
-		for (String constant : functionConstants.keySet()) {
-			if (functionConstants.get(constant) == null) {
-				return null;
-			}
-
-			parser.addConstant(constant, functionConstants.get(constant));
-		}
-
-		for (String param : functionParameters.keySet()) {
-			if (functionParameters.get(param) == null) {
-				return null;
-			}
-
-			parser.addConstant(param, functionParameters.get(param));
-		}
-
-		for (String param : functionArguments.keySet()) {
-			if (!param.equals(paramX)) {
-				parser.addConstant(param, functionArguments.get(param));
-			}
-		}
-
-		parser.addVariable(paramX, 0.0);
 
 		try {
 			f = parser.parse(function);
@@ -272,46 +249,15 @@ public class Plotable {
 	public double[][] getFunctionErrors(String paramX, String paramY,
 			Transform transformX, Transform transformY, double minX,
 			double maxX, double minY, double maxY) {
-		if (function == null) {
+		DJep parser = createParser(paramX);
+
+		if (function == null || parser == null || covarianceMatrixMissing()) {
 			return null;
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		DJep parser = MathUtilities.createParser();
 		Node f = null;
-
-		for (String constant : functionConstants.keySet()) {
-			if (functionConstants.get(constant) == null) {
-				return null;
-			}
-
-			parser.addConstant(constant, functionConstants.get(constant));
-		}
-
-		for (String param : functionParameters.keySet()) {
-			if (functionParameters.get(param) == null
-					|| covariances.get(param) == null) {
-				return null;
-			}
-
-			for (String param2 : functionParameters.keySet()) {
-				if (covariances.get(param).get(param2) == null) {
-					return null;
-				}
-			}
-
-			parser.addConstant(param, functionParameters.get(param));
-		}
-
-		for (String param : functionArguments.keySet()) {
-			if (!param.equals(paramX)) {
-				parser.addConstant(param, functionArguments.get(param));
-			}
-		}
-
 		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
-
-		parser.addVariable(paramX, 0.0);
 
 		try {
 			f = parser.parse(function);
@@ -394,7 +340,17 @@ public class Plotable {
 		return points;
 	}
 
-	public boolean isPlotable() {
+	public String getStatus() {
+		if (!isPlotable()) {
+			return ChartUtilities.FAILED;
+		} else if (covarianceMatrixMissing()) {
+			return ChartUtilities.NO_COVARIANCE;
+		}
+
+		return ChartUtilities.OK;
+	}
+
+	private boolean isPlotable() {
 		if (type == Type.FUNCTION) {
 			for (String param : functionParameters.keySet()) {
 				if (functionParameters.get(param) == null) {
@@ -468,5 +424,51 @@ public class Plotable {
 		}
 
 		return false;
+	}
+
+	private boolean covarianceMatrixMissing() {
+		for (String param : functionParameters.keySet()) {
+			if (covariances.get(param) == null) {
+				return true;
+			}
+
+			for (String param2 : functionParameters.keySet()) {
+				if (covariances.get(param).get(param2) == null) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private DJep createParser(String paramX) {
+		DJep parser = MathUtilities.createParser();
+
+		for (String constant : functionConstants.keySet()) {
+			if (functionConstants.get(constant) == null) {
+				return null;
+			}
+
+			parser.addConstant(constant, functionConstants.get(constant));
+		}
+
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null) {
+				return null;
+			}
+
+			parser.addConstant(param, functionParameters.get(param));
+		}
+
+		for (String param : functionArguments.keySet()) {
+			if (!param.equals(paramX)) {
+				parser.addConstant(param, functionArguments.get(param));
+			}
+		}
+
+		parser.addVariable(paramX, 0.0);
+
+		return parser;
 	}
 }

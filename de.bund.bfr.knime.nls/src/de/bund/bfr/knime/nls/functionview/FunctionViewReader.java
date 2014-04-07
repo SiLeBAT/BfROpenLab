@@ -40,6 +40,7 @@ import org.knime.core.node.BufferedDataTable;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.Utilities;
+import de.bund.bfr.knime.nls.chart.ChartUtilities;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
@@ -69,6 +70,7 @@ public class FunctionViewReader {
 		doubleColumns = new LinkedHashMap<String, List<Double>>();
 		stringColumns = new LinkedHashMap<String, List<String>>();
 		stringColumns.put(Utilities.ID_COLUMN, new ArrayList<String>());
+		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<String, List<Double>>();
 
 		for (String i : f.getIndependentVariables()) {
@@ -130,6 +132,8 @@ public class FunctionViewReader {
 					plotable.addValueList(var, values.get(var));
 				}
 
+				stringColumns.get(ChartUtilities.STATUS).add(
+						plotable.getStatus());
 				plotables.put(newId, plotable);
 			}
 		}
