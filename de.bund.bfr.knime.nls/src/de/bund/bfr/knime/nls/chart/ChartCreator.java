@@ -45,7 +45,6 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
-import de.bund.bfr.knime.nls.Utilities;
 import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends ChartPanel {
@@ -127,8 +126,8 @@ public class ChartCreator extends ChartPanel {
 			idsToPaint = selectedIds;
 		}
 
-		NumberAxis xAxis = new NumberAxis(Utilities.getName(paramX, transformX));
-		NumberAxis yAxis = new NumberAxis(Utilities.getName(paramY, transformY));
+		NumberAxis xAxis = new NumberAxis(transformX.getName(paramX));
+		NumberAxis yAxis = new NumberAxis(transformY.getName(paramY));
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;

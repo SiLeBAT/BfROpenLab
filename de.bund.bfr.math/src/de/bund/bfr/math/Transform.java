@@ -48,7 +48,7 @@ public enum Transform {
 		case DIVX2_TRANSFORM:
 			return "1/x^2";
 		}
-		
+
 		return super.toString();
 	}
 
@@ -104,5 +104,13 @@ public enum Transform {
 		}
 
 		return null;
+	}
+
+	public String getName(String attr) {
+		if (this == Transform.NO_TRANSFORM) {
+			return attr;
+		} else {
+			return this + "(" + attr + ")";
+		}
 	}
 }
