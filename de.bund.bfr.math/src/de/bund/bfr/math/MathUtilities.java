@@ -37,9 +37,14 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
-public class MathUtilities {
+public class MathUtilities {	
 
 	private MathUtilities() {
+	}
+
+	public static boolean isValidDouble(Object o) {
+		return o instanceof Double && !((Double) o).isNaN()
+				&& !((Double) o).isInfinite();
 	}
 
 	public static String replaceVariable(String formula, String var,

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -361,8 +360,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 					targetValues.get(id), argumentValues.get(id),
 					set.isEnforceLimits());
 
-			optimizer.optimize(new AtomicInteger(), nParameterSpace,
-					nLevenberg, stopWhenSuccessful);
+			optimizer.optimize(nParameterSpace, nLevenberg, stopWhenSuccessful);
 			results.put(id, optimizer);
 		}
 

@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.nfunk.jep.ParseException;
 
@@ -56,7 +55,7 @@ public class Test {
 				parameters, minParams, maxParams, minParams, maxParams,
 				targetValues, argumentValues, false);
 
-		optimizer.optimize(new AtomicInteger(), 1, 1, true);
+		optimizer.optimize(1, 1, true);
 
 		System.out.println(optimizer.getParameterValues());
 	}
