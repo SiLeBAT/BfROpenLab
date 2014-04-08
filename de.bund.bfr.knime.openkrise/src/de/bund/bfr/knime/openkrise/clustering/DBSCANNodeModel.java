@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.math3.ml.clustering.Cluster;
-import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+import org.apache.commons.math3.ml.clustering.CentroidCluster;
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
+import org.apache.commons.math3.ml.clustering.MultiKMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.clustering.DoublePoint;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -18,7 +19,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.StringCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -28,6 +29,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 
 /**
  * This is the model implementation of DBSCAN.
@@ -37,6 +40,11 @@ import org.knime.core.node.NodeSettingsWO;
  */
 public class DBSCANNodeModel extends NodeModel {
     
+    static final String MINPTS = "minPts";
+    static final String EPS = "eps";
+
+    private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 6);
+    private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, .09);
     /**
      * Constructor for the node model.
      */
@@ -76,7 +84,7 @@ public class DBSCANNodeModel extends NodeModel {
         		}
                 rowNumber++;
         	}
-        	List<Cluster<DoublePoint>> cluster = dbScanning(points);
+        	List<CentroidCluster<DoublePoint>> cluster = dbScanning(points);
             rowNumber = 0;
             for (DataRow row : data) {
                 RowKey key = RowKey.createRowKey(rowNumber);
@@ -88,9 +96,9 @@ public class DBSCANNodeModel extends NodeModel {
                 }
                 cells[i] = DataType.getMissingCell();
                 for (int j=0;j<cluster.size();j++) {
-                	Cluster<DoublePoint> c = cluster.get(j);
+                	CentroidCluster<DoublePoint> c = cluster.get(j);
                 	if (c.getPoints().contains(idp.get(rowNumber))) {
-                        cells[i] = new StringCell("Cluster" + j);
+                        cells[i] = new IntCell(j);
                         break;
                 	}
                 }                
@@ -111,13 +119,16 @@ public class DBSCANNodeModel extends NodeModel {
         for (int i=0;i<inSpec.getNumColumns();i++) {
             spec[i] = inSpec.getColumnSpec(i);
         }
-        spec[inSpec.getNumColumns()] = new DataColumnSpecCreator("ClusterID",StringCell.TYPE).createSpec();
+        spec[inSpec.getNumColumns()] = new DataColumnSpecCreator("ClusterID",IntCell.TYPE).createSpec();
         return new DataTableSpec(spec);
        }
 
-	private List<Cluster<DoublePoint>> dbScanning(List<DoublePoint> points) {
-	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<DoublePoint>(.09, 1);
-	    List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
+	private List<CentroidCluster<DoublePoint>> dbScanning(List<DoublePoint> points) {
+	    //DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<DoublePoint>(m_eps.getDoubleValue(), m_minPts.getIntValue());
+	    //List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
+	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<DoublePoint>(m_minPts.getIntValue());
+	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<DoublePoint>(km, 5);
+	    List<CentroidCluster<DoublePoint>> cluster = mkm.cluster(points);
 	    return cluster;
 	}
 
@@ -143,7 +154,8 @@ public class DBSCANNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-         // TODO: generated method stub
+    	m_eps.saveSettingsTo(settings);
+    	m_minPts.saveSettingsTo(settings);
     }
 
     /**
@@ -152,7 +164,8 @@ public class DBSCANNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO: generated method stub
+    	m_eps.loadSettingsFrom(settings);
+    	m_minPts.loadSettingsFrom(settings);
     }
 
     /**
@@ -161,7 +174,8 @@ public class DBSCANNodeModel extends NodeModel {
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-        // TODO: generated method stub
+    	m_eps.validateSettings(settings);
+    	m_minPts.validateSettings(settings);
     }
     
     /**

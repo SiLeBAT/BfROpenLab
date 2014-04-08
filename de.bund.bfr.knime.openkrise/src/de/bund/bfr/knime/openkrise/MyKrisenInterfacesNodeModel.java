@@ -170,39 +170,39 @@ outputWordle.close();
          //if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
          //id2Code.put(stationID, company);
          RowKey key = RowKey.createRowKey(rowNumber);
-         DataCell[] cells = new DataCell[16];
+         DataCell[] cells = new DataCell[19];
          cells[0] = new IntCell(stationID);
          cells[1] = new StringCell(company);
          //cells[2] = new StringCell("square"); // circle, square, triangle
          //cells[3] = new DoubleCell(1.5);
          //cells[4] = new StringCell("yellow"); // red, yellow
-         cells[2] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
-         cells[3] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
-         cells[4] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
-         cells[5] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
-         cells[6] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+         cells[2] = (doAnonymize || rs.getObject("Strasse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Strasse"));
+         cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Hausnummer"));
+         cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
+         cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
+         cells[6] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
+         cells[7] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
+         cells[8] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
+         cells[9] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
          double casePriority = rs.getDouble("CasePriority");
          if (casePriority < 0) casePriority = 0;
          if (casePriority > 1) casePriority = 1;
-         cells[7] = (rs.getObject("CasePriority") == null) ? DataType.getMissingCell() : new DoubleCell(casePriority);
-         cells[8] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
-         cells[9] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-         cells[10] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-         cells[11] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
-         if (company.toLowerCase().indexOf("d.o.o") >= 0) {
-         System.out.print("");
+         cells[10] = (rs.getObject("CasePriority") == null) ? DataType.getMissingCell() : new DoubleCell(casePriority);
+         cells[11] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
+         cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+         cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+         cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+         if (mnt != null) {
+             cells[15] = new DoubleCell(mnt.getStationScore(stationID));
+             cells[16] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+             cells[17] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
          }
-              if (mnt != null) {
-             cells[12] = new DoubleCell(mnt.getStationScore(stationID));
-             cells[13] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-             cells[14] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-             }
-             else {
-             cells[12] = DataType.getMissingCell();
-             cells[13] = DataType.getMissingCell();
-             cells[14] = DataType.getMissingCell();
-             }
-         cells[15] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
+         else {
+             cells[15] = DataType.getMissingCell();
+             cells[16] = DataType.getMissingCell();
+             cells[17] = DataType.getMissingCell();
+         }
+         cells[18] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
 
         
          DataRow outputRow = new DefaultRow(key, cells);
@@ -346,23 +346,26 @@ return new DataTableSpec(spec);
 }
 */
     private DataTableSpec getSpec33Nodes() {
-     DataColumnSpec[] spec = new DataColumnSpec[16];
+     DataColumnSpec[] spec = new DataColumnSpec[19];
      spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
      spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
-     spec[2] = new DataColumnSpecCreator(isDE ? "PLZ" : "ZIP", StringCell.TYPE).createSpec();
-     spec[3] = new DataColumnSpecCreator(isDE ? "Ort" : "City", StringCell.TYPE).createSpec();
-     spec[4] = new DataColumnSpecCreator(isDE ? "Bundesland" : "County", StringCell.TYPE).createSpec();
-     spec[5] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
-     spec[6] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
-     spec[7] = new DataColumnSpecCreator("CasePriority", DoubleCell.TYPE).createSpec();
-     spec[8] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
-     spec[9] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
-     spec[10] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
-     spec[11] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
-     spec[12] = new DataColumnSpecCreator("TracingScore", DoubleCell.TYPE).createSpec();
-     spec[13] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
-     spec[14] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
-     spec[15] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
+     spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
+     spec[3] = new DataColumnSpecCreator("HouseNumber", StringCell.TYPE).createSpec();
+     spec[4] = new DataColumnSpecCreator(isDE ? "PLZ" : "ZIP", StringCell.TYPE).createSpec();
+     spec[5] = new DataColumnSpecCreator(isDE ? "Ort" : "City", StringCell.TYPE).createSpec();
+     spec[6] = new DataColumnSpecCreator(isDE ? "Bundesland" : "County", StringCell.TYPE).createSpec();
+     spec[7] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
+     spec[8] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
+     spec[9] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
+     spec[10] = new DataColumnSpecCreator("CasePriority", DoubleCell.TYPE).createSpec();
+     spec[11] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
+     spec[12] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
+     spec[13] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
+     spec[14] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
+     spec[15] = new DataColumnSpecCreator("TracingScore", DoubleCell.TYPE).createSpec();
+     spec[16] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
+     spec[17] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
+     spec[18] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
      return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Links() {
