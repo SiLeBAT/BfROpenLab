@@ -78,9 +78,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private TracingViewSettings set;
 
-	private JButton inputButton;
 	private JButton forgetConfigButton;
+	private JCheckBox skipEdgelessNodesBox;
 	private JCheckBox enforceTempBox;
+	private JCheckBox exportAsSvgBox;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -88,17 +89,20 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
 
-		inputButton = new JButton("Input");
-		inputButton.addActionListener(this);
 		forgetConfigButton = new JButton("Forget Tracing Config");
 		forgetConfigButton.addActionListener(this);
+		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
+		skipEdgelessNodesBox.addActionListener(this);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 		enforceTempBox.addActionListener(this);
+		exportAsSvgBox = new JCheckBox("Export As Svg");
+		exportAsSvgBox.addActionListener(this);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(inputButton,
-				forgetConfigButton, enforceTempBox)), BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
+				forgetConfigButton, skipEdgelessNodesBox, enforceTempBox,
+				exportAsSvgBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -123,7 +127,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
+		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		updateGraphCanvas(false);
 		resized = false;
 	}
@@ -156,27 +162,21 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == inputButton) {
-			TracingViewInputDialog dialog = new TracingViewInputDialog(
-					(JButton) e.getSource(), set);
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				updateSettings();
-				updateGraphCanvas(true);
-			}
-		} else if (e.getSource() == forgetConfigButton) {
+		if (e.getSource() == forgetConfigButton) {
 			updateSettings();
 			set.getCaseWeights().clear();
 			set.getCrossContaminations().clear();
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
 			updateGraphCanvas(false);
-		} else if (e.getSource() == enforceTempBox) {
-			updateSettings();
-			set.setEnforeTemporalOrder(enforceTempBox.isSelected());
+		} else if (e.getSource() == skipEdgelessNodesBox) {
+			updateSettings();			
 			updateGraphCanvas(false);
+		} else if (e.getSource() == enforceTempBox) {
+			updateSettings();			
+			updateGraphCanvas(false);
+		} else if (e.getSource() == exportAsSvgBox) {			
+			updateSettings();
 		}
 	}
 
@@ -216,6 +216,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
+		
+		set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
+		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
+		set.setExportAsSvg(exportAsSvgBox.isSelected());
 
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
@@ -223,7 +227,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphLayout(graphCanvas.getLayoutType());
-		set.setGraphNodeSize(graphCanvas.getNodeSize());
+		set.setGraphNodeSize(graphCanvas.getNodeSize());		
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
