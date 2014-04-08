@@ -39,9 +39,11 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
@@ -336,9 +338,68 @@ public class ChartCreator extends ChartPanel {
 
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
 			Color defaultColor, Shape defaultShape) {
+		XYDataset dataSet = createDataSet(plotable, id);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
+				defaultShape);
+
+		if (dataSet != null && renderer != null) {
+			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+		}
+	}
+
+	private void plotFunction(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+		XYDataset dataSet = createFunctionDataSet(plotable, id, minX, maxX);
+		XYItemRenderer renderer = createFunctionRenderer(plotable, id,
+				defaultColor, defaultShape, dataSet);
+
+		if (dataSet != null && renderer != null) {
+			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+		}
+	}
+
+	private void plotBoth(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX,
+				maxX);
+		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id,
+				defaultColor, defaultShape, functionDataSet);
+		XYDataset dataSet = createDataSet(plotable, id);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
+				defaultShape);
+
+		if (functionDataSet != null && functionRenderer != null) {
+			if (dataSet != null && renderer != null) {
+				functionRenderer.setBaseSeriesVisibleInLegend(false);
+			}
+
+			ChartUtilities.addDataSetToPlot(plot, functionDataSet,
+					functionRenderer);
+		}
+
+		if (dataSet != null && renderer != null) {
+			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+		}
+	}
+
+	private XYDataset createDataSet(Plotable plotable, String id) {
 		double[][] points = plotable.getPoints(paramX, paramY, transformX,
 				transformY);
 		String leg = legend.get(id);
+
+		if (points != null) {
+			DefaultXYDataset dataSet = new DefaultXYDataset();
+
+			dataSet.addSeries(leg, points);
+
+			return dataSet;
+		}
+
+		return null;
+	}
+
+	private XYItemRenderer createRenderer(Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape) {
 		Color color = colors.get(id);
 		Shape shape = shapes.get(id);
 
@@ -350,38 +411,23 @@ public class ChartCreator extends ChartPanel {
 			shape = defaultShape;
 		}
 
-		if (points != null) {
-			DefaultXYDataset dataset = new DefaultXYDataset();
-			XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
-					drawLines, true);
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines,
+				true);
 
-			dataset.addSeries(leg, points);
-			renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-			renderer.setSeriesPaint(0, color);
-			renderer.setSeriesShape(0, shape);
+		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+		renderer.setSeriesPaint(0, color);
+		renderer.setSeriesShape(0, shape);
 
-			int i;
-
-			if (plot.getDataset(0) == null) {
-				i = 0;
-			} else {
-				i = plot.getDatasetCount();
-			}
-
-			plot.setDataset(i, dataset);
-			plot.setRenderer(i, renderer);
-		}
+		return renderer;
 	}
 
-	private void plotFunction(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+	private XYDataset createFunctionDataSet(Plotable plotable, String id,
+			double minX, double maxX) {
 		double[][] points = plotable.getFunctionPoints(paramX, paramY,
 				transformX, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
 		double[][] functionErrors = null;
 		String leg = legend.get(id);
-		Color color = colors.get(id);
-		Shape shape = shapes.get(id);
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(paramX, paramY,
@@ -389,27 +435,9 @@ public class ChartCreator extends ChartPanel {
 					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 
-		if (color == null) {
-			color = defaultColor;
-		}
-
-		if (shape == null) {
-			shape = defaultShape;
-		}
-
 		if (points != null) {
-			int i;
-
-			if (plot.getDataset(0) == null) {
-				i = 0;
-			} else {
-				i = plot.getDatasetCount();
-			}
-
 			if (functionErrors != null) {
 				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
-				DeviationRenderer functionRenderer = new DeviationRenderer(
-						true, false);
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
@@ -421,48 +449,24 @@ public class ChartCreator extends ChartPanel {
 				}
 
 				functionDataset.addSeries(series);
-				functionRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-				functionRenderer.setSeriesPaint(0, color);
-				functionRenderer.setSeriesFillPaint(0, color);
-				functionRenderer.setSeriesShape(0, shape);
 
-				plot.setDataset(i, functionDataset);
-				plot.setRenderer(i, functionRenderer);
+				return functionDataset;
 			} else {
 				DefaultXYDataset functionDataset = new DefaultXYDataset();
-				XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
-						true, false);
 
 				functionDataset.addSeries(leg, points);
-				functionRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-				functionRenderer.setSeriesPaint(0, color);
-				functionRenderer.setSeriesShape(0, shape);
 
-				plot.setDataset(i, functionDataset);
-				plot.setRenderer(i, functionRenderer);
+				return functionDataset;
 			}
 		}
+
+		return null;
 	}
 
-	private void plotBoth(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
-		double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
-				transformX, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
-		double[][] dataPoints = plotable.getPoints(paramX, paramY, transformX,
-				transformY);
-		double[][] functionErrors = null;
-		String leg = legend.get(id);
+	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, XYDataset dataSet) {
 		Color color = colors.get(id);
 		Shape shape = shapes.get(id);
-
-		if (showConfidenceInterval) {
-			functionErrors = plotable.getFunctionErrors(paramX, paramY,
-					transformX, transformY, minX, maxX,
-					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-		}
 
 		if (color == null) {
 			color = defaultColor;
@@ -472,84 +476,27 @@ public class ChartCreator extends ChartPanel {
 			shape = defaultShape;
 		}
 
-		if (modelPoints != null) {
-			int i;
+		if (dataSet instanceof YIntervalSeriesCollection) {
+			DeviationRenderer functionRenderer = new DeviationRenderer(true,
+					false);
 
-			if (plot.getDataset(0) == null) {
-				i = 0;
-			} else {
-				i = plot.getDatasetCount();
-			}
-
-			if (functionErrors != null) {
-				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
-				DeviationRenderer functionRenderer = new DeviationRenderer(
-						true, false);
-				YIntervalSeries series = new YIntervalSeries(leg);
-
-				for (int j = 0; j < modelPoints[0].length; j++) {
-					double error = Double.isNaN(functionErrors[1][j]) ? 0.0
-							: functionErrors[1][j];
-
-					series.add(modelPoints[0][j], modelPoints[1][j],
-							modelPoints[1][j] - error, modelPoints[1][j]
-									+ error);
-				}
-
-				functionDataset.addSeries(series);
-				functionRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-				functionRenderer.setSeriesPaint(0, color);
-				functionRenderer.setSeriesFillPaint(0, color);
-				functionRenderer.setSeriesShape(0, shape);
-
-				if (dataPoints != null) {
-					functionRenderer.setBaseSeriesVisibleInLegend(false);
-				}
-
-				plot.setDataset(i, functionDataset);
-				plot.setRenderer(i, functionRenderer);
-			} else {
-				DefaultXYDataset functionDataset = new DefaultXYDataset();
-				XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
-						true, false);
-
-				functionDataset.addSeries(leg, modelPoints);
-				functionRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-				functionRenderer.setSeriesPaint(0, color);
-				functionRenderer.setSeriesShape(0, shape);
-
-				if (dataPoints != null) {
-					functionRenderer.setBaseSeriesVisibleInLegend(false);
-				}
-
-				plot.setDataset(i, functionDataset);
-				plot.setRenderer(i, functionRenderer);
-			}
-		}
-
-		if (dataPoints != null) {
-			DefaultXYDataset dataSet = new DefaultXYDataset();
-			XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
-					drawLines, true);
-
-			dataSet.addSeries(leg, dataPoints);
-			dataRenderer
+			functionRenderer
 					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-			dataRenderer.setSeriesPaint(0, color);
-			dataRenderer.setSeriesShape(0, shape);
+			functionRenderer.setSeriesPaint(0, color);
+			functionRenderer.setSeriesFillPaint(0, color);
+			functionRenderer.setSeriesShape(0, shape);
 
-			int i;
+			return functionRenderer;
+		} else {
+			XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
+					true, false);
 
-			if (plot.getDataset(0) == null) {
-				i = 0;
-			} else {
-				i = plot.getDatasetCount();
-			}
+			functionRenderer
+					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+			functionRenderer.setSeriesPaint(0, color);
+			functionRenderer.setSeriesShape(0, shape);
 
-			plot.setDataset(i, dataSet);
-			plot.setRenderer(i, dataRenderer);
+			return functionRenderer;
 		}
 	}
 

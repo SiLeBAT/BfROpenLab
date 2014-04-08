@@ -38,6 +38,9 @@ import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYDataset;
 import org.knime.base.data.xml.SvgCell;
 import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
@@ -46,7 +49,7 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
-public class ChartUtilities {	
+public class ChartUtilities {
 
 	public static final String ID = "ID";
 	public static final String SELECTED = "Selected";
@@ -149,6 +152,20 @@ public class ChartUtilities {
 					chart, 640, 480), new ImagePortObjectSpec(
 					PNGImageContent.TYPE));
 		}
+	}
+
+	public static void addDataSetToPlot(XYPlot plot, XYDataset dataSet,
+			XYItemRenderer renderer) {
+		int i;
+
+		if (plot.getDataset(0) == null) {
+			i = 0;
+		} else {
+			i = plot.getDatasetCount();
+		}
+
+		plot.setDataset(i, dataSet);
+		plot.setRenderer(i, renderer);
 	}
 
 }
