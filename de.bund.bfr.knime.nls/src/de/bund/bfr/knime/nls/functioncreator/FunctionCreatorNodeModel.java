@@ -26,6 +26,8 @@ package de.bund.bfr.knime.nls.functioncreator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -38,9 +40,10 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.nls.Utilities;
+import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.MathUtilities;
 
 /**
  * This is the model implementation of FunctionCreator.
@@ -66,10 +69,9 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		return new PortObject[] { new FunctionPortObject(
-				Utilities.createFunction(set.getTerm(),
-						set.getDependentVariable(),
-						set.getIndependentVariables())) };
+		return new PortObject[] { new FunctionPortObject(createFunction(
+				set.getTerm(), set.getDependentVariable(),
+				set.getIndependentVariables())) };
 	}
 
 	/**
@@ -91,8 +93,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 		}
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				Utilities.createFunction(set.getTerm(),
-						set.getDependentVariable(),
+				createFunction(set.getTerm(), set.getDependentVariable(),
 						set.getIndependentVariables())) };
 	}
 
@@ -137,6 +138,17 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private static Function createFunction(String term,
+			String dependentVariable, List<String> independentVariables) {
+		List<String> parameters = MathUtilities.getSymbols(term);
+
+		parameters.removeAll(independentVariables);
+		Collections.sort(parameters);
+
+		return new Function(term, dependentVariable, independentVariables,
+				parameters);
 	}
 
 }

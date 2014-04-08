@@ -24,12 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls;
 
-import java.util.Collections;
-import java.util.List;
-
-import de.bund.bfr.math.MathUtilities;
-
-public class Utilities {
+public interface NlsConstants {
 
 	public static final String ID_COLUMN = "ID";
 	public static final String SSE_COLUMN = "SSE";
@@ -39,19 +34,5 @@ public class Utilities {
 	public static final String AIC_COLUMN = "AIC";
 	public static final String DOF_COLUMN = "DOF";
 	public static final String PARAM_COLUMN = "Param";
-
-	private Utilities() {
-	}
-
-	public static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
-		List<String> parameters = MathUtilities.getSymbols(term);
-
-		parameters.removeAll(independentVariables);
-		Collections.sort(parameters);
-
-		return new Function(term, dependentVariable, independentVariables,
-				parameters);
-	}
 
 }

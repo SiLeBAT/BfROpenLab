@@ -58,7 +58,7 @@ import org.nfunk.jep.ParseException;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.nls.Function;
-import de.bund.bfr.knime.nls.Utilities;
+import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.ParameterOptimizer;
@@ -113,9 +113,9 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 				DataCell[] cells2 = new DataCell[outSpec2.getNumColumns()];
 
-				cells2[outSpec2.findColumnIndex(Utilities.ID_COLUMN)] = IO
+				cells2[outSpec2.findColumnIndex(NlsConstants.ID_COLUMN)] = IO
 						.createCell(id);
-				cells2[outSpec2.findColumnIndex(Utilities.PARAM_COLUMN)] = IO
+				cells2[outSpec2.findColumnIndex(NlsConstants.PARAM_COLUMN)] = IO
 						.createCell(param1);
 
 				for (String param2 : functionObject.getFunction()
@@ -129,19 +129,19 @@ public class FunctionFittingNodeModel extends NodeModel {
 				i2++;
 			}
 
-			cells1[outSpec1.findColumnIndex(Utilities.ID_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.ID_COLUMN)] = IO
 					.createCell(id);
-			cells1[outSpec1.findColumnIndex(Utilities.SSE_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.SSE_COLUMN)] = IO
 					.createCell(result.getSSE());
-			cells1[outSpec1.findColumnIndex(Utilities.MSE_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.MSE_COLUMN)] = IO
 					.createCell(result.getMSE());
-			cells1[outSpec1.findColumnIndex(Utilities.RMSE_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.RMSE_COLUMN)] = IO
 					.createCell(result.getRMSE());
-			cells1[outSpec1.findColumnIndex(Utilities.R2_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.R2_COLUMN)] = IO
 					.createCell(result.getR2());
-			cells1[outSpec1.findColumnIndex(Utilities.AIC_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.AIC_COLUMN)] = IO
 					.createCell(result.getAIC());
-			cells1[outSpec1.findColumnIndex(Utilities.DOF_COLUMN)] = IO
+			cells1[outSpec1.findColumnIndex(NlsConstants.DOF_COLUMN)] = IO
 					.createCell(result.getDOF());
 
 			container1.addRowToTable(new DefaultRow(i1 + "", cells1));
@@ -176,10 +176,10 @@ public class FunctionFittingNodeModel extends NodeModel {
 		List<String> doubleColumns = KnimeUtilities
 				.getColumnNames(KnimeUtilities.getDoubleColumns(spec));
 
-		if (!stringColumns.contains(Utilities.ID_COLUMN)) {
+		if (!stringColumns.contains(NlsConstants.ID_COLUMN)) {
 			throw new InvalidSettingsException(
 					"Input Table must contain String Column named \""
-							+ Utilities.ID_COLUMN + "\"");
+							+ NlsConstants.ID_COLUMN + "\"");
 		}
 
 		for (String var : variables) {
@@ -193,11 +193,11 @@ public class FunctionFittingNodeModel extends NodeModel {
 		List<DataColumnSpec> specs1 = new ArrayList<DataColumnSpec>();
 		List<DataColumnSpec> specs2 = new ArrayList<DataColumnSpec>();
 
-		specs1.add(new DataColumnSpecCreator(Utilities.ID_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.ID_COLUMN,
 				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(Utilities.ID_COLUMN,
+		specs2.add(new DataColumnSpecCreator(NlsConstants.ID_COLUMN,
 				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(Utilities.PARAM_COLUMN,
+		specs2.add(new DataColumnSpecCreator(NlsConstants.PARAM_COLUMN,
 				StringCell.TYPE).createSpec());
 
 		for (String param : parameters) {
@@ -207,17 +207,17 @@ public class FunctionFittingNodeModel extends NodeModel {
 					.createSpec());
 		}
 
-		specs1.add(new DataColumnSpecCreator(Utilities.SSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.SSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(Utilities.MSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.MSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(Utilities.RMSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.RMSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(Utilities.R2_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.R2_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(Utilities.AIC_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsConstants.AIC_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(Utilities.DOF_COLUMN, IntCell.TYPE)
+		specs1.add(new DataColumnSpecCreator(NlsConstants.DOF_COLUMN, IntCell.TYPE)
 				.createSpec());
 
 		return new PortObjectSpec[] {
@@ -321,7 +321,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 		for (DataRow row : table) {
 			String id = IO.getString(row.getCell(spec
-					.findColumnIndex(Utilities.ID_COLUMN)));
+					.findColumnIndex(NlsConstants.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<String, Double>();
 
 			for (String var : function.getVariables()) {
