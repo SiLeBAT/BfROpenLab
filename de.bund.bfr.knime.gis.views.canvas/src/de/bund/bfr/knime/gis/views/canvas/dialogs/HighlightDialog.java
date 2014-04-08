@@ -256,6 +256,10 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			colorBox.addActionListener(this);
 		}
 
+		if (allowInvisible) {
+			invisibleBox.addActionListener(this);
+		}
+
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
@@ -339,6 +343,19 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			} else {
 				colorButton.setBackground(Color.RED);
 				colorButton.setEnabled(true);
+			}
+		} else if (e.getSource() == invisibleBox) {
+			if (allowColor) {
+				if (invisibleBox.isSelected()) {
+					colorBox.setEnabled(false);
+					colorButton.setBackground(UIManager.getDefaults().getColor(
+							"Button.background"));
+					colorButton.setEnabled(false);
+				} else {
+					colorBox.setEnabled(true);
+					colorButton.setBackground(Color.RED);
+					colorButton.setEnabled(true);
+				}
 			}
 		} else if (logicalAddButtons.contains(e.getSource())) {
 			addRemoveButtonPressed((JButton) e.getSource());
