@@ -91,8 +91,7 @@ public class GraphVisualizerCanvasCreator {
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGraphSelectedEdges()));
-		canvas.setNodePositions(set.getGraphNodePositions());
+				.getGraphSelectedEdges()));		
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -101,6 +100,8 @@ public class GraphVisualizerCanvasCreator {
 			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
 					set.getGraphTranslationX(), set.getGraphTranslationY());
 		}
+		
+		canvas.setNodePositions(set.getGraphNodePositions());
 
 		return canvas;
 	}

@@ -152,7 +152,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	@Override
 	protected void applyEdgeJoin() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-		
+
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
@@ -290,8 +290,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	private RegionNode getContainingNode(int x, int y) {
-		Point2D.Double p = new Point2D.Double((x - getTranslationX())
-				/ getScaleX(), (y - getTranslationY()) / getScaleY());
+		Point2D p = toGraphCoordinates(x, y);
 
 		for (RegionNode node : getRegions()) {
 			if (node.containsPoint(p)) {

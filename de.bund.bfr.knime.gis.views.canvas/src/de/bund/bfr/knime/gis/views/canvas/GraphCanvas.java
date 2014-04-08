@@ -175,21 +175,39 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			return;
 		}
 
+		int n = 0;
+
+		for (GraphNode node : nodes) {
+			if (nodePositions.get(node.getId()) == null) {
+				n++;
+			}
+		}
+
 		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<GraphNode, Edge<GraphNode>>(
 				graph);
-		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
+		Point2D upperLeft = toGraphCoordinates(0, 0);
+		Point2D upperRight = toGraphCoordinates(
+				getViewer().getPreferredSize().width, 0);
+		double x1 = upperLeft.getX();
+		double x2 = upperRight.getX();
+		double y = upperLeft.getY();
+		int i = 0;
 
 		for (GraphNode node : nodes) {
-			nodesById.put(node.getId(), node);
-		}
+			Point2D pos = nodePositions.get(node.getId());
 
-		for (String id : nodePositions.keySet()) {
-			layout.setLocation(nodesById.get(id), nodePositions.get(id));
+			if (pos != null) {
+				layout.setLocation(node, pos);
+			} else {
+				double x = x1 + (double) i / (double) n * (x2 - x1);
+
+				layout.setLocation(node, new Point2D.Double(x, y));
+				i++;
+			}
 		}
 
 		layout.setSize(getViewer().getSize());
-		setTransform(1.0, 1.0, 0.0, 0.0);
 		getViewer().setGraphLayout(layout);
 	}
 

@@ -155,9 +155,9 @@ public class GisUtilities {
 		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 	}
 
-	public static boolean containsPoint(MultiPolygon poly, Point2D.Double point) {
-		double x = point.x;
-		double y = point.y;
+	public static boolean containsPoint(MultiPolygon poly, Point2D point) {
+		double x = point.getX();
+		double y = point.getY();
 
 		for (int index = 0; index < poly.getNumGeometries(); index++) {
 			Polygon part = (Polygon) poly.getGeometryN(index);

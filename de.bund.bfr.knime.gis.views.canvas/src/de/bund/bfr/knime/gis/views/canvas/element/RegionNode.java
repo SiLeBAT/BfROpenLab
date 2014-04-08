@@ -100,7 +100,7 @@ public class RegionNode extends Node {
 		}
 	}
 
-	public boolean containsPoint(Point2D.Double point) {
+	public boolean containsPoint(Point2D point) {
 		return boundingBox.contains(point)
 				&& GisUtilities.containsPoint(polygon, point);
 	}
