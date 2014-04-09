@@ -39,6 +39,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
+import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
@@ -186,7 +187,12 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setSelectedIds(selectionPanel.getSelectedIds());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
-		chartCreator.setChart(chartCreator.createChart());
+		
+		try {
+			chartCreator.setChart(chartCreator.createChart());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

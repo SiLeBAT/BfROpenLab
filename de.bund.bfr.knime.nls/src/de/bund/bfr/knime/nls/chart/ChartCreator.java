@@ -46,6 +46,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
+import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.Transform;
 
@@ -114,7 +115,7 @@ public class ChartCreator extends ChartPanel {
 		zoomListeners.remove(listener);
 	}
 
-	public JFreeChart createChart() {
+	public JFreeChart createChart() throws ParseException {
 		if (paramX == null || paramY == null) {
 			return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT,
 					new XYPlot(), showLegend);
@@ -348,7 +349,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotFunction(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ParseException {
 		XYDataset dataSet = createFunctionDataSet(plotable, id, minX, maxX);
 		XYItemRenderer renderer = createFunctionRenderer(plotable, id,
 				defaultColor, defaultShape, dataSet);
@@ -359,7 +361,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotBoth(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ParseException {
 		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX,
 				maxX);
 		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id,
@@ -422,7 +425,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private XYDataset createFunctionDataSet(Plotable plotable, String id,
-			double minX, double maxX) {
+			double minX, double maxX) throws ParseException {
 		double[][] points = plotable.getFunctionPoints(paramX, paramY,
 				transformX, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);

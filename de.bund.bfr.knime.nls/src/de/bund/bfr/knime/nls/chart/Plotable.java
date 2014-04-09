@@ -217,7 +217,7 @@ public class Plotable {
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
 			Transform transformX, Transform transformY, double minX,
-			double maxX, double minY, double maxY) {
+			double maxX, double minY, double maxY) throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null) {
@@ -225,13 +225,7 @@ public class Plotable {
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		Node f = null;
-
-		try {
-			f = parser.parse(function);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		Node f = parser.parse(function);
 
 		for (int j = 0; j < FUNCTION_STEPS; j++) {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
@@ -240,25 +234,21 @@ public class Plotable {
 			parser.setVarValue(paramX,
 					Transform.inverseTransform(x, transformX));
 
-			try {
-				Object number = parser.evaluate(f);
-				Double y;
+			Object number = parser.evaluate(f);
+			Double y;
 
-				if (number instanceof Double) {
-					y = Transform.transform((Double) number, transformY);
+			if (number instanceof Double) {
+				y = Transform.transform((Double) number, transformY);
 
-					if (y == null || y < minY || y > maxY || y.isInfinite()) {
-						y = Double.NaN;
-					}
-				} else {
+				if (y == null || y < minY || y > maxY || y.isInfinite()) {
 					y = Double.NaN;
 				}
-
-				points[0][j] = x;
-				points[1][j] = y;
-			} catch (ParseException e) {
-				e.printStackTrace();
+			} else {
+				y = Double.NaN;
 			}
+
+			points[0][j] = x;
+			points[1][j] = y;
 		}
 
 		return points;
@@ -266,7 +256,7 @@ public class Plotable {
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
 			Transform transformX, Transform transformY, double minX,
-			double maxX, double minY, double maxY) {
+			double maxX, double minY, double maxY) throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null || covarianceMatrixMissing()) {
@@ -274,17 +264,11 @@ public class Plotable {
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		Node f = null;
+		Node f = parser.parse(function);
 		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
 
-		try {
-			f = parser.parse(function);
-
-			for (String param : functionParameters.keySet()) {
-				derivatives.put(param, parser.differentiate(f, param));
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
+		for (String param : functionParameters.keySet()) {
+			derivatives.put(param, parser.differentiate(f, param));
 		}
 
 		for (int n = 0; n < FUNCTION_STEPS; n++) {
@@ -294,64 +278,59 @@ public class Plotable {
 			parser.setVarValue(paramX,
 					Transform.inverseTransform(x, transformX));
 
-			try {
-				Double y = 0.0;
-				boolean failed = false;
-				List<String> paramList = new ArrayList<String>(
-						functionParameters.keySet());
+			Double y = 0.0;
+			boolean failed = false;
+			List<String> paramList = new ArrayList<String>(
+					functionParameters.keySet());
 
-				for (String param : paramList) {
-					Object obj = parser.evaluate(derivatives.get(param));
+			for (String param : paramList) {
+				Object obj = parser.evaluate(derivatives.get(param));
 
-					if (!(obj instanceof Double)) {
+				if (!(obj instanceof Double)) {
+					failed = true;
+					break;
+				}
+
+				y += (Double) obj * (Double) obj
+						* covariances.get(param).get(param);
+			}
+
+			for (int i = 0; i < paramList.size() - 1; i++) {
+				for (int j = i + 1; j < paramList.size(); j++) {
+					Object obj1 = parser.evaluate(derivatives.get(paramList
+							.get(i)));
+					Object obj2 = parser.evaluate(derivatives.get(paramList
+							.get(j)));
+
+					if (!(obj1 instanceof Double) || !(obj2 instanceof Double)) {
 						failed = true;
 						break;
 					}
 
-					y += (Double) obj * (Double) obj
-							* covariances.get(param).get(param);
+					double cov = covariances.get(paramList.get(i)).get(
+							paramList.get(j));
+
+					y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
 				}
+			}
 
-				for (int i = 0; i < paramList.size() - 1; i++) {
-					for (int j = i + 1; j < paramList.size(); j++) {
-						Object obj1 = parser.evaluate(derivatives.get(paramList
-								.get(i)));
-						Object obj2 = parser.evaluate(derivatives.get(paramList
-								.get(j)));
+			points[0][n] = x;
 
-						if (!(obj1 instanceof Double)
-								|| !(obj2 instanceof Double)) {
-							failed = true;
-							break;
-						}
+			if (!failed) {
+				// 95% interval
+				TDistribution dist = new TDistribution(degreesOfFreedom);
 
-						double cov = covariances.get(paramList.get(i)).get(
-								paramList.get(j));
+				y = Math.sqrt(y)
+						* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+				y = Transform.transform(y, transformY);
 
-						y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
-					}
-				}
-
-				points[0][n] = x;
-
-				if (!failed) {
-					// 95% interval
-					TDistribution dist = new TDistribution(degreesOfFreedom);
-
-					y = Math.sqrt(y)
-							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
-					y = Transform.transform(y, transformY);
-
-					if (y != null) {
-						points[1][n] = y;
-					} else {
-						points[1][n] = Double.NaN;
-					}
+				if (y != null) {
+					points[1][n] = y;
 				} else {
 					points[1][n] = Double.NaN;
 				}
-			} catch (ParseException e) {
-				e.printStackTrace();
+			} else {
+				points[1][n] = Double.NaN;
 			}
 		}
 
