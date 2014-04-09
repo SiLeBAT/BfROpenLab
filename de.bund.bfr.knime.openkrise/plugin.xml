@@ -20,6 +20,11 @@
             category-path="/"
             factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"
             id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"/>
+      <node
+            category-path="/"
+            factory-class="de.bund.bfr.knime.openkrise.clustering.DBSCANNodeFactory"
+            id="de.bund.bfr.knime.openkrise.clustering.DBSCANNodeFactory">
+      </node>
    </extension>
    
 </plugin>
