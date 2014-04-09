@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
+import org.apache.commons.math3.ml.clustering.Cluster;
+import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.clustering.MultiKMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.clustering.DoublePoint;
@@ -29,8 +31,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
  * This is the model implementation of DBSCAN.
@@ -42,9 +46,13 @@ public class DBSCANNodeModel extends NodeModel {
     
     static final String MINPTS = "minPts";
     static final String EPS = "eps";
+    static final String DOUBLETTES = "doublettes";
+    static final String CHOSENMODEL = "chosenmodel";
 
     private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 6);
     private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, .09);
+    private final SettingsModelBoolean m_doublettes = new SettingsModelBoolean(DOUBLETTES, false);
+    private final SettingsModelString m_chosenModel = new SettingsModelString(CHOSENMODEL, "DBSCAN");
     /**
      * Constructor for the node model.
      */
@@ -69,6 +77,7 @@ public class DBSCANNodeModel extends NodeModel {
     	}
     	if (latCol >= 0 && lonCol >= 0) {
     		HashMap<Integer, DoublePoint> idp = new HashMap<Integer, DoublePoint>(); 
+    		HashMap<Double, Integer> dim = new HashMap<Double, Integer>();
     	    List<DoublePoint> points = new ArrayList<DoublePoint>();
             int rowNumber = 0;
         	for (DataRow row : data) {
@@ -78,13 +87,27 @@ public class DBSCANNodeModel extends NodeModel {
         	        double[] d = new double[2];
         	        d[0] = latCell.getDoubleValue();
         	        d[1] = lonCell.getDoubleValue();
-        	        DoublePoint dp = new DoublePoint(d);
-        	        idp.put(rowNumber, dp);
-        	        points.add(dp);
+	        		Double dblKey = d[0] * 1000 + d[1];
+	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
+	        	        DoublePoint dp = new DoublePoint(d);
+	        	        idp.put(rowNumber, dp);
+	        	        points.add(dp);
+	        	        dim.put(dblKey, rowNumber);
+	        		}
+	        		else {
+	        			idp.put(rowNumber, idp.get(dim.get(dblKey)));
+	        		}
         		}
                 rowNumber++;
         	}
-        	List<CentroidCluster<DoublePoint>> cluster = dbScanning(points);
+        	List<?> cluster = null;
+    		if (m_chosenModel.getStringValue().equals("DBSCAN")) {
+    			cluster = dbScan(points);
+    		}
+    		else if (m_chosenModel.getStringValue().equals("KMeans")) {
+    			cluster = kMeans(points);
+    		}
+        	
             rowNumber = 0;
             for (DataRow row : data) {
                 RowKey key = RowKey.createRowKey(rowNumber);
@@ -96,7 +119,9 @@ public class DBSCANNodeModel extends NodeModel {
                 }
                 cells[i] = DataType.getMissingCell();
                 for (int j=0;j<cluster.size();j++) {
-                	CentroidCluster<DoublePoint> c = cluster.get(j);
+                	Object o = cluster.get(j);
+                	@SuppressWarnings("unchecked")
+					Cluster<DoublePoint> c = (Cluster<DoublePoint>) o;
                 	if (c.getPoints().contains(idp.get(rowNumber))) {
                         cells[i] = new IntCell(j);
                         break;
@@ -123,12 +148,15 @@ public class DBSCANNodeModel extends NodeModel {
         return new DataTableSpec(spec);
        }
 
-	private List<CentroidCluster<DoublePoint>> dbScanning(List<DoublePoint> points) {
-	    //DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<DoublePoint>(m_eps.getDoubleValue(), m_minPts.getIntValue());
-	    //List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
+	private List<CentroidCluster<DoublePoint>> kMeans(List<DoublePoint> points) {
 	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<DoublePoint>(m_minPts.getIntValue());
 	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<DoublePoint>(km, 5);
 	    List<CentroidCluster<DoublePoint>> cluster = mkm.cluster(points);
+	    return cluster;
+	}
+	private List<Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
+	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<DoublePoint>(m_eps.getDoubleValue(), m_minPts.getIntValue());
+	    List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
 	    return cluster;
 	}
 
@@ -156,6 +184,8 @@ public class DBSCANNodeModel extends NodeModel {
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	m_eps.saveSettingsTo(settings);
     	m_minPts.saveSettingsTo(settings);
+    	m_doublettes.saveSettingsTo(settings);
+    	m_chosenModel.saveSettingsTo(settings);
     }
 
     /**
@@ -166,6 +196,8 @@ public class DBSCANNodeModel extends NodeModel {
             throws InvalidSettingsException {
     	m_eps.loadSettingsFrom(settings);
     	m_minPts.loadSettingsFrom(settings);
+    	m_doublettes.loadSettingsFrom(settings);
+    	m_chosenModel.loadSettingsFrom(settings);
     }
 
     /**
@@ -176,6 +208,8 @@ public class DBSCANNodeModel extends NodeModel {
             throws InvalidSettingsException {
     	m_eps.validateSettings(settings);
     	m_minPts.validateSettings(settings);
+    	m_doublettes.validateSettings(settings);
+    	m_chosenModel.validateSettings(settings);
     }
     
     /**
@@ -185,7 +219,6 @@ public class DBSCANNodeModel extends NodeModel {
     protected void loadInternals(final File internDir,
             final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
-        // TODO: generated method stub
     }
     
     /**
@@ -195,7 +228,6 @@ public class DBSCANNodeModel extends NodeModel {
     protected void saveInternals(final File internDir,
             final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {
-        // TODO: generated method stub
     }
 
 }
