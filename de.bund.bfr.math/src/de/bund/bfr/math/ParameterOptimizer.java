@@ -118,20 +118,7 @@ public class ParameterOptimizer {
 		}
 
 		successful = false;
-		parameterValues = new LinkedHashMap<String, Double>();
-		parameterStandardErrors = new LinkedHashMap<String, Double>();
-		parameterTValues = new LinkedHashMap<String, Double>();
-		parameterPValues = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
-		sse = null;
-		mse = null;
-		rmse = null;
-		r2 = null;
-		aic = null;
-
-		for (String param : parameters) {
-			covariances.put(param, new LinkedHashMap<String, Double>());
-		}
+		resetResults();
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
@@ -298,6 +285,10 @@ public class ParameterOptimizer {
 				e.printStackTrace();
 			}
 		}
+		
+		if (!successful) {
+			resetResults();
+		}
 	}
 
 	public boolean isSuccessful() {
@@ -429,6 +420,23 @@ public class ParameterOptimizer {
 				covariances.put(parameters.get(i), cov);
 			}
 		} catch (Exception e) {
+		}
+	}
+	
+	private void resetResults() {
+		parameterValues = new LinkedHashMap<String, Double>();
+		parameterStandardErrors = new LinkedHashMap<String, Double>();
+		parameterTValues = new LinkedHashMap<String, Double>();
+		parameterPValues = new LinkedHashMap<String, Double>();
+		covariances = new LinkedHashMap<String, Map<String, Double>>();
+		sse = null;
+		mse = null;
+		rmse = null;
+		r2 = null;
+		aic = null;
+
+		for (String param : parameters) {
+			covariances.put(param, new LinkedHashMap<String, Double>());
 		}
 	}
 
