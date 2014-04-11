@@ -143,13 +143,13 @@ public class TracingViewCanvasCreator {
 		canvas.setNodeSize(set.getGraphNodeSize());
 		canvas.setLayoutType(set.getGraphLayout());
 		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setCollapsedNodes(set.getCollapsedNodes());
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setCollapsedNodes(set.getCollapsedNodes());		
 		canvas.setCaseWeights(set.getCaseWeights());
 		canvas.setCrossContaminations(set.getCrossContaminations());
 		canvas.setFilter(set.getFilter());
 		canvas.setEdgeFilter(set.getEdgeFilter());
+		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
