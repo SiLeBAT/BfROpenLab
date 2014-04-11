@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.optim.InitialGuess;
@@ -50,16 +51,12 @@ public class ParameterOptimizer {
 	private static final int MAX_EVAL = 10000;
 	private static final double COV_THRESHOLD = 1e-14;
 
+	private String formula;
 	private List<String> parameters;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
 	private List<Double> targetValues;
 	private Map<String, List<Double>> argumentValues;
-
-	private Node function;
-	private List<Node> derivatives;
-
-	private DJep parser;
 
 	private LevenbergMarquardtOptimizer optimizer;
 	private PointVectorValuePair optimizerValues;
@@ -83,6 +80,7 @@ public class ParameterOptimizer {
 			Map<String, Double> maxParameterValues, List<Double> targetValues,
 			Map<String, List<Double>> argumentValues, boolean enforceLimits)
 			throws ParseException {
+		this.formula = formula;
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
@@ -104,28 +102,18 @@ public class ParameterOptimizer {
 			}
 		}
 
-		parser = MathUtilities.createParser();
-		function = parser.parse(formula);
-		derivatives = new ArrayList<Node>(parameters.size());
-
-		for (String arg : argumentValues.keySet()) {
-			parser.addVariable(arg, 0.0);
-		}
-
-		for (String param : parameters) {
-			parser.addVariable(param, 0.0);
-			derivatives.add(parser.differentiate(function, param));
-		}
-
 		successful = false;
 		resetResults();
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
-			boolean stopWhenSuccessful) {
+			boolean stopWhenSuccessful) throws ParseException {
+		DJep parser = MathUtilities.createParser(CollectionUtils.union(
+				parameters, argumentValues.keySet()));
+		Node function = parser.parse(formula);
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
-		List<Double> paramStepSize = new ArrayList<Double>();		
+		List<Double> paramStepSize = new ArrayList<Double>();
 		int paramsWithRange = 0;
 		int maxStepCount = 10;
 
@@ -151,7 +139,7 @@ public class ParameterOptimizer {
 
 			if (min != null && max != null) {
 				paramMin.add(min);
-				paramStepCount.add(maxStepCount);				
+				paramStepCount.add(maxStepCount);
 
 				if (max > min) {
 					paramStepSize.add((max - min) / (maxStepCount - 1));
@@ -194,7 +182,7 @@ public class ParameterOptimizer {
 
 		List<Integer> paramStepIndex = new ArrayList<Integer>(
 				Collections.nCopies(parameters.size(), 0));
-		boolean done = false;		
+		boolean done = false;
 
 		while (!done) {
 			List<Double> values = new ArrayList<Double>();
@@ -214,17 +202,16 @@ public class ParameterOptimizer {
 					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
 				}
 
-				try {
-					double value = (Double) parser.evaluate(function);
-					double diff = targetValues.get(i) - value;
+				Object number = parser.evaluate(function);
 
-					error += diff * diff;
-				} catch (ParseException e) {
-					e.printStackTrace();
-				} catch (ClassCastException e) {
+				if (!MathUtilities.isValidDouble(number)) {
 					error = Double.POSITIVE_INFINITY;
 					break;
 				}
+
+				double diff = targetValues.get(i) - (Double) number;
+
+				error += diff * diff;
 			}
 
 			for (int i = nLevenberg; i >= 0; i--) {
@@ -285,7 +272,7 @@ public class ParameterOptimizer {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (!successful) {
 			resetResults();
 		}
@@ -353,11 +340,10 @@ public class ParameterOptimizer {
 			startValueArray[i] = startValues.get(i);
 		}
 
-		VectorFunction optimizerFunction = new VectorFunction(parser, function,
+		VectorFunction optimizerFunction = new VectorFunction(formula,
 				parameters, argumentValues, targetValues);
 		VectorFunctionJacobian optimizerFunctionJacobian = new VectorFunctionJacobian(
-				parser, function, parameters, derivatives, argumentValues,
-				targetValues);
+				formula, parameters, argumentValues, targetValues);
 
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
@@ -422,7 +408,7 @@ public class ParameterOptimizer {
 		} catch (Exception e) {
 		}
 	}
-	
+
 	private void resetResults() {
 		parameterValues = new LinkedHashMap<String, Double>();
 		parameterStandardErrors = new LinkedHashMap<String, Double>();

@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
@@ -49,13 +50,10 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 	private List<List<Integer>> changeLists;
 
-	public VectorFunctionJacobian(DJep parser, Node function,
-			List<String> parameters, List<Node> derivatives,
-			Map<String, List<Double>> argumentValues, List<Double> targetValues) {
-		this.parser = parser;
-		this.function = function;
+	public VectorFunctionJacobian(String formula, List<String> parameters,
+			Map<String, List<Double>> argumentValues, List<Double> targetValues)
+			throws ParseException {
 		this.parameters = parameters.toArray(new String[0]);
-		this.derivatives = derivatives.toArray(new Node[0]);
 		this.arguments = argumentValues.keySet().toArray(new String[0]);
 		this.argumentValues = new double[targetValues.size()][argumentValues
 				.size()];
@@ -71,7 +69,15 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		}
 
+		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
+				argumentValues.keySet()));
+		function = parser.parse(formula);
+		derivatives = new Node[parameters.size()];
 		changeLists = createChangeLists();
+
+		for (int i = 0; i < parameters.size(); i++) {
+			derivatives[i] = parser.differentiate(function, parameters.get(i));
+		}
 	}
 
 	@Override

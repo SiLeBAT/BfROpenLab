@@ -25,6 +25,7 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -37,7 +38,7 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
-public class MathUtilities {	
+public class MathUtilities {
 
 	private MathUtilities() {
 	}
@@ -194,6 +195,16 @@ public class MathUtilities {
 
 		return parser;
 	}
+	
+	public static DJep createParser(Collection<String> variables) {
+		DJep parser = createParser();
+		
+		for (String var : variables) {
+			parser.addVariable(var, 0.0);
+		}
+		
+		return parser;
+	}	
 
 	private static class ZeroDiffRule implements DiffRulesI {
 

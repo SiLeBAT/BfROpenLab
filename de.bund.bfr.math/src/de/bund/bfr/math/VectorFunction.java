@@ -27,6 +27,7 @@ package de.bund.bfr.math;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
@@ -41,10 +42,9 @@ public class VectorFunction implements MultivariateVectorFunction {
 	private double[][] argumentValues;
 	private double[] targetValues;
 
-	public VectorFunction(DJep parser, Node function, List<String> parameters,
-			Map<String, List<Double>> argumentValues, List<Double> targetValues) {
-		this.parser = parser;
-		this.function = function;
+	public VectorFunction(String formula, List<String> parameters,
+			Map<String, List<Double>> argumentValues, List<Double> targetValues)
+			throws ParseException {
 		this.parameters = parameters.toArray(new String[0]);
 		this.arguments = argumentValues.keySet().toArray(new String[0]);
 		this.argumentValues = new double[targetValues.size()][argumentValues
@@ -60,6 +60,10 @@ public class VectorFunction implements MultivariateVectorFunction {
 				j++;
 			}
 		}
+
+		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
+				argumentValues.keySet()));
+		function = parser.parse(formula);
 	}
 
 	@Override
