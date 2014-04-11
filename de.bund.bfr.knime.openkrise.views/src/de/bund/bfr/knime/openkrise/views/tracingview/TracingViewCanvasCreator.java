@@ -137,6 +137,7 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				deliveries, set.isEnforeTemporalOrder());
 
+		canvas.setPerformTracing(false);
 		canvas.setAllowCollapse(true);
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
@@ -150,6 +151,7 @@ public class TracingViewCanvasCreator {
 		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setPerformTracing(true);
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set

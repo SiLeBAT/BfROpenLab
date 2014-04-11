@@ -47,8 +47,11 @@ public class TracingCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
+	private static boolean DEFAULT_PERFORM_TRACING = true;
+
 	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean enforceTemporalOrder;
+	private boolean performTracing;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -67,6 +70,7 @@ public class TracingCanvas extends GraphCanvas {
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
 		this.deliveries = deliveries;
 		this.enforceTemporalOrder = enforceTemporalOrder;
+		performTracing = DEFAULT_PERFORM_TRACING;
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -192,6 +196,18 @@ public class TracingCanvas extends GraphCanvas {
 		applyTracing();
 	}
 
+	public boolean isPerformTracing() {
+		return performTracing;
+	}
+
+	public void setPerformTracing(boolean performTracing) {
+		this.performTracing = performTracing;
+
+		if (performTracing) {
+			applyTracing();
+		}
+	}
+
 	@Override
 	protected void showNodeProperties() {
 		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getSelectedNodes());
@@ -291,6 +307,10 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	private void applyTracing() {
+		if (!performTracing) {
+			return;
+		}
+
 		Set<Integer> edgeIds = new LinkedHashSet<Integer>();
 
 		for (Edge<GraphNode> edge : getVisibleEdges()) {
