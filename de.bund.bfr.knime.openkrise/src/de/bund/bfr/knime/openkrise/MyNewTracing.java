@@ -101,7 +101,6 @@ public class MyNewTracing {
 	}
 	@SuppressWarnings("unchecked")
 	private LinkedHashMap<Integer, HashSet<Integer>> getScores(boolean stations) {
-		System.err.println("start...");
 		// getForwardStationsWithCases counts for each delivery. But: it might be the case that a station delivers into "different" directions (deliveries), and all of them have cases!!!
 		// Therefore, we sum here based on the suppliers (supplierSum), not on the deliveries!!!
 		HashMap<Integer, HashSet<Integer>> supplierSum = new HashMap<Integer, HashSet<Integer>>(); 
@@ -231,11 +230,6 @@ public class MyNewTracing {
 		xstream.omitField(MyNewTracing.class, "allIncoming");
 		xstream.omitField(MyNewTracing.class, "allOutgoing");
 		
-		xstream.omitField(MyDelivery.class, "alreadyAdded");
-		xstream.omitField(MyDelivery.class, "forwardStationsWithCases");
-		xstream.omitField(MyDelivery.class, "backwardStationsWithCases");
-		xstream.omitField(MyDelivery.class, "forwardStations");
-		xstream.omitField(MyDelivery.class, "backwardStations");
 		xstream.omitField(MyDelivery.class, "forwardDeliveries");
 		xstream.omitField(MyDelivery.class, "backwardDeliveries");
 
@@ -275,7 +269,6 @@ public class MyNewTracing {
 	}	
 	private void tcocc() {
 		if (ccStations != null && ccStations.size() > 0) {
-			long added  = 0;
 			if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
 			allDeliveries = getClone(allDeliveriesOrig);
 			for (Integer key : allDeliveries.keySet()) {
@@ -287,7 +280,6 @@ public class MyNewTracing {
 							MyDelivery d = allDeliveries.get(i);
 							if (d.getSupplierID() != d.getRecipientID()) { // sometimes (e.g. artificially or selfcustoming) the recipient is the supplier
 								if (!enforceTemporalOrder || (is1MaybeNewer(d, md))) {
-									added++;
 									md.addNext(d.getId());
 									d.addPrevious(md.getId());
 								}
@@ -297,7 +289,6 @@ public class MyNewTracing {
 				}
 				allDeliveries.put(key, md);							
 			}	
-			System.err.println("added " + added);
 		}
 	}
 	private boolean is1MaybeNewer(MyDelivery md1, MyDelivery md2) { // e.g. Jan 2012 vs. 18.Jan 2012 - be generous
