@@ -90,6 +90,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private Map<Edge<GraphNode>, Set<Edge<GraphNode>>> joinMap;
 
 	private Map<String, Map<String, Point2D>> collapsedNodes;
+	private Map<String, GraphNode> nodeSaveMap;
+	private Map<String, Edge<GraphNode>> edgeSaveMap;
 
 	private JComboBox<String> layoutBox;
 	private JButton layoutButton;
@@ -135,6 +137,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					nodesById.get(edge.getFrom().getId()), nodesById.get(edge
 							.getTo().getId())));
 		}
+
+		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
+		edgeSaveMap = CanvasUtilities.getElementsById(edges);
 
 		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
@@ -425,10 +430,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected void applyNodeCollapse() {
 		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-		Map<String, GraphNode> oldNodesById = CanvasUtilities
-				.getElementsById(nodes);
-		Map<String, Edge<GraphNode>> oldEdgesById = CanvasUtilities
-				.getElementsById(edges);
 
 		nodes = new LinkedHashSet<GraphNode>();
 		edges = new LinkedHashSet<Edge<GraphNode>>();
@@ -445,7 +446,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		for (GraphNode node : allNodes) {
 			if (!collapseTo.keySet().contains(node.getId())) {
-				GraphNode newNode = oldNodesById.get(node.getId());
+				GraphNode newNode = nodeSaveMap.get(node.getId());
 
 				if (newNode == null) {
 					newNode = new GraphNode(node.getId(),
@@ -463,11 +464,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Set<GraphNode> metaNodes = new LinkedHashSet<GraphNode>();
 
 		for (String newId : collapsedNodes.keySet()) {
-			GraphNode newNode = oldNodesById.get(newId);
+			GraphNode newNode = nodeSaveMap.get(newId);
 
 			if (newNode == null) {
 				Set<GraphNode> nodes = CanvasUtilities.getElementsById(
-						oldNodesById, collapsedNodes.get(newId).keySet());
+						nodeSaveMap, collapsedNodes.get(newId).keySet());
 				Point2D pos = CanvasUtilities.getCenter(getNodePositions(nodes)
 						.values());
 
@@ -492,7 +493,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
 			}
 
-			Edge<GraphNode> newEdge = oldEdgesById.get(edge.getId());
+			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
 			if (newEdge == null) {
 				newEdge = new Edge<GraphNode>(
@@ -524,6 +525,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		}
 
+		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
+		edgeSaveMap.putAll(CanvasUtilities.getElementsById(edges));
 		invisibleNodes.clear();
 		invisibleEdges.clear();
 		getViewer().getGraphLayout().setGraph(createGraph());
