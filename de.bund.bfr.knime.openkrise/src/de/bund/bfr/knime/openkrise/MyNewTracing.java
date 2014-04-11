@@ -245,9 +245,6 @@ public class MyNewTracing {
 		if (caseStations == null) caseStations = new HashMap<Integer, Double>();
 		if (priority < 0) priority = 0;
 		//else if (priority > 1) priority = 1;
-		if (priority > 0) {
-			System.err.println(stationID);
-		}
 		if (caseStations.containsKey(stationID)) {			
 			caseSum = caseSum - caseStations.get(stationID) + priority;
 			caseStations.put(stationID, priority);
@@ -347,9 +344,6 @@ public class MyNewTracing {
 
 	private void searchFFCases(MyDelivery md, MyHashSet<Integer> headingDeliveries) {
 		if (!headingDeliveries.contains(md.getId())) {
-			if (md.getRecipientID() == 22) {
-				System.err.print("");
-			}
 			headingDeliveries.add(md.getId());
 			HashSet<Integer> n = md.getAllNextIDs();
 			for (Integer d : n) {
