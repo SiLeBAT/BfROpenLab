@@ -178,6 +178,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return edges;
 	}
 
+	public Map<String, GraphNode> getNodeSaveMap() {
+		return nodeSaveMap;
+	}
+
+	public Map<String, Edge<GraphNode>> getEdgeSaveMap() {
+		return edgeSaveMap;
+	}
+
 	public Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
 		return joinMap;
 	}
@@ -321,15 +329,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		String newId = null;
-		Set<String> allIds = new LinkedHashSet<String>();
-
-		allIds.addAll(CanvasUtilities.getElementIds(allNodes));
-		allIds.addAll(collapsedNodes.keySet());
 
 		while (newId == null) {
 			String id = random.nextInt() + "";
 
-			if (!allIds.contains(id)) {
+			if (!nodeSaveMap.containsKey(id)) {
 				newId = id;
 			}
 		}
@@ -364,23 +368,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		Set<String> newIds = new LinkedHashSet<String>();
-		Set<GraphNode> oldAndNewNodes = new LinkedHashSet<GraphNode>();
-
-		oldAndNewNodes.addAll(allNodes);
-		oldAndNewNodes.addAll(nodes);
-
-		Map<String, GraphNode> nodesById = CanvasUtilities
-				.getElementsById(oldAndNewNodes);
 
 		for (String id : selectedIds) {
 			Map<String, Point2D> removed = collapsedNodes.remove(id);
 			Point2D center = getViewer().getGraphLayout().transform(
-					nodesById.get(id));
+					nodeSaveMap.get(id));
 
 			newIds.addAll(removed.keySet());
 
 			for (String newId : removed.keySet()) {
-				getViewer().getGraphLayout().setLocation(nodesById.get(newId),
+				getViewer().getGraphLayout().setLocation(
+						nodeSaveMap.get(newId),
 						CanvasUtilities.addPoints(removed.get(newId), center));
 			}
 		}
