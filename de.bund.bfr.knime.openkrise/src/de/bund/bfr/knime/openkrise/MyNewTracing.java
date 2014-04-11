@@ -18,7 +18,6 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class MyNewTracing {
 
-	//private HashMap<Integer, MyDelivery> allDeliveriesOrig;
 	private HashMap<Integer, MyDelivery> allDeliveries;
 	private HashMap<Integer, HashSet<Integer>> allIncoming;
 	private HashMap<Integer, HashSet<Integer>> allOutgoing;
@@ -107,11 +106,6 @@ public class MyNewTracing {
 		HashMap<Integer, HashSet<Integer>> deliverySum = new HashMap<Integer, HashSet<Integer>>(); 
 		for (MyDelivery md : allDeliveries.values()) {
 			HashSet<Integer> fswc = getForwardStationsWithCases(md);
-			/*
-			if (md.getSupplierID() == 48) {
-				System.err.print(fswc + " ");
-			}
-			*/
 			if (supplierSum.containsKey(md.getSupplierID())) {
 				HashSet<Integer> hi = (HashSet<Integer>) supplierSum.get(md.getSupplierID());
 				for (Integer i : fswc) {
@@ -222,10 +216,9 @@ public class MyNewTracing {
 	}
 
 	public static XStream getXStream() {
-		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyNewTracing.class.getClassLoader())); // new DomDriver()
+		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyNewTracing.class.getClassLoader()));
 //		xstream.setClassLoader(Activator.class.getClassLoader());
 		//xstream.alias("mynewtracing", MyNewTracing.class);
-		xstream.omitField(MyNewTracing.class, "allDeliveriesOrig");
 		xstream.omitField(MyNewTracing.class, "caseStations");
 		xstream.omitField(MyNewTracing.class, "caseSum");
 		xstream.omitField(MyNewTracing.class, "ccStations");
@@ -277,8 +270,6 @@ public class MyNewTracing {
 	}	
 	private void tcocc() {
 		if (ccStations != null && ccStations.size() > 0) {
-			//if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
-			//allDeliveries = getClone(allDeliveriesOrig);
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
 				if (ccStations.contains(md.getRecipientID())) {
@@ -317,26 +308,18 @@ public class MyNewTracing {
 	    return false;
 	}
 	public void mergeStations(HashSet<Integer> toBeMerged, Integer mergedStationID) {
-		//if (allDeliveriesOrig == null) allDeliveriesOrig = getClone(allDeliveries);
-		//allDeliveries = getClone(allDeliveriesOrig);
-		for (Integer key : allDeliveries.keySet()) {
-			MyDelivery md = allDeliveries.get(key);
-			if (toBeMerged != null) {
-				if (!toBeMerged.contains(md.getRecipientID()) && !toBeMerged.contains(md.getSupplierID())) {
-				}
-				else {
-					if (toBeMerged.contains(md.getSupplierID())) md.setSupplierID(mergedStationID);
-					if (toBeMerged.contains(md.getRecipientID())) md.setRecipientID(mergedStationID);
-				}				
+		if (toBeMerged != null && toBeMerged.size() > 0) {
+			for (Integer key : allDeliveries.keySet()) {
+				MyDelivery md = allDeliveries.get(key);
+				if (toBeMerged.contains(md.getSupplierID()) && !toBeMerged.contains(md.getRecipientID())) md.setSupplierID(mergedStationID);
+				if (toBeMerged.contains(md.getRecipientID()) && !toBeMerged.contains(md.getSupplierID())) md.setRecipientID(mergedStationID);
+				allDeliveries.put(key, md);							
 			}
-			allDeliveries.put(key, md);							
 		}	
 		sortedStations = null;
 		sortedDeliveries = null;
-		//fillDeliveries(enforceTemporalOrder);
 	}	
 	private HashMap<Integer, MyDelivery> getClone(HashMap<Integer, MyDelivery> allDeliveriesSrc) {
-		//if (allDeliveriesOrig == null) {
 		HashMap<Integer, MyDelivery> allDeliveriesCloned = new HashMap<Integer, MyDelivery>();
 		for (Integer key : allDeliveriesSrc.keySet()) {
 			MyDelivery md = allDeliveriesSrc.get(key);
