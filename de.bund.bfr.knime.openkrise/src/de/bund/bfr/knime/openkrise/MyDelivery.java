@@ -13,13 +13,9 @@ public class MyDelivery {
 	private HashSet<Integer> allNextIDs;
 	private HashSet<Integer> allPreviousIDs;
 
-	private HashSet<Integer> forwardStationsWithCases;
-	private HashSet<Integer> backwardStationsWithCases;
-	private HashSet<Integer> forwardStations;
-	private HashSet<Integer> backwardStations;
-	private HashSet<Integer> forwardDeliveries;
-	private HashSet<Integer> backwardDeliveries;
-	
+	private MyHashSet<Integer> forwardDeliveries;
+	private MyHashSet<Integer> backwardDeliveries;
+
 	public MyDelivery(int id, int supplierID, int recipientID, Integer deliveryDay, Integer deliveryMonth, Integer deliveryYear) {
 		this.id = id;
 		this.supplierID = supplierID;
@@ -38,43 +34,17 @@ public class MyDelivery {
 	public HashSet<Integer> getAllPreviousIDs() {
 		return allPreviousIDs;
 	}
-	public HashSet<Integer> getForwardStations() {
-		return forwardStations;
-	}
-	public void setForwardStations(HashSet<Integer> forwardStations) {
-		this.forwardStations = forwardStations;
-	}
-	public HashSet<Integer> getBackwardStations() {
-		return backwardStations;
-	}
-	public void setBackwardStations(HashSet<Integer> backwardStations) {
-		this.backwardStations = backwardStations;
-	}
-	public HashSet<Integer> getForwardDeliveries() {
+	public MyHashSet<Integer> getForwardDeliveries() {
 		return forwardDeliveries;
 	}
-	public void setForwardDeliveries(HashSet<Integer> forwardDeliveries) {
+	public void setForwardDeliveries(MyHashSet<Integer> forwardDeliveries) {
 		this.forwardDeliveries = forwardDeliveries;
 	}
-	public HashSet<Integer> getBackwardDeliveries() {
+	public MyHashSet<Integer> getBackwardDeliveries() {
 		return backwardDeliveries;
 	}
-	public void setBackwardDeliveries(HashSet<Integer> backwardDeliveries) {
+	public void setBackwardDeliveries(MyHashSet<Integer> backwardDeliveries) {
 		this.backwardDeliveries = backwardDeliveries;
-	}
-	public HashSet<Integer> getBackwardStationsWithCases() {
-		return backwardStationsWithCases;
-	}
-	public void setBackwardStationsWithCases(
-			HashSet<Integer> backwardStationsWithCases) {
-		this.backwardStationsWithCases = backwardStationsWithCases;
-	}
-	public HashSet<Integer> getForwardStationsWithCases() {
-		return forwardStationsWithCases;
-	}
-	public void setForwardStationsWithCases(
-			HashSet<Integer> forwardStationsWithCases) {
-		this.forwardStationsWithCases = forwardStationsWithCases;
 	}
 	public void setSupplierID(int supplierID) {
 		this.supplierID = supplierID;
@@ -129,11 +99,20 @@ public class MyDelivery {
 	}
 		
 	public void resetStatusVariables() {
-		forwardStationsWithCases = null;
-		backwardStationsWithCases = null;
-		forwardStations = null;
-		backwardStations = null;
 		forwardDeliveries = null;
 		backwardDeliveries = null;
+	}
+	public MyDelivery clone() {
+		MyDelivery md = this;
+		MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDay(), md.getDeliveryMonth(), md.getDeliveryYear());
+		//mdNew.getAllNextIDs().addAll(md.getAllNextIDs());
+		//mdNew.getAllPreviousIDs().addAll(md.getAllPreviousIDs());
+		for (Integer next : md.getAllNextIDs()) {
+			mdNew.addNext(next);
+		}
+		for (Integer previous : md.getAllPreviousIDs()) {
+			mdNew.addPrevious(previous);
+		}
+		return mdNew;
 	}
 }
