@@ -76,7 +76,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Double> getCaseWeights() {
 		Map<String, Double> caseWeights = new LinkedHashMap<String, Double>();
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			Double value = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 
@@ -95,7 +95,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			node.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
 					caseWeights.get(node.getId()));
 		}
@@ -106,7 +106,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getCrossContaminations() {
 		Map<String, Boolean> contaminations = new LinkedHashMap<String, Boolean>();
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN);
 
@@ -125,7 +125,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			node.getProperties().put(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN,
 					crossContaminations.get(node.getId()));
@@ -137,7 +137,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getFilter() {
 		Map<String, Boolean> filter = new LinkedHashMap<String, Boolean>();
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
 
@@ -156,7 +156,7 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getNodeSaveMap().values()) {
 			node.getProperties().put(TracingConstants.FILTER_COLUMN,
 					filter.get(node.getId()));
 		}
@@ -167,28 +167,26 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getEdgeFilter() {
 		Map<String, Boolean> edgeFilter = new LinkedHashMap<String, Boolean>();
 
-		if (!isJoinEdges()) {
-			for (Edge<GraphNode> edge : getEdges()) {
-				Boolean value = (Boolean) edge.getProperties().get(
-						TracingConstants.FILTER_COLUMN);
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
+			Boolean value = (Boolean) edge.getProperties().get(
+					TracingConstants.FILTER_COLUMN);
 
-				if (value == null) {
-					value = false;
-				}
-
-				edgeFilter.put(edge.getId(), value);
+			if (value == null) {
+				value = false;
 			}
+
+			edgeFilter.put(edge.getId(), value);
 		}
 
 		return edgeFilter;
 	}
 
 	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
-		if (edgeFilter.isEmpty() || isJoinEdges()) {
+		if (edgeFilter.isEmpty()) {
 			return;
 		}
 
-		for (Edge<GraphNode> edge : getEdges()) {
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			edge.getProperties().put(TracingConstants.FILTER_COLUMN,
 					edgeFilter.get(edge.getId()));
 		}
