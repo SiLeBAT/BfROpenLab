@@ -30,7 +30,7 @@ public class MyNewTracingLoader {
 			while (rs.next()) {
 				double cp = rs.getDouble("CasePriority");
 				if (cp < 0) cp = 0;
-				if (cp > 1) cp = 1;
+				//if (cp > 1) cp = 1;
 				caseStations.put(rs.getInt("ID"), cp);
 				caseSum += cp;
 			}
