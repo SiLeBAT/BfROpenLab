@@ -115,8 +115,27 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setAllowEdges(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
-		this.nodes = new LinkedHashSet<GraphNode>(allNodes);
-		this.edges = new LinkedHashSet<Edge<GraphNode>>(allEdges);
+		this.nodes = new LinkedHashSet<GraphNode>();
+		this.edges = new LinkedHashSet<Edge<GraphNode>>();
+
+		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
+
+		for (GraphNode node : allNodes) {
+			GraphNode newNode = new GraphNode(node.getId(),
+					new LinkedHashMap<String, Object>(node.getProperties()),
+					node.getRegion());
+
+			nodesById.put(node.getId(), newNode);
+			this.nodes.add(newNode);
+		}
+
+		for (Edge<GraphNode> edge : allEdges) {
+			this.edges.add(new Edge<GraphNode>(edge.getId(),
+					new LinkedHashMap<String, Object>(edge.getProperties()),
+					nodesById.get(edge.getFrom().getId()), nodesById.get(edge
+							.getTo().getId())));
+		}
+
 		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
 		invisibleNodes = new LinkedHashSet<GraphNode>();
@@ -152,14 +171,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Set<Edge<GraphNode>> getEdges() {
 		return edges;
-	}
-
-	public List<GraphNode> getAllNodes() {
-		return allNodes;
-	}
-
-	public List<Edge<GraphNode>> getAllEdges() {
-		return allEdges;
 	}
 
 	public Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
@@ -456,7 +467,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			if (newNode == null) {
 				Set<GraphNode> nodes = CanvasUtilities.getElementsById(
-						allNodes, collapsedNodes.get(newId).keySet());
+						oldNodesById, collapsedNodes.get(newId).keySet());
 				Point2D pos = CanvasUtilities.getCenter(getNodePositions(nodes)
 						.values());
 

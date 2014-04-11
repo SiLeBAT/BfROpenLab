@@ -260,6 +260,19 @@ public class CanvasUtilities {
 
 		return result;
 	}
+	
+	public static <T extends Element> Set<T> getElementsById(
+			Map<String, T> elements, Collection<String> ids) {
+		Set<T> result = new LinkedHashSet<T>();
+
+		for (String id : ids) {
+			if (elements.containsKey(id)) {
+				result.add(elements.get(id));
+			}
+		}
+
+		return result;
+	}
 
 	public static String createNewProperty(String name,
 			Map<String, Class<?>> properties) {
