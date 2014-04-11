@@ -35,22 +35,30 @@ public class MyNewTracing {
 		this.ccStations = ccStations;
 		this.caseSum = caseSum;
 		removeEmptyIds(this.allDeliveries);
-		calcRecsSuppls();
 	}
 	public HashMap<Integer, MyDelivery> getAllDeliveries() {
 		return allDeliveries;
 	}
-	private void calcRecsSuppls() {
-		if (allIncoming == null || allOutgoing == null) {
+	private HashMap<Integer, HashSet<Integer>> getAllIncoming() {
+		if (allIncoming == null) {
 			allIncoming = new HashMap<Integer, HashSet<Integer>>();
-			allOutgoing = new HashMap<Integer, HashSet<Integer>>();
 			for (MyDelivery d : allDeliveries.values()) {
-				if (!allOutgoing.containsKey(d.getSupplierID())) allOutgoing.put(d.getSupplierID(), new HashSet<Integer>());
-				allOutgoing.get(d.getSupplierID()).add(d.getId());
 				if (!allIncoming.containsKey(d.getRecipientID())) allIncoming.put(d.getRecipientID(), new HashSet<Integer>());
 				allIncoming.get(d.getRecipientID()).add(d.getId());
 			}
 		}
+		return allIncoming;
+	}
+
+	private HashMap<Integer, HashSet<Integer>> getAllOutgoing() {
+		if (allOutgoing == null) {
+			allOutgoing = new HashMap<Integer, HashSet<Integer>>();
+			for (MyDelivery d : allDeliveries.values()) {
+				if (!allOutgoing.containsKey(d.getSupplierID())) allOutgoing.put(d.getSupplierID(), new HashSet<Integer>());
+				allOutgoing.get(d.getSupplierID()).add(d.getId());
+			}
+		}
+		return allOutgoing;
 	}
 		
 	public boolean isStationStart(int id) {
@@ -157,8 +165,8 @@ public class MyNewTracing {
 	public Set<Integer> getForwardStations(int stationID) {
 		Set<Integer> stations = new LinkedHashSet<Integer>();
 		
-		if (allOutgoing.get(stationID) != null) {
-			for (Integer i : allOutgoing.get(stationID)) {
+		if (getAllOutgoing().get(stationID) != null) {
+			for (Integer i : getAllOutgoing().get(stationID)) {
 				MyDelivery md = allDeliveries.get(i);
 				stations.addAll(getForwardStations(md));
 			}
@@ -169,8 +177,8 @@ public class MyNewTracing {
 	public Set<Integer> getBackwardStations(int stationID) {
 		Set<Integer> stations = new LinkedHashSet<Integer>();
 		
-		if (allIncoming.get(stationID) != null) {
-			for (Integer i : allIncoming.get(stationID)) {
+		if (getAllIncoming().get(stationID) != null) {
+			for (Integer i : getAllIncoming().get(stationID)) {
 				MyDelivery md = allDeliveries.get(i);
 				stations.addAll(getBackwardStations(md));
 			}
@@ -181,8 +189,8 @@ public class MyNewTracing {
 	public Set<Integer> getForwardDeliveries(int stationID) {
 		Set<Integer> deliveries = new LinkedHashSet<Integer>();
 		
-		if (allOutgoing.get(stationID) != null) {
-			for (Integer i : allOutgoing.get(stationID)) {
+		if (getAllOutgoing().get(stationID) != null) {
+			for (Integer i : getAllOutgoing().get(stationID)) {
 				MyDelivery md = allDeliveries.get(i);
 				deliveries.addAll(getForwardDeliveries(md));
 			}
@@ -193,8 +201,8 @@ public class MyNewTracing {
 	public Set<Integer> getBackwardDeliveries(int stationID) {
 		Set<Integer> deliveries = new LinkedHashSet<Integer>();
 		
-		if (allIncoming.get(stationID) != null) {
-			for (Integer i : allIncoming.get(stationID)) {
+		if (getAllIncoming().get(stationID) != null) {
+			for (Integer i : getAllIncoming().get(stationID)) {
 				MyDelivery md = allDeliveries.get(i);
 				deliveries.addAll(getBackwardDeliveries(md));
 			}
@@ -235,7 +243,7 @@ public class MyNewTracing {
 	}
 	public void fillDeliveries(boolean enforceTemporalOrder) {
 		this.enforceTemporalOrder = enforceTemporalOrder;
-		calcRecsSuppls();
+		allIncoming = null; allOutgoing = null;
 		for (MyDelivery md : allDeliveries.values()) {
 			md.resetStatusVariables();
 		}
@@ -270,7 +278,7 @@ public class MyNewTracing {
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
 				if (ccStations.contains(md.getRecipientID())) {
-					HashSet<Integer> mdl = allOutgoing.get(md.getRecipientID());
+					HashSet<Integer> mdl = getAllOutgoing().get(md.getRecipientID());
 					if (mdl != null) {
 						for (Integer i : mdl) {
 							MyDelivery d = allDeliveries.get(i);
@@ -283,7 +291,7 @@ public class MyNewTracing {
 						}
 					}
 				}
-				allDeliveries.put(key, md);							
+				allDeliveries.put(key, md);		// -559268585					
 			}	
 		}
 	}
@@ -308,8 +316,8 @@ public class MyNewTracing {
 		if (toBeMerged != null && toBeMerged.size() > 0) {
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
-				if (toBeMerged.contains(md.getSupplierID()) && !toBeMerged.contains(md.getRecipientID())) md.setSupplierID(mergedStationID);
-				if (toBeMerged.contains(md.getRecipientID()) && !toBeMerged.contains(md.getSupplierID())) md.setRecipientID(mergedStationID);
+				if (toBeMerged.contains(md.getSupplierID())) md.setSupplierID(mergedStationID);
+				if (toBeMerged.contains(md.getRecipientID())) md.setRecipientID(mergedStationID);
 				allDeliveries.put(key, md);							
 			}
 		}	
