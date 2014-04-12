@@ -275,17 +275,31 @@ public class MyNewTracing {
 	}	
 	private void tcocc() {
 		if (ccStations != null && ccStations.size() > 0) {
+			boolean only1_ergo_allCross = true;
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
 				if (ccStations.contains(md.getRecipientID())) {
+					HashMap<Integer, HashSet<Integer>> hi = new HashMap<Integer, HashSet<Integer>>();
 					HashSet<Integer> mdl = getAllOutgoing().get(md.getRecipientID());
 					if (mdl != null) {
 						for (Integer i : mdl) {
 							MyDelivery d = allDeliveries.get(i);
 							if (d.getSupplierID() != d.getRecipientID()) { // sometimes (e.g. artificially or selfcustoming) the recipient is the supplier
 								if (!enforceTemporalOrder || (is1MaybeNewer(d, md))) {
-									md.addNext(d.getId());
-									d.addPrevious(md.getId());
+									if (only1_ergo_allCross) {
+										if (!hi.containsKey(md.getSupplierID())) hi.put(md.getSupplierID(), new HashSet<Integer>());
+										HashSet<Integer> hs = hi.get(md.getSupplierID());
+										if (!hs.contains(d.getRecipientID())) {
+											md.addNext(d.getId());
+											d.addPrevious(md.getId());
+											hs.add(d.getRecipientID());
+											hi.put(md.getSupplierID(), hs);
+										}
+									}
+									else {
+										md.addNext(d.getId());
+										d.addPrevious(md.getId());
+									}
 								}
 							}
 						}
