@@ -89,8 +89,9 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable dataTable = inData[2];
-		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable), null,
-				null, 0);
+		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashSet<Integer>(), 0);
 
 		for (int id : set.getCaseWeights().keySet()) {
 			Double value = set.getCaseWeights().get(id);

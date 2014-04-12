@@ -327,8 +327,9 @@ public class TracingCanvas extends GraphCanvas {
 			activeDeliveries.put(id, deliveries.get(id));
 		}
 
-		MyNewTracing tracing = new MyNewTracing(activeDeliveries, null, null,
-				0.0);
+		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashSet<Integer>(), 0.0);
 
 		for (String metaNodeIdString : getCollapsedNodes().keySet()) {
 			int metaNodeId = Integer.parseInt(metaNodeIdString);
