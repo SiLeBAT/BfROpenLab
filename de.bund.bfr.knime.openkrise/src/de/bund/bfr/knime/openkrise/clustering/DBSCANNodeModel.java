@@ -81,6 +81,7 @@ public class DBSCANNodeModel extends NodeModel {
     	    List<DoublePoint> points = new ArrayList<DoublePoint>();
             int rowNumber = 0;
         	for (DataRow row : data) {
+            	exec.checkCanceled();
         		if (!row.getCell(latCol).isMissing() && !row.getCell(lonCol).isMissing()) {
 	        		DoubleCell latCell = (DoubleCell) row.getCell(latCol);
 	        		DoubleCell lonCell = (DoubleCell) row.getCell(lonCol);
@@ -110,6 +111,7 @@ public class DBSCANNodeModel extends NodeModel {
         	
             rowNumber = 0;
             for (DataRow row : data) {
+            	exec.checkCanceled();
                 RowKey key = RowKey.createRowKey(rowNumber);
                 DataCell[] cells = new DataCell[data.getSpec().getNumColumns() + 1];
                 int i = 0;
