@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -99,7 +98,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private JButton nodeSizeButton;
 
 	private String metaNodeProperty;
-	private Random random;
 
 	public GraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -150,7 +148,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		metaNodeProperty = CanvasUtilities.createNewProperty(IS_META_NODE,
 				getNodeProperties());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
-		random = new Random();
 
 		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
 				FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT,
@@ -328,13 +325,35 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
+		Class<?> type = getNodeProperties().get(getNodeIdProperty());
 		String newId = null;
 
-		while (newId == null) {
-			String id = random.nextInt() + "";
+		while (true) {
+			newId = (String) JOptionPane.showInputDialog(this,
+					"Specify ID for Meta Node", "Node ID",
+					JOptionPane.QUESTION_MESSAGE, null, null, "");
 
-			if (!nodeSaveMap.containsKey(id)) {
-				newId = id;
+			boolean isInteger = true;
+
+			try {
+				Integer.parseInt(newId);
+			} catch (NumberFormatException e) {
+				isInteger = false;
+			}
+
+			if (newId == null) {
+				return;
+			} else if (type == Integer.class && !isInteger) {
+				JOptionPane.showMessageDialog(this,
+						"ID must be of same type as ID column in input table\n"
+								+ "Please enter Integer value", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			} else if (nodeSaveMap.containsKey(newId)) {
+				JOptionPane.showMessageDialog(this,
+						"ID already exists, please specify different ID",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			} else {
+				break;
 			}
 		}
 
