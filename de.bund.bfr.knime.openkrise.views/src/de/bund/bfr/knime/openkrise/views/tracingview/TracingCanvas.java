@@ -344,7 +344,7 @@ public class TracingCanvas extends GraphCanvas {
 			tracing.mergeStations(nodeIds, metaNodeId);
 		}
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getVisibleNodes()) {
 			int id = Integer.parseInt(node.getId());
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
@@ -371,7 +371,7 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
 		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
 
-		for (GraphNode node : getNodes()) {
+		for (GraphNode node : getVisibleNodes()) {
 			int id = Integer.parseInt(node.getId());
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
@@ -385,7 +385,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		if (!isJoinEdges()) {
-			for (Edge<GraphNode> edge : getEdges()) {
+			for (Edge<GraphNode> edge : getVisibleEdges()) {
 				int id = Integer.parseInt(edge.getId());
 				Boolean value = (Boolean) edge.getProperties().get(
 						TracingConstants.FILTER_COLUMN);
