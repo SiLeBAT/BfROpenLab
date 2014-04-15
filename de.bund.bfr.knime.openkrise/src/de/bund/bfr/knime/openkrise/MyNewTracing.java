@@ -275,7 +275,7 @@ public class MyNewTracing {
 	}	
 	private void tcocc() {
 		if (ccStations != null && ccStations.size() > 0) {
-			boolean only1_ergo_allCross = true;
+			boolean only1_ergo_allCross = false;
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
 				if (ccStations.contains(md.getRecipientID())) {
