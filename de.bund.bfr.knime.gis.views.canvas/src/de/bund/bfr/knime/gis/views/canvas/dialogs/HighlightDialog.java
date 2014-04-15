@@ -221,6 +221,10 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 			if (initialCondition.isInvisible()) {
 				invisibleBox.setSelected(true);
+				colorBox.setEnabled(false);
+				colorButton.setBackground(UIManager.getDefaults().getColor(
+						"Button.background"));
+				colorButton.setEnabled(false);
 			}
 
 			if (initialCondition.isUseThickness()) {
