@@ -25,6 +25,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -113,6 +114,9 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 
 				if (value != null) {
 					field.setText(value.toString());
+					field.setPreferredSize(new Dimension(field
+							.getPreferredSize().width + 5, field
+							.getPreferredSize().height));
 				}
 
 				field.setEditable(false);
