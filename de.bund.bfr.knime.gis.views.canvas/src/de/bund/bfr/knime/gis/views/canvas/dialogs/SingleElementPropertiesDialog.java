@@ -91,6 +91,8 @@ public class SingleElementPropertiesDialog extends JDialog implements
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)),
 				BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	@Override

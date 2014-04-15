@@ -66,6 +66,11 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 
 		table = new EditablePropertiesTable(elements, properties);
 
+		JScrollPane scrollPane = new JScrollPane(table);
+
+		scrollPane.setPreferredSize(UI.getMaxDimension(
+				scrollPane.getPreferredSize(), table.getPreferredSize()));
+
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
@@ -105,9 +110,11 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(UI.createHorizontalPanel(buttons
 				.toArray(new JButton[0]))), BorderLayout.NORTH);
-		add(new JScrollPane(table), BorderLayout.CENTER);
+		add(scrollPane, BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	public boolean isApproved() {

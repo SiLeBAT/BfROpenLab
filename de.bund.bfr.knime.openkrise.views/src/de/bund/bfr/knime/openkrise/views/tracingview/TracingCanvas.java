@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -261,9 +260,7 @@ public class TracingCanvas extends GraphCanvas {
 								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {
@@ -273,9 +270,7 @@ public class TracingCanvas extends GraphCanvas {
 								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {

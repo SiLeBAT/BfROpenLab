@@ -427,16 +427,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 										e.getComponent(), node,
 										getNodeProperties());
 
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 							}
 						}

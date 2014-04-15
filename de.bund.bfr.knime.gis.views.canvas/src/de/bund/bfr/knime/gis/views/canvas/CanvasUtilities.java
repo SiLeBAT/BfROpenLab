@@ -24,15 +24,11 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
-import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
@@ -531,28 +527,6 @@ public class CanvasUtilities {
 		viewer.repaint();
 
 		return graphChanged;
-	}
-
-	public static boolean placeDialogAt(Dialog dialog, Point location) {
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int x = location.x;
-		int y = location.y;
-
-		if (x + dialog.getWidth() > screenSize.width) {
-			x -= dialog.getWidth();
-		}
-
-		if (y + dialog.getHeight() > screenSize.height) {
-			y -= dialog.getHeight();
-		}
-
-		if (x < 0 || y < 0) {
-			return false;
-		}
-
-		dialog.setLocation(new Point(x, y));
-
-		return true;
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors,

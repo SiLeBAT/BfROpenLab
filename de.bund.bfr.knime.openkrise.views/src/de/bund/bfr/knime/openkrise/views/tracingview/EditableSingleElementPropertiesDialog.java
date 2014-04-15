@@ -140,6 +140,8 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
 				BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	public boolean isApproved() {

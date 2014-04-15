@@ -49,7 +49,7 @@ public class UI {
 
 	private UI() {
 	}
-	
+
 	public static void select(JComboBox<?> box, Object item) {
 		box.setSelectedItem(item);
 
@@ -78,6 +78,11 @@ public class UI {
 				Math.max(dialog.getY(), minY));
 		dialog.setLocation(Math.min(dialog.getX(), maxX),
 				Math.min(dialog.getY(), maxY));
+	}
+
+	public static Dimension getMaxDimension(Dimension d1, Dimension d2) {
+		return new Dimension(Math.max(d1.width, d2.width), Math.max(d1.height,
+				d2.height));
 	}
 
 	public static JPanel createTitledPanel(JComponent comp, String title) {

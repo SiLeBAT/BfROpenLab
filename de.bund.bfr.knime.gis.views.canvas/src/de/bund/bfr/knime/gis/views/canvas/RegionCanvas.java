@@ -215,17 +215,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 							} else if (node != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 							}
 						}

@@ -197,17 +197,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-
-								CanvasUtilities.placeDialogAt(dialog,
-										e.getLocationOnScreen());
+								
 								dialog.setVisible(true);
 							}
 						}
@@ -225,7 +221,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected void applyEdgeJoin() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-		
+
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),

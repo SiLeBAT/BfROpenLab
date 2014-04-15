@@ -50,8 +50,12 @@ public class PropertiesDialog extends JDialog implements ActionListener {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 
-		JScrollPane scrollPane = new JScrollPane(new PropertiesTable(elements,
-				properties));
+		PropertiesTable table = new PropertiesTable(elements, properties);
+		JScrollPane scrollPane = new JScrollPane(table);
+
+		scrollPane.setPreferredSize(UI.getMaxDimension(
+				scrollPane.getPreferredSize(), table.getPreferredSize()));
+
 		JLabel numberLabel = new JLabel("Number of Elements: "
 				+ elements.size());
 		JButton okButton = new JButton("OK");
@@ -69,6 +73,8 @@ public class PropertiesDialog extends JDialog implements ActionListener {
 		add(scrollPane, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	@Override
