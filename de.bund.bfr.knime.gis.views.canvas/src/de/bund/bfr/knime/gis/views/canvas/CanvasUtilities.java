@@ -260,7 +260,7 @@ public class CanvasUtilities {
 
 		return result;
 	}
-	
+
 	public static <T extends Element> Set<T> getElementsById(
 			Map<String, T> elements, Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<T>();
@@ -298,7 +298,7 @@ public class CanvasUtilities {
 		List<Color> colors = new ArrayList<Color>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<V, List<Double>>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<V, Double>();
-		Map<V, String> labels = new LinkedHashMap<V, String>();
+		Map<V, Set<String>> labelLists = new LinkedHashMap<V, Set<String>>();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		invisibleNodes.clear();
@@ -353,17 +353,28 @@ public class CanvasUtilities {
 				for (V node : nodes) {
 					if (values.get(node) != 0.0
 							&& node.getProperties().get(property) != null) {
-						String label = labels.get(node);
-						String newLabel = node.getProperties().get(property)
-								.toString();
-
-						if (label != null) {
-							labels.put(node, label + "/" + newLabel);
-						} else {
-							labels.put(node, newLabel);
+						if (!labelLists.containsKey(node)) {
+							labelLists.put(node, new LinkedHashSet<String>());
 						}
+
+						labelLists.get(node).add(
+								node.getProperties().get(property).toString());
 					}
 				}
+			}
+		}
+		
+		Map<V, String> labels = new LinkedHashMap<V, String>();
+
+		for (V node : labelLists.keySet()) {
+			if (!labelLists.get(node).isEmpty()) {
+				String label = "";
+
+				for (String s : labelLists.get(node)) {
+					label += s + "/";
+				}
+
+				labels.put(node, label.substring(0, label.length() - 1));
 			}
 		}
 
@@ -420,7 +431,7 @@ public class CanvasUtilities {
 		List<Color> colors = new ArrayList<Color>();
 		Map<E, List<Double>> alphaValues = new LinkedHashMap<E, List<Double>>();
 		Map<E, Double> thicknessValues = new LinkedHashMap<E, Double>();
-		Map<E, String> labels = new LinkedHashMap<E, String>();
+		Map<E, Set<String>> labelLists = new LinkedHashMap<E, Set<String>>();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
 
 		invisibleEdges.clear();
@@ -467,17 +478,28 @@ public class CanvasUtilities {
 				for (E edge : edges) {
 					if (values.get(edge) != 0.0
 							&& edge.getProperties().get(property) != null) {
-						String label = labels.get(edge);
-						String newLabel = edge.getProperties().get(property)
-								.toString();
-
-						if (label != null) {
-							labels.put(edge, label + "/" + newLabel);
-						} else {
-							labels.put(edge, newLabel);
+						if (!labelLists.containsKey(edge)) {
+							labelLists.put(edge, new LinkedHashSet<String>());
 						}
+
+						labelLists.get(edge).add(
+								edge.getProperties().get(property).toString());
 					}
 				}
+			}
+		}
+
+		Map<E, String> labels = new LinkedHashMap<E, String>();
+
+		for (E edge : labelLists.keySet()) {
+			if (!labelLists.get(edge).isEmpty()) {
+				String label = "";
+
+				for (String s : labelLists.get(edge)) {
+					label += s + "/";
+				}
+
+				labels.put(edge, label.substring(0, label.length() - 1));
 			}
 		}
 
