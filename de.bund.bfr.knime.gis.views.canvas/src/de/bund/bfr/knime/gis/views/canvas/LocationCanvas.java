@@ -156,13 +156,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(),
-				isAllowEdges(), true, true, getNodeHighlightConditions());
+				isAllowEdges(), true, true, getNodeHighlightConditions(), null);
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions());
+				true, getEdgeHighlightConditions(), null);
 	}
 
 	@Override

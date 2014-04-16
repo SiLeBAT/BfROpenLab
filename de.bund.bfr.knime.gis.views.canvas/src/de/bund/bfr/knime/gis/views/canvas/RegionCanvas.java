@@ -133,13 +133,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(), false, false,
-				false, getNodeHighlightConditions());
+				false, getNodeHighlightConditions(), null);
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions());
+				true, getEdgeHighlightConditions(), null);
 	}
 
 	@Override

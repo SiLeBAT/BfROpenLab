@@ -288,13 +288,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(), true, true,
-				true, getNodeHighlightConditions());
+				true, getNodeHighlightConditions(), null);
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions());
+				true, getEdgeHighlightConditions(), null);
 	}
 
 	@Override

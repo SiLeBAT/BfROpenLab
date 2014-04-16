@@ -569,8 +569,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == selectHighlightedNodesItem) {
 			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
 					this, nodeHighlightConditions.getConditions());
-
-			dialog.setLocationRelativeTo(this);
+			
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -581,8 +580,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == selectHighlightedEdgesItem) {
 			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
 					this, edgeHighlightConditions.getConditions());
-
-			dialog.setLocationRelativeTo(this);
+			
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -598,8 +596,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			viewer.getPickedEdgeState().clear();
 		} else if (e.getSource() == highlightNodesItem) {
 			HighlightListDialog dialog = openNodeHighlightDialog();
-
-			dialog.setLocationRelativeTo(this);
+			
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -609,8 +606,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			setNodeHighlightConditions(new HighlightConditionList());
 		} else if (e.getSource() == highlightEdgesItem) {
 			HighlightListDialog dialog = openEdgeHighlightDialog();
-
-			dialog.setLocationRelativeTo(this);
+			
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -814,9 +810,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		dialog.setLocationRelativeTo(this);
 		dialog.setVisible(true);
-	}
-
-	protected abstract void applyEdgeJoin();
+	}	
 
 	protected abstract void resetLayout();
 
@@ -825,6 +819,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
 	protected abstract boolean applyHighlights();
+	
+	protected abstract void applyEdgeJoin();
 
 	protected abstract void applyTransform();
 

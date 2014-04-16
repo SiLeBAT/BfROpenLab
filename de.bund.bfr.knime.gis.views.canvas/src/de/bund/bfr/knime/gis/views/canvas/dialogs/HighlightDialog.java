@@ -46,6 +46,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -127,6 +128,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	private boolean allowInvisible;
 	private boolean allowThickness;
 	private boolean allowLabel;
+	private HighlightConditionChecker checker;
 
 	private HighlightCondition highlightCondition;
 	private boolean approved;
@@ -134,7 +136,8 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	public HighlightDialog(Component parent,
 			Map<String, Class<?>> nodeProperties, boolean allowColor,
 			boolean allowInvisible, boolean allowThickness, boolean allowLabel,
-			boolean allowValueCondition, HighlightCondition initialCondition) {
+			boolean allowValueCondition, HighlightCondition initialCondition,
+			HighlightConditionChecker checker) {
 		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition",
 				DEFAULT_MODALITY_TYPE);
 		this.nodeProperties = nodeProperties;
@@ -142,6 +145,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		this.allowInvisible = allowInvisible;
 		this.allowThickness = allowThickness;
 		this.allowLabel = allowLabel;
+		this.checker = checker;
 		highlightCondition = null;
 		approved = false;
 
@@ -291,9 +295,21 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
+			String error = null;
+
 			highlightCondition = createCondition();
-			approved = true;
-			dispose();
+
+			if (checker != null) {
+				error = checker.findError(highlightCondition);
+			}
+
+			if (error == null) {
+				approved = true;
+				dispose();
+			} else {
+				JOptionPane.showMessageDialog(okButton, error, "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
 		} else if (e.getSource() == cancelButton) {
 			dispose();
 		} else if (e.getSource() == conditionTypeBox) {

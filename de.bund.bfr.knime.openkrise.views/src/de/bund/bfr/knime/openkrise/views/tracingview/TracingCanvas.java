@@ -25,6 +25,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -35,14 +36,22 @@ import java.util.Set;
 
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingCanvas extends GraphCanvas {
+public class TracingCanvas extends GraphCanvas implements
+		HighlightConditionChecker {
 
 	private static final long serialVersionUID = 1L;
 
@@ -206,6 +215,56 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
+	public String findError(HighlightCondition condition) {
+		List<String> tracingColumns = Arrays.asList(
+				TracingConstants.SCORE_COLUMN,
+				TracingConstants.BACKWARD_COLUMN,
+				TracingConstants.FORWARD_COLUMN);
+		String error = "The following columns cannot be used with \"Invisible\" option:\n";
+
+		for (String column : tracingColumns) {
+			error += column + ", ";
+		}
+
+		error = error.substring(0, error.length() - 2);
+
+		if (condition != null && condition.isInvisible()) {
+			AndOrHighlightCondition logicalCondition = null;
+			ValueHighlightCondition valueCondition = null;
+
+			if (condition instanceof AndOrHighlightCondition) {
+				logicalCondition = (AndOrHighlightCondition) condition;
+			} else if (condition instanceof ValueHighlightCondition) {
+				valueCondition = (ValueHighlightCondition) condition;
+			} else if (condition instanceof LogicalValueHighlightCondition) {
+				logicalCondition = ((LogicalValueHighlightCondition) condition)
+						.getLogicalCondition();
+				valueCondition = ((LogicalValueHighlightCondition) condition)
+						.getValueCondition();
+			}
+
+			if (logicalCondition != null) {
+				for (List<LogicalHighlightCondition> cc : logicalCondition
+						.getConditions()) {
+					for (LogicalHighlightCondition c : cc) {
+						if (tracingColumns.contains(c.getProperty())) {
+							return error;
+						}
+					}
+				}
+			}
+
+			if (valueCondition != null) {
+				if (tracingColumns.contains(valueCondition.getProperty())) {
+					return error;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	@Override
 	protected void showNodeProperties() {
 		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getSelectedNodes());
 
@@ -241,6 +300,18 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), true, true,
+				true, getNodeHighlightConditions(), this);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), this);
+	}
+
+	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel() {
 		return new GraphMouse<GraphNode, Edge<GraphNode>>(
 				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
@@ -260,7 +331,7 @@ public class TracingCanvas extends GraphCanvas {
 								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-								
+
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {
@@ -270,7 +341,7 @@ public class TracingCanvas extends GraphCanvas {
 								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-								
+
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {
