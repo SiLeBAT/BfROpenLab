@@ -119,6 +119,10 @@ public class CanvasUtilities {
 					CanvasUtilities.addMapToMap(prop, properties,
 							edge.getProperties());
 				}
+				
+				while (!usedIds.add(index + "")) {
+					index++;
+				}
 
 				if (properties.get(idProperty) == String.class) {
 					prop.put(idProperty, index + "");
@@ -136,11 +140,7 @@ public class CanvasUtilities {
 					prop.put(toProperty, to.getId());
 				} else if (properties.get(toProperty) == Integer.class) {
 					prop.put(toProperty, Integer.parseInt(to.getId()));
-				}
-
-				while (!usedIds.add(index + "")) {
-					index++;
-				}
+				}				
 
 				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
 						.get(from).get(to));
