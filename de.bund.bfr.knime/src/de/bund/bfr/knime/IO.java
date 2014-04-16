@@ -72,7 +72,7 @@ public class IO {
 			return null;
 		}
 
-		return cell.toString().trim();
+		return cell.toString();
 	}
 
 	public static String getToCleanString(DataCell cell) {
