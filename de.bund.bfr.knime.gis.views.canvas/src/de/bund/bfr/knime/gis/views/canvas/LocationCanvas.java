@@ -169,12 +169,15 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	protected boolean applyHighlights() {
 		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
 				nodes, edges, invisibleNodes, invisibleEdges,
-				getNodeHighlightConditions(), locationSize, !isAllowEdges());
+				getNodeHighlightConditions(), locationSize, !isAllowEdges(),
+				isSkipEdgelessNodes());
 		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
 				edges, invisibleEdges, getEdgeHighlightConditions());
-		// TODO skip Edgeless Nodes
+		boolean changed3 = CanvasUtilities.applyEdgelessNodes(getViewer(),
+				nodes, edges, invisibleNodes, invisibleEdges,
+				isSkipEdgelessNodes());
 
-		return changed1 || changed2;
+		return changed1 || changed2 || changed3;
 	}
 
 	@Override

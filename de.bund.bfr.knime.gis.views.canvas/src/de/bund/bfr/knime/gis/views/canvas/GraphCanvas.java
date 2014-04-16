@@ -301,12 +301,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected boolean applyHighlights() {
 		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
 				nodes, edges, invisibleNodes, invisibleEdges,
-				getNodeHighlightConditions(), nodeSize, false);
+				getNodeHighlightConditions(), nodeSize, false,
+				isSkipEdgelessNodes());
 		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
 				edges, invisibleEdges, getEdgeHighlightConditions());
-		// TODO skip Edgeless Nodes
+		boolean changed3 = CanvasUtilities.applyEdgelessNodes(getViewer(),
+				nodes, edges, invisibleNodes, invisibleEdges,
+				isSkipEdgelessNodes());
 
-		return changed1 || changed2;
+		return changed1 || changed2 || changed3;
 	}
 
 	@Override

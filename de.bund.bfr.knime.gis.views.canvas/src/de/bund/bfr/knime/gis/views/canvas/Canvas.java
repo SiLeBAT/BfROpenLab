@@ -104,6 +104,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String JOIN_EDGES = "Join Edges";
+	private static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
+
 	private static final boolean DEFAULT_ALLOW_EDGES = true;
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
@@ -218,10 +221,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
 
-		joinBox = new JCheckBox("Activate");
+		joinBox = new JCheckBox(fillWithSpaces("Activate", JOIN_EDGES.length()));
 		joinBox.setSelected(joinEdges);
 		joinBox.addActionListener(this);
-		skipBox = new JCheckBox("Activate");
+		skipBox = new JCheckBox(fillWithSpaces("Activate",
+				SKIP_EDGELESS_NODES.length()));
 		skipBox.setSelected(skipEdgelessNodes);
 		skipBox.addActionListener(this);
 
@@ -229,8 +233,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
 		addOptionsItem("Editing Mode", modeBox);
-		addOptionsItem("Join Edges", joinBox);
-		addOptionsItem("Skip Edgeless Nodes", skipBox);
+		addOptionsItem(JOIN_EDGES, joinBox);
+		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
 		createPopupMenuItems();
 		applyPopupMenu();
 		applyMouseModel();
@@ -259,8 +263,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setAllowEdges(boolean allowEdges) {
 		this.allowEdges = allowEdges;
 		applyPopupMenu();
-		setOptionsItemVisible("Join Edges", allowEdges);
-		setOptionsItemVisible("Skip Edgeless Nodes", allowEdges);
+		setOptionsItemVisible(JOIN_EDGES, allowEdges);
+		setOptionsItemVisible(SKIP_EDGELESS_NODES, allowEdges);
 	}
 
 	public boolean isAllowHighlighting() {
@@ -501,6 +505,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			joinEdges = joinBox.isSelected();
 			applyEdgeJoin();
 			fireEdgeJoinChanged();
+		} else if (e.getSource() == skipBox) {
+			skipEdgelessNodes = skipBox.isSelected();
+			applyHighlights();
+			fireSkipEdgelessChanged();
 		} else if (e.getSource() == saveAsItem) {
 			ImageFileChooser chooser = new ImageFileChooser();
 
@@ -1000,5 +1008,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
 		}
+	}
+
+	private static String fillWithSpaces(String s, int length) {
+		String result = s;
+
+		for (int i = 0; i < length - s.length(); i++) {
+			result += " ";
+		}
+
+		return result;
 	}
 }

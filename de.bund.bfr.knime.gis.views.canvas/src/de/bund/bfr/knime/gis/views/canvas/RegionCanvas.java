@@ -147,11 +147,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		flushImage();
 		getViewer().repaint();
 
-		boolean changed = CanvasUtilities.applyEdgeHighlights(getViewer(),
+		invisibleNodes.clear();
+		boolean changed1 = CanvasUtilities.applyEdgeHighlights(getViewer(),
 				edges, invisibleEdges, getEdgeHighlightConditions());
-		// TODO skip Edgeless Nodes
+		boolean changed2 = CanvasUtilities.applyEdgelessNodes(getViewer(),
+				nodes, edges, invisibleNodes, invisibleEdges,
+				isSkipEdgelessNodes());
 
-		return changed;
+		return changed1 || changed2;
 	}
 
 	@Override
