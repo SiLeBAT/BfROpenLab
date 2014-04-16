@@ -154,6 +154,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
 				BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	public HighlightCondition getAutoAddCondition() {
@@ -224,8 +226,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
 					true, allowInvisible, allowThickness, allowLabel, true,
 					highlightConditions.getConditions().get(i));
-
-			dialog.setLocationRelativeTo(this);
+			
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -287,8 +288,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
 				true, allowInvisible, allowThickness, allowLabel, true,
 				condition);
-
-		dialog.setLocationRelativeTo(this);
+		
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {

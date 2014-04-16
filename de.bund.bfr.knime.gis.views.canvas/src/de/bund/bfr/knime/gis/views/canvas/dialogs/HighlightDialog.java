@@ -43,11 +43,14 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -105,7 +108,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	private JCheckBox invisibleBox;
 	private JCheckBox thicknessBox;
 	private JComboBox<String> labelBox;
-	private JPanel conditionPanel;
+	private JComponent conditionPanel;
 	private JButton okButton;
 	private JButton cancelButton;
 
@@ -281,6 +284,8 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		add(conditionPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
+		setLocationRelativeTo(parent);
+		UI.adjustDialog(this);
 	}
 
 	@Override
@@ -377,7 +382,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JPanel createLogicalPanel(AndOrHighlightCondition condition) {
+	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
 		logicalAndOrBoxes = new ArrayList<JComboBox<AndOr>>();
 		logicalPropertyBoxes = new ArrayList<JComboBox<String>>();
 		logicalTypeBoxes = new ArrayList<JComboBox<String>>();
@@ -458,10 +463,12 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		logicalAddButtons.add(addButton);
 		logicalPanel.add(addButton, createConstraints(4, row));
 
-		return UI.createNorthPanel(logicalPanel);
+		return new JScrollPane(UI.createNorthPanel(logicalPanel),
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 
-	private JPanel createValuePanel(ValueHighlightCondition condition) {
+	private JComponent createValuePanel(ValueHighlightCondition condition) {
 		List<String> numberProperties = new ArrayList<String>();
 
 		for (String property : nodeProperties.keySet()) {
@@ -494,7 +501,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		return UI.createNorthPanel(UI.createWestPanel(valuePanel));
 	}
 
-	private JPanel createLogicalValuePanel(
+	private JComponent createLogicalValuePanel(
 			LogicalValueHighlightCondition condition) {
 		JPanel panel = new JPanel();
 
