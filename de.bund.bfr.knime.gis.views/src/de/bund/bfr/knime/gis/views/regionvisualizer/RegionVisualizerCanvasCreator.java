@@ -62,8 +62,7 @@ public class RegionVisualizerCanvasCreator {
 				.getTableColumns(nodeTable.getSpec());
 		List<RegionNode> nodes = new ArrayList<RegionNode>(ViewUtilities
 				.readRegionNodes(nodeTable, nodeProperties, polygonMap, null,
-						null, set.getNodeRegionColumn(), false,
-						nonExistingRegions).values());
+						set.getNodeRegionColumn(), nonExistingRegions).values());
 
 		if (nodes.isEmpty()) {
 			return null;

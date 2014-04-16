@@ -376,6 +376,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
+		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);
 		set.setGraphNodeHighlightConditions(graphCanvas

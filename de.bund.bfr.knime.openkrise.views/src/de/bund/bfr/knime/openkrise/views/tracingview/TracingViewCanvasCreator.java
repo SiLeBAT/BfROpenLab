@@ -46,7 +46,6 @@ public class TracingViewCanvasCreator {
 	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
-	private Set<Integer> connectedNodes;
 	private Set<Integer> simpleSuppliers;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
@@ -57,8 +56,6 @@ public class TracingViewCanvasCreator {
 		this.deliveries = tracing;
 		this.set = set;
 
-		connectedNodes = TracingUtilities.getConnectedNodes(nodeTable,
-				edgeTable);
 		simpleSuppliers = TracingUtilities.getSimpleSuppliers(nodeTable,
 				edgeTable);
 	}
@@ -119,8 +116,7 @@ public class TracingViewCanvasCreator {
 		}
 
 		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
-				nodeTable, nodeProperties, connectedNodes,
-				set.isSkipEdgelessNodes());
+				nodeTable, nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -132,7 +128,7 @@ public class TracingViewCanvasCreator {
 		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, set.isJoinEdges());
+				edgeProperties, nodes);
 		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				deliveries, set.isEnforeTemporalOrder());
@@ -144,18 +140,19 @@ public class TracingViewCanvasCreator {
 		canvas.setNodeSize(set.getGraphNodeSize());
 		canvas.setLayoutType(set.getGraphLayout());
 		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setCollapsedNodes(set.getCollapsedNodes());		
+		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setCaseWeights(set.getCaseWeights());
 		canvas.setCrossContaminations(set.getCrossContaminations());
 		canvas.setFilter(set.getFilter());
 		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setPerformTracing(true);
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGraphSelectedEdges()));		
+				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -164,7 +161,7 @@ public class TracingViewCanvasCreator {
 			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
 					set.getGraphTranslationX(), set.getGraphTranslationY());
 		}
-		
+
 		canvas.setNodePositions(set.getGraphNodePositions());
 
 		return canvas;

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
@@ -47,8 +46,6 @@ public class LocationToLocationVisualizerCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private LocationToLocationVisualizerSettings set;
 
-	private Set<String> connectedNodes;
-
 	public LocationToLocationVisualizerCanvasCreator(
 			BufferedDataTable shapeTable, BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable,
@@ -57,10 +54,6 @@ public class LocationToLocationVisualizerCanvasCreator {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
 		this.set = set;
-
-		connectedNodes = ViewUtilities.getConnectedNodes(nodeTable,
-				set.getNodeIdColumn(), edgeTable, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
 	}
 
 	public GraphCanvas createGraphCanvas() {
@@ -69,8 +62,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
-				nodeProperties, connectedNodes, set.getNodeIdColumn(), null,
-				set.isSkipEdgelessNodes());
+				nodeProperties, set.getNodeIdColumn(), null);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -94,10 +86,11 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGraphSelectedEdges()));		
+				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -106,7 +99,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
 					set.getGraphTranslationX(), set.getGraphTranslationY());
 		}
-		
+
 		canvas.setNodePositions(set.getGraphNodePositions());
 
 		return canvas;
@@ -120,9 +113,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = ViewUtilities.readLocationNodes(
-				nodeTable, nodeProperties, connectedNodes,
-				set.getNodeIdColumn(), set.getNodeLatitudeColumn(),
-				set.getNodeLongitudeColumn(), set.isSkipEdgelessNodes());
+				nodeTable, nodeProperties, set.getNodeIdColumn(),
+				set.getNodeLatitudeColumn(), set.getNodeLongitudeColumn());
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -145,6 +137,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set

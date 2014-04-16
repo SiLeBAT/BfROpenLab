@@ -79,7 +79,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private TracingViewSettings set;
 
 	private JButton forgetConfigButton;
-	private JCheckBox skipEdgelessNodesBox;
 	private JCheckBox enforceTempBox;
 	private JCheckBox exportAsSvgBox;
 
@@ -91,8 +90,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		forgetConfigButton = new JButton("Forget Tracing Config");
 		forgetConfigButton.addActionListener(this);
-		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
-		skipEdgelessNodesBox.addActionListener(this);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 		enforceTempBox.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
@@ -101,8 +98,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
-				forgetConfigButton, skipEdgelessNodesBox, enforceTempBox,
-				exportAsSvgBox)), BorderLayout.NORTH);
+				forgetConfigButton, enforceTempBox, exportAsSvgBox)),
+				BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -127,7 +124,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		updateGraphCanvas(false);
@@ -169,13 +165,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
 			updateGraphCanvas(false);
-		} else if (e.getSource() == skipEdgelessNodesBox) {
-			updateSettings();			
-			updateGraphCanvas(false);
 		} else if (e.getSource() == enforceTempBox) {
-			updateSettings();			
+			updateSettings();
 			updateGraphCanvas(false);
-		} else if (e.getSource() == exportAsSvgBox) {			
+		} else if (e.getSource() == exportAsSvgBox) {
 			updateSettings();
 		}
 	}
@@ -216,8 +209,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
-		
-		set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
+
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 
@@ -227,8 +219,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphLayout(graphCanvas.getLayoutType());
-		set.setGraphNodeSize(graphCanvas.getNodeSize());		
+		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
+		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);

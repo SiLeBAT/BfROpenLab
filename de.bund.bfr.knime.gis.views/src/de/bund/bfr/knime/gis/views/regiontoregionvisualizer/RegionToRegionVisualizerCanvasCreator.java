@@ -50,8 +50,6 @@ public class RegionToRegionVisualizerCanvasCreator {
 	private RegionToRegionVisualizerSettings set;
 
 	private Map<String, String> idToRegionMap;
-	private Set<String> connectedNodes;
-
 	private Set<String> nonExistingRegions;
 
 	public RegionToRegionVisualizerCanvasCreator(BufferedDataTable shapeTable,
@@ -64,10 +62,6 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		idToRegionMap = ViewUtilities.getIdToRegionMap(nodeTable,
 				set.getNodeIdColumn(), set.getNodeRegionColumn());
-		connectedNodes = ViewUtilities.getConnectedNodes(nodeTable,
-				set.getNodeIdColumn(), edgeTable, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
-
 		nonExistingRegions = new LinkedHashSet<String>();
 	}
 
@@ -77,8 +71,8 @@ public class RegionToRegionVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
-				nodeProperties, connectedNodes, set.getNodeIdColumn(),
-				set.getNodeRegionColumn(), set.isSkipEdgelessNodes());
+				nodeProperties, set.getNodeIdColumn(),
+				set.getNodeRegionColumn());
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -102,10 +96,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGraphSelectedEdges()));		
+				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -114,7 +109,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
 					set.getGraphTranslationX(), set.getGraphTranslationY());
 		}
-		
+
 		canvas.setNodePositions(set.getGraphNodePositions());
 
 		return canvas;
@@ -129,8 +124,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, RegionNode> nodes = ViewUtilities.readRegionNodes(
 				nodeTable, nodeProperties, polygonMap, idToRegionMap,
-				connectedNodes, set.getNodeIdColumn(),
-				set.isSkipEdgelessNodes(), nonExistingRegions);
+				set.getNodeIdColumn(), nonExistingRegions);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -152,6 +146,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setSelectedNodes(getSelectedGisNodes(canvas.getNodes(),
 				graphCanvas.getSelectedNodes()));
 		canvas.setSelectedEdges(getSelectedGisEdges(canvas.getEdges(),

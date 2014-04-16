@@ -55,7 +55,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 	private ColumnComboBox shapeRegionBox;
 	private ColumnComboBox nodeIdBox;
 	private ColumnComboBox nodeRegionBox;
-	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
 	private JCheckBox exportAsSvgBox;
@@ -65,7 +64,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 	private boolean approved;
 	private RegionToRegionVisualizerSettings set;
 
-	@SuppressWarnings("unchecked")
 	public RegionToRegionVisualizerInputDialog(JComponent owner,
 			DataTableSpec shapeSpec, DataTableSpec nodeSpec,
 			DataTableSpec edgeSpec, RegionToRegionVisualizerSettings set) {
@@ -86,8 +84,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		nodeRegionBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
-		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
-		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		edgeFromBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
@@ -107,10 +103,10 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		mainPanel.add(UI.createOptionsPanel("Shape Table", Arrays.asList(
 				new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
 				Arrays.asList(shapeBox, shapeRegionBox)));
-		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays.asList(
-				new JLabel("Node ID column:"), new JLabel("Region ID column:"),
-				new JLabel()), Arrays.asList(nodeIdBox, nodeRegionBox,
-				skipEdgelessNodesBox)));
+		mainPanel.add(UI.createOptionsPanel("Node Table",
+				Arrays.asList(new JLabel("Node ID column:"), new JLabel(
+						"Region ID column:")), Arrays.asList(nodeIdBox,
+						nodeRegionBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
 						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
@@ -167,7 +163,6 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 				set.setShapeRegionColumn(shapeRegionColumn.getName());
 				set.setNodeIdColumn(nodeIdColumn.getName());
 				set.setNodeRegionColumn(nodeRegionColumn.getName());
-				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromColumn.getName());
 				set.setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
@@ -43,17 +42,11 @@ public class GraphVisualizerCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private GraphVisualizerSettings set;
 
-	private Set<String> connectedNodes;
-
 	public GraphVisualizerCanvasCreator(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable, GraphVisualizerSettings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
 		this.set = set;
-
-		connectedNodes = ViewUtilities.getConnectedNodes(nodeTable,
-				set.getNodeIdColumn(), edgeTable, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
 	}
 
 	public GraphCanvas createGraphCanvas() {
@@ -62,8 +55,7 @@ public class GraphVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
-				nodeProperties, connectedNodes, set.getNodeIdColumn(), null,
-				set.isSkipEdgelessNodes());
+				nodeProperties, set.getNodeIdColumn(), null);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -88,10 +80,11 @@ public class GraphVisualizerCanvasCreator {
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
 				.getGraphSelectedNodes()));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
-				.getGraphSelectedEdges()));		
+				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())
 				&& !Double.isNaN(set.getGraphScaleY())
@@ -100,7 +93,7 @@ public class GraphVisualizerCanvasCreator {
 			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
 					set.getGraphTranslationX(), set.getGraphTranslationY());
 		}
-		
+
 		canvas.setNodePositions(set.getGraphNodePositions());
 
 		return canvas;

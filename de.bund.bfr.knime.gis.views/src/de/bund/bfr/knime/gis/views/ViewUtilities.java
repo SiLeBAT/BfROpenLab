@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,38 +101,6 @@ public class ViewUtilities {
 		}
 	}
 
-	public static Set<String> getConnectedNodes(BufferedDataTable nodeTable,
-			String nodeIdColumn, BufferedDataTable edgeTable,
-			String edgeFromColumn, String edgeToColumn) {
-		Set<String> nodes = new LinkedHashSet<String>();
-		Set<String> connectedNodes = new LinkedHashSet<String>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
-		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
-		int edgeToIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
-
-		if (nodeIdIndex != -1 && edgeFromIndex != -1 && edgeToIndex != -1) {
-			for (DataRow row : nodeTable) {
-				String id = IO.getToCleanString(row.getCell(nodeIdIndex));
-
-				if (id != null) {
-					nodes.add(id);
-				}
-			}
-
-			for (DataRow row : edgeTable) {
-				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
-				String to = IO.getToCleanString(row.getCell(edgeToIndex));
-
-				if (nodes.contains(from) && nodes.contains(to)) {
-					connectedNodes.add(from);
-					connectedNodes.add(to);
-				}
-			}
-		}
-
-		return connectedNodes;
-	}
-
 	public static Map<String, String> getIdToRegionMap(
 			BufferedDataTable nodeTable, String nodeIdColumn,
 			String nodeRegionColumn) {
@@ -188,8 +155,7 @@ public class ViewUtilities {
 
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			Set<String> connectedNodes, String nodeIdColumn,
-			String nodeRegionColumn, boolean skipEdgelessNodes) {
+			String nodeIdColumn, String nodeRegionColumn) {
 		Map<String, GraphNode> nodes = new LinkedHashMap<String, GraphNode>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int nodeRegionIndex = nodeTable.getSpec().findColumnIndex(
@@ -207,11 +173,6 @@ public class ViewUtilities {
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(nodeIdIndex));
-
-			if (skipEdgelessNodes && !connectedNodes.contains(id)) {
-				continue;
-			}
-
 			String region = null;
 			Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
@@ -262,8 +223,7 @@ public class ViewUtilities {
 	public static Map<String, RegionNode> readRegionNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
 			Map<String, MultiPolygon> polygonMap,
-			Map<String, String> idToRegionMap, Set<String> connectedNodes,
-			String nodeIdColumn, boolean skipEdgelessNodes,
+			Map<String, String> idToRegionMap, String nodeIdColumn,
 			Set<String> nonExistingRegions) {
 		Map<String, RegionNode> nodes = new LinkedHashMap<String, RegionNode>();
 		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<String, Map<String, Object>>();
@@ -277,10 +237,6 @@ public class ViewUtilities {
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(nodeIdIndex));
-
-			if (skipEdgelessNodes && !connectedNodes.contains(id)) {
-				continue;
-			}
 
 			if (idToRegionMap != null) {
 				id = idToRegionMap.get(id);
@@ -326,9 +282,7 @@ public class ViewUtilities {
 
 	public static Map<String, LocationNode> readLocationNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			Set<String> connectedNodes, String nodeIdColumn,
-			String latitudeColumn, String longitudeColumn,
-			boolean skipEdgelessNodes) {
+			String nodeIdColumn, String latitudeColumn, String longitudeColumn) {
 		Map<String, LocationNode> nodes = new LinkedHashMap<String, LocationNode>();
 		int latIndex = nodeTable.getSpec().findColumnIndex(latitudeColumn);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(longitudeColumn);
@@ -351,10 +305,6 @@ public class ViewUtilities {
 			} else {
 				id = locationIndex + "";
 				locationIndex++;
-			}
-
-			if (skipEdgelessNodes && !connectedNodes.contains(id)) {
-				continue;
 			}
 
 			Double lat = IO.getDouble(row.getCell(latIndex));

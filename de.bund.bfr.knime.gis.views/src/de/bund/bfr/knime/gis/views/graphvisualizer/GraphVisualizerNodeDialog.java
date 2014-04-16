@@ -202,6 +202,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
+		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);

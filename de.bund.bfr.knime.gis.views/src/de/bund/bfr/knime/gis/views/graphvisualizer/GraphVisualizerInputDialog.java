@@ -52,7 +52,6 @@ public class GraphVisualizerInputDialog extends JDialog implements
 	private static final long serialVersionUID = 1L;
 
 	private ColumnComboBox nodeIdBox;
-	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
 	private JCheckBox exportAsSvgBox;
@@ -62,7 +61,6 @@ public class GraphVisualizerInputDialog extends JDialog implements
 	private boolean approved;
 	private SimpleGraphVisualizerSettings set;
 
-	@SuppressWarnings("unchecked")
 	public GraphVisualizerInputDialog(JComponent owner, DataTableSpec nodeSpec,
 			DataTableSpec edgeSpec, GraphVisualizerSettings set) {
 		super(SwingUtilities.getWindowAncestor(owner), "Input",
@@ -73,8 +71,6 @@ public class GraphVisualizerInputDialog extends JDialog implements
 		nodeIdBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(nodeSpec));
 		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
-		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
-		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		edgeFromBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
@@ -92,8 +88,8 @@ public class GraphVisualizerInputDialog extends JDialog implements
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(UI.createOptionsPanel("Node Table",
-				Arrays.asList(new JLabel("Node ID column:"), new JLabel()),
-				Arrays.asList(nodeIdBox, skipEdgelessNodesBox)));
+				Arrays.asList(new JLabel("Node ID column:")),
+				Arrays.asList(nodeIdBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
 						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
@@ -135,9 +131,8 @@ public class GraphVisualizerInputDialog extends JDialog implements
 			} else {
 				approved = true;
 				set.setNodeIdColumn(nodeIdColumn.getName());
-				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromColumn.getName());
-				set.setEdgeToColumn(edgeToColumn.getName());				
+				set.setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

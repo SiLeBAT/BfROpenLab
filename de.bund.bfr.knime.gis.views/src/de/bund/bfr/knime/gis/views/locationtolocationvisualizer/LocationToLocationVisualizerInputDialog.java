@@ -55,7 +55,6 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 	private ColumnComboBox nodeIdBox;
 	private ColumnComboBox nodeLatitudeBox;
 	private ColumnComboBox nodeLongitudeBox;
-	private JCheckBox skipEdgelessNodesBox;
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
 	private JCheckBox exportAsSvgBox;
@@ -65,7 +64,6 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 	private boolean approved;
 	private LocationToLocationVisualizerSettings set;
 
-	@SuppressWarnings("unchecked")
 	public LocationToLocationVisualizerInputDialog(JComponent owner,
 			DataTableSpec shapeSpec, DataTableSpec nodeSpec,
 			DataTableSpec edgeSpec, LocationToLocationVisualizerSettings set) {
@@ -86,8 +84,6 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		nodeLongitudeBox = new ColumnComboBox(false,
 				KnimeUtilities.getDoubleColumns(nodeSpec));
 		nodeLongitudeBox.setSelectedColumnName(set.getNodeLongitudeColumn());
-		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
-		skipEdgelessNodesBox.setSelected(set.isSkipEdgelessNodes());
 		edgeFromBox = new ColumnComboBox(false,
 				KnimeUtilities.getStringIntColumns(edgeSpec));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
@@ -109,9 +105,8 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 				Arrays.asList(shapeBox)));
 		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays.asList(
 				new JLabel("Node ID column:"), new JLabel("Latitude column:"),
-				new JLabel("Longitude column:"), new JLabel()), Arrays.asList(
-				nodeIdBox, nodeLatitudeBox, nodeLongitudeBox,
-				skipEdgelessNodesBox)));
+				new JLabel("Longitude column:")), Arrays.asList(nodeIdBox,
+				nodeLatitudeBox, nodeLongitudeBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
 				new JLabel("Source Node ID Column:"), new JLabel(
 						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
@@ -166,9 +161,8 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 						.getSelectedColumnName());
 				set.setNodeLongitudeColumn(nodeLongitudeBox
 						.getSelectedColumnName());
-				set.setSkipEdgelessNodes(skipEdgelessNodesBox.isSelected());
 				set.setEdgeFromColumn(edgeFromBox.getSelectedColumnName());
-				set.setEdgeToColumn(edgeToBox.getSelectedColumnName());				
+				set.setEdgeToColumn(edgeToBox.getSelectedColumnName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

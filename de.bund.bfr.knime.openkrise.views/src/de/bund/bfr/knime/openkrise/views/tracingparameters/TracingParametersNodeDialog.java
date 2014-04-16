@@ -102,9 +102,9 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
-				nodeTable, nodeProperties, null, false);
+				nodeTable, nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, false);
+				edgeProperties, nodes);
 
 		weightPanel.update(nodes.values(), nodeProperties,
 				set.getCaseWeights(), set.getWeightCondition());

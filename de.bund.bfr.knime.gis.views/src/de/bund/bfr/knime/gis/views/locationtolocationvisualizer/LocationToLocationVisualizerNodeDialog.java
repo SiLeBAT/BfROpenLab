@@ -108,7 +108,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 				BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
-		addTab("Options", panel);		
+		addTab("Options", panel);
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 			graphCanvas.addCanvasListener(this);
 		}
 	}
-	
+
 	@Override
 	public void skipEdgelessChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
@@ -298,7 +298,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 			graphCanvas.addCanvasListener(this);
 		}
 	}
-	
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);
@@ -342,10 +342,10 @@ public class LocationToLocationVisualizerNodeDialog extends
 		List<String> selectedGraphNodes = new ArrayList<String>(
 				graphCanvas.getSelectedNodeIds());
 		List<String> selectedGraphEdges = new ArrayList<String>(
-				graphCanvas.getSelectedEdgeIds());		
+				graphCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);		
+		Collections.sort(selectedGraphEdges);
 
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
@@ -355,6 +355,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
+		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);
 		set.setGraphNodeHighlightConditions(graphCanvas

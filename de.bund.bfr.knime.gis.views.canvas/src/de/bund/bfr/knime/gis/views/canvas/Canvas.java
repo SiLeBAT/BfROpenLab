@@ -104,6 +104,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String EDITING_MODE = "Editing Mode";
 	private static final String JOIN_EDGES = "Join Edges";
 	private static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
 
@@ -221,18 +222,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
 
-		joinBox = new JCheckBox(fillWithSpaces("Activate", JOIN_EDGES.length()));
+		joinBox = new JCheckBox("Activate");
 		joinBox.setSelected(joinEdges);
 		joinBox.addActionListener(this);
-		skipBox = new JCheckBox(fillWithSpaces("Activate",
-				SKIP_EDGELESS_NODES.length()));
+		skipBox = new JCheckBox("Activate");
+		skipBox.setPreferredSize(new Dimension(new JCheckBox(
+				SKIP_EDGELESS_NODES).getPreferredSize().width, skipBox
+				.getPreferredSize().height));
 		skipBox.setSelected(skipEdgelessNodes);
 		skipBox.addActionListener(this);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
-		addOptionsItem("Editing Mode", modeBox);
+		addOptionsItem(EDITING_MODE, modeBox);
 		addOptionsItem(JOIN_EDGES, joinBox);
 		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
 		createPopupMenuItems();
@@ -1008,15 +1011,5 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
 		}
-	}
-
-	private static String fillWithSpaces(String s, int length) {
-		String result = s;
-
-		for (int i = 0; i < length - s.length(); i++) {
-			result += " ";
-		}
-
-		return result;
 	}
 }

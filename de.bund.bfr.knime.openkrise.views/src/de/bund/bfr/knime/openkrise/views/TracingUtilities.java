@@ -80,36 +80,6 @@ public class TracingUtilities {
 		}
 	}
 
-	public static Set<Integer> getConnectedNodes(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable) {
-		Set<Integer> nodes = new LinkedHashSet<Integer>();
-		Set<Integer> connectedNodes = new LinkedHashSet<Integer>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
-		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.FROM_COLUMN);
-		int edgeToIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.TO_COLUMN);
-
-		if (nodeIdIndex != -1 && edgeFromIndex != -1 && edgeToIndex != -1) {
-			for (DataRow row : nodeTable) {
-				nodes.add(IO.getInt(row.getCell(nodeIdIndex)));
-			}
-
-			for (DataRow row : edgeTable) {
-				int from = IO.getInt(row.getCell(edgeFromIndex));
-				int to = IO.getInt(row.getCell(edgeToIndex));
-
-				if (nodes.contains(from) && nodes.contains(to)) {
-					connectedNodes.add(from);
-					connectedNodes.add(to);
-				}
-			}
-		}
-
-		return connectedNodes;
-	}
-
 	public static Set<Integer> getSimpleSuppliers(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable) {
 		Map<Integer, Set<Integer>> customers = new LinkedHashMap<Integer, Set<Integer>>();
@@ -149,8 +119,7 @@ public class TracingUtilities {
 	}
 
 	public static Map<Integer, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			Set<Integer> connectedNodes, boolean skipEdgelessNodes) {
+			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
 		Map<Integer, GraphNode> nodes = new LinkedHashMap<Integer, GraphNode>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
 				TracingConstants.ID_COLUMN);
@@ -161,11 +130,6 @@ public class TracingUtilities {
 
 		for (DataRow row : nodeTable) {
 			int id = IO.getInt(row.getCell(nodeIdIndex));
-
-			if (skipEdgelessNodes && !connectedNodes.contains(id)) {
-				continue;
-			}
-
 			String region = null;
 			Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
@@ -178,8 +142,7 @@ public class TracingUtilities {
 	}
 
 	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
-			Map<String, Class<?>> edgeProperties,
-			Map<Integer, GraphNode> nodes, boolean joinEdges) {
+			Map<String, Class<?>> edgeProperties, Map<Integer, GraphNode> nodes) {
 		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>();
 		int idIndex = edgeTable.getSpec().findColumnIndex(
 				TracingConstants.ID_COLUMN);

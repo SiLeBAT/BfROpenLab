@@ -54,9 +54,9 @@ public class LocationVisualizerCanvasCreator {
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<LocationNode>(ViewUtilities
-				.readLocationNodes(nodeTable, nodeProperties, null, null,
-						set.getLatitudeColumn(), set.getLongitudeColumn(),
-						false).values());
+				.readLocationNodes(nodeTable, nodeProperties, null,
+						set.getLatitudeColumn(), set.getLongitudeColumn())
+				.values());
 
 		if (nodes.isEmpty()) {
 			return null;
