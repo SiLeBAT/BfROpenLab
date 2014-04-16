@@ -61,6 +61,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private List<Edge<RegionNode>> allEdges;
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
+	private Set<RegionNode> invisibleNodes;
 	private Set<Edge<RegionNode>> invisibleEdges;
 
 	public RegionCanvas(boolean allowEdges) {
@@ -98,6 +99,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.nodes = new LinkedHashSet<RegionNode>(allNodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		setAllowEdges(allowEdges);
+		invisibleNodes = new LinkedHashSet<RegionNode>();
 		invisibleEdges = new LinkedHashSet<Edge<RegionNode>>();
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
@@ -145,8 +147,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		flushImage();
 		getViewer().repaint();
 
-		return CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-				invisibleEdges, getEdgeHighlightConditions());
+		boolean changed = CanvasUtilities.applyEdgeHighlights(getViewer(),
+				edges, invisibleEdges, getEdgeHighlightConditions());
+		// TODO skip Edgeless Nodes
+
+		return changed;
 	}
 
 	@Override
@@ -215,13 +220,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-								
+
 								dialog.setVisible(true);
 							} else if (node != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-								
+
 								dialog.setVisible(true);
 							}
 						}
@@ -302,13 +307,19 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				.getGraphLayout();
 		Graph<RegionNode, Edge<RegionNode>> graph = new DirectedSparseMultigraph<RegionNode, Edge<RegionNode>>();
 
-		for (RegionNode node : this.nodes) {
-			graph.addVertex(node);
-			layout.setLocation(node, node.getCenter());
+		for (RegionNode node : nodes) {
+			if (!invisibleNodes.contains(node)) {
+				graph.addVertex(node);
+				layout.setLocation(node, node.getCenter());
+			}
 		}
 
-		for (Edge<RegionNode> edge : this.edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
+		for (Edge<RegionNode> edge : edges) {
+			if (!invisibleEdges.contains(edge)
+					&& !invisibleNodes.contains(edge.getFrom())
+					&& !invisibleNodes.contains(edge.getTo())) {
+				graph.addEdge(edge, edge.getFrom(), edge.getTo());
+			}
 		}
 
 		layout.setGraph(graph);

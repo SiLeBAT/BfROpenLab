@@ -304,6 +304,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeHighlightConditions(), nodeSize, false);
 		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
 				edges, invisibleEdges, getEdgeHighlightConditions());
+		// TODO skip Edgeless Nodes
 
 		return changed1 || changed2;
 	}
@@ -432,7 +433,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-								
+
 								dialog.setVisible(true);
 							}
 						}

@@ -23,16 +23,17 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-
 public interface CanvasListener {
 
 	public void nodeSelectionChanged(Canvas<?> source);
 
 	public void edgeSelectionChanged(Canvas<?> source);
-	
+
 	public void nodeHighlightingChanged(Canvas<?> source);
 
 	public void edgeHighlightingChanged(Canvas<?> source);
-	
+
 	public void edgeJoinChanged(Canvas<?> source);
+
+	public void skipEdgelessChanged(Canvas<?> source);
 }

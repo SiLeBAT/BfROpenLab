@@ -286,6 +286,19 @@ public class LocationToLocationVisualizerNodeDialog extends
 		}
 	}
 	
+	@Override
+	public void skipEdgelessChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSkipEdgelessNodes(gisCanvas.isSkipEdgelessNodes());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+	
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);

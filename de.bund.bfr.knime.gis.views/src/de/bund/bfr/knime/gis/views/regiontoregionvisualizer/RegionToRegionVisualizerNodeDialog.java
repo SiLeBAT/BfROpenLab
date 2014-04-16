@@ -116,9 +116,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
-		
+
 		set.loadSettings(settings);
-		
+
 		if (input[3] != null) {
 			try {
 				set.loadFromXml(KnimeUtilities
@@ -127,7 +127,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 				e.printStackTrace();
 			}
 		}
-		
+
 		updateSplitPane(false);
 		resized = false;
 	}
@@ -296,6 +296,19 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
 			graphCanvas.setJoinEdges(gisCanvas.isJoinEdges());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
+	@Override
+	public void skipEdgelessChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSkipEdgelessNodes(gisCanvas.isSkipEdgelessNodes());
 			graphCanvas.addCanvasListener(this);
 		}
 	}

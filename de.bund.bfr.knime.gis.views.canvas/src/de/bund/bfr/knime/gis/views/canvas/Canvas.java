@@ -108,7 +108,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
-	private static final boolean DEFAULT_JOIN_EDGES = true;
+	private static final boolean DEFAULT_JOIN_EDGES = false;
+	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -148,6 +149,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JComboBox<String> modeBox;
 	private boolean joinEdges;
 	private JCheckBox joinBox;
+	private boolean skipEdgelessNodes;
+	private JCheckBox skipBox;
 
 	private List<CanvasListener> canvasListeners;
 
@@ -180,6 +183,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		translationY = Double.NaN;
 		editingMode = DEFAULT_MODE;
 		joinEdges = DEFAULT_JOIN_EDGES;
+		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -217,12 +221,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		joinBox = new JCheckBox("Activate");
 		joinBox.setSelected(joinEdges);
 		joinBox.addActionListener(this);
+		skipBox = new JCheckBox("Activate");
+		skipBox.setSelected(skipEdgelessNodes);
+		skipBox.addActionListener(this);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
 		addOptionsItem("Editing Mode", modeBox);
 		addOptionsItem("Join Edges", joinBox);
+		addOptionsItem("Skip Edgeless Nodes", skipBox);
 		createPopupMenuItems();
 		applyPopupMenu();
 		applyMouseModel();
@@ -252,6 +260,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.allowEdges = allowEdges;
 		applyPopupMenu();
 		setOptionsItemVisible("Join Edges", allowEdges);
+		setOptionsItemVisible("Skip Edgeless Nodes", allowEdges);
 	}
 
 	public boolean isAllowHighlighting() {
@@ -291,6 +300,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		joinBox.setSelected(joinEdges);
 		applyEdgeJoin();
 		fireEdgeJoinChanged();
+	}
+
+	public boolean isSkipEdgelessNodes() {
+		return skipEdgelessNodes;
+	}
+
+	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
+		this.skipEdgelessNodes = skipEdgelessNodes;
+		skipBox.setSelected(skipEdgelessNodes);
+		applyHighlights();
+		fireSkipEdgelessChanged();
 	}
 
 	public Collection<V> getVisibleNodes() {
@@ -449,7 +469,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				document.getDocumentElement());
 
 		return (SVGDocument) document;
-	}	
+	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -606,7 +626,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
 					conditions, Color.RED, false, false, null);
 
-			dialog.setAutoAddCondition(condition);			
+			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -627,7 +647,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
 					conditions, Color.RED, false, false, null);
 
-			dialog.setAutoAddCondition(condition);			
+			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
@@ -688,7 +708,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
 	}
-	
+
 	protected Point2D toGraphCoordinates(int x, int y) {
 		return new Point2D.Double((x - translationX) / scaleX,
 				(y - translationY) / scaleY);
@@ -973,6 +993,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireEdgeJoinChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.edgeJoinChanged(this);
+		}
+	}
+
+	private void fireSkipEdgelessChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.skipEdgelessChanged(this);
 		}
 	}
 }

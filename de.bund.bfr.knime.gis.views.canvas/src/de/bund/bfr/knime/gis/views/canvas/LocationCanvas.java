@@ -172,6 +172,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				getNodeHighlightConditions(), locationSize, !isAllowEdges());
 		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
 				edges, invisibleEdges, getEdgeHighlightConditions());
+		// TODO skip Edgeless Nodes
 
 		return changed1 || changed2;
 	}
@@ -197,13 +198,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
-								
+
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
-								
+
 								dialog.setVisible(true);
 							}
 						}
@@ -241,7 +242,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				.getGraphLayout();
 		Graph<LocationNode, Edge<LocationNode>> graph = new DirectedSparseMultigraph<LocationNode, Edge<LocationNode>>();
 
-		for (LocationNode node : this.nodes) {
+		for (LocationNode node : nodes) {
 			if (!invisibleNodes.contains(node)) {
 				graph.addVertex(node);
 			}
@@ -249,8 +250,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			layout.setLocation(node, node.getCenter());
 		}
 
-		for (Edge<LocationNode> edge : this.edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
+		for (Edge<LocationNode> edge : edges) {
+			if (!invisibleEdges.contains(edge)
+					&& !invisibleNodes.contains(edge.getFrom())
+					&& !invisibleNodes.contains(edge.getTo())) {
+				graph.addEdge(edge, edge.getFrom(), edge.getTo());
+			}
 		}
 
 		layout.setGraph(graph);
