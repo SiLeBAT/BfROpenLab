@@ -131,12 +131,10 @@ public class OctaveScriptRunner {
 	}
 
 	private boolean variableContentIsValid(OctaveObject octaveObject) {
-		// TODO Auto-generated method stub
 		return octaveObject != null;
 	}
 
 	private boolean variableNameIsValid(String variableName) {
-		// TODO Auto-generated method stub
 		return variableName != "";
 	}
 

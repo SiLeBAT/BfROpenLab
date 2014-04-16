@@ -119,7 +119,7 @@ public class OctaveScriptNodeModel extends NodeModel {
 	 * 
 	 * Overwriting already defined or global variables may be still possible.
 	 * 
-	 * (TODO: may be better placed in Runner)
+	 * (may be better placed in Runner)
 	 * 
 	 * @param runner
 	 * @param runnerVariableName
@@ -265,7 +265,6 @@ public class OctaveScriptNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO Code executed on reset.
 		// Models build during execute are cleared here.
 		// Also data handled in load/saveInternals will be erased here.
 	}

@@ -53,7 +53,7 @@ public class OctaveScriptNodeView extends NodeView<OctaveScriptNodeModel> {
 	@Override
 	protected void modelChanged() {
 
-		// TODO retrieve the new model from your nodemodel and
+		// retrieve the new model from your nodemodel and
 		// update the view.
 		OctaveScriptNodeModel nodeModel = getNodeModel();
 		assert nodeModel != null;
@@ -68,8 +68,6 @@ public class OctaveScriptNodeView extends NodeView<OctaveScriptNodeModel> {
 	 */
 	@Override
 	protected void onClose() {
-
-		// TODO things to do when closing the view
 	}
 
 	/**
@@ -77,8 +75,6 @@ public class OctaveScriptNodeView extends NodeView<OctaveScriptNodeModel> {
 	 */
 	@Override
 	protected void onOpen() {
-
-		// TODO things to do when opening the view
 	}
 
 }

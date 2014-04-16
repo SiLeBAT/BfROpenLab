@@ -81,7 +81,6 @@ public class OctaveScriptNodeScriptEditorPanel extends JPanel {
 	 *         DOUBLE and STRING types
 	 */
 	public static String extendVariable(final FlowVariable var) {
-		// TODO: refactor
 		switch (var.getType()) {
 		case INTEGER:
 			return "vars." + var.getName();

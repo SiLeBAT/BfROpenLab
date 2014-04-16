@@ -103,7 +103,6 @@ public class KNIMETableToOctaveStructConverter {
 			throws NotConfigurableException {
 		OctaveObject result;
 
-		// TODO refactor
 		if (cellContainsString(cell)) {
 			result = new OctaveString(cell.toString());
 		} else if (cellContainsNumber(cell)) {
