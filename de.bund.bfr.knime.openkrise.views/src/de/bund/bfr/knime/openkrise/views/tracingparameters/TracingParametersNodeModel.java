@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.views.tracingparameters;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -57,6 +58,11 @@ import org.knime.core.node.NotConfigurableException;
 import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
@@ -89,41 +95,77 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable dataTable = inData[2];
+		Map<String, Class<?>> nodeProperties = KnimeUtilities
+				.getTableColumns(nodeTable.getSpec());
+		Map<String, Class<?>> edgeProperties = KnimeUtilities
+				.getTableColumns(edgeTable.getSpec());
+		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
+				nodeTable, nodeProperties);
+		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+				edgeProperties, nodes);
+		Set<Integer> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
+				nodeTable, edgeTable);
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), 0);
 
-		for (int id : set.getCaseWeights().keySet()) {
-			Double value = set.getCaseWeights().get(id);
-
-			if (value != null) {
-				tracing.setCase(id, value);
-			}
-		}
-
-		for (int id : set.getCrossContaminations().keySet()) {
-			Boolean value = set.getCrossContaminations().get(id);
-
-			if (value != null) {
-				tracing.setCrossContamination(id, value);
-			}
-		}
-
-		tracing.fillDeliveries(set.isEnforeTemporalOrder());
-
+		Map<Integer, Double> weights = new LinkedHashMap<Integer, Double>();
+		Set<Integer> crossNodes = new LinkedHashSet<Integer>();
 		Set<Integer> filterNodes = new LinkedHashSet<Integer>();
 		Set<Integer> filderEdges = new LinkedHashSet<Integer>();
 		Set<Integer> backwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> forwardNodes = new LinkedHashSet<Integer>();
 		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
 		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
-		Set<Integer> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
-				nodeTable, edgeTable);
 
-		for (int id : set.getFilter().keySet()) {
-			Boolean value = set.getFilter().get(id);
+		for (GraphNode node : nodes.values()) {
+			int id = Integer.parseInt(node.getId());
+			Double weight = null;
 
-			if (value != null && value == true) {
+			if (set.getWeightConditionValue() != null) {
+				if (isInCondition(node, set.getWeightCondition())) {
+					weight = set.getWeightConditionValue();
+				}
+			} else {
+				weight = set.getCaseWeights().get(id);
+			}
+
+			if (weight != null && weight != 0.0) {
+				weights.put(id, weight);
+				tracing.setCase(id, weight);
+			}
+
+			Boolean cross = null;
+
+			if (set.getContaminationConditionValue() != null) {
+				if (isInCondition(node, set.getContaminationCondition())) {
+					cross = set.getContaminationConditionValue();
+				}
+			} else {
+				cross = set.getCrossContaminations().get(id);
+			}
+
+			if (cross != null && cross) {
+				crossNodes.add(id);
+				tracing.setCrossContamination(id, cross);
+			}
+		}
+
+		tracing.fillDeliveries(set.isEnforeTemporalOrder());
+
+		for (GraphNode node : nodes.values()) {
+			int id = Integer.parseInt(node.getId());
+			Boolean filter = null;
+
+			if (set.getFilterConditionValue() != null) {
+				if (isInCondition(node, set.getFilterCondition())) {
+					filter = set.getFilterConditionValue();
+				}
+			} else {
+				filter = set.getFilter().get(id);
+			}
+
+			if (filter != null && filter) {
 				filterNodes.add(id);
 				backwardNodes.addAll(tracing.getBackwardStations(id));
 				forwardNodes.addAll(tracing.getForwardStations(id));
@@ -132,10 +174,19 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 		}
 
-		for (int id : set.getEdgeFilter().keySet()) {
-			Boolean value = set.getEdgeFilter().get(id);
+		for (Edge<GraphNode> edge : edges) {
+			int id = Integer.parseInt(edge.getId());
+			Boolean filter = null;
 
-			if (value != null && value == true) {
+			if (set.getEdgeFilterConditionValue() != null) {
+				if (isInCondition(edge, set.getEdgeFilterCondition())) {
+					filter = set.getEdgeFilterConditionValue();
+				}
+			} else {
+				filter = set.getEdgeFilter().get(id);
+			}
+
+			if (filter != null && filter) {
 				filderEdges.add(id);
 				backwardNodes.addAll(tracing.getBackwardStations2(id));
 				forwardNodes.addAll(tracing.getForwardStations2(id));
@@ -162,10 +213,10 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
-					.createCell(set.getCaseWeights().get(id));
+					.createCell(weights.get(id));
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
-					.createCell(set.getCrossContaminations().get(id));
+					.createCell(crossNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
 					.createCell(tracing.getStationScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
@@ -366,6 +417,15 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
+	}
+
+	private static boolean isInCondition(Element element,
+			AndOrHighlightCondition condition) {
+		if (condition == null) {
+			return true;
+		}
+
+		return condition.getValues(Arrays.asList(element)).get(element) != 0.0;
 	}
 
 }

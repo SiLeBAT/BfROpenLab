@@ -45,6 +45,10 @@ public class TracingParametersSettings extends TracingSettings {
 	private static final String CFG_CONTAMINATION_CONDITION = "ContaminationCondition";
 	private static final String CFG_FILTER_CONDITION = "FilterCondition";
 	private static final String CFG_EDGE_FILTER_CONDITION = "EdgeFilterCondition";
+	private static final String CFG_WEIGHT_CONDITION_VALUE = "WeightConditionValue";
+	private static final String CFG_CONTAMINATION_CONDITION_VALUE = "ContaminationConditionValue";
+	private static final String CFG_FILTER_CONDITION_VALUE = "FilterConditionValue";
+	private static final String CFG_EDGE_FILTER_CONDITION_VALUE = "EdgeFilterConditionValue";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
 	private Map<Integer, Double> caseWeights;
@@ -55,6 +59,10 @@ public class TracingParametersSettings extends TracingSettings {
 	private AndOrHighlightCondition contaminationCondition;
 	private AndOrHighlightCondition filterCondition;
 	private AndOrHighlightCondition edgeFilterCondition;
+	private Double weightConditionValue;
+	private Boolean contaminationConditionValue;
+	private Boolean filterConditionValue;
+	private Boolean edgeFilterConditionValue;
 	private boolean enforeTemporalOrder;
 
 	public TracingParametersSettings() {
@@ -66,6 +74,10 @@ public class TracingParametersSettings extends TracingSettings {
 		contaminationCondition = null;
 		filterCondition = null;
 		edgeFilterCondition = null;
+		weightConditionValue = Double.NaN;
+		contaminationConditionValue = false;
+		filterConditionValue = false;
+		edgeFilterConditionValue = false;
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 	}
 
@@ -121,6 +133,38 @@ public class TracingParametersSettings extends TracingSettings {
 		}
 
 		try {
+			weightConditionValue = settings
+					.getDouble(CFG_WEIGHT_CONDITION_VALUE);
+			weightConditionValue = Double.isNaN(weightConditionValue) ? null
+					: weightConditionValue;
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			contaminationConditionValue = settings
+					.getBoolean(CFG_CONTAMINATION_CONDITION_VALUE);
+			contaminationConditionValue = !contaminationConditionValue ? null
+					: contaminationConditionValue;
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			filterConditionValue = settings
+					.getBoolean(CFG_FILTER_CONDITION_VALUE);
+			filterConditionValue = !filterConditionValue ? null
+					: filterConditionValue;
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeFilterConditionValue = settings
+					.getBoolean(CFG_EDGE_FILTER_CONDITION_VALUE);
+			edgeFilterConditionValue = !edgeFilterConditionValue ? null
+					: edgeFilterConditionValue;
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			enforeTemporalOrder = settings
 					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
 		} catch (InvalidSettingsException e) {
@@ -142,6 +186,17 @@ public class TracingParametersSettings extends TracingSettings {
 				SERIALIZER.toXml(filterCondition));
 		settings.addString(CFG_EDGE_FILTER_CONDITION,
 				SERIALIZER.toXml(edgeFilterCondition));
+		settings.addDouble(CFG_WEIGHT_CONDITION_VALUE,
+				weightConditionValue == null ? Double.NaN
+						: weightConditionValue);
+		settings.addBoolean(CFG_CONTAMINATION_CONDITION_VALUE,
+				contaminationConditionValue == null ? false
+						: contaminationConditionValue);
+		settings.addBoolean(CFG_FILTER_CONDITION_VALUE,
+				filterConditionValue == null ? false : filterConditionValue);
+		settings.addBoolean(CFG_EDGE_FILTER_CONDITION_VALUE,
+				edgeFilterConditionValue == null ? false
+						: edgeFilterConditionValue);
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 
@@ -206,8 +261,41 @@ public class TracingParametersSettings extends TracingSettings {
 		return edgeFilterCondition;
 	}
 
-	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
+	public void setEdgeFilterCondition(
+			AndOrHighlightCondition edgeFilterCondition) {
 		this.edgeFilterCondition = edgeFilterCondition;
+	}
+
+	public Double getWeightConditionValue() {
+		return weightConditionValue;
+	}
+
+	public void setWeightConditionValue(Double weightConditionValue) {
+		this.weightConditionValue = weightConditionValue;
+	}
+
+	public Boolean getContaminationConditionValue() {
+		return contaminationConditionValue;
+	}
+
+	public void setContaminationConditionValue(Boolean contaminationConditionValue) {
+		this.contaminationConditionValue = contaminationConditionValue;
+	}
+
+	public Boolean getFilterConditionValue() {
+		return filterConditionValue;
+	}
+
+	public void setFilterConditionValue(Boolean filterConditionValue) {
+		this.filterConditionValue = filterConditionValue;
+	}
+
+	public Boolean getEdgeFilterConditionValue() {
+		return edgeFilterConditionValue;
+	}
+
+	public void setEdgeFilterConditionValue(Boolean edgeFilterConditionValue) {
+		this.edgeFilterConditionValue = edgeFilterConditionValue;
 	}
 
 	public boolean isEnforeTemporalOrder() {

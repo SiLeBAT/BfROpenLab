@@ -107,13 +107,17 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				edgeProperties, nodes);
 
 		weightPanel.update(nodes.values(), nodeProperties,
-				set.getCaseWeights(), set.getWeightCondition());
+				set.getCaseWeights(), set.getWeightCondition(),
+				set.getWeightConditionValue());
 		contaminationPanel.update(nodes.values(), nodeProperties,
-				set.getCrossContaminations(), set.getContaminationCondition());
+				set.getCrossContaminations(), set.getContaminationCondition(),
+				set.getContaminationConditionValue());
 		filterPanel.update(nodes.values(), nodeProperties, set.getFilter(),
-				set.getFilterCondition());
-		edgeFilterPanel.update(edges, edgeProperties, set.getEdgeFilter(),
-				set.getEdgeFilterCondition());
+				set.getFilterCondition(), set.getFilterConditionValue());
+		edgeFilterPanel
+				.update(edges, edgeProperties, set.getEdgeFilter(),
+						set.getEdgeFilterCondition(),
+						set.getEdgeFilterConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 	}
 
@@ -122,12 +126,16 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 			throws InvalidSettingsException {
 		set.setCaseWeights(weightPanel.getValues());
 		set.setWeightCondition(weightPanel.getCondition());
+		set.setWeightConditionValue(weightPanel.getValueForAll());
 		set.setCrossContaminations(contaminationPanel.getValues());
 		set.setContaminationCondition(contaminationPanel.getCondition());
+		set.setContaminationConditionValue(contaminationPanel.getValueForAll());
 		set.setFilter(filterPanel.getValues());
 		set.setFilterCondition(filterPanel.getCondition());
+		set.setFilterConditionValue(filterPanel.getValueForAll());
 		set.setEdgeFilter(edgeFilterPanel.getValues());
 		set.setEdgeFilterCondition(edgeFilterPanel.getCondition());
+		set.setEdgeFilterConditionValue(edgeFilterPanel.getValueForAll());
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 		set.saveSettings(settings);
 	}

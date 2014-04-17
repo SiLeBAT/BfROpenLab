@@ -36,11 +36,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.CellEditorListener;
@@ -73,7 +74,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JPanel tablePanel;
 
 	private JButton filterButton;
-	private JButton setAllButton;
+	private JCheckBox setAllBox;
+	private JTextField setAllField;
 	private JTable table;
 	private JTable inputTable;
 	private JScrollPane scrollPane;
@@ -90,7 +92,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	public void update(Collection<? extends Element> elements,
 			Map<String, Class<?>> properties, Map<Integer, T> values,
-			AndOrHighlightCondition condition) {
+			AndOrHighlightCondition condition, T valueForAll) {
 		this.elements = elements;
 		this.properties = properties;
 		this.values = values;
@@ -100,6 +102,11 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		tablePanel.add(
 				createInputPanel(filterElements(elements, condition),
 						properties), BorderLayout.CENTER);
+		updateSetAll(valueForAll != null);
+		
+		if (valueForAll != null && type == Double.class) {
+			setAllField.setText(valueForAll.toString());
+		}
 	}
 
 	public Map<Integer, T> getValues() {
@@ -121,6 +128,17 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		}
 
 		return newValues;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T getValueForAll() {
+		if (type == Boolean.class && setAllBox.isSelected()) {
+			return (T) Boolean.TRUE;
+		} else if (type == Double.class && setAllBox.isSelected()) {
+			return (T) new Double(Double.parseDouble(setAllField.getText()));
+		}
+
+		return null;
 	}
 
 	public AndOrHighlightCondition getCondition() {
@@ -146,32 +164,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 								properties), BorderLayout.CENTER);
 				tablePanel.revalidate();
 			}
-		} else if (e.getSource() == setAllButton) {
-			if (type == Boolean.class) {
-				Object result = JOptionPane.showInputDialog(this,
-						"Set All Values to?", "Input",
-						JOptionPane.QUESTION_MESSAGE, null, new Boolean[] {
-								Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
-
-				if (result != null) {
-					setAllValuesTo(result);
-				}
-			} else if (type == Double.class) {
-				Object result = JOptionPane.showInputDialog(this,
-						"Set All Values to?", "Input",
-						JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
-				Double value = null;
-
-				try {
-					value = Double.parseDouble(result.toString());
-				} catch (NumberFormatException ex) {
-				} catch (NullPointerException ex) {
-				}
-
-				if (value != null) {
-					setAllValuesTo(value);
-				}
-			}
+		} else if (e.getSource() == setAllBox) {
+			updateSetAll(setAllBox.isSelected());
 		}
 	}
 
@@ -219,11 +213,20 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JComponent createOptionsPanel() {
 		filterButton = new JButton("Filter");
 		filterButton.addActionListener(this);
-		setAllButton = new JButton("Set All To");
-		setAllButton.addActionListener(this);
+		setAllBox = new JCheckBox("Set All");
+		setAllBox.addActionListener(this);
+		setAllField = new JTextField(10);
+		setAllField.setEnabled(false);
 
-		return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-				setAllButton));
+		if (type == Boolean.class) {
+			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
+					setAllBox));
+		} else if (type == Double.class) {
+			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
+					setAllBox, setAllField));
+		}
+
+		return null;
 	}
 
 	private JComponent createInputPanel(Collection<? extends Element> nodes,
@@ -248,12 +251,24 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		return scrollPane;
 	}
 
-	private void setAllValuesTo(Object value) {
-		for (int row = 0; row < inputTable.getRowCount(); row++) {
-			inputTable.setValueAt(value, row, 0);
-		}
+	private void updateSetAll(boolean setAll) {
+		setAllBox.setSelected(setAll);
+		setAllField.setEnabled(setAll);
 
-		editingStopped(null);
+		if (setAll) {
+			scrollPane.setRowHeader(null);
+		} else {
+			int value = scrollPane.getVerticalScrollBar().getValue();
+
+			scrollPane.setRowHeaderView(inputTable);
+			scrollPane.getVerticalScrollBar().setValue(0);
+			scrollPane.getVerticalScrollBar().setValue(value);
+
+			JViewport rowHeader = scrollPane.getRowHeader();
+
+			rowHeader.setPreferredSize(new Dimension(100, rowHeader
+					.getPreferredSize().height));
+		}
 	}
 
 	private static <T extends Element> Collection<T> filterElements(
