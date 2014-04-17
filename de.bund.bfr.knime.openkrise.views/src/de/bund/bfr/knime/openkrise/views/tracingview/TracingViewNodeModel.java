@@ -41,6 +41,7 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -290,6 +291,11 @@ public class TracingViewNodeModel extends NodeModel {
 		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
 
 		for (DataColumnSpec column : nodeSpec) {
+			if (column.getName().equals(TracingConstants.ID_COLUMN)) {
+				column = new DataColumnSpecCreator(column.getName(),
+						StringCell.TYPE).createSpec();
+			}
+
 			newNodeSpec.add(column);
 			columns.put(column.getName(), column.getType());
 		}
@@ -325,6 +331,13 @@ public class TracingViewNodeModel extends NodeModel {
 		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
 
 		for (DataColumnSpec column : edgeSpec) {
+			if (column.getName().equals(TracingConstants.ID_COLUMN)
+					|| column.getName().equals(TracingConstants.FROM_COLUMN)
+					|| column.getName().equals(TracingConstants.TO_COLUMN)) {
+				column = new DataColumnSpecCreator(column.getName(),
+						StringCell.TYPE).createSpec();
+			}
+
 			newEdgeSpec.add(column);
 			columns.put(column.getName(), column.getType());
 		}

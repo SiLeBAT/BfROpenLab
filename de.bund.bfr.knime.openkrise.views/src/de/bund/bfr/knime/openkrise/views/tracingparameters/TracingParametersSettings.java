@@ -51,10 +51,10 @@ public class TracingParametersSettings extends TracingSettings {
 	private static final String CFG_EDGE_FILTER_CONDITION_VALUE = "EdgeFilterConditionValue";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
-	private Map<Integer, Double> caseWeights;
-	private Map<Integer, Boolean> crossContaminations;
-	private Map<Integer, Boolean> filter;
-	private Map<Integer, Boolean> edgeFilter;
+	private Map<String, Double> caseWeights;
+	private Map<String, Boolean> crossContaminations;
+	private Map<String, Boolean> filter;
+	private Map<String, Boolean> edgeFilter;
 	private AndOrHighlightCondition weightCondition;
 	private AndOrHighlightCondition contaminationCondition;
 	private AndOrHighlightCondition filterCondition;
@@ -66,10 +66,10 @@ public class TracingParametersSettings extends TracingSettings {
 	private boolean enforeTemporalOrder;
 
 	public TracingParametersSettings() {
-		caseWeights = new LinkedHashMap<Integer, Double>();
-		crossContaminations = new LinkedHashMap<Integer, Boolean>();
-		filter = new LinkedHashMap<Integer, Boolean>();
-		edgeFilter = new LinkedHashMap<Integer, Boolean>();
+		caseWeights = new LinkedHashMap<String, Double>();
+		crossContaminations = new LinkedHashMap<String, Boolean>();
+		filter = new LinkedHashMap<String, Boolean>();
+		edgeFilter = new LinkedHashMap<String, Boolean>();
 		weightCondition = null;
 		contaminationCondition = null;
 		filterCondition = null;
@@ -85,25 +85,25 @@ public class TracingParametersSettings extends TracingSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			caseWeights = (Map<Integer, Double>) SERIALIZER.fromXml(settings
+			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
 					.getString(CFG_CASE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			crossContaminations = (Map<Integer, Boolean>) SERIALIZER
+			crossContaminations = (Map<String, Boolean>) SERIALIZER
 					.fromXml(settings.getString(CFG_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			filter = (Map<Integer, Boolean>) SERIALIZER.fromXml(settings
+			filter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
 					.getString(CFG_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeFilter = (Map<Integer, Boolean>) SERIALIZER.fromXml(settings
+			edgeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
 					.getString(CFG_EDGE_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
@@ -200,35 +200,35 @@ public class TracingParametersSettings extends TracingSettings {
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 
-	public Map<Integer, Double> getCaseWeights() {
+	public Map<String, Double> getCaseWeights() {
 		return caseWeights;
 	}
 
-	public void setCaseWeights(Map<Integer, Double> caseWeights) {
+	public void setCaseWeights(Map<String, Double> caseWeights) {
 		this.caseWeights = caseWeights;
 	}
 
-	public Map<Integer, Boolean> getCrossContaminations() {
+	public Map<String, Boolean> getCrossContaminations() {
 		return crossContaminations;
 	}
 
-	public void setCrossContaminations(Map<Integer, Boolean> crossContaminations) {
+	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
 		this.crossContaminations = crossContaminations;
 	}
 
-	public Map<Integer, Boolean> getFilter() {
+	public Map<String, Boolean> getFilter() {
 		return filter;
 	}
 
-	public void setFilter(Map<Integer, Boolean> filter) {
+	public void setFilter(Map<String, Boolean> filter) {
 		this.filter = filter;
 	}
 
-	public Map<Integer, Boolean> getEdgeFilter() {
+	public Map<String, Boolean> getEdgeFilter() {
 		return edgeFilter;
 	}
 
-	public void setEdgeFilter(Map<Integer, Boolean> edgeFilter) {
+	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
 		this.edgeFilter = edgeFilter;
 	}
 
@@ -261,8 +261,7 @@ public class TracingParametersSettings extends TracingSettings {
 		return edgeFilterCondition;
 	}
 
-	public void setEdgeFilterCondition(
-			AndOrHighlightCondition edgeFilterCondition) {
+	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
 		this.edgeFilterCondition = edgeFilterCondition;
 	}
 

@@ -65,7 +65,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	private Class<?> type;
 
-	private Map<Integer, T> values;
+	private Map<String, T> values;
 	private AndOrHighlightCondition condition;
 
 	private Map<String, Class<?>> properties;
@@ -91,7 +91,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	}
 
 	public void update(Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Map<Integer, T> values,
+			Map<String, Class<?>> properties, Map<String, T> values,
 			AndOrHighlightCondition condition, T valueForAll) {
 		this.elements = elements;
 		this.properties = properties;
@@ -103,27 +103,27 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 				createInputPanel(filterElements(elements, condition),
 						properties), BorderLayout.CENTER);
 		updateSetAll(valueForAll != null);
-		
+
 		if (valueForAll != null && type == Double.class) {
 			setAllField.setText(valueForAll.toString());
 		}
 	}
 
-	public Map<Integer, T> getValues() {
+	public Map<String, T> getValues() {
 		if (inputTable.isEditing()) {
 			inputTable.getDefaultEditor(type).stopCellEditing();
 		}
 
-		Set<Integer> filteredIds = new LinkedHashSet<Integer>();
+		Set<String> filteredIds = new LinkedHashSet<String>();
 		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
-			filteredIds.add((Integer) table.getValueAt(row, idColumn));
+			filteredIds.add((String) table.getValueAt(row, idColumn));
 		}
 
-		Map<Integer, T> newValues = new LinkedHashMap<Integer, T>();
+		Map<String, T> newValues = new LinkedHashMap<String, T>();
 
-		for (int id : filteredIds) {
+		for (String id : filteredIds) {
 			newValues.put(id, values.get(id));
 		}
 
@@ -175,7 +175,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
 			for (int row = 0; row < table.getRowCount(); row++) {
-				int id = (Integer) table.getValueAt(row, idColumn);
+				String id = (String) table.getValueAt(row, idColumn);
 
 				inputTable.setValueAt(values.get(id), row, 0);
 			}
@@ -188,7 +188,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
-			int id = (Integer) table.getValueAt(row, idColumn);
+			String id = (String) table.getValueAt(row, idColumn);
 
 			values.put(id, (T) inputTable.getValueAt(row, 0));
 		}

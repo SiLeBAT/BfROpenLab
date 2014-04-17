@@ -101,7 +101,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
-		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);

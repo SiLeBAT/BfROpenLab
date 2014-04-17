@@ -98,10 +98,10 @@ public class EditablePropertiesTable extends JTable {
 			getCellEditor().stopCellEditing();
 		}
 
-		Map<Integer, Element> elementsById = new LinkedHashMap<Integer, Element>();
+		Map<String, Element> elementsById = new LinkedHashMap<String, Element>();
 
 		for (Element element : elements) {
-			elementsById.put(Integer.parseInt(element.getId()), element);
+			elementsById.put(element.getId(), element);
 		}
 
 		int idColumn = UI.findColumn(this, TracingConstants.ID_COLUMN);
@@ -112,7 +112,7 @@ public class EditablePropertiesTable extends JTable {
 		int filterColumn = UI.findColumn(this, TracingConstants.FILTER_COLUMN);
 
 		for (int row = 0; row < getRowCount(); row++) {
-			int id = (Integer) getValueAt(row, idColumn);
+			String id = (String) getValueAt(row, idColumn);
 			Element element = elementsById.get(id);
 
 			if (caseColumn != -1) {

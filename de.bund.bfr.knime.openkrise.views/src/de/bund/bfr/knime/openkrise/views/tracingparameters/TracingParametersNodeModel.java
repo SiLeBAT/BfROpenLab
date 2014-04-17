@@ -99,27 +99,27 @@ public class TracingParametersNodeModel extends NodeModel {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
-		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);
-		Set<Integer> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
+		Set<String> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
 				nodeTable, edgeTable);
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), 0);
 
-		Map<Integer, Double> weights = new LinkedHashMap<Integer, Double>();
-		Set<Integer> crossNodes = new LinkedHashSet<Integer>();
-		Set<Integer> filterNodes = new LinkedHashSet<Integer>();
-		Set<Integer> filderEdges = new LinkedHashSet<Integer>();
-		Set<Integer> backwardNodes = new LinkedHashSet<Integer>();
-		Set<Integer> forwardNodes = new LinkedHashSet<Integer>();
-		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
-		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
+		Map<String, Double> weights = new LinkedHashMap<String, Double>();
+		Set<String> crossNodes = new LinkedHashSet<String>();
+		Set<String> filterNodes = new LinkedHashSet<String>();
+		Set<String> filderEdges = new LinkedHashSet<String>();
+		Set<String> backwardNodes = new LinkedHashSet<String>();
+		Set<String> forwardNodes = new LinkedHashSet<String>();
+		Set<String> backwardEdges = new LinkedHashSet<String>();
+		Set<String> forwardEdges = new LinkedHashSet<String>();
 
 		for (GraphNode node : nodes.values()) {
-			int id = Integer.parseInt(node.getId());
+			String id = node.getId();
 			Double weight = null;
 
 			if (set.getWeightConditionValue() != null) {
@@ -132,7 +132,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (weight != null && weight != 0.0) {
 				weights.put(id, weight);
-				tracing.setCase(id, weight);
+				tracing.setCase(Integer.parseInt(id), weight);
 			}
 
 			Boolean cross = null;
@@ -147,14 +147,14 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (cross != null && cross) {
 				crossNodes.add(id);
-				tracing.setCrossContamination(id, cross);
+				tracing.setCrossContamination(Integer.parseInt(id), cross);
 			}
 		}
 
 		tracing.fillDeliveries(set.isEnforeTemporalOrder());
 
 		for (GraphNode node : nodes.values()) {
-			int id = Integer.parseInt(node.getId());
+			String id = node.getId();
 			Boolean filter = null;
 
 			if (set.getFilterConditionValue() != null) {
@@ -167,15 +167,19 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filterNodes.add(id);
-				backwardNodes.addAll(tracing.getBackwardStations(id));
-				forwardNodes.addAll(tracing.getForwardStations(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+				backwardNodes.addAll(TracingUtilities.toString(tracing
+						.getBackwardStations(Integer.parseInt(id))));
+				forwardNodes.addAll(TracingUtilities.toString(tracing
+						.getForwardStations(Integer.parseInt(id))));
+				backwardEdges.addAll(TracingUtilities.toString(tracing
+						.getBackwardDeliveries(Integer.parseInt(id))));
+				forwardEdges.addAll(TracingUtilities.toString(tracing
+						.getForwardDeliveries(Integer.parseInt(id))));
 			}
 		}
 
 		for (Edge<GraphNode> edge : edges) {
-			int id = Integer.parseInt(edge.getId());
+			String id = edge.getId();
 			Boolean filter = null;
 
 			if (set.getEdgeFilterConditionValue() != null) {
@@ -188,10 +192,14 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filderEdges.add(id);
-				backwardNodes.addAll(tracing.getBackwardStations2(id));
-				forwardNodes.addAll(tracing.getForwardStations2(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+				backwardNodes.addAll(TracingUtilities.toString(tracing
+						.getBackwardStations2(Integer.parseInt(id))));
+				forwardNodes.addAll(TracingUtilities.toString(tracing
+						.getForwardStations2(Integer.parseInt(id))));
+				backwardEdges.addAll(TracingUtilities.toString(tracing
+						.getBackwardDeliveries2(Integer.parseInt(id))));
+				forwardEdges.addAll(TracingUtilities.toString(tracing
+						.getForwardDeliveries2(Integer.parseInt(id))));
 			}
 		}
 
@@ -202,7 +210,7 @@ public class TracingParametersNodeModel extends NodeModel {
 				.createDataContainer(nodeOutSpec);
 
 		for (DataRow row : nodeTable) {
-			int id = IO.getInt(row.getCell(nodeInSpec
+			String id = IO.getToCleanString(row.getCell(nodeInSpec
 					.findColumnIndex(TracingConstants.ID_COLUMN)));
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
@@ -218,7 +226,7 @@ public class TracingParametersNodeModel extends NodeModel {
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
 					.createCell(crossNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
-					.createCell(tracing.getStationScore(id));
+					.createCell(tracing.getStationScore(Integer.parseInt(id)));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
 					.createCell(filterNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
@@ -245,7 +253,7 @@ public class TracingParametersNodeModel extends NodeModel {
 				.createDataContainer(edgeOutSpec);
 
 		for (DataRow row : edgeTable) {
-			int id = IO.getInt(row.getCell(edgeInSpec
+			String id = IO.getToCleanString(row.getCell(edgeInSpec
 					.findColumnIndex(TracingConstants.ID_COLUMN)));
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
@@ -257,7 +265,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
 					.createCell(filderEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
-					.createCell(tracing.getDeliveryScore(id));
+					.createCell(tracing.getDeliveryScore(Integer.parseInt(id)));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
 					.createCell(backwardEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO

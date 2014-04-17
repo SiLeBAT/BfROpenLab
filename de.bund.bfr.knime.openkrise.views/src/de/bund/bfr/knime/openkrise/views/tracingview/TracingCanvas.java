@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
@@ -379,10 +381,10 @@ public class TracingCanvas extends GraphCanvas implements
 
 		for (Edge<GraphNode> edge : getVisibleEdges()) {
 			if (!isJoinEdges()) {
-				edgeIds.add(Integer.parseInt(edge.getId()));
+				edgeIds.add(getIntegerId(edge));
 			} else {
 				for (Edge<GraphNode> e : getJoinMap().get(edge)) {
-					edgeIds.add(Integer.parseInt(e.getId()));
+					edgeIds.add(getIntegerId(e));
 				}
 			}
 		}
@@ -397,21 +399,19 @@ public class TracingCanvas extends GraphCanvas implements
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), 0.0);
 
-		for (String metaNodeIdString : getCollapsedNodes().keySet()) {
-			int metaNodeId = Integer.parseInt(metaNodeIdString);
-			Set<String> nodeIdStrings = getCollapsedNodes().get(
-					metaNodeIdString).keySet();
+		for (String id : getCollapsedNodes().keySet()) {
+			Set<String> nodeIdStrings = getCollapsedNodes().get(id).keySet();
 			HashSet<Integer> nodeIds = new HashSet<Integer>();
 
 			for (String idString : nodeIdStrings) {
 				nodeIds.add(Integer.parseInt(idString));
 			}
 
-			tracing.mergeStations(nodeIds, metaNodeId);
+			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
 		}
 
 		for (GraphNode node : getVisibleNodes()) {
-			int id = Integer.parseInt(node.getId());
+			int id = getIntegerId(node);
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
@@ -438,7 +438,7 @@ public class TracingCanvas extends GraphCanvas implements
 		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
 
 		for (GraphNode node : getVisibleNodes()) {
-			int id = Integer.parseInt(node.getId());
+			int id = getIntegerId(node);
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
 
@@ -452,7 +452,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 		if (!isJoinEdges()) {
 			for (Edge<GraphNode> edge : getVisibleEdges()) {
-				int id = Integer.parseInt(edge.getId());
+				int id = getIntegerId(edge);
 				Boolean value = (Boolean) edge.getProperties().get(
 						TracingConstants.FILTER_COLUMN);
 
@@ -466,7 +466,7 @@ public class TracingCanvas extends GraphCanvas implements
 		}
 
 		for (GraphNode node : getNodes()) {
-			int id = Integer.parseInt(node.getId());
+			int id = getIntegerId(node);
 
 			node.getProperties().put(TracingConstants.SCORE_COLUMN,
 					tracing.getStationScore(id));
@@ -498,5 +498,21 @@ public class TracingCanvas extends GraphCanvas implements
 		}
 
 		applyHighlights();
+	}
+
+	private int getIntegerId(GraphNode node) {
+		if (getCollapsedNodes().containsKey(node.getId())) {
+			return createId(getCollapsedNodes().get(node.getId()).keySet());
+		} else {
+			return Integer.parseInt(node.getId());
+		}
+	}
+
+	private int getIntegerId(Edge<GraphNode> edge) {
+		return Integer.parseInt(edge.getId());
+	}
+
+	private static int createId(Collection<String> c) {
+		return KnimeUtilities.listToString(new ArrayList<String>(c)).hashCode();
 	}
 }

@@ -46,7 +46,7 @@ public class TracingViewCanvasCreator {
 	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
-	private Set<Integer> simpleSuppliers;
+	private Set<String> simpleSuppliers;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable, HashMap<Integer, MyDelivery> tracing,
@@ -115,7 +115,7 @@ public class TracingViewCanvasCreator {
 			edgeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
-		Map<Integer, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
 
 		if (nodes.isEmpty()) {
@@ -124,7 +124,7 @@ public class TracingViewCanvasCreator {
 
 		for (GraphNode node : nodes.values()) {
 			node.getProperties().put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
-					simpleSuppliers.contains(Integer.parseInt(node.getId())));
+					simpleSuppliers.contains(node.getId()));
 		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,

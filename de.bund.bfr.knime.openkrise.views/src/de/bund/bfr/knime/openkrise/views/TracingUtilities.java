@@ -80,10 +80,10 @@ public class TracingUtilities {
 		}
 	}
 
-	public static Set<Integer> getSimpleSuppliers(BufferedDataTable nodeTable,
+	public static Set<String> getSimpleSuppliers(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable) {
-		Map<Integer, Set<Integer>> customers = new LinkedHashMap<Integer, Set<Integer>>();
-		Set<Integer> simpleSuppliers = new LinkedHashSet<Integer>();
+		Map<String, Set<String>> customers = new LinkedHashMap<String, Set<String>>();
+		Set<String> simpleSuppliers = new LinkedHashSet<String>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
 				TracingConstants.ID_COLUMN);
 		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
@@ -93,13 +93,13 @@ public class TracingUtilities {
 
 		if (nodeIdIndex != -1 && edgeFromIndex != -1 && edgeToIndex != -1) {
 			for (DataRow row : nodeTable) {
-				customers.put(IO.getInt(row.getCell(nodeIdIndex)),
-						new LinkedHashSet<Integer>());
+				customers.put(IO.getToCleanString(row.getCell(nodeIdIndex)),
+						new LinkedHashSet<String>());
 			}
 
 			for (DataRow row : edgeTable) {
-				int from = IO.getInt(row.getCell(edgeFromIndex));
-				int to = IO.getInt(row.getCell(edgeToIndex));
+				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
+				String to = IO.getToCleanString(row.getCell(edgeToIndex));
 
 				customers.remove(to);
 
@@ -108,7 +108,7 @@ public class TracingUtilities {
 				}
 			}
 
-			for (int id : customers.keySet()) {
+			for (String id : customers.keySet()) {
 				if (customers.get(id).size() == 1) {
 					simpleSuppliers.add(id);
 				}
@@ -118,47 +118,41 @@ public class TracingUtilities {
 		return simpleSuppliers;
 	}
 
-	public static Map<Integer, GraphNode> readGraphNodes(
+	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
-		Map<Integer, GraphNode> nodes = new LinkedHashMap<Integer, GraphNode>();
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
+		Map<String, GraphNode> nodes = new LinkedHashMap<String, GraphNode>();
 
-		if (nodeIdIndex == -1) {
-			return nodes;
-		}
+		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
 
 		for (DataRow row : nodeTable) {
-			int id = IO.getInt(row.getCell(nodeIdIndex));
-			String region = null;
+			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec()
+					.findColumnIndex(TracingConstants.ID_COLUMN)));
 			Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
 			TracingUtilities.addToProperties(properties, nodeProperties,
 					nodeTable, row);
-			nodes.put(id, new GraphNode(id + "", properties, region));
+			properties.put(TracingConstants.ID_COLUMN, id);
+			nodes.put(id, new GraphNode(id, properties, null));
 		}
 
 		return nodes;
 	}
 
 	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
-			Map<String, Class<?>> edgeProperties, Map<Integer, GraphNode> nodes) {
+			Map<String, Class<?>> edgeProperties, Map<String, GraphNode> nodes) {
 		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>();
-		int idIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
-		int fromIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.FROM_COLUMN);
-		int toIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.TO_COLUMN);
 
-		if (fromIndex == -1 || toIndex == -1) {
-			return edges;
-		}
+		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
+		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
+		edgeProperties.put(TracingConstants.TO_COLUMN, String.class);
 
 		for (DataRow row : edgeTable) {
-			int id = IO.getInt(row.getCell(idIndex));
-			int from = IO.getInt(row.getCell(fromIndex));
-			int to = IO.getInt(row.getCell(toIndex));
+			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.ID_COLUMN)));
+			String from = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.FROM_COLUMN)));
+			String to = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.TO_COLUMN)));
 			GraphNode node1 = nodes.get(from);
 			GraphNode node2 = nodes.get(to);
 
@@ -167,11 +161,24 @@ public class TracingUtilities {
 
 				TracingUtilities.addToProperties(properties, edgeProperties,
 						edgeTable, row);
-				edges.add(new Edge<GraphNode>(id + "", properties, node1, node2));
+				properties.put(TracingConstants.ID_COLUMN, id);
+				properties.put(TracingConstants.FROM_COLUMN, from);
+				properties.put(TracingConstants.TO_COLUMN, to);
+				edges.add(new Edge<GraphNode>(id, properties, node1, node2));
 			}
 		}
 
 		return edges;
+	}
+
+	public static Set<String> toString(Set<?> set) {
+		Set<String> stringSet = new LinkedHashSet<String>();
+
+		for (Object o : set) {
+			stringSet.add(o.toString());
+		}
+
+		return stringSet;
 	}
 
 	private static void addToProperties(Map<String, Object> properties,
