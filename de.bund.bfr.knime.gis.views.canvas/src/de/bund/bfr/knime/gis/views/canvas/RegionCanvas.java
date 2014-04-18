@@ -61,8 +61,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private List<Edge<RegionNode>> allEdges;
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
-	private Set<RegionNode> invisibleNodes;
-	private Set<Edge<RegionNode>> invisibleEdges;
 
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
@@ -99,8 +97,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.nodes = new LinkedHashSet<RegionNode>(allNodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		setAllowEdges(allowEdges);
-		invisibleNodes = new LinkedHashSet<RegionNode>();
-		invisibleEdges = new LinkedHashSet<Edge<RegionNode>>();
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<RegionNode>(2,
@@ -147,14 +143,22 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		flushImage();
 		getViewer().repaint();
 
-		invisibleNodes.clear();
-		boolean changed1 = CanvasUtilities.applyEdgeHighlights(getViewer(),
-				edges, invisibleEdges, getEdgeHighlightConditions());
-		boolean changed2 = CanvasUtilities.applyEdgelessNodes(getViewer(),
-				nodes, edges, invisibleNodes, invisibleEdges,
-				isSkipEdgelessNodes());
+		Set<String> nodeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleEdges());
 
-		return changed1 || changed2;
+		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+				getEdgeHighlightConditions());
+		// TODO CanvasUtilities.applyEdgelessNodes();
+
+		Set<String> nodeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleEdges());
+
+		return !nodeIdsBefore.equals(nodeIdsAfter)
+				|| !edgeIdsBefore.equals(edgeIdsAfter);
 	}
 
 	@Override
@@ -311,18 +315,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Graph<RegionNode, Edge<RegionNode>> graph = new DirectedSparseMultigraph<RegionNode, Edge<RegionNode>>();
 
 		for (RegionNode node : nodes) {
-			if (!invisibleNodes.contains(node)) {
-				graph.addVertex(node);
-				layout.setLocation(node, node.getCenter());
-			}
+			graph.addVertex(node);
+			layout.setLocation(node, node.getCenter());
 		}
 
 		for (Edge<RegionNode> edge : edges) {
-			if (!invisibleEdges.contains(edge)
-					&& !invisibleNodes.contains(edge.getFrom())
-					&& !invisibleNodes.contains(edge.getTo())) {
-				graph.addEdge(edge, edge.getFrom(), edge.getTo());
-			}
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
 		layout.setGraph(graph);

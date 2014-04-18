@@ -119,7 +119,7 @@ public class CanvasUtilities {
 					CanvasUtilities.addMapToMap(prop, properties,
 							edge.getProperties());
 				}
-				
+
 				while (!usedIds.add(index + "")) {
 					index++;
 				}
@@ -140,7 +140,7 @@ public class CanvasUtilities {
 					prop.put(toProperty, to.getId());
 				} else if (properties.get(toProperty) == Integer.class) {
 					prop.put(toProperty, Integer.parseInt(to.getId()));
-				}				
+				}
 
 				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
 						.get(from).get(to));
@@ -285,25 +285,19 @@ public class CanvasUtilities {
 		}
 	}
 
-	public static <V extends Node> boolean applyNodeHighlights(
+	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
-			Collection<Edge<V>> edges, Collection<V> invisibleNodes,
-			Collection<Edge<V>> invisibleEdges,
 			HighlightConditionList nodeHighlightConditions, int nodeSize,
-			boolean nodesInvisibleDyDefault, boolean skipEdgelessNodes) {
+			boolean nodesInvisibleDyDefault) {
 		List<Color> colors = new ArrayList<Color>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<V, List<Double>>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<V, Double>();
 		Map<V, Set<String>> labelLists = new LinkedHashMap<V, Set<String>>();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		invisibleNodes.clear();
+		Set<V> invisibleNodes = new LinkedHashSet<V>();
 
 		if (nodesInvisibleDyDefault) {
 			invisibleNodes.addAll(nodes);
-		} else if (skipEdgelessNodes) {
-			invisibleNodes
-					.addAll(getEdgelessNodes(nodes, edges, invisibleEdges));
 		}
 
 		for (V node : nodes) {
@@ -378,36 +372,15 @@ public class CanvasUtilities {
 		}
 
 		Graph<V, Edge<V>> graph = viewer.getGraphLayout().getGraph();
-		boolean graphChanged = false;
 
 		for (V node : nodes) {
 			if (graph.containsVertex(node)) {
 				if (invisibleNodes.contains(node)) {
 					graph.removeVertex(node);
-					graphChanged = true;
 				}
 			} else {
 				if (!invisibleNodes.contains(node)) {
 					graph.addVertex(node);
-					graphChanged = true;
-				}
-			}
-		}
-
-		for (Edge<V> edge : edges) {
-			if (graph.containsEdge(edge)) {
-				if (invisibleEdges.contains(edge)
-						|| !graph.containsVertex(edge.getFrom())
-						|| !graph.containsVertex(edge.getFrom())) {
-					graph.removeEdge(edge);
-					graphChanged = true;
-				}
-			} else {
-				if (!invisibleEdges.contains(edge)
-						&& graph.containsVertex(edge.getFrom())
-						&& graph.containsVertex(edge.getTo())) {
-					graph.addEdge(edge, edge.getFrom(), edge.getTo());
-					graphChanged = true;
 				}
 			}
 		}
@@ -419,21 +392,17 @@ public class CanvasUtilities {
 		viewer.getRenderContext().setVertexLabelTransformer(
 				new LabelTransformer<V>(labels));
 		viewer.repaint();
-
-		return graphChanged;
 	}
 
-	public static <V extends Node> boolean applyEdgeHighlights(
+	public static <V extends Node> void applyEdgeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<Edge<V>> edges,
-			Collection<Edge<V>> invisibleEdges,
 			HighlightConditionList edgeHighlightConditions) {
 		List<Color> colors = new ArrayList<Color>();
 		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<Edge<V>, List<Double>>();
 		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<Edge<V>, Double>();
 		Map<Edge<V>, Set<String>> labelLists = new LinkedHashMap<Edge<V>, Set<String>>();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
-
-		invisibleEdges.clear();
+		Set<Edge<V>> invisibleEdges = new LinkedHashSet<Edge<V>>();
 
 		for (Edge<V> edge : edges) {
 			alphaValues.put(edge, new ArrayList<Double>());
@@ -503,20 +472,19 @@ public class CanvasUtilities {
 		}
 
 		Graph<V, Edge<V>> graph = viewer.getGraphLayout().getGraph();
-		boolean graphChanged = false;
 
 		for (Edge<V> edge : edges) {
 			if (graph.containsEdge(edge)) {
-				if (invisibleEdges.contains(edge)) {
+				if (invisibleEdges.contains(edge)
+						|| !graph.containsVertex(edge.getFrom())
+						|| !graph.containsVertex(edge.getTo())) {
 					graph.removeEdge(edge);
-					graphChanged = true;
 				}
 			} else {
 				if (!invisibleEdges.contains(edge)
 						&& graph.containsVertex(edge.getFrom())
 						&& graph.containsVertex(edge.getTo())) {
 					graph.addEdge(edge, edge.getFrom(), edge.getTo());
-					graphChanged = true;
 				}
 			}
 		}
@@ -528,37 +496,27 @@ public class CanvasUtilities {
 		viewer.getRenderContext().setEdgeLabelTransformer(
 				new LabelTransformer<Edge<V>>(labels));
 		viewer.repaint();
-
-		return graphChanged;
 	}
 
-	public static <V extends Node> boolean applyEdgelessNodes(
-			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
-			Collection<Edge<V>> edges, Collection<V> invisibleNodes,
-			Collection<Edge<V>> invisibleEdges, boolean skipEdgelessNodes) {
-		if (skipEdgelessNodes) {
-			invisibleNodes
-					.addAll(getEdgelessNodes(nodes, edges, invisibleEdges));
+	public static <V extends Node> void applyEdgelessNodes(
+			VisualizationViewer<V, Edge<V>> viewer, boolean skipEdgelessNodes) {
+		if (!skipEdgelessNodes) {
+			return;
+		}
+
+		Set<V> edgelessNodes = new LinkedHashSet<V>(viewer.getGraphLayout()
+				.getGraph().getVertices());
+
+		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
+			edgelessNodes.remove(edge.getFrom());
+			edgelessNodes.remove(edge.getTo());
 		}
 
 		Graph<V, Edge<V>> graph = viewer.getGraphLayout().getGraph();
-		boolean graphChanged = false;
 
-		for (V node : nodes) {
-			if (graph.containsVertex(node)) {
-				if (invisibleNodes.contains(node)) {
-					graph.removeVertex(node);
-					graphChanged = true;
-				}
-			} else {
-				if (!invisibleNodes.contains(node)) {
-					graph.addVertex(node);
-					graphChanged = true;
-				}
-			}
+		for (V node : edgelessNodes) {
+			graph.removeVertex(node);
 		}
-
-		return graphChanged;
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors,
@@ -617,20 +575,5 @@ public class CanvasUtilities {
 		}
 
 		return false;
-	}
-
-	private static <V extends Node> Set<V> getEdgelessNodes(
-			Collection<V> nodes, Collection<Edge<V>> edges,
-			Collection<Edge<V>> invisibleEdges) {
-		Set<V> edgelessNodes = new LinkedHashSet<V>(nodes);
-
-		for (Edge<V> edge : edges) {
-			if (!invisibleEdges.contains(edge)) {
-				edgelessNodes.remove(edge.getFrom());
-				edgelessNodes.remove(edge.getTo());
-			}
-		}
-
-		return edgelessNodes;
 	}
 }

@@ -84,8 +84,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private List<Edge<GraphNode>> allEdges;
 	private Set<GraphNode> nodes;
 	private Set<Edge<GraphNode>> edges;
-	private Set<GraphNode> invisibleNodes;
-	private Set<Edge<GraphNode>> invisibleEdges;
 	private Map<Edge<GraphNode>, Set<Edge<GraphNode>>> joinMap;
 
 	private Map<String, Map<String, Point2D>> collapsedNodes;
@@ -141,8 +139,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
-		invisibleNodes = new LinkedHashSet<GraphNode>();
-		invisibleEdges = new LinkedHashSet<Edge<GraphNode>>();
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = CanvasUtilities.createNewProperty(IS_META_NODE,
@@ -204,9 +200,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<GraphNode, Edge<GraphNode>>(
-				graph);
+				getViewer().getGraphLayout().getGraph());
 		Point2D upperLeft = toGraphCoordinates(0, 0);
 		Point2D upperRight = toGraphCoordinates(
 				getViewer().getPreferredSize().width, 0);
@@ -299,17 +294,24 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected boolean applyHighlights() {
-		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
-				nodes, edges, invisibleNodes, invisibleEdges,
-				getNodeHighlightConditions(), nodeSize, false,
-				isSkipEdgelessNodes());
-		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
-				edges, invisibleEdges, getEdgeHighlightConditions());
-		boolean changed3 = CanvasUtilities.applyEdgelessNodes(getViewer(),
-				nodes, edges, invisibleNodes, invisibleEdges,
-				isSkipEdgelessNodes());
+		Set<String> nodeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleEdges());
 
-		return changed1 || changed2 || changed3;
+		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+				getNodeHighlightConditions(), nodeSize, false);
+		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+				getEdgeHighlightConditions());
+		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
+
+		Set<String> nodeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleEdges());
+
+		return !nodeIdsBefore.equals(nodeIdsAfter)
+				|| !edgeIdsBefore.equals(edgeIdsAfter);
 	}
 
 	@Override
@@ -544,8 +546,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
 		edgeSaveMap.putAll(CanvasUtilities.getElementsById(edges));
-		invisibleNodes.clear();
-		invisibleEdges.clear();
 		getViewer().getGraphLayout().setGraph(createGraph());
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
@@ -628,17 +628,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Graph<GraphNode, Edge<GraphNode>> graph = new DirectedSparseMultigraph<GraphNode, Edge<GraphNode>>();
 
 		for (GraphNode node : nodes) {
-			if (!invisibleNodes.contains(node)) {
-				graph.addVertex(node);
-			}
+			graph.addVertex(node);
 		}
 
 		for (Edge<GraphNode> edge : edges) {
-			if (!invisibleEdges.contains(edge)
-					&& !invisibleNodes.contains(edge.getFrom())
-					&& !invisibleNodes.contains(edge.getTo())) {
-				graph.addEdge(edge, edge.getFrom(), edge.getTo());
-			}
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
 		return graph;

@@ -56,8 +56,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
-	private Set<LocationNode> invisibleNodes;
-	private Set<Edge<LocationNode>> invisibleEdges;
 
 	private int locationSize;
 	private JTextField locationSizeField;
@@ -104,12 +102,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		setAllowEdges(allowEdges);
 		locationSize = DEFAULT_LOCATIONSIZE;
-		invisibleNodes = new LinkedHashSet<LocationNode>();
-		invisibleEdges = new LinkedHashSet<Edge<LocationNode>>();
-
-		if (!allowEdges) {
-			invisibleNodes.addAll(this.nodes);
-		}
 
 		locationSizeField = new JTextField("" + locationSize, 5);
 		locationSizeButton = new JButton("Apply");
@@ -167,17 +159,24 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected boolean applyHighlights() {
-		boolean changed1 = CanvasUtilities.applyNodeHighlights(getViewer(),
-				nodes, edges, invisibleNodes, invisibleEdges,
-				getNodeHighlightConditions(), locationSize, !isAllowEdges(),
-				isSkipEdgelessNodes());
-		boolean changed2 = CanvasUtilities.applyEdgeHighlights(getViewer(),
-				edges, invisibleEdges, getEdgeHighlightConditions());
-		boolean changed3 = CanvasUtilities.applyEdgelessNodes(getViewer(),
-				nodes, edges, invisibleNodes, invisibleEdges,
-				isSkipEdgelessNodes());
+		Set<String> nodeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsBefore = CanvasUtilities
+				.getElementIds(getVisibleEdges());
 
-		return changed1 || changed2 || changed3;
+		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+				getNodeHighlightConditions(), locationSize, !isAllowEdges());
+		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+				getEdgeHighlightConditions());
+		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
+
+		Set<String> nodeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleNodes());
+		Set<String> edgeIdsAfter = CanvasUtilities
+				.getElementIds(getVisibleEdges());
+
+		return !nodeIdsBefore.equals(nodeIdsAfter)
+				|| !edgeIdsBefore.equals(edgeIdsAfter);
 	}
 
 	@Override
@@ -246,19 +245,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Graph<LocationNode, Edge<LocationNode>> graph = new DirectedSparseMultigraph<LocationNode, Edge<LocationNode>>();
 
 		for (LocationNode node : nodes) {
-			if (!invisibleNodes.contains(node)) {
-				graph.addVertex(node);
-			}
-
+			graph.addVertex(node);
 			layout.setLocation(node, node.getCenter());
 		}
 
 		for (Edge<LocationNode> edge : edges) {
-			if (!invisibleEdges.contains(edge)
-					&& !invisibleNodes.contains(edge.getFrom())
-					&& !invisibleNodes.contains(edge.getTo())) {
-				graph.addEdge(edge, edge.getFrom(), edge.getTo());
-			}
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
 		layout.setGraph(graph);
