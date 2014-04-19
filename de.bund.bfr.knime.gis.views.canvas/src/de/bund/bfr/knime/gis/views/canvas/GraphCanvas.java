@@ -397,7 +397,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		for (String id : selectedIds) {
 			Map<String, Point2D> removed = collapsedNodes.remove(id);
 			Point2D center = getViewer().getGraphLayout().transform(
-					nodeSaveMap.get(id));
+					nodeSaveMap.remove(id));
 
 			newIds.addAll(removed.keySet());
 
