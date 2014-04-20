@@ -149,7 +149,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
 				getEdgeHighlightConditions());
-		// TODO CanvasUtilities.applyEdgelessNodes();
+		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 
 		Set<String> nodeIdsAfter = CanvasUtilities
 				.getElementIds(getVisibleNodes());
