@@ -78,7 +78,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private TracingViewSettings set;
 
-	private JButton forgetConfigButton;
+	private JButton resetWeightsButton;
+	private JButton resetCrossButton;
+	private JButton resetFilterButton;
 	private JCheckBox enforceTempBox;
 	private JCheckBox exportAsSvgBox;
 
@@ -88,8 +90,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
 
-		forgetConfigButton = new JButton("Forget Tracing Config");
-		forgetConfigButton.addActionListener(this);
+		resetWeightsButton = new JButton("Reset Case Weights");
+		resetWeightsButton.addActionListener(this);
+		resetCrossButton = new JButton("Reset Cross Contamination");
+		resetCrossButton.addActionListener(this);
+		resetFilterButton = new JButton("Reset Filters");
+		resetFilterButton.addActionListener(this);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 		enforceTempBox.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
@@ -98,8 +104,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
-				forgetConfigButton, enforceTempBox, exportAsSvgBox)),
-				BorderLayout.NORTH);
+				resetWeightsButton, resetCrossButton, resetFilterButton,
+				enforceTempBox, exportAsSvgBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -158,10 +164,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == forgetConfigButton) {
+		if (e.getSource() == resetWeightsButton) {
 			updateSettings();
-			set.getCaseWeights().clear();
-			set.getCrossContaminations().clear();
+			set.getCaseWeights().clear();			
+			updateGraphCanvas(false);
+		} else if (e.getSource() == resetCrossButton) {
+			updateSettings();			
+			set.getCrossContaminations().clear();			
+			updateGraphCanvas(false);
+		} else if (e.getSource() == resetFilterButton) {
+			updateSettings();			
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
 			updateGraphCanvas(false);
