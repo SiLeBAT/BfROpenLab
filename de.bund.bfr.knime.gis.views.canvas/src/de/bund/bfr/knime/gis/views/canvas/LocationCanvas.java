@@ -41,7 +41,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
@@ -240,20 +239,18 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	private void createGraph() {
-		Layout<LocationNode, Edge<LocationNode>> layout = getViewer()
-				.getGraphLayout();
 		Graph<LocationNode, Edge<LocationNode>> graph = new DirectedSparseMultigraph<LocationNode, Edge<LocationNode>>();
 
 		for (LocationNode node : nodes) {
 			graph.addVertex(node);
-			layout.setLocation(node, node.getCenter());
+			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
 
 		for (Edge<LocationNode> edge : edges) {
 			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
-		layout.setGraph(graph);
+		getViewer().getGraphLayout().setGraph(graph);
 	}
 
 }

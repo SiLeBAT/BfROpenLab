@@ -45,7 +45,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
@@ -310,19 +309,17 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	private void createGraph() {
-		Layout<RegionNode, Edge<RegionNode>> layout = getViewer()
-				.getGraphLayout();
 		Graph<RegionNode, Edge<RegionNode>> graph = new DirectedSparseMultigraph<RegionNode, Edge<RegionNode>>();
 
 		for (RegionNode node : nodes) {
 			graph.addVertex(node);
-			layout.setLocation(node, node.getCenter());
+			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
 
 		for (Edge<RegionNode> edge : edges) {
 			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
-		layout.setGraph(graph);
+		getViewer().getGraphLayout().setGraph(graph);
 	}
 }

@@ -160,6 +160,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(nodeSize,
 						new LinkedHashMap<GraphNode, Double>()));
+		createGraph();
 		applyLayout();
 	}
 
@@ -546,7 +547,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
 		edgeSaveMap.putAll(CanvasUtilities.getElementsById(edges));
-		getViewer().getGraphLayout().setGraph(createGraph());
+		createGraph();
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
@@ -561,7 +562,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void applyLayout() {
-		Graph<GraphNode, Edge<GraphNode>> graph = createGraph();
+		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
+				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (layoutType.equals(CIRCLE_LAYOUT)) {
@@ -624,7 +626,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return new GraphNode(id, properties, null);
 	}
 
-	private Graph<GraphNode, Edge<GraphNode>> createGraph() {
+	private void createGraph() {
 		Graph<GraphNode, Edge<GraphNode>> graph = new DirectedSparseMultigraph<GraphNode, Edge<GraphNode>>();
 
 		for (GraphNode node : nodes) {
@@ -635,6 +637,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
-		return graph;
+		getViewer().getGraphLayout().setGraph(graph);
 	}
 }
