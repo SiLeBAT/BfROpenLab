@@ -27,6 +27,7 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,53 +43,49 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 	private DJep parser;
 	private Node function;
-	private String[] parameters;
-	private Node[] derivatives;
-	private String[] arguments;
-	private double[][] argumentValues;
-	private double[] targetValues;
+	private List<String> parameters;
+	private Map<String, Node> derivatives;
+	private Map<String, List<Double>> argumentValues;
+	private int dimension;
 
 	private List<List<Integer>> changeLists;
 
 	public VectorFunctionJacobian(String formula, List<String> parameters,
-			Map<String, List<Double>> argumentValues, List<Double> targetValues)
-			throws ParseException {
-		this.parameters = parameters.toArray(new String[0]);
-		this.arguments = argumentValues.keySet().toArray(new String[0]);
-		this.argumentValues = new double[targetValues.size()][argumentValues
-				.size()];
-		this.targetValues = new double[targetValues.size()];
-
-		for (int i = 0; i < targetValues.size(); i++) {
-			this.targetValues[i] = targetValues.get(i);
-			int j = 0;
-
-			for (List<Double> value : argumentValues.values()) {
-				this.argumentValues[i][j] = value.get(i);
-				j++;
-			}
-		}
+			Map<String, List<Double>> argumentValues) throws ParseException {
+		this.parameters = parameters;
+		this.argumentValues = argumentValues;
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
 				argumentValues.keySet()));
 		function = parser.parse(formula);
-		derivatives = new Node[parameters.size()];
-		changeLists = createChangeLists();
+		derivatives = new LinkedHashMap<String, Node>();
+		changeLists = createChangeLists(argumentValues.size());
 
-		for (int i = 0; i < parameters.size(); i++) {
-			derivatives[i] = parser.differentiate(function, parameters.get(i));
+		for (String param : parameters) {
+			derivatives.put(param, parser.differentiate(function, param));
+		}
+
+		for (List<Double> values : argumentValues.values()) {
+			dimension = values.size();
+			break;
 		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		double[][] retValue = new double[targetValues.length][parameters.length];
+		double[][] retValue = new double[dimension][parameters.size()];
 
 		try {
-			for (int i = 0; i < targetValues.length; i++) {
-				for (int j = 0; j < derivatives.length; j++) {
-					retValue[i][j] = evalWithSingularityCheck(j,
-							argumentValues[i], point);
+			Map<String, Double> paramValues = new LinkedHashMap<String, Double>();
+
+			for (int i = 0; i < parameters.size(); i++) {
+				paramValues.put(parameters.get(i), point[i]);
+			}
+
+			for (int i = 0; i < dimension; i++) {
+				for (int j = 0; j < parameters.size(); j++) {
+					retValue[i][j] = evalWithSingularityCheck(
+							parameters.get(j), paramValues, i);
 				}
 			}
 		} catch (ParseException e) {
@@ -98,20 +95,25 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return retValue;
 	}
 
-	private double evalWithSingularityCheck(int index, double[] argValues,
-			double[] paramValues) throws ParseException {
-		for (int i = 0; i < parameters.length; i++) {
-			parser.setVarValue(parameters[i], paramValues[i]);
+	private double evalWithSingularityCheck(String param,
+			Map<String, Double> paramValues, int index) throws ParseException {
+		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
+			parser.setVarValue(entry.getKey(), entry.getValue());
 		}
 
 		for (List<Integer> list : changeLists) {
-			for (int i = 0; i < arguments.length; i++) {
+			int i = 0;
+
+			for (Map.Entry<String, List<Double>> entry : argumentValues
+					.entrySet()) {
 				double d = list.get(i) * EPSILON;
 
-				parser.setVarValue(arguments[i], argValues[i] + d);
+				parser.setVarValue(entry.getKey(), entry.getValue().get(index)
+						+ d);
+				i++;
 			}
 
-			Object number = parser.evaluate(derivatives[index]);
+			Object number = parser.evaluate(derivatives.get(param));
 
 			if (MathUtilities.isValidDouble(number)) {
 				return (Double) number;
@@ -119,17 +121,22 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		}
 
 		for (List<Integer> list : changeLists) {
-			for (int i = 0; i < arguments.length; i++) {
+			int i = 0;
+
+			for (Map.Entry<String, List<Double>> entry : argumentValues
+					.entrySet()) {
 				double d = list.get(i) * EPSILON;
 
-				parser.setVarValue(arguments[i], argValues[i] + d);
+				parser.setVarValue(entry.getKey(), entry.getValue().get(index)
+						+ d);
+				i++;
 			}
 
-			parser.setVarValue(parameters[index], paramValues[index] - EPSILON);
+			parser.setVarValue(param, paramValues.get(param) - EPSILON);
 
 			Object number1 = parser.evaluate(function);
 
-			parser.setVarValue(parameters[index], paramValues[index] + EPSILON);
+			parser.setVarValue(param, paramValues.get(param) + EPSILON);
 
 			Object number2 = parser.evaluate(function);
 
@@ -142,8 +149,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return Double.NaN;
 	}
 
-	private List<List<Integer>> createChangeLists() {
-		int n = arguments.length;
+	private static List<List<Integer>> createChangeLists(int n) {
 		boolean done = false;
 		List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
 		List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n, -1));

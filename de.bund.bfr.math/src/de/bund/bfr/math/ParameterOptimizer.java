@@ -343,7 +343,7 @@ public class ParameterOptimizer {
 		VectorFunction optimizerFunction = new VectorFunction(formula,
 				parameters, argumentValues);
 		VectorFunctionJacobian optimizerFunctionJacobian = new VectorFunctionJacobian(
-				formula, parameters, argumentValues, targetValues);
+				formula, parameters, argumentValues);
 
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
