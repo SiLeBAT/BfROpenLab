@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-import de.bund.bfr.knime.gis.shapecell.ShapeCell;
+import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeValue;
 
 /**
@@ -60,7 +60,7 @@ public class GisUtilities {
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
 
 		for (DataColumnSpec column : spec) {
-			if (column.getType() == ShapeCell.TYPE) {
+			if (column.getType() == ShapeBlobCell.TYPE) {
 				columns.add(column);
 			}
 		}

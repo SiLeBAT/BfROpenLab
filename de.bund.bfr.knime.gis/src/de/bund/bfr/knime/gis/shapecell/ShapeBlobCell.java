@@ -25,12 +25,15 @@ package de.bund.bfr.knime.gis.shapecell;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellSerializer;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.container.BlobDataCell;
 
 import com.vividsolutions.jts.geom.Geometry;
 
 public class ShapeBlobCell extends BlobDataCell implements ShapeValue {
+
+	public static final DataType TYPE = DataType.getType(ShapeBlobCell.class);
 
 	private static final long serialVersionUID = 1L;
 

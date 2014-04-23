@@ -37,7 +37,6 @@ public class ShapeCellFactory {
 			throw new NullPointerException("Shape must not be null");
 		}
 
-		// TODO add a reasonable size check
 		return new ShapeBlobCell(shape);
 	}
 }

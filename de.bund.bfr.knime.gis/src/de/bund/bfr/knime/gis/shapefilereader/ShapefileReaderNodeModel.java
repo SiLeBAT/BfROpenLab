@@ -66,7 +66,7 @@ import org.opengis.referencing.operation.MathTransform;
 import com.vividsolutions.jts.geom.Geometry;
 
 import de.bund.bfr.knime.KnimeUtilities;
-import de.bund.bfr.knime.gis.shapecell.ShapeCell;
+import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
 
 /**
@@ -243,7 +243,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		for (Property p : feature.getProperties()) {
 			if (p.getValue() instanceof Geometry) {
 				columns.add(new DataColumnSpecCreator(p.getName().toString(),
-						ShapeCell.TYPE).createSpec());
+						ShapeBlobCell.TYPE).createSpec());
 			} else {
 				columns.add(new DataColumnSpecCreator(p.getName().toString(),
 						StringCell.TYPE).createSpec());
