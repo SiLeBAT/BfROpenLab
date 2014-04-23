@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="de.bund.bfr.knime.sbml.feature"
-      label="SBML"
+      label="KNIME Nodes for Reading Predictive Microbial Models from SBML"
       version="1.0.0.qualifier"
       provider-name="Federal Institute for Risk Assessment (BfR)">
 

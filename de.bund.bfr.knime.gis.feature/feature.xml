@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="de.bund.bfr.knime.gis.feature"
-      label="KNIME GIS Nodes"
+      label="KNIME Nodes for GIS and Graph Visualization"
       version="1.0.0.qualifier"
       provider-name="Federal Institute for Risk Assessment (BfR)">
 
