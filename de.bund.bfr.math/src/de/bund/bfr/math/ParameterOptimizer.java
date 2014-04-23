@@ -341,7 +341,7 @@ public class ParameterOptimizer {
 		}
 
 		VectorFunction optimizerFunction = new VectorFunction(formula,
-				parameters, argumentValues, targetValues);
+				parameters, argumentValues);
 		VectorFunctionJacobian optimizerFunctionJacobian = new VectorFunctionJacobian(
 				formula, parameters, argumentValues, targetValues);
 

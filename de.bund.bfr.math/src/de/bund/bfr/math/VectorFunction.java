@@ -37,47 +37,38 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 	private DJep parser;
 	private Node function;
-	private String[] parameters;
-	private String[] arguments;
-	private double[][] argumentValues;
-	private double[] targetValues;
+	private List<String> parameters;
+	private Map<String, List<Double>> argumentValues;
+	private int dimension;
 
 	public VectorFunction(String formula, List<String> parameters,
-			Map<String, List<Double>> argumentValues, List<Double> targetValues)
-			throws ParseException {
-		this.parameters = parameters.toArray(new String[0]);
-		this.arguments = argumentValues.keySet().toArray(new String[0]);
-		this.argumentValues = new double[targetValues.size()][argumentValues
-				.size()];
-		this.targetValues = new double[targetValues.size()];
-
-		for (int i = 0; i < targetValues.size(); i++) {
-			this.targetValues[i] = targetValues.get(i);
-			int j = 0;
-
-			for (List<Double> value : argumentValues.values()) {
-				this.argumentValues[i][j] = value.get(i);
-				j++;
-			}
-		}
+			Map<String, List<Double>> argumentValues) throws ParseException {
+		this.parameters = parameters;
+		this.argumentValues = argumentValues;
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
 				argumentValues.keySet()));
 		function = parser.parse(formula);
+
+		for (List<Double> values : argumentValues.values()) {
+			dimension = values.size();
+			break;
+		}
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		double[] retValue = new double[targetValues.length];
+		double[] retValue = new double[dimension];
 
-		for (int i = 0; i < parameters.length; i++) {
-			parser.setVarValue(parameters[i], point[i]);
+		for (int i = 0; i < parameters.size(); i++) {
+			parser.setVarValue(parameters.get(i), point[i]);
 		}
 
 		try {
-			for (int i = 0; i < targetValues.length; i++) {
-				for (int j = 0; j < arguments.length; j++) {
-					parser.setVarValue(arguments[j], argumentValues[i][j]);
+			for (int i = 0; i < dimension; i++) {
+				for (Map.Entry<String, List<Double>> entry : argumentValues
+						.entrySet()) {
+					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
 				}
 
 				Object number = parser.evaluate(function);
