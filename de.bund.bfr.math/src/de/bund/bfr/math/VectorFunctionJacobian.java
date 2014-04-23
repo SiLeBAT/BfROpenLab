@@ -45,21 +45,18 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 	private Node function;
 	private List<String> parameters;
 	private Map<String, Node> derivatives;
-	private Map<String, List<Double>> argumentValues;
+	private List<Map<String, List<Double>>> argumentValues;
 	private int dimension;
-
-	private List<List<Integer>> changeLists;
 
 	public VectorFunctionJacobian(String formula, List<String> parameters,
 			Map<String, List<Double>> argumentValues) throws ParseException {
 		this.parameters = parameters;
-		this.argumentValues = argumentValues;
+		this.argumentValues = createChangeLists(argumentValues);
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
 				argumentValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<String, Node>();
-		changeLists = createChangeLists(argumentValues.size());
 
 		for (String param : parameters) {
 			derivatives.put(param, parser.differentiate(function, param));
@@ -101,16 +98,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			parser.setVarValue(entry.getKey(), entry.getValue());
 		}
 
-		for (List<Integer> list : changeLists) {
-			int i = 0;
-
-			for (Map.Entry<String, List<Double>> entry : argumentValues
-					.entrySet()) {
-				double d = list.get(i) * EPSILON;
-
-				parser.setVarValue(entry.getKey(), entry.getValue().get(index)
-						+ d);
-				i++;
+		for (Map<String, List<Double>> argValues : argumentValues) {
+			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
 			}
 
 			Object number = parser.evaluate(derivatives.get(param));
@@ -120,16 +110,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		}
 
-		for (List<Integer> list : changeLists) {
-			int i = 0;
-
-			for (Map.Entry<String, List<Double>> entry : argumentValues
-					.entrySet()) {
-				double d = list.get(i) * EPSILON;
-
-				parser.setVarValue(entry.getKey(), entry.getValue().get(index)
-						+ d);
-				i++;
+		for (Map<String, List<Double>> argValues : argumentValues) {
+			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
 			}
 
 			parser.setVarValue(param, paramValues.get(param) - EPSILON);
@@ -149,7 +132,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return Double.NaN;
 	}
 
-	private static List<List<Integer>> createChangeLists(int n) {
+	private static List<Map<String, List<Double>>> createChangeLists(
+			Map<String, List<Double>> argumentValues) {
+		int n = argumentValues.size();
 		boolean done = false;
 		List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
 		List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n, -1));
@@ -202,6 +187,27 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		});
 
-		return changeLists;
+		List<Map<String, List<Double>>> result = new ArrayList<Map<String, List<Double>>>();
+
+		for (List<Integer> changeList : changeLists) {
+			Map<String, List<Double>> newArgumentValues = new LinkedHashMap<String, List<Double>>();
+			int i = 0;
+
+			for (String arg : argumentValues.keySet()) {
+				List<Double> newValues = new ArrayList<Double>();
+				double d = changeList.get(i) * EPSILON;
+
+				for (double v : argumentValues.get(arg)) {
+					newValues.add(v + d);
+				}
+
+				newArgumentValues.put(arg, newValues);
+				i++;
+			}
+
+			result.add(newArgumentValues);
+		}
+
+		return result;
 	}
 }
