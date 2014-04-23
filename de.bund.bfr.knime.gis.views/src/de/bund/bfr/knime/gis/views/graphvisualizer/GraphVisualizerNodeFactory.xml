@@ -79,6 +79,24 @@
             <option name="Edge Selection -> Highlight Selected">
             	Opens a dialog to help the user highlight all selected edges. 
             </option>
+            <option name="Node Highlighting -> Edit">
+            	Opens a dialog to add, remove and edit Highlight Conditions for nodes. 
+            </option>
+            <option name="Node Highlighting -> Clear">
+            	Removes all Highlight Conditions for nodes.
+            </option>
+            <option name="Node Highlighting -> Select Highlighted">
+            	All nodes that have non zero values for the specified Highlight Condition will be selected.
+            </option>
+            <option name="Edge Highlighting -> Edit">
+            	Opens a dialog to add, remove and edit Highlight Conditions for edges. 
+            </option>
+            <option name="Edge Highlighting -> Clear">
+            	Removes all Highlight Conditions for edges.
+            </option>
+            <option name="Edge Highlighting -> Select Highlighted">
+            	All edge that have non zero values for the specified Highlight Condition will be selected.
+            </option>
         </tab>        
         <tab name="Highlight Condition Dialog">
             <option name="Type">
