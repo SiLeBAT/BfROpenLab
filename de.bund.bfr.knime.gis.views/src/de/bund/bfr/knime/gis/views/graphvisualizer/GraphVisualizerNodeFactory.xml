@@ -100,11 +100,12 @@
         </tab>        
         <tab name="Highlight Condition Dialog">
             <option name="Type">
-            	Type of the condition. One option is a logical condition, which is an And/Or conjunction of logical 
+            	Type of the condition. A logical condition is an And/Or conjunction of logical 
             	expressions like "City == Berlin" or "Inhabitants > 10". It can only be true or false. In the
-            	"Logical Condition"-section it is shown how to create a logical condition. The other option is a 
-            	value condition, for example "Log value of Inhabitants". In the "Value Condition"-section it is shown
-            	how to create a value condition.
+            	"Logical Condition"-section it is shown how to create a logical condition. A value condition uses
+            	numerical properties, for example "Log value of Inhabitants". In the "Value Condition"-section it is shown
+            	how to create a value condition. A logical value condition is a value condition that is
+            	only applied to elements, for which the logical condition is true.
             </option>
             <option name="Color">
             	Color of the highlighted elements. For a logical conditions all true elements are painted. For a value
@@ -141,27 +142,21 @@
         </tab>
     </fullDescription>
     
-    <ports>
-        <inPort index="0" name="Shapefile">
-        	Shapefile to visualize.
-       	</inPort>
-        <inPort index="1" name="Node Table">
+    <ports>        
+        <inPort index="0" name="Node Table">
         	Table with node data.
        	</inPort>
-        <inPort index="2" name="Edge Table">
+        <inPort index="1" name="Edge Table">
             Table with edge data.
         </inPort>
-        <inPort index="3" name="Settings">
-            Configure Settings.
+        <inPort index="2" name="Settings">
+            Optional port with settings.
         </inPort>
        	<outPort index="0" name="Graph Image">
         	Image of the Graph.
-        </outPort>         
-        <outPort index="1" name="Geographical Image">
-        	Geographical Image of the Graph.
-        </outPort>
-        <outPort index="2" name="Settings">
-            Configure Settings.
+        </outPort>                 
+        <outPort index="1" name="Settings">
+            Settings Output.
         </outPort>
     </ports>
 </knimeNode>
