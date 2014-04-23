@@ -100,12 +100,8 @@
         </tab>        
         <tab name="Highlight Condition Dialog">
             <option name="Type">
-            	Type of the condition. A logical condition is an And/Or conjunction of logical 
-            	expressions like "City == Berlin" or "Inhabitants > 10". It can only be true or false. In the
-            	"Logical Condition"-section it is shown how to create a logical condition. A value condition uses
-            	numerical properties, for example "Log value of Inhabitants". In the "Value Condition"-section it is shown
-            	how to create a value condition. A logical value condition is a value condition that is
-            	only applied to elements, for which the logical condition is true.
+            	Type of the condition: "Logical Condition", "Value Condition" or "Logical Value Condition".
+            	Types are explained in the sections below.            	
             </option>
             <option name="Color">
             	Color of the highlighted elements. For a logical conditions all true elements are painted. For a value
@@ -117,8 +113,12 @@
             </option>     
         </tab>
         <tab name="Logical Condition">
+        	<option name="">
+        		A logical condition is an And/Or conjunction of logical expressions like "City == Berlin"
+        		or "Inhabitants > 10". It can only be true or false.
+        	</option>        	
        		<option name="And/Or">
-            	When a logical conditions consists of multiple expressions, And/Or conjunctions between these expressions
+            	When a logical condition consists of multiple expressions, And/Or conjunctions between these expressions
             	must be specified. "And"-conjunctions will be evaluated before "Or"-conjunctions.
             </option>
             <option name="Property">
@@ -132,6 +132,9 @@
             </option>
         </tab>
         <tab name="Value Condition">
+        	<option name="">
+        		A value condition uses numerical properties, for example "Log value of Inhabitants".
+            </option>
         	<option name="Property">
             	Property of the value condition.
             </option>
@@ -140,6 +143,12 @@
             	is applied to all property values, before visualizing. For "Value" no function is applied.
             </option>    	
         </tab>
+        <tab name="Value Condition">
+        	<option name="">
+        		A logical value condition is a value condition that is only applied to elements, for which the logical condition is true.
+            </option>        	
+        </tab>
+        
     </fullDescription>
     
     <ports>        
