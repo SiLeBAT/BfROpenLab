@@ -65,6 +65,29 @@ public class Test {
 
 	private static void diff() throws ParseException {
 		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
+		List<String> parameters = Arrays.asList("Dref", "Tref", "z");
+		List<Double> timeValues = new ArrayList<Double>();
+		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
+
+		variableValues.put("T", new ArrayList<Double>());
+
+		for (int i = 0; i < 100; i++) {
+			timeValues.add((double) i);
+			variableValues.get("T").add(20 + 0.1 * i);
+		}
+
+		VectorDiffFunction f = new VectorDiffFunction(formula, parameters, "y",
+				"time", timeValues, variableValues, 10.0);
+		double[] result = f.value(new double[] { 10.0, 30.0, 10.0 });
+
+		for (double v : result) {
+			System.out.print(v + ",");
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static void diff2() throws ParseException {
+		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
 		Map<String, Double> paramValues = new LinkedHashMap<String, Double>();
 		List<Double> timeValues = new ArrayList<Double>();
 		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
@@ -86,7 +109,7 @@ public class Test {
 		List<Double> values = new ArrayList<Double>();
 		double[] mem = new double[1];
 		double y = 10.0;
-		double t0 = 0.0;		
+		double t0 = 0.0;
 
 		for (int i = 0; i < 100; i++) {
 			integrator

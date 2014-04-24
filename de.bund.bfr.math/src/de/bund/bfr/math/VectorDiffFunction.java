@@ -29,87 +29,69 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.MaxCountExceededException;
-import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class DiffFunction implements FirstOrderDifferentialEquations {
+public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	private DJep parser;
 	private Node function;
-	private String valueVariable;
+	private List<String> parameters;
+	private String dependentVariable;
 	private String timeVariable;
 	private List<Double> timeValues;
 	private Map<String, List<Double>> variableValues;
+	private double initialValue;
 
-	public DiffFunction(String formula, Map<String, Double> paramValues,
+	public VectorDiffFunction(String formula, List<String> parameters,
 			String valueVariable, String timeVariable, List<Double> timeValues,
-			Map<String, List<Double>> variableValues) throws ParseException {
-		this.valueVariable = valueVariable;
+			Map<String, List<Double>> variableValues, double initialValue)
+			throws ParseException {
+		this.parameters = parameters;
+		this.dependentVariable = valueVariable;
 		this.timeVariable = timeVariable;
 		this.timeValues = timeValues;
 		this.variableValues = variableValues;
+		this.initialValue = initialValue;
 
 		Set<String> variables = new LinkedHashSet<String>();
 
 		variables.add(valueVariable);
 		variables.add(timeVariable);
 		variables.addAll(variableValues.keySet());
-		variables.addAll(paramValues.keySet());
+		variables.addAll(parameters);
 
 		parser = MathUtilities.createParser(variables);
 		function = parser.parse(formula);
-
-		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue());
-		}
-	}
-
-	public DiffFunction(DJep parser, Node function, String dependentVariable,
-			String timeVariable, List<Double> timeValues,
-			Map<String, List<Double>> variableValues) {
-		this.parser = parser;
-		this.function = function;
-		this.valueVariable = dependentVariable;
-		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
-		this.variableValues = variableValues;
 	}
 
 	@Override
-	public void computeDerivatives(double t, double[] y, double[] yDot)
-			throws MaxCountExceededException, DimensionMismatchException {
-		int index;
+	public double[] value(double[] point) throws IllegalArgumentException {
+		double[] result = new double[timeValues.size()];
 
-		for (index = 0; index < timeValues.size() - 1; index++) {
-			if (t < timeValues.get(index + 1)) {
-				break;
-			}
+		for (int i = 0; i < parameters.size(); i++) {
+			parser.setVarValue(parameters.get(i), point[i]);
 		}
 
-		parser.setVarValue(valueVariable, y[0]);
-		parser.setVarValue(timeVariable, t);
+		DiffFunction f = new DiffFunction(parser, function, dependentVariable,
+				timeVariable, timeValues, variableValues);
+		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
+				0.01);
+		double time = 0.0;
+		double[] value = { initialValue };
 
-		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue().get(index));
+		result[0] = initialValue;
+
+		for (int i = 1; i < timeValues.size(); i++) {
+			integrator.integrate(f, time, value, timeValues.get(i), value);
+			time = timeValues.get(i);
+			result[i] = value[0];
 		}
 
-		try {
-			Object number = parser.evaluate(function);
-
-			if (MathUtilities.isValidDouble(number)) {
-				yDot[0] = (Double) number;
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		return result;
 	}
 
-	@Override
-	public int getDimension() {
-		return 1;
-	}
 }
