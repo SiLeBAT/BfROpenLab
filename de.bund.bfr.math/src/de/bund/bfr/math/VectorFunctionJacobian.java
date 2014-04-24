@@ -51,7 +51,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 	public VectorFunctionJacobian(String formula, List<String> parameters,
 			Map<String, List<Double>> argumentValues) throws ParseException {
 		this.parameters = parameters;
-		this.argumentValues = createChangeLists(argumentValues);
+		this.argumentValues = createArgumentVariationList(argumentValues);
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
 				argumentValues.keySet()));
@@ -132,15 +132,16 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return Double.NaN;
 	}
 
-	private static List<Map<String, List<Double>>> createChangeLists(
+	private static List<Map<String, List<Double>>> createArgumentVariationList(
 			Map<String, List<Double>> argumentValues) {
 		int n = argumentValues.size();
 		boolean done = false;
-		List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
-		List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n, -1));
+		List<List<Integer>> variationList = new ArrayList<List<Integer>>();
+		List<Integer> variation = new ArrayList<Integer>(Collections.nCopies(n,
+				-1));
 
 		while (!done) {
-			changeLists.add(new ArrayList<Integer>(list));
+			variationList.add(new ArrayList<Integer>(variation));
 
 			for (int i = 0;; i++) {
 				if (i >= n) {
@@ -148,17 +149,17 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 					break;
 				}
 
-				list.set(i, list.get(i) + 1);
+				variation.set(i, variation.get(i) + 1);
 
-				if (list.get(i) > 1) {
-					list.set(i, -1);
+				if (variation.get(i) > 1) {
+					variation.set(i, -1);
 				} else {
 					break;
 				}
 			}
 		}
 
-		Collections.sort(changeLists, new Comparator<List<Integer>>() {
+		Collections.sort(variationList, new Comparator<List<Integer>>() {
 
 			@Override
 			public int compare(List<Integer> l1, List<Integer> l2) {
@@ -187,9 +188,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		});
 
-		List<Map<String, List<Double>>> result = new ArrayList<Map<String, List<Double>>>();
+		List<Map<String, List<Double>>> argumentVariationList = new ArrayList<Map<String, List<Double>>>();
 
-		for (List<Integer> changeList : changeLists) {
+		for (List<Integer> changeList : variationList) {
 			Map<String, List<Double>> newArgumentValues = new LinkedHashMap<String, List<Double>>();
 			int i = 0;
 
@@ -205,9 +206,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 				i++;
 			}
 
-			result.add(newArgumentValues);
+			argumentVariationList.add(newArgumentValues);
 		}
 
-		return result;
+		return argumentVariationList;
 	}
 }
