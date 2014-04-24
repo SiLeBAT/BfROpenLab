@@ -64,27 +64,33 @@ public class Test {
 	}
 
 	private static void diff() throws ParseException {
-		String formula = "-1/Dref*exp(ln(10)/z*(T0+time*Trate-Tref))*y";
+		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
 		Map<String, Double> paramValues = new LinkedHashMap<String, Double>();
+		List<Double> timeValues = new ArrayList<Double>();
+		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
 
 		paramValues.put("Dref", 10.0);
 		paramValues.put("Tref", 30.0);
 		paramValues.put("z", 10.0);
-		paramValues.put("T0", 20.0);
-		paramValues.put("Trate", 1.0);
+		variableValues.put("T", new ArrayList<Double>());
 
-		DiffFunction2 f = new DiffFunction2(formula, paramValues, "y", "time");
+		for (int i = 0; i < 100; i++) {
+			timeValues.add((double) i);
+			variableValues.get("T").add(20 + 0.1 * i);
+		}
+
+		DiffFunction f = new DiffFunction(formula, paramValues, "y", "time",
+				timeValues, variableValues);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		List<Double> values = new ArrayList<Double>();
 		double[] mem = new double[1];
 		double y = 10.0;
-		double t0 = 0.0;
-		double tStep = 1.0;
+		double t0 = 0.0;		
 
 		for (int i = 0; i < 100; i++) {
-			integrator.integrate(f, t0 + i * tStep, new double[] { y }, t0
-					+ (i + 1) * tStep, mem);
+			integrator
+					.integrate(f, t0 + i, new double[] { y }, t0 + i + 1, mem);
 			values.add(mem[0]);
 			y = mem[0];
 		}
