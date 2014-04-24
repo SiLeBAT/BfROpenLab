@@ -73,6 +73,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			List<Double> timeValues, Map<String, List<Double>> variableValues,
 			double initialValue) {
 		this.parser = parser;
+		this.function = function;
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
 		this.timeVariable = timeVariable;

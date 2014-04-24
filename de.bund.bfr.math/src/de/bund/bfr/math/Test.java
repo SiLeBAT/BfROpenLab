@@ -71,7 +71,7 @@ public class Test {
 
 		variableValues.put("T", new ArrayList<Double>());
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			timeValues.add((double) i);
 			variableValues.get("T").add(20 + 0.1 * i);
 		}
@@ -82,6 +82,19 @@ public class Test {
 
 		for (double v : result) {
 			System.out.print(v + ",");
+		}
+
+		System.out.println();
+
+		VectorDiffFunctionJacobian f2 = new VectorDiffFunctionJacobian(formula,
+				parameters, "y", "time", timeValues, variableValues, 10.0);
+		double[][] result2 = f2.value(new double[] { 10.0, 30.0, 10.0 });
+
+		for (int j = 0; j < parameters.size(); j++) {
+			for (int i = 0; i < timeValues.size(); i++) {
+				System.out.print(result2[i][j] + "\t");
+			}
+			System.out.println();
 		}
 	}
 
