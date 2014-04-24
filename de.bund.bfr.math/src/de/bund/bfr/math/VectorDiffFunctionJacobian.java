@@ -29,13 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.math3.analysis.MultivariateVectorFunction;
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorDiffFunction implements MultivariateVectorFunction {
+public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
+
+	private static final double EPSILON = 0.00001;
 
 	private DJep parser;
 	private Node function;
@@ -46,7 +47,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Map<String, List<Double>> variableValues;
 	private double initialValue;
 
-	public VectorDiffFunction(String formula, List<String> parameters,
+	public VectorDiffFunctionJacobian(String formula, List<String> parameters,
 			String valueVariable, String timeVariable, List<Double> timeValues,
 			Map<String, List<Double>> variableValues, double initialValue)
 			throws ParseException {
@@ -68,43 +69,30 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		function = parser.parse(formula);
 	}
 
-	public VectorDiffFunction(DJep parser, Node function,
-			List<String> parameters, String valueVariable, String timeVariable,
-			List<Double> timeValues, Map<String, List<Double>> variableValues,
-			double initialValue) {
-		this.parser = parser;
-		this.parameters = parameters;
-		this.valueVariable = valueVariable;
-		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
-		this.variableValues = variableValues;
-		this.initialValue = initialValue;
-	}
-
 	@Override
-	public double[] value(double[] point) throws IllegalArgumentException {
-		double[] result = new double[timeValues.size()];
+	public double[][] value(double[] point) throws IllegalArgumentException {
+		double[][] result = new double[timeValues.size()][parameters.size()];
 
-		for (int i = 0; i < parameters.size(); i++) {
-			parser.setVarValue(parameters.get(i), point[i]);
-		}
+		for (int j = 0; j < parameters.size(); j++) {
+			double paramValue = point[j];
 
-		DiffFunction f = new DiffFunction(parser, function, valueVariable,
-				timeVariable, timeValues, variableValues);
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				0.01);
-		double time = 0.0;
-		double[] value = { initialValue };
+			point[j] = paramValue - EPSILON;
 
-		result[0] = initialValue;
+			double[] result1 = new VectorDiffFunction(parser, function,
+					parameters, valueVariable, timeVariable, timeValues,
+					variableValues, initialValue).value(point);
 
-		for (int i = 1; i < timeValues.size(); i++) {
-			integrator.integrate(f, time, value, timeValues.get(i), value);
-			time = timeValues.get(i);
-			result[i] = value[0];
+			point[j] = paramValue + EPSILON;
+
+			double[] result2 = new VectorDiffFunction(parser, function,
+					parameters, valueVariable, timeVariable, timeValues,
+					variableValues, initialValue).value(point);
+
+			for (int i = 0; i < timeValues.size(); i++) {
+				result[i][j] = (result2[i] - result1[i]) / (2 * EPSILON);
+			}
 		}
 
 		return result;
 	}
-
 }
