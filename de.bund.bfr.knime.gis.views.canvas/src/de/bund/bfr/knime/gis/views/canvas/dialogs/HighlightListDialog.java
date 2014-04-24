@@ -83,8 +83,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 			boolean allowThickness, boolean allowLabel,
 			HighlightConditionList highlightConditions,
 			HighlightConditionChecker checker) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Conditions",
-				DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(parent),
+				"Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
 		this.nodeProperties = nodeProperties;
 		this.allowInvisible = allowInvisible;

@@ -1,171 +1,198 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./default.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>Graph View</name>
-    
-    <shortDescription>
+<knimeNode icon="./default.png" type="Visualizer" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>Graph View</name>
+
+	<shortDescription>
     	Provides visualization of graphs.
     </shortDescription>
-    
-    <fullDescription>
-        <intro>
-        	This node can visualize a graph with different layouts.
-        	The node table in port 1 must contain node IDs and the edge table in port 2 must contain source and target node IDs.
-        	Any data in the node or edge table can be used for highlighting (as explained below).        	        	
-        </intro>        
-        
-        <tab name="Input">                        
-            <option name="Node ID Column">
-            	Node table column containing the node IDs.
-            </option>            
-            <option name="Source Node ID Column">
-            	Edge table column containing the node IDs of the source nodes.
-            </option>
-            <option name="Target Node ID Column">
-            	Edge table column containing the node IDs of the target nodes.
-            </option>            
-            <option name="Export As Svg">
-            	When checked a svg graphic instead of a png is put in the ouput port.
-            </option>
-        </tab>
-        <tab name="Options Bar">            
-            <option name="Editing Mode">
-            	Current editing mode. If "Transforming" is selected the user can move the graph by using the mouse. In
-            	"Picking" mode the user can select and unselect nodes and edges.          
-            </option>
-            <option name="Join Edges">
-            	If checked, edges with the same source and target are joined.
-            </option>
-            <option name="Skip Edgeless Nodes">
-            	If checked, nodes without any connected edges are not shown.
-            </option>
-            <option name="Layout">
-            	Layout to visualize the graph.
-            </option>
-            <option name="Node Size">
-            	Diameter of the nodes.
-            </option>
-        </tab>        
-        <tab name="Context Menu">
-        	<option name="Reset Layout">
-            	Resets translation and scale to default.
-            </option>
-        	<option name="Save As ...">
-            	The image as can be saved as a PNG- or SVG-file.
-            </option>
-            <option name="Node Selection -> Show Properties">
-            	Shows the properties of all selected nodes.
-            </option>
-            <option name="Node Selection -> Clear">
-            	Clears node selection.
-            </option>
-            <option name="Node Selection -> Select Connections">
-            	Selects all edges, whose source and target nodes are already selected.
-            </option>
-            <option name="Node Selection -> Highlight Selected">
-            	Opens a dialog to help the user highlight all selected nodes. 
-            </option>
-        	<option name="Node Selection -> Collapse To Meta Node">
-            	Collapses all selected nodes into one new Meta Node.
-            </option>
-            <option name="Node Selection -> Expand From Meta Node">
-            	Expands each selected Meta Node to its original nodes.
-            </option>
-            <option name="Edge Selection -> Show Properties">
-            	Shows the properties of all selected edges.
-            </option>
-            <option name="Edge Selection -> Clear">
-            	Clears edge selection.
-            </option>            
-            <option name="Edge Selection -> Highlight Selected">
-            	Opens a dialog to help the user highlight all selected edges. 
-            </option>
-            <option name="Node Highlighting -> Edit">
-            	Opens a dialog to add, remove and edit Highlight Conditions for nodes. 
-            </option>
-            <option name="Node Highlighting -> Clear">
-            	Removes all Highlight Conditions for nodes.
-            </option>
-            <option name="Node Highlighting -> Select Highlighted">
-            	All nodes that have non zero values for the specified Highlight Condition will be selected.
-            </option>
-            <option name="Edge Highlighting -> Edit">
-            	Opens a dialog to add, remove and edit Highlight Conditions for edges. 
-            </option>
-            <option name="Edge Highlighting -> Clear">
-            	Removes all Highlight Conditions for edges.
-            </option>
-            <option name="Edge Highlighting -> Select Highlighted">
-            	All edge that have non zero values for the specified Highlight Condition will be selected.
-            </option>
-        </tab>        
-        <tab name="Highlight Condition Dialog">
-            <option name="Type">
-            	Type of the condition: "Logical Condition", "Value Condition" or "Logical Value Condition".
-            	Types are explained in the sections below.            	
-            </option>
-            <option name="Color">
-            	Color of the highlighted elements. For a logical conditions all true elements are painted. For a value
-            	condition all elements with values > 0 are painted (the higher the value the higher alpha value used for
-            	painting). 
-            </option>
-            <option name="Label">
-            	Property, that should be used as a label for all painted elements.
-            </option>     
-        </tab>
-        <tab name="Logical Condition">
-        	<option name="">
-        		A logical condition is an And/Or conjunction of logical expressions like "City == Berlin"
-        		or "Inhabitants > 10". It can only be true or false.
-        	</option>        	
-       		<option name="And/Or">
-            	When a logical condition consists of multiple expressions, And/Or conjunctions between these expressions
-            	must be specified. "And"-conjunctions will be evaluated before "Or"-conjunctions.
-            </option>
-            <option name="Property">
-            	Property of the logical expression. Is compared to "Value".
-            </option>
-            <option name="Operation">
-            	Type of the logical expression.
-            </option>
-            <option name="Value">
-            	Value of the logical expression. Is compared to "Property".
-            </option>
-        </tab>
-        <tab name="Value Condition">
-        	<option name="">
-        		A value condition uses numerical properties, for example "Log value of Inhabitants".
-            </option>
-        	<option name="Property">
-            	Property of the value condition.
-            </option>
-            <option name="Value Type">
-            	Type of the value condition. If "Log Value" is used, the logarithmic function with base 10
-            	is applied to all property values, before visualizing. For "Value" no function is applied.
-            </option>    	
-        </tab>
-        <tab name="Value Condition">
-        	<option name="">
-        		A logical value condition is a value condition that is only applied to elements, for which the logical condition is true.
-            </option>        	
-        </tab>
-        
-    </fullDescription>
-    
-    <ports>        
-        <inPort index="0" name="Node Table">
-        	Table with node data.
-       	</inPort>
-        <inPort index="1" name="Edge Table">
-            Table with edge data.
-        </inPort>
-        <inPort index="2" name="Settings">
-            Optional port with settings.
-        </inPort>
-       	<outPort index="0" name="Graph Image">
-        	Image of the Graph.
-        </outPort>                 
-        <outPort index="1" name="Settings">
-            Settings Output.
-        </outPort>
-    </ports>
+
+	<fullDescription>
+		<intro>
+			This node can visualize a graph with different layouts. The node table in port 1 must
+			contain node IDs and the edge table in port 2 must contain source and target node IDs. Any data
+			in the node or edge table can be used for highlighting (as explained below).
+		</intro>
+		<tab name="Input">
+			<option name="Node ID Column">
+				Node table column containing the node IDs.
+			</option>
+			<option name="Source Node ID Column">
+				Edge table column containing the node IDs of the source nodes.
+			</option>
+			<option name="Target Node ID Column">
+				Edge table column containing the node IDs of the target nodes.
+			</option>
+			<option name="Export As Svg">
+				When checked a svg graphic instead of a png is put in the ouput port.
+			</option>
+		</tab>
+		<tab name="Options Bar">
+			<option name="Editing Mode">
+				Current editing mode. If "Transforming" is selected the user can move the
+				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+			</option>
+			<option name="Join Edges">
+				If checked, edges with the same source and target are joined.
+			</option>
+			<option name="Skip Edgeless Nodes">
+				If checked, nodes without any connected edges are not shown.
+			</option>
+			<option name="Layout">
+				Layout to visualize the graph.
+			</option>
+			<option name="Node Size">
+				Diameter of the nodes.
+			</option>
+		</tab>
+		<tab name="Context Menu">
+			<option name="Reset Layout">
+				Resets translation and scale to default.
+			</option>
+			<option name="Save As ...">
+				The image as can be saved as a PNG- or SVG-file.
+			</option>
+			<option name="Node Selection -> Show Properties">
+				Shows the properties of all selected nodes.
+			</option>
+			<option name="Node Selection -> Clear">
+				Clears node selection.
+			</option>
+			<option name="Node Selection -> Select Connections">
+				Selects all edges, whose source and target nodes
+				are already selected.
+			</option>
+			<option name="Node Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected nodes.
+			</option>
+			<option name="Node Selection -> Collapse To Meta Node">
+				Collapses all selected nodes into one new Meta Node.
+			</option>
+			<option name="Node Selection -> Expand From Meta Node">
+				Expands each selected Meta Node to its original nodes.
+			</option>
+			<option name="Edge Selection -> Show Properties">
+				Shows the properties of all selected edges.
+			</option>
+			<option name="Edge Selection -> Clear">
+				Clears edge selection.
+			</option>
+			<option name="Edge Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected edges.
+			</option>
+			<option name="Node Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for nodes.
+			</option>
+			<option name="Node Highlighting -> Clear">
+				Removes all Highlight Conditions for nodes.
+			</option>
+			<option name="Node Highlighting -> Select Highlighted">
+				All nodes that have non zero values for the specified Highlight Condition
+				will be selected.
+			</option>
+			<option name="Edge Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for edges.
+			</option>
+			<option name="Edge Highlighting -> Clear">
+				Removes all Highlight Conditions for edges.
+			</option>
+			<option name="Edge Highlighting -> Select Highlighted">
+				All edge that have non zero values for the specified Highlight Condition will
+				be selected.
+			</option>
+		</tab>
+		<tab name="Highlight Condition List Dialog">
+			<option name="">
+				This dialog lets you manage the Highlight Conditions, either for nodes or
+				edges. To edit a Condition double click on it.
+			</option>
+			<option name="Add">
+				Adds a new Highlight Condition to the list.
+			</option>
+			<option name="Remove">
+				Removes the selected Highlight Condition from the list.
+			</option>
+			<option name="Prioritize">
+				If selected, each condition overwrites all conditions below it.
+			</option>
+			<option name="Up">
+				Moves the selected condition up.
+			</option>
+			<option name="Down">
+				Moves the selected condition down.
+			</option>
+		</tab>
+		<tab name="Highlight Condition Dialog">
+			<option name="Type">
+				Type of the condition: "Logical Condition", "Value Condition" or "Logical
+				Value Condition". Types are explained in the sections below.
+			</option>
+			<option name="Color">
+				Color of the highlighted elements. For a logical conditions all true elements
+				are painted. For a value condition all elements with values > 0 are painted (the higher the
+				value the higher alpha value used for painting).
+			</option>
+			<option name="Label">
+				Property, that should be used as a label for all painted elements.
+			</option>
+		</tab>
+		<tab name="Logical Condition">
+			<option name="">
+				A logical condition is an And/Or conjunction of logical expressions like
+				"City == Berlin" or "Inhabitants > 10". It can only be true or false.
+			</option>
+			<option name="And/Or">
+				When a logical condition consists of multiple expressions, And/Or
+				conjunctions between these expressions must be specified. "And"-conjunctions will be evaluated
+				before "Or"-conjunctions.
+			</option>
+			<option name="Property">
+				Property of the logical expression. Is compared to "Value".
+			</option>
+			<option name="Operation">
+				Type of the logical expression.
+			</option>
+			<option name="Value">
+				Value of the logical expression. Is compared to "Property".
+			</option>
+		</tab>
+		<tab name="Value Condition">
+			<option name="">
+				A value condition uses numerical properties, for example "Log value of
+				Inhabitants".
+			</option>
+			<option name="Property">
+				Property of the value condition.
+			</option>
+			<option name="Value Type">
+				Type of the value condition. If "Log Value" is used, the logarithmic function
+				with base 10 is applied to all property values, before visualizing. For "Value" no function is
+				applied.
+			</option>
+		</tab>
+		<tab name="Logical Value Condition">
+			<option name="">
+				A logical value condition is a value condition that is only applied to
+				elements, for which the logical condition is true.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Node Table">
+			Table with node data.
+		</inPort>
+		<inPort index="1" name="Edge Table">
+			Table with edge data.
+		</inPort>
+		<inPort index="2" name="Settings">
+			Optional port with settings.
+		</inPort>
+		<outPort index="0" name="Graph Image">
+			Image of the Graph.
+		</outPort>
+		<outPort index="1" name="Settings">
+			Settings Output.
+		</outPort>
+	</ports>
 </knimeNode>
