@@ -24,13 +24,82 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class DiffFunction {
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
+import org.lsmp.djep.djep.DJep;
+import org.nfunk.jep.Node;
+import org.nfunk.jep.ParseException;
 
-	public DiffFunction(List<Double> timeValues,
-			Map<String, List<Double>> variableValues) {
+public class DiffFunction implements FirstOrderDifferentialEquations {
 
+	private DJep parser;
+	private Node function;
+	private String dependentVariable;
+	private String timeVariable;
+	private List<Double> timeValues;
+	private Map<String, List<Double>> variableValues;
+
+	public DiffFunction(String formula, Map<String, Double> paramValues,
+			String dependentVariable, String timeVariable,
+			List<Double> timeValues, Map<String, List<Double>> variableValues)
+			throws ParseException {
+		this.dependentVariable = dependentVariable;
+		this.timeVariable = timeVariable;
+		this.timeValues = timeValues;
+		this.variableValues = variableValues;
+
+		Set<String> variables = new LinkedHashSet<String>();
+
+		variables.add(dependentVariable);
+		variables.add(timeVariable);
+		variables.addAll(variableValues.keySet());
+		variables.addAll(paramValues.keySet());
+
+		parser = MathUtilities.createParser(variables);
+		function = parser.parse(formula);
+
+		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
+			parser.setVarValue(entry.getKey(), entry.getValue());
+		}
+	}
+
+	@Override
+	public void computeDerivatives(double t, double[] y, double[] yDot)
+			throws MaxCountExceededException, DimensionMismatchException {
+		int index;
+
+		for (index = 0; index < timeValues.size() - 1; index++) {
+			if (t < timeValues.get(index + 1)) {
+				break;
+			}
+		}
+
+		parser.setVarValue(dependentVariable, y[0]);
+		parser.setVarValue(timeVariable, t);
+
+		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
+			parser.setVarValue(entry.getKey(), entry.getValue().get(index));
+		}
+
+		try {
+			Object number = parser.evaluate(function);
+
+			if (MathUtilities.isValidDouble(number)) {
+				yDot[0] = (Double) number;
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public int getDimension() {
+		return 1;
 	}
 }
