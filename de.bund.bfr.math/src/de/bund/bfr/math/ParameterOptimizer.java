@@ -25,12 +25,12 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.optim.InitialGuess;
@@ -41,8 +41,6 @@ import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
 import org.apache.commons.math3.optim.nonlinear.vector.Target;
 import org.apache.commons.math3.optim.nonlinear.vector.Weight;
 import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
-import org.lsmp.djep.djep.DJep;
-import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 public class ParameterOptimizer {
@@ -108,9 +106,8 @@ public class ParameterOptimizer {
 
 	public void optimize(int nParameterSpace, int nLevenberg,
 			boolean stopWhenSuccessful) throws ParseException {
-		DJep parser = MathUtilities.createParser(CollectionUtils.union(
-				parameters, argumentValues.keySet()));
-		Node function = parser.parse(formula);
+		VectorFunction optimizerFunction = new VectorFunction(formula,
+				parameters, argumentValues);
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
 		List<Double> paramStepSize = new ArrayList<Double>();
@@ -171,12 +168,14 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<List<Double>> bestValues = new ArrayList<List<Double>>();
+		List<double[]> bestValues = new ArrayList<double[]>();
 		List<Double> bestError = new ArrayList<Double>();
 
 		for (int i = 0; i < nLevenberg; i++) {
-			bestValues.add(new ArrayList<Double>(Collections.nCopies(
-					parameters.size(), i + 1.0)));
+			double[] v = new double[parameters.size()];
+
+			Arrays.fill(v, i + 1.0);
+			bestValues.add(v);
 			bestError.add(Double.POSITIVE_INFINITY);
 		}
 
@@ -185,31 +184,23 @@ public class ParameterOptimizer {
 		boolean done = false;
 
 		while (!done) {
-			List<Double> values = new ArrayList<Double>();
-			double error = 0.0;
+			double[] values = new double[parameters.size()];
 
 			for (int i = 0; i < parameters.size(); i++) {
-				double value = paramMin.get(i) + paramStepIndex.get(i)
+				values[i] = paramMin.get(i) + paramStepIndex.get(i)
 						* paramStepSize.get(i);
-
-				values.add(value);
-				parser.setVarValue(parameters.get(i), value);
 			}
 
+			double[] p = optimizerFunction.value(values);
+			double error = 0.0;
+
 			for (int i = 0; i < targetValues.size(); i++) {
-				for (Map.Entry<String, List<Double>> entry : argumentValues
-						.entrySet()) {
-					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
-				}
-
-				Object number = parser.evaluate(function);
-
-				if (!MathUtilities.isValidDouble(number)) {
+				if (Double.isNaN(p[i])) {
 					error = Double.POSITIVE_INFINITY;
 					break;
 				}
 
-				double diff = targetValues.get(i) - (Double) number;
+				double diff = targetValues.get(i) - p[i];
 
 				error += diff * diff;
 			}
@@ -217,6 +208,7 @@ public class ParameterOptimizer {
 			for (int i = nLevenberg; i >= 0; i--) {
 				if (i == 0 || !(error < bestError.get(i - 1))) {
 					if (i != nLevenberg) {
+						System.out.println(error);
 						bestError.add(i, error);
 						bestValues.add(i, values);
 						bestError.remove(nLevenberg);
@@ -245,12 +237,12 @@ public class ParameterOptimizer {
 
 		successful = false;
 
-		for (List<Double> startValues : bestValues) {
+		for (double[] startValues : bestValues) {
 			try {
 				optimize(startValues);
 
 				if (!successful || optimizer.getChiSquare() < sse) {
-					useCurrentResults(startValues);
+					useCurrentResults();
 
 					if (sse == 0.0) {
 						successful = true;
@@ -326,18 +318,13 @@ public class ParameterOptimizer {
 		return targetValues.size() - parameters.size();
 	}
 
-	private void optimize(List<Double> startValues) throws Exception {
+	private void optimize(double[] startValues) throws Exception {
 		double[] targets = new double[targetValues.size()];
 		double[] weights = new double[targetValues.size()];
-		double[] startValueArray = new double[startValues.size()];
 
 		for (int i = 0; i < targetValues.size(); i++) {
 			targets[i] = targetValues.get(i);
 			weights[i] = 1.0;
-		}
-
-		for (int i = 0; i < startValues.size(); i++) {
-			startValueArray[i] = startValues.get(i);
 		}
 
 		VectorFunction optimizerFunction = new VectorFunction(formula,
@@ -349,11 +336,10 @@ public class ParameterOptimizer {
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				targets), new Weight(weights),
-				new InitialGuess(startValueArray));
+				targets), new Weight(weights), new InitialGuess(startValues));
 	}
 
-	private void useCurrentResults(List<Double> startValues) {
+	private void useCurrentResults() {
 		parameterValues.clear();
 		sse = optimizer.getChiSquare();
 		mse = MathUtilities.getMSE(parameters.size(), targetValues.size(), sse);
