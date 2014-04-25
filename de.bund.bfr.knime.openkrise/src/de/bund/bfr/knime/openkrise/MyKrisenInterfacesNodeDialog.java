@@ -3,7 +3,6 @@ package de.bund.bfr.knime.openkrise;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -26,7 +25,6 @@ import org.knime.core.node.port.PortObjectSpec;
 public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private DbConfigurationUi dbui;
-	private JCheckBox doCrossContaminateAll, enforceTemporalOrder;
 	private JCheckBox doAnonymize;
 
 	protected MyKrisenInterfacesNodeDialog() {
@@ -35,12 +33,6 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	
     	dbui = new DbConfigurationUi();
 
-    	JPanel panelTracing = new JPanel();
-    	panelTracing.setBorder(new TitledBorder("Tracing"));
-    	doCrossContaminateAll = new JCheckBox(); doCrossContaminateAll.setText("cross-contamination?"); panelTracing.add(doCrossContaminateAll);
-    	enforceTemporalOrder = new JCheckBox(); enforceTemporalOrder.setText("enforce temporal order?"); enforceTemporalOrder.setSelected(true); panelTracing.add(enforceTemporalOrder);
-    	panel.add(panelTracing);
-    	
     	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymize?"); panel.add(doAnonymize);
     	
     	addTab("Tracing/Filtering", panel);
@@ -51,15 +43,12 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( MyKrisenInterfacesNodeModel.PARAM_FILENAME, dbui.getFilename() );
-		settings.addString( MyKrisenInterfacesNodeModel.PARAM_LOGIN, dbui.getLogin() );
-		settings.addString( MyKrisenInterfacesNodeModel.PARAM_PASSWD, dbui.getPasswd() );
-		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
-		//settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_TRACINGBACK, tracingBack.isSelected());
-		//settings.addInt(MyKrisenInterfacesNodeModel.PARAM_TRACINGTYPE, tracingType.getSelectedIndex());
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_CC, doCrossContaminateAll.isSelected());
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ETO, enforceTemporalOrder.isSelected());
-		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected() );
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, dbui.getFilename());
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_LOGIN, dbui.getLogin());
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_PASSWD, dbui.getPasswd());
+		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride());
+
+		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected());
 		
 	}
 
@@ -67,14 +56,11 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {		
 		try {
 			
-			dbui.setFilename( settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILENAME ) );
-			dbui.setLogin( settings.getString( MyKrisenInterfacesNodeModel.PARAM_LOGIN ) );
-			dbui.setPasswd( settings.getString( MyKrisenInterfacesNodeModel.PARAM_PASSWD ) );
-			dbui.setOverride( settings.getBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE ) );
-			//tracingBack.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_TRACINGBACK));
-			//tracingType.setSelectedIndex(settings.getInt(MyKrisenInterfacesNodeModel.PARAM_TRACINGTYPE));
-			if (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_CC)) doCrossContaminateAll.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_CC));
-			if (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_ETO)) enforceTemporalOrder.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ETO));
+			dbui.setFilename(settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILENAME));
+			dbui.setLogin( settings.getString( MyKrisenInterfacesNodeModel.PARAM_LOGIN));
+			dbui.setPasswd(settings.getString( MyKrisenInterfacesNodeModel.PARAM_PASSWD));
+			dbui.setOverride(settings.getBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
+
 			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
 
 		}

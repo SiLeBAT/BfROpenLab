@@ -15,7 +15,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -48,8 +47,6 @@ static final String PARAM_FILENAME = "filename";
 static final String PARAM_LOGIN = "login";
 static final String PARAM_PASSWD = "passwd";
 static final String PARAM_OVERRIDE = "override";
-static final String PARAM_CC = "crosscontamination";
-static final String PARAM_ETO = "enforcetemporalorder";
 static final String PARAM_ANONYMIZE = "anonymize";
 
 private String filename;
@@ -57,7 +54,6 @@ private String login;
 private String passwd;
 private boolean override;
 private boolean doAnonymize;
-private boolean doCC, doETO = true;
 
 private boolean isDE = false;
 
@@ -72,19 +68,19 @@ private boolean isDE = false;
 * {@inheritDoc}
 */
     @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
+    protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
      Hsqldbiface db = null;
      if (override) {
-db = new Hsqldbiface(filename, login, passwd);
-} else {
-db = new Hsqldbiface(DBKernel.getLocalConn(true));
-}
+    	 db = new Hsqldbiface(filename, login, passwd);
+     }
+     else {
+    	 db = new Hsqldbiface(DBKernel.getLocalConn(true));
+     }
      //if (doAnonymize) doAnonymizeHard(db.getConnection());
 
      System.err.println("Starting Plausibility Checks...");
-// Date_In <= Date_Out???
-String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"ID\" AS \"ID_In\", \"L2\".\"ID\" AS \"ID_Out\", \"L1\".\"dd_day\" AS \"Day_In\",\"L2\".\"dd_day\" AS \"Day_Out\", \"L1\".\"dd_month\" AS \"Month_In\",\"L2\".\"dd_month\" AS \"Month_Out\", \"L1\".\"dd_year\" AS \"Year_In\",\"L2\".\"dd_year\" AS \"Year_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND (\"L2\".\"dd_year\" < \"L1\".\"dd_year\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" < \"L1\".\"dd_month\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" = \"L1\".\"dd_month\" AND \"L2\".\"dd_day\" < \"L1\".\"dd_day\")";
+	// Date_In <= Date_Out???
+	String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"ID\" AS \"ID_In\", \"L2\".\"ID\" AS \"ID_Out\", \"L1\".\"dd_day\" AS \"Day_In\",\"L2\".\"dd_day\" AS \"Day_Out\", \"L1\".\"dd_month\" AS \"Month_In\",\"L2\".\"dd_month\" AS \"Month_Out\", \"L1\".\"dd_year\" AS \"Year_In\",\"L2\".\"dd_year\" AS \"Year_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND (\"L2\".\"dd_year\" < \"L1\".\"dd_year\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" < \"L1\".\"dd_month\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" = \"L1\".\"dd_month\" AND \"L2\".\"dd_day\" < \"L1\".\"dd_day\")";
      ResultSet rsp = db.pushQuery(sql);
      while (rsp.next()) {
      System.err.println("Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In") + ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")");
@@ -103,7 +99,7 @@ String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"ID\" AS 
      }
 
      System.err.println("Starting Tracing...");
-     MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(db, doCC, doETO);
+     MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(db);
 /*
 System.err.println("Starting Wordle...");
 BufferedDataContainer outputWordle = exec.createDataContainer(getSpecWordle());
@@ -170,7 +166,7 @@ outputWordle.close();
          //if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
          //id2Code.put(stationID, company);
          RowKey key = RowKey.createRowKey(rowNumber);
-         DataCell[] cells = new DataCell[19];
+         DataCell[] cells = new DataCell[15];
          cells[0] = new IntCell(stationID);
          cells[1] = new StringCell(company);
          //cells[2] = new StringCell("square"); // circle, square, triangle
@@ -184,25 +180,13 @@ outputWordle.close();
          cells[7] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
          cells[8] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
          cells[9] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
-         double casePriority = rs.getDouble("CasePriority");
-         if (casePriority < 0) casePriority = 0;
-         if (casePriority > 1) casePriority = 1;
-         cells[10] = (rs.getObject("CasePriority") == null) ? DataType.getMissingCell() : new DoubleCell(casePriority);
-         cells[11] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
-         cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-         cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-         cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
-         if (mnt != null) {
-             cells[15] = new DoubleCell(mnt.getStationScore(stationID));
-             cells[16] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-             cells[17] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-         }
-         else {
-             cells[15] = DataType.getMissingCell();
-             cells[16] = DataType.getMissingCell();
-             cells[17] = DataType.getMissingCell();
-         }
-         cells[18] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
+
+         cells[10] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
+         cells[11] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+         cells[12] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+         cells[13] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+
+         cells[14] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
 
         
          DataRow outputRow = new DefaultRow(key, cells);
@@ -238,7 +222,7 @@ outputWordle.close();
              int from = id1;//id2Code.get(id1);
              int to = id2;//id2Code.get(id2);
              RowKey key = RowKey.createRowKey(rowNumber);
-             DataCell[] cells = new DataCell[21];
+             DataCell[] cells = new DataCell[20];
              cells[0] = new IntCell(from);
              cells[1] = new IntCell(to);
              //cells[2] = new StringCell("black"); // black
@@ -256,17 +240,16 @@ outputWordle.close();
              Double menge = calcMenge(rs.getObject("Unitmenge"), rs.getObject("UnitEinheit"));
              cells[10] = menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0); // Menge [kg]
              cells[11] = new StringCell("Row" + rowNumber);
-                 if (mnt != null) cells[12] = new DoubleCell(mnt.getDeliveryScore(lieferID));
-                 else cells[12] = DataType.getMissingCell();
-                 cells[13] = new IntCell(lieferID);
-             cells[14] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Serial"));
-             cells[15] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.OriginCountry"));
 
-             cells[16] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.EndChain"));
-             cells[17] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Explanation_EndChain"));
-             cells[18] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Contact_Questions_Remarks"));
-             cells[19] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Further_Traceback"));
-             cells[20] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.MicrobioSample"));
+                 cells[12] = new IntCell(lieferID);
+             cells[13] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Serial"));
+             cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.OriginCountry"));
+
+             cells[15] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.EndChain"));
+             cells[16] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Explanation_EndChain"));
+             cells[17] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Contact_Questions_Remarks"));
+             cells[18] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Further_Traceback"));
+             cells[19] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.MicrobioSample"));
             
                  DataRow outputRow = new DefaultRow(key, cells);
 
@@ -280,9 +263,7 @@ outputWordle.close();
      rs.close();
 
      BufferedDataContainer buf = exec.createDataContainer(getDataModelSpec());
-     if (!doCC) {
-         buf.addRowToTable(new DefaultRow("0", XMLCellFactory.create(getDataModel(mnt))));
-     }
+     buf.addRowToTable(new DefaultRow("0", XMLCellFactory.create(getDataModel(mnt))));
      buf.close();
      //getDataModel(buf.getTable());
     
@@ -346,7 +327,7 @@ return new DataTableSpec(spec);
 }
 */
     private DataTableSpec getSpec33Nodes() {
-     DataColumnSpec[] spec = new DataColumnSpec[19];
+     DataColumnSpec[] spec = new DataColumnSpec[15];
      spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
      spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
      spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
@@ -357,19 +338,15 @@ return new DataTableSpec(spec);
      spec[7] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
      spec[8] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
      spec[9] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
-     spec[10] = new DataColumnSpecCreator("CasePriority", DoubleCell.TYPE).createSpec();
-     spec[11] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
-     spec[12] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
-     spec[13] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
-     spec[14] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
-     spec[15] = new DataColumnSpecCreator("TracingScore", DoubleCell.TYPE).createSpec();
-     spec[16] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
-     spec[17] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
-     spec[18] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
+     spec[10] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
+     spec[11] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
+     spec[12] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
+     spec[13] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
+     spec[14] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
      return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Links() {
-     DataColumnSpec[] spec = new DataColumnSpec[21];
+     DataColumnSpec[] spec = new DataColumnSpec[20];
      spec[0] = new DataColumnSpecCreator("from", IntCell.TYPE).createSpec();
      spec[1] = new DataColumnSpecCreator("to", IntCell.TYPE).createSpec();
      spec[2] = new DataColumnSpecCreator(isDE ? "Artikelnummer" : "Item Number", StringCell.TYPE).createSpec();
@@ -382,15 +359,14 @@ return new DataTableSpec(spec);
      spec[9] = new DataColumnSpecCreator(isDE ? "Lieferdatum" : "Date Delivery", StringCell.TYPE).createSpec();
      spec[10] = new DataColumnSpecCreator(isDE ? "Menge [kg]" : "Amount [kg]", DoubleCell.TYPE).createSpec();
      spec[11] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
-     spec[12] = new DataColumnSpecCreator("TracingScore", DoubleCell.TYPE).createSpec();
-     spec[13] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
-     spec[14] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
-     spec[15] = new DataColumnSpecCreator("OriginCountry", StringCell.TYPE).createSpec();
-     spec[16] = new DataColumnSpecCreator("EndChain", StringCell.TYPE).createSpec();
-     spec[17] = new DataColumnSpecCreator("ExplanationEndChain", StringCell.TYPE).createSpec();
-     spec[18] = new DataColumnSpecCreator("Contact_Questions_Remarks", StringCell.TYPE).createSpec();
-     spec[19] = new DataColumnSpecCreator("FurtherTB", StringCell.TYPE).createSpec();
-     spec[20] = new DataColumnSpecCreator("MicroSample", StringCell.TYPE).createSpec();
+     spec[12] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
+     spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
+     spec[14] = new DataColumnSpecCreator("OriginCountry", StringCell.TYPE).createSpec();
+     spec[15] = new DataColumnSpecCreator("EndChain", StringCell.TYPE).createSpec();
+     spec[16] = new DataColumnSpecCreator("ExplanationEndChain", StringCell.TYPE).createSpec();
+     spec[17] = new DataColumnSpecCreator("Contact_Questions_Remarks", StringCell.TYPE).createSpec();
+     spec[18] = new DataColumnSpecCreator("FurtherTB", StringCell.TYPE).createSpec();
+     spec[19] = new DataColumnSpecCreator("MicroSample", StringCell.TYPE).createSpec();
      return new DataTableSpec(spec);
     }
     
@@ -458,11 +434,6 @@ e.printStackTrace();
      settings.addString(PARAM_LOGIN, login);
      settings.addString(PARAM_PASSWD, passwd);
      settings.addBoolean(PARAM_OVERRIDE, override);
-     //settings.addBoolean( PARAM_TRACINGBACK, tracingBack );
-     //settings.addInt( PARAM_TRACINGTYPE, objectType );
-     //settings.addInt( PARAM_TRACINGOMITMAX, tracingOmitMax );
-     settings.addBoolean( PARAM_CC, doCC );
-     settings.addBoolean(PARAM_ETO, doETO);
     
      settings.addBoolean( PARAM_ANONYMIZE, doAnonymize );
     }
@@ -477,11 +448,7 @@ e.printStackTrace();
      login = settings.getString(PARAM_LOGIN);
      passwd = settings.getString(PARAM_PASSWD);
      override = settings.getBoolean(PARAM_OVERRIDE);
-     //tracingBack = settings.getBoolean( PARAM_TRACINGBACK );
-     //objectType = settings.getInt( PARAM_TRACINGTYPE );
-     //tracingOmitMax = settings.containsKey(PARAM_TRACINGOMITMAX) ? settings.getInt(PARAM_TRACINGOMITMAX) : 3;
-     if (settings.containsKey(PARAM_CC)) doCC = settings.getBoolean( PARAM_CC );
-     if (settings.containsKey(PARAM_ETO)) doETO = settings.getBoolean(PARAM_ETO);
+
      doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
     }
 
