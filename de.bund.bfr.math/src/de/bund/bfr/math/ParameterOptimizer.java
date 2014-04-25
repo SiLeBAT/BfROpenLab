@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.optim.InitialGuess;
@@ -49,12 +50,13 @@ public class ParameterOptimizer {
 	private static final int MAX_EVAL = 10000;
 	private static final double COV_THRESHOLD = 1e-14;
 
-	private String formula;
+	private VectorFunction optimizerFunction;
+	private VectorFunctionJacobian optimizerFunctionJacobian;
+
 	private List<String> parameters;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
-	private List<Double> targetValues;
-	private Map<String, List<Double>> argumentValues;
+	private List<Double> targetValues;	
 
 	private LevenbergMarquardtOptimizer optimizer;
 	private PointVectorValuePair optimizerValues;
@@ -78,12 +80,10 @@ public class ParameterOptimizer {
 			Map<String, Double> maxParameterValues, List<Double> targetValues,
 			Map<String, List<Double>> argumentValues, boolean enforceLimits)
 			throws ParseException {
-		this.formula = formula;
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
-		this.targetValues = targetValues;
-		this.argumentValues = argumentValues;
+		this.targetValues = targetValues;				
 
 		if (enforceLimits) {
 			for (String param : parameters) {
@@ -100,14 +100,16 @@ public class ParameterOptimizer {
 			}
 		}
 
+		optimizerFunction = new VectorFunction(formula, parameters,
+				argumentValues);
+		optimizerFunctionJacobian = new VectorFunctionJacobian(formula,
+				parameters, argumentValues);
 		successful = false;
 		resetResults();
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
 			boolean stopWhenSuccessful) throws ParseException {
-		VectorFunction optimizerFunction = new VectorFunction(formula,
-				parameters, argumentValues);
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
 		List<Double> paramStepSize = new ArrayList<Double>();
@@ -208,7 +210,6 @@ public class ParameterOptimizer {
 			for (int i = nLevenberg; i >= 0; i--) {
 				if (i == 0 || !(error < bestError.get(i - 1))) {
 					if (i != nLevenberg) {
-						System.out.println(error);
 						bestError.add(i, error);
 						bestValues.add(i, values);
 						bestError.remove(nLevenberg);
@@ -319,24 +320,15 @@ public class ParameterOptimizer {
 	}
 
 	private void optimize(double[] startValues) throws Exception {
-		double[] targets = new double[targetValues.size()];
 		double[] weights = new double[targetValues.size()];
 
-		for (int i = 0; i < targetValues.size(); i++) {
-			targets[i] = targetValues.get(i);
-			weights[i] = 1.0;
-		}
-
-		VectorFunction optimizerFunction = new VectorFunction(formula,
-				parameters, argumentValues);
-		VectorFunctionJacobian optimizerFunctionJacobian = new VectorFunctionJacobian(
-				formula, parameters, argumentValues);
-
+		Arrays.fill(weights, 1.0);
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				targets), new Weight(weights), new InitialGuess(startValues));
+				ArrayUtils.toPrimitive(targetValues.toArray(new Double[0]))),
+				new Weight(weights), new InitialGuess(startValues));
 	}
 
 	private void useCurrentResults() {
