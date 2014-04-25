@@ -30,7 +30,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.PointVectorValuePair;
+import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
+import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
+import org.apache.commons.math3.optim.nonlinear.vector.Target;
+import org.apache.commons.math3.optim.nonlinear.vector.Weight;
+import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.nfunk.jep.ParseException;
 
 public class Test {
@@ -71,68 +79,38 @@ public class Test {
 
 		variableValues.put("T", new ArrayList<Double>());
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i += 10) {
 			timeValues.add((double) i);
-			variableValues.get("T").add(20 + 0.1 * i);
+			variableValues.get("T").add(20.0 + 0.1 * i);
 		}
 
 		VectorDiffFunction f = new VectorDiffFunction(formula, parameters, "y",
 				"time", timeValues, variableValues, 10.0);
-		double[] result = f.value(new double[] { 10.0, 30.0, 10.0 });
-
-		for (double v : result) {
-			System.out.print(v + ",");
-		}
-
-		System.out.println();
-
 		VectorDiffFunctionJacobian f2 = new VectorDiffFunctionJacobian(formula,
 				parameters, "y", "time", timeValues, variableValues, 10.0);
-		double[][] result2 = f2.value(new double[] { 10.0, 30.0, 10.0 });
 
-		for (int j = 0; j < parameters.size(); j++) {
-			for (int i = 0; i < timeValues.size(); i++) {
-				System.out.print(result2[i][j] + "\t");
-			}
-			System.out.println();
-		}
+		double[] guess = new double[] { 5.0, 55.0, 17.0 };
+		double[] target = f.value(new double[] { 10.0, 30.0, 10.0 });
+		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+		PointVectorValuePair p = optimizer.optimize(new ModelFunction(f),
+				new ModelFunctionJacobian(f2), new MaxEval(100), new Target(
+						target), new Weight(new double[] { 1.0, 1.0, 1.0, 1.0,
+						1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }),
+				new InitialGuess(guess));
+
+		System.out.println(rmse(target, f.value(guess), 3));
+		System.out.println(Arrays.asList(ArrayUtils.toObject(f.value(p
+				.getPoint()))));
+		System.out.println(rmse(target, f.value(p.getPoint()), 3));
 	}
 
-	@SuppressWarnings("unused")
-	private static void diff2() throws ParseException {
-		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
-		Map<String, Double> paramValues = new LinkedHashMap<String, Double>();
-		List<Double> timeValues = new ArrayList<Double>();
-		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
+	private static double rmse(double[] v1, double[] v2, int n) {
+		double error = 0.0;
 
-		paramValues.put("Dref", 10.0);
-		paramValues.put("Tref", 30.0);
-		paramValues.put("z", 10.0);
-		variableValues.put("T", new ArrayList<Double>());
-
-		for (int i = 0; i < 100; i++) {
-			timeValues.add((double) i);
-			variableValues.get("T").add(20 + 0.1 * i);
+		for (int i = 0; i < n; i++) {
+			error += (v1[i] - v2[i]) * (v1[i] - v2[i]);
 		}
 
-		DiffFunction f = new DiffFunction(formula, paramValues, "y", "time",
-				timeValues, variableValues);
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				0.01);
-		List<Double> values = new ArrayList<Double>();
-		double[] mem = new double[1];
-		double y = 10.0;
-		double t0 = 0.0;
-
-		for (int i = 0; i < 100; i++) {
-			integrator
-					.integrate(f, t0 + i, new double[] { y }, t0 + i + 1, mem);
-			values.add(mem[0]);
-			y = mem[0];
-		}
-
-		for (double v : values) {
-			System.out.print(v + ",");
-		}
+		return Math.sqrt(error);
 	}
 }
