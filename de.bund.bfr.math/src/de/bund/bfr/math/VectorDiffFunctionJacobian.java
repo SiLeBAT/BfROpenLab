@@ -88,6 +88,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 					parameters, valueVariable, timeVariable, timeValues,
 					variableValues, initialValue).value(point);
 
+			point[j] = paramValue;
+
 			for (int i = 0; i < timeValues.size(); i++) {
 				result[i][j] = (result2[i] - result1[i]) / (2 * EPSILON);
 			}
