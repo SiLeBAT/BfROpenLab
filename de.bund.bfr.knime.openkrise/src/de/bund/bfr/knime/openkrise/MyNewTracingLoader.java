@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.Hsqldbiface;
+import org.hsh.bfr.db.MyDBI;
 
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
@@ -18,21 +18,23 @@ public class MyNewTracingLoader {
 	private static HashSet<Integer> ccStations = null;
 	private static double caseSum = 0;
 
-	public static MyNewTracing getNewTracingModel(Hsqldbiface db) {
+	public static MyNewTracing getNewTracingModel(MyDBI myDBi) {
 		// Zeroly: get all cases
 		caseStations = new HashMap<Integer, Double>();
 		ccStations = new HashSet<Integer>();
 		//ccDeliveries = new HashSet<Integer>();
 		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CasePriority") + " FROM " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("CasePriority") + " > 0";
 		try {
-			ResultSet rs = db.pushQuery(sql);
+			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
 			caseSum = 0;
-			while (rs.next()) {
-				double cp = rs.getDouble("CasePriority");
-				if (cp < 0) cp = 0;
-				//if (cp > 1) cp = 1;
-				caseStations.put(rs.getInt("ID"), cp);
-				caseSum += cp;
+			if (rs != null && rs.first()) {
+				do {
+					double cp = rs.getDouble("CasePriority");
+					if (cp < 0) cp = 0;
+					//if (cp > 1) cp = 1;
+					caseStations.put(rs.getInt("ID"), cp);
+					caseSum += cp;
+				} while (rs.next());
 			}
 		}
 		catch (SQLException e) {
@@ -48,10 +50,12 @@ public class MyNewTracingLoader {
     			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
 		try {
-			ResultSet rs = db.pushQuery(sql);
-			while (rs.next()) {
-				MyDelivery md = new MyDelivery(rs.getInt("ID"), rs.getInt("Station"), rs.getInt("Empfänger"), (Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
-				allDeliveries.put(rs.getInt("ID"), md);
+			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+			if (rs != null && rs.first()) {
+				do {
+					MyDelivery md = new MyDelivery(rs.getInt("ID"), rs.getInt("Station"), rs.getInt("Empfänger"), (Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
+					allDeliveries.put(rs.getInt("ID"), md);
+				} while (rs.next());
 			}
 		}
 		catch (SQLException e) {
@@ -66,12 +70,14 @@ public class MyNewTracingLoader {
 				" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ProduktLieferungen") +
 				" ON " + DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt");
 		try {
-			ResultSet rs = db.pushQuery(sql);
-			while (rs.next()) {
-				MyDelivery mdZ = allDeliveries.get(rs.getInt(1));
-				MyDelivery mdP = allDeliveries.get(rs.getInt(2));
-				if (mdZ != null) mdZ.addNext(mdP.getId());
-				if (mdP != null) mdP.addPrevious(mdZ.getId());
+			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+			if (rs != null && rs.first()) {
+				do {
+					MyDelivery mdZ = allDeliveries.get(rs.getInt(1));
+					MyDelivery mdP = allDeliveries.get(rs.getInt(2));
+					if (mdZ != null) mdZ.addNext(mdP.getId());
+					if (mdP != null) mdP.addPrevious(mdZ.getId());
+				} while (rs.next());
 			}
 		}
 		catch (SQLException e) {
