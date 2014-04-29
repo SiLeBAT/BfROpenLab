@@ -44,6 +44,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -302,8 +303,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
 				getNodeHighlightConditions(), nodeSize, false);
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-				getEdgeHighlightConditions());
+
+		if (!isJoinEdges()) {
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+					getEdgeHighlightConditions());
+		} else {
+			HighlightConditionList conditions = CanvasUtilities
+					.removeInvisibleConditions(getEdgeHighlightConditions());
+
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
+		}
+
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 
 		Set<String> nodeIdsAfter = CanvasUtilities
@@ -536,6 +546,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (isJoinEdges()) {
+			edges = CanvasUtilities.removeInvisibleEdges(edges,
+					getEdgeHighlightConditions());
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),

@@ -40,6 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -165,8 +166,17 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
 				getNodeHighlightConditions(), locationSize, !isAllowEdges());
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-				getEdgeHighlightConditions());
+
+		if (!isJoinEdges()) {
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+					getEdgeHighlightConditions());
+		} else {
+			HighlightConditionList conditions = CanvasUtilities
+					.removeInvisibleConditions(getEdgeHighlightConditions());
+
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
+		}
+
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 
 		Set<String> nodeIdsAfter = CanvasUtilities
@@ -225,6 +235,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		if (isJoinEdges()) {
+			edges = CanvasUtilities.removeInvisibleEdges(edges,
+					getEdgeHighlightConditions());
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),

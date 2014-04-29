@@ -567,6 +567,41 @@ public class CanvasUtilities {
 				null), 0, 0);
 	}
 
+	public static HighlightConditionList removeInvisibleConditions(
+			HighlightConditionList conditions) {
+		HighlightConditionList result = new HighlightConditionList(
+				new ArrayList<HighlightCondition>(),
+				conditions.isPrioritizeColors());
+
+		for (HighlightCondition condition : conditions.getConditions()) {
+			if (!condition.isInvisible()) {
+				result.getConditions().add(condition);
+			}
+		}
+
+		return result;
+	}
+
+	public static <V extends Node> Set<Edge<V>> removeInvisibleEdges(
+			Set<Edge<V>> edges, HighlightConditionList edgeHighlightConditions) {
+		Set<Edge<V>> result = new LinkedHashSet<Edge<V>>(edges);
+
+		for (HighlightCondition condition : edgeHighlightConditions
+				.getConditions()) {
+			Map<Edge<V>, Double> values = condition.getValues(edges);
+
+			if (condition.isInvisible()) {
+				for (Edge<V> edge : edges) {
+					if (values.get(edge) != 0.0) {
+						result.remove(edge);
+					}
+				}
+			}
+		}
+
+		return result;
+	}
+
 	private static boolean containsNonZeroValue(List<Double> list) {
 		for (double value : list) {
 			if (value != 0.0) {

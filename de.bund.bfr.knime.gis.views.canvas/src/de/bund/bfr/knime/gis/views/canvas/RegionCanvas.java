@@ -43,6 +43,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -147,8 +148,16 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Set<String> edgeIdsBefore = CanvasUtilities
 				.getElementIds(getVisibleEdges());
 
-		CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-				getEdgeHighlightConditions());
+		if (!isJoinEdges()) {
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+					getEdgeHighlightConditions());
+		} else {
+			HighlightConditionList conditions = CanvasUtilities
+					.removeInvisibleConditions(getEdgeHighlightConditions());
+
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
+		}
+
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 
 		Set<String> nodeIdsAfter = CanvasUtilities
@@ -165,6 +174,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		if (isJoinEdges()) {
+			edges = CanvasUtilities.removeInvisibleEdges(edges,
+					getEdgeHighlightConditions());
 			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
