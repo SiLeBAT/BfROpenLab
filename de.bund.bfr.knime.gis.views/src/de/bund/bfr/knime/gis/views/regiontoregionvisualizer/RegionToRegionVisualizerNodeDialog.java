@@ -104,8 +104,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);
-		panel.addComponentListener(this);
+				BorderLayout.NORTH);		
 
 		addTab("Options", panel);
 	}
@@ -352,6 +351,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
+		graphCanvas.addComponentListener(this);
+		gisCanvas.addComponentListener(this);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas,
 				gisCanvas);
 		splitPane.setResizeWeight(0.5);
