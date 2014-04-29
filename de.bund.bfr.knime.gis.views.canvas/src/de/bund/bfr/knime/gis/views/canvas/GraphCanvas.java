@@ -245,7 +245,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void setCollapsedNodes(
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
-		applyNodeCollapse();
+		applyChanges();
 	}
 
 	public int getNodeSize() {
@@ -255,7 +255,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
 		nodeSizeField.setText(nodeSize + "");
-		applyHighlights();
+		applyChanges();
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		} else if (e.getSource() == nodeSizeButton) {
 			try {
 				nodeSize = Integer.parseInt(nodeSizeField.getText());
-				applyHighlights();
+				applyChanges();
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
 						"Node Size must be Integer Value", "Error",
@@ -292,37 +292,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		return new HighlightListDialog(this, getEdgeProperties(), true, true,
 				true, getEdgeHighlightConditions(), null);
-	}
-
-	@Override
-	protected boolean applyHighlights() {
-		Set<String> nodeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleEdges());
-
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), nodeSize, false);
-
-		if (!isJoinEdges()) {
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-					getEdgeHighlightConditions());
-		} else {
-			HighlightConditionList conditions = CanvasUtilities
-					.removeInvisibleConditions(getEdgeHighlightConditions());
-
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
-		}
-
-		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
-
-		Set<String> nodeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleEdges());
-
-		return !nodeIdsBefore.equals(nodeIdsAfter)
-				|| !edgeIdsBefore.equals(edgeIdsAfter);
 	}
 
 	@Override
@@ -386,7 +355,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		collapsedNodes.put(newId, relPos);
-		applyNodeCollapse();
+		applyChanges();
 		setSelectedNodeIds(new LinkedHashSet<String>(Arrays.asList(newId)));
 	}
 
@@ -419,7 +388,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		applyNodeCollapse();
+		applyChanges();
 		setSelectedNodeIds(newIds);
 	}
 
@@ -457,10 +426,19 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				});
 	}
 
-	protected void applyNodeCollapse() {
+	@Override
+	protected void applyChanges() {
 		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
+		applyNodeCollapse();
+		applyHighlights();
+
+		setSelectedNodeIds(selectedNodeIds);
+		setSelectedEdgeIds(selectedEdgeIds);
+	}
+
+	protected void applyNodeCollapse() {
 		nodes = new LinkedHashSet<GraphNode>();
 		edges = new LinkedHashSet<Edge<GraphNode>>();
 
@@ -563,14 +541,23 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
-		applyHighlights();
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
-	@Override
-	protected void applyEdgeJoin() {
-		applyNodeCollapse();
+	protected void applyHighlights() {
+		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+				getNodeHighlightConditions(), nodeSize, false);
+
+		if (!isJoinEdges()) {
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+					getEdgeHighlightConditions());
+		} else {
+			HighlightConditionList conditions = CanvasUtilities
+					.removeInvisibleConditions(getEdgeHighlightConditions());
+
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
+		}
+
+		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
 
 	private void applyLayout() {

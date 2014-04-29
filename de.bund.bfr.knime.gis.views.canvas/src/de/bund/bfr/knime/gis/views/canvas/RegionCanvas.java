@@ -139,38 +139,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected boolean applyHighlights() {
-		flushImage();
-		getViewer().repaint();
-
-		Set<String> nodeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleEdges());
-
-		if (!isJoinEdges()) {
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-					getEdgeHighlightConditions());
-		} else {
-			HighlightConditionList conditions = CanvasUtilities
-					.removeInvisibleConditions(getEdgeHighlightConditions());
-
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
-		}
-
-		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
-
-		Set<String> nodeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleEdges());
-
-		return !nodeIdsBefore.equals(nodeIdsAfter)
-				|| !edgeIdsBefore.equals(edgeIdsAfter);
-	}
-
-	@Override
-	protected void applyEdgeJoin() {
+	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		if (isJoinEdges()) {
@@ -185,7 +154,20 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		createGraph();
-		applyHighlights();
+		flushImage();
+		getViewer().repaint();
+
+		if (!isJoinEdges()) {
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
+					getEdgeHighlightConditions());
+		} else {
+			HighlightConditionList conditions = CanvasUtilities
+					.removeInvisibleConditions(getEdgeHighlightConditions());
+
+			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
+		}
+
+		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 		setSelectedEdgeIds(selectedEdgeIds);
 	}
 

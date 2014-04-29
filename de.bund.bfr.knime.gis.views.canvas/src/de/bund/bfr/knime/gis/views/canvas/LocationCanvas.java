@@ -129,7 +129,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	public void setLocationSize(int locationSize) {
 		this.locationSize = locationSize;
 		locationSizeField.setText(locationSize + "");
-		applyHighlights();
+		applyChanges();
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		if (e.getSource() == locationSizeButton) {
 			try {
 				locationSize = Integer.parseInt(locationSizeField.getText());
-				applyHighlights();
+				applyChanges();
 			} catch (NumberFormatException ex) {
 			}
 		}
@@ -158,11 +158,21 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected boolean applyHighlights() {
-		Set<String> nodeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsBefore = CanvasUtilities
-				.getElementIds(getVisibleEdges());
+	protected void applyChanges() {
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+
+		if (isJoinEdges()) {
+			edges = CanvasUtilities.removeInvisibleEdges(edges,
+					getEdgeHighlightConditions());
+			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
+					getEdgeIdProperty(), getEdgeFromProperty(),
+					getEdgeToProperty(),
+					CanvasUtilities.getElementIds(allEdges)).keySet();
+		} else {
+			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
+		}
+
+		createGraph();
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
 				getNodeHighlightConditions(), locationSize, !isAllowEdges());
@@ -178,14 +188,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		}
 
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
-
-		Set<String> nodeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleNodes());
-		Set<String> edgeIdsAfter = CanvasUtilities
-				.getElementIds(getVisibleEdges());
-
-		return !nodeIdsBefore.equals(nodeIdsAfter)
-				|| !edgeIdsBefore.equals(edgeIdsAfter);
+		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	@Override
@@ -228,26 +231,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 						}
 					}
 				});
-	}
-
-	@Override
-	protected void applyEdgeJoin() {
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-
-		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleEdges(edges,
-					getEdgeHighlightConditions());
-			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
-					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges)).keySet();
-		} else {
-			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
-		}
-
-		createGraph();
-		applyHighlights();
-		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	private void createGraph() {

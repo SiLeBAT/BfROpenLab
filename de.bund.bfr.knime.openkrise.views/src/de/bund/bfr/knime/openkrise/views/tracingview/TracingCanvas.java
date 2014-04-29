@@ -110,7 +110,7 @@ public class TracingCanvas extends GraphCanvas implements
 					caseWeights.get(node.getId()));
 		}
 
-		applyTracing();
+		applyChanges();
 	}
 
 	public Map<String, Boolean> getCrossContaminations() {
@@ -141,7 +141,7 @@ public class TracingCanvas extends GraphCanvas implements
 					crossContaminations.get(node.getId()));
 		}
 
-		applyTracing();
+		applyChanges();
 	}
 
 	public Map<String, Boolean> getFilter() {
@@ -171,7 +171,7 @@ public class TracingCanvas extends GraphCanvas implements
 					filter.get(node.getId()));
 		}
 
-		applyTracing();
+		applyChanges();
 	}
 
 	public Map<String, Boolean> getEdgeFilter() {
@@ -201,7 +201,7 @@ public class TracingCanvas extends GraphCanvas implements
 					edgeFilter.get(edge.getId()));
 		}
 
-		applyTracing();
+		applyChanges();
 	}
 
 	public boolean isPerformTracing() {
@@ -212,7 +212,7 @@ public class TracingCanvas extends GraphCanvas implements
 		this.performTracing = performTracing;
 
 		if (performTracing) {
-			applyTracing();
+			applyChanges();
 		}
 	}
 
@@ -337,7 +337,7 @@ public class TracingCanvas extends GraphCanvas implements
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {
-									applyTracing();
+									applyChanges();
 								}
 							} else if (edge != null) {
 								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
@@ -347,7 +347,7 @@ public class TracingCanvas extends GraphCanvas implements
 								dialog.setVisible(true);
 
 								if (dialog.isApproved()) {
-									applyTracing();
+									applyChanges();
 								}
 							}
 						}
@@ -356,20 +356,17 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	protected void applyNodeCollapse() {
-		super.applyNodeCollapse();
+	protected void applyChanges() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+
+		applyNodeCollapse();
+		applyHighlights();
 		applyTracing();
-	}
+		applyHighlights();
 
-	@Override
-	protected boolean applyHighlights() {
-		if (super.applyHighlights()) {
-			applyTracing();
-
-			return true;
-		}
-
-		return false;
+		setSelectedNodeIds(selectedNodeIds);
+		setSelectedEdgeIds(selectedEdgeIds);
 	}
 
 	private void applyTracing() {
@@ -496,8 +493,6 @@ public class TracingCanvas extends GraphCanvas implements
 				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
 			}
 		}
-
-		applyHighlights();
 	}
 
 	private int getIntegerId(GraphNode node) {

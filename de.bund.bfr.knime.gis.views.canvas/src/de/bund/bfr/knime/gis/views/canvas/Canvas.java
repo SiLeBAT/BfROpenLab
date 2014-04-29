@@ -305,7 +305,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setJoinEdges(boolean joinEdges) {
 		this.joinEdges = joinEdges;
 		joinBox.setSelected(joinEdges);
-		applyEdgeJoin();
+		applyChanges();
 		fireEdgeJoinChanged();
 	}
 
@@ -316,7 +316,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		this.skipEdgelessNodes = skipEdgelessNodes;
 		skipBox.setSelected(skipEdgelessNodes);
-		applyHighlights();
+		applyChanges();
 		fireSkipEdgelessChanged();
 	}
 
@@ -407,7 +407,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setNodeHighlightConditions(
 			HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
-		applyHighlights();
+		applyChanges();
 		fireNodeHighlightingChanged();
 	}
 
@@ -418,7 +418,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setEdgeHighlightConditions(
 			HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
-		applyHighlights();
+		applyChanges();
 		fireEdgeHighlightingChanged();
 	}
 
@@ -506,11 +506,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			applyMouseModel();
 		} else if (e.getSource() == joinBox) {
 			joinEdges = joinBox.isSelected();
-			applyEdgeJoin();
+			applyChanges();
 			fireEdgeJoinChanged();
 		} else if (e.getSource() == skipBox) {
 			skipEdgelessNodes = skipBox.isSelected();
-			applyHighlights();
+			applyChanges();
 			fireSkipEdgelessChanged();
 		} else if (e.getSource() == saveAsItem) {
 			ImageFileChooser chooser = new ImageFileChooser();
@@ -818,9 +818,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
-	protected abstract boolean applyHighlights();
-
-	protected abstract void applyEdgeJoin();
+	protected abstract void applyChanges();
 
 	protected abstract void applyTransform();
 
