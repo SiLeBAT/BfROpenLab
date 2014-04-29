@@ -32,6 +32,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -258,6 +259,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		List<Color> nodeColors = new ArrayList<Color>();
 		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<RegionNode, List<Double>>();
+		boolean prioritize = getNodeHighlightConditions().isPrioritizeColors();
 
 		for (RegionNode node : nodes) {
 			nodeAlphas.put(node, new ArrayList<Double>());
@@ -270,7 +272,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			nodeColors.add(condition.getColor());
 
 			for (RegionNode node : nodes) {
-				nodeAlphas.get(node).add(values.get(node));
+				List<Double> alphas = nodeAlphas.get(node);
+
+				if (!prioritize || alphas.isEmpty()
+						|| Collections.max(alphas) == 0.0) {
+					alphas.add(values.get(node));
+				} else {
+					alphas.add(0.0);
+				}
 			}
 		}
 

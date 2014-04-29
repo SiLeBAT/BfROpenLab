@@ -34,6 +34,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -328,7 +329,8 @@ public class CanvasUtilities {
 				for (V node : nodes) {
 					List<Double> alphas = alphaValues.get(node);
 
-					if (!prioritize || !containsNonZeroValue(alphas)) {
+					if (!prioritize || alphas.isEmpty()
+							|| Collections.max(alphas) == 0.0) {
 						alphas.add(values.get(node));
 					} else {
 						alphas.add(0.0);
@@ -425,7 +427,8 @@ public class CanvasUtilities {
 				for (Edge<V> edge : edges) {
 					List<Double> alphas = alphaValues.get(edge);
 
-					if (!prioritize || !containsNonZeroValue(alphas)) {
+					if (!prioritize || alphas.isEmpty()
+							|| Collections.max(alphas) == 0.0) {
 						alphas.add(values.get(edge));
 					} else {
 						alphas.add(0.0);
@@ -600,15 +603,5 @@ public class CanvasUtilities {
 		}
 
 		return result;
-	}
-
-	private static boolean containsNonZeroValue(List<Double> list) {
-		for (double value : list) {
-			if (value != 0.0) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }
