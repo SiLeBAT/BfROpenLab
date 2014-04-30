@@ -162,9 +162,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleEdges(edges,
+			edges = CanvasUtilities.removeInvisibleEdges(allEdges,
 					getEdgeHighlightConditions());
-			edges = CanvasUtilities.joinEdges(allEdges, getEdgeProperties(),
+			edges = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
 					CanvasUtilities.getElementIds(allEdges)).keySet();

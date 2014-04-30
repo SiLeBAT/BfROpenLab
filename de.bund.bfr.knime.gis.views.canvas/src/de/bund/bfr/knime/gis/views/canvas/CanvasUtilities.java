@@ -586,7 +586,8 @@ public class CanvasUtilities {
 	}
 
 	public static <V extends Node> Set<Edge<V>> removeInvisibleEdges(
-			Set<Edge<V>> edges, HighlightConditionList edgeHighlightConditions) {
+			Collection<Edge<V>> edges,
+			HighlightConditionList edgeHighlightConditions) {
 		Set<Edge<V>> result = new LinkedHashSet<Edge<V>>(edges);
 
 		for (HighlightCondition condition : edgeHighlightConditions
