@@ -36,22 +36,27 @@ public class Test {
 
 	public static void main(String[] args) {
 		try {
+			nls();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		try {
 			diff();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private static void nls() throws ParseException {
 		String formula = "a*x^2+b*x+c";
 		List<String> parameters = Arrays.asList("a", "b", "c");
 		Map<String, Double> minParams = new LinkedHashMap<String, Double>();
 		Map<String, Double> maxParams = new LinkedHashMap<String, Double>();
-		List<Double> targetValues = Arrays.asList(1.0, 5.0, 8.0);
+		List<Double> targetValues = Arrays.asList(1.0, 5.0, 8.0, 17.0, 30.0);
 		Map<String, List<Double>> argumentValues = new LinkedHashMap<String, List<Double>>();
 
-		argumentValues.put("x", Arrays.asList(0.0, 2.0, 3.0));
+		argumentValues.put("x", Arrays.asList(0.0, 2.0, 3.0, 4.0, 5.0));
 
 		ParameterOptimizer optimizer = new ParameterOptimizer(formula,
 				parameters, minParams, maxParams, minParams, maxParams,
@@ -60,6 +65,7 @@ public class Test {
 		optimizer.optimize(1, 1, true);
 
 		System.out.println(optimizer.getParameterValues());
+		System.out.println(optimizer.getRMSE());
 	}
 
 	private static void diff() throws ParseException {
