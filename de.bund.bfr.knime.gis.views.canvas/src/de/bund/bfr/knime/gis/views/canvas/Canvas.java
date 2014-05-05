@@ -603,7 +603,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				setNodeHighlightConditions(dialog.getHighlightConditions());
 			}
 		} else if (e.getSource() == clearHighlightNodesItem) {
-			setNodeHighlightConditions(new HighlightConditionList());
+			if (JOptionPane
+					.showConfirmDialog(
+							clearHighlightNodesItem,
+							"Do you really want to remove all node highlight conditions?",
+							"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				setNodeHighlightConditions(new HighlightConditionList());
+			}
 		} else if (e.getSource() == highlightEdgesItem) {
 			HighlightListDialog dialog = openEdgeHighlightDialog();
 
@@ -613,7 +619,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				setEdgeHighlightConditions(dialog.getHighlightConditions());
 			}
 		} else if (e.getSource() == clearHighlightEdgesItem) {
-			setEdgeHighlightConditions(new HighlightConditionList());
+			if (JOptionPane
+					.showConfirmDialog(
+							clearHighlightNodesItem,
+							"Do you really want to remove all edge highlight conditions?",
+							"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				setEdgeHighlightConditions(new HighlightConditionList());
+			}
 		} else if (e.getSource() == nodePropertiesItem) {
 			showNodeProperties();
 		} else if (e.getSource() == edgePropertiesItem) {
