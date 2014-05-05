@@ -95,7 +95,7 @@ public class Test {
 
 		for (double v : new VectorDiffFunction(formula, parameters, "y",
 				"time", timeValues, variableValues, 10.0).value(new double[] {
-				10.0, 30.0, 10.0 })) {
+				9.43, 23.4355, 10.43534 })) {
 			targetValues.add(v);
 		}
 
