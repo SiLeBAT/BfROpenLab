@@ -30,15 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointVectorValuePair;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
-import org.apache.commons.math3.optim.nonlinear.vector.Target;
-import org.apache.commons.math3.optim.nonlinear.vector.Weight;
-import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.nfunk.jep.ParseException;
 
 public class Test {
@@ -74,6 +65,16 @@ public class Test {
 	private static void diff() throws ParseException {
 		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
 		List<String> parameters = Arrays.asList("Dref", "Tref", "z");
+		Map<String, Double> minParams = new LinkedHashMap<String, Double>();
+		Map<String, Double> maxParams = new LinkedHashMap<String, Double>();
+
+		minParams.put("Dref", 0.0);
+		minParams.put("Tref", 0.0);
+		minParams.put("z", 0.0);
+		maxParams.put("Dref", 50.0);
+		maxParams.put("Tref", 50.0);
+		maxParams.put("z", 50.0);
+
 		List<Double> timeValues = new ArrayList<Double>();
 		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
 
@@ -84,33 +85,21 @@ public class Test {
 			variableValues.get("T").add(20.0 + 0.1 * i);
 		}
 
-		VectorDiffFunction f = new VectorDiffFunction(formula, parameters, "y",
-				"time", timeValues, variableValues, 10.0);
-		VectorDiffFunctionJacobian f2 = new VectorDiffFunctionJacobian(formula,
-				parameters, "y", "time", timeValues, variableValues, 10.0);
+		List<Double> targetValues = new ArrayList<Double>();
 
-		double[] guess = new double[] { 5.0, 55.0, 17.0 };
-		double[] target = f.value(new double[] { 10.0, 30.0, 10.0 });
-		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-		PointVectorValuePair p = optimizer.optimize(new ModelFunction(f),
-				new ModelFunctionJacobian(f2), new MaxEval(100), new Target(
-						target), new Weight(new double[] { 1.0, 1.0, 1.0, 1.0,
-						1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }),
-				new InitialGuess(guess));
-
-		System.out.println(rmse(target, f.value(guess), 3));
-		System.out.println(Arrays.asList(ArrayUtils.toObject(f.value(p
-				.getPoint()))));
-		System.out.println(rmse(target, f.value(p.getPoint()), 3));
-	}
-
-	private static double rmse(double[] v1, double[] v2, int n) {
-		double error = 0.0;
-
-		for (int i = 0; i < n; i++) {
-			error += (v1[i] - v2[i]) * (v1[i] - v2[i]);
+		for (double v : new VectorDiffFunction(formula, parameters, "y",
+				"time", timeValues, variableValues, 10.0).value(new double[] {
+				10.0, 30.0, 10.0 })) {
+			targetValues.add(v);
 		}
 
-		return Math.sqrt(error);
+		ParameterOptimizer optimizer = new ParameterOptimizer(formula,
+				parameters, minParams, maxParams, targetValues, "y", "time",
+				timeValues, variableValues);
+
+		optimizer.optimize(100, 1, true);
+
+		System.out.println(optimizer.getParameterValues());
+		System.out.println(optimizer.getRMSE());
 	}
 }

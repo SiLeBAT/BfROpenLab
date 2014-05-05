@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.optim.InitialGuess;
@@ -50,13 +52,13 @@ public class ParameterOptimizer {
 	private static final int MAX_EVAL = 10000;
 	private static final double COV_THRESHOLD = 1e-14;
 
-	private VectorFunction optimizerFunction;
-	private VectorFunctionJacobian optimizerFunctionJacobian;
+	private MultivariateVectorFunction optimizerFunction;
+	private MultivariateMatrixFunction optimizerFunctionJacobian;
 
 	private List<String> parameters;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
-	private List<Double> targetValues;	
+	private List<Double> targetValues;
 
 	private LevenbergMarquardtOptimizer optimizer;
 	private PointVectorValuePair optimizerValues;
@@ -83,7 +85,7 @@ public class ParameterOptimizer {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
-		this.targetValues = targetValues;				
+		this.targetValues = targetValues;
 
 		if (enforceLimits) {
 			for (String param : parameters) {
@@ -104,6 +106,26 @@ public class ParameterOptimizer {
 				variableValues);
 		optimizerFunctionJacobian = new VectorFunctionJacobian(formula,
 				parameters, variableValues);
+		successful = false;
+		resetResults();
+	}
+
+	public ParameterOptimizer(String formula, List<String> parameters,
+			Map<String, Double> minStartValues,
+			Map<String, Double> maxStartValues, List<Double> targetValues,
+			String valueVariable, String timeVariable, List<Double> timeValues,
+			Map<String, List<Double>> variableValues) throws ParseException {
+		this.parameters = parameters;
+		this.minStartValues = minStartValues;
+		this.maxStartValues = maxStartValues;
+		this.targetValues = targetValues;
+
+		optimizerFunction = new VectorDiffFunction(formula, parameters,
+				valueVariable, timeVariable, timeValues, variableValues,
+				targetValues.get(0));
+		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formula,
+				parameters, valueVariable, timeVariable, timeValues,
+				variableValues, targetValues.get(0));
 		successful = false;
 		resetResults();
 	}
@@ -328,7 +350,7 @@ public class ParameterOptimizer {
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
 				ArrayUtils.toPrimitive(targetValues.toArray(new Double[0]))),
-				new Weight(weights), new InitialGuess(startValues));
+				new Weight(weights), new InitialGuess(startValues));		
 	}
 
 	private void useCurrentResults() {
@@ -343,7 +365,7 @@ public class ParameterOptimizer {
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.put(parameters.get(i),
 					optimizerValues.getPoint()[i]);
-		}
+		}		
 
 		try {
 			if (targetValues.size() <= parameters.size()) {
