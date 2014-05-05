@@ -643,7 +643,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, Color.RED, false, false, null);
+					conditions, null, Color.RED, false, false, null);
 
 			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);
@@ -664,7 +664,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, Color.RED, false, false, null);
+					conditions, null, Color.RED, false, false, null);
 
 			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);

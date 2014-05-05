@@ -69,6 +69,11 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 	}
 
 	@Override
+	public String getName() {
+		return valueCondition.getName();
+	}
+
+	@Override
 	public Color getColor() {
 		return valueCondition.getColor();
 	}
@@ -152,6 +157,6 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 
 	@Override
 	public String toString() {
-		return "Logical Value Condition";
+		return getName() != null ? getName() : "Logical Value Condition";
 	}
 }

@@ -38,6 +38,7 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	private static final long serialVersionUID = 1L;
 
+	private String name;
 	private List<List<LogicalHighlightCondition>> conditions;
 	private Color color;
 	private boolean invisible;
@@ -45,13 +46,15 @@ public class AndOrHighlightCondition implements HighlightCondition,
 	private String labelProperty;
 
 	public AndOrHighlightCondition() {
-		this(null, null, false, false, null);
+		this(null, null, null, false, false, null);
 	}
 
 	public AndOrHighlightCondition(
-			List<List<LogicalHighlightCondition>> conditions, Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+			List<List<LogicalHighlightCondition>> conditions, String name,
+			Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		setConditions(conditions);
+		setName(name);
 		setColor(color);
 		setInvisible(invisible);
 		setUseThickness(useThickness);
@@ -64,6 +67,15 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	public void setConditions(List<List<LogicalHighlightCondition>> conditions) {
 		this.conditions = conditions;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -149,7 +161,7 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	@Override
 	public String toString() {
-		return "Logical Condition";
+		return getName() != null ? getName() : "Logical Condition";
 	}
 
 }

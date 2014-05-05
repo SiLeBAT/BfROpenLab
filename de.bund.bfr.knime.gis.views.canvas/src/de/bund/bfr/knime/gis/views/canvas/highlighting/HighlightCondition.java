@@ -31,6 +31,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public interface HighlightCondition {
 
+	public abstract String getName();
+
 	public abstract Color getColor();
 
 	public abstract boolean isInvisible();

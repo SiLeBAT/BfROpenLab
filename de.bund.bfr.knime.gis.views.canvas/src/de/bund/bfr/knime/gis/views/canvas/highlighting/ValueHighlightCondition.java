@@ -43,19 +43,22 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	private String property;
 	private String type;
+	private String name;
 	private Color color;
 	private boolean invisible;
 	private boolean useThickness;
 	private String labelProperty;
 
 	public ValueHighlightCondition() {
-		this(null, null, null, false, false, null);
+		this(null, null, null, null, false, false, null);
 	}
 
-	public ValueHighlightCondition(String property, String type, Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+	public ValueHighlightCondition(String property, String type, String name,
+			Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		setProperty(property);
 		setType(type);
+		setName(name);
 		setColor(color);
 		setInvisible(invisible);
 		setUseThickness(useThickness);
@@ -76,6 +79,15 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -169,7 +181,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	@Override
 	public String toString() {
-		return "Value Condition";
+		return getName() != null ? getName() : "Value Condition";		
 	}
 
 }

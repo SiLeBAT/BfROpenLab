@@ -104,6 +104,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	private Type type;
 
 	private JComboBox<Type> conditionTypeBox;
+	private JTextField nameField;
 	private JButton colorButton;
 	private JCheckBox colorBox;
 	private JCheckBox invisibleBox;
@@ -156,14 +157,19 @@ public class HighlightDialog extends JDialog implements ActionListener {
 					new Type[] { Type.LOGICAL_CONDITION });
 		}
 
-		JPanel conditionTypePanel = new JPanel();
+		nameField = new JTextField(20);
 
-		conditionTypePanel.setLayout(new BoxLayout(conditionTypePanel,
+		JPanel optionsPanel = new JPanel();
+
+		optionsPanel.setLayout(new BoxLayout(optionsPanel,
 				BoxLayout.X_AXIS));
-		conditionTypePanel.setBorder(BorderFactory
+		optionsPanel.setBorder(BorderFactory
 				.createEmptyBorder(5, 5, 5, 5));
-		conditionTypePanel.add(new JLabel("Type:"));
-		conditionTypePanel.add(conditionTypeBox);
+		optionsPanel.add(new JLabel("Type:"));
+		optionsPanel.add(conditionTypeBox);
+		optionsPanel.add(Box.createHorizontalStrut(5));
+		optionsPanel.add(new JLabel("Name:"));
+		optionsPanel.add(nameField);
 
 		if (allowColor) {
 			colorButton = new JButton("     ");
@@ -171,25 +177,25 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			colorButton.setOpaque(true);
 			colorBox = new JCheckBox("Use Color");
 			colorBox.setSelected(true);
-			conditionTypePanel.add(Box.createHorizontalStrut(5));
-			conditionTypePanel.add(new JLabel("Color:"));
-			conditionTypePanel.add(colorButton);
-			conditionTypePanel.add(Box.createHorizontalStrut(5));
-			conditionTypePanel.add(colorBox);
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(new JLabel("Color:"));
+			optionsPanel.add(colorButton);
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(colorBox);
 		}
 
 		if (allowInvisible) {
 			invisibleBox = new JCheckBox("Invisible");
 			invisibleBox.setSelected(false);
-			conditionTypePanel.add(Box.createHorizontalStrut(5));
-			conditionTypePanel.add(invisibleBox);
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(invisibleBox);
 		}
 
 		if (allowThickness) {
 			thicknessBox = new JCheckBox("Adjust Thickness");
 			thicknessBox.setSelected(false);
-			conditionTypePanel.add(Box.createHorizontalStrut(5));
-			conditionTypePanel.add(thicknessBox);
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(thicknessBox);
 		}
 
 		if (allowLabel) {
@@ -200,15 +206,15 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 			labelBox = new JComboBox<String>(choices.toArray(new String[0]));
 			labelBox.setSelectedItem("");
-			conditionTypePanel.add(Box.createHorizontalStrut(5));
-			conditionTypePanel.add(new JLabel("Label:"));
-			conditionTypePanel.add(labelBox);
+			optionsPanel.add(Box.createHorizontalStrut(5));
+			optionsPanel.add(new JLabel("Label:"));
+			optionsPanel.add(labelBox);
 		}
 
 		JPanel upperPanel = new JPanel();
 
 		upperPanel.setLayout(new BorderLayout());
-		upperPanel.add(UI.createWestPanel(conditionTypePanel),
+		upperPanel.add(UI.createWestPanel(optionsPanel),
 				BorderLayout.CENTER);
 		upperPanel.add(new JSeparator(), BorderLayout.SOUTH);
 
@@ -225,6 +231,10 @@ public class HighlightDialog extends JDialog implements ActionListener {
 			}
 
 			conditionTypeBox.setSelectedItem(type);
+
+			if (initialCondition.getName() != null) {
+				nameField.setText(initialCondition.getName());
+			}
 
 			if (initialCondition.isInvisible()) {
 				invisibleBox.setSelected(true);
@@ -420,7 +430,7 @@ public class HighlightDialog extends JDialog implements ActionListener {
 					.asList(new LogicalHighlightCondition(nodeProperties
 							.keySet().toArray(new String[0])[0],
 							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
-					false, false, null);
+					null, false, false, null);
 		}
 
 		for (int i = 0; i < condition.getConditions().size(); i++) {
@@ -539,6 +549,8 @@ public class HighlightDialog extends JDialog implements ActionListener {
 	private HighlightCondition createCondition() {
 		boolean invisible = allowInvisible && invisibleBox.isSelected();
 		boolean useThickness = allowThickness && thicknessBox.isSelected();
+		String name = !nameField.getText().isEmpty() ? nameField.getText()
+				: null;
 		Color color;
 		String labelProperty;
 
@@ -555,23 +567,24 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		}
 
 		if (type == Type.LOGICAL_CONDITION) {
-			return createLogicalCondition(color, invisible, useThickness,
+			return createLogicalCondition(name, color, invisible, useThickness,
 					labelProperty);
 		} else if (type == Type.VALUE_CONDITION) {
-			return createValueCondition(color, invisible, useThickness,
+			return createValueCondition(name, color, invisible, useThickness,
 					labelProperty);
 		} else if (type == Type.LOGICAL_VALUE_CONDITION) {
 			return new LogicalValueHighlightCondition(createValueCondition(
-					color, invisible, useThickness, labelProperty),
-					createLogicalCondition(color, invisible, useThickness,
-							labelProperty));
+					name, color, invisible, useThickness, labelProperty),
+					createLogicalCondition(name, color, invisible,
+							useThickness, labelProperty));
 		}
 
 		return null;
 	}
 
-	private AndOrHighlightCondition createLogicalCondition(Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+	private AndOrHighlightCondition createLogicalCondition(String name,
+			Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
 		List<LogicalHighlightCondition> andList = new ArrayList<LogicalHighlightCondition>();
 
@@ -596,16 +609,17 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		conditions.add(andList);
 
-		return new AndOrHighlightCondition(conditions, color, invisible,
+		return new AndOrHighlightCondition(conditions, name, color, invisible,
 				useThickness, labelProperty);
 	}
 
-	private ValueHighlightCondition createValueCondition(Color color,
-			boolean invisible, boolean useThickness, String labelProperty) {
+	private ValueHighlightCondition createValueCondition(String name,
+			Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		return new ValueHighlightCondition(
 				(String) valuePropertyBox.getSelectedItem(),
-				(String) valueTypeBox.getSelectedItem(), color, invisible,
-				useThickness, labelProperty);
+				(String) valueTypeBox.getSelectedItem(), name, color,
+				invisible, useThickness, labelProperty);
 	}
 
 	private void addRemoveButtonPressed(JButton button) {
@@ -671,13 +685,13 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		if (condition instanceof AndOrHighlightCondition) {
 			conditionPanel = createLogicalPanel(new AndOrHighlightCondition(
-					conditions, null, false, false, null));
+					conditions, null, null, false, false, null));
 		} else if (condition instanceof LogicalValueHighlightCondition) {
 			conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(
 					((LogicalValueHighlightCondition) condition)
 							.getValueCondition(),
-					new AndOrHighlightCondition(conditions, null, false, false,
-							null)));
+					new AndOrHighlightCondition(conditions, null, null, false,
+							false, null)));
 		}
 
 		add(conditionPanel, BorderLayout.CENTER);
