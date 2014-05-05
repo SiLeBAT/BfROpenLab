@@ -130,7 +130,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(), false, false,
-				false, getNodeHighlightConditions(), null);
+				true, getNodeHighlightConditions(), null);
 	}
 
 	@Override
@@ -155,6 +155,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		createGraph();
+		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+				getNodeHighlightConditions());
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

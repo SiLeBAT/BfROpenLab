@@ -395,6 +395,57 @@ public class CanvasUtilities {
 				new LabelTransformer<V>(labels));
 	}
 
+	public static <V extends Node> void applyNodeHighlights(
+			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
+			HighlightConditionList nodeHighlightConditions) {
+		Map<V, List<Double>> alphaValues = new LinkedHashMap<V, List<Double>>();
+		Map<V, Double> thicknessValues = new LinkedHashMap<V, Double>();
+		Map<V, Set<String>> labelLists = new LinkedHashMap<V, Set<String>>();
+
+		for (V node : nodes) {
+			alphaValues.put(node, new ArrayList<Double>());
+			thicknessValues.put(node, 0.0);
+		}
+
+		for (HighlightCondition condition : nodeHighlightConditions
+				.getConditions()) {
+			Map<V, Double> values = condition.getValues(nodes);
+
+			if (condition.getLabelProperty() != null) {
+				String property = condition.getLabelProperty();
+
+				for (V node : nodes) {
+					if (values.get(node) != 0.0
+							&& node.getProperties().get(property) != null) {
+						if (!labelLists.containsKey(node)) {
+							labelLists.put(node, new LinkedHashSet<String>());
+						}
+
+						labelLists.get(node).add(
+								node.getProperties().get(property).toString());
+					}
+				}
+			}
+		}
+
+		Map<V, String> labels = new LinkedHashMap<V, String>();
+
+		for (V node : labelLists.keySet()) {
+			if (!labelLists.get(node).isEmpty()) {
+				String label = "";
+
+				for (String s : labelLists.get(node)) {
+					label += s + "/";
+				}
+
+				labels.put(node, label.substring(0, label.length() - 1));
+			}
+		}
+
+		viewer.getRenderContext().setVertexLabelTransformer(
+				new LabelTransformer<V>(labels));
+	}
+
 	public static <V extends Node> void applyEdgeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<Edge<V>> edges,
 			HighlightConditionList edgeHighlightConditions) {
