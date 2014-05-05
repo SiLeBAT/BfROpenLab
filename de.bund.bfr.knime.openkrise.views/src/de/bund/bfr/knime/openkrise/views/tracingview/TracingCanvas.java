@@ -367,6 +367,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
+		getViewer().repaint();
 	}
 
 	private void applyTracing() {

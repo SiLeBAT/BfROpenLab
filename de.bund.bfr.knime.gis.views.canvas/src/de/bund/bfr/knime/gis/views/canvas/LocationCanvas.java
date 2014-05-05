@@ -189,6 +189,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 		setSelectedEdgeIds(selectedEdgeIds);
+		getViewer().repaint();
 	}
 
 	@Override

@@ -436,6 +436,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
+		getViewer().repaint();
 	}
 
 	protected void applyNodeCollapse() {

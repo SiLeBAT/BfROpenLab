@@ -393,7 +393,6 @@ public class CanvasUtilities {
 				new NodeFillTransformer<V>(viewer, alphaValues, colors));
 		viewer.getRenderContext().setVertexLabelTransformer(
 				new LabelTransformer<V>(labels));
-		viewer.repaint();
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
@@ -498,7 +497,6 @@ public class CanvasUtilities {
 				new EdgeStrokeTransformer<Edge<V>>(thicknessValues));
 		viewer.getRenderContext().setEdgeLabelTransformer(
 				new LabelTransformer<Edge<V>>(labels));
-		viewer.repaint();
 	}
 
 	public static <V extends Node> void applyEdgelessNodes(

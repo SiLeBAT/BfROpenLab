@@ -155,8 +155,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		createGraph();
-		flushImage();
-		getViewer().repaint();
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
@@ -170,6 +168,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 		setSelectedEdgeIds(selectedEdgeIds);
+		flushImage();
+		getViewer().repaint();
 	}
 
 	@Override
