@@ -45,16 +45,16 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 	private Node function;
 	private List<String> parameters;
 	private Map<String, Node> derivatives;
-	private List<Map<String, List<Double>>> argumentValues;
+	private List<Map<String, List<Double>>> variableValues;
 	private int dimension;
 
 	public VectorFunctionJacobian(String formula, List<String> parameters,
-			Map<String, List<Double>> argumentValues) throws ParseException {
+			Map<String, List<Double>> variableValues) throws ParseException {
 		this.parameters = parameters;
-		this.argumentValues = createArgumentVariationList(argumentValues);
+		this.variableValues = createArgumentVariationList(variableValues);
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
-				argumentValues.keySet()));
+				variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<String, Node>();
 
@@ -62,7 +62,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			derivatives.put(param, parser.differentiate(function, param));
 		}
 
-		for (List<Double> values : argumentValues.values()) {
+		for (List<Double> values : variableValues.values()) {
 			dimension = values.size();
 			break;
 		}
@@ -98,7 +98,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			parser.setVarValue(entry.getKey(), entry.getValue());
 		}
 
-		for (Map<String, List<Double>> argValues : argumentValues) {
+		for (Map<String, List<Double>> argValues : variableValues) {
 			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
 				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
 			}
@@ -110,7 +110,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		}
 
-		for (Map<String, List<Double>> argValues : argumentValues) {
+		for (Map<String, List<Double>> argValues : variableValues) {
 			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
 				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
 			}

@@ -38,19 +38,19 @@ public class VectorFunction implements MultivariateVectorFunction {
 	private DJep parser;
 	private Node function;
 	private List<String> parameters;
-	private Map<String, List<Double>> argumentValues;
+	private Map<String, List<Double>> variableValues;
 	private int dimension;
 
 	public VectorFunction(String formula, List<String> parameters,
-			Map<String, List<Double>> argumentValues) throws ParseException {
+			Map<String, List<Double>> variableValues) throws ParseException {
 		this.parameters = parameters;
-		this.argumentValues = argumentValues;
+		this.variableValues = variableValues;
 
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
-				argumentValues.keySet()));
+				variableValues.keySet()));
 		function = parser.parse(formula);
 
-		for (List<Double> values : argumentValues.values()) {
+		for (List<Double> values : variableValues.values()) {
 			dimension = values.size();
 			break;
 		}
@@ -66,7 +66,7 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 		try {
 			for (int i = 0; i < dimension; i++) {
-				for (Map.Entry<String, List<Double>> entry : argumentValues
+				for (Map.Entry<String, List<Double>> entry : variableValues
 						.entrySet()) {
 					parser.setVarValue(entry.getKey(), entry.getValue().get(i));
 				}

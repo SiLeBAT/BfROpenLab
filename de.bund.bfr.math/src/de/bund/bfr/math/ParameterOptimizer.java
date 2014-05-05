@@ -78,7 +78,7 @@ public class ParameterOptimizer {
 			Map<String, Double> maxStartValues,
 			Map<String, Double> minParameterValues,
 			Map<String, Double> maxParameterValues, List<Double> targetValues,
-			Map<String, List<Double>> argumentValues, boolean enforceLimits)
+			Map<String, List<Double>> variableValues, boolean enforceLimits)
 			throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
@@ -101,9 +101,9 @@ public class ParameterOptimizer {
 		}
 
 		optimizerFunction = new VectorFunction(formula, parameters,
-				argumentValues);
+				variableValues);
 		optimizerFunctionJacobian = new VectorFunctionJacobian(formula,
-				parameters, argumentValues);
+				parameters, variableValues);
 		successful = false;
 		resetResults();
 	}
