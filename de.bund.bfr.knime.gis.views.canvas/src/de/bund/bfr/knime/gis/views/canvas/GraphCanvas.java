@@ -23,6 +23,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -162,7 +163,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new NodeShapeTransformer<GraphNode>(nodeSize,
 						new LinkedHashMap<GraphNode, Double>()));
 		createGraph();
-		applyLayout();
+		applyLayout(null);
 	}
 
 	public Set<GraphNode> getNodes() {
@@ -235,7 +236,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public void setLayoutType(String layoutType) {
 		this.layoutType = layoutType;
-		applyLayout();
+		applyLayout(null);
 	}
 
 	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
@@ -264,7 +265,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		if (e.getSource() == layoutButton) {
 			layoutType = (String) layoutBox.getSelectedItem();
-			applyLayout();
+			applyLayout(getSelectedNodes());
 		} else if (e.getSource() == nodeSizeButton) {
 			try {
 				nodeSize = Integer.parseInt(nodeSizeField.getText());
@@ -561,7 +562,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
 
-	private void applyLayout() {
+	private void applyLayout(Set<GraphNode> onNodes) {
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
@@ -582,8 +583,28 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			layout = new SpringLayout2<GraphNode, Edge<GraphNode>>(graph);
 		}
 
-		layout.setSize(getViewer().getSize());
-		setTransform(1.0, 1.0, 0.0, 0.0);
+		if (onNodes != null && !onNodes.isEmpty()) {
+			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
+					getTranslationY() / getScaleY());
+
+			layout.setSize(new Dimension(
+					(int) (getViewer().getSize().width / getScaleX()),
+					(int) (getViewer().getSize().height / getScaleY())));
+
+			for (GraphNode node : nodes) {
+				if (!onNodes.contains(node)) {
+					layout.setLocation(node, CanvasUtilities.addPoints(
+							getViewer().getGraphLayout().transform(node), move));
+					layout.lock(node, true);
+				}
+			}
+
+			setTransform(getScaleX(), getScaleY(), 0.0, 0.0);
+		} else {
+			layout.setSize(getViewer().getSize());
+			setTransform(1.0, 1.0, 0.0, 0.0);
+		}
+
 		getViewer().setGraphLayout(layout);
 	}
 
