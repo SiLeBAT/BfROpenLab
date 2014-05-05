@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataCell;
@@ -42,16 +43,16 @@ import de.bund.bfr.knime.openkrise.MyNewTracing;
  */
 public class MyKrisenInterfacesNodeModel extends NodeModel {
 
-	static final String PARAM_FILENAME = "filename";
-	static final String PARAM_LOGIN = "login";
-	static final String PARAM_PASSWD = "passwd";
-	static final String PARAM_OVERRIDE = "override";
+	/*
+	 * static final String PARAM_FILENAME = "filename"; static final String
+	 * PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
+	 * static final String PARAM_OVERRIDE = "override";
+	 */
 	static final String PARAM_ANONYMIZE = "anonymize";
-
-	private String filename;
-	private String login;
-	private String passwd;
-	private boolean override;
+	/*
+	 * private String filename; private String login; private String passwd;
+	 * private boolean override;
+	 */
 	private boolean doAnonymize;
 
 	private boolean isDE = false;
@@ -81,8 +82,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		ResultSet rsp = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
 		if (rsp != null && rsp.first()) {
 			do {
-				System.err.println("Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In") + ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "."
-						+ rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")");
+				System.err.println("Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In")
+						+ ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")");
 			} while (rsp.next());
 		}
 		// Sum(In) <=> Sum(Out)???
@@ -165,8 +166,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				int stationID = rs.getInt("ID");
 				//if (!antiArticle || !checkCompanyReceivedArticle(stationID, articleFilterList) || !checkCase(stationID)) {
 				String bl = getBL(rs.getString("Bundesland"));
-				String country = getBL(rs.getString("Land"), 3);
-				String company = (rs.getObject("Name") == null || doAnonymize) ? bl + stationID + "(" + country + ")" : rs.getString("Name");
+				String country = rs.getString("Land");//getBL(rs.getString("Land"), 3);
+				String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : rs.getString("Name"); // bl + stationID + "(" + country + ")"
 				//if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 				//id2Code.put(stationID, company);
 				RowKey key = RowKey.createRowKey(rowNumber);
@@ -180,7 +181,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Hausnummer"));
 				cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
 				cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
-				cells[6] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
+				cells[6] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(
+						rs.getString("Bundesland"));
 				cells[7] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
 				cells[8] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
 				cells[9] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
@@ -211,8 +213,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		System.err.println("Starting Links33...");
 		// Alle Lieferungen -> Links33
 		BufferedDataContainer output33Links = exec.createDataContainer(getSpec33Links());
-		rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "."
-				+ DBKernel.delimitL("ID") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID")
+		rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen")
+				+ "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog")
+				+ " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID")
 				+ " ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"), false);//db.pushQuery(sql);
 		if (rs != null && rs.first()) {
 			int rowNumber = 0;
@@ -248,8 +251,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.OriginCountry"));
 
 				cells[15] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.EndChain"));
-				cells[16] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Explanation_EndChain"));
-				cells[17] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Contact_Questions_Remarks"));
+				cells[16] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(
+						rs.getString("Lieferungen.Explanation_EndChain"));
+				cells[17] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(
+						rs.getString("Lieferungen.Contact_Questions_Remarks"));
 				cells[18] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Further_Traceback"));
 				cells[19] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.MicrobioSample"));
 
@@ -272,6 +277,20 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		System.err.println("Fin!");
 		return new BufferedDataTable[] { output33Nodes.getTable(), output33Links.getTable(), buf.getTable() }; // outputWordle.getTable(), outputBurow.getTable(), outputBurowNew.getTable(),
+	}
+
+	private String getISO3166_2(String country) {
+		Locale locale = Locale.ENGLISH;//Locale.GERMAN;
+		for (String code : Locale.getISOCountries()) {
+			if (new Locale("", code).getDisplayCountry(locale).equals(country)) {
+				return code;
+			}
+		}
+		return "N.N";
+	}
+
+	private String getAnonymizedStation(String bl, int stationID, String country) {
+		return getISO3166_2(country) + "_" + stationID;//bl + stationID + "(" + country + ")";
 	}
 
 	private String sdfFormat(String day, String month, String year) {
@@ -390,13 +409,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			if (rs != null && rs.first()) {
 				do {
 					String bl = getBL(rs.getString("Bundesland"));
-					String country = getBL(rs.getString("Land"), 3);
+					String country = rs.getString("Land");//getBL(rs.getString("Land"), 3);
 					int stationID = rs.getInt("ID");
-					String anonStr = bl + stationID + "(" + country + ")";
-					sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Name") + "='" + anonStr + "', " + DBKernel.delimitL("Strasse") + "=NULL, " + DBKernel.delimitL("Hausnummer") + "=NULL, " + DBKernel.delimitL("Ort")
-							+ "=NULL WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+					String anonStr = getAnonymizedStation(bl, stationID, country);
+					sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Name") + "='" + anonStr + "', " + DBKernel.delimitL("Strasse") + "=NULL, "
+							+ DBKernel.delimitL("Hausnummer") + "=NULL, " + DBKernel.delimitL("Ort") + "=NULL WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
 					DBKernel.sendRequest(conn, sql, false, false);
-					sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Betriebsnummer") + "=NULL WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+					sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Betriebsnummer") + "=NULL WHERE " + DBKernel.delimitL("ID") + "="
+							+ rs.getInt("ID");
 					DBKernel.sendRequest(conn, sql, false, false);
 				} while (rs.next());
 			}
@@ -428,11 +448,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(PARAM_FILENAME, filename);
-		settings.addString(PARAM_LOGIN, login);
-		settings.addString(PARAM_PASSWD, passwd);
-		settings.addBoolean(PARAM_OVERRIDE, override);
-
+		/*
+		 * settings.addString(PARAM_FILENAME, filename);
+		 * settings.addString(PARAM_LOGIN, login);
+		 * settings.addString(PARAM_PASSWD, passwd);
+		 * settings.addBoolean(PARAM_OVERRIDE, override);
+		 */
 		settings.addBoolean(PARAM_ANONYMIZE, doAnonymize);
 	}
 
@@ -441,11 +462,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		filename = settings.getString(PARAM_FILENAME);
-		login = settings.getString(PARAM_LOGIN);
-		passwd = settings.getString(PARAM_PASSWD);
-		override = settings.getBoolean(PARAM_OVERRIDE);
-
+		/*
+		 * filename = settings.getString(PARAM_FILENAME); login =
+		 * settings.getString(PARAM_LOGIN); passwd =
+		 * settings.getString(PARAM_PASSWD); override =
+		 * settings.getBoolean(PARAM_OVERRIDE);
+		 */
 		doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
 	}
 
