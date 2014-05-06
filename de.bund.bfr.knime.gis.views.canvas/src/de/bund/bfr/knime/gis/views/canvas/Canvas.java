@@ -26,6 +26,9 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,6 +36,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -83,6 +87,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
@@ -91,6 +96,7 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
@@ -114,6 +120,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
+
+	private static final int LEGEND_WIDTH = 30;
+	private static final int LEGEND_HEIGHT = 12;
+	private static final int LEGEND_DX = 10;
+	private static final int LEGEND_DY = 3;
+	private static final Font LEGEND_FONT = new Font("Default", 0, 12);
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -207,6 +219,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
+		viewer.addPostRenderPaintable(new Paintable() {
+
+			@Override
+			public boolean useTransform() {
+				return false;
+			}
+
+			@Override
+			public void paint(Graphics g) {
+				paintLegend(g);
+			}
+		});
 
 		canvasListeners = new ArrayList<CanvasListener>();
 
@@ -839,6 +863,41 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void expandFromNode();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
+
+	private void paintLegend(Graphics g) {
+		FontRenderContext fontRenderContext = ((Graphics2D) g)
+				.getFontRenderContext();
+		Map<String, Color> legend = new LinkedHashMap<String, Color>();
+		int maxWidth = 0;
+
+		for (HighlightCondition condition : nodeHighlightConditions
+				.getConditions()) {
+			String name = condition.getName();
+			Color color = condition.getColor();
+
+			if (name != null && !name.isEmpty() && color != null) {
+				legend.put(name, color);
+				maxWidth = Math.max(maxWidth, (int) LEGEND_FONT
+						.getStringBounds(name, fontRenderContext).getWidth());
+			}
+		}
+
+		g.setFont(LEGEND_FONT);
+
+		int y = getCanvasSize().height - legend.size()
+				* (LEGEND_HEIGHT + LEGEND_DY) - LEGEND_DY;
+
+		for (String name : legend.keySet()) {
+			g.setColor(Color.BLACK);
+			g.drawString(name, LEGEND_DX, y + LEGEND_FONT.getSize());
+			g.setColor(legend.get(name));
+			g.fillRect(2 * LEGEND_DX + maxWidth, y, LEGEND_WIDTH, LEGEND_HEIGHT);
+
+			y += LEGEND_HEIGHT + LEGEND_DY;
+		}
+
+		// TODO finish legend
+	}
 
 	private void applyPopupMenu() {
 		JPopupMenu popup = new JPopupMenu();

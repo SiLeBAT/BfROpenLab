@@ -78,7 +78,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 			@Override
 			public void paint(Graphics g) {
-				paintGisImage(g, getCanvasSize().width, getCanvasSize().height);
+				paintGisImage(g);
 			}
 		});
 
@@ -231,7 +231,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	private void paintGisImage(Graphics g, int width, int height) {
+	private void paintGisImage(Graphics g) {
+		int width = getCanvasSize().width;
+		int height = getCanvasSize().height;
+
 		if (image == null || image.getWidth() != width
 				|| image.getHeight() != height) {
 			flushImage();
