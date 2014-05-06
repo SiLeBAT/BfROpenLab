@@ -17,14 +17,23 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/"
+            category-path="/foodchain"
             factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"
             id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"/>
       <node
-            category-path="/"
+            category-path="/foodchain"
             factory-class="de.bund.bfr.knime.openkrise.clustering.DBSCANNodeFactory"
             id="de.bund.bfr.knime.openkrise.clustering.DBSCANNodeFactory">
       </node>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icons/foodchain.png"
+            level-id="foodchain"
+            name="FoodChain-Lab"
+            path="/">
+      </category>
    </extension>
    
 </plugin>
