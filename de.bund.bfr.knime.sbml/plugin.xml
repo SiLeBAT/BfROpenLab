@@ -17,9 +17,18 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/"
+            category-path="/sbml"
             factory-class="de.bund.bfr.knime.sbml.reader.SbmlReaderNodeFactory"
             id="de.bund.bfr.knime.sbml.reader.SbmlReaderNodeFactory"/>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icons/SBML.png"
+            level-id="sbml"
+            name="SBML"
+            path="/">
+      </category>
    </extension>
    
 </plugin>
