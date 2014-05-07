@@ -126,6 +126,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final int LEGEND_DX = 10;
 	private static final int LEGEND_DY = 3;
 	private static final Font LEGEND_FONT = new Font("Default", 0, 12);
+	private static final Font LEGEND_HEAD_FONT = new Font("Default", Font.BOLD,
+			12);
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -867,8 +869,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void paintLegend(Graphics g) {
 		FontRenderContext fontRenderContext = ((Graphics2D) g)
 				.getFontRenderContext();
-		Map<String, Color> legend = new LinkedHashMap<String, Color>();
-		int maxWidth = 0;
+		Map<String, Color> nodeLegend = new LinkedHashMap<String, Color>();
+		Map<String, Color> edgeLegend = new LinkedHashMap<String, Color>();
+		int maxNodeWidth = 0;
+		int maxEdgeWidth = 0;
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
@@ -876,24 +880,58 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			Color color = condition.getColor();
 
 			if (name != null && !name.isEmpty() && color != null) {
-				legend.put(name, color);
-				maxWidth = Math.max(maxWidth, (int) LEGEND_FONT
+				nodeLegend.put(name, color);
+				maxNodeWidth = Math.max(maxNodeWidth, (int) LEGEND_FONT
 						.getStringBounds(name, fontRenderContext).getWidth());
 			}
 		}
 
-		g.setFont(LEGEND_FONT);
+		for (HighlightCondition condition : edgeHighlightConditions
+				.getConditions()) {
+			String name = condition.getName();
+			Color color = condition.getColor();
 
-		int y = getCanvasSize().height - legend.size()
+			if (name != null && !name.isEmpty() && color != null) {
+				edgeLegend.put(name, color);
+				maxEdgeWidth = Math.max(maxEdgeWidth, (int) LEGEND_FONT
+						.getStringBounds(name, fontRenderContext).getWidth());
+			}
+		}
+
+		int y0 = getCanvasSize().height
+				- (Math.max(nodeLegend.size(), edgeLegend.size()) + 1)
 				* (LEGEND_HEIGHT + LEGEND_DY) - LEGEND_DY;
 
-		for (String name : legend.keySet()) {
-			g.setColor(Color.BLACK);
-			g.drawString(name, LEGEND_DX, y + LEGEND_FONT.getSize());
-			g.setColor(legend.get(name));
-			g.fillRect(2 * LEGEND_DX + maxWidth, y, LEGEND_WIDTH, LEGEND_HEIGHT);
+		g.setColor(Color.BLACK);
+		g.setFont(LEGEND_HEAD_FONT);
+		g.drawString("Nodes", LEGEND_DX, y0 + LEGEND_FONT.getSize());
+		g.drawString("Edges", 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH, y0
+				+ LEGEND_FONT.getSize());
 
-			y += LEGEND_HEIGHT + LEGEND_DY;
+		int yNode = y0 + LEGEND_HEIGHT + LEGEND_DY;
+		int yEdge = y0 + LEGEND_HEIGHT + LEGEND_DY;
+
+		g.setFont(LEGEND_FONT);
+
+		for (String name : nodeLegend.keySet()) {
+			g.setColor(Color.BLACK);
+			g.drawString(name, LEGEND_DX, yNode + LEGEND_FONT.getSize());
+			g.setColor(nodeLegend.get(name));
+			g.fillRect(2 * LEGEND_DX + maxNodeWidth, yNode, LEGEND_WIDTH,
+					LEGEND_HEIGHT);
+
+			yNode += LEGEND_HEIGHT + LEGEND_DY;
+		}
+
+		for (String name : edgeLegend.keySet()) {
+			g.setColor(Color.BLACK);
+			g.drawString(name, 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH,
+					yEdge + LEGEND_FONT.getSize());
+			g.setColor(edgeLegend.get(name));
+			g.fillRect(5 * LEGEND_DX + maxNodeWidth + maxEdgeWidth
+					+ LEGEND_WIDTH, yEdge, LEGEND_WIDTH, LEGEND_HEIGHT);
+
+			yEdge += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
 		// TODO finish legend
