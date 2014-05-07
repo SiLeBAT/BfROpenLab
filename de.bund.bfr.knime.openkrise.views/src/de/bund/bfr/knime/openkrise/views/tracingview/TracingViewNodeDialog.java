@@ -166,14 +166,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == resetWeightsButton) {
 			updateSettings();
-			set.getCaseWeights().clear();			
+			set.getCaseWeights().clear();
 			updateGraphCanvas(false);
 		} else if (e.getSource() == resetCrossButton) {
-			updateSettings();			
-			set.getCrossContaminations().clear();			
+			updateSettings();
+			set.getCrossContaminations().clear();
 			updateGraphCanvas(false);
 		} else if (e.getSource() == resetFilterButton) {
-			updateSettings();			
+			updateSettings();
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
 			updateGraphCanvas(false);
@@ -225,6 +225,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 
+		set.setGraphShowLegend(graphCanvas.isShowLegend());
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
 		set.setGraphTranslationX(graphCanvas.getTranslationX());

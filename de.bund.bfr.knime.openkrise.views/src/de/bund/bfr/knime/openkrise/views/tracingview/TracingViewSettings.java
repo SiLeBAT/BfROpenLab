@@ -45,6 +45,7 @@ public class TracingViewSettings extends TracingSettings {
 	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
 	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 
+	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
 	public static final String DEFAULT_GRAPH_LAYOUT = GraphCanvas.FR_LAYOUT;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
 	public static final String DEFAULT_GRAPH_EDITING_MODE = GraphCanvas.PICKING_MODE;
@@ -60,6 +61,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
+	private static final String CFG_GRAPH_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_GRAPH_SCALE_X = "GraphScaleX";
 	private static final String CFG_GRAPH_SCALE_Y = "GraphScaleY";
 	private static final String CFG_GRAPH_TRANSLATION_X = "GraphTranslationX";
@@ -84,6 +86,7 @@ public class TracingViewSettings extends TracingSettings {
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
 
+	private boolean graphShowLegend;
 	private double graphScaleX;
 	private double graphScaleY;
 	private double graphTranslationX;
@@ -109,6 +112,7 @@ public class TracingViewSettings extends TracingSettings {
 		edgeFilter = new LinkedHashMap<String, Boolean>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 
+		graphShowLegend = DEFAULT_GRAPH_SHOW_LEGEND;
 		graphScaleX = Double.NaN;
 		graphScaleY = Double.NaN;
 		graphTranslationX = Double.NaN;
@@ -170,6 +174,11 @@ public class TracingViewSettings extends TracingSettings {
 		try {
 			enforeTemporalOrder = settings
 					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			graphShowLegend = settings.getBoolean(CFG_GRAPH_SHOW_LEGEND);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -265,6 +274,7 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 
+		settings.addBoolean(CFG_GRAPH_SHOW_LEGEND, graphShowLegend);
 		settings.addDouble(CFG_GRAPH_SCALE_X, graphScaleX);
 		settings.addDouble(CFG_GRAPH_SCALE_Y, graphScaleY);
 		settings.addDouble(CFG_GRAPH_TRANSLATION_X, graphTranslationX);
@@ -350,6 +360,14 @@ public class TracingViewSettings extends TracingSettings {
 
 	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
 		this.enforeTemporalOrder = enforeTemporalOrder;
+	}
+
+	public boolean isGraphShowLegend() {
+		return graphShowLegend;
+	}
+
+	public void setGraphShowLegend(boolean graphShowLegend) {
+		this.graphShowLegend = graphShowLegend;
 	}
 
 	public double getGraphScaleX() {
