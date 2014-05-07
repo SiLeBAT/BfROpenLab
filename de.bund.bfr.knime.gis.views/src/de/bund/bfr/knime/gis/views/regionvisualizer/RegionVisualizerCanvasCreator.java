@@ -55,7 +55,7 @@ public class RegionVisualizerCanvasCreator {
 		nonExistingRegions = new LinkedHashSet<String>();
 	}
 
-	public RegionCanvas createGISCanvas() {
+	public RegionCanvas createCanvas() {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
 				shapeTable, set.getShapeColumn(), set.getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
@@ -71,6 +71,7 @@ public class RegionVisualizerCanvasCreator {
 		RegionCanvas canvas = new RegionCanvas(nodes, nodeProperties,
 				set.getNodeRegionColumn());
 
+		canvas.setShowLegend(set.isShowLegend());
 		canvas.setCanvasSize(set.getCanvasSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());
 		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());

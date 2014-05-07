@@ -933,8 +933,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		g.setColor(Color.BLACK);
 		g.setFont(LEGEND_HEAD_FONT);
 		g.drawString("Nodes", LEGEND_DX, y0 + LEGEND_FONT.getSize());
-		g.drawString("Edges", 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH, y0
-				+ LEGEND_FONT.getSize());
+
+		if (allowEdges) {
+			g.drawString("Edges", 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH,
+					y0 + LEGEND_FONT.getSize());
+		}
 
 		int yNode = y0 + LEGEND_HEIGHT + LEGEND_DY;
 		int yEdge = y0 + LEGEND_HEIGHT + LEGEND_DY;

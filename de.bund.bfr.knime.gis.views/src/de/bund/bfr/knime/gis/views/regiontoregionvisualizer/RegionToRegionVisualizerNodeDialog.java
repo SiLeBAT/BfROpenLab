@@ -104,7 +104,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);		
+				BorderLayout.NORTH);
 
 		addTab("Options", panel);
 	}
@@ -369,6 +369,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
 
+		set.setGraphShowLegend(graphCanvas.isShowLegend());
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
 		set.setGraphTranslationX(graphCanvas.getTranslationX());
@@ -385,6 +386,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGraphEdgeHighlightConditions(graphCanvas
 				.getEdgeHighlightConditions());
 		set.setGraphEditingMode(graphCanvas.getEditingMode());
+		set.setGisShowLegend(gisCanvas.isShowLegend());
 		set.setGisScaleX(gisCanvas.getScaleX());
 		set.setGisScaleY(gisCanvas.getScaleY());
 		set.setGisTranslationX(gisCanvas.getTranslationX());

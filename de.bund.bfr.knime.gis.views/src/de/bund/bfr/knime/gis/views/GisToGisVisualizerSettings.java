@@ -33,6 +33,7 @@ import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 
 public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
+	public static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
 	public static final int DEFAULT_GIS_BORDER_ALPHA = 255;
 	public static final String DEFAULT_GIS_EDITING_MODE = RegionCanvas.PICKING_MODE;
 	public static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
@@ -40,6 +41,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 
+	private static final String CFG_GIS_SHOW_LEGEND = "GisShowLegend";
 	private static final String CFG_GIS_SCALE_X = "GisScaleX";
 	private static final String CFG_GIS_SCALE_Y = "GisScaleY";
 	private static final String CFG_GIS_TRANSLATION_X = "GisTranslationX";
@@ -50,6 +52,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	private String shapeColumn;
 
+	private boolean gisShowLegend;
 	private double gisScaleX;
 	private double gisScaleY;
 	private double gisTranslationX;
@@ -61,6 +64,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	public GisToGisVisualizerSettings() {
 		shapeColumn = null;
 
+		gisShowLegend = DEFAULT_GIS_SHOW_LEGEND;
 		gisScaleX = Double.NaN;
 		gisScaleY = Double.NaN;
 		gisTranslationX = Double.NaN;
@@ -76,6 +80,11 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 		try {
 			shapeColumn = settings.getString(CFG_SHAPE_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			gisShowLegend = settings.getBoolean(CFG_GIS_SHOW_LEGEND);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -121,6 +130,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
 
+		settings.addBoolean(CFG_GIS_SHOW_LEGEND, gisShowLegend);
 		settings.addDouble(CFG_GIS_SCALE_X, gisScaleX);
 		settings.addDouble(CFG_GIS_SCALE_Y, gisScaleY);
 		settings.addDouble(CFG_GIS_TRANSLATION_X, gisTranslationX);
@@ -136,6 +146,14 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public void setShapeColumn(String shapeColumn) {
 		this.shapeColumn = shapeColumn;
+	}
+
+	public boolean isGisShowLegend() {
+		return gisShowLegend;
+	}
+
+	public void setGisShowLegend(boolean gisShowLegend) {
+		this.gisShowLegend = gisShowLegend;
 	}
 
 	public double getGisScaleX() {

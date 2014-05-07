@@ -348,6 +348,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
 
+		set.setGraphShowLegend(graphCanvas.isShowLegend());
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
 		set.setGraphTranslationX(graphCanvas.getTranslationX());
@@ -364,6 +365,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGraphEdgeHighlightConditions(graphCanvas
 				.getEdgeHighlightConditions());
 		set.setGraphEditingMode(graphCanvas.getEditingMode());
+		set.setGisShowLegend(gisCanvas.isShowLegend());
 		set.setGisScaleX(gisCanvas.getScaleX());
 		set.setGisScaleY(gisCanvas.getScaleY());
 		set.setGisTranslationX(gisCanvas.getTranslationX());

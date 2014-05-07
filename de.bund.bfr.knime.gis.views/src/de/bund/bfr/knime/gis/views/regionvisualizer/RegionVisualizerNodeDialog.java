@@ -148,7 +148,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, set);
 
-		gisCanvas = creator.createGISCanvas();
+		gisCanvas = creator.createCanvas();
 
 		if (gisCanvas != null) {
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
@@ -173,6 +173,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
+		set.setShowLegend(gisCanvas.isShowLegend());
 		set.setScaleX(gisCanvas.getScaleX());
 		set.setScaleY(gisCanvas.getScaleY());
 		set.setTranslationX(gisCanvas.getTranslationX());

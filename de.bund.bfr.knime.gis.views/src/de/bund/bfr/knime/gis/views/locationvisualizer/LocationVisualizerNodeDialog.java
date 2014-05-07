@@ -166,6 +166,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
+		set.setShowLegend(gisCanvas.isShowLegend());
 		set.setScaleX(gisCanvas.getScaleX());
 		set.setScaleY(gisCanvas.getScaleY());
 		set.setTranslationX(gisCanvas.getTranslationX());

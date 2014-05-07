@@ -194,6 +194,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
 
+		set.setGraphShowLegend(graphCanvas.isShowLegend());
 		set.setGraphScaleX(graphCanvas.getScaleX());
 		set.setGraphScaleY(graphCanvas.getScaleY());
 		set.setGraphTranslationX(graphCanvas.getTranslationX());

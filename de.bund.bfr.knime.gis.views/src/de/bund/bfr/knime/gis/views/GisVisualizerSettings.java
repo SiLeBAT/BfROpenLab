@@ -34,10 +34,12 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
 public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
+	public static final boolean DEFAULT_SHOW_LEGEND = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
+	private static final String CFG_SHOW_LEGEND = "ShowLegend";
 	private static final String CFG_SCALE_X = "ScaleX";
 	private static final String CFG_SCALE_Y = "ScaleY";
 	private static final String CFG_TRANSLATION_X = "TranslationX";
@@ -47,6 +49,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
 
 	private String shapeColumn;
+	private boolean showLegend;
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
@@ -57,6 +60,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public GisVisualizerSettings() {
 		shapeColumn = null;
+		showLegend = DEFAULT_SHOW_LEGEND;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -72,6 +76,11 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 		try {
 			shapeColumn = settings.getString(CFG_SHAPE_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -117,6 +126,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
 		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
+		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, scaleX);
 		settings.addDouble(CFG_SCALE_Y, scaleY);
 		settings.addDouble(CFG_TRANSLATION_X, translationX);
@@ -133,6 +143,14 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public void setShapeColumn(String shapeColumn) {
 		this.shapeColumn = shapeColumn;
+	}
+
+	public boolean isShowLegend() {
+		return showLegend;
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		this.showLegend = showLegend;
 	}
 
 	public double getScaleX() {

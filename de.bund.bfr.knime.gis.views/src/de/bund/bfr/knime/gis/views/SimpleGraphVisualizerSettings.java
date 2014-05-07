@@ -41,6 +41,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	public static final boolean DEFAULT_JOIN_EDGES = true;
+	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
 
 	public static final String DEFAULT_GRAPH_LAYOUT = GraphCanvas.FR_LAYOUT;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
@@ -54,6 +55,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 
+	private static final String CFG_GRAPH_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_GRAPH_SCALE_X = "GraphScaleX";
 	private static final String CFG_GRAPH_SCALE_Y = "GraphScaleY";
 	private static final String CFG_GRAPH_TRANSLATION_X = "GraphTranslationX";
@@ -74,6 +76,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private String edgeToColumn;
 	private boolean joinEdges;
 
+	private boolean graphShowLegend;
 	private double graphScaleX;
 	private double graphScaleY;
 	private double graphTranslationX;
@@ -95,6 +98,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		edgeToColumn = null;
 		joinEdges = DEFAULT_JOIN_EDGES;
 
+		graphShowLegend = DEFAULT_GRAPH_SHOW_LEGEND;
 		graphScaleX = Double.NaN;
 		graphScaleY = Double.NaN;
 		graphTranslationX = Double.NaN;
@@ -137,7 +141,12 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 		try {
 			joinEdges = settings.getBoolean(CFG_JOIN_EDGES);
-		} catch (InvalidSettingsException e1) {
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			graphShowLegend = settings.getBoolean(CFG_GRAPH_SHOW_LEGEND);
+		} catch (InvalidSettingsException e) {
 		}
 
 		try {
@@ -223,6 +232,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 
+		settings.addBoolean(CFG_GRAPH_SHOW_LEGEND, graphShowLegend);
 		settings.addDouble(CFG_GRAPH_SCALE_X, graphScaleX);
 		settings.addDouble(CFG_GRAPH_SCALE_Y, graphScaleY);
 		settings.addDouble(CFG_GRAPH_TRANSLATION_X, graphTranslationX);
@@ -282,6 +292,14 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public void setJoinEdges(boolean joinEdges) {
 		this.joinEdges = joinEdges;
+	}
+
+	public boolean isGraphShowLegend() {
+		return graphShowLegend;
+	}
+
+	public void setGraphShowLegend(boolean graphShowLegend) {
+		this.graphShowLegend = graphShowLegend;
 	}
 
 	public double getGraphScaleX() {

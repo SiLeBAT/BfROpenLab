@@ -89,6 +89,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getEdgeToColumn());
 
 		canvas.setAllowCollapse(false);
+		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
@@ -140,6 +141,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
 				set.getEdgeToColumn());
 
+		canvas.setShowLegend(set.isGisShowLegend());
 		canvas.setCanvasSize(set.getGisCanvasSize());
 		canvas.setEditingMode(set.getGisEditingMode());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());

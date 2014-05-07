@@ -72,7 +72,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 		BufferedDataTable table = (BufferedDataTable) inObjects[1];
 		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
 				shapeTable, table, set);
-		RegionCanvas gisCanvas = creator.createGISCanvas();
+		RegionCanvas gisCanvas = creator.createCanvas();
 
 		for (String id : creator.getNonExistingRegions()) {
 			setWarningMessage("Region \"" + id
