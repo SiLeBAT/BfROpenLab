@@ -926,29 +926,34 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 
-		int y0 = getCanvasSize().height
+		int xNode = LEGEND_DX;
+		int xEdge = nodeLegend.isEmpty() ? LEGEND_DX : 3 * LEGEND_DX
+				+ maxNodeWidth + LEGEND_WIDTH;
+		int yNode = getCanvasSize().height
 				- (Math.max(nodeLegend.size(), edgeLegend.size()) + 1)
 				* (LEGEND_HEIGHT + LEGEND_DY) - LEGEND_DY;
+		int yEdge = yNode;
 
 		g.setColor(Color.BLACK);
 		g.setFont(LEGEND_HEAD_FONT);
-		g.drawString("Nodes", LEGEND_DX, y0 + LEGEND_FONT.getSize());
 
-		if (allowEdges) {
-			g.drawString("Edges", 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH,
-					y0 + LEGEND_FONT.getSize());
+		if (!nodeLegend.isEmpty()) {
+			g.drawString("Nodes", xNode, yNode + LEGEND_FONT.getSize());
+			yNode += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
-		int yNode = y0 + LEGEND_HEIGHT + LEGEND_DY;
-		int yEdge = y0 + LEGEND_HEIGHT + LEGEND_DY;
+		if (!edgeLegend.isEmpty()) {
+			g.drawString("Edges", xEdge, yEdge + LEGEND_FONT.getSize());
+			yEdge += LEGEND_HEIGHT + LEGEND_DY;
+		}
 
 		g.setFont(LEGEND_FONT);
 
 		for (String name : nodeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, LEGEND_DX, yNode + LEGEND_FONT.getSize());
+			g.drawString(name, xNode, yNode + LEGEND_FONT.getSize());
 			g.setColor(nodeLegend.get(name));
-			g.fillRect(2 * LEGEND_DX + maxNodeWidth, yNode, LEGEND_WIDTH,
+			g.fillRect(xNode + maxNodeWidth + LEGEND_DX, yNode, LEGEND_WIDTH,
 					LEGEND_HEIGHT);
 
 			yNode += LEGEND_HEIGHT + LEGEND_DY;
@@ -956,11 +961,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		for (String name : edgeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, 3 * LEGEND_DX + maxNodeWidth + LEGEND_WIDTH,
-					yEdge + LEGEND_FONT.getSize());
+			g.drawString(name, xEdge, yEdge + LEGEND_FONT.getSize());
 			g.setColor(edgeLegend.get(name));
-			g.fillRect(5 * LEGEND_DX + maxNodeWidth + maxEdgeWidth
-					+ LEGEND_WIDTH, yEdge, LEGEND_WIDTH, LEGEND_HEIGHT);
+			g.fillRect(xEdge + maxEdgeWidth + LEGEND_DX, yEdge, LEGEND_WIDTH,
+					LEGEND_HEIGHT);
 
 			yEdge += LEGEND_HEIGHT + LEGEND_DY;
 		}
