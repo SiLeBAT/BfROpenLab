@@ -111,6 +111,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final long serialVersionUID = 1L;
 
 	private static final String EDITING_MODE = "Editing Mode";
+	private static final String SHOW_LEGEND = "Show Legend";
 	private static final String JOIN_EDGES = "Join Edges";
 	private static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
 
@@ -118,6 +119,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
+	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
 
@@ -165,6 +167,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private String editingMode;
 	private JComboBox<String> modeBox;
+	private boolean showLegend;
+	private JCheckBox legendBox;
 	private boolean joinEdges;
 	private JCheckBox joinBox;
 	private boolean skipEdgelessNodes;
@@ -200,6 +204,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		translationX = Double.NaN;
 		translationY = Double.NaN;
 		editingMode = DEFAULT_MODE;
+		showLegend = DEFAULT_SHOW_LEGEND;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 
@@ -230,7 +235,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			@Override
 			public void paint(Graphics g) {
-				paintLegend(g);
+				if (showLegend) {
+					paintLegend(g);
+				}
 			}
 		});
 
@@ -247,14 +254,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				PICKING_MODE });
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
-
+		legendBox = new JCheckBox("Activate");
+		legendBox.setSelected(showLegend);
+		legendBox.addActionListener(this);
 		joinBox = new JCheckBox("Activate");
 		joinBox.setSelected(joinEdges);
 		joinBox.addActionListener(this);
 		skipBox = new JCheckBox("Activate");
-		skipBox.setPreferredSize(new Dimension(new JCheckBox(
-				SKIP_EDGELESS_NODES).getPreferredSize().width, skipBox
-				.getPreferredSize().height));
 		skipBox.setSelected(skipEdgelessNodes);
 		skipBox.addActionListener(this);
 
@@ -262,6 +268,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
 		addOptionsItem(EDITING_MODE, modeBox);
+		addOptionsItem(SHOW_LEGEND, legendBox);
 		addOptionsItem(JOIN_EDGES, joinBox);
 		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
 		createPopupMenuItems();
@@ -322,6 +329,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.editingMode = editingMode;
 		modeBox.setSelectedItem(editingMode);
 		applyMouseModel();
+	}
+
+	public boolean isShowLegend() {
+		return showLegend;
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		this.showLegend = showLegend;
+		legendBox.setSelected(showLegend);
+		viewer.repaint();
 	}
 
 	public boolean isJoinEdges() {
@@ -530,6 +547,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		if (e.getSource() == modeBox) {
 			editingMode = (String) modeBox.getSelectedItem();
 			applyMouseModel();
+		} else if (e.getSource() == legendBox) {
+			showLegend = legendBox.isSelected();
+			viewer.repaint();
 		} else if (e.getSource() == joinBox) {
 			joinEdges = joinBox.isSelected();
 			applyChanges();
@@ -766,14 +786,22 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected void addOptionsItem(String name, JComponent... components) {
 		JPanel panel = new JPanel();
+		TitledBorder border = BorderFactory.createTitledBorder(name);
 
-		panel.setBorder(BorderFactory.createTitledBorder(name));
+		panel.setBorder(border);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
 		for (JComponent c : components) {
 			panel.add(UI.createCenterPanel(c));
 		}
 
+		if (components.length == 1) {
+			int titleWidth = border.getMinimumSize(components[0]).width;
+
+			components[0].setPreferredSize(new Dimension(Math.max(
+					components[0].getPreferredSize().width, titleWidth),
+					components[0].getPreferredSize().height));
+		}
 		optionsPanel.add(panel);
 		optionsPanel.add(Box.createHorizontalStrut(5));
 	}
