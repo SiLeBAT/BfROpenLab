@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -90,6 +91,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -899,6 +902,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getFontRenderContext();
 		Map<String, Color> nodeLegend = new LinkedHashMap<String, Color>();
 		Map<String, Color> edgeLegend = new LinkedHashMap<String, Color>();
+		Set<String> nodeUseGradient = new LinkedHashSet<String>();
+		Set<String> edgeUseGradient = new LinkedHashSet<String>();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
 
@@ -911,6 +916,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				nodeLegend.put(name, color);
 				maxNodeWidth = Math.max(maxNodeWidth, (int) LEGEND_FONT
 						.getStringBounds(name, fontRenderContext).getWidth());
+
+				if (condition instanceof ValueHighlightCondition
+						|| condition instanceof LogicalValueHighlightCondition) {
+					nodeUseGradient.add(name);
+				}
 			}
 		}
 
@@ -923,27 +933,34 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				edgeLegend.put(name, color);
 				maxEdgeWidth = Math.max(maxEdgeWidth, (int) LEGEND_FONT
 						.getStringBounds(name, fontRenderContext).getWidth());
+
+				if (condition instanceof ValueHighlightCondition
+						|| condition instanceof LogicalValueHighlightCondition) {
+					edgeUseGradient.add(name);
+				}
 			}
 		}
 
-		int xNode = LEGEND_DX;
-		int xEdge = nodeLegend.isEmpty() ? LEGEND_DX : 3 * LEGEND_DX
-				+ maxNodeWidth + LEGEND_WIDTH;
+		int xNode1 = LEGEND_DX;
+		int xNode2 = xNode1 + maxNodeWidth + LEGEND_DX;
 		int yNode = getCanvasSize().height
 				- (Math.max(nodeLegend.size(), edgeLegend.size()) + 1)
 				* (LEGEND_HEIGHT + LEGEND_DY) - LEGEND_DY;
+		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : 3 * LEGEND_DX
+				+ maxNodeWidth + LEGEND_WIDTH;
+		int xEdge2 = xEdge1 + maxEdgeWidth + LEGEND_DX;
 		int yEdge = yNode;
 
 		g.setColor(Color.BLACK);
 		g.setFont(LEGEND_HEAD_FONT);
 
 		if (!nodeLegend.isEmpty()) {
-			g.drawString("Nodes", xNode, yNode + LEGEND_FONT.getSize());
+			g.drawString("Nodes", xNode1, yNode + LEGEND_FONT.getSize());
 			yNode += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
 		if (!edgeLegend.isEmpty()) {
-			g.drawString("Edges", xEdge, yEdge + LEGEND_FONT.getSize());
+			g.drawString("Edges", xEdge1, yEdge + LEGEND_FONT.getSize());
 			yEdge += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
@@ -951,21 +968,33 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		for (String name : nodeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, xNode, yNode + LEGEND_FONT.getSize());
-			g.setColor(nodeLegend.get(name));
-			g.fillRect(xNode + maxNodeWidth + LEGEND_DX, yNode, LEGEND_WIDTH,
-					LEGEND_HEIGHT);
+			g.drawString(name, xNode1, yNode + LEGEND_FONT.getSize());
 
+			if (nodeUseGradient.contains(name)) {
+				((Graphics2D) g).setPaint(new GradientPaint(xNode2, 0,
+						Color.WHITE, xNode2 + LEGEND_WIDTH, 0, nodeLegend
+								.get(name)));
+			} else {
+				g.setColor(nodeLegend.get(name));
+			}
+
+			g.fillRect(xNode2, yNode, LEGEND_WIDTH, LEGEND_HEIGHT);
 			yNode += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
 		for (String name : edgeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, xEdge, yEdge + LEGEND_FONT.getSize());
-			g.setColor(edgeLegend.get(name));
-			g.fillRect(xEdge + maxEdgeWidth + LEGEND_DX, yEdge, LEGEND_WIDTH,
-					LEGEND_HEIGHT);
+			g.drawString(name, xEdge1, yEdge + LEGEND_FONT.getSize());
 
+			if (edgeUseGradient.contains(name)) {
+				((Graphics2D) g).setPaint(new GradientPaint(xEdge2, 0,
+						Color.BLACK, xEdge2 + LEGEND_WIDTH, 0, edgeLegend
+								.get(name)));
+			} else {
+				g.setColor(edgeLegend.get(name));
+			}
+
+			g.fillRect(xEdge2, yEdge, LEGEND_WIDTH, LEGEND_HEIGHT);
 			yEdge += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
