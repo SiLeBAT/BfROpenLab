@@ -902,10 +902,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getFontRenderContext();
 		Map<String, Color> nodeLegend = new LinkedHashMap<String, Color>();
 		Map<String, Color> edgeLegend = new LinkedHashMap<String, Color>();
-		Set<String> nodeUseGradient = new LinkedHashSet<String>();
-		Set<String> edgeUseGradient = new LinkedHashSet<String>();
+		Map<String, String> nodeUseGradient = new LinkedHashMap<String, String>();
+		Map<String, String> edgeUseGradient = new LinkedHashMap<String, String>();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
+		int maxNodeRangeWidth = 0;
+		int maxEdgeRangeWidth = 0;
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
@@ -919,7 +921,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					nodeUseGradient.add(name);
+					String range = CanvasUtilities.toString(condition
+							.getValueRange(getVisibleNodes()));
+
+					nodeUseGradient.put(name, range);
+					maxNodeRangeWidth = Math.max(
+							maxNodeRangeWidth,
+							(int) LEGEND_FONT.getStringBounds(range,
+									fontRenderContext).getWidth());
 				}
 			}
 		}
@@ -936,19 +945,30 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					edgeUseGradient.add(name);
+					String range = CanvasUtilities.toString(condition
+							.getValueRange(getVisibleEdges()));
+
+					edgeUseGradient.put(name, range);
+					maxEdgeRangeWidth = Math.max(
+							maxEdgeRangeWidth,
+							(int) LEGEND_FONT.getStringBounds(range,
+									fontRenderContext).getWidth());
 				}
 			}
 		}
 
 		int xNode1 = LEGEND_DX;
 		int xNode2 = xNode1 + maxNodeWidth + LEGEND_DX;
+		int xNode3 = maxNodeRangeWidth == 0 ? xNode2 : xNode2
+				+ maxNodeRangeWidth + LEGEND_DX;
 		int yNode = getCanvasSize().height
 				- (Math.max(nodeLegend.size(), edgeLegend.size()) + 1)
 				* (LEGEND_HEIGHT + LEGEND_DY) - LEGEND_DY;
-		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : 3 * LEGEND_DX
-				+ maxNodeWidth + LEGEND_WIDTH;
+		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : xNode3 + LEGEND_WIDTH
+				+ LEGEND_DX;
 		int xEdge2 = xEdge1 + maxEdgeWidth + LEGEND_DX;
+		int xEdge3 = maxEdgeRangeWidth == 0 ? xEdge2 : xEdge2
+				+ maxEdgeRangeWidth + LEGEND_DX;
 		int yEdge = yNode;
 
 		g.setColor(Color.BLACK);
@@ -970,15 +990,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			g.setColor(Color.BLACK);
 			g.drawString(name, xNode1, yNode + LEGEND_FONT.getSize());
 
-			if (nodeUseGradient.contains(name)) {
-				((Graphics2D) g).setPaint(new GradientPaint(xNode2, 0,
-						Color.WHITE, xNode2 + LEGEND_WIDTH, 0, nodeLegend
+			if (nodeUseGradient.containsKey(name)) {
+				g.drawString(nodeUseGradient.get(name), xNode2, yNode
+						+ LEGEND_FONT.getSize());
+				((Graphics2D) g).setPaint(new GradientPaint(xNode3, 0,
+						Color.WHITE, xNode3 + LEGEND_WIDTH, 0, nodeLegend
 								.get(name)));
 			} else {
 				g.setColor(nodeLegend.get(name));
 			}
 
-			g.fillRect(xNode2, yNode, LEGEND_WIDTH, LEGEND_HEIGHT);
+			g.fillRect(xNode3, yNode, LEGEND_WIDTH, LEGEND_HEIGHT);
 			yNode += LEGEND_HEIGHT + LEGEND_DY;
 		}
 
@@ -986,15 +1008,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			g.setColor(Color.BLACK);
 			g.drawString(name, xEdge1, yEdge + LEGEND_FONT.getSize());
 
-			if (edgeUseGradient.contains(name)) {
-				((Graphics2D) g).setPaint(new GradientPaint(xEdge2, 0,
-						Color.BLACK, xEdge2 + LEGEND_WIDTH, 0, edgeLegend
+			if (edgeUseGradient.containsKey(name)) {
+				g.drawString(edgeUseGradient.get(name), xEdge2, yEdge
+						+ LEGEND_FONT.getSize());
+				((Graphics2D) g).setPaint(new GradientPaint(xEdge3, 0,
+						Color.BLACK, xEdge3 + LEGEND_WIDTH, 0, edgeLegend
 								.get(name)));
 			} else {
 				g.setColor(edgeLegend.get(name));
 			}
 
-			g.fillRect(xEdge2, yEdge, LEGEND_WIDTH, LEGEND_HEIGHT);
+			g.fillRect(xEdge3, yEdge, LEGEND_WIDTH, LEGEND_HEIGHT);
 			yEdge += LEGEND_HEIGHT + LEGEND_DY;
 		}
 

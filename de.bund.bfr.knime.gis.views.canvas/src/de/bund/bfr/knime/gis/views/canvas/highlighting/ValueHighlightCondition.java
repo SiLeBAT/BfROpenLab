@@ -24,10 +24,13 @@
 package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -180,8 +183,34 @@ public class ValueHighlightCondition implements HighlightCondition,
 	}
 
 	@Override
+	public Point2D getValueRange(Collection<? extends Element> elements) {
+		List<Double> values = new ArrayList<Double>();
+
+		for (Element element : elements) {
+			Object value = element.getProperties().get(property);
+
+			if (value instanceof Number) {
+				double doubleValue = ((Number) value).doubleValue();
+
+				if (!Double.isNaN(doubleValue)
+						&& !Double.isInfinite(doubleValue)
+						&& doubleValue >= 0.0) {
+					values.add(doubleValue);
+				} else {
+					values.add(0.0);
+				}
+			} else {
+				values.add(0.0);
+			}
+		}
+
+		return new Point2D.Double(Collections.min(values),
+				Collections.max(values));
+	}
+
+	@Override
 	public String toString() {
-		return getName() != null ? getName() : "Value Condition";		
+		return getName() != null ? getName() : "Value Condition";
 	}
 
 }

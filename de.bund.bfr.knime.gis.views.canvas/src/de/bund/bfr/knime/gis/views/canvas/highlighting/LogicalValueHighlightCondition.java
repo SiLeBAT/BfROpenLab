@@ -24,9 +24,11 @@
 package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +155,31 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 		}
 
 		return values;
+	}
+
+	@Override
+	public Point2D getValueRange(Collection<? extends Element> elements) {
+		String type = valueCondition.getType();
+
+		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
+
+		Map<? extends Element, Double> valueValues = valueCondition
+				.getValues(elements);
+		Map<? extends Element, Double> logicalValues = logicalCondition
+				.getValues(elements);
+
+		valueCondition.setType(type);
+
+		List<Double> values = new ArrayList<Double>();
+
+		for (Element element : elements) {
+			if (logicalValues.get(element) != 0.0) {
+				values.add(valueValues.get(element));
+			}
+		}
+
+		return new Point2D.Double(Collections.min(values),
+				Collections.max(values));
 	}
 
 	@Override

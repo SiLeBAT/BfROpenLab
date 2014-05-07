@@ -24,6 +24,7 @@
 package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -157,6 +158,11 @@ public class AndOrHighlightCondition implements HighlightCondition,
 		}
 
 		return returnValues;
+	}
+
+	@Override
+	public Point2D getValueRange(Collection<? extends Element> elements) {
+		return new Point2D.Double(0.0, 1.0);
 	}
 
 	@Override

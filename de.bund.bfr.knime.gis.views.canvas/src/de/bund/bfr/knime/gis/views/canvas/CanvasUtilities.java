@@ -32,12 +32,14 @@ import java.awt.TexturePaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,6 +88,12 @@ public class CanvasUtilities {
 		y /= points.size();
 
 		return new Point2D.Double(x, y);
+	}
+
+	public static String toString(Point2D p) {
+		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+
+		return format.format(p.getX()) + " -> " + format.format(p.getY());
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(
