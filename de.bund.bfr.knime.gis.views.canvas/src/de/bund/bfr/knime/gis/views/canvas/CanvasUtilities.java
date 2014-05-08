@@ -53,6 +53,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
@@ -661,5 +662,20 @@ public class CanvasUtilities {
 		}
 
 		return result;
+	}
+
+	public static <V extends Node> Graph<V, Edge<V>> createGraph(
+			Collection<V> nodes, Collection<Edge<V>> edges) {
+		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<V, Edge<V>>();
+
+		for (V node : nodes) {
+			graph.addVertex(node);
+		}
+
+		for (Edge<V> edge : edges) {
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
+		}
+
+		return graph;
 	}
 }

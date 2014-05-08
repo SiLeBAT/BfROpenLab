@@ -47,8 +47,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 /**
@@ -58,7 +56,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<RegionNode> allNodes;
 	private List<Edge<RegionNode>> allEdges;
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
@@ -93,11 +90,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			String edgeToProperty, boolean allowEdges) {
 		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.allNodes = nodes;
 		this.allEdges = edges;
-		this.nodes = new LinkedHashSet<RegionNode>(allNodes);
+		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		setAllowEdges(allowEdges);
+		setOptionsItemVisible(SKIP_EDGELESS_NODES, false);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<RegionNode>(2,
@@ -106,7 +103,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				new InvisibleTransformer<RegionNode>());
 		getViewer().getRenderContext().setVertexFillPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
-		createGraph();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtilities.createGraph(this.nodes, this.edges));
+
+		for (RegionNode node : this.nodes) {
+			getViewer().getGraphLayout().setLocation(node, node.getCenter());
+		}
 	}
 
 	public Set<RegionNode> getNodes() {
@@ -154,7 +156,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		}
 
-		createGraph();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtilities.createGraph(nodes, edges));
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
 				getNodeHighlightConditions());
 
@@ -168,7 +171,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
 		}
 
-		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 		setSelectedEdgeIds(selectedEdgeIds);
 		flushImage();
 		getViewer().repaint();
@@ -310,20 +312,5 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		return null;
-	}
-
-	private void createGraph() {
-		Graph<RegionNode, Edge<RegionNode>> graph = new DirectedSparseMultigraph<RegionNode, Edge<RegionNode>>();
-
-		for (RegionNode node : nodes) {
-			graph.addVertex(node);
-			getViewer().getGraphLayout().setLocation(node, node.getCenter());
-		}
-
-		for (Edge<RegionNode> edge : edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
-		}
-
-		getViewer().getGraphLayout().setGraph(graph);
 	}
 }

@@ -56,7 +56,6 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
@@ -162,7 +161,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(nodeSize,
 						new LinkedHashMap<GraphNode, Double>()));
-		createGraph();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtilities.createGraph(this.nodes, this.edges));
 		applyLayout(null);
 	}
 
@@ -539,7 +539,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
 		edgeSaveMap.putAll(CanvasUtilities.getElementsById(edges));
-		createGraph();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtilities.createGraph(nodes, edges));
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodes));
 		getViewer().getPickedVertexState().clear();
@@ -645,19 +646,5 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		properties.put(metaNodeProperty, true);
 
 		return new GraphNode(id, properties, null);
-	}
-
-	private void createGraph() {
-		Graph<GraphNode, Edge<GraphNode>> graph = new DirectedSparseMultigraph<GraphNode, Edge<GraphNode>>();
-
-		for (GraphNode node : nodes) {
-			graph.addVertex(node);
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
-		}
-
-		getViewer().getGraphLayout().setGraph(graph);
 	}
 }

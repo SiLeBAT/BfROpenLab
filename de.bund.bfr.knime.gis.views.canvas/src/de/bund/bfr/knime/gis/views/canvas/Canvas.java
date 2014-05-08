@@ -111,12 +111,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public static final String TRANSFORMING_MODE = "Transforming";
 	public static final String PICKING_MODE = "Picking";
 
-	private static final long serialVersionUID = 1L;
+	protected static final String EDITING_MODE = "Editing Mode";
+	protected static final String SHOW_LEGEND = "Show Legend";
+	protected static final String JOIN_EDGES = "Join Edges";
+	protected static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
 
-	private static final String EDITING_MODE = "Editing Mode";
-	private static final String SHOW_LEGEND = "Show Legend";
-	private static final String JOIN_EDGES = "Join Edges";
-	private static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
+	private static final long serialVersionUID = 1L;
 
 	private static final boolean DEFAULT_ALLOW_EDGES = true;
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
