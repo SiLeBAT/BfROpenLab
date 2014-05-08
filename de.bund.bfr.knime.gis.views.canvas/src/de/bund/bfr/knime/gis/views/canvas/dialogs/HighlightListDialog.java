@@ -108,7 +108,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		addButton.addActionListener(this);
 		removeButton = new JButton("Remove");
 		removeButton.addActionListener(this);
-		prioritizeBox = new JCheckBox("Prioritize");
+		prioritizeBox = new JCheckBox("Prioritize Colors");
 		prioritizeBox.setSelected(highlightConditions.isPrioritizeColors());
 		prioritizeBox.addActionListener(this);
 		upButton = new JButton("Up");
