@@ -90,7 +90,7 @@ public class CanvasUtilities {
 		return new Point2D.Double(x, y);
 	}
 
-	public static String toString(Point2D p) {
+	public static String toRangeString(Point2D p) {
 		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
 
 		return format.format(p.getX()) + " -> " + format.format(p.getY());
