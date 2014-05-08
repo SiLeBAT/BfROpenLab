@@ -126,7 +126,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
 
-	private static final int LEGEND_WIDTH = 30;
+	private static final int LEGEND_COLOR_BOX_WIDTH = 30;
 	private static final int LEGEND_DX = 10;
 	private static final int LEGEND_DY = 3;
 	private static final Font LEGEND_FONT = new Font("Default", 0, 12);
@@ -849,7 +849,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.getGraphLayout(), viewer.getSize());
 
 		server.setBackground(Color.WHITE);
-		server.setRenderContext(viewer.getRenderContext());		
+		server.setRenderContext(viewer.getRenderContext());
 		server.addPostRenderPaintable(new Paintable() {
 
 			@Override
@@ -982,14 +982,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		int yNode = getCanvasSize().height
 				- Math.max(nodeLegend.size(), edgeLegend.size())
 				* (legendHeight + LEGEND_DY) - legendHeadHeight - 2 * LEGEND_DY;
-		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : xNode3 + LEGEND_WIDTH
-				+ LEGEND_DX;
+		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : xNode3
+				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
 		int xEdge2 = xEdge1 + maxEdgeWidth + LEGEND_DX;
 		int xEdge3 = maxEdgeRangeWidth == 0 ? xEdge2 : xEdge2
 				+ maxEdgeRangeWidth + LEGEND_DX;
 		int yEdge = yNode;
+		int maxX = edgeLegend.isEmpty() ? xEdge1 : xEdge3
+				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
+		int minY = yEdge - LEGEND_DY;
 
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(0, minY, maxX, getCanvasSize().height - minY - 1);
 		g.setColor(Color.BLACK);
+		g.drawRect(0, minY, maxX, getCanvasSize().height - minY - 1);
 		g.setFont(LEGEND_HEAD_FONT);
 
 		if (!nodeLegend.isEmpty()) {
@@ -1012,13 +1018,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				g.drawString(nodeUseGradient.get(name), xNode2, yNode
 						+ fontAscent);
 				((Graphics2D) g).setPaint(new GradientPaint(xNode3, 0,
-						Color.WHITE, xNode3 + LEGEND_WIDTH, 0, nodeLegend
-								.get(name)));
+						Color.WHITE, xNode3 + LEGEND_COLOR_BOX_WIDTH, 0,
+						nodeLegend.get(name)));
 			} else {
 				g.setColor(nodeLegend.get(name));
 			}
 
-			g.fillRect(xNode3, yNode, LEGEND_WIDTH, legendHeight);
+			g.fillRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
@@ -1030,13 +1036,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				g.drawString(edgeUseGradient.get(name), xEdge2, yEdge
 						+ fontAscent);
 				((Graphics2D) g).setPaint(new GradientPaint(xEdge3, 0,
-						Color.BLACK, xEdge3 + LEGEND_WIDTH, 0, edgeLegend
-								.get(name)));
+						Color.BLACK, xEdge3 + LEGEND_COLOR_BOX_WIDTH, 0,
+						edgeLegend.get(name)));
 			} else {
 				g.setColor(edgeLegend.get(name));
 			}
 
-			g.fillRect(xEdge3, yEdge, LEGEND_WIDTH, legendHeight);
+			g.fillRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yEdge += legendHeight + LEGEND_DY;
 		}
 	}
