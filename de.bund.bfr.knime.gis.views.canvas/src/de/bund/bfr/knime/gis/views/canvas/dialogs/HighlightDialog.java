@@ -70,6 +70,9 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 	private static final long serialVersionUID = 1L;
 
+	private static Color BUTTON_BACKGROUND = UIManager.getDefaults().getColor(
+			"Button.background");
+
 	private static enum Type {
 		LOGICAL_CONDITION, VALUE_CONDITION, LOGICAL_VALUE_CONDITION;
 
@@ -105,6 +108,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	}
 
 	private Type type;
+	private Color lastColor;
 
 	private JComboBox<Type> conditionTypeBox;
 	private JTextField nameField;
@@ -136,15 +140,15 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private boolean allowLabel;
 	private HighlightConditionChecker checker;
 
-	private HighlightCondition highlightCondition;
+	private HighlightCondition condition;
 	private boolean approved;
 
+	@SuppressWarnings("unchecked")
 	public HighlightDialog(Component parent,
 			Map<String, Class<?>> nodeProperties, boolean allowName,
 			boolean allowColor, boolean allowInvisible, boolean allowThickness,
 			boolean allowLabel, boolean allowValueCondition,
-			HighlightCondition initialCondition,
-			HighlightConditionChecker checker) {
+			HighlightCondition condition, HighlightConditionChecker checker) {
 		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition",
 				DEFAULT_MODALITY_TYPE);
 		this.nodeProperties = nodeProperties;
@@ -154,15 +158,59 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		this.allowThickness = allowThickness;
 		this.allowLabel = allowLabel;
 		this.checker = checker;
-		highlightCondition = null;
+		this.condition = null;
 		approved = false;
+		lastColor = Color.RED;
 
-		if (allowValueCondition) {
-			conditionTypeBox = new JComboBox<Type>(Type.values());
-		} else {
-			conditionTypeBox = new JComboBox<Type>(
-					new Type[] { Type.LOGICAL_CONDITION });
+		if (condition == null) {
+			condition = new AndOrHighlightCondition(Arrays.asList(Arrays
+					.asList(new LogicalHighlightCondition(nodeProperties
+							.keySet().toArray(new String[0])[0],
+							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
+					true, lastColor, false, false, null);
 		}
+
+		if (condition instanceof AndOrHighlightCondition) {
+			type = Type.LOGICAL_CONDITION;
+			conditionPanel = createLogicalPanel((AndOrHighlightCondition) condition);
+		} else if (condition instanceof ValueHighlightCondition) {
+			type = Type.VALUE_CONDITION;
+			conditionPanel = createValuePanel((ValueHighlightCondition) condition);
+		} else if (condition instanceof LogicalValueHighlightCondition) {
+			type = Type.LOGICAL_VALUE_CONDITION;
+			conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) condition);
+		}
+
+		conditionTypeBox = new JComboBox<Type>(
+				allowValueCondition ? Type.values()
+						: new Type[] { Type.LOGICAL_CONDITION });
+		conditionTypeBox.setSelectedItem(type);
+		conditionTypeBox.addActionListener(this);
+		nameField = new JTextField(20);
+		nameField.setText(condition.getName() != null ? condition.getName()
+				: "");
+		nameField.getDocument().addDocumentListener(this);
+		legendBox = new JCheckBox("Show In Legend");
+		legendBox.setSelected(condition.isShowInLegend());
+		colorButton = new JButton("     ");
+		colorButton.setContentAreaFilled(false);
+		colorButton.setOpaque(true);
+		colorButton.setBackground(condition.getColor() != null ? condition
+				.getColor() : BUTTON_BACKGROUND);
+		colorButton.addActionListener(this);
+		colorBox = new JCheckBox("Use Color");
+		colorBox.setSelected(condition.getColor() != null);
+		colorBox.addActionListener(this);
+		invisibleBox = new JCheckBox("Invisible");
+		invisibleBox.setSelected(condition.isInvisible());
+		invisibleBox.addActionListener(this);
+		thicknessBox = new JCheckBox("Adjust Thickness");
+		thicknessBox.setSelected(condition.isUseThickness());
+		labelBox = new JComboBox<String>(nodeProperties.keySet().toArray(
+				new String[0]));
+		labelBox.insertItemAt("", 0);
+		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition
+				.getLabelProperty() : "");
 
 		JPanel optionsPanel = new JPanel();
 
@@ -172,20 +220,12 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		optionsPanel.add(conditionTypeBox);
 
 		if (allowName) {
-			nameField = new JTextField(20);
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(new JLabel("Name:"));
 			optionsPanel.add(nameField);
 		}
 
 		if (allowColor) {
-			legendBox = new JCheckBox("Show In Legend");
-			legendBox.setSelected(true);
-			colorButton = new JButton("     ");
-			colorButton.setContentAreaFilled(false);
-			colorButton.setOpaque(true);
-			colorBox = new JCheckBox("Use Color");
-			colorBox.setSelected(true);
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(legendBox);
 			optionsPanel.add(Box.createHorizontalStrut(5));
@@ -196,27 +236,16 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		}
 
 		if (allowInvisible) {
-			invisibleBox = new JCheckBox("Invisible");
-			invisibleBox.setSelected(false);
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(invisibleBox);
 		}
 
 		if (allowThickness) {
-			thicknessBox = new JCheckBox("Adjust Thickness");
-			thicknessBox.setSelected(false);
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(thicknessBox);
 		}
 
 		if (allowLabel) {
-			List<String> choices = new ArrayList<String>();
-
-			choices.add("");
-			choices.addAll(nodeProperties.keySet());
-
-			labelBox = new JComboBox<String>(choices.toArray(new String[0]));
-			labelBox.setSelectedItem("");
 			optionsPanel.add(Box.createHorizontalStrut(5));
 			optionsPanel.add(new JLabel("Label:"));
 			optionsPanel.add(labelBox);
@@ -227,75 +256,6 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(UI.createWestPanel(optionsPanel), BorderLayout.CENTER);
 		upperPanel.add(new JSeparator(), BorderLayout.SOUTH);
-
-		if (initialCondition != null) {
-			if (initialCondition instanceof AndOrHighlightCondition) {
-				type = Type.LOGICAL_CONDITION;
-				conditionPanel = createLogicalPanel((AndOrHighlightCondition) initialCondition);
-			} else if (initialCondition instanceof ValueHighlightCondition) {
-				type = Type.VALUE_CONDITION;
-				conditionPanel = createValuePanel((ValueHighlightCondition) initialCondition);
-			} else if (initialCondition instanceof LogicalValueHighlightCondition) {
-				type = Type.LOGICAL_VALUE_CONDITION;
-				conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) initialCondition);
-			}
-
-			conditionTypeBox.setSelectedItem(type);
-
-			if (allowName && initialCondition.getName() != null) {
-				nameField.setText(initialCondition.getName());
-			}
-
-			if (initialCondition.isInvisible()) {
-				invisibleBox.setSelected(true);
-				colorBox.setEnabled(false);
-				colorButton.setEnabled(false);
-				legendBox.setEnabled(false);
-			}
-
-			if (initialCondition.isUseThickness()) {
-				thicknessBox.setSelected(true);
-			}
-
-			if (allowColor) {
-				if (initialCondition.getColor() != null) {
-					colorButton.setBackground(initialCondition.getColor());
-					legendBox.setSelected(initialCondition.isShowInLegend());
-				} else {
-					colorBox.setSelected(false);
-					colorButton.setEnabled(false);
-					legendBox.setEnabled(false);
-				}
-			}
-
-			if (initialCondition.getLabelProperty() != null) {
-				labelBox.setSelectedItem(initialCondition.getLabelProperty());
-			}
-		} else {
-			conditionTypeBox.setSelectedItem(Type.LOGICAL_CONDITION);
-			type = Type.LOGICAL_CONDITION;
-			conditionPanel = createLogicalPanel(null);
-
-			if (allowColor) {
-				colorButton.setBackground(Color.RED);
-			}
-		}
-
-		conditionTypeBox.addActionListener(this);
-
-		if (allowName) {
-			nameField.getDocument().addDocumentListener(this);
-			nameFieldChanged();
-		}
-
-		if (allowColor) {
-			colorButton.addActionListener(this);
-			colorBox.addActionListener(this);
-		}
-
-		if (allowInvisible) {
-			invisibleBox.addActionListener(this);
-		}
 
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
@@ -316,6 +276,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+		updateOptionsPanel();
 	}
 
 	@Override
@@ -323,10 +284,10 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		if (e.getSource() == okButton) {
 			String error = null;
 
-			highlightCondition = createCondition();
+			condition = createCondition();
 
 			if (checker != null) {
-				error = checker.findError(highlightCondition);
+				error = checker.findError(condition);
 			}
 
 			if (error == null) {
@@ -387,34 +348,9 @@ public class HighlightDialog extends JDialog implements ActionListener,
 				colorButton.setBackground(newColor);
 			}
 		} else if (e.getSource() == colorBox) {
-			if (!colorBox.isSelected()) {
-				colorButton.setBackground(UIManager.getDefaults().getColor(
-						"Button.background"));
-				colorButton.setEnabled(false);
-				legendBox.setEnabled(false);
-			} else {
-				colorButton.setBackground(Color.RED);
-				colorButton.setEnabled(true);
-				legendBox.setEnabled(true);
-			}
+			updateOptionsPanel();
 		} else if (e.getSource() == invisibleBox) {
-			if (allowColor) {
-				if (invisibleBox.isSelected()) {
-					colorBox.setEnabled(false);
-					colorButton.setBackground(UIManager.getDefaults().getColor(
-							"Button.background"));
-					colorButton.setEnabled(false);
-					legendBox.setEnabled(false);
-				} else {
-					colorBox.setEnabled(true);
-
-					if (colorBox.isSelected()) {
-						colorButton.setBackground(Color.RED);
-						colorButton.setEnabled(true);
-						legendBox.setEnabled(true);
-					}
-				}
-			}
+			updateOptionsPanel();
 		} else if (logicalAddButtons.contains(e.getSource())) {
 			addRemoveButtonPressed((JButton) e.getSource());
 		} else if (logicalRemoveButtons.contains(e.getSource())) {
@@ -424,32 +360,50 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		nameFieldChanged();
+		updateOptionsPanel();
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		nameFieldChanged();
+		updateOptionsPanel();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		nameFieldChanged();
+		updateOptionsPanel();
 	}
 
 	public HighlightCondition getHighlightCondition() {
-		return highlightCondition;
+		return condition;
 	}
 
 	public boolean isApproved() {
 		return approved;
 	}
 
-	private void nameFieldChanged() {
-		if (nameField.getText().isEmpty()) {
+	private void updateOptionsPanel() {
+		if (colorButton.getBackground() != BUTTON_BACKGROUND) {
+			lastColor = colorButton.getBackground();
+		}
+
+		if (allowInvisible && invisibleBox.isSelected()) {
+			colorBox.setEnabled(false);
+			thicknessBox.setEnabled(false);
+			labelBox.setEnabled(false);
+		} else {
+			colorBox.setEnabled(true);
+			thicknessBox.setEnabled(true);
+			labelBox.setEnabled(true);
+		}
+
+		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
+			colorButton.setBackground(lastColor);
+			colorButton.setEnabled(true);
+			legendBox.setEnabled(!nameField.getText().isEmpty());
+		} else {
+			colorButton.setBackground(BUTTON_BACKGROUND);
+			colorButton.setEnabled(false);
 			legendBox.setEnabled(false);
-		} else if (colorBox.isEnabled() && colorBox.isSelected()) {
-			legendBox.setEnabled(true);
 		}
 	}
 
@@ -599,19 +553,15 @@ public class HighlightDialog extends JDialog implements ActionListener,
 				.getText() : null;
 		boolean showInLegend = allowColor && legendBox.isEnabled()
 				&& legendBox.isSelected();
-		Color color;
-		String labelProperty;
+		Color color = null;
+		String labelProperty = null;
 
-		if (!allowColor || !colorBox.isEnabled() || !colorBox.isSelected()) {
-			color = null;
-		} else {
+		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
 			color = colorButton.getBackground();
 		}
 
 		if (allowLabel && !labelBox.getSelectedItem().equals("")) {
 			labelProperty = (String) labelBox.getSelectedItem();
-		} else {
-			labelProperty = null;
 		}
 
 		if (type == Type.LOGICAL_CONDITION) {
