@@ -1026,6 +1026,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			g.fillRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.setColor(Color.BLACK);
+			g.drawRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
@@ -1044,6 +1046,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			g.fillRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.setColor(Color.BLACK);
+			g.drawRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yEdge += legendHeight + LEGEND_DY;
 		}
 	}
