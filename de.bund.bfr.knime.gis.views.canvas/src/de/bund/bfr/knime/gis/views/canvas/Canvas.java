@@ -850,7 +850,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.getGraphLayout(), viewer.getSize());
 
 		server.setBackground(Color.WHITE);
-		server.setRenderContext(viewer.getRenderContext());
+		server.setRenderContext(viewer.getRenderContext());		
+		server.addPostRenderPaintable(new Paintable() {
+
+			@Override
+			public boolean useTransform() {
+				return false;
+			}
+
+			@Override
+			public void paint(Graphics g) {
+				if (showLegend) {
+					paintLegend(g);
+				}
+			}
+		});
 
 		return server;
 	}
