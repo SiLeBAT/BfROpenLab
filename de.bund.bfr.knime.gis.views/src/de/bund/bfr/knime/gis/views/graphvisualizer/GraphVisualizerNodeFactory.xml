@@ -32,6 +32,10 @@
 				Current editing mode. If "Transforming" is selected the user can move the
 				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
 			</option>
+			<option name="Show Legend">
+				If checked, a legend with all highlight conditions, which have "Show in
+				Legend" activated, is display in the lower left corner of the canvas.
+			</option>
 			<option name="Join Edges">
 				If checked, edges with the same source and target are joined.
 			</option>
@@ -127,10 +131,18 @@
 				Type of the condition: "Logical Condition", "Value Condition" or "Logical
 				Value Condition". Types are explained in the sections below.
 			</option>
+			<option name="Name">				
+			</option>
+			<option name="Show in Legend">				
+			</option>
 			<option name="Color">
 				Color of the highlighted elements. For a logical conditions all true elements
 				are painted. For a value condition all elements with values > 0 are painted (the higher the
 				value the higher alpha value used for painting).
+			</option>
+			<option name="Invisible">				
+			</option>
+			<option name="Adjust Thickness">				
 			</option>
 			<option name="Label">
 				Property, that should be used as a label for all painted elements.
