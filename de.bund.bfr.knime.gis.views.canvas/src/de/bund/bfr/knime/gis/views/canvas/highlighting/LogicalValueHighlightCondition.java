@@ -76,6 +76,11 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 	}
 
 	@Override
+	public boolean isShowInLegend() {
+		return valueCondition.isShowInLegend();
+	}
+
+	@Override
 	public Color getColor() {
 		return valueCondition.getColor();
 	}

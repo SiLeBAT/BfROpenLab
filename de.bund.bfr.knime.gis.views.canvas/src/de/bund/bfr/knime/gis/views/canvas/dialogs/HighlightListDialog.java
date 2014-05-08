@@ -227,8 +227,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 		if (e.getClickCount() == 2 && i != -1) {
 			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-					true, allowInvisible, allowThickness, allowLabel, true,
-					highlightConditions.getConditions().get(i), checker);
+					true, true, allowInvisible, allowThickness, allowLabel,
+					true, highlightConditions.getConditions().get(i), checker);
 
 			dialog.setVisible(true);
 
@@ -289,7 +289,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 	private void addCondition(HighlightCondition condition) {
 		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-				true, allowInvisible, allowThickness, allowLabel, true,
+				true, true, allowInvisible, allowThickness, allowLabel, true,
 				condition, checker);
 
 		dialog.setVisible(true);

@@ -691,7 +691,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, null, Color.RED, false, false, null);
+					conditions, null, false, Color.RED, false, false, null);
 
 			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);
@@ -712,7 +712,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, null, Color.RED, false, false, null);
+					conditions, null, false, Color.RED, false, false, null);
 
 			dialog.setAutoAddCondition(condition);
 			dialog.setVisible(true);
@@ -927,7 +927,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (name != null && !name.isEmpty() && color != null) {
+			if (condition.isShowInLegend() && name != null && !name.isEmpty()
+					&& color != null) {
 				nodeLegend.put(name, color);
 				maxNodeWidth = Math.max(maxNodeWidth, (int) LEGEND_FONT
 						.getStringBounds(name, fontRenderContext).getWidth());

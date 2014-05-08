@@ -34,6 +34,8 @@ public interface HighlightCondition {
 
 	public abstract String getName();
 
+	public abstract boolean isShowInLegend();
+
 	public abstract Color getColor();
 
 	public abstract boolean isInvisible();
