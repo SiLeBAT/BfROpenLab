@@ -55,6 +55,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -63,7 +65,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
-public class HighlightDialog extends JDialog implements ActionListener {
+public class HighlightDialog extends JDialog implements ActionListener,
+		DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -280,6 +283,11 @@ public class HighlightDialog extends JDialog implements ActionListener {
 
 		conditionTypeBox.addActionListener(this);
 
+		if (allowName) {
+			nameField.getDocument().addDocumentListener(this);
+			nameFieldChanged();
+		}
+
 		if (allowColor) {
 			colorButton.addActionListener(this);
 			colorBox.addActionListener(this);
@@ -414,12 +422,35 @@ public class HighlightDialog extends JDialog implements ActionListener {
 		}
 	}
 
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		nameFieldChanged();
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		nameFieldChanged();
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		nameFieldChanged();
+	}
+
 	public HighlightCondition getHighlightCondition() {
 		return highlightCondition;
 	}
 
 	public boolean isApproved() {
 		return approved;
+	}
+
+	private void nameFieldChanged() {
+		if (nameField.getText().isEmpty()) {
+			legendBox.setEnabled(false);
+		} else if (colorBox.isEnabled() && colorBox.isSelected()) {
+			legendBox.setEnabled(true);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
