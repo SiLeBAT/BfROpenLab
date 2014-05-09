@@ -46,7 +46,7 @@ public class Plotable {
 	private static final int FUNCTION_STEPS = 1000;
 
 	public static enum Type {
-		DATASET, FUNCTION, BOTH
+		DATASET, FUNCTION, BOTH, DIFF_BOTH
 	}
 
 	public static enum Status {
@@ -240,7 +240,7 @@ public class Plotable {
 			if (number instanceof Double) {
 				y = Transform.transform((Double) number, transformY);
 
-				if (y == null || y < minY || y > maxY || y.isInfinite()) {
+				if (!MathUtilities.isValidDouble(y) || y < minY || y > maxY) {
 					y = Double.NaN;
 				}
 			} else {
@@ -266,6 +266,7 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		Node f = parser.parse(function);
 		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+		TDistribution tDist = new TDistribution(degreesOfFreedom);
 
 		for (String param : functionParameters.keySet()) {
 			derivatives.put(param, parser.differentiate(f, param));
@@ -278,60 +279,15 @@ public class Plotable {
 			parser.setVarValue(paramX,
 					Transform.inverseTransform(x, transformX));
 
-			Double y = 0.0;
-			boolean failed = false;
-			List<String> paramList = new ArrayList<String>(
-					functionParameters.keySet());
+			Double y = Transform.transform(
+					getError(parser, derivatives, tDist), transformY);
 
-			for (String param : paramList) {
-				Object obj = parser.evaluate(derivatives.get(param));
-
-				if (!(obj instanceof Double)) {
-					failed = true;
-					break;
-				}
-
-				y += (Double) obj * (Double) obj
-						* covariances.get(param).get(param);
-			}
-
-			for (int i = 0; i < paramList.size() - 1; i++) {
-				for (int j = i + 1; j < paramList.size(); j++) {
-					Object obj1 = parser.evaluate(derivatives.get(paramList
-							.get(i)));
-					Object obj2 = parser.evaluate(derivatives.get(paramList
-							.get(j)));
-
-					if (!(obj1 instanceof Double) || !(obj2 instanceof Double)) {
-						failed = true;
-						break;
-					}
-
-					double cov = covariances.get(paramList.get(i)).get(
-							paramList.get(j));
-
-					y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
-				}
+			if (!MathUtilities.isValidDouble(y)) {
+				y = Double.NaN;
 			}
 
 			points[0][n] = x;
-
-			if (!failed) {
-				// 95% interval
-				TDistribution dist = new TDistribution(degreesOfFreedom);
-
-				y = Math.sqrt(y)
-						* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
-				y = Transform.transform(y, transformY);
-
-				if (y != null) {
-					points[1][n] = y;
-				} else {
-					points[1][n] = Double.NaN;
-				}
-			} else {
-				points[1][n] = Double.NaN;
-			}
+			points[1][n] = y;
 		}
 
 		return points;
@@ -348,79 +304,48 @@ public class Plotable {
 	}
 
 	private boolean isPlotable() {
-		if (type == Type.FUNCTION) {
-			for (String param : functionParameters.keySet()) {
-				if (functionParameters.get(param) == null) {
-					return false;
-				}
-			}
+		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION, Type.BOTH,
+				Type.DIFF_BOTH);
+		List<Type> typesWithData = Arrays.asList(Type.DATASET, Type.BOTH,
+				Type.DIFF_BOTH);
 
-			return true;
-		} else {
-			List<String> paramsX = new ArrayList<String>(valueLists.keySet());
-			List<String> paramsY = new ArrayList<String>();
-
-			if (type == Type.DATASET) {
-				paramsY = paramsX;
-			} else if (type == Type.BOTH) {
-				if (functionValue != null) {
-					paramsY = Arrays.asList(functionValue);
-				}
-			}
-
-			for (String paramX : paramsX) {
-				for (String paramY : paramsY) {
-					if (isPlotable(paramX, paramY)) {
-						return true;
-					}
-				}
-			}
-
+		if (typesWithParams.contains(type)
+				&& functionParameters.values().contains(null)) {
 			return false;
 		}
-	}
 
-	private boolean isPlotable(String paramX, String paramY) {
-		boolean dataSetPlotable = false;
-		boolean functionPlotable = false;
-		List<Double> xs = valueLists.get(paramX);
-		List<Double> ys = valueLists.get(paramY);
+		if (typesWithData.contains(type)) {
+			if (valueLists.isEmpty()) {
+				return false;
+			}
 
-		if (xs != null && ys != null) {
-			for (int i = 0; i < xs.size(); i++) {
-				if (MathUtilities.isValidDouble(xs.get(i))
-						&& MathUtilities.isValidDouble(ys.get(i))) {
-					dataSetPlotable = true;
+			int n = valueLists.get(
+					new ArrayList<String>(valueLists.keySet()).get(0)).size();
+			boolean containsData = false;
+
+			for (int i = 0; i < n; i++) {
+				boolean containsNull = false;
+
+				for (String var : valueLists.keySet()) {
+					if (!MathUtilities
+							.isValidDouble(valueLists.get(var).get(i))) {
+						containsNull = true;
+						break;
+					}
+				}
+
+				if (!containsNull) {
+					containsData = true;
 					break;
 				}
 			}
-		}
 
-		if (function != null && functionValue.equals(paramY)
-				&& functionArguments.containsKey(paramX)) {
-			boolean notValid = false;
-
-			for (Double value : functionParameters.values()) {
-				if (!MathUtilities.isValidDouble(value)) {
-					notValid = true;
-					break;
-				}
-			}
-
-			if (!notValid) {
-				functionPlotable = true;
+			if (!containsData) {
+				return false;
 			}
 		}
 
-		if (type == Type.DATASET) {
-			return dataSetPlotable;
-		} else if (type == Type.FUNCTION) {
-			return functionPlotable;
-		} else if (type == Type.BOTH) {
-			return dataSetPlotable && functionPlotable;
-		}
-
-		return false;
+		return true;
 	}
 
 	private boolean covarianceMatrixMissing() {
@@ -467,5 +392,45 @@ public class Plotable {
 		parser.addVariable(paramX, 0.0);
 
 		return parser;
+	}
+
+	private Double getError(DJep parser, Map<String, Node> derivatives,
+			TDistribution tDist) throws ParseException {
+		Double y = 0.0;		
+		List<String> paramList = new ArrayList<String>(
+				functionParameters.keySet());
+
+		for (String param : paramList) {
+			Object obj = parser.evaluate(derivatives.get(param));
+
+			if (!MathUtilities.isValidDouble(obj)) {
+				return null;
+			}
+
+			y += (Double) obj * (Double) obj
+					* covariances.get(param).get(param);
+		}
+
+		for (int i = 0; i < paramList.size() - 1; i++) {
+			for (int j = i + 1; j < paramList.size(); j++) {
+				Object obj1 = parser
+						.evaluate(derivatives.get(paramList.get(i)));
+				Object obj2 = parser
+						.evaluate(derivatives.get(paramList.get(j)));
+
+				if (!MathUtilities.isValidDouble(obj1)
+						|| !MathUtilities.isValidDouble(obj2)) {
+					return null;
+				}
+
+				double cov = covariances.get(paramList.get(i)).get(
+						paramList.get(j));
+
+				y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
+			}
+		}
+
+		return Math.sqrt(y)
+				* tDist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 	}
 }
