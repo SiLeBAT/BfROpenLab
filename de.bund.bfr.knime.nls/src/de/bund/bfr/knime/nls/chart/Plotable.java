@@ -70,23 +70,27 @@ public class Plotable {
 	private Type type;
 	private Map<String, List<Double>> valueLists;
 	private String function;
-	private String functionValue;
-	private Map<String, Double> functionArguments;
-	private Map<String, Double> functionConstants;
-	private Map<String, Double> functionParameters;
+	private String dependentVariable;
+	private String diffVariable;
+	private Map<String, Double> independentVariables;
+	private Map<String, Double> constants;
+	private Map<String, Double> parameters;
 	private Map<String, Map<String, Double>> covariances;
-	private Map<String, Double> minArguments;
-	private Map<String, Double> maxArguments;
+	private Map<String, Double> minVariables;
+	private Map<String, Double> maxVariables;
 	private Integer degreesOfFreedom;
 
 	public Plotable(Type type) {
 		this.type = type;
 		valueLists = new LinkedHashMap<String, List<Double>>();
-		functionConstants = new LinkedHashMap<String, Double>();
-		functionArguments = new LinkedHashMap<String, Double>();
-		minArguments = new LinkedHashMap<String, Double>();
-		maxArguments = new LinkedHashMap<String, Double>();
-		functionParameters = new LinkedHashMap<String, Double>();
+		function = null;
+		dependentVariable = null;
+		diffVariable = null;
+		constants = new LinkedHashMap<String, Double>();
+		independentVariables = new LinkedHashMap<String, Double>();
+		minVariables = new LinkedHashMap<String, Double>();
+		maxVariables = new LinkedHashMap<String, Double>();
+		parameters = new LinkedHashMap<String, Double>();
 		covariances = new LinkedHashMap<String, Map<String, Double>>();
 		degreesOfFreedom = null;
 	}
@@ -95,12 +99,12 @@ public class Plotable {
 		return type;
 	}
 
-	public List<Double> getValueList(String parameter) {
-		return valueLists.get(parameter);
+	public Map<String, List<Double>> getValueLists() {
+		return valueLists;
 	}
 
-	public void addValueList(String parameter, List<Double> valueList) {
-		valueLists.put(parameter, valueList);
+	public void setValueLists(Map<String, List<Double>> valueLists) {
+		this.valueLists = valueLists;
 	}
 
 	public String getFunction() {
@@ -111,36 +115,44 @@ public class Plotable {
 		this.function = function;
 	}
 
-	public String getFunctionValue() {
-		return functionValue;
+	public String getDependentVariable() {
+		return dependentVariable;
 	}
 
-	public void setFunctionValue(String functionValue) {
-		this.functionValue = functionValue;
+	public void setDependentVariable(String dependentVariable) {
+		this.dependentVariable = dependentVariable;
 	}
 
-	public Map<String, Double> getFunctionConstants() {
-		return functionConstants;
+	public String getDiffVariable() {
+		return diffVariable;
 	}
 
-	public void setFunctionConstants(Map<String, Double> functionConstants) {
-		this.functionConstants = functionConstants;
+	public void setDiffVariable(String diffVariable) {
+		this.diffVariable = diffVariable;
 	}
 
-	public Map<String, Double> getFunctionArguments() {
-		return functionArguments;
+	public Map<String, Double> getConstants() {
+		return constants;
 	}
 
-	public void setFunctionArguments(Map<String, Double> functionArguments) {
-		this.functionArguments = functionArguments;
+	public void setConstants(Map<String, Double> constants) {
+		this.constants = constants;
 	}
 
-	public Map<String, Double> getFunctionParameters() {
-		return functionParameters;
+	public Map<String, Double> getIndependentVariables() {
+		return independentVariables;
 	}
 
-	public void setFunctionParameters(Map<String, Double> functionParameters) {
-		this.functionParameters = functionParameters;
+	public void setIndependentVariables(Map<String, Double> independentVariables) {
+		this.independentVariables = independentVariables;
+	}
+
+	public Map<String, Double> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, Double> parameters) {
+		this.parameters = parameters;
 	}
 
 	public Map<String, Map<String, Double>> getCovariances() {
@@ -151,20 +163,20 @@ public class Plotable {
 		this.covariances = covariances;
 	}
 
-	public Map<String, Double> getMinArguments() {
-		return minArguments;
+	public Map<String, Double> getMinVariables() {
+		return minVariables;
 	}
 
-	public void setMinArguments(Map<String, Double> minArguments) {
-		this.minArguments = minArguments;
+	public void setMinVariables(Map<String, Double> minVariables) {
+		this.minVariables = minVariables;
 	}
 
-	public Map<String, Double> getMaxArguments() {
-		return maxArguments;
+	public Map<String, Double> getMaxVariables() {
+		return maxVariables;
 	}
 
-	public void setMaxArguments(Map<String, Double> maxArguments) {
-		this.maxArguments = maxArguments;
+	public void setMaxVariables(Map<String, Double> maxVariables) {
+		this.maxVariables = maxVariables;
 	}
 
 	public Integer getDegreesOfFreedom() {
@@ -268,7 +280,7 @@ public class Plotable {
 		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
 		TDistribution tDist = new TDistribution(degreesOfFreedom);
 
-		for (String param : functionParameters.keySet()) {
+		for (String param : parameters.keySet()) {
 			derivatives.put(param, parser.differentiate(f, param));
 		}
 
@@ -310,7 +322,7 @@ public class Plotable {
 				Type.DIFF_BOTH);
 
 		if (typesWithParams.contains(type)
-				&& functionParameters.values().contains(null)) {
+				&& parameters.values().contains(null)) {
 			return false;
 		}
 
@@ -349,12 +361,12 @@ public class Plotable {
 	}
 
 	private boolean covarianceMatrixMissing() {
-		for (String param : functionParameters.keySet()) {
+		for (String param : parameters.keySet()) {
 			if (covariances.get(param) == null) {
 				return true;
 			}
 
-			for (String param2 : functionParameters.keySet()) {
+			for (String param2 : parameters.keySet()) {
 				if (covariances.get(param).get(param2) == null) {
 					return true;
 				}
@@ -367,25 +379,25 @@ public class Plotable {
 	private DJep createParser(String paramX) {
 		DJep parser = MathUtilities.createParser();
 
-		for (String constant : functionConstants.keySet()) {
-			if (functionConstants.get(constant) == null) {
+		for (String constant : constants.keySet()) {
+			if (constants.get(constant) == null) {
 				return null;
 			}
 
-			parser.addConstant(constant, functionConstants.get(constant));
+			parser.addConstant(constant, constants.get(constant));
 		}
 
-		for (String param : functionParameters.keySet()) {
-			if (functionParameters.get(param) == null) {
+		for (String param : parameters.keySet()) {
+			if (parameters.get(param) == null) {
 				return null;
 			}
 
-			parser.addConstant(param, functionParameters.get(param));
+			parser.addConstant(param, parameters.get(param));
 		}
 
-		for (String param : functionArguments.keySet()) {
+		for (String param : independentVariables.keySet()) {
 			if (!param.equals(paramX)) {
-				parser.addConstant(param, functionArguments.get(param));
+				parser.addConstant(param, independentVariables.get(param));
 			}
 		}
 
@@ -396,9 +408,8 @@ public class Plotable {
 
 	private Double getError(DJep parser, Map<String, Node> derivatives,
 			TDistribution tDist) throws ParseException {
-		Double y = 0.0;		
-		List<String> paramList = new ArrayList<String>(
-				functionParameters.keySet());
+		Double y = 0.0;
+		List<String> paramList = new ArrayList<String>(parameters.keySet());
 
 		for (String param : paramList) {
 			Object obj = parser.evaluate(derivatives.get(param));

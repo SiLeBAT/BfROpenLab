@@ -36,6 +36,7 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointVectorValuePair;
@@ -367,45 +368,48 @@ public class ParameterOptimizer {
 					optimizerValues.getPoint()[i]);
 		}
 
+		if (targetValues.size() <= parameters.size()) {
+			throw new RuntimeException();
+		}
+
+		double[][] covMatrix;
+
 		try {
-			if (targetValues.size() <= parameters.size()) {
-				throw new RuntimeException();
+			covMatrix = optimizer.computeCovariances(
+					optimizerValues.getPoint(), COV_THRESHOLD);
+		} catch (SingularMatrixException e) {
+			return;
+		}
+
+		double factor = optimizer.getChiSquare()
+				/ (targetValues.size() - parameters.size());
+
+		parameterStandardErrors = new LinkedHashMap<String, Double>();
+		parameterTValues = new LinkedHashMap<String, Double>();
+		parameterPValues = new LinkedHashMap<String, Double>();
+		covariances = new LinkedHashMap<String, Map<String, Double>>();
+
+		for (int i = 0; i < parameters.size(); i++) {
+			double error = Math.sqrt(factor * covMatrix[i][i]);
+
+			parameterStandardErrors.put(parameters.get(i), error);
+
+			double tValue = optimizerValues.getPoint()[i] / error;
+			int degreesOfFreedom = targetValues.size() - parameters.size();
+
+			parameterTValues.put(parameters.get(i), tValue);
+			parameterPValues.put(parameters.get(i),
+					MathUtilities.getPValue(tValue, degreesOfFreedom));
+		}
+
+		for (int i = 0; i < parameters.size(); i++) {
+			Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+			for (int j = 0; j < parameters.size(); j++) {
+				cov.put(parameters.get(j), factor * covMatrix[i][j]);
 			}
 
-			double[] params = optimizerValues.getPoint();
-			double[][] covMatrix = optimizer.computeCovariances(params,
-					COV_THRESHOLD);
-			double factor = optimizer.getChiSquare()
-					/ (targetValues.size() - parameters.size());
-
-			parameterStandardErrors = new LinkedHashMap<String, Double>();
-			parameterTValues = new LinkedHashMap<String, Double>();
-			parameterPValues = new LinkedHashMap<String, Double>();
-			covariances = new LinkedHashMap<String, Map<String, Double>>();
-
-			for (int i = 0; i < parameters.size(); i++) {
-				double error = Math.sqrt(factor * covMatrix[i][i]);
-
-				parameterStandardErrors.put(parameters.get(i), error);
-
-				double tValue = optimizerValues.getPoint()[i] / error;
-				int degreesOfFreedom = targetValues.size() - parameters.size();
-
-				parameterTValues.put(parameters.get(i), tValue);
-				parameterPValues.put(parameters.get(i),
-						MathUtilities.getPValue(tValue, degreesOfFreedom));
-			}
-
-			for (int i = 0; i < parameters.size(); i++) {
-				Map<String, Double> cov = new LinkedHashMap<String, Double>();
-
-				for (int j = 0; j < parameters.size(); j++) {
-					cov.put(parameters.get(j), factor * covMatrix[i][j]);
-				}
-
-				covariances.put(parameters.get(i), cov);
-			}
-		} catch (Exception e) {
+			covariances.put(parameters.get(i), cov);
 		}
 	}
 

@@ -115,9 +115,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
 
 		for (Plotable plotable : reader.getPlotables().values()) {
-			paramsX.putAll(plotable.getFunctionArguments());
+			paramsX.putAll(plotable.getIndependentVariables());
 
-			for (Map.Entry<String, Double> min : plotable.getMinArguments()
+			for (Map.Entry<String, Double> min : plotable.getMinVariables()
 					.entrySet()) {
 				Double oldMin = minValues.get(min.getKey());
 
@@ -129,7 +129,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 				}
 			}
 
-			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
+			for (Map.Entry<String, Double> max : plotable.getMaxVariables()
 					.entrySet()) {
 				Double oldMax = minValues.get(max.getKey());
 

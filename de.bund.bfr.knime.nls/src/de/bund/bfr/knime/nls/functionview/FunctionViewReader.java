@@ -109,11 +109,11 @@ public class FunctionViewReader {
 				Plotable plotable = new Plotable(Plotable.Type.BOTH);
 
 				plotable.setFunction(f.getTerm());
-				plotable.setFunctionParameters(getParameters(paramTable, id, f));
-				plotable.setFunctionArguments(getVariables(indep, fixed));
-				plotable.setMinArguments(new LinkedHashMap<String, Double>());
-				plotable.setMaxArguments(new LinkedHashMap<String, Double>());
-				plotable.setFunctionValue(f.getDependentVariable());
+				plotable.setParameters(getParameters(paramTable, id, f));
+				plotable.setIndependentVariables(getVariables(indep, fixed));
+				plotable.setMinVariables(new LinkedHashMap<String, Double>());
+				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
+				plotable.setDependentVariable(f.getDependentVariable());
 
 				if (covarianceTable != null) {
 					plotable.setCovariances(getCovariances(covarianceTable, id,
@@ -129,7 +129,7 @@ public class FunctionViewReader {
 						id, f, fixed);
 
 				for (String var : values.keySet()) {
-					plotable.addValueList(var, values.get(var));
+					plotable.getValueLists().put(var, values.get(var));
 				}
 
 				stringColumns.get(ChartUtilities.STATUS).add(

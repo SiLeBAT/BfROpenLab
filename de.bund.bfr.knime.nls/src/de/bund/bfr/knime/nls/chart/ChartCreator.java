@@ -144,9 +144,9 @@ public class ChartCreator extends ChartPanel {
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.Type.BOTH) {
 					Double minArg = Transform.transform(plotable
-							.getMinArguments().get(paramX), transformX);
+							.getMinVariables().get(paramX), transformX);
 					Double maxArg = Transform.transform(plotable
-							.getMaxArguments().get(paramX), transformX);
+							.getMaxVariables().get(paramX), transformX);
 
 					if (minArg != null) {
 						usedMinX = Math.min(usedMinX, minArg);
@@ -175,9 +175,9 @@ public class ChartCreator extends ChartPanel {
 					}
 				} else if (plotable.getType() == Plotable.Type.FUNCTION) {
 					Double minArg = Transform.transform(plotable
-							.getMinArguments().get(paramX), transformX);
+							.getMinVariables().get(paramX), transformX);
 					Double maxArg = Transform.transform(plotable
-							.getMaxArguments().get(paramX), transformX);
+							.getMaxVariables().get(paramX), transformX);
 
 					if (minArg != null) {
 						usedMinX = Math.min(usedMinX, minArg);
