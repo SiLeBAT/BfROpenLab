@@ -217,8 +217,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 				DoubleCell.TYPE).createSpec());
 		specs1.add(new DataColumnSpecCreator(NlsConstants.AIC_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.DOF_COLUMN, IntCell.TYPE)
-				.createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsConstants.DOF_COLUMN,
+				IntCell.TYPE).createSpec());
 
 		return new PortObjectSpec[] {
 				new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
@@ -354,11 +354,20 @@ public class FunctionFittingNodeModel extends NodeModel {
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<String, ParameterOptimizer>();
 
 		for (String id : targetValues.keySet()) {
-			ParameterOptimizer optimizer = new ParameterOptimizer(formula,
-					parameters, minParameterValues, maxParameterValues,
-					minParameterValues, maxParameterValues,
-					targetValues.get(id), argumentValues.get(id),
-					set.isEnforceLimits());
+			ParameterOptimizer optimizer;
+
+			if (function.getDiffVariable() != null) {
+				optimizer = new ParameterOptimizer(formula, parameters,
+						minParameterValues, maxParameterValues,
+						targetValues.get(id), function.getDependentVariable(),
+						function.getDiffVariable(), argumentValues.get(id));				
+			} else {
+				optimizer = new ParameterOptimizer(formula, parameters,
+						minParameterValues, maxParameterValues,
+						minParameterValues, maxParameterValues,
+						targetValues.get(id), argumentValues.get(id),
+						set.isEnforceLimits());
+			}
 
 			optimizer.optimize(nParameterSpace, nLevenberg, stopWhenSuccessful);
 			results.put(id, optimizer);
