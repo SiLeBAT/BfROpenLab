@@ -37,7 +37,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -78,7 +77,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	private StringTextField depVarField;
 	private StringTextArea termField;
 	private List<JCheckBox> indepVarBoxes;
-	private JComboBox<String> diffVarBox;
+	private StringTextField diffVarField;
 
 	/**
 	 * New pane for configuring the FormulaCreator node.
@@ -140,6 +139,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			mainPanel.add(functionPanel);
 			mainPanel.revalidate();
 			termField.requestFocus();
+		} else if (source == diffVarField) {
+			if (!diffVarField.getText().trim().isEmpty()) {
+				set.setDiffVariable(diffVarField.getText().trim());
+			} else {
+				set.setDiffVariable(null);
+			}
 		}
 	}
 
@@ -161,8 +166,6 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			functionPanel = createFunctionPanel();
 			mainPanel.add(functionPanel);
 			mainPanel.revalidate();
-		} else if (e.getSource() == diffVarBox) {
-			set.setDiffVariable((String) diffVarBox.getSelectedItem());
 		}
 	}
 
@@ -237,13 +240,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createDiffVarPanel() {
-		diffVarBox = new JComboBox<String>(set.getIndependentVariables()
-				.toArray(new String[0]));
-		diffVarBox.insertItemAt(null, 0);
-		diffVarBox.setSelectedItem(set.getDiffVariable());
-		diffVarBox.addItemListener(this);
+		diffVarField = new StringTextField(true, 10);
+		diffVarField.setText(set.getDiffVariable() != null ? set
+				.getDiffVariable() : "");
+		diffVarField.addTextListener(this);
 
-		return UI.createWestPanel(diffVarBox);
+		return UI.createWestPanel(diffVarField);
 	}
 
 	private void updateFunction() {

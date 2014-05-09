@@ -338,6 +338,11 @@ public class FunctionFittingNodeModel extends NodeModel {
 				argumentValues.put(id,
 						new LinkedHashMap<String, List<Double>>());
 
+				if (function.getDiffVariable() != null) {
+					argumentValues.get(id).put(function.getDiffVariable(),
+							new ArrayList<Double>());
+				}
+
 				for (String indep : function.getIndependentVariables()) {
 					argumentValues.get(id).put(indep, new ArrayList<Double>());
 				}
@@ -345,6 +350,11 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 			targetValues.get(id).add(
 					values.get(function.getDependentVariable()));
+
+			if (function.getDiffVariable() != null) {
+				argumentValues.get(id).get(function.getDiffVariable())
+						.add(values.get(function.getDiffVariable()));
+			}
 
 			for (String indep : function.getIndependentVariables()) {
 				argumentValues.get(id).get(indep).add(values.get(indep));
@@ -360,7 +370,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 				optimizer = new ParameterOptimizer(formula, parameters,
 						minParameterValues, maxParameterValues,
 						targetValues.get(id), function.getDependentVariable(),
-						function.getDiffVariable(), argumentValues.get(id));				
+						function.getDiffVariable(), argumentValues.get(id));
 			} else {
 				optimizer = new ParameterOptimizer(formula, parameters,
 						minParameterValues, maxParameterValues,

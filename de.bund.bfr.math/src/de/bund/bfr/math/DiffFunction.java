@@ -41,14 +41,14 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	private DJep parser;
 	private Node function;
 	private String valueVariable;
-	private String timeVariable;
+	private String diffVariable;
 	private Map<String, List<Double>> variableValues;
 
 	public DiffFunction(String formula, Map<String, Double> paramValues,
-			String valueVariable, String timeVariable,
+			String valueVariable, String diffVariable,
 			Map<String, List<Double>> variableValues) throws ParseException {
 		this.valueVariable = valueVariable;
-		this.timeVariable = timeVariable;
+		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 
 		Set<String> variables = new LinkedHashSet<String>();
@@ -66,28 +66,28 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	}
 
 	public DiffFunction(DJep parser, Node function, String dependentVariable,
-			String timeVariable, Map<String, List<Double>> variableValues) {
+			String diffVariable, Map<String, List<Double>> variableValues) {
 		this.parser = parser;
 		this.function = function;
 		this.valueVariable = dependentVariable;
-		this.timeVariable = timeVariable;
+		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 	}
 
 	@Override
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
-		List<Double> timeValues = variableValues.get(timeVariable);
+		List<Double> diffValues = variableValues.get(diffVariable);
 		int index;
 
-		for (index = 0; index < timeValues.size() - 1; index++) {
-			if (t < timeValues.get(index + 1)) {
+		for (index = 0; index < diffValues.size() - 1; index++) {
+			if (t < diffValues.get(index + 1)) {
 				break;
 			}
 		}
 
 		parser.setVarValue(valueVariable, y[0]);
-		parser.setVarValue(timeVariable, t);
+		parser.setVarValue(diffVariable, t);
 
 		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
 			parser.setVarValue(entry.getKey(), entry.getValue().get(index));

@@ -81,7 +81,12 @@ public class Function implements Serializable {
 		List<String> names = new ArrayList<String>();
 
 		names.add(dependentVariable);
-		names.addAll(independentVariables);
+		
+		if (diffVariable != null) {
+			names.add(diffVariable);
+		}
+		
+		names.addAll(independentVariables);		
 
 		return names;
 	}

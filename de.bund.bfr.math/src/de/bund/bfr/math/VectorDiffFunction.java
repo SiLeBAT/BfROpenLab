@@ -41,24 +41,24 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Node function;
 	private List<String> parameters;
 	private String valueVariable;
-	private String timeVariable;
+	private String diffVariable;
 	private Map<String, List<Double>> variableValues;
 	private double initialValue;
 
 	public VectorDiffFunction(String formula, List<String> parameters,
-			String valueVariable, String timeVariable,
+			String valueVariable, String diffVariable,
 			Map<String, List<Double>> variableValues, double initialValue)
 			throws ParseException {
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
-		this.timeVariable = timeVariable;
+		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
 		Set<String> variables = new LinkedHashSet<String>();
 
 		variables.add(valueVariable);
-		variables.add(timeVariable);
+		variables.add(diffVariable);
 		variables.addAll(variableValues.keySet());
 		variables.addAll(parameters);
 
@@ -67,28 +67,28 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	}
 
 	public VectorDiffFunction(DJep parser, Node function,
-			List<String> parameters, String valueVariable, String timeVariable,
+			List<String> parameters, String valueVariable, String diffVariable,
 			Map<String, List<Double>> variableValues, double initialValue) {
 		this.parser = parser;
 		this.function = function;
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
-		this.timeVariable = timeVariable;
+		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		List<Double> timeValues = variableValues.get(timeVariable);
-		double[] result = new double[timeValues.size()];
+		List<Double> diffValues = variableValues.get(diffVariable);
+		double[] result = new double[diffValues.size()];
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parser.setVarValue(parameters.get(i), point[i]);
 		}
 
 		DiffFunction f = new DiffFunction(parser, function, valueVariable,
-				timeVariable, variableValues);
+				diffVariable, variableValues);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double time = 0.0;
@@ -96,9 +96,9 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 		result[0] = initialValue;
 
-		for (int i = 1; i < timeValues.size(); i++) {
-			integrator.integrate(f, time, value, timeValues.get(i), value);
-			time = timeValues.get(i);
+		for (int i = 1; i < diffValues.size(); i++) {
+			integrator.integrate(f, time, value, diffValues.get(i), value);
+			time = diffValues.get(i);
 			result[i] = value[0];
 		}
 

@@ -42,24 +42,24 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private Node function;
 	private List<String> parameters;
 	private String valueVariable;
-	private String timeVariable;
+	private String diffVariable;
 	private Map<String, List<Double>> variableValues;
 	private double initialValue;
 
 	public VectorDiffFunctionJacobian(String formula, List<String> parameters,
-			String valueVariable, String timeVariable,
+			String valueVariable, String diffVariable,
 			Map<String, List<Double>> variableValues, double initialValue)
 			throws ParseException {
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
-		this.timeVariable = timeVariable;
+		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
 		Set<String> variables = new LinkedHashSet<String>();
 
 		variables.add(valueVariable);
-		variables.add(timeVariable);
+		variables.add(diffVariable);
 		variables.addAll(variableValues.keySet());
 		variables.addAll(parameters);
 
@@ -69,8 +69,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		List<Double> timeValues = variableValues.get(timeVariable);
-		double[][] result = new double[timeValues.size()][parameters.size()];
+		List<Double> diffValues = variableValues.get(diffVariable);
+		double[][] result = new double[diffValues.size()][parameters.size()];
 
 		for (int j = 0; j < parameters.size(); j++) {
 			double paramValue = point[j];
@@ -78,18 +78,18 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			point[j] = paramValue - EPSILON;
 
 			double[] result1 = new VectorDiffFunction(parser, function,
-					parameters, valueVariable, timeVariable, variableValues,
+					parameters, valueVariable, diffVariable, variableValues,
 					initialValue).value(point);
 
 			point[j] = paramValue + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
-					parameters, valueVariable, timeVariable, variableValues,
+					parameters, valueVariable, diffVariable, variableValues,
 					initialValue).value(point);
 
 			point[j] = paramValue;
 
-			for (int i = 0; i < timeValues.size(); i++) {
+			for (int i = 0; i < diffValues.size(); i++) {
 				result[i][j] = (result2[i] - result1[i]) / (2 * EPSILON);
 			}
 		}
