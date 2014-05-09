@@ -952,7 +952,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (name != null && !name.isEmpty() && color != null) {
+			if (condition.isShowInLegend() && name != null && !name.isEmpty()
+					&& color != null) {
 				edgeLegend.put(name, color);
 				maxEdgeWidth = Math.max(maxEdgeWidth, (int) LEGEND_FONT
 						.getStringBounds(name, fontRenderContext).getWidth());
