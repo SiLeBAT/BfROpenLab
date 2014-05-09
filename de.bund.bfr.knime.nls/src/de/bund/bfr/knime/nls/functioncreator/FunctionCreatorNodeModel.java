@@ -71,7 +71,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
 				set.getTerm(), set.getDependentVariable(),
-				set.getIndependentVariables())) };
+				set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
 				createFunction(set.getTerm(), set.getDependentVariable(),
-						set.getIndependentVariables())) };
+						set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -141,14 +141,15 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	}
 
 	private static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
+			String dependentVariable, List<String> independentVariables,
+			String diffVariable) {
 		List<String> parameters = MathUtilities.getSymbols(term);
 
 		parameters.removeAll(independentVariables);
 		Collections.sort(parameters);
 
 		return new Function(term, dependentVariable, independentVariables,
-				parameters);
+				parameters, diffVariable);
 	}
 
 }

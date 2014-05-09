@@ -36,6 +36,7 @@ public class Function implements Serializable {
 	private String dependentVariable;
 	private List<String> independentVariables;
 	private List<String> parameters;
+	private String diffVariable;
 
 	public Function() {
 		this(null, null, new ArrayList<String>(), new ArrayList<String>());
@@ -43,10 +44,17 @@ public class Function implements Serializable {
 
 	public Function(String term, String dependentVariable,
 			List<String> independentVariables, List<String> parameters) {
+		this(term, dependentVariable, independentVariables, parameters, null);
+	}
+
+	public Function(String term, String dependentVariable,
+			List<String> independentVariables, List<String> parameters,
+			String diffVariable) {
 		this.term = term;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;
 		this.parameters = parameters;
+		this.diffVariable = diffVariable;
 	}
 
 	public String getTerm() {
@@ -63,6 +71,10 @@ public class Function implements Serializable {
 
 	public List<String> getParameters() {
 		return parameters;
+	}
+
+	public String getDiffVariable() {
+		return diffVariable;
 	}
 
 	public List<String> getVariables() {
@@ -82,6 +94,8 @@ public class Function implements Serializable {
 				* result
 				+ ((dependentVariable == null) ? 0 : dependentVariable
 						.hashCode());
+		result = prime * result
+				+ ((diffVariable == null) ? 0 : diffVariable.hashCode());
 		result = prime
 				* result
 				+ ((independentVariables == null) ? 0 : independentVariables
@@ -106,6 +120,11 @@ public class Function implements Serializable {
 				return false;
 		} else if (!dependentVariable.equals(other.dependentVariable))
 			return false;
+		if (diffVariable == null) {
+			if (other.diffVariable != null)
+				return false;
+		} else if (!diffVariable.equals(other.diffVariable))
+			return false;
 		if (independentVariables == null) {
 			if (other.independentVariables != null)
 				return false;
@@ -128,6 +147,7 @@ public class Function implements Serializable {
 	public String toString() {
 		return "Function [term=" + term + ", dependentVariable="
 				+ dependentVariable + ", independentVariables="
-				+ independentVariables + ", parameters=" + parameters + "]";
+				+ independentVariables + ", parameters=" + parameters
+				+ ", diffVariable=" + diffVariable + "]";
 	}
 }

@@ -37,6 +37,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -77,6 +78,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	private StringTextField depVarField;
 	private StringTextArea termField;
 	private List<JCheckBox> indepVarBoxes;
+	private JComboBox<String> diffVarBox;
 
 	/**
 	 * New pane for configuring the FormulaCreator node.
@@ -159,10 +161,33 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			functionPanel = createFunctionPanel();
 			mainPanel.add(functionPanel);
 			mainPanel.revalidate();
+		} else if (e.getSource() == diffVarBox) {
+			set.setDiffVariable((String) diffVarBox.getSelectedItem());
 		}
 	}
 
 	private JPanel createFunctionPanel() {
+		JPanel editPanel = new JPanel();
+
+		editPanel.setLayout(new GridBagLayout());
+		editPanel.add(new JLabel("Term:"), createConstraints(0, 0));
+		editPanel.add(createFormulaPanel(), createConstraints(1, 0));
+		editPanel.add(new JLabel("Independent Variable:"),
+				createConstraints(0, 1));
+		editPanel.add(createIndepBoxPanel(), createConstraints(1, 1));
+		editPanel.add(new JLabel("Diff Variable:"), createConstraints(0, 2));
+		editPanel.add(createDiffVarPanel(), createConstraints(1, 2));
+
+		JPanel panel = new JPanel();
+
+		panel.setBorder(BorderFactory.createTitledBorder("Function"));
+		panel.setLayout(new BorderLayout());
+		panel.add(editPanel, BorderLayout.WEST);
+
+		return editPanel;
+	}
+
+	private JPanel createFormulaPanel() {
 		depVarField = new StringTextField(false, 10);
 		depVarField.setValue(set.getDependentVariable());
 		depVarField.addTextListener(this);
@@ -181,22 +206,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		formulaPanel.add(new JLabel("="));
 		formulaPanel.add(termField);
 
-		JPanel editPanel = new JPanel();
-
-		editPanel.setLayout(new GridBagLayout());
-		editPanel.add(new JLabel("Term:"), createConstraints(0, 0));
-		editPanel.add(formulaPanel, createConstraints(1, 0));
-		editPanel.add(new JLabel("Independent Variable:"),
-				createConstraints(0, 1));
-		editPanel.add(createIndepBoxPanel(), createConstraints(1, 1));
-
-		JPanel panel = new JPanel();
-
-		panel.setBorder(BorderFactory.createTitledBorder("Function"));
-		panel.setLayout(new BorderLayout());
-		panel.add(editPanel, BorderLayout.WEST);
-
-		return editPanel;
+		return formulaPanel;
 	}
 
 	private JPanel createIndepBoxPanel() {
@@ -224,6 +234,16 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		return panel;
+	}
+
+	private JPanel createDiffVarPanel() {
+		diffVarBox = new JComboBox<String>(set.getIndependentVariables()
+				.toArray(new String[0]));
+		diffVarBox.insertItemAt(null, 0);
+		diffVarBox.setSelectedItem(set.getDiffVariable());
+		diffVarBox.addItemListener(this);
+
+		return UI.createWestPanel(diffVarBox);
 	}
 
 	private void updateFunction() {
