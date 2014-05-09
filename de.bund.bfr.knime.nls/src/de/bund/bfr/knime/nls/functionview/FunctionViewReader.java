@@ -73,9 +73,11 @@ public class FunctionViewReader {
 		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<String, List<Double>>();
 
-		for (String i : f.getIndependentVariables()) {
-			if (!i.equals(indep)) {
-				doubleColumns.put(i, new ArrayList<Double>());
+		if (f.getDiffVariable() == null) {
+			for (String i : f.getIndependentVariables()) {
+				if (!i.equals(indep)) {
+					doubleColumns.put(i, new ArrayList<Double>());
+				}
 			}
 		}
 
@@ -84,36 +86,27 @@ public class FunctionViewReader {
 		}
 
 		for (String id : getIds(paramTable)) {
-			for (Map<String, Double> fixed : getFixVariables(varTable, id, f,
-					indep)) {
+			if (f.getDiffVariable() != null) {
 				Map<String, Double> qualityValues = getQualityValues(
 						paramTable, id, qualityColumns);
-				String newId = id;
 
-				if (!fixed.isEmpty()) {
-					newId += fixed.toString();
-				}
-
-				ids.add(newId);
-				legend.put(newId, newId);
+				ids.add(id);
+				legend.put(id, id);
 				stringColumns.get(NlsConstants.ID_COLUMN).add(id);
-
-				for (String i : fixed.keySet()) {
-					doubleColumns.get(i).add(fixed.get(i));
-				}
 
 				for (String q : qualityColumns) {
 					doubleColumns.get(q).add(qualityValues.get(q));
 				}
 
-				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
+				Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
 
 				plotable.setFunction(f.getTerm());
+				plotable.setDependentVariable(f.getDependentVariable());
+				plotable.setDiffVariable(f.getDiffVariable());
 				plotable.setParameters(getParameters(paramTable, id, f));
-				plotable.setIndependentVariables(getVariables(indep, fixed));
+				plotable.setIndependentVariables(getVariables(f));
 				plotable.setMinVariables(new LinkedHashMap<String, Double>());
 				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-				plotable.setDependentVariable(f.getDependentVariable());
 
 				if (covarianceTable != null) {
 					plotable.setCovariances(getCovariances(covarianceTable, id,
@@ -126,7 +119,7 @@ public class FunctionViewReader {
 				}
 
 				Map<String, List<Double>> values = getVariableValues(varTable,
-						id, f, fixed);
+						id, f);
 
 				for (String var : values.keySet()) {
 					plotable.getValueLists().put(var, values.get(var));
@@ -134,7 +127,61 @@ public class FunctionViewReader {
 
 				stringColumns.get(ChartUtilities.STATUS).add(
 						plotable.getStatus().toString());
-				plotables.put(newId, plotable);
+				plotables.put(id, plotable);
+			} else {
+				for (Map<String, Double> fixed : getFixVariables(varTable, id,
+						f, indep)) {
+					Map<String, Double> qualityValues = getQualityValues(
+							paramTable, id, qualityColumns);
+					String newId = id;
+
+					if (!fixed.isEmpty()) {
+						newId += fixed.toString();
+					}
+
+					ids.add(newId);
+					legend.put(newId, newId);
+					stringColumns.get(NlsConstants.ID_COLUMN).add(id);
+
+					for (String i : fixed.keySet()) {
+						doubleColumns.get(i).add(fixed.get(i));
+					}
+
+					for (String q : qualityColumns) {
+						doubleColumns.get(q).add(qualityValues.get(q));
+					}
+
+					Plotable plotable = new Plotable(
+							Plotable.Type.DATA_FUNCTION);
+
+					plotable.setFunction(f.getTerm());
+					plotable.setDependentVariable(f.getDependentVariable());
+					plotable.setParameters(getParameters(paramTable, id, f));
+					plotable.setIndependentVariables(getVariables(indep, fixed));
+					plotable.setMinVariables(new LinkedHashMap<String, Double>());
+					plotable.setMaxVariables(new LinkedHashMap<String, Double>());
+
+					if (covarianceTable != null) {
+						plotable.setCovariances(getCovariances(covarianceTable,
+								id, f));
+					}
+
+					if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
+						plotable.setDegreesOfFreedom(qualityValues.get(
+								NlsConstants.DOF_COLUMN).intValue());
+					}
+
+					Map<String, List<Double>> values = getVariableValues(
+							varTable, id, f, fixed);
+
+					for (String var : values.keySet()) {
+						plotable.getValueLists().put(var, values.get(var));
+					}
+
+					stringColumns.get(ChartUtilities.STATUS).add(
+							plotable.getStatus().toString());
+					plotables.put(newId, plotable);
+				}
 			}
 		}
 	}
@@ -273,6 +320,16 @@ public class FunctionViewReader {
 		return vars;
 	}
 
+	private static Map<String, Double> getVariables(Function f) {
+		Map<String, Double> vars = new LinkedHashMap<String, Double>();
+
+		for (String var : f.getIndependentVariables()) {
+			vars.put(var, 0.0);
+		}
+
+		return vars;
+	}
+
 	private static Map<String, List<Double>> getVariableValues(
 			BufferedDataTable table, String id, Function f,
 			Map<String, Double> fixed) {
@@ -306,6 +363,34 @@ public class FunctionViewReader {
 					for (String var : v.keySet()) {
 						values.get(var).add(v.get(var));
 					}
+				}
+			}
+		}
+
+		return values;
+	}
+
+	private static Map<String, List<Double>> getVariableValues(
+			BufferedDataTable table, String id, Function f) {
+		Map<String, List<Double>> values = new LinkedHashMap<String, List<Double>>();
+		DataTableSpec spec = table.getSpec();
+
+		for (String var : f.getVariables()) {
+			values.put(var, new ArrayList<Double>());
+		}
+
+		for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+				Map<String, Double> v = new LinkedHashMap<String, Double>();
+
+				for (String var : f.getVariables()) {
+					v.put(var, IO.getDouble(row.getCell(spec
+							.findColumnIndex(var))));
+				}
+
+				for (String var : v.keySet()) {
+					values.get(var).add(v.get(var));
 				}
 			}
 		}

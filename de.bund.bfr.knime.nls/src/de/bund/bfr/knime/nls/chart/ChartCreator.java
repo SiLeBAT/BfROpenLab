@@ -141,51 +141,38 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null) {
-				if (plotable.getType() == Plotable.Type.DATA_FUNCTION) {
-					Double minArg = Transform.transform(plotable
-							.getMinVariables().get(paramX), transformX);
-					Double maxArg = Transform.transform(plotable
-							.getMaxVariables().get(paramX), transformX);
+			if (plotable == null) {
+				continue;
+			}
 
-					if (minArg != null) {
-						usedMinX = Math.min(usedMinX, minArg);
-					}
+			if (plotable.getType() == Plotable.Type.DATA
+					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
+					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
+				double[][] points = plotable.getDataPoints(paramX, paramY,
+						transformX, transformY);
 
-					if (maxArg != null) {
-						usedMaxX = Math.max(usedMaxX, maxArg);
-					}
-
-					double[][] points = plotable.getDataPoints(paramX, paramY,
-							transformX, transformY);
-
+				if (points != null) {
 					for (int i = 0; i < points[0].length; i++) {
 						usedMinX = Math.min(usedMinX, points[0][i]);
 						usedMaxX = Math.max(usedMaxX, points[0][i]);
 					}
-				} else if (plotable.getType() == Plotable.Type.DATA) {
-					double[][] points = plotable.getDataPoints(paramX, paramY,
-							transformX, transformY);
+				}
+			}
 
-					if (points != null) {
-						for (int i = 0; i < points[0].length; i++) {
-							usedMinX = Math.min(usedMinX, points[0][i]);
-							usedMaxX = Math.max(usedMaxX, points[0][i]);
-						}
-					}
-				} else if (plotable.getType() == Plotable.Type.FUNCTION) {
-					Double minArg = Transform.transform(plotable
-							.getMinVariables().get(paramX), transformX);
-					Double maxArg = Transform.transform(plotable
-							.getMaxVariables().get(paramX), transformX);
+			if (plotable.getType() == Plotable.Type.FUNCTION
+					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
+					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
+				Double minArg = Transform.transform(plotable.getMinVariables()
+						.get(paramX), transformX);
+				Double maxArg = Transform.transform(plotable.getMaxVariables()
+						.get(paramX), transformX);
 
-					if (minArg != null) {
-						usedMinX = Math.min(usedMinX, minArg);
-					}
+				if (minArg != null) {
+					usedMinX = Math.min(usedMinX, minArg);
+				}
 
-					if (maxArg != null) {
-						usedMaxX = Math.max(usedMaxX, maxArg);
-					}
+				if (maxArg != null) {
+					usedMaxX = Math.max(usedMaxX, maxArg);
 				}
 			}
 		}
@@ -241,7 +228,19 @@ public class ChartCreator extends ChartPanel {
 
 			if (plotable != null
 					&& plotable.getType() == Plotable.Type.DATA_FUNCTION) {
-				plotBoth(plot, plotable, id, colorAndShapeCreator
+				plotDataFunction(plot, plotable, id, colorAndShapeCreator
+						.getColorList().get(index), colorAndShapeCreator
+						.getShapeList().get(index), usedMinX, usedMaxX);
+				index++;
+			}
+		}
+
+		for (String id : idsToPaint) {
+			Plotable plotable = plotables.get(id);
+
+			if (plotable != null
+					&& plotable.getType() == Plotable.Type.DATA_DIFF) {
+				plotDataDiff(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);
 				index++;
@@ -361,7 +360,7 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotBoth(XYPlot plot, Plotable plotable, String id,
+	private void plotDataFunction(XYPlot plot, Plotable plotable, String id,
 			Color defaultColor, Shape defaultShape, double minX, double maxX)
 			throws ParseException {
 		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX,
@@ -379,6 +378,29 @@ public class ChartCreator extends ChartPanel {
 
 			ChartUtilities.addDataSetToPlot(plot, functionDataSet,
 					functionRenderer);
+		}
+
+		if (dataSet != null && renderer != null) {
+			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+		}
+	}
+
+	private void plotDataDiff(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ParseException {
+		XYDataset diffDataSet = createDiffDataSet(plotable, id, minX, maxX);
+		XYItemRenderer diffRenderer = createFunctionRenderer(plotable, id,
+				defaultColor, defaultShape, diffDataSet);
+		XYDataset dataSet = createDataSet(plotable, id);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
+				defaultShape);
+
+		if (diffDataSet != null && diffRenderer != null) {
+			if (dataSet != null && renderer != null) {
+				diffRenderer.setBaseSeriesVisibleInLegend(false);
+			}
+
+			ChartUtilities.addDataSetToPlot(plot, diffDataSet, diffRenderer);
 		}
 
 		if (dataSet != null && renderer != null) {
@@ -502,6 +524,24 @@ public class ChartCreator extends ChartPanel {
 
 			return functionRenderer;
 		}
+	}
+
+	private XYDataset createDiffDataSet(Plotable plotable, String id,
+			double minX, double maxX) throws ParseException {
+		double[][] points = plotable.getDiffPoints(paramX, transformX,
+				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY);
+		String leg = legend.get(id);
+
+		if (points != null) {
+			DefaultXYDataset functionDataset = new DefaultXYDataset();
+
+			functionDataset.addSeries(leg, points);
+
+			return functionDataset;
+		}
+
+		return null;
 	}
 
 	public static interface ZoomListener {

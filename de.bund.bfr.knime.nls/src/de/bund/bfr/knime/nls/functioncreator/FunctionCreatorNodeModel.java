@@ -146,7 +146,14 @@ public class FunctionCreatorNodeModel extends NodeModel {
 		List<String> parameters = MathUtilities.getSymbols(term);
 
 		parameters.removeAll(independentVariables);
+
+		if (diffVariable != null
+				&& !independentVariables.contains(diffVariable)) {
+			independentVariables.add(diffVariable);
+		}
+
 		Collections.sort(parameters);
+		Collections.sort(independentVariables);
 
 		return new Function(term, dependentVariable, independentVariables,
 				parameters, diffVariable);

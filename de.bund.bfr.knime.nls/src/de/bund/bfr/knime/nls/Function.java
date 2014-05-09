@@ -80,12 +80,7 @@ public class Function implements Serializable {
 	public List<String> getVariables() {
 		List<String> names = new ArrayList<String>();
 
-		names.add(dependentVariable);
-		
-		if (diffVariable != null) {
-			names.add(diffVariable);
-		}
-		
+		names.add(dependentVariable);	
 		names.addAll(independentVariables);		
 
 		return names;

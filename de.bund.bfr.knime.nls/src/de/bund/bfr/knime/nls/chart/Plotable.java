@@ -330,15 +330,17 @@ public class Plotable {
 			double transX = Transform.inverseTransform(x, transformX);
 			Double y;
 
-			if (transX >= diffValue) {
+			if (transX == diffValue) {
+				y = Transform.transform(value[0], transformY);
+			} else if (transX > diffValue) {
 				integrator.integrate(f, diffValue, value, transX, value);
 				y = Transform.transform(value[0], transformY);
 				diffValue = transX;
-
-				if (!MathUtilities.isValidDouble(y)) {
-					y = Double.NaN;
-				}
 			} else {
+				y = Double.NaN;
+			}
+
+			if (!MathUtilities.isValidDouble(y)) {
 				y = Double.NaN;
 			}
 
@@ -444,7 +446,7 @@ public class Plotable {
 				parser.addVariable(var, 0.0);
 			}
 
-			parser.addVariable(diffVariable, 0.0);
+			parser.addVariable(dependentVariable, 0.0);
 		} else {
 			for (String param : independentVariables.keySet()) {
 				if (!param.equals(varX)) {
