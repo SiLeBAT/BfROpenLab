@@ -42,21 +42,18 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	private Node function;
 	private String valueVariable;
 	private String timeVariable;
-	private List<Double> timeValues;
 	private Map<String, List<Double>> variableValues;
 
 	public DiffFunction(String formula, Map<String, Double> paramValues,
-			String valueVariable, String timeVariable, List<Double> timeValues,
+			String valueVariable, String timeVariable,
 			Map<String, List<Double>> variableValues) throws ParseException {
 		this.valueVariable = valueVariable;
 		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
 		this.variableValues = variableValues;
 
 		Set<String> variables = new LinkedHashSet<String>();
 
 		variables.add(valueVariable);
-		variables.add(timeVariable);
 		variables.addAll(variableValues.keySet());
 		variables.addAll(paramValues.keySet());
 
@@ -69,19 +66,18 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	}
 
 	public DiffFunction(DJep parser, Node function, String dependentVariable,
-			String timeVariable, List<Double> timeValues,
-			Map<String, List<Double>> variableValues) {
+			String timeVariable, Map<String, List<Double>> variableValues) {
 		this.parser = parser;
 		this.function = function;
 		this.valueVariable = dependentVariable;
 		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
 		this.variableValues = variableValues;
 	}
 
 	@Override
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
+		List<Double> timeValues = variableValues.get(timeVariable);
 		int index;
 
 		for (index = 0; index < timeValues.size() - 1; index++) {

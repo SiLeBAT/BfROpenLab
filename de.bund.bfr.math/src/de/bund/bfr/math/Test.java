@@ -81,27 +81,27 @@ public class Test {
 		maxParams.put("Tref", 50.0);
 		maxParams.put("z", 50.0);
 
-		List<Double> timeValues = new ArrayList<Double>();
 		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
 
+		variableValues.put("time", new ArrayList<Double>());
 		variableValues.put("T", new ArrayList<Double>());
 
 		for (int i = 0; i < 100; i += 10) {
-			timeValues.add((double) i);
+			variableValues.get("time").add((double) i);
 			variableValues.get("T").add(20.0 + 0.1 * i);
 		}
 
 		List<Double> targetValues = new ArrayList<Double>();
 
 		for (double v : new VectorDiffFunction(formula, parameters, "y",
-				"time", timeValues, variableValues, 10.0).value(new double[] {
-				9.43, 23.4355, 10.43534 })) {
+				"time", variableValues, 10.0).value(new double[] { 9.43,
+				23.4355, 10.43534 })) {
 			targetValues.add(v);
 		}
 
 		ParameterOptimizer optimizer = new ParameterOptimizer(formula,
 				parameters, minParams, maxParams, targetValues, "y", "time",
-				timeValues, variableValues);
+				variableValues);
 
 		optimizer.optimize(100, 1, true);
 

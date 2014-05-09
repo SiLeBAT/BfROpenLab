@@ -42,18 +42,16 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private List<String> parameters;
 	private String valueVariable;
 	private String timeVariable;
-	private List<Double> timeValues;
 	private Map<String, List<Double>> variableValues;
 	private double initialValue;
 
 	public VectorDiffFunction(String formula, List<String> parameters,
-			String valueVariable, String timeVariable, List<Double> timeValues,
+			String valueVariable, String timeVariable,
 			Map<String, List<Double>> variableValues, double initialValue)
 			throws ParseException {
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
 		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
@@ -70,20 +68,19 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	public VectorDiffFunction(DJep parser, Node function,
 			List<String> parameters, String valueVariable, String timeVariable,
-			List<Double> timeValues, Map<String, List<Double>> variableValues,
-			double initialValue) {
+			Map<String, List<Double>> variableValues, double initialValue) {
 		this.parser = parser;
 		this.function = function;
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
 		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
+		List<Double> timeValues = variableValues.get(timeVariable);
 		double[] result = new double[timeValues.size()];
 
 		for (int i = 0; i < parameters.size(); i++) {
@@ -91,7 +88,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		}
 
 		DiffFunction f = new DiffFunction(parser, function, valueVariable,
-				timeVariable, timeValues, variableValues);
+				timeVariable, variableValues);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double time = 0.0;

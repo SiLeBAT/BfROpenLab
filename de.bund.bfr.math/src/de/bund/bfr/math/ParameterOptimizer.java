@@ -113,7 +113,7 @@ public class ParameterOptimizer {
 	public ParameterOptimizer(String formula, List<String> parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, List<Double> targetValues,
-			String valueVariable, String timeVariable, List<Double> timeValues,
+			String valueVariable, String timeVariable,
 			Map<String, List<Double>> variableValues) throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
@@ -121,11 +121,11 @@ public class ParameterOptimizer {
 		this.targetValues = targetValues;
 
 		optimizerFunction = new VectorDiffFunction(formula, parameters,
-				valueVariable, timeVariable, timeValues, variableValues,
+				valueVariable, timeVariable, variableValues,
 				targetValues.get(0));
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formula,
-				parameters, valueVariable, timeVariable, timeValues,
-				variableValues, targetValues.get(0));
+				parameters, valueVariable, timeVariable, variableValues,
+				targetValues.get(0));
 		successful = false;
 		resetResults();
 	}
@@ -350,7 +350,7 @@ public class ParameterOptimizer {
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
 				ArrayUtils.toPrimitive(targetValues.toArray(new Double[0]))),
-				new Weight(weights), new InitialGuess(startValues));		
+				new Weight(weights), new InitialGuess(startValues));
 	}
 
 	private void useCurrentResults() {
@@ -365,7 +365,7 @@ public class ParameterOptimizer {
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.put(parameters.get(i),
 					optimizerValues.getPoint()[i]);
-		}		
+		}
 
 		try {
 			if (targetValues.size() <= parameters.size()) {

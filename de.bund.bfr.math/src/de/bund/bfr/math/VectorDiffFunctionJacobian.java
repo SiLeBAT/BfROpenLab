@@ -43,18 +43,16 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private List<String> parameters;
 	private String valueVariable;
 	private String timeVariable;
-	private List<Double> timeValues;
 	private Map<String, List<Double>> variableValues;
 	private double initialValue;
 
 	public VectorDiffFunctionJacobian(String formula, List<String> parameters,
-			String valueVariable, String timeVariable, List<Double> timeValues,
+			String valueVariable, String timeVariable,
 			Map<String, List<Double>> variableValues, double initialValue)
 			throws ParseException {
 		this.parameters = parameters;
 		this.valueVariable = valueVariable;
 		this.timeVariable = timeVariable;
-		this.timeValues = timeValues;
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
@@ -71,6 +69,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
+		List<Double> timeValues = variableValues.get(timeVariable);
 		double[][] result = new double[timeValues.size()][parameters.size()];
 
 		for (int j = 0; j < parameters.size(); j++) {
@@ -79,14 +78,14 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			point[j] = paramValue - EPSILON;
 
 			double[] result1 = new VectorDiffFunction(parser, function,
-					parameters, valueVariable, timeVariable, timeValues,
-					variableValues, initialValue).value(point);
+					parameters, valueVariable, timeVariable, variableValues,
+					initialValue).value(point);
 
 			point[j] = paramValue + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
-					parameters, valueVariable, timeVariable, timeValues,
-					variableValues, initialValue).value(point);
+					parameters, valueVariable, timeVariable, variableValues,
+					initialValue).value(point);
 
 			point[j] = paramValue;
 
