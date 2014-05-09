@@ -91,14 +91,13 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 				diffVariable, variableValues);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
-		double time = 0.0;
 		double[] value = { initialValue };
 
 		result[0] = initialValue;
 
 		for (int i = 1; i < diffValues.size(); i++) {
-			integrator.integrate(f, time, value, diffValues.get(i), value);
-			time = diffValues.get(i);
+			integrator.integrate(f, diffValues.get(i - 1), value,
+					diffValues.get(i), value);
 			result[i] = value[0];
 		}
 

@@ -34,10 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.distribution.TDistribution;
+import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.math.DiffFunction;
 import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.Transform;
 
@@ -46,7 +48,7 @@ public class Plotable {
 	private static final int FUNCTION_STEPS = 1000;
 
 	public static enum Type {
-		DATASET, FUNCTION, BOTH, DIFF_BOTH
+		DATA, FUNCTION, DATA_FUNCTION, DATA_DIFF
 	}
 
 	public static enum Status {
@@ -187,7 +189,7 @@ public class Plotable {
 		this.degreesOfFreedom = degreesOfFreedom;
 	}
 
-	public double[][] getPoints(String paramX, String paramY,
+	public double[][] getDataPoints(String paramX, String paramY,
 			Transform transformX, Transform transformY) {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
@@ -227,9 +229,9 @@ public class Plotable {
 		return pointsArray;
 	}
 
-	public double[][] getFunctionPoints(String paramX, String paramY,
-			Transform transformX, Transform transformY, double minX,
-			double maxX, double minY, double maxY) throws ParseException {
+	public double[][] getFunctionPoints(String paramX, Transform transformX,
+			Transform transformY, double minX, double maxX, double minY,
+			double maxY) throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null) {
@@ -266,9 +268,9 @@ public class Plotable {
 		return points;
 	}
 
-	public double[][] getFunctionErrors(String paramX, String paramY,
-			Transform transformX, Transform transformY, double minX,
-			double maxX, double minY, double maxY) throws ParseException {
+	public double[][] getFunctionErrors(String paramX, Transform transformX,
+			Transform transformY, double minX, double maxX, double minY,
+			double maxY) throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null || covarianceMatrixMissing()) {
@@ -305,6 +307,48 @@ public class Plotable {
 		return points;
 	}
 
+	public double[][] getDiffPoints(String paramX, Transform transformX,
+			Transform transformY, double minX, double maxX, double minY,
+			double maxY) throws ParseException {
+		DJep parser = createParser(diffVariable);
+
+		if (function == null || parser == null || !paramX.equals(diffVariable)) {
+			return null;
+		}
+
+		double[][] points = new double[2][FUNCTION_STEPS];
+		DiffFunction f = new DiffFunction(parser, parser.parse(function),
+				dependentVariable, diffVariable, valueLists);
+		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
+				0.01);
+		double diffValue = valueLists.get(diffVariable).get(0);
+		double[] value = { valueLists.get(dependentVariable).get(0) };
+
+		for (int j = 0; j < FUNCTION_STEPS; j++) {
+			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
+					* (maxX - minX);
+			double transX = Transform.inverseTransform(x, transformX);
+			Double y;
+
+			if (transX >= diffValue) {
+				integrator.integrate(f, diffValue, value, transX, value);
+				y = Transform.transform(value[0], transformY);
+				diffValue = transX;
+
+				if (!MathUtilities.isValidDouble(y)) {
+					y = Double.NaN;
+				}
+			} else {
+				y = Double.NaN;
+			}
+
+			points[0][j] = x;
+			points[1][j] = y;
+		}
+
+		return points;
+	}
+
 	public Status getStatus() {
 		if (!isPlotable()) {
 			return Status.FAILED;
@@ -316,10 +360,10 @@ public class Plotable {
 	}
 
 	private boolean isPlotable() {
-		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION, Type.BOTH,
-				Type.DIFF_BOTH);
-		List<Type> typesWithData = Arrays.asList(Type.DATASET, Type.BOTH,
-				Type.DIFF_BOTH);
+		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION,
+				Type.DATA_FUNCTION, Type.DATA_DIFF);
+		List<Type> typesWithData = Arrays.asList(Type.DATA, Type.DATA_FUNCTION,
+				Type.DATA_DIFF);
 
 		if (typesWithParams.contains(type)
 				&& parameters.values().contains(null)) {
@@ -376,7 +420,7 @@ public class Plotable {
 		return false;
 	}
 
-	private DJep createParser(String paramX) {
+	private DJep createParser(String varX) {
 		DJep parser = MathUtilities.createParser();
 
 		for (String constant : constants.keySet()) {
@@ -395,13 +439,21 @@ public class Plotable {
 			parser.addConstant(param, parameters.get(param));
 		}
 
-		for (String param : independentVariables.keySet()) {
-			if (!param.equals(paramX)) {
-				parser.addConstant(param, independentVariables.get(param));
+		if (type == Type.DATA_DIFF) {
+			for (String var : independentVariables.keySet()) {
+				parser.addVariable(var, 0.0);
 			}
-		}
 
-		parser.addVariable(paramX, 0.0);
+			parser.addVariable(diffVariable, 0.0);
+		} else {
+			for (String param : independentVariables.keySet()) {
+				if (!param.equals(varX)) {
+					parser.addConstant(param, independentVariables.get(param));
+				}
+			}
+
+			parser.addVariable(varX, 0.0);
+		}
 
 		return parser;
 	}
