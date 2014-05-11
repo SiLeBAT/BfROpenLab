@@ -19,6 +19,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -49,8 +50,8 @@ public class DBSCANNodeModel extends NodeModel {
     static final String DOUBLETTES = "doublettes";
     static final String CHOSENMODEL = "chosenmodel";
 
-    private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 6);
-    private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, .09);
+    private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 2);
+    private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, 2.0);
     private final SettingsModelBoolean m_doublettes = new SettingsModelBoolean(DOUBLETTES, false);
     private final SettingsModelString m_chosenModel = new SettingsModelString(CHOSENMODEL, "DBSCAN");
     /**
@@ -71,9 +72,11 @@ public class DBSCANNodeModel extends NodeModel {
     	
     	int latCol = -1;
     	int lonCol = -1;
+    	int doItCol = -1;
     	for (int i=0;i<data.getSpec().getNumColumns();i++) {
     		if (data.getSpec().getColumnNames()[i].equals("GeocodingLatitude")) latCol = i;
     		else if (data.getSpec().getColumnNames()[i].equals("GeocodingLongitude")) lonCol = i;
+    		else if (data.getSpec().getColumnNames()[i].equals("Clusterable")) doItCol = i;
     	}
     	if (latCol >= 0 && lonCol >= 0) {
     		HashMap<Integer, DoublePoint> idp = new HashMap<Integer, DoublePoint>(); 
@@ -82,23 +85,27 @@ public class DBSCANNodeModel extends NodeModel {
             int rowNumber = 0;
         	for (DataRow row : data) {
             	exec.checkCanceled();
-        		if (!row.getCell(latCol).isMissing() && !row.getCell(lonCol).isMissing()) {
-	        		DoubleCell latCell = (DoubleCell) row.getCell(latCol);
-	        		DoubleCell lonCell = (DoubleCell) row.getCell(lonCol);
-        	        double[] d = new double[2];
-        	        d[0] = latCell.getDoubleValue();
-        	        d[1] = lonCell.getDoubleValue();
-	        		Double dblKey = d[0] * 1000 + d[1];
-	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
-	        	        DoublePoint dp = new DoublePoint(d);
-	        	        idp.put(rowNumber, dp);
-	        	        points.add(dp);
-	        	        dim.put(dblKey, rowNumber);
-	        		}
-	        		else {
-	        			idp.put(rowNumber, idp.get(dim.get(dblKey)));
-	        		}
-        		}
+            	if (doItCol < 0 || !row.getCell(doItCol).isMissing() && ((BooleanCell) row.getCell(doItCol)).getBooleanValue()) {
+            		if (!row.getCell(latCol).isMissing() && !row.getCell(lonCol).isMissing()) {
+    	        		DoubleCell latCell = (DoubleCell) row.getCell(latCol);
+    	        		DoubleCell lonCell = (DoubleCell) row.getCell(lonCol);
+            	        double[] d = new double[2];
+            	        d[0] = latCell.getDoubleValue();
+            	        d[1] = lonCell.getDoubleValue();
+            	        d[0] *= 111.32; // 1° of latitude is ca. 111 km
+            	        d[1] *= Math.cos(d[1]*Math.PI/180) * 111.32;
+    	        		Double dblKey = d[0] * 100000 + d[1];
+    	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
+    	        	        DoublePoint dp = new DoublePoint(d);
+    	        	        idp.put(rowNumber, dp);
+    	        	        points.add(dp);
+    	        	        dim.put(dblKey, rowNumber);
+    	        		}
+    	        		else {
+    	        			idp.put(rowNumber, idp.get(dim.get(dblKey)));
+    	        		}
+            		}
+            	}
                 rowNumber++;
         	}
         	List<?> cluster = null;

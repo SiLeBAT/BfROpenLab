@@ -26,8 +26,8 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane {
      * New pane for configuring the DBSCAN node.
      */
     protected DBSCANNodeDialog() {
-        addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(DBSCANNodeModel.MINPTS, 6), "Enter minPts:", 1));
-        addDialogComponent(new DialogComponentNumber(new SettingsModelDouble(DBSCANNodeModel.EPS, .09), "Enter epsilon:", 0.01));
+        addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(DBSCANNodeModel.MINPTS, 2), "Enter minPts:", 1));
+        addDialogComponent(new DialogComponentNumber(new SettingsModelDouble(DBSCANNodeModel.EPS, 2.0), "Enter epsilon (km):", 0.5));
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(DBSCANNodeModel.DOUBLETTES, false), "Allow multiple unique points?"));
         addDialogComponent(new DialogComponentStringSelection(new SettingsModelString(DBSCANNodeModel.CHOSENMODEL, "DBSCAN"), "Choose model:", new String[]{"DBSCAN","KMeans"}));
     }
