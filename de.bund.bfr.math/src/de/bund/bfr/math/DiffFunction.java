@@ -86,8 +86,8 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 			index = lastIndex;
 		}
 
-		for (; index < diffValues.size() - 1; index++) {
-			if (diffValues.get(index + 1) > t) {
+		for (; index < diffValues.size(); index++) {
+			if (index == diffValues.size() - 1 || diffValues.get(index + 1) > t) {
 				break;
 			}
 		}
