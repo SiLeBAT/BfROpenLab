@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -192,7 +191,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else if (e.getSource() == applyClustering) {
 			updateSettings();
 			doClustering(applyClustering.isSelected());
-			updateGraphCanvas(false);
+			if (graphCanvas != null) graphCanvas.repaint();
 		} else if (e.getSource() == enforceTempBox) {
 			updateSettings();
 			updateGraphCanvas(false);
@@ -291,9 +290,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 				}
 			}
 			else {
-				Map<String, Map<String, Point2D>> cn = graphCanvas.getCollapsedNodes();
 				for (String key : appliedClusterIds) {
-					if (cn.containsKey(key)) cn.remove(key);
+					graphCanvas.removeCollapsedNode(key);
 				}
 				appliedClusterIds.clear();
 			}

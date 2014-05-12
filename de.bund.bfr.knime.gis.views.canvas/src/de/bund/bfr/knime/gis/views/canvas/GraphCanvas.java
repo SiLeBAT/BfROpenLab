@@ -254,6 +254,28 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		collapsedNodes.put(newId, relPos);
+		applyChanges();
+		setSelectedNodeIds(new LinkedHashSet<String>(Arrays.asList(newId)));
+	}
+	public void removeCollapsedNode(String nodeId) {
+		if (collapsedNodes.containsKey(nodeId)) {
+			Set<String> newIds = new LinkedHashSet<String>();
+
+			Map<String, Point2D> removed = collapsedNodes.remove(nodeId);
+			Point2D center = getViewer().getGraphLayout().transform(
+					nodeSaveMap.remove(nodeId));
+
+			newIds.addAll(removed.keySet());
+
+			for (String newId : removed.keySet()) {
+				getViewer().getGraphLayout().setLocation(
+						nodeSaveMap.get(newId),
+						CanvasUtilities.addPoints(removed.get(newId), center));
+			}
+
+			applyChanges();
+			setSelectedNodeIds(newIds);
+		}
 	}
 
 	public void setCollapsedNodes(
