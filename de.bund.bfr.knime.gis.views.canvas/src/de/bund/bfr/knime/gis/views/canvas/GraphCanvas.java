@@ -242,6 +242,19 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
 		return collapsedNodes;
 	}
+	public void addCollapsedNode(String newId, Set<String> selectedIds) {
+		if (collapsedNodes == null) collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+		
+		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities.getElementsById(getViewer().getGraphLayout().getGraph().getVertices(), selectedIds));
+		Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
+		Point2D center = CanvasUtilities.getCenter(absPos.values());
+
+		for (String id : absPos.keySet()) {
+			relPos.put(id, CanvasUtilities.substractPoints(absPos.get(id), center));
+		}
+
+		collapsedNodes.put(newId, relPos);
+	}
 
 	public void setCollapsedNodes(
 			Map<String, Map<String, Point2D>> collapsedNodes) {
