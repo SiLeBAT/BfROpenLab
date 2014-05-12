@@ -272,6 +272,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			if (collapse) {
 				Map<String, Class<?>> nodeProperties = KnimeUtilities.getTableColumns(nodeTable.getSpec());
 				if (nodeProperties.containsKey("ClusterID")) {
+					int maxCID = 0;
+					for (DataRow row : nodeTable) {
+						Integer cid = IO.getInt(row.getCell(nodeTable.getSpec().findColumnIndex("ClusterID")));
+						if (cid != null && cid > maxCID) maxCID = cid; 
+					}
 					for (int i=0;;i++) {
 						Set<String> selectedIds = new HashSet<String>();
 						for (DataRow row : nodeTable) {
@@ -283,7 +288,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 							graphCanvas.addCollapsedNode("Cluster_" + i, selectedIds);
 							appliedClusterIds.add("Cluster_" + i);
 						}
-						else if (i > 100) {
+						else if (i > maxCID) {
 							break;
 						}
 					}
