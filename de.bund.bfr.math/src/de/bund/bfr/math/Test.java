@@ -24,17 +24,50 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.nfunk.jep.ParseException;
+
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 
 public class Test {
 
 	public static void main(String[] args) {
+		System.setProperty("https.proxyHost", "webproxy");
+		System.setProperty("https.proxyPort", "8080");
+
+		try {
+			put(args[0]);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		System.exit(0);
+		
+		try {
+			post(args[0]);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			get();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		try {
 			nls();
 		} catch (ParseException e) {
@@ -107,5 +140,123 @@ public class Test {
 
 		System.out.println(optimizer.getParameterValues());
 		System.out.println(optimizer.getRMSE());
+	}
+
+	private static void get() throws IOException {
+		String url = "https://api.bintray.com/search/file?name=artifacts.jar";
+
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		// print result
+		System.out.println(response.toString());
+	}
+
+	private static void post(String apiKey) throws IOException {
+		String url = "https://api.bintray.com/content/thoens/test/test/test/publish";
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+		String userpass = "thoens" + ":" + apiKey;
+		String basicAuth = "Basic "
+				+ new String(Base64.encode(userpass.getBytes()));
+		con.setRequestProperty("Authorization", basicAuth);
+
+		// add reuqest header
+		con.setRequestMethod("POST");
+		// con.setRequestProperty("User-Agent", USER_AGENT);
+		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+		String urlParameters = "sn=C02G8416DRJM&cn=&locale=&caller=&num=12345";
+
+		// Send post request
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.writeBytes(urlParameters);
+		wr.flush();
+		wr.close();
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'POST' request to URL : " + url);
+		System.out.println("Post parameters : " + urlParameters);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		// print result
+		System.out.println(response.toString());
+	}
+
+	private static void put(String apiKey) throws IOException {
+		String url = "https://api.bintray.com/content/thoens/test/test/test/artifacts.jar";
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+		String userpass = "thoens" + ":" + apiKey;
+		String basicAuth = "Basic "
+				+ new String(Base64.encode(userpass.getBytes()));
+		con.setRequestProperty("Authorization", basicAuth);
+
+		// add reuqest header
+		con.setRequestMethod("PUT");
+		// con.setRequestProperty("User-Agent", USER_AGENT);
+		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+		// Send post request
+		con.setDoInput(true);
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		// FileInputStream fileIn = new FileInputStream(
+		// "D:/KNIME/workspace/BfROpenLab/de.bund.bfr.knime.update.p2/artifacts.jar");
+		// byte[] buffer = new byte[256];
+		// int bytesRead = 0;
+		// while ((bytesRead = fileIn.read(buffer)) != -1) {
+		// wr.write(buffer, 0, bytesRead);
+		// }
+
+		wr.writeChars("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		wr.flush();
+		wr.close();
+
+		int responseCode = con.getResponseCode();
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		// print result
+		System.out.println(response.toString());
 	}
 }
