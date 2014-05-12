@@ -23,6 +23,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.shapefilereader;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,8 +32,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStore;
@@ -47,6 +50,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -64,8 +68,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
 
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
 
@@ -77,9 +84,17 @@ import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
  */
 public class ShapefileReaderNodeModel extends NodeModel {
 
+	private static final String LATITUDE_COLUMN = "PolygonCenterLatitude";
+	private static final String LONGITUDE_COLUMN = "PolygonCenterLongitude";
+	private static final String AREA_COLUMN = "PolygonArea";
+
 	private ShapefileReaderSettings set;
 	private FeatureCollection<?, ?> collection;
 	private CoordinateReferenceSystem system;
+
+	private String latitudeColumn;
+	private String longitudeColumn;
+	private String areaColumn;
 
 	/**
 	 * Constructor for the node model.
@@ -110,23 +125,41 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		while (iterator.hasNext()) {
 			Feature feature = iterator.next();
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
-			int i = 0;
+			Geometry shape = null;
 
 			for (Property p : feature.getProperties()) {
+				String name = p.getName().toString().trim();
+				int i = spec.findColumnIndex(name);
+
 				if (p.getValue() instanceof Geometry) {
 					if (transform != null) {
-						cells[i] = ShapeCellFactory.create(JTS.transform(
-								(Geometry) p.getValue(), transform));
+						shape = JTS.transform((Geometry) p.getValue(),
+								transform);
 					} else {
-						cells[i] = ShapeCellFactory.create((Geometry) p
-								.getValue());
+						shape = (Geometry) p.getValue();
 					}
+
+					cells[i] = ShapeCellFactory.create(shape);
 				} else {
 					cells[i] = new StringCell(p.getValue().toString());
 				}
-
-				i++;
 			}
+
+			Double lat = null;
+			Double lon = null;
+			Double area = null;
+
+			if (shape instanceof MultiPolygon) {
+				Point2D p = GisUtilities.getCenter((MultiPolygon) shape);
+
+				lat = p.getX();
+				lon = p.getY();
+				area = GisUtilities.getArea((MultiPolygon) shape);
+			}
+
+			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(lat);
+			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(lon);
+			cells[spec.findColumnIndex(areaColumn)] = IO.createCell(area);
 
 			exec.checkCanceled();
 			exec.setProgress((double) index / (double) n);
@@ -235,12 +268,17 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static DataTableSpec createSpec(FeatureCollection<?, ?> collection) {
+	private DataTableSpec createSpec(FeatureCollection<?, ?> collection) {
 		FeatureIterator<?> iterator = collection.features();
 		Feature feature = iterator.next();
 		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		Set<String> columnNames = new LinkedHashSet<String>();
 
 		for (Property p : feature.getProperties()) {
+			String name = p.getName().toString().trim();
+
+			columnNames.add(name);
+
 			if (p.getValue() instanceof Geometry) {
 				columns.add(new DataColumnSpecCreator(p.getName().toString(),
 						ShapeBlobCell.TYPE).createSpec());
@@ -250,6 +288,20 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			}
 		}
 
+		latitudeColumn = KnimeUtilities.createNewColumn(LATITUDE_COLUMN,
+				columnNames);
+		longitudeColumn = KnimeUtilities.createNewColumn(LONGITUDE_COLUMN,
+				columnNames);
+		areaColumn = KnimeUtilities.createNewColumn(AREA_COLUMN, columnNames);
+
+		columns.add(new DataColumnSpecCreator(latitudeColumn, DoubleCell.TYPE)
+				.createSpec());
+		columns.add(new DataColumnSpecCreator(longitudeColumn, DoubleCell.TYPE)
+				.createSpec());
+		columns.add(new DataColumnSpecCreator(areaColumn, DoubleCell.TYPE)
+				.createSpec());
+
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
+
 }

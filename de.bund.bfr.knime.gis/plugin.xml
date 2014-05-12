@@ -3,7 +3,6 @@
    
    <extension point="org.knime.workbench.repository.nodes">      
       <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.shapefilereader.ShapefileReaderNodeFactory" id="de.bund.bfr.knime.gis.shapefilereader.ShapefileReaderNodeFactory"/>
-      <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.shapeproperties.ShapePropertiesNodeFactory" id="de.bund.bfr.knime.gis.shapeproperties.ShapePropertiesNodeFactory"/>
    <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.shapeview.ShapeViewNodeFactory" id="de.bund.bfr.knime.gis.shapeview.ShapeViewNodeFactory"/>
 </extension>
    

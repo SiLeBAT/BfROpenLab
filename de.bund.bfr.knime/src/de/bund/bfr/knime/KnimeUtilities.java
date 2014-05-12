@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,5 +197,20 @@ public class KnimeUtilities {
 		}
 
 		return names;
+	}
+
+	public static String createNewColumn(String name,
+			Collection<String> columnNames) {
+		if (!columnNames.contains(name)) {
+			return name;
+		}
+
+		for (int i = 2;; i++) {
+			String newName = name + "_" + i;
+
+			if (!columnNames.contains(newName)) {
+				return newName;
+			}
+		}
 	}
 }

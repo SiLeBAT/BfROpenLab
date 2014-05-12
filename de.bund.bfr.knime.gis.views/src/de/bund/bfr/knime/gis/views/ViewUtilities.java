@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
@@ -386,7 +387,7 @@ public class ViewUtilities {
 
 	public static String createNewIdProperty(List<? extends Element> elements,
 			Map<String, Class<?>> properties) {
-		String name = CanvasUtilities.createNewProperty("ID", properties);
+		String name = KnimeUtilities.createNewColumn("ID", properties.keySet());
 
 		properties.put(name, String.class);
 

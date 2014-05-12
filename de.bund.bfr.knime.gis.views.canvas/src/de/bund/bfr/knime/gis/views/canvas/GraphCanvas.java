@@ -41,6 +41,7 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -142,8 +143,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSize = DEFAULT_NODESIZE;
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
-		metaNodeProperty = CanvasUtilities.createNewProperty(IS_META_NODE,
-				getNodeProperties());
+		metaNodeProperty = KnimeUtilities.createNewColumn(IS_META_NODE,
+				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
 		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
@@ -242,21 +243,27 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
 		return collapsedNodes;
 	}
+
 	public void addCollapsedNode(String newId, Set<String> selectedIds) {
-		if (collapsedNodes == null) collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
-		
-		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities.getElementsById(getViewer().getGraphLayout().getGraph().getVertices(), selectedIds));
+		if (collapsedNodes == null)
+			collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+
+		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities
+				.getElementsById(getViewer().getGraphLayout().getGraph()
+						.getVertices(), selectedIds));
 		Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
 		Point2D center = CanvasUtilities.getCenter(absPos.values());
 
 		for (String id : absPos.keySet()) {
-			relPos.put(id, CanvasUtilities.substractPoints(absPos.get(id), center));
+			relPos.put(id,
+					CanvasUtilities.substractPoints(absPos.get(id), center));
 		}
 
 		collapsedNodes.put(newId, relPos);
 		applyChanges();
 		setSelectedNodeIds(new LinkedHashSet<String>(Arrays.asList(newId)));
 	}
+
 	public void removeCollapsedNode(String nodeId) {
 		if (collapsedNodes.containsKey(nodeId)) {
 			Set<String> newIds = new LinkedHashSet<String>();

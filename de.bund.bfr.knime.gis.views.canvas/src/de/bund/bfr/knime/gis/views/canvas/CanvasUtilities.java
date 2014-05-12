@@ -278,22 +278,7 @@ public class CanvasUtilities {
 		}
 
 		return result;
-	}
-
-	public static String createNewProperty(String name,
-			Map<String, Class<?>> properties) {
-		if (!properties.containsKey(name)) {
-			return name;
-		}
-
-		for (int i = 2;; i++) {
-			String newName = name + "_" + i;
-
-			if (!properties.containsKey(newName)) {
-				return newName;
-			}
-		}
-	}
+	}	
 
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
