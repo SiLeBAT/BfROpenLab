@@ -40,6 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -330,7 +331,7 @@ public class TracingCanvas extends GraphCanvas implements
 											e.getX(), e.getY());
 
 							if (node != null) {
-								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
+								EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
 
@@ -340,14 +341,22 @@ public class TracingCanvas extends GraphCanvas implements
 									applyChanges();
 								}
 							} else if (edge != null) {
-								EditableSingleElementPropertiesDialog dialog = new EditableSingleElementPropertiesDialog(
-										e.getComponent(), edge,
-										getEdgeProperties());
+								if (!isJoinEdges()) {
+									EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
+											e.getComponent(), edge,
+											getEdgeProperties());
 
-								dialog.setVisible(true);
+									dialog.setVisible(true);
 
-								if (dialog.isApproved()) {
-									applyChanges();
+									if (dialog.isApproved()) {
+										applyChanges();
+									}
+								} else {
+									SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+											e.getComponent(), edge,
+											getEdgeProperties());
+
+									dialog.setVisible(true);
 								}
 							}
 						}

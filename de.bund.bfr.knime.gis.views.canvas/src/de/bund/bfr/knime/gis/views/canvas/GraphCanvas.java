@@ -43,7 +43,7 @@ import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -452,13 +452,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 											e.getX(), e.getY());
 
 							if (node != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
 

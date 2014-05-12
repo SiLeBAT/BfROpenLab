@@ -36,7 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -212,13 +212,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 											e.getX(), e.getY());
 
 							if (node != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
 

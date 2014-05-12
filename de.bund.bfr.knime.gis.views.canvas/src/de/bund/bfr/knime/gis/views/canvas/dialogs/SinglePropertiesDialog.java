@@ -43,12 +43,12 @@ import javax.swing.SwingUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
-public class SingleElementPropertiesDialog extends JDialog implements
+public class SinglePropertiesDialog extends JDialog implements
 		ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	public SingleElementPropertiesDialog(Component parent, Element element,
+	public SinglePropertiesDialog(Component parent, Element element,
 			Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);

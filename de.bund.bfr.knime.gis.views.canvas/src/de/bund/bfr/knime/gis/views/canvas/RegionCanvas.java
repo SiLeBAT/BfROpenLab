@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SingleElementPropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -221,13 +221,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 											e.getX(), e.getY());
 
 							if (edge != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), edge,
 										getEdgeProperties());
 
 								dialog.setVisible(true);
 							} else if (node != null) {
-								SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 										e.getComponent(), node,
 										getNodeProperties());
 

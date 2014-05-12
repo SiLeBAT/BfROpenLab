@@ -46,7 +46,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
-public class EditableSingleElementPropertiesDialog extends JDialog implements
+public class EditableSinglePropertiesDialog extends JDialog implements
 		ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public class EditableSingleElementPropertiesDialog extends JDialog implements
 
 	private boolean approved;
 
-	public EditableSingleElementPropertiesDialog(Component parent,
+	public EditableSinglePropertiesDialog(Component parent,
 			Element element, Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
