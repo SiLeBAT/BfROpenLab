@@ -44,6 +44,8 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	private String diffVariable;
 	private Map<String, List<Double>> variableValues;
 
+	private int lastIndex;
+
 	public DiffFunction(String formula, Map<String, Double> paramValues,
 			String valueVariable, String diffVariable,
 			Map<String, List<Double>> variableValues) throws ParseException {
@@ -78,14 +80,19 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
 		List<Double> diffValues = variableValues.get(diffVariable);
-		int index;
+		int index = 0;
 
-		for (index = 0; index < diffValues.size() - 1; index++) {
-			if (t < diffValues.get(index + 1)) {
+		if (diffValues.get(lastIndex) <= t) {
+			index = lastIndex;
+		}
+
+		for (; index < diffValues.size() - 1; index++) {
+			if (diffValues.get(index + 1) > t) {
 				break;
 			}
 		}
 
+		lastIndex = index;
 		parser.setVarValue(valueVariable, y[0]);
 		parser.setVarValue(diffVariable, t);
 
