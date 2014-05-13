@@ -97,7 +97,7 @@ public class DeployToBintray {
 			if (f.getName().endsWith(".jar")) {
 				try {
 					uploadFile(user, password, version, f, PACKAGE + "/"
-							+ version + "/" + PLUGINS + "/" + f.getName());
+							+ version + "/" + FEATURES + "/" + f.getName());
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
@@ -108,7 +108,7 @@ public class DeployToBintray {
 			if (f.getName().endsWith(".jar")) {
 				try {
 					uploadFile(user, password, version, f, PACKAGE + "/"
-							+ version + "/" + FEATURES + "/" + f.getName());
+							+ version + "/" + PLUGINS + "/" + f.getName());
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
