@@ -44,9 +44,9 @@ import com.sun.xml.internal.messaging.saaj.util.Base64;
 
 public class DeployToBintray {
 
-	private static final String SUBJECT = "thoens";
-	private static final String REPO = "test";
-	private static final String PACKAGE = "test";
+	private static final String SUBJECT = "silebat";
+	private static final String REPO = "generic";
+	private static final String PACKAGE = "update";
 
 	private static final String ARTIFACTS_JAR = "artifacts.jar";
 	private static final String CONTENT_JAR = "content.jar";
@@ -66,7 +66,7 @@ public class DeployToBintray {
 
 		if (!artifactsFile.exists() || !contentFile.exists()
 				|| !featuresDir.exists() || !pluginsDir.exists()) {
-			System.err.println("p2 files cannot be found");
+			System.out.println("p2 files cannot be found");
 		}
 
 		String user = readFromSystemIn("user");
@@ -77,20 +77,20 @@ public class DeployToBintray {
 		try {
 			createNewVersion(user, password, version);
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 			return;
 		}
 
 		try {
 			uploadFile(user, password, version, artifactsFile, ARTIFACTS_JAR);
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 
 		try {
 			uploadFile(user, password, version, contentFile, CONTENT_JAR);
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 
 		for (File f : featuresDir.listFiles()) {
@@ -99,7 +99,7 @@ public class DeployToBintray {
 					uploadFile(user, password, version, f, PACKAGE + "/"
 							+ version + "/" + FEATURES + "/" + f.getName());
 				} catch (IOException e) {
-					System.err.println(e.getMessage());
+					System.out.println(e.getMessage());
 				}
 			}
 		}
@@ -110,7 +110,7 @@ public class DeployToBintray {
 					uploadFile(user, password, version, f, PACKAGE + "/"
 							+ version + "/" + PLUGINS + "/" + f.getName());
 				} catch (IOException e) {
-					System.err.println(e.getMessage());
+					System.out.println(e.getMessage());
 				}
 			}
 		}
