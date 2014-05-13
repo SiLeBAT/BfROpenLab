@@ -27,12 +27,14 @@ package de.bund.bfr.knime.update.p2.deploy;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -46,24 +48,72 @@ public class DeployToBintray {
 	private static final String REPO = "test";
 	private static final String PACKAGE = "test";
 
+	private static final String ARTIFACTS_JAR = "artifacts.jar";
+	private static final String CONTENT_JAR = "content.jar";
+	private static final String FEATURES = "features";
+	private static final String PLUGINS = "plugins";
+
+	private static final String UPDATE_SITE = "../de.bund.bfr.knime.update.p2";
+
 	public static void main(String[] args) {
 		System.setProperty("https.proxyHost", "webproxy");
 		System.setProperty("https.proxyPort", "8080");
 
+		File artifactsFile = new File(UPDATE_SITE + "/" + ARTIFACTS_JAR);
+		File contentFile = new File(UPDATE_SITE + "/" + CONTENT_JAR);
+		File featuresDir = new File(UPDATE_SITE + "/" + FEATURES);
+		File pluginsDir = new File(UPDATE_SITE + "/" + PLUGINS);
+
+		if (!artifactsFile.exists() || !contentFile.exists()
+				|| !featuresDir.exists() || !pluginsDir.exists()) {
+			System.err.println("p2 files cannot be found");
+		}
+
 		String user = readFromSystemIn("user");
 		String password = readFromSystemIn("password");
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
-		String date = dateFormat.format(new Date());		
+		String version = dateFormat.format(new Date());
 
 		try {
-			createNewVersion(user, password, date);
+			createNewVersion(user, password, version);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			return;
 		}
 
-		File dir = new File("../de.bund.bfr.knime.update.p2");
+		try {
+			uploadFile(user, password, version, artifactsFile, ARTIFACTS_JAR);
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
 
-		System.out.println(Arrays.asList(dir.listFiles()));
+		try {
+			uploadFile(user, password, version, contentFile, CONTENT_JAR);
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+
+		for (File f : featuresDir.listFiles()) {
+			if (f.getName().endsWith(".jar")) {
+				try {
+					uploadFile(user, password, version, f, PACKAGE + "/"
+							+ version + "/" + PLUGINS + "/" + f.getName());
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+
+		for (File f : pluginsDir.listFiles()) {
+			if (f.getName().endsWith(".jar")) {
+				try {
+					uploadFile(user, password, version, f, PACKAGE + "/"
+							+ version + "/" + FEATURES + "/" + f.getName());
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
 	}
 
 	private static String readFromSystemIn(String name) {
@@ -100,6 +150,49 @@ public class DeployToBintray {
 		int responseCode = con.getResponseCode();
 
 		System.out.println("\nSending 'POST' request to URL : " + url);
+		System.out.println("JSON : " + json);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				con.getInputStream()));
+		String inputLine;
+
+		while ((inputLine = in.readLine()) != null) {
+			System.out.println(inputLine);
+		}
+
+		in.close();
+	}
+
+	private static void uploadFile(String user, String password,
+			String version, File file, String toPath) throws IOException {
+		String userpass = user + ":" + password;
+		String basicAuth = "Basic "
+				+ new String(Base64.encode(userpass.getBytes()));
+		URL url = new URL("https://api.bintray.com/content/" + SUBJECT + "/"
+				+ REPO + "/" + toPath);
+		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+
+		con.setDoOutput(true);
+		con.setDoInput(true);
+		con.setRequestProperty("Authorization", basicAuth);
+		con.setRequestMethod("PUT");
+
+		InputStream input = new FileInputStream(file);
+		OutputStream output = con.getOutputStream();
+		byte[] buffer = new byte[256];
+		int bytesRead = 0;
+
+		while ((bytesRead = input.read(buffer)) != -1) {
+			output.write(buffer, 0, bytesRead);
+		}
+
+		output.flush();
+		output.close();
+
+		int responseCode = con.getResponseCode();
+
+		System.out.println("\nSending 'PUT' request to URL : " + url);
 		System.out.println("Response Code : " + responseCode);
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(
