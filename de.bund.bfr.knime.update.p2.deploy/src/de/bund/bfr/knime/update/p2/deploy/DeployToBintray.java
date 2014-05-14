@@ -114,6 +114,13 @@ public class DeployToBintray {
 				}
 			}
 		}
+
+		try {
+			publishAll(user, password, version);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			return;
+		}
 	}
 
 	private static String readFromSystemIn(String name) {
@@ -193,6 +200,45 @@ public class DeployToBintray {
 		int responseCode = con.getResponseCode();
 
 		System.out.println("\nSending 'PUT' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				con.getInputStream()));
+		String inputLine;
+
+		while ((inputLine = in.readLine()) != null) {
+			System.out.println(inputLine);
+		}
+
+		in.close();
+	}
+
+	private static void publishAll(String user, String password, String version)
+			throws IOException {
+		String userpass = user + ":" + password;
+		String basicAuth = "Basic "
+				+ new String(Base64.encode(userpass.getBytes()));
+		URL url = new URL("https://api.bintray.com/content/" + SUBJECT + "/"
+				+ REPO + "/" + PACKAGE + "/" + version + "/publish");
+		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+		String json = "{}";
+
+		con.setDoOutput(true);
+		con.setDoInput(true);
+		con.setRequestProperty("Authorization", basicAuth);
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/json");
+
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+
+		wr.writeBytes(json);
+		wr.flush();
+		wr.close();
+
+		int responseCode = con.getResponseCode();
+
+		System.out.println("\nSending 'POST' request to URL : " + url);
+		System.out.println("JSON : " + json);
 		System.out.println("Response Code : " + responseCode);
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(
