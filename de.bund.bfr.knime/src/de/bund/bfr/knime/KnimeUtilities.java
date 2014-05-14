@@ -199,18 +199,27 @@ public class KnimeUtilities {
 		return names;
 	}
 
-	public static String createNewColumn(String name,
-			Collection<String> columnNames) {
-		if (!columnNames.contains(name)) {
-			return name;
+	public static String createNewValue(String value, Collection<String> values) {
+		if (!values.contains(value)) {
+			return value;
 		}
 
 		for (int i = 2;; i++) {
-			String newName = name + "_" + i;
+			String newValue = value + "_" + i;
 
-			if (!columnNames.contains(newName)) {
-				return newName;
+			if (!values.contains(newValue)) {
+				return newValue;
 			}
 		}
+	}
+
+	public static boolean isInteger(String s) {
+		try {
+			Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+
+		return true;
 	}
 }

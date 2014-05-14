@@ -143,7 +143,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSize = DEFAULT_NODESIZE;
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
-		metaNodeProperty = KnimeUtilities.createNewColumn(IS_META_NODE,
+		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
@@ -362,17 +362,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					"Specify ID for Meta Node", "Node ID",
 					JOptionPane.QUESTION_MESSAGE, null, null, "");
 
-			boolean isInteger = true;
-
-			try {
-				Integer.parseInt(newId);
-			} catch (NumberFormatException e) {
-				isInteger = false;
-			}
-
 			if (newId == null) {
 				return;
-			} else if (type == Integer.class && !isInteger) {
+			} else if (type == Integer.class
+					&& !KnimeUtilities.isInteger(newId)) {
 				JOptionPane.showMessageDialog(this,
 						"ID must be of same type as ID column in input table\n"
 								+ "Please enter Integer value", "Error",
@@ -433,6 +426,91 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		applyChanges();
 		setSelectedNodeIds(newIds);
+	}
+
+	@Override
+	protected void collapseByProperty() {
+		String[] properties = getNodeProperties().keySet().toArray(
+				new String[0]);
+		String result = (String) JOptionPane.showInputDialog(this,
+				"Select Property for Collapse?", "Collapse by Property",
+				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+
+		if (result == null) {
+			return;
+		}
+
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
+
+		Set<GraphNode> visibleNodes = CanvasUtilities.removeInvisibleElements(
+				allNodes, getNodeHighlightConditions());
+		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<String, Set<GraphNode>>();
+
+		for (GraphNode node : visibleNodes) {
+			Object value = node.getProperties().get(result);
+
+			if (value == null) {
+				continue;
+			}
+
+			String stringValue = value.toString();
+
+			if (!nodesByProperty.containsKey(stringValue)) {
+				nodesByProperty
+						.put(stringValue, new LinkedHashSet<GraphNode>());
+			}
+
+			nodesByProperty.get(stringValue).add(node);
+		}
+
+		int intId = 0;
+
+		for (String value : nodesByProperty.keySet()) {
+			String newId = null;
+			Class<?> type = getNodeProperties().get(getNodeIdProperty());
+
+			if (type == String.class) {
+				newId = KnimeUtilities.createNewValue(value,
+						nodeSaveMap.keySet());
+			} else if (type == Integer.class) {
+				while (nodeSaveMap.keySet().contains(intId + "")) {
+					intId++;
+				}
+
+				newId = intId + "";
+				intId++;
+			}
+
+			Map<String, Point2D> absPos = getNodePositions(nodesByProperty
+					.get(value));
+			Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
+			Point2D center = CanvasUtilities.getCenter(absPos.values());
+
+			for (String id : absPos.keySet()) {
+				relPos.put(id,
+						CanvasUtilities.substractPoints(absPos.get(id), center));
+			}
+
+			collapsedNodes.put(newId, relPos);
+		}
+
+		applyChanges();
+		setSelectedNodeIds(new LinkedHashSet<String>());
+	}
+
+	@Override
+	protected void clearCollapsedNodes() {
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
+		applyChanges();
+		setSelectedNodeIds(new LinkedHashSet<String>());
 	}
 
 	@Override
@@ -568,7 +646,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleEdges(edges,
+			edges = CanvasUtilities.removeInvisibleElements(edges,
 					getEdgeHighlightConditions());
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),

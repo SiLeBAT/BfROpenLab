@@ -387,7 +387,7 @@ public class ViewUtilities {
 
 	public static String createNewIdProperty(List<? extends Element> elements,
 			Map<String, Class<?>> properties) {
-		String name = KnimeUtilities.createNewColumn("ID", properties.keySet());
+		String name = KnimeUtilities.createNewValue("ID", properties.keySet());
 
 		properties.put(name, String.class);
 

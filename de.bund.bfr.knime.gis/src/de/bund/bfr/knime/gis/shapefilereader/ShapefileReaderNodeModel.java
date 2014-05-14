@@ -288,11 +288,11 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			}
 		}
 
-		latitudeColumn = KnimeUtilities.createNewColumn(LATITUDE_COLUMN,
+		latitudeColumn = KnimeUtilities.createNewValue(LATITUDE_COLUMN,
 				columnNames);
-		longitudeColumn = KnimeUtilities.createNewColumn(LONGITUDE_COLUMN,
+		longitudeColumn = KnimeUtilities.createNewValue(LONGITUDE_COLUMN,
 				columnNames);
-		areaColumn = KnimeUtilities.createNewColumn(AREA_COLUMN, columnNames);
+		areaColumn = KnimeUtilities.createNewValue(AREA_COLUMN, columnNames);
 
 		columns.add(new DataColumnSpecCreator(latitudeColumn, DoubleCell.TYPE)
 				.createSpec());

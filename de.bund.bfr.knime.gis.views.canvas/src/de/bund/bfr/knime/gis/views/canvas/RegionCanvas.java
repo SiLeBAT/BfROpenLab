@@ -146,7 +146,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleEdges(allEdges,
+			edges = CanvasUtilities.removeInvisibleElements(allEdges,
 					getEdgeHighlightConditions());
 			edges = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),

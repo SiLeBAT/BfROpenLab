@@ -166,6 +166,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem collapseToNodeItem;
 	private JMenuItem expandFromNodeItem;
+	private JMenuItem collapseByPropertyItem;
+	private JMenuItem clearCollapsedNodesItem;
 
 	private String editingMode;
 	private JComboBox<String> modeBox;
@@ -724,6 +726,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			collapseToNode();
 		} else if (e.getSource() == expandFromNodeItem) {
 			expandFromNode();
+		} else if (e.getSource() == collapseByPropertyItem) {
+			collapseByProperty();
+		} else if (e.getSource() == clearCollapsedNodesItem) {
+			clearCollapsedNodes();
 		}
 	}
 
@@ -907,6 +913,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void collapseToNode();
 
 	protected abstract void expandFromNode();
+
+	protected abstract void collapseByProperty();
+
+	protected abstract void clearCollapsedNodes();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
@@ -1108,6 +1118,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 
+		if (allowCollapse) {
+			popup.add(new JSeparator());
+			popup.add(collapseByPropertyItem);
+			popup.add(clearCollapsedNodesItem);
+		}
+
 		viewer.setComponentPopupMenu(popup);
 	}
 
@@ -1195,6 +1211,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		collapseToNodeItem.addActionListener(this);
 		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
 		expandFromNodeItem.addActionListener(this);
+		collapseByPropertyItem = new JMenuItem("Collapse by Property");
+		collapseByPropertyItem.addActionListener(this);
+		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
+		clearCollapsedNodesItem.addActionListener(this);
 	}
 
 	private void fireNodeSelectionChanged() {

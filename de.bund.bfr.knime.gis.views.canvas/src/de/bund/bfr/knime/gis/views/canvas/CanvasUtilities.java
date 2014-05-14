@@ -278,7 +278,7 @@ public class CanvasUtilities {
 		}
 
 		return result;
-	}	
+	}
 
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
@@ -628,19 +628,19 @@ public class CanvasUtilities {
 		return result;
 	}
 
-	public static <V extends Node> Set<Edge<V>> removeInvisibleEdges(
-			Collection<Edge<V>> edges,
+	public static <T extends Element> Set<T> removeInvisibleElements(
+			Collection<T> elements,
 			HighlightConditionList edgeHighlightConditions) {
-		Set<Edge<V>> result = new LinkedHashSet<Edge<V>>(edges);
+		Set<T> result = new LinkedHashSet<T>(elements);
 
 		for (HighlightCondition condition : edgeHighlightConditions
 				.getConditions()) {
-			Map<Edge<V>, Double> values = condition.getValues(edges);
+			Map<T, Double> values = condition.getValues(elements);
 
 			if (condition.isInvisible()) {
-				for (Edge<V> edge : edges) {
-					if (values.get(edge) != 0.0) {
-						result.remove(edge);
+				for (T element : elements) {
+					if (values.get(element) != 0.0) {
+						result.remove(element);
 					}
 				}
 			}
