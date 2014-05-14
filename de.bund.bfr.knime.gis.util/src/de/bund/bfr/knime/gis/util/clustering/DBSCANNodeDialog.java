@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.openkrise.clustering;
+package de.bund.bfr.knime.gis.util.clustering;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;

@@ -1,4 +1,4 @@
-package de.bund.bfr.knime.openkrise.clustering;
+package de.bund.bfr.knime.gis.util.clustering;
 
 import java.io.File;
 import java.io.IOException;

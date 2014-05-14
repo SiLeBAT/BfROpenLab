@@ -2,7 +2,7 @@
  * $Revision$ $Date$ $Author$
  *
  */
-package de.bund.bfr.knime.openkrise.clustering;
+package de.bund.bfr.knime.gis.util.clustering;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
