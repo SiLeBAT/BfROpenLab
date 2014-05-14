@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="de.bund.bfr.knime.openkrise.feature"
-      label="KNIME Foodchain Tracing Nodes"
+      label="FoodChain-Lab"
       version="1.0.0.qualifier"
       provider-name="Federal Institute for Risk Assessment (BfR)">
 
