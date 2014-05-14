@@ -446,11 +446,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		collapsedNodes.clear();
 
-		Set<GraphNode> visibleNodes = CanvasUtilities.removeInvisibleElements(
-				allNodes, getNodeHighlightConditions());
 		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<String, Set<GraphNode>>();
 
-		for (GraphNode node : visibleNodes) {
+		for (GraphNode node : allNodes) {
 			Object value = node.getProperties().get(result);
 
 			if (value == null) {
