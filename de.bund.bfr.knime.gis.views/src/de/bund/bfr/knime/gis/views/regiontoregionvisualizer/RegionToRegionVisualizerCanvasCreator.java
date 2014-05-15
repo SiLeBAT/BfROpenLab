@@ -92,8 +92,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setLayoutType(set.getGraphLayout());
+		canvas.setNodeSize(set.getGraphNodeSize());		
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());

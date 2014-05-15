@@ -166,11 +166,15 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	protected void collapseByProperty() {		
+	protected void collapseByProperty() {
 	}
 
 	@Override
 	protected void clearCollapsedNodes() {
+	}
+
+	@Override
+	protected void applyLayout(String layoutType) {
 	}
 
 	protected void flushImage() {

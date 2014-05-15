@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -65,21 +64,12 @@ import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
  */
 public class GraphCanvas extends Canvas<GraphNode> {
 
-	public static final String CIRCLE_LAYOUT = "Circle Layout";
-	public static final String FR_LAYOUT = "FR Layout";
-	public static final String FR_LAYOUT_2 = "FR Layout 2";
-	public static final String ISOM_LAYOUT = "ISOM Layout";
-	public static final String KK_LAYOUT = "KK Layout";
-	public static final String SPRING_LAYOUT = "Spring Layout";
-	public static final String SPRING_LAYOUT_2 = "Spring Layout 2";
-
 	private static final long serialVersionUID = 1L;
 
 	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
 	private static final String IS_META_NODE = "IsMetaNode";
 
-	private String layoutType;
 	private int nodeSize;
 
 	private List<GraphNode> allNodes;
@@ -92,8 +82,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private Map<String, GraphNode> nodeSaveMap;
 	private Map<String, Edge<GraphNode>> edgeSaveMap;
 
-	private JComboBox<String> layoutBox;
-	private JButton layoutButton;
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
 
@@ -113,6 +101,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
 				edgeFromProperty, edgeToProperty);
 		setAllowEdges(true);
+		setAllowLayout(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<GraphNode>();
@@ -139,7 +128,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
 		edgeSaveMap = CanvasUtilities.getElementsById(edges);
 
-		layoutType = DEFAULT_LAYOUT;
 		nodeSize = DEFAULT_NODESIZE;
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
@@ -147,13 +135,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
-		layoutBox = new JComboBox<String>(new String[] { CIRCLE_LAYOUT,
-				FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT,
-				SPRING_LAYOUT_2 });
-		layoutBox.setSelectedItem(layoutType);
-		layoutButton = new JButton("Apply");
-		layoutButton.addActionListener(this);
-		addOptionsItem("Layout", layoutBox, layoutButton);
 		nodeSizeField = new JTextField("" + nodeSize, 5);
 		nodeSizeButton = new JButton("Apply");
 		nodeSizeButton.addActionListener(this);
@@ -164,7 +145,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 						new LinkedHashMap<GraphNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
-		applyLayout(null);
+		applyLayout(DEFAULT_LAYOUT, null);
 	}
 
 	public Set<GraphNode> getNodes() {
@@ -229,15 +210,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		layout.setSize(getViewer().getSize());
 		getViewer().setGraphLayout(layout);
-	}
-
-	public String getLayoutType() {
-		return layoutType;
-	}
-
-	public void setLayoutType(String layoutType) {
-		this.layoutType = layoutType;
-		applyLayout(null);
 	}
 
 	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
@@ -305,10 +277,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 
-		if (e.getSource() == layoutButton) {
-			layoutType = (String) layoutBox.getSelectedItem();
-			applyLayout(getSelectedNodes());
-		} else if (e.getSource() == nodeSizeButton) {
+		if (e.getSource() == nodeSizeButton) {
 			try {
 				nodeSize = Integer.parseInt(nodeSizeField.getText());
 				applyChanges();
@@ -339,6 +308,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected void applyTransform() {
+	}
+
+	@Override
+	protected void applyLayout(String layoutType) {
+		applyLayout(layoutType, getSelectedNodes());
 	}
 
 	@Override
@@ -681,7 +655,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
 
-	private void applyLayout(Set<GraphNode> onNodes) {
+	private void applyLayout(String layoutType, Set<GraphNode> onNodes) {
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;

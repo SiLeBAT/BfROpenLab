@@ -316,8 +316,6 @@ public class LocationToLocationVisualizerNodeDialog extends
 			graphCanvas = new GraphCanvas();
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas
-					.setLayoutType(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_LAYOUT);
 			graphCanvas.setAllowCollapse(false);
 			gisCanvas = new LocationCanvas(true);
 			gisCanvas
@@ -354,7 +352,6 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGraphTranslationX(graphCanvas.getTranslationX());
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());

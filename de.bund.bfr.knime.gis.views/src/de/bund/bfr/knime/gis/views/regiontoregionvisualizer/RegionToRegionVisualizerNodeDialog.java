@@ -337,8 +337,6 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			graphCanvas = new GraphCanvas();
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas
-					.setLayoutType(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_LAYOUT);
 			graphCanvas.setAllowCollapse(false);
 			gisCanvas = new RegionCanvas(true);
 			gisCanvas
@@ -375,7 +373,6 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGraphTranslationX(graphCanvas.getTranslationX());
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());

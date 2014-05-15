@@ -111,6 +111,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public static final String TRANSFORMING_MODE = "Transforming";
 	public static final String PICKING_MODE = "Picking";
 
+	public static final String CIRCLE_LAYOUT = "Circle Layout";
+	public static final String FR_LAYOUT = "FR Layout";
+	public static final String FR_LAYOUT_2 = "FR Layout 2";
+	public static final String ISOM_LAYOUT = "ISOM Layout";
+	public static final String KK_LAYOUT = "KK Layout";
+	public static final String SPRING_LAYOUT = "Spring Layout";
+	public static final String SPRING_LAYOUT_2 = "Spring Layout 2";
+
 	protected static final String EDITING_MODE = "Editing Mode";
 	protected static final String SHOW_LEGEND = "Show Legend";
 	protected static final String JOIN_EDGES = "Join Edges";
@@ -120,6 +128,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private static final boolean DEFAULT_ALLOW_EDGES = true;
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
+	private static final boolean DEFAULT_ALLOW_LAYOUT = false;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
@@ -138,6 +147,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private boolean allowEdges;
 	private boolean allowHighlighting;
+	private boolean allowLayout;
 	private boolean allowCollapse;
 	private double scaleX;
 	private double scaleY;
@@ -148,6 +158,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenu edgeSelectionMenu;
 	private JMenu nodeHighlightMenu;
 	private JMenu edgeHighlightMenu;
+	private JMenu layoutMenu;
 
 	private JMenuItem resetLayoutItem;
 	private JMenuItem saveAsItem;
@@ -168,6 +179,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
+	private JMenuItem circleLayoutItem;
+	private JMenuItem frLayoutItem;
+	private JMenuItem frLayout2Item;
+	private JMenuItem isomLayoutItem;
+	private JMenuItem kkLayoutItem;
+	private JMenuItem springLayoutItem;
+	private JMenuItem springLayout2Item;
 
 	private String editingMode;
 	private JComboBox<String> modeBox;
@@ -202,6 +220,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeToProperty = edgeToProperty;
 		this.allowEdges = DEFAULT_ALLOW_EDGES;
 		this.allowHighlighting = DEFAULT_ALLOW_HIGHLIGHTING;
+		this.allowLayout = DEFAULT_ALLOW_LAYOUT;
 		this.allowCollapse = DEFAULT_ALLOW_COLLAPSE;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
@@ -322,6 +341,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowCollapse(boolean allowCollapse) {
 		this.allowCollapse = allowCollapse;
+		applyPopupMenu();
+	}
+
+	public boolean isAllowLayout() {
+		return allowLayout;
+	}
+
+	public void setAllowLayout(boolean allowLayout) {
+		this.allowLayout = allowLayout;
 		applyPopupMenu();
 	}
 
@@ -730,6 +758,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			collapseByProperty();
 		} else if (e.getSource() == clearCollapsedNodesItem) {
 			clearCollapsedNodes();
+		} else if (e.getSource() == circleLayoutItem) {
+			applyLayout(CIRCLE_LAYOUT);
+		} else if (e.getSource() == frLayoutItem) {
+			applyLayout(FR_LAYOUT);
+		} else if (e.getSource() == frLayout2Item) {
+			applyLayout(FR_LAYOUT_2);
+		} else if (e.getSource() == isomLayoutItem) {
+			applyLayout(ISOM_LAYOUT);
+		} else if (e.getSource() == kkLayoutItem) {
+			applyLayout(KK_LAYOUT);
+		} else if (e.getSource() == springLayoutItem) {
+			applyLayout(SPRING_LAYOUT);
+		} else if (e.getSource() == springLayout2Item) {
+			applyLayout(SPRING_LAYOUT_2);
 		}
 	}
 
@@ -910,6 +952,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract void applyTransform();
 
+	protected abstract void applyLayout(String layoutType);
+
 	protected abstract void collapseToNode();
 
 	protected abstract void expandFromNode();
@@ -1069,6 +1113,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		popup.add(resetLayoutItem);
 		popup.add(saveAsItem);
 
+		if (allowLayout) {
+			layoutMenu.add(circleLayoutItem);
+			layoutMenu.add(frLayoutItem);
+			layoutMenu.add(frLayout2Item);
+			layoutMenu.add(isomLayoutItem);
+			layoutMenu.add(kkLayoutItem);
+			layoutMenu.add(springLayoutItem);
+			layoutMenu.add(springLayout2Item);
+
+			popup.add(layoutMenu);
+		}
+
 		if (allowEdges) {
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectNodesItem);
@@ -1171,6 +1227,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		edgeSelectionMenu.setEnabled(false);
 		nodeHighlightMenu = new JMenu("Node Highlighting");
 		edgeHighlightMenu = new JMenu("Edge Highlighting");
+		layoutMenu = new JMenu("Apply Layout");
 
 		resetLayoutItem = new JMenuItem("Reset Layout");
 		resetLayoutItem.addActionListener(this);
@@ -1215,6 +1272,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		collapseByPropertyItem.addActionListener(this);
 		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
 		clearCollapsedNodesItem.addActionListener(this);
+
+		circleLayoutItem = new JMenuItem(CIRCLE_LAYOUT);
+		circleLayoutItem.addActionListener(this);
+		frLayoutItem = new JMenuItem(FR_LAYOUT);
+		frLayoutItem.addActionListener(this);
+		frLayout2Item = new JMenuItem(FR_LAYOUT_2);
+		frLayout2Item.addActionListener(this);
+		isomLayoutItem = new JMenuItem(ISOM_LAYOUT);
+		isomLayoutItem.addActionListener(this);
+		kkLayoutItem = new JMenuItem(KK_LAYOUT);
+		kkLayoutItem.addActionListener(this);
+		springLayoutItem = new JMenuItem(SPRING_LAYOUT);
+		springLayoutItem.addActionListener(this);
+		springLayout2Item = new JMenuItem(SPRING_LAYOUT_2);
+		springLayout2Item.addActionListener(this);
 	}
 
 	private void fireNodeSelectionChanged() {

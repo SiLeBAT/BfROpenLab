@@ -114,8 +114,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
-				resetWeightsButton, resetCrossButton, resetFilterButton, applyClustering,
-				enforceTempBox, exportAsSvgBox)), BorderLayout.NORTH);
+				resetWeightsButton, resetCrossButton, resetFilterButton,
+				applyClustering, enforceTempBox, exportAsSvgBox)),
+				BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -191,7 +192,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else if (e.getSource() == applyClustering) {
 			updateSettings();
 			doClustering(applyClustering.isSelected());
-			if (graphCanvas != null) graphCanvas.repaint();
+			if (graphCanvas != null)
+				graphCanvas.repaint();
 		} else if (e.getSource() == enforceTempBox) {
 			updateSettings();
 			updateGraphCanvas(false);
@@ -214,7 +216,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			graphCanvas = new TracingCanvas();
 			graphCanvas
 					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas.setLayoutType(TracingViewSettings.DEFAULT_GRAPH_LAYOUT);
 			graphCanvas.setAllowCollapse(true);
 
 			if (showWarning) {
@@ -246,7 +247,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphTranslationX(graphCanvas.getTranslationX());
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphLayout(graphCanvas.getLayoutType());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
@@ -267,34 +267,44 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
 		}
 	}
+
 	private void doClustering(boolean collapse) {
 		if (graphCanvas != null && nodeTable != null) {
 			if (collapse) {
-				Map<String, Class<?>> nodeProperties = KnimeUtilities.getTableColumns(nodeTable.getSpec());
+				Map<String, Class<?>> nodeProperties = KnimeUtilities
+						.getTableColumns(nodeTable.getSpec());
 				if (nodeProperties.containsKey("ClusterID")) {
 					int maxCID = 0;
 					for (DataRow row : nodeTable) {
-						Integer cid = IO.getInt(row.getCell(nodeTable.getSpec().findColumnIndex("ClusterID")));
-						if (cid != null && cid > maxCID) maxCID = cid; 
+						Integer cid = IO.getInt(row.getCell(nodeTable.getSpec()
+								.findColumnIndex("ClusterID")));
+						if (cid != null && cid > maxCID)
+							maxCID = cid;
 					}
-					for (int i=0;;i++) {
+					for (int i = 0;; i++) {
 						Set<String> selectedIds = new HashSet<String>();
 						for (DataRow row : nodeTable) {
-							String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(TracingConstants.ID_COLUMN)));
-							Integer cid = IO.getInt(row.getCell(nodeTable.getSpec().findColumnIndex("ClusterID")));
-							if (cid != null && cid.intValue() == i) selectedIds.add(id);
+							String id = IO
+									.getToCleanString(row
+											.getCell(nodeTable
+													.getSpec()
+													.findColumnIndex(
+															TracingConstants.ID_COLUMN)));
+							Integer cid = IO.getInt(row.getCell(nodeTable
+									.getSpec().findColumnIndex("ClusterID")));
+							if (cid != null && cid.intValue() == i)
+								selectedIds.add(id);
 						}
 						if (selectedIds.size() > 0) {
-							graphCanvas.addCollapsedNode("Cluster_" + i, selectedIds);
+							graphCanvas.addCollapsedNode("Cluster_" + i,
+									selectedIds);
 							appliedClusterIds.add("Cluster_" + i);
-						}
-						else if (i > maxCID) {
+						} else if (i > maxCID) {
 							break;
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				for (String key : appliedClusterIds) {
 					graphCanvas.removeCollapsedNode(key);
 				}
