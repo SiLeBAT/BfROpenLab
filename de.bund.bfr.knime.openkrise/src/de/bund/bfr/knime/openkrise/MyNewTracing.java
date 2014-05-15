@@ -71,6 +71,19 @@ public class MyNewTracing {
 		}
 		return result;
 	}
+	public boolean isSimpleSupplier(int id) {
+		if (isStationStart(id)) {
+			int recId = 0;
+			for (Integer key : allDeliveries.keySet()) {
+				if (allDeliveries.get(key).getSupplierID() == id) {
+					if (recId == 0) recId = allDeliveries.get(key).getRecipientID();
+					else if (recId != allDeliveries.get(key).getRecipientID()) return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	public boolean isStationEnd(int id) {
 		boolean result = true;
 		for (Integer key : allDeliveries.keySet()) {

@@ -15,6 +15,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -172,7 +173,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				//if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 				//id2Code.put(stationID, company);
 				RowKey key = RowKey.createRowKey(rowNumber);
-				DataCell[] cells = new DataCell[15];
+				DataCell[] cells = new DataCell[18];
 				cells[0] = new IntCell(stationID);
 				cells[1] = new StringCell(company);
 				//cells[2] = new StringCell("square"); // circle, square, triangle
@@ -195,6 +196,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 				cells[14] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
 				//if (cp != null) cells[14] = new StringCell(""+cp.intValue());
+				cells[15] = mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+	            cells[16] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+	            cells[17] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
 
 				DataRow outputRow = new DefaultRow(key, cells);
 
@@ -346,7 +350,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 * DataTableSpec(spec); }
 	 */
 	private DataTableSpec getSpec33Nodes() {
-		DataColumnSpec[] spec = new DataColumnSpec[15];
+		DataColumnSpec[] spec = new DataColumnSpec[18];
 		spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
 		spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
 		spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
@@ -362,6 +366,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[12] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
 		spec[14] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
+	    spec[15] = new DataColumnSpecCreator("SimpleSupplier00", BooleanCell.TYPE).createSpec();
+	    spec[16] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
+	    spec[17] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
 	}
 
