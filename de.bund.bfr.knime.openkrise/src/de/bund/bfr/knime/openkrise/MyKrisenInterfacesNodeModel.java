@@ -166,6 +166,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				int stationID = rs.getInt("ID");
 				//if (!antiArticle || !checkCompanyReceivedArticle(stationID, articleFilterList) || !checkCase(stationID)) {
 				String bl = getBL(rs.getString("Bundesland"));
+				//Integer cp = rs.getObject("CasePriority") == null ? null : rs.getInt("CasePriority");
 				String country = rs.getString("Land");//getBL(rs.getString("Land"), 3);
 				String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : rs.getString("Name"); // bl + stationID + "(" + country + ")"
 				//if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
@@ -193,6 +194,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				cells[13] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
 
 				cells[14] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
+				//if (cp != null) cells[14] = new StringCell(""+cp.intValue());
 
 				DataRow outputRow = new DefaultRow(key, cells);
 
