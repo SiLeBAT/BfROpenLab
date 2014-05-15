@@ -32,8 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
-import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -48,15 +50,15 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final int DEFAULT_LOCATIONSIZE = 4;
+	private static final int DEFAULT_NODE_SIZE = 4;
+	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
 
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 
 	private int nodeSize;
-	private JTextField nodeSizeField;
-	private JButton nodeSizeButton;
+	private JComboBox<Integer> nodeSizeBox;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -97,12 +99,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		setAllowEdges(allowEdges);
-		nodeSize = DEFAULT_LOCATIONSIZE;
+		nodeSize = DEFAULT_NODE_SIZE;
 
-		nodeSizeField = new JTextField("" + nodeSize, 5);
-		nodeSizeButton = new JButton("Apply");
-		nodeSizeButton.addActionListener(this);
-		addOptionsItem("Location Size", nodeSizeField, nodeSizeButton);
+		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
+		nodeSizeBox.setPreferredSize(nodeSizeBox.getPreferredSize());
+		nodeSizeBox.setEditable(true);
+		nodeSizeBox.addActionListener(this);
+		addOptionsItem("Node Size", nodeSizeBox);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<LocationNode>(nodeSize,
@@ -129,7 +132,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
-		nodeSizeField.setText(nodeSize + "");
+		nodeSizeBox.setSelectedItem(nodeSize);
 		applyChanges();
 	}
 
@@ -137,11 +140,17 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 
-		if (e.getSource() == nodeSizeButton) {
-			try {
-				nodeSize = Integer.parseInt(nodeSizeField.getText());
+		if (e.getSource() == nodeSizeBox) {
+			Object size = nodeSizeBox.getSelectedItem();
+
+			if (size instanceof Integer) {
+				nodeSize = (Integer) size;
 				applyChanges();
-			} catch (NumberFormatException ex) {
+			} else {
+				JOptionPane.showMessageDialog(this, size
+						+ " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				nodeSizeBox.setSelectedItem(nodeSize);
 			}
 		}
 	}

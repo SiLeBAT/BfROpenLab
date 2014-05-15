@@ -36,9 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -68,9 +69,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
+	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
 	private static final String IS_META_NODE = "IsMetaNode";
-
-	private int nodeSize;
 
 	private List<GraphNode> allNodes;
 	private List<Edge<GraphNode>> allEdges;
@@ -82,8 +82,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private Map<String, GraphNode> nodeSaveMap;
 	private Map<String, Edge<GraphNode>> edgeSaveMap;
 
-	private JTextField nodeSizeField;
-	private JButton nodeSizeButton;
+	private int nodeSize;
+	private JComboBox<Integer> nodeSizeBox;
 
 	private String metaNodeProperty;
 
@@ -135,10 +135,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
-		nodeSizeField = new JTextField("" + nodeSize, 5);
-		nodeSizeButton = new JButton("Apply");
-		nodeSizeButton.addActionListener(this);
-		addOptionsItem("Node Size", nodeSizeField, nodeSizeButton);
+		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
+		nodeSizeBox.setPreferredSize(nodeSizeBox.getPreferredSize());
+		nodeSizeBox.setEditable(true);
+		nodeSizeBox.addActionListener(this);
+		addOptionsItem("Node Size", nodeSizeBox);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(nodeSize,
@@ -269,7 +270,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
-		nodeSizeField.setText(nodeSize + "");
+		nodeSizeBox.setSelectedItem(nodeSize);
 		applyChanges();
 	}
 
@@ -277,14 +278,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 
-		if (e.getSource() == nodeSizeButton) {
-			try {
-				nodeSize = Integer.parseInt(nodeSizeField.getText());
+		if (e.getSource() == nodeSizeBox) {
+			Object size = nodeSizeBox.getSelectedItem();
+
+			if (size instanceof Integer) {
+				nodeSize = (Integer) size;
 				applyChanges();
-			} catch (NumberFormatException ex) {
-				JOptionPane.showMessageDialog(this,
-						"Node Size must be Integer Value", "Error",
+			} else {
+				JOptionPane.showMessageDialog(this, size
+						+ " is not a valid number", "Error",
 						JOptionPane.ERROR_MESSAGE);
+				nodeSizeBox.setSelectedItem(nodeSize);
 			}
 		}
 	}
