@@ -134,7 +134,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGisCanvasSize());
 		canvas.setEditingMode(set.getGisEditingMode());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());
-		canvas.setLocationSize(set.getGisLocationSize());
+		canvas.setNodeSize(set.getGisNodeSize());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());

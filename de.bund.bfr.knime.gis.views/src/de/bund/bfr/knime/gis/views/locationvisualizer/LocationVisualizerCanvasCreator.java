@@ -70,7 +70,7 @@ public class LocationVisualizerCanvasCreator {
 		canvas.setShowLegend(set.isShowLegend());
 		canvas.setCanvasSize(set.getCanvasSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());
-		canvas.setLocationSize(set.getLocationSize());
+		canvas.setNodeSize(set.getNodeSize());
 		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());
 
 		if (!Double.isNaN(set.getScaleX()) && !Double.isNaN(set.getScaleY())

@@ -172,7 +172,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setTranslationX(gisCanvas.getTranslationX());
 		set.setTranslationY(gisCanvas.getTranslationY());
 		set.setBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setLocationSize(gisCanvas.getLocationSize());
+		set.setNodeSize(gisCanvas.getNodeSize());
 		set.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
 
 		if (resized) {

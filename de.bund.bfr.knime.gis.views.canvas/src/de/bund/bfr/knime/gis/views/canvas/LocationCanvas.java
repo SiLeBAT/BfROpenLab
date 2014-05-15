@@ -54,9 +54,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 
-	private int locationSize;
-	private JTextField locationSizeField;
-	private JButton locationSizeButton;
+	private int nodeSize;
+	private JTextField nodeSizeField;
+	private JButton nodeSizeButton;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -97,15 +97,15 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		setAllowEdges(allowEdges);
-		locationSize = DEFAULT_LOCATIONSIZE;
+		nodeSize = DEFAULT_LOCATIONSIZE;
 
-		locationSizeField = new JTextField("" + locationSize, 5);
-		locationSizeButton = new JButton("Apply");
-		locationSizeButton.addActionListener(this);
-		addOptionsItem("Location Size", locationSizeField, locationSizeButton);
+		nodeSizeField = new JTextField("" + nodeSize, 5);
+		nodeSizeButton = new JButton("Apply");
+		nodeSizeButton.addActionListener(this);
+		addOptionsItem("Location Size", nodeSizeField, nodeSizeButton);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<LocationNode>(locationSize,
+				new NodeShapeTransformer<LocationNode>(nodeSize,
 						new LinkedHashMap<LocationNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
@@ -123,13 +123,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		return edges;
 	}
 
-	public int getLocationSize() {
-		return locationSize;
+	public int getNodeSize() {
+		return nodeSize;
 	}
 
-	public void setLocationSize(int locationSize) {
-		this.locationSize = locationSize;
-		locationSizeField.setText(locationSize + "");
+	public void setNodeSize(int nodeSize) {
+		this.nodeSize = nodeSize;
+		nodeSizeField.setText(nodeSize + "");
 		applyChanges();
 	}
 
@@ -137,9 +137,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 
-		if (e.getSource() == locationSizeButton) {
+		if (e.getSource() == nodeSizeButton) {
 			try {
-				locationSize = Integer.parseInt(locationSizeField.getText());
+				nodeSize = Integer.parseInt(nodeSizeField.getText());
 				applyChanges();
 			} catch (NumberFormatException ex) {
 			}
@@ -177,7 +177,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				CanvasUtilities.createGraph(nodes, edges));
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), locationSize, !isAllowEdges());
+				getNodeHighlightConditions(), nodeSize, !isAllowEdges());
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

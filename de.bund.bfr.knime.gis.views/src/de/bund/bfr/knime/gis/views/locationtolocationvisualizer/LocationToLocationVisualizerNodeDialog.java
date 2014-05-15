@@ -368,7 +368,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGisTranslationX(gisCanvas.getTranslationX());
 		set.setGisTranslationY(gisCanvas.getTranslationY());
 		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setGisLocationSize(gisCanvas.getLocationSize());
+		set.setGisLocationSize(gisCanvas.getNodeSize());
 		set.setGisEditingMode(gisCanvas.getEditingMode());
 
 		if (resized) {

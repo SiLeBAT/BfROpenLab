@@ -32,20 +32,20 @@ import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
 public class LocationToLocationVisualizerSettings extends
 		GisToGisVisualizerSettings {
 
-	public static final int DEFAULT_GIS_LOCATION_SIZE = 4;
+	public static final int DEFAULT_GIS_NODE_SIZE = 4;
 
 	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
-	private static final String CFG_GIS_LOCATION_SIZE = "GisLocationSize";
+	private static final String CFG_GIS_NODE_SIZE = "GisLocationSize";
 
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
-	private int gisLocationSize;
+	private int gisNodeSize;
 
 	public LocationToLocationVisualizerSettings() {
 		nodeLatitudeColumn = null;
 		nodeLongitudeColumn = null;
-		gisLocationSize = DEFAULT_GIS_LOCATION_SIZE;
+		gisNodeSize = DEFAULT_GIS_NODE_SIZE;
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class LocationToLocationVisualizerSettings extends
 		}
 
 		try {
-			gisLocationSize = settings.getInt(CFG_GIS_LOCATION_SIZE);
+			gisNodeSize = settings.getInt(CFG_GIS_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -73,7 +73,7 @@ public class LocationToLocationVisualizerSettings extends
 		super.saveSettings(settings);
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
-		settings.addInt(CFG_GIS_LOCATION_SIZE, gisLocationSize);
+		settings.addInt(CFG_GIS_NODE_SIZE, gisNodeSize);
 	}
 
 	public String getNodeLatitudeColumn() {
@@ -92,11 +92,11 @@ public class LocationToLocationVisualizerSettings extends
 		this.nodeLongitudeColumn = nodeLongitudeColumn;
 	}
 
-	public int getGisLocationSize() {
-		return gisLocationSize;
+	public int getGisNodeSize() {
+		return gisNodeSize;
 	}
 
-	public void setGisLocationSize(int gisLocationSize) {
-		this.gisLocationSize = gisLocationSize;
+	public void setGisLocationSize(int gisNodeSize) {
+		this.gisNodeSize = gisNodeSize;
 	}
 }

@@ -33,20 +33,20 @@ import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 public class LocationVisualizerSettings extends
 		GisVisualizerSettings<LocationNode> {
 
-	public static final int DEFAULT_LOCATION_SIZE = 4;
+	public static final int DEFAULT_NODE_SIZE = 4;
 
 	private static final String CFG_LATITUDE_COLUMN = "LatitudeColumn";
 	private static final String CFG_LONGITUDE_COLUMN = "LongitudeColumn";
-	private static final String CFG_LOCATION_SIZE = "LocationSize";
+	private static final String CFG_NODE_SIZE = "LocationSize";
 
 	private String latitudeColumn;
 	private String longitudeColumn;
-	private int locationSize;
+	private int nodeSize;
 
 	public LocationVisualizerSettings() {
 		latitudeColumn = null;
 		longitudeColumn = null;
-		locationSize = DEFAULT_LOCATION_SIZE;
+		nodeSize = DEFAULT_NODE_SIZE;
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class LocationVisualizerSettings extends
 		}
 
 		try {
-			locationSize = settings.getInt(CFG_LOCATION_SIZE);
+			nodeSize = settings.getInt(CFG_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -74,7 +74,7 @@ public class LocationVisualizerSettings extends
 		super.saveSettings(settings);
 		settings.addString(CFG_LATITUDE_COLUMN, latitudeColumn);
 		settings.addString(CFG_LONGITUDE_COLUMN, longitudeColumn);
-		settings.addInt(CFG_LOCATION_SIZE, locationSize);
+		settings.addInt(CFG_NODE_SIZE, nodeSize);
 	}
 
 	public String getLatitudeColumn() {
@@ -93,11 +93,11 @@ public class LocationVisualizerSettings extends
 		this.longitudeColumn = longitudeColumn;
 	}
 
-	public int getLocationSize() {
-		return locationSize;
+	public int getNodeSize() {
+		return nodeSize;
 	}
 
-	public void setLocationSize(int locationSize) {
-		this.locationSize = locationSize;
+	public void setNodeSize(int nodeSize) {
+		this.nodeSize = nodeSize;
 	}
 }
