@@ -46,8 +46,6 @@ public class TracingViewCanvasCreator {
 	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
-	private Set<String> simpleSuppliers;
-
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable, HashMap<Integer, MyDelivery> tracing,
 			TracingViewSettings set) {
@@ -55,9 +53,6 @@ public class TracingViewCanvasCreator {
 		this.edgeTable = edgeTable;
 		this.deliveries = tracing;
 		this.set = set;
-
-		simpleSuppliers = TracingUtilities.getSimpleSuppliers(nodeTable,
-				edgeTable);
 	}
 
 	public TracingCanvas createGraphCanvas() {
@@ -65,6 +60,10 @@ public class TracingViewCanvasCreator {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
+		Set<String> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
+				nodeTable, edgeTable);
+		Set<String> suppliers = TracingUtilities.getSuppliers(edgeTable);
+		Set<String> customers = TracingUtilities.getCustomers(edgeTable);
 
 		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
 			nodeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
@@ -99,6 +98,14 @@ public class TracingViewCanvasCreator {
 					Boolean.class);
 		}
 
+		if (!nodeProperties.containsKey(TracingConstants.SUPPLIER_COLUMN)) {
+			nodeProperties.put(TracingConstants.SUPPLIER_COLUMN, Boolean.class);
+		}
+
+		if (!nodeProperties.containsKey(TracingConstants.CUSTOMER_COLUMN)) {
+			nodeProperties.put(TracingConstants.CUSTOMER_COLUMN, Boolean.class);
+		}
+
 		if (!edgeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
 			edgeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
 		}
@@ -125,6 +132,10 @@ public class TracingViewCanvasCreator {
 		for (GraphNode node : nodes.values()) {
 			node.getProperties().put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
 					simpleSuppliers.contains(node.getId()));
+			node.getProperties().put(TracingConstants.SUPPLIER_COLUMN,
+					suppliers.contains(node.getId()));
+			node.getProperties().put(TracingConstants.CUSTOMER_COLUMN,
+					customers.contains(node.getId()));
 		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,

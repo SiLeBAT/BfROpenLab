@@ -100,6 +100,10 @@ public class TracingUtilities {
 			for (DataRow row : edgeTable) {
 				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
 				String to = IO.getToCleanString(row.getCell(edgeToIndex));
+				
+				if (from.equals(to)) {
+					continue;
+				}
 
 				customers.remove(to);
 
@@ -116,6 +120,74 @@ public class TracingUtilities {
 		}
 
 		return simpleSuppliers;
+	}
+
+	public static Set<String> getSuppliers(BufferedDataTable edgeTable) {
+		Set<String> suppliers = new LinkedHashSet<String>();
+		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int edgeToIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
+
+		if (edgeFromIndex != -1 && edgeToIndex != -1) {
+			for (DataRow row : edgeTable) {
+				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
+				String to = IO.getToCleanString(row.getCell(edgeToIndex));
+				
+				if (from.equals(to)) {
+					continue;
+				}
+
+				suppliers.add(from);
+			}
+
+			for (DataRow row : edgeTable) {
+				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
+				String to = IO.getToCleanString(row.getCell(edgeToIndex));
+				
+				if (from.equals(to)) {
+					continue;
+				}
+
+				suppliers.remove(to);
+			}
+		}
+
+		return suppliers;
+	}
+
+	public static Set<String> getCustomers(BufferedDataTable edgeTable) {
+		Set<String> customers = new LinkedHashSet<String>();
+		int edgeFromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int edgeToIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
+
+		if (edgeFromIndex != -1 && edgeToIndex != -1) {
+			for (DataRow row : edgeTable) {
+				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
+				String to = IO.getToCleanString(row.getCell(edgeToIndex));
+				
+				if (from.equals(to)) {
+					continue;
+				}
+
+				customers.add(to);
+			}
+
+			for (DataRow row : edgeTable) {
+				String from = IO.getToCleanString(row.getCell(edgeFromIndex));
+				String to = IO.getToCleanString(row.getCell(edgeToIndex));
+				
+				if (from.equals(to)) {
+					continue;
+				}
+
+				customers.remove(from);
+			}
+		}
+
+		return customers;
 	}
 
 	public static Map<String, GraphNode> readGraphNodes(

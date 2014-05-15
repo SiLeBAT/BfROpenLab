@@ -311,6 +311,8 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
 				BooleanCell.TYPE);
+		newColumns.put(TracingConstants.SUPPLIER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.CUSTOMER_COLUMN, BooleanCell.TYPE);
 
 		for (String column : newColumns.keySet()) {
 			if (!columns.containsKey(column)) {

@@ -38,4 +38,6 @@ public interface TracingConstants {
 	public static final String FORWARD_COLUMN = "Forward";
 
 	public static final String SIMPLE_SUPPLIER_COLUMN = "SimpleSupplier";
+	public static final String SUPPLIER_COLUMN = "Supplier";
+	public static final String CUSTOMER_COLUMN = "Customer";
 }
