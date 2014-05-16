@@ -366,7 +366,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[12] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
 		spec[14] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
-	    spec[15] = new DataColumnSpecCreator("SimpleSupplier00", BooleanCell.TYPE).createSpec();
+	    spec[15] = new DataColumnSpecCreator("SimpleSupplier", BooleanCell.TYPE).createSpec();
 	    spec[16] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
 	    spec[17] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
