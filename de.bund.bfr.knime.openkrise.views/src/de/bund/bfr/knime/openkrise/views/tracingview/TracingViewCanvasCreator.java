@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
@@ -60,10 +59,6 @@ public class TracingViewCanvasCreator {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
-		Set<String> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
-				nodeTable, edgeTable);
-		Set<String> suppliers = TracingUtilities.getSuppliers(edgeTable);
-		Set<String> customers = TracingUtilities.getCustomers(edgeTable);
 
 		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
 			nodeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
@@ -92,20 +87,6 @@ public class TracingViewCanvasCreator {
 			nodeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
-		if (!nodeProperties
-				.containsKey(TracingConstants.SIMPLE_SUPPLIER_COLUMN)) {
-			nodeProperties.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
-					Boolean.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingConstants.SUPPLIER_COLUMN)) {
-			nodeProperties.put(TracingConstants.SUPPLIER_COLUMN, Boolean.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingConstants.CUSTOMER_COLUMN)) {
-			nodeProperties.put(TracingConstants.CUSTOMER_COLUMN, Boolean.class);
-		}
-
 		if (!edgeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
 			edgeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
 		}
@@ -127,16 +108,7 @@ public class TracingViewCanvasCreator {
 
 		if (nodes.isEmpty()) {
 			return null;
-		}
-
-		for (GraphNode node : nodes.values()) {
-			node.getProperties().put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
-					simpleSuppliers.contains(node.getId()));
-			node.getProperties().put(TracingConstants.SUPPLIER_COLUMN,
-					suppliers.contains(node.getId()));
-			node.getProperties().put(TracingConstants.CUSTOMER_COLUMN,
-					customers.contains(node.getId()));
-		}
+		}		
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);

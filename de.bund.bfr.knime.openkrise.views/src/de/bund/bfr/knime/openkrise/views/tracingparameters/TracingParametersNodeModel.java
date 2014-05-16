@@ -102,11 +102,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes);
-		Set<String> simpleSuppliers = TracingUtilities.getSimpleSuppliers(
-				nodeTable, edgeTable);
-		Set<String> suppliers = TracingUtilities.getSuppliers(edgeTable);
-		Set<String> customers = TracingUtilities.getCustomers(edgeTable);
+				edgeProperties, nodes);		
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), 0);
@@ -235,13 +231,6 @@ public class TracingParametersNodeModel extends NodeModel {
 					.createCell(backwardNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO
 					.createCell(forwardNodes.contains(id));
-			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.SIMPLE_SUPPLIER_COLUMN)] = IO
-					.createCell(simpleSuppliers.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.SUPPLIER_COLUMN)] = IO
-					.createCell(suppliers.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.CUSTOMER_COLUMN)] = IO
-					.createCell(customers.contains(id));
 
 			nodeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
@@ -385,11 +374,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SIMPLE_SUPPLIER_COLUMN,
-				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SUPPLIER_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.CUSTOMER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);		
 
 		for (DataColumnSpec column : nodeSpec) {
 			if (newColumns.containsKey(column.getName())) {
