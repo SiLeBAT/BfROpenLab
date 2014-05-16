@@ -69,6 +69,7 @@ public class LocationVisualizerCanvasCreator {
 
 		canvas.setShowLegend(set.isShowLegend());
 		canvas.setCanvasSize(set.getCanvasSize());
+		canvas.setTextSize(set.getTextSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());
 		canvas.setNodeSize(set.getNodeSize());
 		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());

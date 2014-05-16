@@ -41,9 +41,10 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	public static final boolean DEFAULT_JOIN_EDGES = true;
-	
-	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;	
+
+	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
+	public static final int DEFAULT_GRAPH_TEXT_SIZE = 12;
 	public static final String DEFAULT_GRAPH_EDITING_MODE = GraphCanvas.PICKING_MODE;
 	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
 			400, 600);
@@ -59,8 +60,9 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private static final String CFG_GRAPH_SCALE_Y = "GraphScaleY";
 	private static final String CFG_GRAPH_TRANSLATION_X = "GraphTranslationX";
 	private static final String CFG_GRAPH_TRANSLATION_Y = "GraphTranslationY";
-	private static final String CFG_GRAPH_NODE_POSITIONS = "GraphNodePositions";	
+	private static final String CFG_GRAPH_NODE_POSITIONS = "GraphNodePositions";
 	private static final String CFG_GRAPH_NODE_SIZE = "GraphNodeSize";
+	private static final String CFG_GRAPH_TEXT_SIZE = "GraphTextSize";
 	private static final String CFG_GRAPH_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_GRAPH_SELECTED_EDGES = "GraphSelectedEdges";
 	private static final String CFG_GRAPH_EDITING_MODE = "GraphEditingMode";
@@ -79,8 +81,9 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private double graphScaleY;
 	private double graphTranslationX;
 	private double graphTranslationY;
-	private Map<String, Point2D> graphNodePositions;	
+	private Map<String, Point2D> graphNodePositions;
 	private int graphNodeSize;
+	private int graphTextSize;
 	private String graphEditingMode;
 	private Dimension graphCanvasSize;
 	private List<String> graphSelectedNodes;
@@ -100,8 +103,9 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		graphScaleY = Double.NaN;
 		graphTranslationX = Double.NaN;
 		graphTranslationY = Double.NaN;
-		graphNodePositions = new LinkedHashMap<String, Point2D>();		
+		graphNodePositions = new LinkedHashMap<String, Point2D>();
 		graphNodeSize = DEFAULT_GRAPH_NODE_SIZE;
+		graphTextSize = DEFAULT_GRAPH_TEXT_SIZE;
 		graphEditingMode = DEFAULT_GRAPH_EDITING_MODE;
 		graphCanvasSize = DEFAULT_GRAPH_CANVAS_SIZE;
 		graphSelectedNodes = new ArrayList<String>();
@@ -169,12 +173,17 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 			graphNodePositions = (Map<String, Point2D>) SERIALIZER
 					.fromXml(settings.getString(CFG_GRAPH_NODE_POSITIONS));
 		} catch (InvalidSettingsException e) {
-		}		
+		}
 
 		try {
 			graphNodeSize = settings.getInt(CFG_GRAPH_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
+		
+		try {
+			graphTextSize = settings.getInt(CFG_GRAPH_TEXT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}				
 
 		try {
 			graphEditingMode = settings.getString(CFG_GRAPH_EDITING_MODE);
@@ -229,8 +238,9 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		settings.addDouble(CFG_GRAPH_TRANSLATION_X, graphTranslationX);
 		settings.addDouble(CFG_GRAPH_TRANSLATION_Y, graphTranslationY);
 		settings.addString(CFG_GRAPH_NODE_POSITIONS,
-				SERIALIZER.toXml(graphNodePositions));		
+				SERIALIZER.toXml(graphNodePositions));
 		settings.addInt(CFG_GRAPH_NODE_SIZE, graphNodeSize);
+		settings.addInt(CFG_GRAPH_TEXT_SIZE, graphTextSize);
 		settings.addString(CFG_GRAPH_EDITING_MODE, graphEditingMode);
 		settings.addString(CFG_GRAPH_CANVAS_SIZE,
 				SERIALIZER.toXml(graphCanvasSize));
@@ -330,7 +340,7 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public void setGraphNodePositions(Map<String, Point2D> graphNodePositions) {
 		this.graphNodePositions = graphNodePositions;
-	}	
+	}
 
 	public int getGraphNodeSize() {
 		return graphNodeSize;
@@ -338,6 +348,14 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public void setGraphNodeSize(int graphNodeSize) {
 		this.graphNodeSize = graphNodeSize;
+	}
+
+	public int getGraphTextSize() {
+		return graphTextSize;
+	}
+
+	public void setGraphTextSize(int graphTextSize) {
+		this.graphTextSize = graphTextSize;
 	}
 
 	public String getGraphEditingMode() {

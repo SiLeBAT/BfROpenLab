@@ -35,6 +35,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SHOW_LEGEND = false;
+	public static final int DEFAULT_TEXT_SIZE = 12;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
@@ -44,6 +45,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_SCALE_Y = "ScaleY";
 	private static final String CFG_TRANSLATION_X = "TranslationX";
 	private static final String CFG_TRANSLATION_Y = "TranslationY";
+	private static final String CFG_TEXT_SIZE = "TextSize";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
@@ -54,6 +56,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private double scaleY;
 	private double translationX;
 	private double translationY;
+	private int textSize;
 	private int borderAlpha;
 	private Dimension canvasSize;
 	private HighlightConditionList nodeHighlightConditions;
@@ -65,6 +68,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
 		translationY = Double.NaN;
+		textSize = DEFAULT_TEXT_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = DEFAULT_CANVAS_SIZE;
@@ -105,6 +109,11 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		}
 
 		try {
+			textSize = settings.getInt(CFG_TEXT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			borderAlpha = settings.getInt(CFG_BORDER_ALPHA);
 		} catch (InvalidSettingsException e) {
 		}
@@ -131,6 +140,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		settings.addDouble(CFG_SCALE_Y, scaleY);
 		settings.addDouble(CFG_TRANSLATION_X, translationX);
 		settings.addDouble(CFG_TRANSLATION_Y, translationY);
+		settings.addInt(CFG_TEXT_SIZE, textSize);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(nodeHighlightConditions));
@@ -183,8 +193,16 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public void setTranslationY(double translationY) {
 		this.translationY = translationY;
+	}	
+
+	public int getTextSize() {
+		return textSize;
 	}
 
+	public void setTextSize(int textSize) {
+		this.textSize = textSize;
+	}
+	
 	public int getBorderAlpha() {
 		return borderAlpha;
 	}

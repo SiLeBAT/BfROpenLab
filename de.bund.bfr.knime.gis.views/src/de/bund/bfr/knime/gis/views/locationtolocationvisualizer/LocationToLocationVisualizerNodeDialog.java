@@ -353,6 +353,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
+		set.setGraphTextSize(graphCanvas.getTextSize());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
@@ -367,6 +368,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.setGisScaleY(gisCanvas.getScaleY());
 		set.setGisTranslationX(gisCanvas.getTranslationX());
 		set.setGisTranslationY(gisCanvas.getTranslationY());
+		set.setGisTextSize(gisCanvas.getTextSize());
 		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
 		set.setGisLocationSize(gisCanvas.getNodeSize());
 		set.setGisEditingMode(gisCanvas.getEditingMode());

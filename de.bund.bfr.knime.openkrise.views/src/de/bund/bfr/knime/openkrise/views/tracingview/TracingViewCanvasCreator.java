@@ -149,7 +149,8 @@ public class TracingViewCanvasCreator {
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());		
+		canvas.setNodeSize(set.getGraphNodeSize());
+		canvas.setTextSize(set.getGraphTextSize());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setCaseWeights(set.getCaseWeights());

@@ -34,6 +34,7 @@ import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
+	public static final int DEFAULT_GIS_TEXT_SIZE = 12;
 	public static final int DEFAULT_GIS_BORDER_ALPHA = 255;
 	public static final String DEFAULT_GIS_EDITING_MODE = RegionCanvas.PICKING_MODE;
 	public static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
@@ -46,6 +47,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private static final String CFG_GIS_SCALE_Y = "GisScaleY";
 	private static final String CFG_GIS_TRANSLATION_X = "GisTranslationX";
 	private static final String CFG_GIS_TRANSLATION_Y = "GisTranslationY";
+	private static final String CFG_GIS_TEXT_SIZE = "GisTextSize";
 	private static final String CFG_GIS_BORDER_ALPHA = "GisBorderAlpha";
 	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode";
 	private static final String CFG_GIS_CANVAS_SIZE = "GisCanvasSize";
@@ -57,6 +59,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private double gisScaleY;
 	private double gisTranslationX;
 	private double gisTranslationY;
+	private int gisTextSize;
 	private int gisBorderAlpha;
 	private String gisEditingMode;
 	private Dimension gisCanvasSize;
@@ -69,6 +72,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		gisScaleY = Double.NaN;
 		gisTranslationX = Double.NaN;
 		gisTranslationY = Double.NaN;
+		gisTextSize = DEFAULT_GIS_TEXT_SIZE;
 		gisBorderAlpha = DEFAULT_GIS_BORDER_ALPHA;
 		gisEditingMode = DEFAULT_GIS_EDITING_MODE;
 		gisCanvasSize = DEFAULT_GIS_CANVAS_SIZE;
@@ -109,6 +113,11 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		}
 
 		try {
+			gisTextSize = settings.getInt(CFG_GIS_TEXT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			gisBorderAlpha = settings.getInt(CFG_GIS_BORDER_ALPHA);
 		} catch (InvalidSettingsException e) {
 		}
@@ -135,6 +144,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		settings.addDouble(CFG_GIS_SCALE_Y, gisScaleY);
 		settings.addDouble(CFG_GIS_TRANSLATION_X, gisTranslationX);
 		settings.addDouble(CFG_GIS_TRANSLATION_Y, gisTranslationY);
+		settings.addInt(CFG_GIS_TEXT_SIZE, gisTextSize);
 		settings.addInt(CFG_GIS_BORDER_ALPHA, gisBorderAlpha);
 		settings.addString(CFG_GIS_EDITING_MODE, gisEditingMode);
 		settings.addString(CFG_GIS_CANVAS_SIZE, SERIALIZER.toXml(gisCanvasSize));
@@ -186,6 +196,14 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public void setGisTranslationY(double gisTranslationY) {
 		this.gisTranslationY = gisTranslationY;
+	}
+
+	public int getGisTextSize() {
+		return gisTextSize;
+	}
+
+	public void setGisTextSize(int gisTextSize) {
+		this.gisTextSize = gisTextSize;
 	}
 
 	public int getGisBorderAlpha() {

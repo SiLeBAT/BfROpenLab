@@ -73,6 +73,7 @@ public class RegionVisualizerCanvasCreator {
 
 		canvas.setShowLegend(set.isShowLegend());
 		canvas.setCanvasSize(set.getCanvasSize());
+		canvas.setTextSize(set.getTextSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());
 		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());
 
