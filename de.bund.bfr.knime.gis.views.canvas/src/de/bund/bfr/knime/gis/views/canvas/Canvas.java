@@ -76,6 +76,7 @@ import javax.swing.event.ChangeListener;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.commons.lang.ArrayUtils;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
@@ -94,6 +95,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
+import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -123,6 +125,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected static final String SHOW_LEGEND = "Show Legend";
 	protected static final String JOIN_EDGES = "Join Edges";
 	protected static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
+	protected static final String TEXT_SIZE = "Text Size";
 
 	private static final long serialVersionUID = 1L;
 
@@ -134,13 +137,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
+	private static final int DEFAULT_TEXT_SIZE = 12;
+
+	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 
 	private static final int LEGEND_COLOR_BOX_WIDTH = 30;
 	private static final int LEGEND_DX = 10;
 	private static final int LEGEND_DY = 3;
-	private static final Font LEGEND_FONT = new Font("Default", 0, 12);
-	private static final Font LEGEND_HEAD_FONT = new Font("Default", Font.BOLD,
-			12);
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -195,6 +198,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JCheckBox joinBox;
 	private boolean skipEdgelessNodes;
 	private JCheckBox skipBox;
+	private int textSize;
+	private JComboBox<Integer> textSizeBox;
 
 	private List<CanvasListener> canvasListeners;
 
@@ -230,6 +235,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		showLegend = DEFAULT_SHOW_LEGEND;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
+		textSize = DEFAULT_TEXT_SIZE;
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -286,6 +292,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		skipBox = new JCheckBox("Activate");
 		skipBox.setSelected(skipEdgelessNodes);
 		skipBox.addActionListener(this);
+		textSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
+		textSizeBox.setPreferredSize(textSizeBox.getPreferredSize());
+		textSizeBox.setEditable(true);
+		textSizeBox.addActionListener(this);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -294,6 +304,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		addOptionsItem(SHOW_LEGEND, legendBox);
 		addOptionsItem(JOIN_EDGES, joinBox);
 		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
+		addOptionsItem(TEXT_SIZE, textSizeBox);
 		createPopupMenuItems();
 		applyPopupMenu();
 		applyMouseModel();
@@ -393,6 +404,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		skipBox.setSelected(skipEdgelessNodes);
 		applyChanges();
 		fireSkipEdgelessChanged();
+	}
+
+	public int getTextSize() {
+		return textSize;
+	}
+
+	public void setTextSize(int textSize) {
+		this.textSize = textSize;
+		textSizeBox.setSelectedItem(textSize);
+		applyTextSize();
 	}
 
 	public Collection<V> getVisibleNodes() {
@@ -590,6 +611,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			skipEdgelessNodes = skipBox.isSelected();
 			applyChanges();
 			fireSkipEdgelessChanged();
+		} else if (e.getSource() == textSizeBox) {
+			Object size = textSizeBox.getSelectedItem();
+
+			if (size instanceof Integer) {
+				textSize = (Integer) size;
+				applyTextSize();
+			} else {
+				JOptionPane.showMessageDialog(this, size
+						+ " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				textSizeBox.setSelectedItem(textSize);
+			}
 		} else if (e.getSource() == saveAsItem) {
 			ImageFileChooser chooser = new ImageFileChooser();
 
@@ -975,6 +1008,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		int maxEdgeWidth = 0;
 		int maxNodeRangeWidth = 0;
 		int maxEdgeRangeWidth = 0;
+		Font legendFont = new Font("Default", 0, textSize);
+		Font legendHeadFont = new Font("Default", Font.BOLD, textSize);
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
@@ -984,7 +1019,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			if (condition.isShowInLegend() && name != null && !name.isEmpty()
 					&& color != null) {
 				nodeLegend.put(name, color);
-				maxNodeWidth = Math.max(maxNodeWidth, (int) LEGEND_FONT
+				maxNodeWidth = Math.max(maxNodeWidth, (int) legendFont
 						.getStringBounds(name, fontRenderContext).getWidth());
 
 				if (condition instanceof ValueHighlightCondition
@@ -995,7 +1030,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 					nodeUseGradient.put(name, range);
 					maxNodeRangeWidth = Math.max(
 							maxNodeRangeWidth,
-							(int) LEGEND_FONT.getStringBounds(range,
+							(int) legendFont.getStringBounds(range,
 									fontRenderContext).getWidth());
 				}
 			}
@@ -1009,7 +1044,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			if (condition.isShowInLegend() && name != null && !name.isEmpty()
 					&& color != null) {
 				edgeLegend.put(name, color);
-				maxEdgeWidth = Math.max(maxEdgeWidth, (int) LEGEND_FONT
+				maxEdgeWidth = Math.max(maxEdgeWidth, (int) legendFont
 						.getStringBounds(name, fontRenderContext).getWidth());
 
 				if (condition instanceof ValueHighlightCondition
@@ -1020,16 +1055,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 					edgeUseGradient.put(name, range);
 					maxEdgeRangeWidth = Math.max(
 							maxEdgeRangeWidth,
-							(int) LEGEND_FONT.getStringBounds(range,
+							(int) legendFont.getStringBounds(range,
 									fontRenderContext).getWidth());
 				}
 			}
 		}
 
-		int legendHeight = g.getFontMetrics(LEGEND_FONT).getHeight();
-		int legendHeadHeight = g.getFontMetrics(LEGEND_HEAD_FONT).getHeight();
-		int fontAscent = g.getFontMetrics(LEGEND_FONT).getAscent();
-		int headFontAcent = g.getFontMetrics(LEGEND_HEAD_FONT).getAscent();
+		int legendHeight = g.getFontMetrics(legendFont).getHeight();
+		int legendHeadHeight = g.getFontMetrics(legendHeadFont).getHeight();
+		int fontAscent = g.getFontMetrics(legendFont).getAscent();
+		int headFontAcent = g.getFontMetrics(legendHeadFont).getAscent();
 
 		int xNode1 = LEGEND_DX;
 		int xNode2 = xNode1 + maxNodeWidth + LEGEND_DX;
@@ -1052,7 +1087,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		g.fillRect(0, minY, maxX, getCanvasSize().height - minY - 1);
 		g.setColor(Color.BLACK);
 		g.drawRect(0, minY, maxX, getCanvasSize().height - minY - 1);
-		g.setFont(LEGEND_HEAD_FONT);
+		g.setFont(legendHeadFont);
 
 		if (!nodeLegend.isEmpty()) {
 			g.drawString("Nodes", xNode1, yNode + headFontAcent);
@@ -1064,7 +1099,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			yEdge += legendHeadHeight + LEGEND_DY;
 		}
 
-		g.setFont(LEGEND_FONT);
+		g.setFont(legendFont);
 
 		for (String name : nodeLegend.keySet()) {
 			g.setColor(Color.BLACK);
@@ -1193,6 +1228,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		viewer.setGraphMouse(mouseModel);
+	}
+
+	private void applyTextSize() {
+		viewer.getRenderContext().setVertexFontTransformer(
+				new FontTransformer<V>(textSize));
+		viewer.getRenderContext().setEdgeFontTransformer(
+				new FontTransformer<Edge<V>>(textSize));
+		viewer.repaint();
 	}
 
 	private void saveAsPng(File file) throws IOException {
