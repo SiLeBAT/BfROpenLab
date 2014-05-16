@@ -138,6 +138,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
 		nodeSizeBox.setPreferredSize(nodeSizeBox.getPreferredSize());
 		nodeSizeBox.setEditable(true);
+		nodeSizeBox.setSelectedItem(nodeSize);
 		nodeSizeBox.addActionListener(this);
 		addOptionsItem("Node Size", nodeSizeBox);
 

@@ -295,6 +295,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		textSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
 		textSizeBox.setPreferredSize(textSizeBox.getPreferredSize());
 		textSizeBox.setEditable(true);
+		textSizeBox.setSelectedItem(textSize);
 		textSizeBox.addActionListener(this);
 
 		setLayout(new BorderLayout());
