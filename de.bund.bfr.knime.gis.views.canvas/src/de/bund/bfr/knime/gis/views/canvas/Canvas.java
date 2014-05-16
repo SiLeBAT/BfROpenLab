@@ -41,7 +41,6 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -448,6 +447,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public String getEdgeToProperty() {
 		return edgeToProperty;
 	}
+	
+	public Set<V> getSelectedNodes() {
+		return viewer.getPickedVertexState().getPicked();
+	}
 
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
@@ -458,6 +461,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 	}
+	
+	public Set<Edge<V>> getSelectedEdges() {
+		return viewer.getPickedEdgeState().getPicked();
+	}
 
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
@@ -467,15 +474,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.getPickedEdgeState().pick(edge, false);
 			}
 		}
-	}
-
-	public Set<V> getSelectedNodes() {
-		return viewer.getPickedVertexState().getPicked();
-	}
-
-	public Set<Edge<V>> getSelectedEdges() {
-		return viewer.getPickedEdgeState().getPicked();
-	}
+	}	
 
 	public Set<String> getSelectedNodeIds() {
 		return CanvasUtilities.getElementIds(viewer.getPickedVertexState()
@@ -625,59 +624,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				textSizeBox.setSelectedItem(textSize);
 			}
 		} else if (e.getSource() == saveAsItem) {
-			ImageFileChooser chooser = new ImageFileChooser();
-
-			if (chooser.showSaveDialog(saveAsItem) == JFileChooser.APPROVE_OPTION) {
-				if (chooser.getFileFormat() == ImageFileChooser.PNG_FORMAT) {
-					try {
-						saveAsPng(chooser.getImageFile());
-					} catch (IOException ex) {
-						JOptionPane.showMessageDialog(saveAsItem,
-								"Error saving png file", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				} else if (chooser.getFileFormat() == ImageFileChooser.SVG_FORMAT) {
-					try {
-						saveAsSvg(chooser.getImageFile());
-					} catch (IOException ex) {
-						JOptionPane.showMessageDialog(saveAsItem,
-								"Error saving svg file", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}
+			saveAs();
 		} else if (e.getSource() == selectConnectingItem) {
-			Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
-
-			for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
-				connectingEdges.put(node, new ArrayList<Edge<V>>());
-			}
-
-			for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
-				connectingEdges.get(edge.getFrom()).add(edge);
-				connectingEdges.get(edge.getTo()).add(edge);
-			}
-
-			for (V node : getViewer().getPickedVertexState().getPicked()) {
-				for (Edge<V> edge : connectingEdges.get(node)) {
-					if (!getViewer().getGraphLayout().getGraph()
-							.containsEdge(edge)) {
-						continue;
-					}
-
-					V otherNode = null;
-
-					if (edge.getFrom() == node) {
-						otherNode = edge.getTo();
-					} else if (edge.getTo() == node) {
-						otherNode = edge.getFrom();
-					}
-
-					if (getViewer().getPickedVertexState().isPicked(otherNode)) {
-						getViewer().getPickedEdgeState().pick(edge, true);
-					}
-				}
-			}
+			selectConnections();
 		} else if (e.getSource() == selectHighlightedNodesItem) {
 			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
 					this, nodeHighlightConditions.getConditions());
@@ -743,47 +692,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == edgePropertiesItem) {
 			showEdgeProperties();
 		} else if (e.getSource() == highlightSelectedNodesItem) {
-			HighlightListDialog dialog = openNodeHighlightDialog();
-			List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-			for (String id : getSelectedNodeIds()) {
-				LogicalHighlightCondition c = new LogicalHighlightCondition(
-						nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE,
-						id);
-
-				conditions.add(Arrays.asList(c));
-			}
-
-			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, null, false, Color.RED, false, false, null);
-
-			dialog.setAutoAddCondition(condition);
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setNodeHighlightConditions(dialog.getHighlightConditions());
-			}
+			highlightSelectedNodes();
 		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			HighlightListDialog dialog = openEdgeHighlightDialog();
-			List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-			for (String id : getSelectedEdgeIds()) {
-				LogicalHighlightCondition c = new LogicalHighlightCondition(
-						edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE,
-						id);
-
-				conditions.add(Arrays.asList(c));
-			}
-
-			AndOrHighlightCondition condition = new AndOrHighlightCondition(
-					conditions, null, false, Color.RED, false, false, null);
-
-			dialog.setAutoAddCondition(condition);
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setEdgeHighlightConditions(dialog.getHighlightConditions());
-			}
+			highlightSelectedEdges();
 		} else if (e.getSource() == collapseToNodeItem) {
 			collapseToNode();
 		} else if (e.getSource() == expandFromNodeItem) {
@@ -1239,29 +1150,124 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
-	private void saveAsPng(File file) throws IOException {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
-		BufferedImage img = new BufferedImage(viewer.getWidth(),
-				viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
+	private void selectConnections() {
+		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
 
-		server.paint(img.getGraphics());
-		ImageIO.write(img, "png", file);
+		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
+			connectingEdges.put(node, new ArrayList<Edge<V>>());
+		}
+
+		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
+			connectingEdges.get(edge.getFrom()).add(edge);
+			connectingEdges.get(edge.getTo()).add(edge);
+		}
+
+		for (V node : getViewer().getPickedVertexState().getPicked()) {
+			for (Edge<V> edge : connectingEdges.get(node)) {
+				if (!getViewer().getGraphLayout().getGraph().containsEdge(edge)) {
+					continue;
+				}
+
+				V otherNode = null;
+
+				if (edge.getFrom() == node) {
+					otherNode = edge.getTo();
+				} else if (edge.getTo() == node) {
+					otherNode = edge.getFrom();
+				}
+
+				if (getViewer().getPickedVertexState().isPicked(otherNode)) {
+					getViewer().getPickedEdgeState().pick(edge, true);
+				}
+			}
+		}
 	}
 
-	private void saveAsSvg(File file) throws IOException {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
-		DOMImplementation domImpl = GenericDOMImplementation
-				.getDOMImplementation();
-		Document document = domImpl.createDocument(null, "svg", null);
-		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-		Writer outsvg = new OutputStreamWriter(new FileOutputStream(file),
-				"UTF-8");
+	private void highlightSelectedNodes() {
+		HighlightListDialog dialog = openNodeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
 
-		svgGenerator.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer
-				.getHeight()));
-		server.paint(svgGenerator);
-		svgGenerator.stream(outsvg, true);
-		outsvg.close();
+		for (String id : getSelectedNodeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setNodeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	private void highlightSelectedEdges() {
+		HighlightListDialog dialog = openEdgeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+		for (String id : getSelectedEdgeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setEdgeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	private void saveAs() {
+		ImageFileChooser chooser = new ImageFileChooser();
+
+		if (chooser.showSaveDialog(saveAsItem) == JFileChooser.APPROVE_OPTION) {
+			if (chooser.getFileFormat() == ImageFileChooser.PNG_FORMAT) {
+				try {
+					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
+					BufferedImage img = new BufferedImage(viewer.getWidth(),
+							viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+					server.paint(img.getGraphics());
+					ImageIO.write(img, "png", chooser.getImageFile());
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(saveAsItem,
+							"Error saving png file", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			} else if (chooser.getFileFormat() == ImageFileChooser.SVG_FORMAT) {
+				try {
+					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
+					DOMImplementation domImpl = GenericDOMImplementation
+							.getDOMImplementation();
+					Document document = domImpl.createDocument(null, "svg",
+							null);
+					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+					Writer outsvg = new OutputStreamWriter(
+							new FileOutputStream(chooser.getImageFile()),
+							"UTF-8");
+
+					svgGenerator.setSVGCanvasSize(new Dimension(viewer
+							.getWidth(), viewer.getHeight()));
+					server.paint(svgGenerator);
+					svgGenerator.stream(outsvg, true);
+					outsvg.close();
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(saveAsItem,
+							"Error saving svg file", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
 	}
 
 	private void createPopupMenuItems() {

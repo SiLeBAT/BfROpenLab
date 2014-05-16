@@ -476,7 +476,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		applyChanges();
-		setSelectedNodeIds(new LinkedHashSet<String>());
+		getViewer().getPickedVertexState().clear();
 	}
 
 	@Override
@@ -487,7 +487,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		collapsedNodes.clear();
 		applyChanges();
-		setSelectedNodeIds(new LinkedHashSet<String>());
+		getViewer().getPickedVertexState().clear();
 	}
 
 	@Override
