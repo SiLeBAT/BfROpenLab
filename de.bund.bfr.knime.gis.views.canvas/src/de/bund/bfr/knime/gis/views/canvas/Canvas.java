@@ -112,13 +112,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public static final String TRANSFORMING_MODE = "Transforming";
 	public static final String PICKING_MODE = "Picking";
 
-	public static final String CIRCLE_LAYOUT = "Circle Layout";
-	public static final String FR_LAYOUT = "FR Layout";
-	public static final String FR_LAYOUT_2 = "FR Layout 2";
-	public static final String ISOM_LAYOUT = "ISOM Layout";
-	public static final String KK_LAYOUT = "KK Layout";
-	public static final String SPRING_LAYOUT = "Spring Layout";
-	public static final String SPRING_LAYOUT_2 = "Spring Layout 2";
+	public static enum LayoutType {
+		CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case CIRCLE_LAYOUT:
+				return "Circle Layout";
+			case FR_LAYOUT:
+				return "FR Layout";
+			case FR_LAYOUT_2:
+				return "FR Layout 2";
+			case ISOM_LAYOUT:
+				return "ISOM Layout";
+			case KK_LAYOUT:
+				return "KK Layout";
+			case SPRING_LAYOUT:
+				return "Spring Layout";
+			case SPRING_LAYOUT_2:
+				return "Spring Layout 2";
+			}
+
+			return super.toString();
+		}
+	}
 
 	protected static final String EDITING_MODE = "Editing Mode";
 	protected static final String SHOW_LEGEND = "Show Legend";
@@ -181,13 +199,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
-	private JMenuItem circleLayoutItem;
-	private JMenuItem frLayoutItem;
-	private JMenuItem frLayout2Item;
-	private JMenuItem isomLayoutItem;
-	private JMenuItem kkLayoutItem;
-	private JMenuItem springLayoutItem;
-	private JMenuItem springLayout2Item;
+	private Map<JMenuItem, LayoutType> layoutItems;
 
 	private String editingMode;
 	private JComboBox<String> modeBox;
@@ -447,7 +459,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public String getEdgeToProperty() {
 		return edgeToProperty;
 	}
-	
+
 	public Set<V> getSelectedNodes() {
 		return viewer.getPickedVertexState().getPicked();
 	}
@@ -461,7 +473,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 	}
-	
+
 	public Set<Edge<V>> getSelectedEdges() {
 		return viewer.getPickedEdgeState().getPicked();
 	}
@@ -474,7 +486,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.getPickedEdgeState().pick(edge, false);
 			}
 		}
-	}	
+	}
 
 	public Set<String> getSelectedNodeIds() {
 		return CanvasUtilities.getElementIds(viewer.getPickedVertexState()
@@ -703,20 +715,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			collapseByProperty();
 		} else if (e.getSource() == clearCollapsedNodesItem) {
 			clearCollapsedNodes();
-		} else if (e.getSource() == circleLayoutItem) {
-			applyLayout(CIRCLE_LAYOUT);
-		} else if (e.getSource() == frLayoutItem) {
-			applyLayout(FR_LAYOUT);
-		} else if (e.getSource() == frLayout2Item) {
-			applyLayout(FR_LAYOUT_2);
-		} else if (e.getSource() == isomLayoutItem) {
-			applyLayout(ISOM_LAYOUT);
-		} else if (e.getSource() == kkLayoutItem) {
-			applyLayout(KK_LAYOUT);
-		} else if (e.getSource() == springLayoutItem) {
-			applyLayout(SPRING_LAYOUT);
-		} else if (e.getSource() == springLayout2Item) {
-			applyLayout(SPRING_LAYOUT_2);
+		} else if (layoutItems.containsKey(e.getSource())) {
+			applyLayout(layoutItems.get(e.getSource()));
 		}
 	}
 
@@ -897,7 +897,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract void applyTransform();
 
-	protected abstract void applyLayout(String layoutType);
+	protected abstract void applyLayout(LayoutType layoutType);
 
 	protected abstract void collapseToNode();
 
@@ -1061,13 +1061,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		popup.add(saveAsItem);
 
 		if (allowLayout) {
-			layoutMenu.add(circleLayoutItem);
-			layoutMenu.add(frLayoutItem);
-			layoutMenu.add(frLayout2Item);
-			layoutMenu.add(isomLayoutItem);
-			layoutMenu.add(kkLayoutItem);
-			layoutMenu.add(springLayoutItem);
-			layoutMenu.add(springLayout2Item);
+			for (JMenuItem item : layoutItems.keySet()) {
+				layoutMenu.add(item);
+			}
 
 			popup.add(layoutMenu);
 		}
@@ -1323,20 +1319,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
 		clearCollapsedNodesItem.addActionListener(this);
 
-		circleLayoutItem = new JMenuItem(CIRCLE_LAYOUT);
-		circleLayoutItem.addActionListener(this);
-		frLayoutItem = new JMenuItem(FR_LAYOUT);
-		frLayoutItem.addActionListener(this);
-		frLayout2Item = new JMenuItem(FR_LAYOUT_2);
-		frLayout2Item.addActionListener(this);
-		isomLayoutItem = new JMenuItem(ISOM_LAYOUT);
-		isomLayoutItem.addActionListener(this);
-		kkLayoutItem = new JMenuItem(KK_LAYOUT);
-		kkLayoutItem.addActionListener(this);
-		springLayoutItem = new JMenuItem(SPRING_LAYOUT);
-		springLayoutItem.addActionListener(this);
-		springLayout2Item = new JMenuItem(SPRING_LAYOUT_2);
-		springLayout2Item.addActionListener(this);
+		layoutItems = new LinkedHashMap<JMenuItem, LayoutType>();
+
+		for (LayoutType layoutType : LayoutType.values()) {
+			JMenuItem item = new JMenuItem(layoutType.toString());
+
+			item.addActionListener(this);
+			layoutItems.put(item, layoutType);
+		}
 	}
 
 	private void fireNodeSelectionChanged() {

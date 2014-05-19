@@ -67,7 +67,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
+	private static final LayoutType DEFAULT_LAYOUT = LayoutType.FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
 	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
 	private static final String IS_META_NODE = "IsMetaNode";
@@ -316,7 +316,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void applyLayout(String layoutType) {
+	protected void applyLayout(LayoutType layoutType) {
 		applyLayout(layoutType, getSelectedNodes());
 	}
 
@@ -660,25 +660,33 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
 
-	private void applyLayout(String layoutType, Set<GraphNode> onNodes) {
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> onNodes) {
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
-		if (layoutType.equals(CIRCLE_LAYOUT)) {
+		switch (layoutType) {
+		case CIRCLE_LAYOUT:
 			layout = new CircleLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(FR_LAYOUT)) {
+			break;
+		case FR_LAYOUT:
 			layout = new FRLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(FR_LAYOUT_2)) {
+			break;
+		case FR_LAYOUT_2:
 			layout = new FRLayout2<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(ISOM_LAYOUT)) {
+			break;
+		case ISOM_LAYOUT:
 			layout = new ISOMLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(KK_LAYOUT)) {
+			break;
+		case KK_LAYOUT:
 			layout = new KKLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(SPRING_LAYOUT)) {
+			break;
+		case SPRING_LAYOUT:
 			layout = new SpringLayout<GraphNode, Edge<GraphNode>>(graph);
-		} else if (layoutType.equals(SPRING_LAYOUT_2)) {
+			break;
+		case SPRING_LAYOUT_2:
 			layout = new SpringLayout2<GraphNode, Edge<GraphNode>>(graph);
+			break;
 		}
 
 		if (onNodes != null && !onNodes.isEmpty()) {

@@ -174,7 +174,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	protected void applyLayout(String layoutType) {
+	protected void applyLayout(LayoutType layoutType) {
 	}
 
 	protected void flushImage() {
