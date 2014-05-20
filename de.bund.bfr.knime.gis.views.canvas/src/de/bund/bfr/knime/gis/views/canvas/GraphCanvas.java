@@ -292,7 +292,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Class<?> type = getNodeProperties().get(getNodeIdProperty());
 		String newId = null;
 
 		while (true) {
@@ -302,12 +301,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			if (newId == null) {
 				return;
-			} else if (type == Integer.class
-					&& !KnimeUtilities.isInteger(newId)) {
-				JOptionPane.showMessageDialog(this,
-						"ID must be of same type as ID column in input table\n"
-								+ "Please enter Integer value", "Error",
-						JOptionPane.ERROR_MESSAGE);
 			} else if (nodeSaveMap.containsKey(newId)) {
 				JOptionPane.showMessageDialog(this,
 						"ID already exists, please specify different ID",
@@ -403,24 +396,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			nodesByProperty.get(stringValue).add(node);
 		}
 
-		int intId = 0;
-
 		for (String value : nodesByProperty.keySet()) {
-			String newId = null;
-			Class<?> type = getNodeProperties().get(getNodeIdProperty());
-
-			if (type == String.class) {
-				newId = KnimeUtilities.createNewValue(value,
-						nodeSaveMap.keySet());
-			} else if (type == Integer.class) {
-				while (nodeSaveMap.keySet().contains(intId + "")) {
-					intId++;
-				}
-
-				newId = intId + "";
-				intId++;
-			}
-
+			String newId = KnimeUtilities.createNewValue(value,
+					nodeSaveMap.keySet());
 			Map<String, Point2D> absPos = getNodePositions(nodesByProperty
 					.get(value));
 			Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
@@ -698,13 +676,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (getNodeIdProperty() != null) {
-			Class<?> type = getNodeProperties().get(getNodeIdProperty());
-
-			if (type == String.class) {
-				properties.put(getNodeIdProperty(), id);
-			} else if (type == Integer.class) {
-				properties.put(getNodeIdProperty(), Integer.parseInt(id));
-			}
+			properties.put(getNodeIdProperty(), id);
 		}
 
 		properties.put(metaNodeProperty, true);
