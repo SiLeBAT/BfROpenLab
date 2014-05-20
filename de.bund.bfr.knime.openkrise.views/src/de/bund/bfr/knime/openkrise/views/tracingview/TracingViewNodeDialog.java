@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -43,7 +40,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.knime.core.data.DataRow;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -53,11 +49,9 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -81,14 +75,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
 	private HashMap<Integer, MyDelivery> deliveries;
-	private Set<String> appliedClusterIds;
 
 	private TracingViewSettings set;
 
 	private JButton resetWeightsButton;
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
-	private JCheckBox applyClustering;
 	private JCheckBox enforceTempBox;
 	private JCheckBox exportAsSvgBox;
 
@@ -104,8 +96,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetCrossButton.addActionListener(this);
 		resetFilterButton = new JButton("Reset Filters");
 		resetFilterButton.addActionListener(this);
-		applyClustering = new JCheckBox("Apply Clustering");
-		applyClustering.addActionListener(this);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 		enforceTempBox.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
@@ -115,8 +105,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
 				resetWeightsButton, resetCrossButton, resetFilterButton,
-				applyClustering, enforceTempBox, exportAsSvgBox)),
-				BorderLayout.NORTH);
+				enforceTempBox, exportAsSvgBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
 		addTab("Options", panel);
@@ -128,8 +117,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
 		deliveries = TracingViewNodeModel
-				.getDeliveries((BufferedDataTable) input[2]);
-		appliedClusterIds = new HashSet<String>();
+				.getDeliveries((BufferedDataTable) input[2]);		
 
 		set.loadSettings(settings);
 
@@ -188,12 +176,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			updateSettings();
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
-			updateGraphCanvas(false);
-		} else if (e.getSource() == applyClustering) {
-			updateSettings();
-			doClustering(applyClustering.isSelected());
-			if (graphCanvas != null)
-				graphCanvas.repaint();
+			updateGraphCanvas(false);		
 		} else if (e.getSource() == enforceTempBox) {
 			updateSettings();
 			updateGraphCanvas(false);
@@ -266,51 +249,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (resized) {
 			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
-		}
-	}
-
-	private void doClustering(boolean collapse) {
-		if (graphCanvas != null && nodeTable != null) {
-			if (collapse) {
-				Map<String, Class<?>> nodeProperties = KnimeUtilities
-						.getTableColumns(nodeTable.getSpec());
-				if (nodeProperties.containsKey("ClusterID")) {
-					int maxCID = 0;
-					for (DataRow row : nodeTable) {
-						Integer cid = IO.getInt(row.getCell(nodeTable.getSpec()
-								.findColumnIndex("ClusterID")));
-						if (cid != null && cid > maxCID)
-							maxCID = cid;
-					}
-					for (int i = 0;; i++) {
-						Set<String> selectedIds = new HashSet<String>();
-						for (DataRow row : nodeTable) {
-							String id = IO
-									.getToCleanString(row
-											.getCell(nodeTable
-													.getSpec()
-													.findColumnIndex(
-															TracingConstants.ID_COLUMN)));
-							Integer cid = IO.getInt(row.getCell(nodeTable
-									.getSpec().findColumnIndex("ClusterID")));
-							if (cid != null && cid.intValue() == i)
-								selectedIds.add(id);
-						}
-						if (selectedIds.size() > 0) {
-							graphCanvas.addCollapsedNode("Cluster_" + i,
-									selectedIds);
-							appliedClusterIds.add("Cluster_" + i);
-						} else if (i > maxCID) {
-							break;
-						}
-					}
-				}
-			} else {
-				for (String key : appliedClusterIds) {
-					graphCanvas.removeCollapsedNode(key);
-				}
-				appliedClusterIds.clear();
-			}
 		}
 	}
 }

@@ -218,47 +218,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return collapsedNodes;
 	}
 
-	public void addCollapsedNode(String newId, Set<String> selectedIds) {
-		if (collapsedNodes == null)
-			collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
-
-		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities
-				.getElementsById(getViewer().getGraphLayout().getGraph()
-						.getVertices(), selectedIds));
-		Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
-		Point2D center = CanvasUtilities.getCenter(absPos.values());
-
-		for (String id : absPos.keySet()) {
-			relPos.put(id,
-					CanvasUtilities.substractPoints(absPos.get(id), center));
-		}
-
-		collapsedNodes.put(newId, relPos);
-		applyChanges();
-		setSelectedNodeIds(new LinkedHashSet<String>(Arrays.asList(newId)));
-	}
-
-	public void removeCollapsedNode(String nodeId) {
-		if (collapsedNodes.containsKey(nodeId)) {
-			Set<String> newIds = new LinkedHashSet<String>();
-
-			Map<String, Point2D> removed = collapsedNodes.remove(nodeId);
-			Point2D center = getViewer().getGraphLayout().transform(
-					nodeSaveMap.remove(nodeId));
-
-			newIds.addAll(removed.keySet());
-
-			for (String newId : removed.keySet()) {
-				getViewer().getGraphLayout().setLocation(
-						nodeSaveMap.get(newId),
-						CanvasUtilities.addPoints(removed.get(newId), center));
-			}
-
-			applyChanges();
-			setSelectedNodeIds(newIds);
-		}
-	}
-
 	public void setCollapsedNodes(
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
