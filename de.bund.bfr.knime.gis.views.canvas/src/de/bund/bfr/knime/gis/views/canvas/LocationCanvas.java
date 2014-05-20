@@ -243,7 +243,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 							super.mouseDragged(e);
 						}
 					}
-				});
+				}, getEditingMode());
 	}
 
 }

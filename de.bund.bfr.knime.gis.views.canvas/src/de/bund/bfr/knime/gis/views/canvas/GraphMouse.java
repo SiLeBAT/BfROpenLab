@@ -33,7 +33,7 @@ import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 
 public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
-	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin) {
+	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin, Mode mode) {
 		super(1.1f, 1 / 1.1f);
 
 		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(),
@@ -42,7 +42,7 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 				InputEvent.BUTTON1_MASK);
 		this.pickingPlugin = pickingPlugin;
 
-		setMode(Mode.TRANSFORMING);
+		setMode(mode);
 	}
 
 	@Override

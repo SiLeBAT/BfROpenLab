@@ -361,7 +361,7 @@ public class TracingCanvas extends GraphCanvas implements
 							}
 						}
 					}
-				});
+				}, getEditingMode());
 	}
 
 	@Override

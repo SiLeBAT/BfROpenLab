@@ -521,7 +521,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 							}
 						}
 					}
-				});
+				}, getEditingMode());
 	}
 
 	@Override

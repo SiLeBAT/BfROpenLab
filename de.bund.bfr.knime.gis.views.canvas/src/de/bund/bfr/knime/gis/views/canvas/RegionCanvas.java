@@ -242,7 +242,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 							super.mouseDragged(e);
 						}
 					}
-				});
+				}, getEditingMode());
 	}
 
 	@Override

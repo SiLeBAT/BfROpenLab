@@ -109,9 +109,6 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public abstract class Canvas<V extends Node> extends JPanel implements
 		ChangeListener, ActionListener, ItemListener, KeyListener {
 
-	public static final String TRANSFORMING_MODE = "Transforming";
-	public static final String PICKING_MODE = "Picking";
-
 	public static enum LayoutType {
 		CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
 
@@ -150,7 +147,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_LAYOUT = false;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
-	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
+	private static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
@@ -201,8 +198,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem clearCollapsedNodesItem;
 	private Map<JMenuItem, LayoutType> layoutItems;
 
-	private String editingMode;
-	private JComboBox<String> modeBox;
+	private Mode editingMode;
+	private JComboBox<Mode> modeBox;
 	private boolean showLegend;
 	private JCheckBox legendBox;
 	private boolean joinEdges;
@@ -290,8 +287,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		modeBox = new JComboBox<String>(new String[] { TRANSFORMING_MODE,
-				PICKING_MODE });
+		modeBox = new JComboBox<Mode>(new Mode[] { Mode.TRANSFORMING,
+				Mode.PICKING });
 		modeBox.setSelectedItem(editingMode);
 		modeBox.addActionListener(this);
 		legendBox = new JCheckBox("Activate");
@@ -319,7 +316,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		addOptionsItem(TEXT_SIZE, textSizeBox);
 		createPopupMenuItems();
 		applyPopupMenu();
-		applyMouseModel();
+		viewer.setGraphMouse(createMouseModel());
 	}
 
 	public void addCanvasListener(CanvasListener listener) {
@@ -376,14 +373,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyPopupMenu();
 	}
 
-	public String getEditingMode() {
+	public Mode getEditingMode() {
 		return editingMode;
 	}
 
-	public void setEditingMode(String editingMode) {
+	public void setEditingMode(Mode editingMode) {
 		this.editingMode = editingMode;
 		modeBox.setSelectedItem(editingMode);
-		applyMouseModel();
+		viewer.setGraphMouse(createMouseModel());
 	}
 
 	public boolean isShowLegend() {
@@ -610,8 +607,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == modeBox) {
-			editingMode = (String) modeBox.getSelectedItem();
-			applyMouseModel();
+			editingMode = (Mode) modeBox.getSelectedItem();
+			viewer.setGraphMouse(createMouseModel());
 		} else if (e.getSource() == legendBox) {
 			showLegend = legendBox.isSelected();
 			viewer.repaint();
@@ -1124,18 +1121,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		viewer.setComponentPopupMenu(popup);
-	}
-
-	private void applyMouseModel() {
-		GraphMouse<V, Edge<V>> mouseModel = createMouseModel();
-
-		if (editingMode.equals(TRANSFORMING_MODE)) {
-			mouseModel.setMode(Mode.TRANSFORMING);
-		} else {
-			mouseModel.setMode(Mode.PICKING);
-		}
-
-		viewer.setGraphMouse(mouseModel);
 	}
 
 	private void applyTextSize() {

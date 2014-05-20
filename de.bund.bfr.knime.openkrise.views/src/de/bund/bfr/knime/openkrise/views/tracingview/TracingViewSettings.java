@@ -34,9 +34,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.TracingSettings;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends TracingSettings {
 
@@ -48,7 +48,7 @@ public class TracingViewSettings extends TracingSettings {
 	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
 	public static final int DEFAULT_GRAPH_TEXT_SIZE = 12;
-	public static final String DEFAULT_GRAPH_EDITING_MODE = GraphCanvas.PICKING_MODE;
+	public static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
 			400, 600);
 
@@ -71,7 +71,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_GRAPH_TEXT_SIZE = "GraphTextSize";
 	private static final String CFG_GRAPH_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_GRAPH_SELECTED_EDGES = "GraphSelectedEdges";
-	private static final String CFG_GRAPH_EDITING_MODE = "GraphEditingMode";
+	private static final String CFG_GRAPH_EDITING_MODE = "GraphEditingMode2";
 	private static final String CFG_GRAPH_CANVAS_SIZE = "GraphCanvasSize";
 	private static final String CFG_GRAPH_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_GRAPH_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
@@ -94,7 +94,7 @@ public class TracingViewSettings extends TracingSettings {
 	private Map<String, Point2D> graphNodePositions;
 	private int graphNodeSize;
 	private int graphTextSize;
-	private String graphEditingMode;
+	private Mode graphEditingMode;
 	private Dimension graphCanvasSize;
 	private List<String> graphSelectedNodes;
 	private List<String> graphSelectedEdges;
@@ -212,14 +212,15 @@ public class TracingViewSettings extends TracingSettings {
 			graphNodeSize = settings.getInt(CFG_GRAPH_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			graphTextSize = settings.getInt(CFG_GRAPH_TEXT_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			graphEditingMode = settings.getString(CFG_GRAPH_EDITING_MODE);
+			graphEditingMode = Mode.valueOf(settings
+					.getString(CFG_GRAPH_EDITING_MODE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -283,7 +284,7 @@ public class TracingViewSettings extends TracingSettings {
 				SERIALIZER.toXml(graphNodePositions));
 		settings.addInt(CFG_GRAPH_NODE_SIZE, graphNodeSize);
 		settings.addInt(CFG_GRAPH_TEXT_SIZE, graphTextSize);
-		settings.addString(CFG_GRAPH_EDITING_MODE, graphEditingMode);
+		settings.addString(CFG_GRAPH_EDITING_MODE, graphEditingMode.name());
 		settings.addString(CFG_GRAPH_CANVAS_SIZE,
 				SERIALIZER.toXml(graphCanvasSize));
 		settings.addString(CFG_GRAPH_SELECTED_NODES,
@@ -426,11 +427,11 @@ public class TracingViewSettings extends TracingSettings {
 		this.graphTextSize = graphTextSize;
 	}
 
-	public String getGraphEditingMode() {
+	public Mode getGraphEditingMode() {
 		return graphEditingMode;
 	}
 
-	public void setGraphEditingMode(String graphEditingMode) {
+	public void setGraphEditingMode(Mode graphEditingMode) {
 		this.graphEditingMode = graphEditingMode;
 	}
 

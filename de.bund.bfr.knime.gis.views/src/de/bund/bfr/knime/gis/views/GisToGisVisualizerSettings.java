@@ -29,14 +29,14 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
 	public static final int DEFAULT_GIS_TEXT_SIZE = 12;
 	public static final int DEFAULT_GIS_BORDER_ALPHA = 255;
-	public static final String DEFAULT_GIS_EDITING_MODE = RegionCanvas.PICKING_MODE;
+	public static final Mode DEFAULT_GIS_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
 			600);
 
@@ -49,7 +49,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private static final String CFG_GIS_TRANSLATION_Y = "GisTranslationY";
 	private static final String CFG_GIS_TEXT_SIZE = "GisTextSize";
 	private static final String CFG_GIS_BORDER_ALPHA = "GisBorderAlpha";
-	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode";
+	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode2";
 	private static final String CFG_GIS_CANVAS_SIZE = "GisCanvasSize";
 
 	private String shapeColumn;
@@ -61,7 +61,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private double gisTranslationY;
 	private int gisTextSize;
 	private int gisBorderAlpha;
-	private String gisEditingMode;
+	private Mode gisEditingMode;
 	private Dimension gisCanvasSize;
 
 	public GisToGisVisualizerSettings() {
@@ -123,7 +123,8 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		}
 
 		try {
-			gisEditingMode = settings.getString(CFG_GIS_EDITING_MODE);
+			gisEditingMode = Mode.valueOf(settings
+					.getString(CFG_GIS_EDITING_MODE));
 		} catch (InvalidSettingsException e) {
 		}
 		try {
@@ -146,7 +147,7 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		settings.addDouble(CFG_GIS_TRANSLATION_Y, gisTranslationY);
 		settings.addInt(CFG_GIS_TEXT_SIZE, gisTextSize);
 		settings.addInt(CFG_GIS_BORDER_ALPHA, gisBorderAlpha);
-		settings.addString(CFG_GIS_EDITING_MODE, gisEditingMode);
+		settings.addString(CFG_GIS_EDITING_MODE, gisEditingMode.name());
 		settings.addString(CFG_GIS_CANVAS_SIZE, SERIALIZER.toXml(gisCanvasSize));
 	}
 
@@ -214,11 +215,11 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		this.gisBorderAlpha = gisBorderAlpha;
 	}
 
-	public String getGisEditingMode() {
+	public Mode getGisEditingMode() {
 		return gisEditingMode;
 	}
 
-	public void setGisEditingMode(String gisEditingMode) {
+	public void setGisEditingMode(Mode gisEditingMode) {
 		this.gisEditingMode = gisEditingMode;
 	}
 
