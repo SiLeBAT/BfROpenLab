@@ -180,6 +180,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setTranslationY(gisCanvas.getTranslationY());
 		set.setTextSize(gisCanvas.getTextSize());
 		set.setBorderAlpha(gisCanvas.getBorderAlpha());
+		set.setEditingMode(gisCanvas.getEditingMode());
 		set.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
 
 		if (resized) {

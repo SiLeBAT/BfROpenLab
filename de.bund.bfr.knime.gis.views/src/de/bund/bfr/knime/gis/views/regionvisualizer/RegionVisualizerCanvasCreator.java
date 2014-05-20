@@ -75,6 +75,7 @@ public class RegionVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getCanvasSize());
 		canvas.setTextSize(set.getTextSize());
 		canvas.setBorderAlpha(set.getBorderAlpha());
+		canvas.setEditingMode(set.getEditingMode());
 		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());
 
 		if (!Double.isNaN(set.getScaleX()) && !Double.isNaN(set.getScaleY())

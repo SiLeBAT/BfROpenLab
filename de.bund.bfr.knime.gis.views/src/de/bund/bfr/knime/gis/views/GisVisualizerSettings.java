@@ -31,12 +31,14 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SHOW_LEGEND = false;
 	public static final int DEFAULT_TEXT_SIZE = 12;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
+	public static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
@@ -47,6 +49,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_TRANSLATION_Y = "TranslationY";
 	private static final String CFG_TEXT_SIZE = "TextSize";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
+	private static final String CFG_EDITING_MODE = "EditingMode";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
 
@@ -58,6 +61,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private double translationY;
 	private int textSize;
 	private int borderAlpha;
+	private Mode editingMode;
 	private Dimension canvasSize;
 	private HighlightConditionList nodeHighlightConditions;
 
@@ -70,6 +74,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		translationY = Double.NaN;
 		textSize = DEFAULT_TEXT_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
+		editingMode = DEFAULT_EDITING_MODE;
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = DEFAULT_CANVAS_SIZE;
 	}
@@ -119,6 +124,11 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		}
 
 		try {
+			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
 					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
@@ -142,6 +152,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		settings.addDouble(CFG_TRANSLATION_Y, translationY);
 		settings.addInt(CFG_TEXT_SIZE, textSize);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
+		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
@@ -193,7 +204,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public void setTranslationY(double translationY) {
 		this.translationY = translationY;
-	}	
+	}
 
 	public int getTextSize() {
 		return textSize;
@@ -202,13 +213,21 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	public void setTextSize(int textSize) {
 		this.textSize = textSize;
 	}
-	
+
 	public int getBorderAlpha() {
 		return borderAlpha;
 	}
 
 	public void setBorderAlpha(int borderAlpha) {
 		this.borderAlpha = borderAlpha;
+	}
+
+	public Mode getEditingMode() {
+		return editingMode;
+	}
+
+	public void setEditingMode(Mode editingMode) {
+		this.editingMode = editingMode;
 	}
 
 	public Dimension getCanvasSize() {
