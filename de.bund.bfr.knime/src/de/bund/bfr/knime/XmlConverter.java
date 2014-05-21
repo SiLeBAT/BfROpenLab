@@ -40,6 +40,10 @@ public class XmlConverter {
 	}
 
 	public String toXml(Object obj) {
+		if (obj == null) {
+			return null;
+		}
+		
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
@@ -60,6 +64,10 @@ public class XmlConverter {
 	}
 
 	public Object fromXml(String s) {
+		if (s == null) {
+			return null;
+		}
+		
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
