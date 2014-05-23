@@ -597,10 +597,23 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> onNodes) {
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
+		boolean nodesSelected = selectedNodes != null
+				&& !selectedNodes.isEmpty();
+
+		if (nodesSelected && layoutType == LayoutType.ISOM_LAYOUT) {
+			if (JOptionPane.showConfirmDialog(this, layoutType
+					+ " cannot be applied on a subset of nodes. Apply "
+					+ layoutType + " on all nodes?", "Confirm",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				nodesSelected = false;
+			} else {
+				return;
+			}
+		}
 
 		switch (layoutType) {
 		case CIRCLE_LAYOUT:
@@ -626,7 +639,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			break;
 		}
 
-		if (onNodes != null && !onNodes.isEmpty()) {
+		if (nodesSelected) {
 			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
 					getTranslationY() / getScaleY());
 
@@ -635,7 +648,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					(int) (getViewer().getSize().height / getScaleY())));
 
 			for (GraphNode node : nodes) {
-				if (!onNodes.contains(node)) {
+				if (!selectedNodes.contains(node)) {
 					layout.setLocation(node, CanvasUtilities.addPoints(
 							getViewer().getGraphLayout().transform(node), move));
 					layout.lock(node, true);
