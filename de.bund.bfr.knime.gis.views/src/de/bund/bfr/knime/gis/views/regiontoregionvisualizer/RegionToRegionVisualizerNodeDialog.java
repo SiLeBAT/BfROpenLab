@@ -374,7 +374,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
-		set.setGraphTextSize(graphCanvas.getTextSize());
+		set.setGraphFontSize(graphCanvas.getFontSize());
+		set.setGraphFontBold(graphCanvas.isFontBold());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
@@ -389,7 +390,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		set.setGisScaleY(gisCanvas.getScaleY());
 		set.setGisTranslationX(gisCanvas.getTranslationX());
 		set.setGisTranslationY(gisCanvas.getTranslationY());
-		set.setGisTextSize(gisCanvas.getTextSize());
+		set.setGisFontSize(gisCanvas.getFontSize());
+		set.setGisFontBold(gisCanvas.isFontBold());
 		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
 		set.setGisNodeHighlightConditions(gisCanvas
 				.getNodeHighlightConditions());

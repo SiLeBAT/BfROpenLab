@@ -44,7 +44,8 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
 	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
 	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
-	public static final int DEFAULT_GRAPH_TEXT_SIZE = 12;
+	public static final int DEFAULT_GRAPH_FONT_SIZE = 12;
+	public static final boolean DEFAULT_GRAPH_FONT_BOLD = false;
 	public static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
 			400, 600);
@@ -62,7 +63,8 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private static final String CFG_GRAPH_TRANSLATION_Y = "GraphTranslationY";
 	private static final String CFG_GRAPH_NODE_POSITIONS = "GraphNodePositions";
 	private static final String CFG_GRAPH_NODE_SIZE = "GraphNodeSize";
-	private static final String CFG_GRAPH_TEXT_SIZE = "GraphTextSize";
+	private static final String CFG_GRAPH_FONT_SIZE = "GraphTextSize";
+	private static final String CFG_GRAPH_FONT_BOLD = "GraphTextBold";
 	private static final String CFG_GRAPH_SELECTED_NODES = "GraphSelectedNodes";
 	private static final String CFG_GRAPH_SELECTED_EDGES = "GraphSelectedEdges";
 	private static final String CFG_GRAPH_EDITING_MODE = "GraphEditingMode2";
@@ -83,7 +85,8 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private double graphTranslationY;
 	private Map<String, Point2D> graphNodePositions;
 	private int graphNodeSize;
-	private int graphTextSize;
+	private int graphFontSize;
+	private boolean graphFontBold;
 	private Mode graphEditingMode;
 	private Dimension graphCanvasSize;
 	private List<String> graphSelectedNodes;
@@ -105,7 +108,8 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		graphTranslationY = Double.NaN;
 		graphNodePositions = new LinkedHashMap<String, Point2D>();
 		graphNodeSize = DEFAULT_GRAPH_NODE_SIZE;
-		graphTextSize = DEFAULT_GRAPH_TEXT_SIZE;
+		graphFontSize = DEFAULT_GRAPH_FONT_SIZE;
+		graphFontBold = DEFAULT_GRAPH_FONT_BOLD;
 		graphEditingMode = DEFAULT_GRAPH_EDITING_MODE;
 		graphCanvasSize = DEFAULT_GRAPH_CANVAS_SIZE;
 		graphSelectedNodes = new ArrayList<String>();
@@ -181,7 +185,12 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		}
 
 		try {
-			graphTextSize = settings.getInt(CFG_GRAPH_TEXT_SIZE);
+			graphFontSize = settings.getInt(CFG_GRAPH_FONT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			graphFontBold = settings.getBoolean(CFG_GRAPH_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -241,7 +250,8 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		settings.addString(CFG_GRAPH_NODE_POSITIONS,
 				SERIALIZER.toXml(graphNodePositions));
 		settings.addInt(CFG_GRAPH_NODE_SIZE, graphNodeSize);
-		settings.addInt(CFG_GRAPH_TEXT_SIZE, graphTextSize);
+		settings.addInt(CFG_GRAPH_FONT_SIZE, graphFontSize);
+		settings.addBoolean(CFG_GRAPH_FONT_BOLD, graphFontBold);
 		settings.addString(CFG_GRAPH_EDITING_MODE, graphEditingMode.name());
 		settings.addString(CFG_GRAPH_CANVAS_SIZE,
 				SERIALIZER.toXml(graphCanvasSize));
@@ -351,12 +361,20 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		this.graphNodeSize = graphNodeSize;
 	}
 
-	public int getGraphTextSize() {
-		return graphTextSize;
+	public int getGraphFontSize() {
+		return graphFontSize;
 	}
 
-	public void setGraphTextSize(int graphTextSize) {
-		this.graphTextSize = graphTextSize;
+	public void setGraphFontSize(int graphFontSize) {
+		this.graphFontSize = graphFontSize;
+	}
+
+	public boolean isGraphFontBold() {
+		return graphFontBold;
+	}
+
+	public void setGraphFontBold(boolean graphFontBold) {
+		this.graphFontBold = graphFontBold;
 	}
 
 	public Mode getGraphEditingMode() {

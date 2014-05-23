@@ -62,7 +62,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 		implements ActionListener, ComponentListener {
 
 	private JPanel panel;
-	private LocationCanvas gisCanvas;
+	private LocationCanvas canvas;
 
 	private boolean resized;
 
@@ -141,18 +141,18 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateGisCanvas(boolean showWarning) {
-		if (gisCanvas != null) {
-			panel.remove(gisCanvas);
+		if (canvas != null) {
+			panel.remove(canvas);
 		}
 
 		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, set);
 
-		gisCanvas = creator.createCanvas();
+		canvas = creator.createCanvas();
 
-		if (gisCanvas == null) {
-			gisCanvas = new LocationCanvas(false);
-			gisCanvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
+		if (canvas == null) {
+			canvas = new LocationCanvas(false);
+			canvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -161,24 +161,25 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		panel.add(gisCanvas, BorderLayout.CENTER);
+		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
 	}
 
 	private void updateSettings() {
-		set.setShowLegend(gisCanvas.isShowLegend());
-		set.setScaleX(gisCanvas.getScaleX());
-		set.setScaleY(gisCanvas.getScaleY());
-		set.setTranslationX(gisCanvas.getTranslationX());
-		set.setTranslationY(gisCanvas.getTranslationY());
-		set.setTextSize(gisCanvas.getTextSize());
-		set.setBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setEditingMode(gisCanvas.getEditingMode());
-		set.setNodeSize(gisCanvas.getNodeSize());
-		set.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
+		set.setShowLegend(canvas.isShowLegend());
+		set.setScaleX(canvas.getScaleX());
+		set.setScaleY(canvas.getScaleY());
+		set.setTranslationX(canvas.getTranslationX());
+		set.setTranslationY(canvas.getTranslationY());
+		set.setFontSize(canvas.getFontSize());
+		set.setFontBold(canvas.isFontBold());
+		set.setBorderAlpha(canvas.getBorderAlpha());
+		set.setEditingMode(canvas.getEditingMode());
+		set.setNodeSize(canvas.getNodeSize());
+		set.setNodeHighlightConditions(canvas.getNodeHighlightConditions());
 
 		if (resized) {
-			set.setCanvasSize(gisCanvas.getCanvasSize());
+			set.setCanvasSize(canvas.getCanvasSize());
 		}
 	}
 

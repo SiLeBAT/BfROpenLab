@@ -34,7 +34,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 
 	public static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
-	public static final int DEFAULT_GIS_TEXT_SIZE = 12;
+	public static final int DEFAULT_GIS_FONT_SIZE = 12;
+	public static final boolean DEFAULT_GIS_FONT_BOLD = false;
 	public static final int DEFAULT_GIS_BORDER_ALPHA = 255;
 	public static final Mode DEFAULT_GIS_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
@@ -47,7 +48,8 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private static final String CFG_GIS_SCALE_Y = "GisScaleY";
 	private static final String CFG_GIS_TRANSLATION_X = "GisTranslationX";
 	private static final String CFG_GIS_TRANSLATION_Y = "GisTranslationY";
-	private static final String CFG_GIS_TEXT_SIZE = "GisTextSize";
+	private static final String CFG_GIS_FONT_SIZE = "GisTextSize";
+	private static final String CFG_GIS_FONT_BOLD = "GisTextBold";
 	private static final String CFG_GIS_BORDER_ALPHA = "GisBorderAlpha";
 	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode2";
 	private static final String CFG_GIS_CANVAS_SIZE = "GisCanvasSize";
@@ -59,7 +61,8 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private double gisScaleY;
 	private double gisTranslationX;
 	private double gisTranslationY;
-	private int gisTextSize;
+	private int gisFontSize;
+	private boolean gisFontBold;
 	private int gisBorderAlpha;
 	private Mode gisEditingMode;
 	private Dimension gisCanvasSize;
@@ -72,7 +75,8 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		gisScaleY = Double.NaN;
 		gisTranslationX = Double.NaN;
 		gisTranslationY = Double.NaN;
-		gisTextSize = DEFAULT_GIS_TEXT_SIZE;
+		gisFontSize = DEFAULT_GIS_FONT_SIZE;
+		gisFontBold = DEFAULT_GIS_FONT_BOLD;
 		gisBorderAlpha = DEFAULT_GIS_BORDER_ALPHA;
 		gisEditingMode = DEFAULT_GIS_EDITING_MODE;
 		gisCanvasSize = DEFAULT_GIS_CANVAS_SIZE;
@@ -113,7 +117,12 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		}
 
 		try {
-			gisTextSize = settings.getInt(CFG_GIS_TEXT_SIZE);
+			gisFontSize = settings.getInt(CFG_GIS_FONT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			gisFontBold = settings.getBoolean(CFG_GIS_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -145,7 +154,8 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		settings.addDouble(CFG_GIS_SCALE_Y, gisScaleY);
 		settings.addDouble(CFG_GIS_TRANSLATION_X, gisTranslationX);
 		settings.addDouble(CFG_GIS_TRANSLATION_Y, gisTranslationY);
-		settings.addInt(CFG_GIS_TEXT_SIZE, gisTextSize);
+		settings.addInt(CFG_GIS_FONT_SIZE, gisFontSize);
+		settings.addBoolean(CFG_GIS_FONT_BOLD, gisFontBold);
 		settings.addInt(CFG_GIS_BORDER_ALPHA, gisBorderAlpha);
 		settings.addString(CFG_GIS_EDITING_MODE, gisEditingMode.name());
 		settings.addString(CFG_GIS_CANVAS_SIZE, SERIALIZER.toXml(gisCanvasSize));
@@ -199,12 +209,20 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 		this.gisTranslationY = gisTranslationY;
 	}
 
-	public int getGisTextSize() {
-		return gisTextSize;
+	public int getGisFontSize() {
+		return gisFontSize;
 	}
 
-	public void setGisTextSize(int gisTextSize) {
-		this.gisTextSize = gisTextSize;
+	public void setGisFontSize(int gisFontSize) {
+		this.gisFontSize = gisFontSize;
+	}
+
+	public boolean isGisFontBold() {
+		return gisFontBold;
+	}
+
+	public void setGisFontBold(boolean gisFontBold) {
+		this.gisFontBold = gisFontBold;
 	}
 
 	public int getGisBorderAlpha() {

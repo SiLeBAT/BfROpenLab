@@ -33,8 +33,8 @@ public class FontTransformer<T extends Element> implements Transformer<T, Font> 
 
 	private Font font;
 
-	public FontTransformer(int fontSize) {
-		font = new Font("default", 0, fontSize);
+	public FontTransformer(int size, boolean bold) {
+		font = new Font("default", bold ? Font.BOLD : Font.PLAIN, size);
 	}
 
 	@Override

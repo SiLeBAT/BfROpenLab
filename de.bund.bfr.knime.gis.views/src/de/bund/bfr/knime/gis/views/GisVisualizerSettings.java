@@ -36,7 +36,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public static final boolean DEFAULT_SHOW_LEGEND = false;
-	public static final int DEFAULT_TEXT_SIZE = 12;
+	public static final int DEFAULT_FONT_SIZE = 12;
+	public static final boolean DEFAULT_FONT_BOLD = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
 	public static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
@@ -47,7 +48,8 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_SCALE_Y = "ScaleY";
 	private static final String CFG_TRANSLATION_X = "TranslationX";
 	private static final String CFG_TRANSLATION_Y = "TranslationY";
-	private static final String CFG_TEXT_SIZE = "TextSize";
+	private static final String CFG_FONT_SIZE = "TextSize";
+	private static final String CFG_FONT_BOLD = "TextBold";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
 	private static final String CFG_EDITING_MODE = "EditingMode";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
@@ -59,7 +61,8 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private double scaleY;
 	private double translationX;
 	private double translationY;
-	private int textSize;
+	private int fontSize;
+	private boolean fontBold;
 	private int borderAlpha;
 	private Mode editingMode;
 	private Dimension canvasSize;
@@ -72,7 +75,8 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
 		translationY = Double.NaN;
-		textSize = DEFAULT_TEXT_SIZE;
+		fontSize = DEFAULT_FONT_SIZE;
+		fontBold = DEFAULT_FONT_BOLD;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 		editingMode = DEFAULT_EDITING_MODE;
 		nodeHighlightConditions = new HighlightConditionList();
@@ -114,7 +118,12 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		}
 
 		try {
-			textSize = settings.getInt(CFG_TEXT_SIZE);
+			fontSize = settings.getInt(CFG_FONT_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			fontBold = settings.getBoolean(CFG_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -150,7 +159,8 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		settings.addDouble(CFG_SCALE_Y, scaleY);
 		settings.addDouble(CFG_TRANSLATION_X, translationX);
 		settings.addDouble(CFG_TRANSLATION_Y, translationY);
-		settings.addInt(CFG_TEXT_SIZE, textSize);
+		settings.addInt(CFG_FONT_SIZE, fontSize);
+		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
@@ -206,12 +216,20 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		this.translationY = translationY;
 	}
 
-	public int getTextSize() {
-		return textSize;
+	public int getFontSize() {
+		return fontSize;
 	}
 
-	public void setTextSize(int textSize) {
-		this.textSize = textSize;
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public boolean isFontBold() {
+		return fontBold;
+	}
+
+	public void setFontBold(boolean fontBold) {
+		this.fontBold = fontBold;
 	}
 
 	public int getBorderAlpha() {

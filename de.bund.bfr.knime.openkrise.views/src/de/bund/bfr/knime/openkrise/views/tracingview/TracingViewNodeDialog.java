@@ -117,7 +117,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
 		deliveries = TracingViewNodeModel
-				.getDeliveries((BufferedDataTable) input[2]);		
+				.getDeliveries((BufferedDataTable) input[2]);
 
 		set.loadSettings(settings);
 
@@ -176,7 +176,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			updateSettings();
 			set.getFilter().clear();
 			set.getEdgeFilter().clear();
-			updateGraphCanvas(false);		
+			updateGraphCanvas(false);
 		} else if (e.getSource() == enforceTempBox) {
 			updateSettings();
 			updateGraphCanvas(false);
@@ -231,7 +231,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphTranslationY(graphCanvas.getTranslationY());
 		set.setGraphNodePositions(graphCanvas.getNodePositions());
 		set.setGraphNodeSize(graphCanvas.getNodeSize());
-		set.setGraphTextSize(graphCanvas.getTextSize());
+		set.setGraphFontSize(graphCanvas.getFontSize());
+		set.setGraphFontBold(graphCanvas.isFontBold());
 		set.setJoinEdges(graphCanvas.isJoinEdges());
 		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
 		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());

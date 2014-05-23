@@ -68,6 +68,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -139,7 +140,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected static final String SHOW_LEGEND = "Show Legend";
 	protected static final String JOIN_EDGES = "Join Edges";
 	protected static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
-	protected static final String TEXT_SIZE = "Text Size";
+	protected static final String FONT = "Font";
 
 	private static final long serialVersionUID = 1L;
 
@@ -151,7 +152,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final boolean DEFAULT_JOIN_EDGES = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
-	private static final int DEFAULT_TEXT_SIZE = 12;
+	private static final int DEFAULT_FONT_SIZE = 12;
+	private static final boolean DEFAULT_FONT_BOLD = false;
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 
@@ -206,8 +208,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JCheckBox joinBox;
 	private boolean skipEdgelessNodes;
 	private JCheckBox skipBox;
-	private int textSize;
-	private JComboBox<Integer> textSizeBox;
+	private int fontSize;
+	private JComboBox<Integer> fontSizeBox;
+	private boolean fontBold;
+	private JCheckBox fontBoldBox;
 
 	private List<CanvasListener> canvasListeners;
 
@@ -243,7 +247,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		showLegend = DEFAULT_SHOW_LEGEND;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		textSize = DEFAULT_TEXT_SIZE;
+		fontSize = DEFAULT_FONT_SIZE;
+		fontBold = DEFAULT_FONT_BOLD;
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -300,11 +305,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		skipBox = new JCheckBox("Activate");
 		skipBox.setSelected(skipEdgelessNodes);
 		skipBox.addActionListener(this);
-		textSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
-		textSizeBox.setPreferredSize(textSizeBox.getPreferredSize());
-		textSizeBox.setEditable(true);
-		textSizeBox.setSelectedItem(textSize);
-		textSizeBox.addActionListener(this);
+		fontSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
+		fontSizeBox.setEditable(true);
+		((JTextField) fontSizeBox.getEditor().getEditorComponent())
+				.setColumns(3);
+		fontSizeBox.setSelectedItem(fontSize);
+		fontSizeBox.addActionListener(this);
+		fontBoldBox = new JCheckBox("Bold");
+		fontBoldBox.setSelected(fontBold);
+		fontBoldBox.addActionListener(this);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -313,7 +322,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		addOptionsItem(SHOW_LEGEND, legendBox);
 		addOptionsItem(JOIN_EDGES, joinBox);
 		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
-		addOptionsItem(TEXT_SIZE, textSizeBox);
+		addOptionsItem(FONT, fontSizeBox, fontBoldBox);
 		createPopupMenuItems();
 		applyPopupMenu();
 		viewer.setGraphMouse(createMouseModel());
@@ -415,14 +424,24 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		fireSkipEdgelessChanged();
 	}
 
-	public int getTextSize() {
-		return textSize;
+	public int getFontSize() {
+		return fontSize;
 	}
 
-	public void setTextSize(int textSize) {
-		this.textSize = textSize;
-		textSizeBox.setSelectedItem(textSize);
-		applyTextSize();
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+		fontSizeBox.setSelectedItem(fontSize);
+		applyFont();
+	}
+
+	public boolean isFontBold() {
+		return fontBold;
+	}
+
+	public void setFontBold(boolean fontBold) {
+		this.fontBold = fontBold;
+		fontBoldBox.setSelected(fontBold);
+		applyFont();
 	}
 
 	public Collection<V> getVisibleNodes() {
@@ -620,18 +639,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			skipEdgelessNodes = skipBox.isSelected();
 			applyChanges();
 			fireSkipEdgelessChanged();
-		} else if (e.getSource() == textSizeBox) {
-			Object size = textSizeBox.getSelectedItem();
+		} else if (e.getSource() == fontSizeBox) {
+			Object size = fontSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
-				textSize = (Integer) size;
-				applyTextSize();
+				fontSize = (Integer) size;
+				applyFont();
 			} else {
 				JOptionPane.showMessageDialog(this, size
 						+ " is not a valid number", "Error",
 						JOptionPane.ERROR_MESSAGE);
-				textSizeBox.setSelectedItem(textSize);
+				fontSizeBox.setSelectedItem(fontSize);
 			}
+		} else if (e.getSource() == fontBoldBox) {
+			fontBold = fontBoldBox.isSelected();
+			applyFont();
 		} else if (e.getSource() == saveAsItem) {
 			saveAs();
 		} else if (e.getSource() == selectConnectingItem) {
@@ -918,8 +940,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		int maxEdgeWidth = 0;
 		int maxNodeRangeWidth = 0;
 		int maxEdgeRangeWidth = 0;
-		Font legendFont = new Font("Default", 0, textSize);
-		Font legendHeadFont = new Font("Default", Font.BOLD, textSize);
+		Font legendFont = new Font("Default",
+				fontBold ? Font.BOLD : Font.PLAIN, fontSize);
+		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD
+				| Font.ITALIC : Font.BOLD, fontSize);
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
@@ -1124,11 +1148,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.setComponentPopupMenu(popup);
 	}
 
-	private void applyTextSize() {
+	private void applyFont() {
 		viewer.getRenderContext().setVertexFontTransformer(
-				new FontTransformer<V>(textSize));
+				new FontTransformer<V>(fontSize, fontBold));
 		viewer.getRenderContext().setEdgeFontTransformer(
-				new FontTransformer<Edge<V>>(textSize));
+				new FontTransformer<Edge<V>>(fontSize, fontBold));
 		viewer.repaint();
 	}
 

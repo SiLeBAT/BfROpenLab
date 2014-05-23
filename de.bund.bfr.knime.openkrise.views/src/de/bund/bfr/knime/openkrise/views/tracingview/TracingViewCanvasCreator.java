@@ -108,7 +108,7 @@ public class TracingViewCanvasCreator {
 
 		if (nodes.isEmpty()) {
 			return null;
-		}		
+		}
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);
@@ -122,7 +122,8 @@ public class TracingViewCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setTextSize(set.getGraphTextSize());
+		canvas.setFontSize(set.getGraphFontSize());
+		canvas.setFontBold(set.isGraphFontBold());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setCaseWeights(set.getCaseWeights());

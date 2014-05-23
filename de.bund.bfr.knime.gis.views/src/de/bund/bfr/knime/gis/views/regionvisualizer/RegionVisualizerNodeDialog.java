@@ -62,7 +62,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		implements ActionListener, ComponentListener {
 
 	private JPanel panel;
-	private RegionCanvas gisCanvas;
+	private RegionCanvas canvas;
 
 	private boolean resized;
 
@@ -141,16 +141,16 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateGisCanvas(boolean showWarning) {
-		if (gisCanvas != null) {
-			panel.remove(gisCanvas);
+		if (canvas != null) {
+			panel.remove(canvas);
 		}
 
 		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, set);
 
-		gisCanvas = creator.createCanvas();
+		canvas = creator.createCanvas();
 
-		if (gisCanvas != null) {
+		if (canvas != null) {
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
 						"Some regions from the table are not contained"
@@ -158,8 +158,8 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 						JOptionPane.WARNING_MESSAGE);
 			}
 		} else {
-			gisCanvas = new RegionCanvas(false);
-			gisCanvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
+			canvas = new RegionCanvas(false);
+			canvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -168,23 +168,24 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		panel.add(gisCanvas, BorderLayout.CENTER);
+		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
 	}
 
 	private void updateSettings() {
-		set.setShowLegend(gisCanvas.isShowLegend());
-		set.setScaleX(gisCanvas.getScaleX());
-		set.setScaleY(gisCanvas.getScaleY());
-		set.setTranslationX(gisCanvas.getTranslationX());
-		set.setTranslationY(gisCanvas.getTranslationY());
-		set.setTextSize(gisCanvas.getTextSize());
-		set.setBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setEditingMode(gisCanvas.getEditingMode());
-		set.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
+		set.setShowLegend(canvas.isShowLegend());
+		set.setScaleX(canvas.getScaleX());
+		set.setScaleY(canvas.getScaleY());
+		set.setTranslationX(canvas.getTranslationX());
+		set.setTranslationY(canvas.getTranslationY());
+		set.setFontSize(canvas.getFontSize());
+		set.setFontBold(canvas.isFontBold());
+		set.setBorderAlpha(canvas.getBorderAlpha());
+		set.setEditingMode(canvas.getEditingMode());
+		set.setNodeHighlightConditions(canvas.getNodeHighlightConditions());
 
 		if (resized) {
-			set.setCanvasSize(gisCanvas.getCanvasSize());
+			set.setCanvasSize(canvas.getCanvasSize());
 		}
 	}
 

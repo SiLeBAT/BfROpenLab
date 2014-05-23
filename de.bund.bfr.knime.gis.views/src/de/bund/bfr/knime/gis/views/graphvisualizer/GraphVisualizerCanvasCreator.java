@@ -76,7 +76,8 @@ public class GraphVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setTextSize(set.getGraphTextSize());
+		canvas.setFontSize(set.getGraphFontSize());
+		canvas.setFontBold(set.isGraphFontBold());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());

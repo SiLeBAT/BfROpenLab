@@ -83,7 +83,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
 		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setTextSize(set.getGraphTextSize());
+		canvas.setFontSize(set.getGraphFontSize());
+		canvas.setFontBold(set.isGraphFontBold());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
@@ -134,7 +135,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setShowLegend(set.isGisShowLegend());
 		canvas.setCanvasSize(set.getGisCanvasSize());
 		canvas.setEditingMode(set.getGisEditingMode());
-		canvas.setTextSize(set.getGisTextSize());
+		canvas.setFontSize(set.getGisFontSize());
+		canvas.setFontBold(set.isGisFontBold());
 		canvas.setBorderAlpha(set.getGisBorderAlpha());
 		canvas.setNodeSize(set.getGisNodeSize());
 		canvas.setJoinEdges(set.isJoinEdges());
