@@ -840,6 +840,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		server.setBackground(Color.WHITE);
 		server.setRenderContext(viewer.getRenderContext());
+		server.setRenderer(viewer.getRenderer());
 		server.addPostRenderPaintable(new Paintable() {
 
 			@Override

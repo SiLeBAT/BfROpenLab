@@ -48,6 +48,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**
  * @author Christian Thoens
@@ -103,6 +104,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				new InvisibleTransformer<RegionNode>());
 		getViewer().getRenderContext().setVertexFillPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
+		getViewer().getRenderer().getVertexLabelRenderer()
+				.setPosition(Position.CNTR);
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
 
