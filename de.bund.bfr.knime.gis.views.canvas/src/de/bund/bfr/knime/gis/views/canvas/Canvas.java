@@ -25,6 +25,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
@@ -37,6 +38,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -108,7 +111,8 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
-		ChangeListener, ActionListener, ItemListener, KeyListener {
+		ChangeListener, ActionListener, ItemListener, KeyListener,
+		MouseListener {
 
 	public static enum LayoutType {
 		CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
@@ -255,6 +259,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						new DirectedSparseMultigraph<V, Edge<V>>()));
 		viewer.setBackground(Color.WHITE);
 		viewer.addKeyListener(this);
+		viewer.addMouseListener(this);
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
@@ -782,6 +787,39 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON2) {
+			switch (getEditingMode()) {
+			case TRANSFORMING:
+				setEditingMode(Mode.PICKING);
+				viewer.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case PICKING:
+				setEditingMode(Mode.TRANSFORMING);
+				viewer.setCursor(Cursor
+						.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
