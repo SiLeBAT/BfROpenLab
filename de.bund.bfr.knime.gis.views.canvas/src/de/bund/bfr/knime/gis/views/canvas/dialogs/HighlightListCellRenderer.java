@@ -23,8 +23,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
+import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
@@ -39,7 +41,15 @@ public class HighlightListCellRenderer extends DefaultListCellRenderer {
 			int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected,
 				cellHasFocus);
-		setForeground(((HighlightCondition) value).getColor());
+
+		Color color = ((HighlightCondition) value).getColor();
+
+		if (color == null) {
+			color = Color.WHITE;
+		}
+
+		setBorder(BorderFactory.createMatteBorder(0, 20, 0, 0, color));
+		setText(" " + getText());
 
 		return this;
 	}
