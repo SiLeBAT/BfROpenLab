@@ -43,7 +43,7 @@ public class XmlConverter {
 		if (obj == null) {
 			return null;
 		}
-		
+
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
@@ -67,12 +67,12 @@ public class XmlConverter {
 		if (s == null) {
 			return null;
 		}
-		
+
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
 		StringReader in = new StringReader(s);
-		XMLDecoder decoder = new XMLDecoder(new ReaderInputStream(in));
+		XMLDecoder decoder = new XMLDecoder(new ReaderInputStream(in, "UTF-8"));
 		Object obj;
 
 		currentThread.setContextClassLoader(loader);
