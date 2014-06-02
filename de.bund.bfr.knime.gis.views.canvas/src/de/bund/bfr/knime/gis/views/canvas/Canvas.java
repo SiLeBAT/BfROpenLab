@@ -27,10 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,7 +37,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -92,11 +88,8 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -160,10 +153,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final boolean DEFAULT_FONT_BOLD = false;
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
-
-	private static final int LEGEND_COLOR_BOX_WIDTH = 30;
-	private static final int LEGEND_DX = 10;
-	private static final int LEGEND_DY = 3;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
@@ -450,11 +439,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public Collection<V> getVisibleNodes() {
-		return getViewer().getGraphLayout().getGraph().getVertices();
+		return viewer.getGraphLayout().getGraph().getVertices();
 	}
 
 	public Collection<Edge<V>> getVisibleEdges() {
-		return getViewer().getGraphLayout().getGraph().getEdges();
+		return viewer.getGraphLayout().getGraph().getEdges();
 	}
 
 	public Map<String, Class<?>> getNodeProperties() {
@@ -968,150 +957,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
 	private void paintLegend(Graphics g) {
-		FontRenderContext fontRenderContext = ((Graphics2D) g)
-				.getFontRenderContext();
-		Map<String, Color> nodeLegend = new LinkedHashMap<String, Color>();
-		Map<String, Color> edgeLegend = new LinkedHashMap<String, Color>();
-		Map<String, String> nodeUseGradient = new LinkedHashMap<String, String>();
-		Map<String, String> edgeUseGradient = new LinkedHashMap<String, String>();
-		int maxNodeWidth = 0;
-		int maxEdgeWidth = 0;
-		int maxNodeRangeWidth = 0;
-		int maxEdgeRangeWidth = 0;
-		Font legendFont = new Font("Default",
-				fontBold ? Font.BOLD : Font.PLAIN, fontSize);
-		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD
-				| Font.ITALIC : Font.BOLD, fontSize);
+		CanvasLegend<V> legend = new CanvasLegend<V>(nodeHighlightConditions,
+				getVisibleNodes(), edgeHighlightConditions, getVisibleEdges());
 
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
-			String name = condition.getName();
-			Color color = condition.getColor();
-
-			if (condition.isShowInLegend() && name != null && !name.isEmpty()
-					&& color != null) {
-				nodeLegend.put(name, color);
-				maxNodeWidth = Math.max(maxNodeWidth, (int) legendFont
-						.getStringBounds(name, fontRenderContext).getWidth());
-
-				if (condition instanceof ValueHighlightCondition
-						|| condition instanceof LogicalValueHighlightCondition) {
-					String range = CanvasUtilities.toRangeString(condition
-							.getValueRange(getVisibleNodes()));
-
-					nodeUseGradient.put(name, range);
-					maxNodeRangeWidth = Math.max(
-							maxNodeRangeWidth,
-							(int) legendFont.getStringBounds(range,
-									fontRenderContext).getWidth());
-				}
-			}
-		}
-
-		for (HighlightCondition condition : edgeHighlightConditions
-				.getConditions()) {
-			String name = condition.getName();
-			Color color = condition.getColor();
-
-			if (condition.isShowInLegend() && name != null && !name.isEmpty()
-					&& color != null) {
-				edgeLegend.put(name, color);
-				maxEdgeWidth = Math.max(maxEdgeWidth, (int) legendFont
-						.getStringBounds(name, fontRenderContext).getWidth());
-
-				if (condition instanceof ValueHighlightCondition
-						|| condition instanceof LogicalValueHighlightCondition) {
-					String range = CanvasUtilities.toRangeString(condition
-							.getValueRange(getVisibleEdges()));
-
-					edgeUseGradient.put(name, range);
-					maxEdgeRangeWidth = Math.max(
-							maxEdgeRangeWidth,
-							(int) legendFont.getStringBounds(range,
-									fontRenderContext).getWidth());
-				}
-			}
-		}
-
-		int legendHeight = g.getFontMetrics(legendFont).getHeight();
-		int legendHeadHeight = g.getFontMetrics(legendHeadFont).getHeight();
-		int fontAscent = g.getFontMetrics(legendFont).getAscent();
-		int headFontAcent = g.getFontMetrics(legendHeadFont).getAscent();
-
-		int xNode1 = LEGEND_DX;
-		int xNode2 = xNode1 + maxNodeWidth + LEGEND_DX;
-		int xNode3 = maxNodeRangeWidth == 0 ? xNode2 : xNode2
-				+ maxNodeRangeWidth + LEGEND_DX;
-		int yNode = getCanvasSize().height
-				- Math.max(nodeLegend.size(), edgeLegend.size())
-				* (legendHeight + LEGEND_DY) - legendHeadHeight - 2 * LEGEND_DY;
-		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : xNode3
-				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int xEdge2 = xEdge1 + maxEdgeWidth + LEGEND_DX;
-		int xEdge3 = maxEdgeRangeWidth == 0 ? xEdge2 : xEdge2
-				+ maxEdgeRangeWidth + LEGEND_DX;
-		int yEdge = yNode;
-		int maxX = edgeLegend.isEmpty() ? xEdge1 : xEdge3
-				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int minY = yEdge - LEGEND_DY;
-
-		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(0, minY, maxX, getCanvasSize().height - minY - 1);
-		g.setColor(Color.BLACK);
-		g.drawRect(0, minY, maxX, getCanvasSize().height - minY - 1);
-		g.setFont(legendHeadFont);
-
-		if (!nodeLegend.isEmpty()) {
-			g.drawString("Nodes", xNode1, yNode + headFontAcent);
-			yNode += legendHeadHeight + LEGEND_DY;
-		}
-
-		if (!edgeLegend.isEmpty()) {
-			g.drawString("Edges", xEdge1, yEdge + headFontAcent);
-			yEdge += legendHeadHeight + LEGEND_DY;
-		}
-
-		g.setFont(legendFont);
-
-		for (String name : nodeLegend.keySet()) {
-			g.setColor(Color.BLACK);
-			g.drawString(name, xNode1, yNode + fontAscent);
-
-			if (nodeUseGradient.containsKey(name)) {
-				g.drawString(nodeUseGradient.get(name), xNode2, yNode
-						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xNode3, 0,
-						Color.WHITE, xNode3 + LEGEND_COLOR_BOX_WIDTH, 0,
-						nodeLegend.get(name)));
-			} else {
-				g.setColor(nodeLegend.get(name));
-			}
-
-			g.fillRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.setColor(Color.BLACK);
-			g.drawRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			yNode += legendHeight + LEGEND_DY;
-		}
-
-		for (String name : edgeLegend.keySet()) {
-			g.setColor(Color.BLACK);
-			g.drawString(name, xEdge1, yEdge + fontAscent);
-
-			if (edgeUseGradient.containsKey(name)) {
-				g.drawString(edgeUseGradient.get(name), xEdge2, yEdge
-						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xEdge3, 0,
-						Color.BLACK, xEdge3 + LEGEND_COLOR_BOX_WIDTH, 0,
-						edgeLegend.get(name)));
-			} else {
-				g.setColor(edgeLegend.get(name));
-			}
-
-			g.fillRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.setColor(Color.BLACK);
-			g.drawRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			yEdge += legendHeight + LEGEND_DY;
-		}
+		legend.paint(g, getCanvasSize().width, getCanvasSize().height,
+				fontSize, fontBold);
 	}
 
 	private void applyPopupMenu() {
