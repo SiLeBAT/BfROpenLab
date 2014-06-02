@@ -97,6 +97,10 @@ public class CanvasLegend<V extends Node> {
 
 	public void paint(Graphics g, int width, int height, int fontSize,
 			boolean fontBold) {
+		if (nodeLegend.isEmpty() && edgeLegend.isEmpty()) {
+			return;
+		}
+
 		FontRenderContext fontRenderContext = ((Graphics2D) g)
 				.getFontRenderContext();
 		int maxNodeWidth = 0;
@@ -133,35 +137,38 @@ public class CanvasLegend<V extends Node> {
 		int fontAscent = g.getFontMetrics(legendFont).getAscent();
 		int headFontAcent = g.getFontMetrics(legendHeadFont).getAscent();
 
-		int xNode1 = LEGEND_DX;
-		int xNode2 = xNode1 + maxNodeWidth + LEGEND_DX;
-		int xNode3 = maxNodeRangeWidth == 0 ? xNode2 : xNode2
+		int xNodeColor = LEGEND_DX;
+		int xNodeName = xNodeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
+		int xNodeRange = xNodeName + maxNodeWidth + LEGEND_DX;
+		int xNodeEnd = maxNodeRangeWidth == 0 ? xNodeRange : xNodeRange
 				+ maxNodeRangeWidth + LEGEND_DX;
-		int yNode = height - Math.max(nodeLegend.size(), edgeLegend.size())
-				* (legendHeight + LEGEND_DY) - legendHeadHeight - 2 * LEGEND_DY;
-		int xEdge1 = nodeLegend.isEmpty() ? LEGEND_DX : xNode3
-				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int xEdge2 = xEdge1 + maxEdgeWidth + LEGEND_DX;
-		int xEdge3 = maxEdgeRangeWidth == 0 ? xEdge2 : xEdge2
+
+		int xEdgeColor = nodeLegend.isEmpty() ? LEGEND_DX : xNodeEnd
+				+ LEGEND_DX;
+		int xEdgeName = xEdgeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
+		int xEdgeRange = xEdgeName + maxEdgeWidth + LEGEND_DX;
+		int xEdgeEnd = maxEdgeRangeWidth == 0 ? xEdgeRange : xEdgeRange
 				+ maxEdgeRangeWidth + LEGEND_DX;
-		int yEdge = yNode;
-		int maxX = edgeLegend.isEmpty() ? xEdge1 : xEdge3
-				+ LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int minY = yEdge - LEGEND_DY;
+
+		int xEnd = edgeLegend.isEmpty() ? xNodeEnd : xEdgeEnd;
+		int yStart = height - Math.max(nodeLegend.size(), edgeLegend.size())
+				* (legendHeight + LEGEND_DY) - legendHeadHeight - 3 * LEGEND_DY;
+		int yNode = yStart + LEGEND_DY;
+		int yEdge = yStart + LEGEND_DY;
 
 		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(0, minY, maxX, height - minY - 1);
+		g.fillRect(0, yStart, xEnd, height - yStart - 1);
 		g.setColor(Color.BLACK);
-		g.drawRect(0, minY, maxX, height - minY - 1);
+		g.drawRect(0, yStart, xEnd, height - yStart - 1);
 		g.setFont(legendHeadFont);
 
 		if (!nodeLegend.isEmpty()) {
-			g.drawString("Nodes", xNode1, yNode + headFontAcent);
+			g.drawString("Nodes", xNodeColor, yNode + headFontAcent);
 			yNode += legendHeadHeight + LEGEND_DY;
 		}
 
 		if (!edgeLegend.isEmpty()) {
-			g.drawString("Edges", xEdge1, yEdge + headFontAcent);
+			g.drawString("Edges", xEdgeColor, yEdge + headFontAcent);
 			yEdge += legendHeadHeight + LEGEND_DY;
 		}
 
@@ -169,41 +176,41 @@ public class CanvasLegend<V extends Node> {
 
 		for (String name : nodeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, xNode1, yNode + fontAscent);
+			g.drawString(name, xNodeName, yNode + fontAscent);
 
 			if (nodeUseGradient.containsKey(name)) {
-				g.drawString(nodeUseGradient.get(name), xNode2, yNode
+				g.drawString(nodeUseGradient.get(name), xNodeRange, yNode
 						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xNode3, 0,
-						Color.WHITE, xNode3 + LEGEND_COLOR_BOX_WIDTH, 0,
+				((Graphics2D) g).setPaint(new GradientPaint(xNodeColor, 0,
+						Color.WHITE, xNodeColor + LEGEND_COLOR_BOX_WIDTH, 0,
 						nodeLegend.get(name)));
 			} else {
 				g.setColor(nodeLegend.get(name));
 			}
 
-			g.fillRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.fillRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.setColor(Color.BLACK);
-			g.drawRect(xNode3, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
 		for (String name : edgeLegend.keySet()) {
 			g.setColor(Color.BLACK);
-			g.drawString(name, xEdge1, yEdge + fontAscent);
+			g.drawString(name, xEdgeName, yEdge + fontAscent);
 
 			if (edgeUseGradient.containsKey(name)) {
-				g.drawString(edgeUseGradient.get(name), xEdge2, yEdge
+				g.drawString(edgeUseGradient.get(name), xEdgeRange, yEdge
 						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xEdge3, 0,
-						Color.BLACK, xEdge3 + LEGEND_COLOR_BOX_WIDTH, 0,
+				((Graphics2D) g).setPaint(new GradientPaint(xEdgeColor, 0,
+						Color.BLACK, xEdgeColor + LEGEND_COLOR_BOX_WIDTH, 0,
 						edgeLegend.get(name)));
 			} else {
 				g.setColor(edgeLegend.get(name));
 			}
 
-			g.fillRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.fillRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.setColor(Color.BLACK);
-			g.drawRect(xEdge3, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
+			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yEdge += legendHeight + LEGEND_DY;
 		}
 	}
