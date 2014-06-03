@@ -28,7 +28,9 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.font.FontRenderContext;
+import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -46,19 +48,15 @@ public class CanvasLegend<V extends Node> {
 	private static final int LEGEND_DX = 10;
 	private static final int LEGEND_DY = 3;
 
-	private Map<String, Color> nodeLegend;
-	private Map<String, Color> edgeLegend;
-	private Map<String, String> nodeUseGradient;
-	private Map<String, String> edgeUseGradient;
+	private Map<String, Image> nodeLegend;
+	private Map<String, Image> edgeLegend;
 
 	public CanvasLegend(HighlightConditionList nodeHighlightConditions,
 			Collection<V> nodes,
 			HighlightConditionList edgeHighlightConditions,
 			Collection<Edge<V>> edges) {
-		nodeLegend = new LinkedHashMap<String, Color>();
-		edgeLegend = new LinkedHashMap<String, Color>();
-		nodeUseGradient = new LinkedHashMap<String, String>();
-		edgeUseGradient = new LinkedHashMap<String, String>();
+		nodeLegend = new LinkedHashMap<String, Image>();
+		edgeLegend = new LinkedHashMap<String, Image>();
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
@@ -67,13 +65,26 @@ public class CanvasLegend<V extends Node> {
 
 			if (condition.isShowInLegend() && name != null && !name.isEmpty()
 					&& color != null) {
-				nodeLegend.put(name, color);
+				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH,
+						LEGEND_COLOR_BOX_WIDTH, BufferedImage.TYPE_INT_RGB);
+				Graphics g = image.getGraphics();
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					nodeUseGradient.put(name, CanvasUtilities
-							.toRangeString(condition.getValueRange(nodes)));
+					name += "["
+							+ CanvasUtilities.toRangeString(condition
+									.getValueRange(nodes)) + "]";
+					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
+							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+				} else {
+					g.setColor(color);
 				}
+
+				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
+				g.setColor(Color.BLACK);
+				g.drawRect(0, 0, LEGEND_COLOR_BOX_WIDTH - 1,
+						LEGEND_COLOR_BOX_WIDTH - 1);
+				nodeLegend.put(name, image);
 			}
 		}
 
@@ -84,13 +95,26 @@ public class CanvasLegend<V extends Node> {
 
 			if (condition.isShowInLegend() && name != null && !name.isEmpty()
 					&& color != null) {
-				edgeLegend.put(name, color);
+				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH,
+						LEGEND_COLOR_BOX_WIDTH, BufferedImage.TYPE_INT_RGB);
+				Graphics g = image.getGraphics();
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					edgeUseGradient.put(name, CanvasUtilities
-							.toRangeString(condition.getValueRange(edges)));
+					name += " ["
+							+ CanvasUtilities.toRangeString(condition
+									.getValueRange(edges)) + "]";
+					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
+							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+				} else {
+					g.setColor(color);
 				}
+
+				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
+				g.setColor(Color.BLACK);
+				g.drawRect(0, 0, LEGEND_COLOR_BOX_WIDTH - 1,
+						LEGEND_COLOR_BOX_WIDTH - 1);
+				edgeLegend.put(name, image);
 			}
 		}
 	}
@@ -105,8 +129,6 @@ public class CanvasLegend<V extends Node> {
 				.getFontRenderContext();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
-		int maxNodeRangeWidth = 0;
-		int maxEdgeRangeWidth = 0;
 		Font legendFont = new Font("Default",
 				fontBold ? Font.BOLD : Font.PLAIN, fontSize);
 		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD
@@ -122,16 +144,6 @@ public class CanvasLegend<V extends Node> {
 					.getStringBounds(name, fontRenderContext).getWidth());
 		}
 
-		for (String range : nodeUseGradient.values()) {
-			maxNodeRangeWidth = Math.max(maxNodeRangeWidth, (int) legendFont
-					.getStringBounds(range, fontRenderContext).getWidth());
-		}
-
-		for (String range : edgeUseGradient.values()) {
-			maxEdgeRangeWidth = Math.max(maxEdgeRangeWidth, (int) legendFont
-					.getStringBounds(range, fontRenderContext).getWidth());
-		}
-
 		int legendHeight = g.getFontMetrics(legendFont).getHeight();
 		int legendHeadHeight = g.getFontMetrics(legendHeadFont).getHeight();
 		int fontAscent = g.getFontMetrics(legendFont).getAscent();
@@ -139,16 +151,12 @@ public class CanvasLegend<V extends Node> {
 
 		int xNodeColor = LEGEND_DX;
 		int xNodeName = xNodeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int xNodeRange = xNodeName + maxNodeWidth + LEGEND_DX;
-		int xNodeEnd = maxNodeRangeWidth == 0 ? xNodeRange : xNodeRange
-				+ maxNodeRangeWidth + LEGEND_DX;
+		int xNodeEnd = xNodeName + maxNodeWidth + LEGEND_DX;
 
 		int xEdgeColor = nodeLegend.isEmpty() ? LEGEND_DX : xNodeEnd
 				+ LEGEND_DX;
 		int xEdgeName = xEdgeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
-		int xEdgeRange = xEdgeName + maxEdgeWidth + LEGEND_DX;
-		int xEdgeEnd = maxEdgeRangeWidth == 0 ? xEdgeRange : xEdgeRange
-				+ maxEdgeRangeWidth + LEGEND_DX;
+		int xEdgeEnd = xEdgeName + maxEdgeWidth + LEGEND_DX;
 
 		int xEnd = edgeLegend.isEmpty() ? xNodeEnd : xEdgeEnd;
 		int yStart = height - Math.max(nodeLegend.size(), edgeLegend.size())
@@ -175,42 +183,18 @@ public class CanvasLegend<V extends Node> {
 		g.setFont(legendFont);
 
 		for (String name : nodeLegend.keySet()) {
+			g.drawImage(nodeLegend.get(name), xNodeColor, yNode,
+					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
 			g.setColor(Color.BLACK);
 			g.drawString(name, xNodeName, yNode + fontAscent);
-
-			if (nodeUseGradient.containsKey(name)) {
-				g.drawString(nodeUseGradient.get(name), xNodeRange, yNode
-						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xNodeColor, 0,
-						Color.WHITE, xNodeColor + LEGEND_COLOR_BOX_WIDTH, 0,
-						nodeLegend.get(name)));
-			} else {
-				g.setColor(nodeLegend.get(name));
-			}
-
-			g.fillRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.setColor(Color.BLACK);
-			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
 		for (String name : edgeLegend.keySet()) {
+			g.drawImage(edgeLegend.get(name), xEdgeColor, yEdge,
+					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
 			g.setColor(Color.BLACK);
 			g.drawString(name, xEdgeName, yEdge + fontAscent);
-
-			if (edgeUseGradient.containsKey(name)) {
-				g.drawString(edgeUseGradient.get(name), xEdgeRange, yEdge
-						+ fontAscent);
-				((Graphics2D) g).setPaint(new GradientPaint(xEdgeColor, 0,
-						Color.BLACK, xEdgeColor + LEGEND_COLOR_BOX_WIDTH, 0,
-						edgeLegend.get(name)));
-			} else {
-				g.setColor(edgeLegend.get(name));
-			}
-
-			g.fillRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.setColor(Color.BLACK);
-			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			yEdge += legendHeight + LEGEND_DY;
 		}
 	}
