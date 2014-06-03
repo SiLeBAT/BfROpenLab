@@ -71,7 +71,7 @@ public class CanvasLegend<V extends Node> {
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += "["
+					name += " ["
 							+ CanvasUtilities.toRangeString(condition
 									.getValueRange(nodes)) + "]";
 					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
