@@ -81,6 +81,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ImageFileChooser;
@@ -180,10 +181,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem highlightNodesItem;
 	private JMenuItem clearHighlightNodesItem;
 	private JMenuItem selectHighlightedNodesItem;
+	private JMenuItem selectNodesItem;
 	private JMenuItem highlightSelectedNodesItem;
 	private JMenuItem highlightEdgesItem;
 	private JMenuItem clearHighlightEdgesItem;
 	private JMenuItem selectHighlightedEdgesItem;
+	private JMenuItem selectEdgesItem;
 	private JMenuItem highlightSelectedEdgesItem;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
@@ -659,9 +662,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
-				setSelectedNodes(CanvasUtilities.getHighlightedElements(viewer
-						.getGraphLayout().getGraph().getVertices(),
-						dialog.getHighlightConditions()));
+				setSelectedNodes(CanvasUtilities.getHighlightedElements(
+						getVisibleNodes(), dialog.getHighlightConditions()));
 			}
 		} else if (e.getSource() == selectHighlightedEdgesItem) {
 			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
@@ -670,10 +672,32 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
-				setSelectedEdges(CanvasUtilities.getHighlightedElements(viewer
-						.getGraphLayout().getGraph().getEdges(),
-						dialog.getHighlightConditions()));
+				setSelectedEdges(CanvasUtilities.getHighlightedElements(
+						getVisibleEdges(), dialog.getHighlightConditions()));
 			}
+		} else if (e.getSource() == selectNodesItem) {
+			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
+					false, false, false, false, false, false, null, null);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				setSelectedNodes(CanvasUtilities.getHighlightedElements(
+						getVisibleNodes(),
+						Arrays.asList(dialog.getHighlightCondition())));
+			}
+		} else if (e.getSource() == selectEdgesItem) {
+			HighlightDialog dialog = new HighlightDialog(this, edgeProperties,
+					false, false, false, false, false, false, null, null);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				setSelectedEdges(CanvasUtilities.getHighlightedElements(
+						getVisibleEdges(),
+						Arrays.asList(dialog.getHighlightCondition())));
+			}
+		} else if (e.getSource() == resetLayoutItem) {
 		} else if (e.getSource() == resetLayoutItem) {
 			resetLayout();
 		} else if (e.getSource() == clearSelectNodesItem) {
@@ -1002,10 +1026,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				nodeHighlightMenu.add(highlightNodesItem);
 				nodeHighlightMenu.add(clearHighlightNodesItem);
 				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(selectNodesItem);
 
 				edgeHighlightMenu.add(highlightEdgesItem);
 				edgeHighlightMenu.add(clearHighlightEdgesItem);
 				edgeHighlightMenu.add(selectHighlightedEdgesItem);
+				edgeHighlightMenu.add(selectEdgesItem);
 
 				popup.add(nodeHighlightMenu);
 				popup.add(edgeHighlightMenu);
@@ -1022,6 +1048,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				nodeHighlightMenu.add(highlightNodesItem);
 				nodeHighlightMenu.add(clearHighlightNodesItem);
 				nodeHighlightMenu.add(selectHighlightedNodesItem);
+				nodeHighlightMenu.add(selectNodesItem);
 
 				popup.add(nodeHighlightMenu);
 			}
@@ -1182,13 +1209,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		clearSelectNodesItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Properties");
 		nodePropertiesItem.addActionListener(this);
-
-		edgePropertiesItem = new JMenuItem("Show Properties");
-		edgePropertiesItem.addActionListener(this);
-		clearSelectEdgesItem = new JMenuItem("Clear");
-		clearSelectEdgesItem.addActionListener(this);
 		selectConnectingItem = new JMenuItem("Select Connections");
 		selectConnectingItem.addActionListener(this);
+		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
+		highlightSelectedNodesItem.addActionListener(this);
+
+		clearSelectEdgesItem = new JMenuItem("Clear");
+		clearSelectEdgesItem.addActionListener(this);
+		edgePropertiesItem = new JMenuItem("Show Properties");
+		edgePropertiesItem.addActionListener(this);
+		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
+		highlightSelectedEdgesItem.addActionListener(this);
 
 		highlightNodesItem = new JMenuItem("Edit");
 		highlightNodesItem.addActionListener(this);
@@ -1196,8 +1227,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		clearHighlightNodesItem.addActionListener(this);
 		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedNodesItem.addActionListener(this);
-		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedNodesItem.addActionListener(this);
+		selectNodesItem = new JMenuItem("Select");
+		selectNodesItem.addActionListener(this);
 
 		highlightEdgesItem = new JMenuItem("Edit");
 		highlightEdgesItem.addActionListener(this);
@@ -1205,8 +1236,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		clearHighlightEdgesItem.addActionListener(this);
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
-		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedEdgesItem.addActionListener(this);
+		selectEdgesItem = new JMenuItem("Select");
+		selectEdgesItem.addActionListener(this);
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
 		collapseToNodeItem.addActionListener(this);
