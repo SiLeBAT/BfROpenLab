@@ -60,6 +60,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private List<Edge<RegionNode>> allEdges;
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
+	private Map<Edge<RegionNode>, Set<Edge<RegionNode>>> joinMap;
 
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
@@ -94,6 +95,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
+		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
 		setAllowEdges(allowEdges);
 		setOptionsItemVisible(SKIP_EDGELESS_NODES, false);
 
@@ -151,12 +153,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.removeInvisibleElements(allEdges,
 					getEdgeHighlightConditions());
-			edges = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges)).keySet();
+					CanvasUtilities.getElementIds(allEdges));
+			edges = joinMap.keySet();
 		} else {
 			edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
+			joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
 		}
 
 		getViewer().getGraphLayout().setGraph(
@@ -253,6 +257,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		paintBackground(g, width, height);
 		paintRegions(g);
 		paintRegionBorders(g, width, height, toSvg);
+	}
+	
+	@Override
+	protected Map<Edge<RegionNode>, Set<Edge<RegionNode>>> getJoinMap() {
+		return joinMap;
 	}
 
 	private void paintRegions(Graphics g) {

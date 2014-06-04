@@ -190,6 +190,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private JMenuItem highlightSelectedEdgesItem;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
+	private JMenuItem edgeAllPropertiesItem;
 	private JMenuItem collapseToNodeItem;
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
@@ -740,6 +741,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			showNodeProperties();
 		} else if (e.getSource() == edgePropertiesItem) {
 			showEdgeProperties();
+		} else if (e.getSource() == edgeAllPropertiesItem) {
+			Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+
+			picked.retainAll(getVisibleEdges());
+
+			Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
+
+			for (Edge<V> p : picked) {
+				if (getJoinMap().containsKey(p)) {
+					allPicked.addAll(getJoinMap().get(p));
+				}
+			}
+
+			PropertiesDialog dialog = new PropertiesDialog(this, allPicked,
+					edgeProperties);
+
+			dialog.setVisible(true);
 		} else if (e.getSource() == highlightSelectedNodesItem) {
 			highlightSelectedNodes();
 		} else if (e.getSource() == highlightSelectedEdgesItem) {
@@ -933,28 +951,24 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected void showNodeProperties() {
-		Set<V> picked = new LinkedHashSet<V>(viewer.getPickedVertexState()
-				.getPicked());
+		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
 
 		picked.retainAll(getVisibleNodes());
 
 		PropertiesDialog dialog = new PropertiesDialog(this, picked,
 				nodeProperties);
 
-		dialog.setLocationRelativeTo(this);
 		dialog.setVisible(true);
 	}
 
 	protected void showEdgeProperties() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(viewer
-				.getPickedEdgeState().getPicked());
+		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
 
 		picked.retainAll(getVisibleEdges());
 
 		PropertiesDialog dialog = new PropertiesDialog(this, picked,
 				edgeProperties);
 
-		dialog.setLocationRelativeTo(this);
 		dialog.setVisible(true);
 	}
 
@@ -979,6 +993,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void clearCollapsedNodes();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
+
+	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
 
 	private void paintLegend(Graphics g) {
 		CanvasLegend<V> legend = new CanvasLegend<V>(nodeHighlightConditions,
@@ -1015,6 +1031,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			edgeSelectionMenu.add(edgePropertiesItem);
+			edgeSelectionMenu.add(edgeAllPropertiesItem);
 			edgeSelectionMenu.add(clearSelectEdgesItem);
 			edgeSelectionMenu.add(highlightSelectedEdgesItem);
 
@@ -1218,6 +1235,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		clearSelectEdgesItem.addActionListener(this);
 		edgePropertiesItem = new JMenuItem("Show Properties");
 		edgePropertiesItem.addActionListener(this);
+		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
+		edgeAllPropertiesItem.addActionListener(this);
 		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedEdgesItem.addActionListener(this);
 

@@ -164,11 +164,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Map<String, Edge<GraphNode>> getEdgeSaveMap() {
 		return edgeSaveMap;
-	}
-
-	public Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
-		return joinMap;
-	}
+	}	
 
 	public Map<String, Point2D> getNodePositions() {
 		return getNodePositions(nodes);
@@ -595,6 +591,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
+	}
+	
+	@Override
+	protected Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
+		return joinMap;
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {

@@ -275,8 +275,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
 				picked, getNodeProperties());
-
-		dialog.setLocationRelativeTo(this);
+		
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
@@ -293,8 +292,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
 				picked, getEdgeProperties());
-
-		dialog.setLocationRelativeTo(this);
+		
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {

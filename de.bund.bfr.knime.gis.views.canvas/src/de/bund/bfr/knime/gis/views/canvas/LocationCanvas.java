@@ -56,6 +56,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
+	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
 
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
@@ -98,6 +99,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
+		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
 		setAllowEdges(allowEdges);
 		nodeSize = DEFAULT_NODE_SIZE;
 
@@ -175,12 +177,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		if (isJoinEdges()) {
 			edges = CanvasUtilities.removeInvisibleElements(allEdges,
 					getEdgeHighlightConditions());
-			edges = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges)).keySet();
+					CanvasUtilities.getElementIds(allEdges));
+			edges = joinMap.keySet();
 		} else {
 			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
+			joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
 		}
 
 		getViewer().getGraphLayout().setGraph(
@@ -244,6 +248,11 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 						}
 					}
 				}, getEditingMode());
+	}
+
+	@Override
+	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
+		return joinMap;
 	}
 
 }
