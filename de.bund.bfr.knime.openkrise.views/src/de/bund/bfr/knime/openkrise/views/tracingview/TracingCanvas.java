@@ -268,7 +268,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	protected void showNodeProperties() {
+	public void nodePropertiesItemClicked() {
 		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getSelectedNodes());
 
 		picked.retainAll(getVisibleNodes());
@@ -284,7 +284,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	protected void showEdgeProperties() {
+	public void edgePropertiesItemClicked() {
 		Set<Edge<GraphNode>> picked = new LinkedHashSet<Edge<GraphNode>>(
 				getSelectedEdges());
 

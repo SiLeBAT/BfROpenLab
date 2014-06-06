@@ -164,7 +164,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Map<String, Edge<GraphNode>> getEdgeSaveMap() {
 		return edgeSaveMap;
-	}	
+	}
 
 	public Map<String, Point2D> getNodePositions() {
 		return getNodePositions(nodes);
@@ -250,33 +250,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void resetLayout() {
+	public void resetLayoutItemClicked() {
 		setTransform(1.0, 1.0, 0.0, 0.0);
 	}
 
 	@Override
-	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), true, true,
-				true, getNodeHighlightConditions(), null);
-	}
-
-	@Override
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), null);
-	}
-
-	@Override
-	protected void applyTransform() {
-	}
-
-	@Override
-	protected void applyLayout(LayoutType layoutType) {
+	public void layoutItemClicked(LayoutType layoutType) {		
 		applyLayout(layoutType, getSelectedNodes());
 	}
 
 	@Override
-	protected void collapseToNode() {
+	public void collapseToNodeItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
 
 		for (String id : collapsedNodes.keySet()) {
@@ -323,7 +307,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void expandFromNode() {
+	public void expandFromNodeItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
 
 		for (String id : selectedIds) {
@@ -356,7 +340,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void collapseByProperty() {
+	public void collapseByPropertyItemClicked() {
 		String[] properties = getNodeProperties().keySet().toArray(
 				new String[0]);
 		String result = (String) JOptionPane.showInputDialog(this,
@@ -413,7 +397,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void clearCollapsedNodes() {
+	public void clearCollapsedNodesItemClicked() {
 		for (String id : collapsedNodes.keySet()) {
 			nodeSaveMap.remove(id);
 		}
@@ -421,6 +405,22 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		collapsedNodes.clear();
 		applyChanges();
 		getViewer().getPickedVertexState().clear();
+	}
+	
+	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), true, true,
+				true, getNodeHighlightConditions(), null);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), null);
+	}
+
+	@Override
+	protected void applyTransform() {
 	}
 
 	@Override
@@ -592,7 +592,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 	}
-	
+
 	@Override
 	protected Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
 		return joinMap;

@@ -121,6 +121,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			getViewer().repaint();
 		}
 	}
+	
+	@Override
+	public void resetLayoutItemClicked() {
+		computeTransform(getViewer().getSize());
+	}
 
 	@Override
 	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
@@ -146,35 +151,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	protected void resetLayout() {
-		computeTransform(getViewer().getSize());
-	}
-
-	@Override
 	protected void applyTransform() {
 		flushImage();
 		computeTransformedShapes();
 		getViewer().repaint();
-	}
-
-	@Override
-	protected void collapseToNode() {
-	}
-
-	@Override
-	protected void expandFromNode() {
-	}
-
-	@Override
-	protected void collapseByProperty() {
-	}
-
-	@Override
-	protected void clearCollapsedNodes() {
-	}
-
-	@Override
-	protected void applyLayout(LayoutType layoutType) {
 	}
 
 	protected void flushImage() {

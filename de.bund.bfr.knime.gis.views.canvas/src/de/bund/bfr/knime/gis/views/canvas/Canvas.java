@@ -61,12 +61,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -106,33 +102,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
 		ChangeListener, ActionListener, ItemListener, KeyListener,
-		MouseListener {
-
-	public static enum LayoutType {
-		CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
-
-		@Override
-		public String toString() {
-			switch (this) {
-			case CIRCLE_LAYOUT:
-				return "Circle Layout";
-			case FR_LAYOUT:
-				return "FR Layout";
-			case FR_LAYOUT_2:
-				return "FR Layout 2";
-			case ISOM_LAYOUT:
-				return "ISOM Layout";
-			case KK_LAYOUT:
-				return "KK Layout";
-			case SPRING_LAYOUT:
-				return "Spring Layout";
-			case SPRING_LAYOUT_2:
-				return "Spring Layout 2";
-			}
-
-			return super.toString();
-		}
-	}
+		MouseListener, CanvasPopupMenu.ClickListener {
 
 	protected static final String EDITING_MODE = "Editing Mode";
 	protected static final String SHOW_LEGEND = "Show Legend";
@@ -157,6 +127,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private JPanel optionsPanel;
+	private CanvasPopupMenu popup;
 
 	private boolean allowEdges;
 	private boolean allowHighlighting;
@@ -166,36 +137,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private double scaleY;
 	private double translationX;
 	private double translationY;
-
-	private JMenu nodeSelectionMenu;
-	private JMenu edgeSelectionMenu;
-	private JMenu nodeHighlightMenu;
-	private JMenu edgeHighlightMenu;
-	private JMenu layoutMenu;
-
-	private JMenuItem resetLayoutItem;
-	private JMenuItem saveAsItem;
-	private JMenuItem selectConnectingItem;
-	private JMenuItem clearSelectNodesItem;
-	private JMenuItem clearSelectEdgesItem;
-	private JMenuItem highlightNodesItem;
-	private JMenuItem clearHighlightNodesItem;
-	private JMenuItem selectHighlightedNodesItem;
-	private JMenuItem selectNodesItem;
-	private JMenuItem highlightSelectedNodesItem;
-	private JMenuItem highlightEdgesItem;
-	private JMenuItem clearHighlightEdgesItem;
-	private JMenuItem selectHighlightedEdgesItem;
-	private JMenuItem selectEdgesItem;
-	private JMenuItem highlightSelectedEdgesItem;
-	private JMenuItem nodePropertiesItem;
-	private JMenuItem edgePropertiesItem;
-	private JMenuItem edgeAllPropertiesItem;
-	private JMenuItem collapseToNodeItem;
-	private JMenuItem expandFromNodeItem;
-	private JMenuItem collapseByPropertyItem;
-	private JMenuItem clearCollapsedNodesItem;
-	private Map<JMenuItem, LayoutType> layoutItems;
 
 	private Mode editingMode;
 	private JComboBox<Mode> modeBox;
@@ -286,6 +227,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
+		popup = new CanvasPopupMenu();
+		popup.addClickListener(this);
+		
 		optionsPanel = new JPanel();
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -321,7 +265,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		addOptionsItem(JOIN_EDGES, joinBox);
 		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
 		addOptionsItem(FONT, fontSizeBox, fontBoldBox);
-		createPopupMenuItems();
 		applyPopupMenu();
 		viewer.setGraphMouse(createMouseModel());
 	}
@@ -652,126 +595,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		} else if (e.getSource() == fontBoldBox) {
 			fontBold = fontBoldBox.isSelected();
 			applyFont();
-		} else if (e.getSource() == saveAsItem) {
-			saveAs();
-		} else if (e.getSource() == selectConnectingItem) {
-			selectConnections();
-		} else if (e.getSource() == selectHighlightedNodesItem) {
-			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
-					this, nodeHighlightConditions.getConditions());
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setSelectedNodes(CanvasUtilities.getHighlightedElements(
-						getVisibleNodes(), dialog.getHighlightConditions()));
-			}
-		} else if (e.getSource() == selectHighlightedEdgesItem) {
-			HighlightSelectionDialog dialog = new HighlightSelectionDialog(
-					this, edgeHighlightConditions.getConditions());
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setSelectedEdges(CanvasUtilities.getHighlightedElements(
-						getVisibleEdges(), dialog.getHighlightConditions()));
-			}
-		} else if (e.getSource() == selectNodesItem) {
-			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-					false, false, false, false, false, false, null, null);
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setSelectedNodes(CanvasUtilities.getHighlightedElements(
-						getVisibleNodes(),
-						Arrays.asList(dialog.getHighlightCondition())));
-			}
-		} else if (e.getSource() == selectEdgesItem) {
-			HighlightDialog dialog = new HighlightDialog(this, edgeProperties,
-					false, false, false, false, false, false, null, null);
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setSelectedEdges(CanvasUtilities.getHighlightedElements(
-						getVisibleEdges(),
-						Arrays.asList(dialog.getHighlightCondition())));
-			}
-		} else if (e.getSource() == resetLayoutItem) {
-		} else if (e.getSource() == resetLayoutItem) {
-			resetLayout();
-		} else if (e.getSource() == clearSelectNodesItem) {
-			viewer.getPickedVertexState().clear();
-		} else if (e.getSource() == clearSelectEdgesItem) {
-			viewer.getPickedEdgeState().clear();
-		} else if (e.getSource() == highlightNodesItem) {
-			HighlightListDialog dialog = openNodeHighlightDialog();
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setNodeHighlightConditions(dialog.getHighlightConditions());
-			}
-		} else if (e.getSource() == clearHighlightNodesItem) {
-			if (JOptionPane
-					.showConfirmDialog(
-							clearHighlightNodesItem,
-							"Do you really want to remove all node highlight conditions?",
-							"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				setNodeHighlightConditions(new HighlightConditionList());
-			}
-		} else if (e.getSource() == highlightEdgesItem) {
-			HighlightListDialog dialog = openEdgeHighlightDialog();
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				setEdgeHighlightConditions(dialog.getHighlightConditions());
-			}
-		} else if (e.getSource() == clearHighlightEdgesItem) {
-			if (JOptionPane
-					.showConfirmDialog(
-							clearHighlightNodesItem,
-							"Do you really want to remove all edge highlight conditions?",
-							"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				setEdgeHighlightConditions(new HighlightConditionList());
-			}
-		} else if (e.getSource() == nodePropertiesItem) {
-			showNodeProperties();
-		} else if (e.getSource() == edgePropertiesItem) {
-			showEdgeProperties();
-		} else if (e.getSource() == edgeAllPropertiesItem) {
-			Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
-
-			picked.retainAll(getVisibleEdges());
-
-			Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
-
-			for (Edge<V> p : picked) {
-				if (getJoinMap().containsKey(p)) {
-					allPicked.addAll(getJoinMap().get(p));
-				}
-			}
-
-			PropertiesDialog dialog = new PropertiesDialog(this, allPicked,
-					edgeProperties);
-
-			dialog.setVisible(true);
-		} else if (e.getSource() == highlightSelectedNodesItem) {
-			highlightSelectedNodes();
-		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			highlightSelectedEdges();
-		} else if (e.getSource() == collapseToNodeItem) {
-			collapseToNode();
-		} else if (e.getSource() == expandFromNodeItem) {
-			expandFromNode();
-		} else if (e.getSource() == collapseByPropertyItem) {
-			collapseByProperty();
-		} else if (e.getSource() == clearCollapsedNodesItem) {
-			clearCollapsedNodes();
-		} else if (layoutItems.containsKey(e.getSource())) {
-			applyLayout(layoutItems.get(e.getSource()));
 		}
 	}
 
@@ -779,17 +602,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItem() instanceof Node) {
 			if (viewer.getPickedVertexState().getPicked().isEmpty()) {
-				nodeSelectionMenu.setEnabled(false);
+				popup.setNodeSelectionEnabled(false);
 			} else {
-				nodeSelectionMenu.setEnabled(true);
+				popup.setNodeSelectionEnabled(true);
 			}
 
 			fireNodeSelectionChanged();
 		} else if (e.getItem() instanceof Edge) {
 			if (viewer.getPickedEdgeState().getPicked().isEmpty()) {
-				edgeSelectionMenu.setEnabled(false);
+				popup.setEdgeSelectionEnabled(false);
 			} else {
-				edgeSelectionMenu.setEnabled(true);
+				popup.setNodeSelectionEnabled(true);
 			}
 
 			fireEdgeSelectionChanged();
@@ -851,6 +674,303 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void saveAsItemClicked() {
+		ImageFileChooser chooser = new ImageFileChooser();
+
+		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (chooser.getFileFormat() == ImageFileChooser.PNG_FORMAT) {
+				try {
+					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
+					BufferedImage img = new BufferedImage(viewer.getWidth(),
+							viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+					server.paint(img.getGraphics());
+					ImageIO.write(img, "png", chooser.getImageFile());
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(this,
+							"Error saving png file", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			} else if (chooser.getFileFormat() == ImageFileChooser.SVG_FORMAT) {
+				try {
+					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
+					DOMImplementation domImpl = GenericDOMImplementation
+							.getDOMImplementation();
+					Document document = domImpl.createDocument(null, "svg",
+							null);
+					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+					Writer outsvg = new OutputStreamWriter(
+							new FileOutputStream(chooser.getImageFile()),
+							"UTF-8");
+
+					svgGenerator.setSVGCanvasSize(new Dimension(viewer
+							.getWidth(), viewer.getHeight()));
+					server.paint(svgGenerator);
+					svgGenerator.stream(outsvg, true);
+					outsvg.close();
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(this,
+							"Error saving svg file", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void layoutItemClicked(LayoutType layoutType) {
+	}
+
+	@Override
+	public void clearCollapsedNodesItemClicked() {
+	}
+
+	@Override
+	public void collapseByPropertyItemClicked() {
+	}
+
+	@Override
+	public void expandFromNodeItemClicked() {
+	}
+
+	@Override
+	public void collapseToNodeItemClicked() {
+	}
+
+	@Override
+	public void highlightSelectedEdgesItemClicked() {
+		HighlightListDialog dialog = openEdgeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+		for (String id : getSelectedEdgeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setEdgeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void highlightSelectedNodesItemClicked() {
+		HighlightListDialog dialog = openNodeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+		for (String id : getSelectedNodeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setNodeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void edgeAllPropertiesItemClicked() {
+		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+
+		picked.retainAll(getVisibleEdges());
+
+		Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
+
+		for (Edge<V> p : picked) {
+			if (getJoinMap().containsKey(p)) {
+				allPicked.addAll(getJoinMap().get(p));
+			}
+		}
+
+		PropertiesDialog dialog = new PropertiesDialog(this, allPicked,
+				edgeProperties);
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void edgePropertiesItemClicked() {
+		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+
+		picked.retainAll(getVisibleEdges());
+
+		PropertiesDialog dialog = new PropertiesDialog(this, picked,
+				edgeProperties);
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void nodePropertiesItemClicked() {
+		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
+
+		picked.retainAll(getVisibleNodes());
+
+		PropertiesDialog dialog = new PropertiesDialog(this, picked,
+				nodeProperties);
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void clearHighlightEdgesItemClicked() {
+		if (JOptionPane.showConfirmDialog(this,
+				"Do you really want to remove all edge highlight conditions?",
+				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			setEdgeHighlightConditions(new HighlightConditionList());
+		}
+	}
+
+	@Override
+	public void highlightEdgesItemClicked() {
+		HighlightListDialog dialog = openEdgeHighlightDialog();
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setEdgeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void clearHighlightNodesItemClicked() {
+		if (JOptionPane.showConfirmDialog(this,
+				"Do you really want to remove all node highlight conditions?",
+				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			setNodeHighlightConditions(new HighlightConditionList());
+		}
+	}
+
+	@Override
+	public void highlightNodesItemClicked() {
+		HighlightListDialog dialog = openNodeHighlightDialog();
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setNodeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void clearSelectEdgesItemClicked() {
+		viewer.getPickedEdgeState().clear();
+	}
+
+	@Override
+	public void clearSelectNodesItemClicked() {
+		viewer.getPickedVertexState().clear();
+	}
+
+	@Override
+	public void resetLayoutItemClicked() {
+	}
+
+	@Override
+	public void selectEdgesItemClicked() {
+		HighlightDialog dialog = new HighlightDialog(this, edgeProperties,
+				false, false, false, false, false, false, null, null);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(
+					getVisibleEdges(),
+					Arrays.asList(dialog.getHighlightCondition())));
+		}
+	}
+
+	@Override
+	public void selectNodesItemClicked() {
+		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
+				false, false, false, false, false, false, null, null);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(
+					getVisibleNodes(),
+					Arrays.asList(dialog.getHighlightCondition())));
+		}
+	}
+
+	@Override
+	public void selectHighlightedEdgesItemClicked() {
+		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
+				edgeHighlightConditions.getConditions());
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(
+					getVisibleEdges(), dialog.getHighlightConditions()));
+		}
+
+	}
+
+	@Override
+	public void selectHighlightedNodesItemClicked() {
+		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
+				nodeHighlightConditions.getConditions());
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(
+					getVisibleNodes(), dialog.getHighlightConditions()));
+		}
+	}
+
+	@Override
+	public void selectConnectingItemClicked() {
+		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
+
+		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
+			connectingEdges.put(node, new ArrayList<Edge<V>>());
+		}
+
+		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
+			connectingEdges.get(edge.getFrom()).add(edge);
+			connectingEdges.get(edge.getTo()).add(edge);
+		}
+
+		for (V node : getViewer().getPickedVertexState().getPicked()) {
+			for (Edge<V> edge : connectingEdges.get(node)) {
+				if (!getViewer().getGraphLayout().getGraph().containsEdge(edge)) {
+					continue;
+				}
+
+				V otherNode = null;
+
+				if (edge.getFrom() == node) {
+					otherNode = edge.getTo();
+				} else if (edge.getTo() == node) {
+					otherNode = edge.getFrom();
+				}
+
+				if (getViewer().getPickedVertexState().isPicked(otherNode)) {
+					getViewer().getPickedEdgeState().pick(edge, true);
+				}
+			}
+		}
 	}
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
@@ -950,47 +1070,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return server;
 	}
 
-	protected void showNodeProperties() {
-		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
-
-		picked.retainAll(getVisibleNodes());
-
-		PropertiesDialog dialog = new PropertiesDialog(this, picked,
-				nodeProperties);
-
-		dialog.setVisible(true);
-	}
-
-	protected void showEdgeProperties() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
-
-		picked.retainAll(getVisibleEdges());
-
-		PropertiesDialog dialog = new PropertiesDialog(this, picked,
-				edgeProperties);
-
-		dialog.setVisible(true);
-	}
-
-	protected abstract void resetLayout();
-
 	protected abstract HighlightListDialog openNodeHighlightDialog();
 
 	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
 	protected abstract void applyChanges();
 
-	protected abstract void applyTransform();
-
-	protected abstract void applyLayout(LayoutType layoutType);
-
-	protected abstract void collapseToNode();
-
-	protected abstract void expandFromNode();
-
-	protected abstract void collapseByProperty();
-
-	protected abstract void clearCollapsedNodes();
+	protected abstract void applyTransform();	
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
@@ -1005,79 +1091,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	private void applyPopupMenu() {
-		JPopupMenu popup = new JPopupMenu();
-
-		popup.add(resetLayoutItem);
-		popup.add(saveAsItem);
-
-		if (allowLayout) {
-			for (JMenuItem item : layoutItems.keySet()) {
-				layoutMenu.add(item);
-			}
-
-			popup.add(layoutMenu);
-		}
-
-		if (allowEdges) {
-			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
-			nodeSelectionMenu.add(selectConnectingItem);
-			nodeSelectionMenu.add(highlightSelectedNodesItem);
-
-			if (allowCollapse) {
-				nodeSelectionMenu.add(new JSeparator());
-				nodeSelectionMenu.add(collapseToNodeItem);
-				nodeSelectionMenu.add(expandFromNodeItem);
-			}
-
-			edgeSelectionMenu.add(edgePropertiesItem);
-			edgeSelectionMenu.add(edgeAllPropertiesItem);
-			edgeSelectionMenu.add(clearSelectEdgesItem);
-			edgeSelectionMenu.add(highlightSelectedEdgesItem);
-
-			popup.add(new JSeparator());
-			popup.add(nodeSelectionMenu);
-			popup.add(edgeSelectionMenu);
-
-			if (allowHighlighting) {
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(selectNodesItem);
-
-				edgeHighlightMenu.add(highlightEdgesItem);
-				edgeHighlightMenu.add(clearHighlightEdgesItem);
-				edgeHighlightMenu.add(selectHighlightedEdgesItem);
-				edgeHighlightMenu.add(selectEdgesItem);
-
-				popup.add(nodeHighlightMenu);
-				popup.add(edgeHighlightMenu);
-			}
-		} else {
-			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
-			nodeSelectionMenu.add(highlightSelectedNodesItem);
-
-			popup.add(new JSeparator());
-			popup.add(nodeSelectionMenu);
-
-			if (allowHighlighting) {
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(selectNodesItem);
-
-				popup.add(nodeHighlightMenu);
-			}
-		}
-
-		if (allowCollapse) {
-			popup.add(new JSeparator());
-			popup.add(collapseByPropertyItem);
-			popup.add(clearCollapsedNodesItem);
-		}
-
-		viewer.setComponentPopupMenu(popup);
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges,
+				allowHighlighting, allowLayout, allowCollapse));
 	}
 
 	private void applyFont() {
@@ -1086,195 +1101,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.getRenderContext().setEdgeFontTransformer(
 				new FontTransformer<Edge<V>>(fontSize, fontBold));
 		viewer.repaint();
-	}
-
-	private void selectConnections() {
-		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
-
-		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
-			connectingEdges.put(node, new ArrayList<Edge<V>>());
-		}
-
-		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
-			connectingEdges.get(edge.getFrom()).add(edge);
-			connectingEdges.get(edge.getTo()).add(edge);
-		}
-
-		for (V node : getViewer().getPickedVertexState().getPicked()) {
-			for (Edge<V> edge : connectingEdges.get(node)) {
-				if (!getViewer().getGraphLayout().getGraph().containsEdge(edge)) {
-					continue;
-				}
-
-				V otherNode = null;
-
-				if (edge.getFrom() == node) {
-					otherNode = edge.getTo();
-				} else if (edge.getTo() == node) {
-					otherNode = edge.getFrom();
-				}
-
-				if (getViewer().getPickedVertexState().isPicked(otherNode)) {
-					getViewer().getPickedEdgeState().pick(edge, true);
-				}
-			}
-		}
-	}
-
-	private void highlightSelectedNodes() {
-		HighlightListDialog dialog = openNodeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedNodeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setNodeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	private void highlightSelectedEdges() {
-		HighlightListDialog dialog = openEdgeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedEdgeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setEdgeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	private void saveAs() {
-		ImageFileChooser chooser = new ImageFileChooser();
-
-		if (chooser.showSaveDialog(saveAsItem) == JFileChooser.APPROVE_OPTION) {
-			if (chooser.getFileFormat() == ImageFileChooser.PNG_FORMAT) {
-				try {
-					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
-					BufferedImage img = new BufferedImage(viewer.getWidth(),
-							viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-					server.paint(img.getGraphics());
-					ImageIO.write(img, "png", chooser.getImageFile());
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(saveAsItem,
-							"Error saving png file", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} else if (chooser.getFileFormat() == ImageFileChooser.SVG_FORMAT) {
-				try {
-					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
-					DOMImplementation domImpl = GenericDOMImplementation
-							.getDOMImplementation();
-					Document document = domImpl.createDocument(null, "svg",
-							null);
-					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-					Writer outsvg = new OutputStreamWriter(
-							new FileOutputStream(chooser.getImageFile()),
-							"UTF-8");
-
-					svgGenerator.setSVGCanvasSize(new Dimension(viewer
-							.getWidth(), viewer.getHeight()));
-					server.paint(svgGenerator);
-					svgGenerator.stream(outsvg, true);
-					outsvg.close();
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(saveAsItem,
-							"Error saving svg file", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-	}
-
-	private void createPopupMenuItems() {
-		nodeSelectionMenu = new JMenu("Node Selection");
-		nodeSelectionMenu.setEnabled(false);
-		edgeSelectionMenu = new JMenu("Edge Selection");
-		edgeSelectionMenu.setEnabled(false);
-		nodeHighlightMenu = new JMenu("Node Highlighting");
-		edgeHighlightMenu = new JMenu("Edge Highlighting");
-		layoutMenu = new JMenu("Apply Layout");
-
-		resetLayoutItem = new JMenuItem("Reset Layout");
-		resetLayoutItem.addActionListener(this);
-		saveAsItem = new JMenuItem("Save As ...");
-		saveAsItem.addActionListener(this);
-
-		clearSelectNodesItem = new JMenuItem("Clear");
-		clearSelectNodesItem.addActionListener(this);
-		nodePropertiesItem = new JMenuItem("Show Properties");
-		nodePropertiesItem.addActionListener(this);
-		selectConnectingItem = new JMenuItem("Select Connections");
-		selectConnectingItem.addActionListener(this);
-		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedNodesItem.addActionListener(this);
-
-		clearSelectEdgesItem = new JMenuItem("Clear");
-		clearSelectEdgesItem.addActionListener(this);
-		edgePropertiesItem = new JMenuItem("Show Properties");
-		edgePropertiesItem.addActionListener(this);
-		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
-		edgeAllPropertiesItem.addActionListener(this);
-		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedEdgesItem.addActionListener(this);
-
-		highlightNodesItem = new JMenuItem("Edit");
-		highlightNodesItem.addActionListener(this);
-		clearHighlightNodesItem = new JMenuItem("Clear");
-		clearHighlightNodesItem.addActionListener(this);
-		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedNodesItem.addActionListener(this);
-		selectNodesItem = new JMenuItem("Select");
-		selectNodesItem.addActionListener(this);
-
-		highlightEdgesItem = new JMenuItem("Edit");
-		highlightEdgesItem.addActionListener(this);
-		clearHighlightEdgesItem = new JMenuItem("Clear");
-		clearHighlightEdgesItem.addActionListener(this);
-		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedEdgesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select");
-		selectEdgesItem.addActionListener(this);
-
-		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
-		collapseToNodeItem.addActionListener(this);
-		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
-		expandFromNodeItem.addActionListener(this);
-		collapseByPropertyItem = new JMenuItem("Collapse by Property");
-		collapseByPropertyItem.addActionListener(this);
-		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
-		clearCollapsedNodesItem.addActionListener(this);
-
-		layoutItems = new LinkedHashMap<JMenuItem, LayoutType>();
-
-		for (LayoutType layoutType : LayoutType.values()) {
-			JMenuItem item = new JMenuItem(layoutType.toString());
-
-			item.addActionListener(this);
-			layoutItems.put(item, layoutType);
-		}
 	}
 
 	private void fireNodeSelectionChanged() {
