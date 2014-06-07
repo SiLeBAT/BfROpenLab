@@ -612,7 +612,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			if (viewer.getPickedEdgeState().getPicked().isEmpty()) {
 				popup.setEdgeSelectionEnabled(false);
 			} else {
-				popup.setNodeSelectionEnabled(true);
+				popup.setEdgeSelectionEnabled(true);
 			}
 
 			fireEdgeSelectionChanged();
