@@ -831,7 +831,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void clearHighlightEdgesItemClicked() {
+	public void clearHighlightedEdgesItemClicked() {
 		if (JOptionPane.showConfirmDialog(this,
 				"Do you really want to remove all edge highlight conditions?",
 				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -851,7 +851,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void clearHighlightNodesItemClicked() {
+	public void clearHighlightedNodesItemClicked() {
 		if (JOptionPane.showConfirmDialog(this,
 				"Do you really want to remove all node highlight conditions?",
 				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -871,12 +871,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void clearSelectEdgesItemClicked() {
+	public void clearSelectedEdgesItemClicked() {
 		viewer.getPickedEdgeState().clear();
 	}
 
 	@Override
-	public void clearSelectNodesItemClicked() {
+	public void clearSelectedNodesItemClicked() {
 		viewer.getPickedVertexState().clear();
 	}
 
@@ -940,7 +940,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void selectConnectingItemClicked() {
+	public void selectConnectionsItemClicked() {
 		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
 
 		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {

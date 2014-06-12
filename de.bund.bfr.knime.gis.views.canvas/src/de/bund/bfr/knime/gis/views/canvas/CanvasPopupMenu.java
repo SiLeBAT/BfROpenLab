@@ -45,27 +45,29 @@ public class CanvasPopupMenu implements ActionListener {
 
 	private JMenuItem resetLayoutItem;
 	private JMenuItem saveAsItem;
-	private JMenuItem selectConnectingItem;
-	private JMenuItem clearSelectNodesItem;
-	private JMenuItem clearSelectEdgesItem;
-	private JMenuItem highlightNodesItem;
-	private JMenuItem clearHighlightNodesItem;
-	private JMenuItem selectHighlightedNodesItem;
-	private JMenuItem selectNodesItem;
+	private Map<JMenuItem, LayoutType> layoutItems;
+
+	private JMenuItem selectConnectionsItem;
+	private JMenuItem clearSelectedNodesItem;
+	private JMenuItem clearSelectedEdgesItem;
 	private JMenuItem highlightSelectedNodesItem;
-	private JMenuItem highlightEdgesItem;
-	private JMenuItem clearHighlightEdgesItem;
-	private JMenuItem selectHighlightedEdgesItem;
-	private JMenuItem selectEdgesItem;
 	private JMenuItem highlightSelectedEdgesItem;
+	private JMenuItem highlightNodesItem;
+	private JMenuItem highlightEdgesItem;
+	private JMenuItem clearHighlightedNodesItem;
+	private JMenuItem clearHighlightedEdgesItem;
+	private JMenuItem selectHighlightedNodesItem;
+	private JMenuItem selectHighlightedEdgesItem;
+	private JMenuItem selectNodesItem;
+	private JMenuItem selectEdgesItem;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem edgeAllPropertiesItem;
+
 	private JMenuItem collapseToNodeItem;
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
-	private Map<JMenuItem, LayoutType> layoutItems;
 
 	private List<ClickListener> listeners;
 
@@ -85,17 +87,17 @@ public class CanvasPopupMenu implements ActionListener {
 		saveAsItem = new JMenuItem("Save As ...");
 		saveAsItem.addActionListener(this);
 
-		clearSelectNodesItem = new JMenuItem("Clear");
-		clearSelectNodesItem.addActionListener(this);
+		clearSelectedNodesItem = new JMenuItem("Clear");
+		clearSelectedNodesItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Properties");
 		nodePropertiesItem.addActionListener(this);
-		selectConnectingItem = new JMenuItem("Select Connections");
-		selectConnectingItem.addActionListener(this);
+		selectConnectionsItem = new JMenuItem("Select Connections");
+		selectConnectionsItem.addActionListener(this);
 		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedNodesItem.addActionListener(this);
 
-		clearSelectEdgesItem = new JMenuItem("Clear");
-		clearSelectEdgesItem.addActionListener(this);
+		clearSelectedEdgesItem = new JMenuItem("Clear");
+		clearSelectedEdgesItem.addActionListener(this);
 		edgePropertiesItem = new JMenuItem("Show Properties");
 		edgePropertiesItem.addActionListener(this);
 		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
@@ -105,8 +107,8 @@ public class CanvasPopupMenu implements ActionListener {
 
 		highlightNodesItem = new JMenuItem("Edit");
 		highlightNodesItem.addActionListener(this);
-		clearHighlightNodesItem = new JMenuItem("Clear");
-		clearHighlightNodesItem.addActionListener(this);
+		clearHighlightedNodesItem = new JMenuItem("Clear");
+		clearHighlightedNodesItem.addActionListener(this);
 		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedNodesItem.addActionListener(this);
 		selectNodesItem = new JMenuItem("Select");
@@ -114,8 +116,8 @@ public class CanvasPopupMenu implements ActionListener {
 
 		highlightEdgesItem = new JMenuItem("Edit");
 		highlightEdgesItem.addActionListener(this);
-		clearHighlightEdgesItem = new JMenuItem("Clear");
-		clearHighlightEdgesItem.addActionListener(this);
+		clearHighlightedEdgesItem = new JMenuItem("Clear");
+		clearHighlightedEdgesItem.addActionListener(this);
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
 		selectEdgesItem = new JMenuItem("Select");
@@ -165,8 +167,8 @@ public class CanvasPopupMenu implements ActionListener {
 
 		if (allowEdges) {
 			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
-			nodeSelectionMenu.add(selectConnectingItem);
+			nodeSelectionMenu.add(clearSelectedNodesItem);
+			nodeSelectionMenu.add(selectConnectionsItem);
 			nodeSelectionMenu.add(highlightSelectedNodesItem);
 
 			if (allowCollapse) {
@@ -177,7 +179,7 @@ public class CanvasPopupMenu implements ActionListener {
 
 			edgeSelectionMenu.add(edgePropertiesItem);
 			edgeSelectionMenu.add(edgeAllPropertiesItem);
-			edgeSelectionMenu.add(clearSelectEdgesItem);
+			edgeSelectionMenu.add(clearSelectedEdgesItem);
 			edgeSelectionMenu.add(highlightSelectedEdgesItem);
 
 			popup.add(new JSeparator());
@@ -186,12 +188,12 @@ public class CanvasPopupMenu implements ActionListener {
 
 			if (allowHighlighting) {
 				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightedNodesItem);
 				nodeHighlightMenu.add(selectHighlightedNodesItem);
 				nodeHighlightMenu.add(selectNodesItem);
 
 				edgeHighlightMenu.add(highlightEdgesItem);
-				edgeHighlightMenu.add(clearHighlightEdgesItem);
+				edgeHighlightMenu.add(clearHighlightedEdgesItem);
 				edgeHighlightMenu.add(selectHighlightedEdgesItem);
 				edgeHighlightMenu.add(selectEdgesItem);
 
@@ -200,7 +202,7 @@ public class CanvasPopupMenu implements ActionListener {
 			}
 		} else {
 			nodeSelectionMenu.add(nodePropertiesItem);
-			nodeSelectionMenu.add(clearSelectNodesItem);
+			nodeSelectionMenu.add(clearSelectedNodesItem);
 			nodeSelectionMenu.add(highlightSelectedNodesItem);
 
 			popup.add(new JSeparator());
@@ -208,7 +210,7 @@ public class CanvasPopupMenu implements ActionListener {
 
 			if (allowHighlighting) {
 				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightNodesItem);
+				nodeHighlightMenu.add(clearHighlightedNodesItem);
 				nodeHighlightMenu.add(selectHighlightedNodesItem);
 				nodeHighlightMenu.add(selectNodesItem);
 
@@ -235,13 +237,53 @@ public class CanvasPopupMenu implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == saveAsItem) {
+		if (e.getSource() == resetLayoutItem) {
+			for (ClickListener l : listeners) {
+				l.resetLayoutItemClicked();
+			}
+		} else if (e.getSource() == saveAsItem) {
 			for (ClickListener l : listeners) {
 				l.saveAsItemClicked();
 			}
-		} else if (e.getSource() == selectConnectingItem) {
+		} else if (layoutItems.containsKey(e.getSource())) {
 			for (ClickListener l : listeners) {
-				l.selectConnectingItemClicked();
+				l.layoutItemClicked(layoutItems.get(e.getSource()));
+			}
+		} else if (e.getSource() == selectConnectionsItem) {
+			for (ClickListener l : listeners) {
+				l.selectConnectionsItemClicked();
+			}
+		} else if (e.getSource() == clearSelectedNodesItem) {
+			for (ClickListener l : listeners) {
+				l.clearSelectedNodesItemClicked();
+			}
+		} else if (e.getSource() == clearSelectedEdgesItem) {
+			for (ClickListener l : listeners) {
+				l.clearSelectedEdgesItemClicked();
+			}
+		} else if (e.getSource() == highlightSelectedNodesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightSelectedNodesItemClicked();
+			}
+		} else if (e.getSource() == highlightSelectedEdgesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightSelectedEdgesItemClicked();
+			}
+		} else if (e.getSource() == highlightNodesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightNodesItemClicked();
+			}
+		} else if (e.getSource() == highlightEdgesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightEdgesItemClicked();
+			}
+		} else if (e.getSource() == clearHighlightedNodesItem) {
+			for (ClickListener l : listeners) {
+				l.clearHighlightedNodesItemClicked();
+			}
+		} else if (e.getSource() == clearHighlightedEdgesItem) {
+			for (ClickListener l : listeners) {
+				l.clearHighlightedEdgesItemClicked();
 			}
 		} else if (e.getSource() == selectHighlightedNodesItem) {
 			for (ClickListener l : listeners) {
@@ -259,34 +301,6 @@ public class CanvasPopupMenu implements ActionListener {
 			for (ClickListener l : listeners) {
 				l.selectEdgesItemClicked();
 			}
-		} else if (e.getSource() == resetLayoutItem) {
-			for (ClickListener l : listeners) {
-				l.resetLayoutItemClicked();
-			}
-		} else if (e.getSource() == clearSelectNodesItem) {
-			for (ClickListener l : listeners) {
-				l.clearSelectNodesItemClicked();
-			}
-		} else if (e.getSource() == clearSelectEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.clearSelectEdgesItemClicked();
-			}
-		} else if (e.getSource() == highlightNodesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightNodesItemClicked();
-			}
-		} else if (e.getSource() == clearHighlightNodesItem) {
-			for (ClickListener l : listeners) {
-				l.clearHighlightNodesItemClicked();
-			}
-		} else if (e.getSource() == highlightEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightEdgesItemClicked();
-			}
-		} else if (e.getSource() == clearHighlightEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.clearHighlightEdgesItemClicked();
-			}
 		} else if (e.getSource() == nodePropertiesItem) {
 			for (ClickListener l : listeners) {
 				l.nodePropertiesItemClicked();
@@ -298,14 +312,6 @@ public class CanvasPopupMenu implements ActionListener {
 		} else if (e.getSource() == edgeAllPropertiesItem) {
 			for (ClickListener l : listeners) {
 				l.edgeAllPropertiesItemClicked();
-			}
-		} else if (e.getSource() == highlightSelectedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightSelectedNodesItemClicked();
-			}
-		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightSelectedEdgesItemClicked();
 			}
 		} else if (e.getSource() == collapseToNodeItem) {
 			for (ClickListener l : listeners) {
@@ -323,60 +329,56 @@ public class CanvasPopupMenu implements ActionListener {
 			for (ClickListener l : listeners) {
 				l.clearCollapsedNodesItemClicked();
 			}
-		} else if (layoutItems.containsKey(e.getSource())) {
-			for (ClickListener l : listeners) {
-				l.layoutItemClicked(layoutItems.get(e.getSource()));
-			}
 		}
 	}
 
 	public static interface ClickListener {
 
+		public void resetLayoutItemClicked();
+
 		public void saveAsItemClicked();
 
 		public void layoutItemClicked(LayoutType layoutType);
 
-		public void clearCollapsedNodesItemClicked();
+		public void selectConnectionsItemClicked();
 
-		public void collapseByPropertyItemClicked();
+		public void clearSelectedNodesItemClicked();
 
-		public void expandFromNodeItemClicked();
-
-		public void collapseToNodeItemClicked();
-
-		public void highlightSelectedEdgesItemClicked();
+		public void clearSelectedEdgesItemClicked();
 
 		public void highlightSelectedNodesItemClicked();
 
-		public void edgeAllPropertiesItemClicked();
-
-		public void edgePropertiesItemClicked();
-
-		public void nodePropertiesItemClicked();
-
-		public void clearHighlightEdgesItemClicked();
-
-		public void highlightEdgesItemClicked();
-
-		public void clearHighlightNodesItemClicked();
+		public void highlightSelectedEdgesItemClicked();
 
 		public void highlightNodesItemClicked();
 
-		public void clearSelectEdgesItemClicked();
+		public void highlightEdgesItemClicked();
 
-		public void clearSelectNodesItemClicked();
+		public void clearHighlightedNodesItemClicked();
 
-		public void resetLayoutItemClicked();
-
-		public void selectEdgesItemClicked();
-
-		public void selectNodesItemClicked();
-
-		public void selectHighlightedEdgesItemClicked();
+		public void clearHighlightedEdgesItemClicked();
 
 		public void selectHighlightedNodesItemClicked();
 
-		public void selectConnectingItemClicked();
+		public void selectHighlightedEdgesItemClicked();
+
+		public void selectNodesItemClicked();
+
+		public void selectEdgesItemClicked();
+
+		public void nodePropertiesItemClicked();
+
+		public void edgePropertiesItemClicked();
+
+		public void edgeAllPropertiesItemClicked();
+
+		public void collapseToNodeItemClicked();
+
+		public void expandFromNodeItemClicked();
+
+		public void collapseByPropertyItemClicked();
+
+		public void clearCollapsedNodesItemClicked();
 
 	}
 }
