@@ -229,7 +229,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		popup = new CanvasPopupMenu();
 		popup.addClickListener(this);
-		
+
 		optionsPanel = new JPanel();
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -721,225 +721,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void layoutItemClicked(LayoutType layoutType) {
-	}
-
-	@Override
-	public void clearCollapsedNodesItemClicked() {
-	}
-
-	@Override
-	public void collapseByPropertyItemClicked() {
-	}
-
-	@Override
-	public void expandFromNodeItemClicked() {
-	}
-
-	@Override
-	public void collapseToNodeItemClicked() {
-	}
-
-	@Override
-	public void highlightSelectedEdgesItemClicked() {
-		HighlightListDialog dialog = openEdgeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedEdgeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setEdgeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	@Override
-	public void highlightSelectedNodesItemClicked() {
-		HighlightListDialog dialog = openNodeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
-
-		for (String id : getSelectedNodeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
-
-		dialog.setAutoAddCondition(condition);
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setNodeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	@Override
-	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
-
-		picked.retainAll(getVisibleEdges());
-
-		Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
-
-		for (Edge<V> p : picked) {
-			if (getJoinMap().containsKey(p)) {
-				allPicked.addAll(getJoinMap().get(p));
-			}
-		}
-
-		PropertiesDialog dialog = new PropertiesDialog(this, allPicked,
-				edgeProperties);
-
-		dialog.setVisible(true);
-	}
-
-	@Override
-	public void edgePropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
-
-		picked.retainAll(getVisibleEdges());
-
-		PropertiesDialog dialog = new PropertiesDialog(this, picked,
-				edgeProperties);
-
-		dialog.setVisible(true);
-	}
-
-	@Override
-	public void nodePropertiesItemClicked() {
-		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
-
-		picked.retainAll(getVisibleNodes());
-
-		PropertiesDialog dialog = new PropertiesDialog(this, picked,
-				nodeProperties);
-
-		dialog.setVisible(true);
-	}
-
-	@Override
-	public void clearHighlightedEdgesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all edge highlight conditions?",
-				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			setEdgeHighlightConditions(new HighlightConditionList());
-		}
-	}
-
-	@Override
-	public void highlightEdgesItemClicked() {
-		HighlightListDialog dialog = openEdgeHighlightDialog();
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setEdgeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	@Override
-	public void clearHighlightedNodesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all node highlight conditions?",
-				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			setNodeHighlightConditions(new HighlightConditionList());
-		}
-	}
-
-	@Override
-	public void highlightNodesItemClicked() {
-		HighlightListDialog dialog = openNodeHighlightDialog();
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setNodeHighlightConditions(dialog.getHighlightConditions());
-		}
-	}
-
-	@Override
-	public void clearSelectedEdgesItemClicked() {
-		viewer.getPickedEdgeState().clear();
-	}
-
-	@Override
-	public void clearSelectedNodesItemClicked() {
-		viewer.getPickedVertexState().clear();
-	}
-
-	@Override
-	public void resetLayoutItemClicked() {
-	}
-
-	@Override
-	public void selectEdgesItemClicked() {
-		HighlightDialog dialog = new HighlightDialog(this, edgeProperties,
-				false, false, false, false, false, false, null, null);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getVisibleEdges(),
-					Arrays.asList(dialog.getHighlightCondition())));
-		}
-	}
-
-	@Override
-	public void selectNodesItemClicked() {
-		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-				false, false, false, false, false, false, null, null);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getVisibleNodes(),
-					Arrays.asList(dialog.getHighlightCondition())));
-		}
-	}
-
-	@Override
-	public void selectHighlightedEdgesItemClicked() {
-		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
-				edgeHighlightConditions.getConditions());
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getVisibleEdges(), dialog.getHighlightConditions()));
-		}
-
-	}
-
-	@Override
-	public void selectHighlightedNodesItemClicked() {
-		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
-				nodeHighlightConditions.getConditions());
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getVisibleNodes(), dialog.getHighlightConditions()));
-		}
-	}
-
-	@Override
 	public void selectConnectionsItemClicked() {
 		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
 
@@ -971,6 +752,201 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				}
 			}
 		}
+	}
+
+	@Override
+	public void clearSelectedNodesItemClicked() {
+		viewer.getPickedVertexState().clear();
+	}
+
+	@Override
+	public void clearSelectedEdgesItemClicked() {
+		viewer.getPickedEdgeState().clear();
+	}
+
+	@Override
+	public void highlightSelectedNodesItemClicked() {
+		HighlightListDialog dialog = openNodeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+		for (String id : getSelectedNodeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					nodeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setNodeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void highlightSelectedEdgesItemClicked() {
+		HighlightListDialog dialog = openEdgeHighlightDialog();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+
+		for (String id : getSelectedEdgeIds()) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(
+					edgeIdProperty, LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(
+				conditions, null, false, Color.RED, false, false, null);
+
+		dialog.setAutoAddCondition(condition);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setEdgeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void highlightNodesItemClicked() {
+		HighlightListDialog dialog = openNodeHighlightDialog();
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setNodeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void highlightEdgesItemClicked() {
+		HighlightListDialog dialog = openEdgeHighlightDialog();
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setEdgeHighlightConditions(dialog.getHighlightConditions());
+		}
+	}
+
+	@Override
+	public void clearHighlightedNodesItemClicked() {
+		if (JOptionPane.showConfirmDialog(this,
+				"Do you really want to remove all node highlight conditions?",
+				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			setNodeHighlightConditions(new HighlightConditionList());
+		}
+	}
+
+	@Override
+	public void clearHighlightedEdgesItemClicked() {
+		if (JOptionPane.showConfirmDialog(this,
+				"Do you really want to remove all edge highlight conditions?",
+				"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			setEdgeHighlightConditions(new HighlightConditionList());
+		}
+	}
+
+	@Override
+	public void selectHighlightedNodesItemClicked() {
+		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
+				nodeHighlightConditions.getConditions());
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(
+					getVisibleNodes(), dialog.getHighlightConditions()));
+		}
+	}
+
+	@Override
+	public void selectHighlightedEdgesItemClicked() {
+		HighlightSelectionDialog dialog = new HighlightSelectionDialog(this,
+				edgeHighlightConditions.getConditions());
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(
+					getVisibleEdges(), dialog.getHighlightConditions()));
+		}
+
+	}
+
+	@Override
+	public void selectNodesItemClicked() {
+		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
+				false, false, false, false, false, false, null, null);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(
+					getVisibleNodes(),
+					Arrays.asList(dialog.getHighlightCondition())));
+		}
+	}
+
+	@Override
+	public void selectEdgesItemClicked() {
+		HighlightDialog dialog = new HighlightDialog(this, edgeProperties,
+				false, false, false, false, false, false, null, null);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(
+					getVisibleEdges(),
+					Arrays.asList(dialog.getHighlightCondition())));
+		}
+	}
+
+	@Override
+	public void nodePropertiesItemClicked() {
+		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
+
+		picked.retainAll(getVisibleNodes());
+
+		PropertiesDialog dialog = new PropertiesDialog(this, picked,
+				nodeProperties);
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void edgePropertiesItemClicked() {
+		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+
+		picked.retainAll(getVisibleEdges());
+
+		PropertiesDialog dialog = new PropertiesDialog(this, picked,
+				edgeProperties);
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void edgeAllPropertiesItemClicked() {
+		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+
+		picked.retainAll(getVisibleEdges());
+
+		Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
+
+		for (Edge<V> p : picked) {
+			if (getJoinMap().containsKey(p)) {
+				allPicked.addAll(getJoinMap().get(p));
+			}
+		}
+
+		PropertiesDialog dialog = new PropertiesDialog(this, allPicked,
+				edgeProperties);
+
+		dialog.setVisible(true);
 	}
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
@@ -1076,7 +1052,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract void applyChanges();
 
-	protected abstract void applyTransform();	
+	protected abstract void applyTransform();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 

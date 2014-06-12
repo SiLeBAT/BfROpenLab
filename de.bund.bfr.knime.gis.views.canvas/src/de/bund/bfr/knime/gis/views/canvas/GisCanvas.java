@@ -121,10 +121,30 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			getViewer().repaint();
 		}
 	}
-	
+
 	@Override
 	public void resetLayoutItemClicked() {
 		computeTransform(getViewer().getSize());
+	}
+
+	@Override
+	public void layoutItemClicked(LayoutType layoutType) {
+	}
+
+	@Override
+	public void collapseToNodeItemClicked() {
+	}
+
+	@Override
+	public void expandFromNodeItemClicked() {
+	}
+
+	@Override
+	public void collapseByPropertyItemClicked() {
+	}
+
+	@Override
+	public void clearCollapsedNodesItemClicked() {
 	}
 
 	@Override
