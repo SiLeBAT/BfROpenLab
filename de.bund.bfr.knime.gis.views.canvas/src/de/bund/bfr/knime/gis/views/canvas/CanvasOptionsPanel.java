@@ -255,6 +255,12 @@ public class CanvasOptionsPanel implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
+		} else if (e.getSource() == borderAlphaButton) {
+			borderAlpha = borderAlphaSlider.getValue();
+			
+			for (ChangeListener l : listeners) {
+				l.borderAlphaChanged();
+			}
 		}
 	}
 
@@ -297,5 +303,7 @@ public class CanvasOptionsPanel implements ActionListener {
 		public void fontBoldChanged();
 
 		public void nodeSizeChanged();
+		
+		public void borderAlphaChanged();
 	}
 }
