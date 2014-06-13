@@ -255,7 +255,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	public void layoutItemClicked(LayoutType layoutType) {		
+	public void layoutItemClicked(LayoutType layoutType) {
 		applyLayout(layoutType, getSelectedNodes());
 	}
 
@@ -399,14 +399,22 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	public void clearCollapsedNodesItemClicked() {
 		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
+			Map<String, Point2D> removed = collapsedNodes.get(id);
+			Point2D center = getViewer().getGraphLayout().transform(
+					nodeSaveMap.remove(id));
+
+			for (String newId : removed.keySet()) {
+				getViewer().getGraphLayout().setLocation(
+						nodeSaveMap.get(newId),
+						CanvasUtilities.addPoints(removed.get(newId), center));
+			}
 		}
 
 		collapsedNodes.clear();
 		applyChanges();
 		getViewer().getPickedVertexState().clear();
 	}
-	
+
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(), true, true,
