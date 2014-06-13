@@ -134,24 +134,9 @@ public class CanvasUtilities {
 					index++;
 				}
 
-				if (properties.get(idProperty) == String.class) {
-					prop.put(idProperty, index + "");
-				} else if (properties.get(idProperty) == Integer.class) {
-					prop.put(idProperty, index);
-				}
-
-				if (properties.get(fromProperty) == String.class) {
-					prop.put(fromProperty, from.getId());
-				} else if (properties.get(fromProperty) == Integer.class) {
-					prop.put(fromProperty, Integer.parseInt(from.getId()));
-				}
-
-				if (properties.get(toProperty) == String.class) {
-					prop.put(toProperty, to.getId());
-				} else if (properties.get(toProperty) == Integer.class) {
-					prop.put(toProperty, Integer.parseInt(to.getId()));
-				}
-
+				prop.put(idProperty, index + "");
+				prop.put(fromProperty, from.getId());
+				prop.put(toProperty, to.getId());
 				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
 						.get(from).get(to));
 			}

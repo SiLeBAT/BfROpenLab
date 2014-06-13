@@ -937,10 +937,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
 
-		for (Edge<V> p : picked) {
-			if (getJoinMap().containsKey(p)) {
-				allPicked.addAll(getJoinMap().get(p));
+		if (!getJoinMap().isEmpty()) {
+			for (Edge<V> p : picked) {
+				if (getJoinMap().containsKey(p)) {
+					allPicked.addAll(getJoinMap().get(p));
+				}
 			}
+		} else {
+			allPicked.addAll(picked);
 		}
 
 		PropertiesDialog dialog = new PropertiesDialog(this, allPicked,

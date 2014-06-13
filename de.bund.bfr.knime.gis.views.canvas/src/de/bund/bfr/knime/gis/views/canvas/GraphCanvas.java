@@ -544,12 +544,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
 			if (newEdge == null) {
-				newEdge = new Edge<GraphNode>(
-						edge.getId(),
-						new LinkedHashMap<String, Object>(edge.getProperties()),
-						from, to);
+				Map<String, Object> properties = new LinkedHashMap<String, Object>(
+						edge.getProperties());
+
+				properties.put(getEdgeFromProperty(), from.getId());
+				properties.put(getEdgeToProperty(), to.getId());
+				newEdge = new Edge<GraphNode>(edge.getId(), properties, from,
+						to);
 			} else if (!newEdge.getFrom().equals(from)
 					|| !newEdge.getTo().equals(to)) {
+				newEdge.getProperties()
+						.put(getEdgeFromProperty(), from.getId());
+				newEdge.getProperties().put(getEdgeToProperty(), to.getId());
 				newEdge = new Edge<GraphNode>(newEdge.getId(),
 						newEdge.getProperties(), from, to);
 			}
