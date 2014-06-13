@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -132,18 +131,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			flushImage();
 			getViewer().repaint();
 		}
-	}
-
-	@Override
-	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), false, false,
-				true, getNodeHighlightConditions(), null);
-	}
-
-	@Override
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), null);
 	}
 
 	@Override
