@@ -24,7 +24,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -36,10 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -67,9 +63,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final LayoutType DEFAULT_LAYOUT = LayoutType.FR_LAYOUT;
-	private static final int DEFAULT_NODESIZE = 10;
-	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
 	private static final String IS_META_NODE = "IsMetaNode";
 
 	private List<GraphNode> allNodes;
@@ -81,9 +74,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 	private Map<String, GraphNode> nodeSaveMap;
 	private Map<String, Edge<GraphNode>> edgeSaveMap;
-
-	private int nodeSize;
-	private JComboBox<Integer> nodeSizeBox;
 
 	private String metaNodeProperty;
 
@@ -128,26 +118,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
 		edgeSaveMap = CanvasUtilities.getElementsById(edges);
 
-		nodeSize = DEFAULT_NODESIZE;
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
-		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
-		nodeSizeBox.setPreferredSize(nodeSizeBox.getPreferredSize());
-		nodeSizeBox.setEditable(true);
-		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addActionListener(this);
-		addOptionsItem("Node Size", nodeSizeBox);
-
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<GraphNode>(nodeSize,
+				new NodeShapeTransformer<GraphNode>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
-		applyLayout(DEFAULT_LAYOUT, null);
+		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
 	public Set<GraphNode> getNodes() {
@@ -218,35 +200,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
-	}
-
-	public int getNodeSize() {
-		return nodeSize;
-	}
-
-	public void setNodeSize(int nodeSize) {
-		this.nodeSize = nodeSize;
-		nodeSizeBox.setSelectedItem(nodeSize);
-		applyChanges();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		if (e.getSource() == nodeSizeBox) {
-			Object size = nodeSizeBox.getSelectedItem();
-
-			if (size instanceof Integer) {
-				nodeSize = (Integer) size;
-				applyChanges();
-			} else {
-				JOptionPane.showMessageDialog(this, size
-						+ " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				nodeSizeBox.setSelectedItem(nodeSize);
-			}
-		}
 	}
 
 	@Override
@@ -413,6 +366,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		collapsedNodes.clear();
 		applyChanges();
 		getViewer().getPickedVertexState().clear();
+	}
+
+	@Override
+	public void borderAlphaChanged() {
 	}
 
 	@Override
@@ -592,7 +549,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	protected void applyHighlights() {
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), nodeSize, false);
+				getNodeHighlightConditions(), getNodeSize(), false);
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

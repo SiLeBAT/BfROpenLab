@@ -23,7 +23,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,11 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -50,16 +44,10 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final int DEFAULT_NODE_SIZE = 4;
-	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
-
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
-
-	private int nodeSize;
-	private JComboBox<Integer> nodeSizeBox;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -101,17 +89,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
 		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
 		setAllowEdges(allowEdges);
-		nodeSize = DEFAULT_NODE_SIZE;
-
-		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
-		nodeSizeBox.setPreferredSize(nodeSizeBox.getPreferredSize());
-		nodeSizeBox.setEditable(true);
-		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addActionListener(this);
-		addOptionsItem("Node Size", nodeSizeBox);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<LocationNode>(nodeSize,
+				new NodeShapeTransformer<LocationNode>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
@@ -127,35 +107,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	public Set<Edge<LocationNode>> getEdges() {
 		return edges;
-	}
-
-	public int getNodeSize() {
-		return nodeSize;
-	}
-
-	public void setNodeSize(int nodeSize) {
-		this.nodeSize = nodeSize;
-		nodeSizeBox.setSelectedItem(nodeSize);
-		applyChanges();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		if (e.getSource() == nodeSizeBox) {
-			Object size = nodeSizeBox.getSelectedItem();
-
-			if (size instanceof Integer) {
-				nodeSize = (Integer) size;
-				applyChanges();
-			} else {
-				JOptionPane.showMessageDialog(this, size
-						+ " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				nodeSizeBox.setSelectedItem(nodeSize);
-			}
-		}
 	}
 
 	@Override
@@ -191,7 +142,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				CanvasUtilities.createGraph(nodes, edges));
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), nodeSize, !isAllowEdges());
+				getNodeHighlightConditions(), getNodeSize(), !isAllowEdges());
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

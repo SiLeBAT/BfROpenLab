@@ -29,8 +29,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -54,24 +52,15 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.commons.lang.ArrayUtils;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
@@ -101,55 +90,30 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
-		ChangeListener, ActionListener, ItemListener, KeyListener,
-		MouseListener, CanvasPopupMenu.ClickListener {
-
-	protected static final String EDITING_MODE = "Editing Mode";
-	protected static final String SHOW_LEGEND = "Show Legend";
-	protected static final String JOIN_EDGES = "Join Edges";
-	protected static final String SKIP_EDGELESS_NODES = "Skip Edgeless Nodes";
-	protected static final String FONT = "Font";
+		ChangeListener, ItemListener, KeyListener, MouseListener,
+		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final boolean DEFAULT_ALLOW_EDGES = true;
-	private static final boolean DEFAULT_ALLOW_HIGHLIGHTING = true;
 	private static final boolean DEFAULT_ALLOW_LAYOUT = false;
 	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
-	private static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	private static final boolean DEFAULT_JOIN_EDGES = false;
-	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
-	private static final int DEFAULT_FONT_SIZE = 12;
-	private static final boolean DEFAULT_FONT_BOLD = false;
-
-	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
+	private static final boolean DEFAULT_ALLOW_NODE_RESIZE = true;
+	private static final boolean DEFAULT_ALLOW_POLYGONS = false;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
-	private JPanel optionsPanel;
+	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
 
 	private boolean allowEdges;
-	private boolean allowHighlighting;
 	private boolean allowLayout;
 	private boolean allowCollapse;
+	private boolean allowNodeResize;
+	private boolean allowPolygons;
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
 	private double translationY;
-
-	private Mode editingMode;
-	private JComboBox<Mode> modeBox;
-	private boolean showLegend;
-	private JCheckBox legendBox;
-	private boolean joinEdges;
-	private JCheckBox joinBox;
-	private boolean skipEdgelessNodes;
-	private JCheckBox skipBox;
-	private int fontSize;
-	private JComboBox<Integer> fontSizeBox;
-	private boolean fontBold;
-	private JCheckBox fontBoldBox;
 
 	private List<CanvasListener> canvasListeners;
 
@@ -173,20 +137,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeIdProperty = edgeIdProperty;
 		this.edgeFromProperty = edgeFromProperty;
 		this.edgeToProperty = edgeToProperty;
-		this.allowEdges = DEFAULT_ALLOW_EDGES;
-		this.allowHighlighting = DEFAULT_ALLOW_HIGHLIGHTING;
-		this.allowLayout = DEFAULT_ALLOW_LAYOUT;
-		this.allowCollapse = DEFAULT_ALLOW_COLLAPSE;
+		allowEdges = DEFAULT_ALLOW_EDGES;
+		allowLayout = DEFAULT_ALLOW_LAYOUT;
+		allowCollapse = DEFAULT_ALLOW_COLLAPSE;
+		allowNodeResize = DEFAULT_ALLOW_NODE_RESIZE;
+		allowPolygons = DEFAULT_ALLOW_POLYGONS;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
 		translationY = Double.NaN;
-		editingMode = DEFAULT_MODE;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -216,7 +175,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			@Override
 			public void paint(Graphics g) {
-				if (showLegend) {
+				if (optionsPanel.isShowLegend()) {
 					paintLegend(g);
 				}
 			}
@@ -230,41 +189,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		popup = new CanvasPopupMenu();
 		popup.addClickListener(this);
 
-		optionsPanel = new JPanel();
-		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		modeBox = new JComboBox<Mode>(new Mode[] { Mode.TRANSFORMING,
-				Mode.PICKING });
-		modeBox.setSelectedItem(editingMode);
-		modeBox.addActionListener(this);
-		legendBox = new JCheckBox("Activate");
-		legendBox.setSelected(showLegend);
-		legendBox.addActionListener(this);
-		joinBox = new JCheckBox("Activate");
-		joinBox.setSelected(joinEdges);
-		joinBox.addActionListener(this);
-		skipBox = new JCheckBox("Activate");
-		skipBox.setSelected(skipEdgelessNodes);
-		skipBox.addActionListener(this);
-		fontSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
-		fontSizeBox.setEditable(true);
-		((JTextField) fontSizeBox.getEditor().getEditorComponent())
-				.setColumns(3);
-		fontSizeBox.setSelectedItem(fontSize);
-		fontSizeBox.addActionListener(this);
-		fontBoldBox = new JCheckBox("Bold");
-		fontBoldBox.setSelected(fontBold);
-		fontBoldBox.addActionListener(this);
+		optionsPanel = new CanvasOptionsPanel();
+		optionsPanel.addChangeListener(this);
+		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
-		addOptionsItem(EDITING_MODE, modeBox);
-		addOptionsItem(SHOW_LEGEND, legendBox);
-		addOptionsItem(JOIN_EDGES, joinBox);
-		addOptionsItem(SKIP_EDGELESS_NODES, skipBox);
-		addOptionsItem(FONT, fontSizeBox, fontBoldBox);
 		applyPopupMenu();
 		viewer.setGraphMouse(createMouseModel());
 	}
@@ -292,17 +223,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setAllowEdges(boolean allowEdges) {
 		this.allowEdges = allowEdges;
 		applyPopupMenu();
-		setOptionsItemVisible(JOIN_EDGES, allowEdges);
-		setOptionsItemVisible(SKIP_EDGELESS_NODES, allowEdges);
-	}
-
-	public boolean isAllowHighlighting() {
-		return allowHighlighting;
-	}
-
-	public void setAllowHighlighting(boolean allowHighlighting) {
-		this.allowHighlighting = allowHighlighting;
-		applyPopupMenu();
+		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
 	}
 
 	public boolean isAllowCollapse() {
@@ -323,66 +244,87 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyPopupMenu();
 	}
 
+	public boolean isAllowNodeResize() {
+		return allowNodeResize;
+	}
+
+	public void setAllowNodeResize(boolean allowNodeResize) {
+		this.allowNodeResize = allowNodeResize;
+		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
+	}
+
+	public boolean isAllowPolygons() {
+		return allowPolygons;
+	}
+
+	public void setAllowPolygons(boolean allowPolygons) {
+		this.allowPolygons = allowPolygons;
+		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
+	}
+
 	public Mode getEditingMode() {
-		return editingMode;
+		return optionsPanel.getEditingMode();
 	}
 
 	public void setEditingMode(Mode editingMode) {
-		this.editingMode = editingMode;
-		modeBox.setSelectedItem(editingMode);
+		optionsPanel.setEditingMode(editingMode);
 		viewer.setGraphMouse(createMouseModel());
 	}
 
 	public boolean isShowLegend() {
-		return showLegend;
+		return optionsPanel.isShowLegend();
 	}
 
 	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
-		legendBox.setSelected(showLegend);
+		optionsPanel.setShowLegend(showLegend);
 		viewer.repaint();
 	}
 
 	public boolean isJoinEdges() {
-		return joinEdges;
+		return optionsPanel.isJoinEdges();
 	}
 
 	public void setJoinEdges(boolean joinEdges) {
-		this.joinEdges = joinEdges;
-		joinBox.setSelected(joinEdges);
+		optionsPanel.setJoinEdges(joinEdges);
 		applyChanges();
 		fireEdgeJoinChanged();
 	}
 
 	public boolean isSkipEdgelessNodes() {
-		return skipEdgelessNodes;
+		return optionsPanel.isSkipEdgelessNodes();
 	}
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
-		this.skipEdgelessNodes = skipEdgelessNodes;
-		skipBox.setSelected(skipEdgelessNodes);
+		optionsPanel.setSkipEdgelessNodes(skipEdgelessNodes);
 		applyChanges();
 		fireSkipEdgelessChanged();
 	}
 
 	public int getFontSize() {
-		return fontSize;
+		return optionsPanel.getFontSize();
 	}
 
 	public void setFontSize(int fontSize) {
-		this.fontSize = fontSize;
-		fontSizeBox.setSelectedItem(fontSize);
-		applyFont();
+		optionsPanel.setFontSize(fontSize);
+		fontChanged();
 	}
 
 	public boolean isFontBold() {
-		return fontBold;
+		return optionsPanel.isFontBold();
 	}
 
 	public void setFontBold(boolean fontBold) {
-		this.fontBold = fontBold;
-		fontBoldBox.setSelected(fontBold);
-		applyFont();
+		optionsPanel.setFontBold(fontBold);
+		fontChanged();
+	}
+	
+	public int getNodeSize() {
+		return optionsPanel.getNodeSize();
+	}
+
+	public void setNodeSize(int nodeSize) {
+		optionsPanel.setNodeSize(nodeSize);
+		applyChanges();
 	}
 
 	public Collection<V> getVisibleNodes() {
@@ -562,41 +504,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		applyTransform();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == modeBox) {
-			editingMode = (Mode) modeBox.getSelectedItem();
-			viewer.setGraphMouse(createMouseModel());
-		} else if (e.getSource() == legendBox) {
-			showLegend = legendBox.isSelected();
-			viewer.repaint();
-		} else if (e.getSource() == joinBox) {
-			joinEdges = joinBox.isSelected();
-			applyChanges();
-			fireEdgeJoinChanged();
-		} else if (e.getSource() == skipBox) {
-			skipEdgelessNodes = skipBox.isSelected();
-			applyChanges();
-			fireSkipEdgelessChanged();
-		} else if (e.getSource() == fontSizeBox) {
-			Object size = fontSizeBox.getSelectedItem();
-
-			if (size instanceof Integer) {
-				fontSize = (Integer) size;
-				applyFont();
-			} else {
-				JOptionPane.showMessageDialog(this, size
-						+ " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				fontSizeBox.setSelectedItem(fontSize);
-			}
-		} else if (e.getSource() == fontBoldBox) {
-			fontBold = fontBoldBox.isSelected();
-			applyFont();
-		}
-	}
+	}	
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
@@ -953,8 +861,50 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 	}
 
+	@Override
+	public void editingModeChanged() {
+		viewer.setGraphMouse(createMouseModel());		
+	}
+
+	@Override
+	public void showLegendChanged() {
+		viewer.repaint();		
+	}
+
+	@Override
+	public void joinEdgesChanged() {
+		applyChanges();
+		fireEdgeJoinChanged();		
+	}
+
+	@Override
+	public void skipEdgelessNodesChanged() {
+		applyChanges();
+		fireSkipEdgelessChanged();		
+	}
+
+	@Override
+	public void fontChanged() {
+		viewer.getRenderContext().setVertexFontTransformer(
+				new FontTransformer<V>(optionsPanel.getFontSize(), optionsPanel
+						.isFontBold()));
+		viewer.getRenderContext().setEdgeFontTransformer(
+				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(),
+						optionsPanel.isFontBold()));
+		viewer.repaint();		
+	}
+
+	@Override
+	public void nodeSizeChanged() {
+		applyChanges();		
+	}
+
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
+	}
+	
+	protected CanvasOptionsPanel getOptionsPanel() {
+		return optionsPanel;
 	}
 
 	protected Point2D toGraphCoordinates(int x, int y) {
@@ -965,63 +915,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected Point toWindowsCoordinates(double x, double y) {
 		return new Point((int) (x * scaleX + translationX),
 				(int) (y * scaleY + translationY));
-	}
-
-	protected void addOptionsItem(String name, JComponent... components) {
-		JPanel panel = new JPanel();
-		TitledBorder border = BorderFactory.createTitledBorder(name);
-
-		panel.setBorder(border);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		for (JComponent c : components) {
-			panel.add(UI.createCenterPanel(c));
-		}
-
-		if (components.length == 1) {
-			int titleWidth = border.getMinimumSize(components[0]).width;
-
-			components[0].setPreferredSize(new Dimension(Math.max(
-					components[0].getPreferredSize().width, titleWidth),
-					components[0].getPreferredSize().height));
-		}
-		optionsPanel.add(panel);
-		optionsPanel.add(Box.createHorizontalStrut(5));
-	}
-
-	protected void setOptionsItemVisible(String name, boolean visible) {
-		int index = -1;
-
-		for (int i = 0; i < optionsPanel.getComponentCount(); i++) {
-			if (optionsPanel.getComponent(i) instanceof JPanel) {
-				JPanel c = (JPanel) optionsPanel.getComponent(i);
-
-				if (c.getBorder() instanceof TitledBorder) {
-					TitledBorder b = (TitledBorder) c.getBorder();
-
-					if (b.getTitle().equals(name)) {
-						index = i;
-						break;
-					}
-				}
-			}
-		}
-
-		if (index == -1) {
-			return;
-		}
-
-		JPanel panel = (JPanel) optionsPanel.getComponent(index);
-
-		if (!visible && panel.getPreferredSize().width != 0) {
-			panel.setPreferredSize(new Dimension(0, 0));
-			optionsPanel.remove(index + 1);
-			optionsPanel.revalidate();
-		} else if (visible && panel.getPreferredSize().width == 0) {
-			panel.setPreferredSize(panel.getMinimumSize());
-			optionsPanel.add(Box.createHorizontalStrut(5), index + 1);
-			optionsPanel.revalidate();
-		}
 	}
 
 	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
@@ -1041,7 +934,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			@Override
 			public void paint(Graphics g) {
-				if (showLegend) {
+				if (optionsPanel.isShowLegend()) {
 					paintLegend(g);
 				}
 			}
@@ -1067,21 +960,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				getVisibleNodes(), edgeHighlightConditions, getVisibleEdges());
 
 		legend.paint(g, getCanvasSize().width, getCanvasSize().height,
-				fontSize, fontBold);
+				optionsPanel.getFontSize(), optionsPanel.isFontBold());
 	}
 
 	private void applyPopupMenu() {
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges,
-				allowHighlighting, allowLayout, allowCollapse));
-	}
-
-	private void applyFont() {
-		viewer.getRenderContext().setVertexFontTransformer(
-				new FontTransformer<V>(fontSize, fontBold));
-		viewer.getRenderContext().setEdgeFontTransformer(
-				new FontTransformer<Edge<V>>(fontSize, fontBold));
-		viewer.repaint();
-	}
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
+				allowCollapse));
+	}	
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

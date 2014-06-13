@@ -48,7 +48,9 @@ import de.bund.bfr.knime.UI;
 
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class CanvasOptionsPanel implements ActionListener {
+public class CanvasOptionsPanel extends JPanel implements ActionListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
@@ -137,60 +139,103 @@ public class CanvasOptionsPanel implements ActionListener {
 		listeners.remove(listener);
 	}
 
-	public JComponent createPanel(boolean allowEdges, boolean allowPolygonNodes) {
-		JPanel optionsPanel = new JPanel();
+	public void createPanel(boolean allowEdges, boolean allowNodeResize,
+			boolean allowPolygons) {
+		removeAll();
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		optionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		addOptionsItem(optionsPanel, "Editing Mode", editingModeBox);
-		addOptionsItem(optionsPanel, "Show Legend", showLegendBox);
-		addOptionsItem(optionsPanel, "Font", fontSizeBox, fontBoldBox);
+		addOptionsItem("Editing Mode", editingModeBox);
+		addOptionsItem("Show Legend", showLegendBox);
+		addOptionsItem("Font", fontSizeBox, fontBoldBox);
 
 		if (allowEdges) {
-			addOptionsItem(optionsPanel, "Join Edges", joinEdgesBox);
+			addOptionsItem("Join Edges", joinEdgesBox);
 		}
 
-		if (allowEdges && !allowPolygonNodes) {
-			addOptionsItem(optionsPanel, "Skip Edgeless Nodes",
-					skipEdgelessNodesBox);
+		if (allowEdges && allowNodeResize) {
+			addOptionsItem("Skip Edgeless Nodes", skipEdgelessNodesBox);
 		}
 
-		if (!allowPolygonNodes) {
-			addOptionsItem(optionsPanel, "Node Size", nodeSizeBox);
-		} else {
-			addOptionsItem(optionsPanel, "Border Alpha", borderAlphaSlider,
-					borderAlphaButton);
+		if (allowNodeResize) {
+			addOptionsItem("Node Size", nodeSizeBox);
 		}
 
-		return optionsPanel;
+		if (allowPolygons) {
+			addOptionsItem("Border Alpha", borderAlphaSlider, borderAlphaButton);
+		}
 	}
 
 	public Mode getEditingMode() {
 		return editingMode;
 	}
 
+	public void setEditingMode(Mode editingMode) {
+		this.editingMode = editingMode;
+		editingModeBox.setSelectedItem(editingMode);
+	}
+
 	public boolean isShowLegend() {
 		return showLegend;
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		this.showLegend = showLegend;
+		showLegendBox.setSelected(showLegend);
 	}
 
 	public boolean isJoinEdges() {
 		return joinEdges;
 	}
 
+	public void setJoinEdges(boolean joinEdges) {
+		this.joinEdges = joinEdges;
+		joinEdgesBox.setSelected(joinEdges);
+	}
+
 	public boolean isSkipEdgelessNodes() {
 		return skipEdgelessNodes;
+	}
+
+	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
+		this.skipEdgelessNodes = skipEdgelessNodes;
+		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
 	}
 
 	public int getFontSize() {
 		return fontSize;
 	}
 
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+		fontSizeBox.setSelectedItem(fontSize);
+	}
+
 	public boolean isFontBold() {
 		return fontBold;
 	}
 
+	public void setFontBold(boolean fontBold) {
+		this.fontBold = fontBold;
+		fontBoldBox.setSelected(fontBold);
+	}
+
 	public int getNodeSize() {
 		return nodeSize;
+	}
+
+	public void setNodeSize(int nodeSize) {
+		this.nodeSize = nodeSize;
+		nodeSizeBox.setSelectedItem(nodeSize);
+	}
+
+	public int getBorderAlpha() {
+		return borderAlpha;
+	}
+
+	public void setBorderAlpha(int borderAlpha) {
+		this.borderAlpha = borderAlpha;
+		borderAlphaSlider.setValue(borderAlpha);
 	}
 
 	@Override
@@ -226,7 +271,7 @@ public class CanvasOptionsPanel implements ActionListener {
 				fontSize = (Integer) size;
 
 				for (ChangeListener l : listeners) {
-					l.fontSizeChanged();
+					l.fontChanged();
 				}
 			} else {
 				JOptionPane.showMessageDialog(fontSizeBox, size
@@ -238,7 +283,7 @@ public class CanvasOptionsPanel implements ActionListener {
 			fontBold = fontBoldBox.isSelected();
 
 			for (ChangeListener l : listeners) {
-				l.fontBoldChanged();
+				l.fontChanged();
 			}
 		} else if (e.getSource() == nodeSizeBox) {
 			Object size = nodeSizeBox.getSelectedItem();
@@ -264,8 +309,7 @@ public class CanvasOptionsPanel implements ActionListener {
 		}
 	}
 
-	private void addOptionsItem(JPanel optionsPanel, String name,
-			JComponent... components) {
+	private void addOptionsItem(String name, JComponent... components) {
 		JPanel panel = new JPanel();
 		TitledBorder border = BorderFactory.createTitledBorder(name);
 
@@ -284,8 +328,8 @@ public class CanvasOptionsPanel implements ActionListener {
 					components[0].getPreferredSize().height));
 		}
 
-		optionsPanel.add(panel);
-		optionsPanel.add(Box.createHorizontalStrut(5));
+		add(panel);
+		add(Box.createHorizontalStrut(5));
 	}
 
 	public static interface ChangeListener {
@@ -298,9 +342,7 @@ public class CanvasOptionsPanel implements ActionListener {
 
 		public void skipEdgelessNodesChanged();
 
-		public void fontSizeChanged();
-
-		public void fontBoldChanged();
+		public void fontChanged();
 
 		public void nodeSizeChanged();
 

@@ -27,14 +27,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Polygon;
-import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JButton;
-import javax.swing.JSlider;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -46,16 +42,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final int DEFAULT_BORDER_ALPHA = 255;
-
 	private List<RegionNode> regions;
 
 	private BufferedImage image;
-
-	private int borderAlpha;
-
-	private JSlider borderAlphaSlider;
-	private JButton borderAlphaButton;
 
 	public GisCanvas(List<RegionNode> regions,
 			Map<String, Class<?>> nodeProperties,
@@ -65,8 +54,8 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
 				edgeFromProperty, edgeToProperty);
 		setAllowCollapse(false);
+		setAllowPolygons(true);
 		this.regions = regions;
-		borderAlpha = DEFAULT_BORDER_ALPHA;
 		image = null;
 
 		getViewer().addPreRenderPaintable(new Paintable() {
@@ -81,13 +70,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				paintGisImage(g);
 			}
 		});
-
-		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
-		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
-				.getPreferredSize().height));
-		borderAlphaButton = new JButton("Apply");
-		borderAlphaButton.addActionListener(this);
-		addOptionsItem("Border Alpha", borderAlphaSlider, borderAlphaButton);
 	}
 
 	public List<RegionNode> getRegions() {
@@ -95,12 +77,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	public int getBorderAlpha() {
-		return borderAlpha;
+		return getOptionsPanel().getBorderAlpha();
 	}
 
 	public void setBorderAlpha(int borderAlpha) {
-		this.borderAlpha = borderAlpha;
-		borderAlphaSlider.setValue(borderAlpha);
+		getOptionsPanel().setBorderAlpha(borderAlpha);
 		flushImage();
 		getViewer().repaint();
 	}
@@ -109,17 +90,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	public void setCanvasSize(Dimension canvasSize) {
 		super.setCanvasSize(canvasSize);
 		computeTransform(canvasSize);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		if (e.getSource() == borderAlphaButton) {
-			this.borderAlpha = borderAlphaSlider.getValue();
-			flushImage();
-			getViewer().repaint();
-		}
 	}
 
 	@Override
@@ -145,6 +115,12 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
+	}
+
+	@Override
+	public void borderAlphaChanged() {
+		flushImage();
+		getViewer().repaint();
 	}
 
 	@Override
@@ -209,9 +185,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				}
 			}
 
-			CanvasUtilities.drawImageWithAlpha(g, borderImage, borderAlpha);
+			CanvasUtilities
+					.drawImageWithAlpha(g, borderImage, getBorderAlpha());
 		} else {
-			g.setColor(new Color(0, 0, 0, borderAlpha));
+			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 
 			for (RegionNode node : regions) {
 				for (Polygon part : node.getTransformedPolygon()) {

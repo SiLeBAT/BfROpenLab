@@ -150,8 +150,8 @@ public class CanvasPopupMenu implements ActionListener {
 		listeners.remove(listener);
 	}
 
-	public JPopupMenu createMenu(boolean allowEdges, boolean allowHighlighting,
-			boolean allowLayout, boolean allowCollapse) {
+	public JPopupMenu createMenu(boolean allowEdges, boolean allowLayout,
+			boolean allowCollapse) {
 		JPopupMenu popup = new JPopupMenu();
 
 		popup.add(resetLayoutItem);
@@ -186,20 +186,18 @@ public class CanvasPopupMenu implements ActionListener {
 			popup.add(nodeSelectionMenu);
 			popup.add(edgeSelectionMenu);
 
-			if (allowHighlighting) {
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightedNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(selectNodesItem);
+			nodeHighlightMenu.add(highlightNodesItem);
+			nodeHighlightMenu.add(clearHighlightedNodesItem);
+			nodeHighlightMenu.add(selectHighlightedNodesItem);
+			nodeHighlightMenu.add(selectNodesItem);
 
-				edgeHighlightMenu.add(highlightEdgesItem);
-				edgeHighlightMenu.add(clearHighlightedEdgesItem);
-				edgeHighlightMenu.add(selectHighlightedEdgesItem);
-				edgeHighlightMenu.add(selectEdgesItem);
+			edgeHighlightMenu.add(highlightEdgesItem);
+			edgeHighlightMenu.add(clearHighlightedEdgesItem);
+			edgeHighlightMenu.add(selectHighlightedEdgesItem);
+			edgeHighlightMenu.add(selectEdgesItem);
 
-				popup.add(nodeHighlightMenu);
-				popup.add(edgeHighlightMenu);
-			}
+			popup.add(nodeHighlightMenu);
+			popup.add(edgeHighlightMenu);
 		} else {
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectedNodesItem);
@@ -208,14 +206,12 @@ public class CanvasPopupMenu implements ActionListener {
 			popup.add(new JSeparator());
 			popup.add(nodeSelectionMenu);
 
-			if (allowHighlighting) {
-				nodeHighlightMenu.add(highlightNodesItem);
-				nodeHighlightMenu.add(clearHighlightedNodesItem);
-				nodeHighlightMenu.add(selectHighlightedNodesItem);
-				nodeHighlightMenu.add(selectNodesItem);
+			nodeHighlightMenu.add(highlightNodesItem);
+			nodeHighlightMenu.add(clearHighlightedNodesItem);
+			nodeHighlightMenu.add(selectHighlightedNodesItem);
+			nodeHighlightMenu.add(selectNodesItem);
 
-				popup.add(nodeHighlightMenu);
-			}
+			popup.add(nodeHighlightMenu);
 		}
 
 		if (allowCollapse) {
