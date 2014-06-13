@@ -166,20 +166,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
-		viewer.addPostRenderPaintable(new Paintable() {
-
-			@Override
-			public boolean useTransform() {
-				return false;
-			}
-
-			@Override
-			public void paint(Graphics g) {
-				if (optionsPanel.isShowLegend()) {
-					paintLegend(g);
-				}
-			}
-		});
+		viewer.addPostRenderPaintable(new PostPaintable());
 
 		canvasListeners = new ArrayList<CanvasListener>();
 
@@ -196,7 +183,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
-		applyPopupMenu();
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
+				allowCollapse));
 		viewer.setGraphMouse(createMouseModel());
 	}
 
@@ -222,7 +210,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowEdges(boolean allowEdges) {
 		this.allowEdges = allowEdges;
-		applyPopupMenu();
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
+				allowCollapse));
 		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
 	}
 
@@ -232,7 +221,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowCollapse(boolean allowCollapse) {
 		this.allowCollapse = allowCollapse;
-		applyPopupMenu();
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
+				allowCollapse));
 	}
 
 	public boolean isAllowLayout() {
@@ -241,7 +231,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowLayout(boolean allowLayout) {
 		this.allowLayout = allowLayout;
-		applyPopupMenu();
+		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
+				allowCollapse));
 	}
 
 	public boolean isAllowNodeResize() {
@@ -317,7 +308,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setFontBold(fontBold);
 		fontChanged();
 	}
-	
+
 	public int getNodeSize() {
 		return optionsPanel.getNodeSize();
 	}
@@ -504,7 +495,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		applyTransform();
-	}	
+	}
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
@@ -863,24 +854,24 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void editingModeChanged() {
-		viewer.setGraphMouse(createMouseModel());		
+		viewer.setGraphMouse(createMouseModel());
 	}
 
 	@Override
 	public void showLegendChanged() {
-		viewer.repaint();		
+		viewer.repaint();
 	}
 
 	@Override
 	public void joinEdgesChanged() {
 		applyChanges();
-		fireEdgeJoinChanged();		
+		fireEdgeJoinChanged();
 	}
 
 	@Override
 	public void skipEdgelessNodesChanged() {
 		applyChanges();
-		fireSkipEdgelessChanged();		
+		fireSkipEdgelessChanged();
 	}
 
 	@Override
@@ -891,18 +882,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.getRenderContext().setEdgeFontTransformer(
 				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(),
 						optionsPanel.isFontBold()));
-		viewer.repaint();		
+		viewer.repaint();
 	}
 
 	@Override
 	public void nodeSizeChanged() {
-		applyChanges();		
+		applyChanges();
 	}
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
 	}
-	
+
 	protected CanvasOptionsPanel getOptionsPanel() {
 		return optionsPanel;
 	}
@@ -925,20 +916,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		server.setBackground(Color.WHITE);
 		server.setRenderContext(viewer.getRenderContext());
 		server.setRenderer(viewer.getRenderer());
-		server.addPostRenderPaintable(new Paintable() {
-
-			@Override
-			public boolean useTransform() {
-				return false;
-			}
-
-			@Override
-			public void paint(Graphics g) {
-				if (optionsPanel.isShowLegend()) {
-					paintLegend(g);
-				}
-			}
-		});
+		server.addPostRenderPaintable(new PostPaintable());
 
 		return server;
 	}
@@ -954,19 +932,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
-
-	private void paintLegend(Graphics g) {
-		CanvasLegend<V> legend = new CanvasLegend<V>(nodeHighlightConditions,
-				getVisibleNodes(), edgeHighlightConditions, getVisibleEdges());
-
-		legend.paint(g, getCanvasSize().width, getCanvasSize().height,
-				optionsPanel.getFontSize(), optionsPanel.isFontBold());
-	}
-
-	private void applyPopupMenu() {
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
-				allowCollapse));
-	}	
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {
@@ -1001,6 +966,24 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireSkipEdgelessChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
+		}
+	}
+
+	private class PostPaintable implements Paintable {
+
+		@Override
+		public boolean useTransform() {
+			return false;
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			if (optionsPanel.isShowLegend()) {
+				new CanvasLegend<V>(nodeHighlightConditions, getVisibleNodes(),
+						edgeHighlightConditions, getVisibleEdges()).paint(g,
+						getCanvasSize().width, getCanvasSize().height,
+						optionsPanel.getFontSize(), optionsPanel.isFontBold());
+			}
 		}
 	}
 }

@@ -58,18 +58,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		this.regions = regions;
 		image = null;
 
-		getViewer().addPreRenderPaintable(new Paintable() {
-
-			@Override
-			public boolean useTransform() {
-				return false;
-			}
-
-			@Override
-			public void paint(Graphics g) {
-				paintGisImage(g);
-			}
-		});
+		getViewer().addPreRenderPaintable(new PrePaintable(false));
 	}
 
 	public List<RegionNode> getRegions() {
@@ -129,19 +118,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		VisualizationImageServer<V, Edge<V>> server = super
 				.createVisualizationServer(toSvg);
 
-		server.addPreRenderPaintable(new Paintable() {
-
-			@Override
-			public boolean useTransform() {
-				return false;
-			}
-
-			@Override
-			public void paint(Graphics g) {
-				paintGis(g, getCanvasSize().width, getCanvasSize().height,
-						toSvg);
-			}
-		});
+		server.addPreRenderPaintable(new PrePaintable(toSvg));
 
 		return server;
 	}
@@ -160,20 +137,20 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	protected void paintGis(Graphics g, int width, int height, boolean toSvg) {
-		paintBackground(g, width, height);
-		paintRegionBorders(g, width, height, toSvg);
+	protected void paintGis(Graphics g, boolean toSvg) {
+		paintBackground(g);
+		paintRegionBorders(g, toSvg);
 	}
 
-	protected void paintBackground(Graphics g, int width, int height) {
+	protected void paintBackground(Graphics g) {
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, width, height);
+		g.fillRect(0, 0, getCanvasSize().width, getCanvasSize().height);
 	}
 
-	protected void paintRegionBorders(Graphics g, int width, int height,
-			boolean toSvg) {
+	protected void paintRegionBorders(Graphics g, boolean toSvg) {
 		if (!toSvg) {
-			BufferedImage borderImage = new BufferedImage(width, height,
+			BufferedImage borderImage = new BufferedImage(
+					getCanvasSize().width, getCanvasSize().height,
 					BufferedImage.TYPE_INT_ARGB);
 			Graphics borderGraphics = borderImage.getGraphics();
 
@@ -229,7 +206,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			flushImage();
 			image = new BufferedImage(width, height,
 					BufferedImage.TYPE_INT_ARGB);
-			paintGis(image.getGraphics(), width, height, false);
+			paintGis(image.getGraphics(), false);
 		}
 
 		g.drawImage(image, 0, 0, null);
@@ -255,5 +232,28 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 
 		return bounds;
+	}
+
+	private class PrePaintable implements Paintable {
+
+		private boolean toSvg;
+
+		public PrePaintable(boolean toSvg) {
+			this.toSvg = toSvg;
+		}
+
+		@Override
+		public boolean useTransform() {
+			return false;
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			if (toSvg) {
+				paintGis(g, true);
+			} else {
+				paintGisImage(g);
+			}
+		}
 	}
 }

@@ -97,7 +97,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
 		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
 		setAllowEdges(allowEdges);
-		setAllowNodeResize(false);		
+		setAllowNodeResize(false);
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<RegionNode>(2,
@@ -253,12 +253,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, int width, int height, boolean toSvg) {
-		paintBackground(g, width, height);
+	protected void paintGis(Graphics g, boolean toSvg) {
+		paintBackground(g);
 		paintRegions(g);
-		paintRegionBorders(g, width, height, toSvg);
+		paintRegionBorders(g, toSvg);
 	}
-	
+
 	@Override
 	protected Map<Edge<RegionNode>, Set<Edge<RegionNode>>> getJoinMap() {
 		return joinMap;
