@@ -137,8 +137,7 @@ public class CanvasOptionsPanel implements ActionListener {
 		listeners.remove(listener);
 	}
 
-	public JComponent createPanel(boolean allowEdges, boolean allowNodes,
-			boolean allowBorderAlpha) {
+	public JComponent createPanel(boolean allowEdges, boolean allowPolygonNodes) {
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
@@ -149,15 +148,16 @@ public class CanvasOptionsPanel implements ActionListener {
 
 		if (allowEdges) {
 			addOptionsItem(optionsPanel, "Join Edges", joinEdgesBox);
+		}
+
+		if (allowEdges && !allowPolygonNodes) {
 			addOptionsItem(optionsPanel, "Skip Edgeless Nodes",
 					skipEdgelessNodesBox);
 		}
 
-		if (allowNodes) {
+		if (!allowPolygonNodes) {
 			addOptionsItem(optionsPanel, "Node Size", nodeSizeBox);
-		}
-
-		if (allowBorderAlpha) {
+		} else {
 			addOptionsItem(optionsPanel, "Border Alpha", borderAlphaSlider,
 					borderAlphaButton);
 		}
@@ -257,7 +257,7 @@ public class CanvasOptionsPanel implements ActionListener {
 			}
 		} else if (e.getSource() == borderAlphaButton) {
 			borderAlpha = borderAlphaSlider.getValue();
-			
+
 			for (ChangeListener l : listeners) {
 				l.borderAlphaChanged();
 			}
@@ -303,7 +303,7 @@ public class CanvasOptionsPanel implements ActionListener {
 		public void fontBoldChanged();
 
 		public void nodeSizeChanged();
-		
+
 		public void borderAlphaChanged();
 	}
 }
