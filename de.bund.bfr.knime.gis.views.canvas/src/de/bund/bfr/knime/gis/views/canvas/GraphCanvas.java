@@ -115,8 +115,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		allNodes = nodes;
 		allEdges = edges;
-		nodeSaveMap = CanvasUtilities.getElementsById(this.nodes);
-		edgeSaveMap = CanvasUtilities.getElementsById(this.edges);
+		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
+		edgeSaveMap = CanvasUtilities.getElementsById(edges);
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
