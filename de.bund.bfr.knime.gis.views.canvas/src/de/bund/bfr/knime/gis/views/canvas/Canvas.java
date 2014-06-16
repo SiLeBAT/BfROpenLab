@@ -129,6 +129,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
 		translationY = Double.NaN;
+		canvasListeners = new ArrayList<CanvasListener>();
+		nodeHighlightConditions = new HighlightConditionList();
+		edgeHighlightConditions = new HighlightConditionList();
 
 		viewer = new VisualizationViewer<V, Edge<V>>(
 				new StaticLayout<V, Edge<V>>(
@@ -150,15 +153,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable());
-
-		canvasListeners = new ArrayList<CanvasListener>();
-
-		nodeHighlightConditions = new HighlightConditionList();
-		edgeHighlightConditions = new HighlightConditionList();
+		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 
 		setLayout(new BorderLayout());
-		add(viewer, BorderLayout.CENTER);
-		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
+		add(viewer, BorderLayout.CENTER);		
 	}
 
 	public void addCanvasListener(CanvasListener listener) {

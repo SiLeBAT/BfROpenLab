@@ -91,15 +91,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty, boolean allowCollapse) {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
-				edgeFromProperty, edgeToProperty);
-		this.allNodes = nodes;
-		this.allEdges = edges;
+				edgeFromProperty, edgeToProperty);		
 		this.nodes = new LinkedHashSet<GraphNode>();
-		this.edges = new LinkedHashSet<Edge<GraphNode>>();
+		this.edges = new LinkedHashSet<Edge<GraphNode>>();		
 
 		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
 
-		for (GraphNode node : allNodes) {
+		for (GraphNode node : nodes) {
 			GraphNode newNode = new GraphNode(node.getId(),
 					new LinkedHashMap<String, Object>(node.getProperties()),
 					node.getRegion());
@@ -108,16 +106,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			this.nodes.add(newNode);
 		}
 
-		for (Edge<GraphNode> edge : allEdges) {
+		for (Edge<GraphNode> edge : edges) {
 			this.edges.add(new Edge<GraphNode>(edge.getId(),
 					new LinkedHashMap<String, Object>(edge.getProperties()),
 					nodesById.get(edge.getFrom().getId()), nodesById.get(edge
 							.getTo().getId())));
 		}
 
-		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
-		edgeSaveMap = CanvasUtilities.getElementsById(edges);
-
+		allNodes = nodes;
+		allEdges = edges;
+		nodeSaveMap = CanvasUtilities.getElementsById(this.nodes);
+		edgeSaveMap = CanvasUtilities.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,

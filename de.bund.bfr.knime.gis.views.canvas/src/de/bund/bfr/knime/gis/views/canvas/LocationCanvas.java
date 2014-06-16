@@ -88,9 +88,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
-		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
-		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
+		this.edges = new LinkedHashSet<Edge<LocationNode>>(edges);
+		allEdges = edges;
 		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
 
 		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
@@ -103,7 +103,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 		for (LocationNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
-		}		
+		}
 	}
 
 	public Set<LocationNode> getNodes() {

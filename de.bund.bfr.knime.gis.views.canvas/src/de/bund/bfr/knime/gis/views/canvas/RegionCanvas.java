@@ -93,9 +93,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			String edgeToProperty, boolean allowEdges) {
 		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
-		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
+		this.edges = new LinkedHashSet<Edge<RegionNode>>(edges);
+		allEdges = edges;
 		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
 
 		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
@@ -114,7 +114,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		for (RegionNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
-		}		
+		}
 	}
 
 	public Set<RegionNode> getNodes() {
