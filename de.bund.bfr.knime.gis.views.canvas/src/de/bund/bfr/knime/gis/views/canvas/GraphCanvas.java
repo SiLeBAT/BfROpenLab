@@ -115,8 +115,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		allNodes = nodes;
 		allEdges = edges;
-		nodeSaveMap = CanvasUtilities.getElementsById(nodes);
-		edgeSaveMap = CanvasUtilities.getElementsById(edges);
+		nodeSaveMap = CanvasUtilities.getElementsById(this.nodes);
+		edgeSaveMap = CanvasUtilities.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
 		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
 		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
@@ -313,7 +313,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<String, Set<GraphNode>>();
 
-		for (GraphNode node : allNodes) {
+		for (String id : CanvasUtilities.getElementIds(allNodes)) {
+			GraphNode node = nodeSaveMap.get(id);
 			Object value = node.getProperties().get(result);
 
 			if (value == null) {
@@ -439,20 +440,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
 
-		for (GraphNode node : allNodes) {
-			if (!collapseTo.keySet().contains(node.getId())) {
-				GraphNode newNode = nodeSaveMap.get(node.getId());
-
-				if (newNode == null) {
-					newNode = new GraphNode(node.getId(),
-							new LinkedHashMap<String, Object>(
-									node.getProperties()), node.getRegion());
-					getViewer().getGraphLayout().setLocation(newNode,
-							getViewer().getGraphLayout().transform(node));
-				}
+		for (String id : CanvasUtilities.getElementIds(allNodes)) {
+			if (!collapseTo.keySet().contains(id)) {
+				GraphNode newNode = nodeSaveMap.get(id);
 
 				nodes.add(newNode);
-				nodesById.put(node.getId(), newNode);
+				nodesById.put(id, newNode);
 			}
 		}
 
@@ -490,15 +483,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
-			if (newEdge == null) {
-				Map<String, Object> properties = new LinkedHashMap<String, Object>(
-						edge.getProperties());
-
-				properties.put(getEdgeFromProperty(), from.getId());
-				properties.put(getEdgeToProperty(), to.getId());
-				newEdge = new Edge<GraphNode>(edge.getId(), properties, from,
-						to);
-			} else if (!newEdge.getFrom().equals(from)
+			if (!newEdge.getFrom().equals(from)
 					|| !newEdge.getTo().equals(to)) {
 				newEdge.getProperties()
 						.put(getEdgeFromProperty(), from.getId());
