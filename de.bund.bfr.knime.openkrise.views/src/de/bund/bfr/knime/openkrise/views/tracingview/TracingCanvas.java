@@ -78,7 +78,7 @@ public class TracingCanvas extends GraphCanvas implements
 			boolean enforceTemporalOrder) {
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN);
+				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
 		this.deliveries = deliveries;
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		performTracing = DEFAULT_PERFORM_TRACING;

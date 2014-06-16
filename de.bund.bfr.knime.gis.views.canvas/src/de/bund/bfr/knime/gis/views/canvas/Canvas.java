@@ -93,23 +93,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		ChangeListener, ItemListener, KeyListener, MouseListener,
 		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener {
 
-	private static final long serialVersionUID = 1L;
-
-	private static final boolean DEFAULT_ALLOW_EDGES = true;
-	private static final boolean DEFAULT_ALLOW_LAYOUT = false;
-	private static final boolean DEFAULT_ALLOW_COLLAPSE = false;
-	private static final boolean DEFAULT_ALLOW_NODE_RESIZE = true;
-	private static final boolean DEFAULT_ALLOW_POLYGONS = false;
+	private static final long serialVersionUID = 1L;	
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
-
-	private boolean allowEdges;
-	private boolean allowLayout;
-	private boolean allowCollapse;
-	private boolean allowNodeResize;
-	private boolean allowPolygons;
+	
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
@@ -136,12 +125,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.nodeIdProperty = nodeIdProperty;
 		this.edgeIdProperty = edgeIdProperty;
 		this.edgeFromProperty = edgeFromProperty;
-		this.edgeToProperty = edgeToProperty;
-		allowEdges = DEFAULT_ALLOW_EDGES;
-		allowLayout = DEFAULT_ALLOW_LAYOUT;
-		allowCollapse = DEFAULT_ALLOW_COLLAPSE;
-		allowNodeResize = DEFAULT_ALLOW_NODE_RESIZE;
-		allowPolygons = DEFAULT_ALLOW_POLYGONS;
+		this.edgeToProperty = edgeToProperty;		
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -174,12 +158,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		edgeHighlightConditions = new HighlightConditionList();
 
 		popup = new CanvasPopupMenu(viewer);
-		popup.addClickListener(this);
-		popup.createMenu(allowEdges, allowLayout, allowCollapse);
+		popup.addClickListener(this);		
 
 		optionsPanel = new CanvasOptionsPanel();
-		optionsPanel.addChangeListener(this);
-		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
+		optionsPanel.addChangeListener(this);		
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -201,52 +183,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setCanvasSize(Dimension canvasSize) {
 		viewer.setPreferredSize(canvasSize);
-	}
-
-	public boolean isAllowEdges() {
-		return allowEdges;
-	}
-
-	public void setAllowEdges(boolean allowEdges) {
-		this.allowEdges = allowEdges;
-		popup.createMenu(allowEdges, allowLayout, allowCollapse);
-		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
-	}
-
-	public boolean isAllowCollapse() {
-		return allowCollapse;
-	}
-
-	public void setAllowCollapse(boolean allowCollapse) {
-		this.allowCollapse = allowCollapse;
-		popup.createMenu(allowEdges, allowLayout, allowCollapse);
-	}
-
-	public boolean isAllowLayout() {
-		return allowLayout;
-	}
-
-	public void setAllowLayout(boolean allowLayout) {
-		this.allowLayout = allowLayout;
-		popup.createMenu(allowEdges, allowLayout, allowCollapse);
-	}
-
-	public boolean isAllowNodeResize() {
-		return allowNodeResize;
-	}
-
-	public void setAllowNodeResize(boolean allowNodeResize) {
-		this.allowNodeResize = allowNodeResize;
-		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
-	}
-
-	public boolean isAllowPolygons() {
-		return allowPolygons;
-	}
-
-	public void setAllowPolygons(boolean allowPolygons) {
-		this.allowPolygons = allowPolygons;
-		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
 	}
 
 	public Mode getEditingMode() {
@@ -892,10 +828,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void nodeSizeChanged() {
 		applyChanges();
-	}	
+	}
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
+	}
+
+	protected void updatePanelAndPopup(boolean allowEdges, boolean allowLayout,
+			boolean allowCollapse, boolean allowNodeResize,
+			boolean allowPolygons) {
+		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
+		popup.createMenu(allowEdges, allowLayout, allowCollapse);
 	}
 
 	protected Point2D toGraphCoordinates(int x, int y) {
@@ -929,9 +872,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
 
-	protected abstract HighlightListDialog openNodeHighlightDialog();	
+	protected abstract HighlightListDialog openNodeHighlightDialog();
 
-	protected abstract HighlightListDialog openEdgeHighlightDialog();	
+	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

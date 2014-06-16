@@ -86,9 +86,8 @@ public class RegionToRegionVisualizerCanvasCreator {
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
+				set.getEdgeToColumn(), false);
 
-		canvas.setAllowCollapse(false);
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());

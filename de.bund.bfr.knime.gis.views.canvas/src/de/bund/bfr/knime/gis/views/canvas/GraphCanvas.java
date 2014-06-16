@@ -77,21 +77,20 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private String metaNodeProperty;
 
-	public GraphCanvas() {
+	public GraphCanvas(boolean allowCollapse) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null, null, null);
+				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
+				allowCollapse);
 	}
 
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty) {
+			String edgeToProperty, boolean allowCollapse) {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
 				edgeFromProperty, edgeToProperty);
-		setAllowEdges(true);
-		setAllowLayout(true);
 		this.allNodes = nodes;
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<GraphNode>();
@@ -130,6 +129,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
+		updatePanelAndPopup(true, true, allowCollapse, true, false);
 	}
 
 	public Set<GraphNode> getNodes() {

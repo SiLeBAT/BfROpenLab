@@ -95,9 +95,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
-		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
-		setAllowEdges(allowEdges);
-		setAllowNodeResize(false);
+		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();		
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<RegionNode>(2,
@@ -114,6 +112,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		for (RegionNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
+		
+		updatePanelAndPopup(allowEdges, false, false, false, true);
 	}
 
 	public Set<RegionNode> getNodes() {

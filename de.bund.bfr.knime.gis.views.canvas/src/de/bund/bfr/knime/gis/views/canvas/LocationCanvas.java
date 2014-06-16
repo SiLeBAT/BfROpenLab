@@ -90,8 +90,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
-		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
-		setAllowEdges(allowEdges);
+		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();		
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<LocationNode>(getNodeSize(),
@@ -102,6 +101,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		for (LocationNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
+
+		updatePanelAndPopup(allowEdges, false, false, true, true);
 	}
 
 	public Set<LocationNode> getNodes() {
@@ -133,7 +134,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				CanvasUtilities.createGraph(nodes, edges));
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), getNodeSize(), !isAllowEdges());
+				getNodeHighlightConditions(), getNodeSize(), !allowEdges);
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

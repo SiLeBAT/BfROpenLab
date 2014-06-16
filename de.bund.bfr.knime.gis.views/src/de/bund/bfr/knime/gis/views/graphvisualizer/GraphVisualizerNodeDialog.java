@@ -167,10 +167,9 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		graphCanvas = creator.createGraphCanvas();
 
 		if (graphCanvas == null) {
-			graphCanvas = new GraphCanvas();
+			graphCanvas = new GraphCanvas(true);
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas.setAllowCollapse(true);
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,

@@ -313,10 +313,9 @@ public class LocationToLocationVisualizerNodeDialog extends
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 		} else {
-			graphCanvas = new GraphCanvas();
+			graphCanvas = new GraphCanvas(false);
 			graphCanvas
 					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas.setAllowCollapse(false);
 			gisCanvas = new LocationCanvas(true);
 			gisCanvas
 					.setCanvasSize(GisToGisVisualizerSettings.DEFAULT_GIS_CANVAS_SIZE);

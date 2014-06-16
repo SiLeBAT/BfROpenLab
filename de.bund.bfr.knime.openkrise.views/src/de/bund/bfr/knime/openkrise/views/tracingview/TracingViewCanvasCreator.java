@@ -116,8 +116,7 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeProperties, edgeProperties,
 				deliveries, set.isEnforeTemporalOrder());
 
-		canvas.setPerformTracing(false);
-		canvas.setAllowCollapse(true);
+		canvas.setPerformTracing(false);		
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());

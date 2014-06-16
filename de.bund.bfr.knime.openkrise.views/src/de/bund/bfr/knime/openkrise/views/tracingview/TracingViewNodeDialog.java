@@ -198,8 +198,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (graphCanvas == null) {
 			graphCanvas = new TracingCanvas();
 			graphCanvas
-					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-			graphCanvas.setAllowCollapse(true);
+					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);			
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,

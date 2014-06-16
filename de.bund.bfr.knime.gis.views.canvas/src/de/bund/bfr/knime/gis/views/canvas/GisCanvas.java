@@ -52,9 +52,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty) {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
-				edgeFromProperty, edgeToProperty);
-		setAllowCollapse(false);
-		setAllowPolygons(true);
+				edgeFromProperty, edgeToProperty);		
 		this.regions = regions;
 		image = null;
 
