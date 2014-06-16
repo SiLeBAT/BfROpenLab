@@ -38,6 +38,7 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -369,7 +370,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void borderAlphaChanged() {
-	}	
+	}
 
 	@Override
 	protected void applyTransform() {
@@ -554,6 +555,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	protected Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
 		return joinMap;
+	}
+
+	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), true, true,
+				true, getNodeHighlightConditions(), null);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), null);
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {

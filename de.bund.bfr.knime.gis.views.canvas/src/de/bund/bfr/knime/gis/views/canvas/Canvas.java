@@ -66,7 +66,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
@@ -75,7 +74,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
@@ -93,8 +91,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
 		ChangeListener, ItemListener, KeyListener, MouseListener,
-		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener,
-		HighlightConditionChecker {
+		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -169,7 +166,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
-		viewer.addPostRenderPaintable(new PostPaintable());		
+		viewer.addPostRenderPaintable(new PostPaintable());
 
 		canvasListeners = new ArrayList<CanvasListener>();
 
@@ -895,12 +892,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void nodeSizeChanged() {
 		applyChanges();
-	}
-
-	@Override
-	public String findError(HighlightCondition condition) {
-		return null;
-	}
+	}	
 
 	protected VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
@@ -937,16 +929,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
 
-	private HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), allowEdges
-				&& allowNodeResize, allowNodeResize, true,
-				getNodeHighlightConditions(), this);
-	}
+	protected abstract HighlightListDialog openNodeHighlightDialog();	
 
-	private HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), this);
-	}
+	protected abstract HighlightListDialog openEdgeHighlightDialog();	
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

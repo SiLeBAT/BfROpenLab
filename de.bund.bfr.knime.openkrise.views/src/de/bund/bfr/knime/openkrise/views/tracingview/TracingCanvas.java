@@ -38,6 +38,8 @@ import java.util.Set;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -51,7 +53,8 @@ import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingCanvas extends GraphCanvas {
+public class TracingCanvas extends GraphCanvas implements
+		HighlightConditionChecker {
 
 	private static final long serialVersionUID = 1L;
 
@@ -360,6 +363,18 @@ public class TracingCanvas extends GraphCanvas {
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
 		getViewer().repaint();
+	}
+
+	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), true, true,
+				true, getNodeHighlightConditions(), this);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), this);
 	}
 
 	private void applyTracing() {

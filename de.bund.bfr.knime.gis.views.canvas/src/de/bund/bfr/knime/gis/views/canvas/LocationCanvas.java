@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -47,6 +48,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
+
+	private boolean allowEdges;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -83,6 +86,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
+		this.allowEdges = allowEdges;
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
@@ -191,6 +195,18 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
 		return joinMap;
+	}
+
+	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), allowEdges,
+				true, true, getNodeHighlightConditions(), null);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), null);
 	}
 
 }
