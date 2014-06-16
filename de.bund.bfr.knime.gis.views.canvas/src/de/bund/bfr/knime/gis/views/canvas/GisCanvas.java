@@ -65,12 +65,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		return regions;
 	}
 
-	public int getBorderAlpha() {
-		return getOptionsPanel().getBorderAlpha();
-	}
-
+	@Override
 	public void setBorderAlpha(int borderAlpha) {
-		getOptionsPanel().setBorderAlpha(borderAlpha);
+		super.setBorderAlpha(borderAlpha);
 		flushImage();
 		getViewer().repaint();
 	}

@@ -169,15 +169,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
-		viewer.addPostRenderPaintable(new PostPaintable());
+		viewer.addPostRenderPaintable(new PostPaintable());		
 
 		canvasListeners = new ArrayList<CanvasListener>();
 
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
-		popup = new CanvasPopupMenu();
+		popup = new CanvasPopupMenu(viewer);
 		popup.addClickListener(this);
+		popup.createMenu(allowEdges, allowLayout, allowCollapse);
 
 		optionsPanel = new CanvasOptionsPanel();
 		optionsPanel.addChangeListener(this);
@@ -186,8 +187,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
-				allowCollapse));
 		viewer.setGraphMouse(createMouseModel());
 	}
 
@@ -213,8 +212,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowEdges(boolean allowEdges) {
 		this.allowEdges = allowEdges;
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
-				allowCollapse));
+		popup.createMenu(allowEdges, allowLayout, allowCollapse);
 		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
 	}
 
@@ -224,8 +222,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowCollapse(boolean allowCollapse) {
 		this.allowCollapse = allowCollapse;
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
-				allowCollapse));
+		popup.createMenu(allowEdges, allowLayout, allowCollapse);
 	}
 
 	public boolean isAllowLayout() {
@@ -234,8 +231,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setAllowLayout(boolean allowLayout) {
 		this.allowLayout = allowLayout;
-		viewer.setComponentPopupMenu(popup.createMenu(allowEdges, allowLayout,
-				allowCollapse));
+		popup.createMenu(allowEdges, allowLayout, allowCollapse);
 	}
 
 	public boolean isAllowNodeResize() {
@@ -319,6 +315,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setNodeSize(int nodeSize) {
 		optionsPanel.setNodeSize(nodeSize);
 		applyChanges();
+	}
+
+	public int getBorderAlpha() {
+		return optionsPanel.getBorderAlpha();
+	}
+
+	public void setBorderAlpha(int borderAlpha) {
+		optionsPanel.setBorderAlpha(borderAlpha);
 	}
 
 	public Collection<V> getVisibleNodes() {
@@ -902,10 +906,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return viewer;
 	}
 
-	protected CanvasOptionsPanel getOptionsPanel() {
-		return optionsPanel;
-	}
-
 	protected Point2D toGraphCoordinates(int x, int y) {
 		return new Point2D.Double((x - translationX) / scaleX,
 				(y - translationY) / scaleY);
@@ -936,7 +936,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
-	
+
 	private HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, getNodeProperties(), allowEdges
 				&& allowNodeResize, allowNodeResize, true,

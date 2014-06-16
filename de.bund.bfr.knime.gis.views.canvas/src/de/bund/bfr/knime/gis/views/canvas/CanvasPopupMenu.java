@@ -30,12 +30,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
-public class CanvasPopupMenu implements ActionListener {
+public class CanvasPopupMenu implements ActionListener {	
 
 	private JMenu nodeSelectionMenu;
 	private JMenu edgeSelectionMenu;
@@ -69,9 +70,11 @@ public class CanvasPopupMenu implements ActionListener {
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
 
+	private JComponent owner;
 	private List<ClickListener> listeners;
 
-	public CanvasPopupMenu() {
+	public CanvasPopupMenu(JComponent owner) {
+		this.owner = owner;
 		listeners = new ArrayList<ClickListener>();
 
 		nodeSelectionMenu = new JMenu("Node Selection");
@@ -150,7 +153,7 @@ public class CanvasPopupMenu implements ActionListener {
 		listeners.remove(listener);
 	}
 
-	public JPopupMenu createMenu(boolean allowEdges, boolean allowLayout,
+	public void createMenu(boolean allowEdges, boolean allowLayout,
 			boolean allowCollapse) {
 		JPopupMenu popup = new JPopupMenu();
 
@@ -220,7 +223,7 @@ public class CanvasPopupMenu implements ActionListener {
 			popup.add(clearCollapsedNodesItem);
 		}
 
-		return popup;
+		owner.setComponentPopupMenu(popup);
 	}
 
 	public void setNodeSelectionEnabled(boolean enabled) {
