@@ -52,6 +52,7 @@ import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingCanvas extends GraphCanvas implements
 		HighlightConditionChecker {
@@ -301,7 +302,8 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel() {
+	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
+			Mode editingMode) {
 		return new GraphMouse<GraphNode, Edge<GraphNode>>(
 				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
 
@@ -347,7 +349,7 @@ public class TracingCanvas extends GraphCanvas implements
 							}
 						}
 					}
-				}, getEditingMode());
+				}, editingMode);
 	}
 
 	@Override

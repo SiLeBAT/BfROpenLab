@@ -30,14 +30,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
-public class CanvasPopupMenu implements ActionListener {	
-
+public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private JMenu nodeSelectionMenu;
 	private JMenu edgeSelectionMenu;
 	private JMenu nodeHighlightMenu;
@@ -70,102 +71,21 @@ public class CanvasPopupMenu implements ActionListener {
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
 
-	private JComponent owner;
 	private List<ClickListener> listeners;
 
-	public CanvasPopupMenu(JComponent owner) {
-		this.owner = owner;
-		listeners = new ArrayList<ClickListener>();
-
-		nodeSelectionMenu = new JMenu("Node Selection");
-		nodeSelectionMenu.setEnabled(false);
-		edgeSelectionMenu = new JMenu("Edge Selection");
-		edgeSelectionMenu.setEnabled(false);
-		nodeHighlightMenu = new JMenu("Node Highlighting");
-		edgeHighlightMenu = new JMenu("Edge Highlighting");
-		layoutMenu = new JMenu("Apply Layout");
-
-		resetLayoutItem = new JMenuItem("Reset Layout");
-		resetLayoutItem.addActionListener(this);
-		saveAsItem = new JMenuItem("Save As ...");
-		saveAsItem.addActionListener(this);
-
-		clearSelectedNodesItem = new JMenuItem("Clear");
-		clearSelectedNodesItem.addActionListener(this);
-		nodePropertiesItem = new JMenuItem("Show Properties");
-		nodePropertiesItem.addActionListener(this);
-		selectConnectionsItem = new JMenuItem("Select Connections");
-		selectConnectionsItem.addActionListener(this);
-		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedNodesItem.addActionListener(this);
-
-		clearSelectedEdgesItem = new JMenuItem("Clear");
-		clearSelectedEdgesItem.addActionListener(this);
-		edgePropertiesItem = new JMenuItem("Show Properties");
-		edgePropertiesItem.addActionListener(this);
-		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
-		edgeAllPropertiesItem.addActionListener(this);
-		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedEdgesItem.addActionListener(this);
-
-		highlightNodesItem = new JMenuItem("Edit");
-		highlightNodesItem.addActionListener(this);
-		clearHighlightedNodesItem = new JMenuItem("Clear");
-		clearHighlightedNodesItem.addActionListener(this);
-		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedNodesItem.addActionListener(this);
-		selectNodesItem = new JMenuItem("Select");
-		selectNodesItem.addActionListener(this);
-
-		highlightEdgesItem = new JMenuItem("Edit");
-		highlightEdgesItem.addActionListener(this);
-		clearHighlightedEdgesItem = new JMenuItem("Clear");
-		clearHighlightedEdgesItem.addActionListener(this);
-		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedEdgesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select");
-		selectEdgesItem.addActionListener(this);
-
-		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
-		collapseToNodeItem.addActionListener(this);
-		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
-		expandFromNodeItem.addActionListener(this);
-		collapseByPropertyItem = new JMenuItem("Collapse by Property");
-		collapseByPropertyItem.addActionListener(this);
-		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
-		clearCollapsedNodesItem.addActionListener(this);
-
-		layoutItems = new LinkedHashMap<JMenuItem, LayoutType>();
-
-		for (LayoutType layoutType : LayoutType.values()) {
-			JMenuItem item = new JMenuItem(layoutType.toString());
-
-			item.addActionListener(this);
-			layoutItems.put(item, layoutType);
-		}
-	}
-
-	public void addClickListener(ClickListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeClickListener(ClickListener listener) {
-		listeners.remove(listener);
-	}
-
-	public void createMenu(boolean allowEdges, boolean allowLayout,
+	public CanvasPopupMenu(boolean allowEdges, boolean allowLayout,
 			boolean allowCollapse) {
-		JPopupMenu popup = new JPopupMenu();
+		init();
 
-		popup.add(resetLayoutItem);
-		popup.add(saveAsItem);
+		add(resetLayoutItem);
+		add(saveAsItem);
 
 		if (allowLayout) {
 			for (JMenuItem item : layoutItems.keySet()) {
 				layoutMenu.add(item);
 			}
 
-			popup.add(layoutMenu);
+			add(layoutMenu);
 		}
 
 		if (allowEdges) {
@@ -185,9 +105,9 @@ public class CanvasPopupMenu implements ActionListener {
 			edgeSelectionMenu.add(clearSelectedEdgesItem);
 			edgeSelectionMenu.add(highlightSelectedEdgesItem);
 
-			popup.add(new JSeparator());
-			popup.add(nodeSelectionMenu);
-			popup.add(edgeSelectionMenu);
+			add(new JSeparator());
+			add(nodeSelectionMenu);
+			add(edgeSelectionMenu);
 
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
@@ -199,31 +119,37 @@ public class CanvasPopupMenu implements ActionListener {
 			edgeHighlightMenu.add(selectHighlightedEdgesItem);
 			edgeHighlightMenu.add(selectEdgesItem);
 
-			popup.add(nodeHighlightMenu);
-			popup.add(edgeHighlightMenu);
+			add(nodeHighlightMenu);
+			add(edgeHighlightMenu);
 		} else {
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectedNodesItem);
 			nodeSelectionMenu.add(highlightSelectedNodesItem);
 
-			popup.add(new JSeparator());
-			popup.add(nodeSelectionMenu);
+			add(new JSeparator());
+			add(nodeSelectionMenu);
 
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
 			nodeHighlightMenu.add(selectHighlightedNodesItem);
 			nodeHighlightMenu.add(selectNodesItem);
 
-			popup.add(nodeHighlightMenu);
+			add(nodeHighlightMenu);
 		}
 
 		if (allowCollapse) {
-			popup.add(new JSeparator());
-			popup.add(collapseByPropertyItem);
-			popup.add(clearCollapsedNodesItem);
+			add(new JSeparator());
+			add(collapseByPropertyItem);
+			add(clearCollapsedNodesItem);
 		}
+	}
 
-		owner.setComponentPopupMenu(popup);
+	public void addClickListener(ClickListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeClickListener(ClickListener listener) {
+		listeners.remove(listener);
 	}
 
 	public void setNodeSelectionEnabled(boolean enabled) {
@@ -328,6 +254,77 @@ public class CanvasPopupMenu implements ActionListener {
 			for (ClickListener l : listeners) {
 				l.clearCollapsedNodesItemClicked();
 			}
+		}
+	}
+
+	private void init() {
+		listeners = new ArrayList<ClickListener>();
+
+		nodeSelectionMenu = new JMenu("Node Selection");
+		nodeSelectionMenu.setEnabled(false);
+		edgeSelectionMenu = new JMenu("Edge Selection");
+		edgeSelectionMenu.setEnabled(false);
+		nodeHighlightMenu = new JMenu("Node Highlighting");
+		edgeHighlightMenu = new JMenu("Edge Highlighting");
+		layoutMenu = new JMenu("Apply Layout");
+
+		resetLayoutItem = new JMenuItem("Reset Layout");
+		resetLayoutItem.addActionListener(this);
+		saveAsItem = new JMenuItem("Save As ...");
+		saveAsItem.addActionListener(this);
+
+		clearSelectedNodesItem = new JMenuItem("Clear");
+		clearSelectedNodesItem.addActionListener(this);
+		nodePropertiesItem = new JMenuItem("Show Properties");
+		nodePropertiesItem.addActionListener(this);
+		selectConnectionsItem = new JMenuItem("Select Connections");
+		selectConnectionsItem.addActionListener(this);
+		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
+		highlightSelectedNodesItem.addActionListener(this);
+
+		clearSelectedEdgesItem = new JMenuItem("Clear");
+		clearSelectedEdgesItem.addActionListener(this);
+		edgePropertiesItem = new JMenuItem("Show Properties");
+		edgePropertiesItem.addActionListener(this);
+		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
+		edgeAllPropertiesItem.addActionListener(this);
+		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
+		highlightSelectedEdgesItem.addActionListener(this);
+
+		highlightNodesItem = new JMenuItem("Edit");
+		highlightNodesItem.addActionListener(this);
+		clearHighlightedNodesItem = new JMenuItem("Clear");
+		clearHighlightedNodesItem.addActionListener(this);
+		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
+		selectHighlightedNodesItem.addActionListener(this);
+		selectNodesItem = new JMenuItem("Select");
+		selectNodesItem.addActionListener(this);
+
+		highlightEdgesItem = new JMenuItem("Edit");
+		highlightEdgesItem.addActionListener(this);
+		clearHighlightedEdgesItem = new JMenuItem("Clear");
+		clearHighlightedEdgesItem.addActionListener(this);
+		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
+		selectHighlightedEdgesItem.addActionListener(this);
+		selectEdgesItem = new JMenuItem("Select");
+		selectEdgesItem.addActionListener(this);
+
+		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
+		collapseToNodeItem.addActionListener(this);
+		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
+		expandFromNodeItem.addActionListener(this);
+		collapseByPropertyItem = new JMenuItem("Collapse by Property");
+		collapseByPropertyItem.addActionListener(this);
+		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
+		clearCollapsedNodesItem.addActionListener(this);
+
+		layoutItems = new LinkedHashMap<JMenuItem, LayoutType>();
+
+		for (LayoutType layoutType : LayoutType.values()) {
+			JMenuItem item = new JMenuItem(layoutType.toString());
+
+			item.addActionListener(this);
+			layoutItems.put(item, layoutType);
 		}
 	}
 

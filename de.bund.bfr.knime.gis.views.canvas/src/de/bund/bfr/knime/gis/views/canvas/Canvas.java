@@ -65,7 +65,6 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
-import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
@@ -93,12 +92,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		ChangeListener, ItemListener, KeyListener, MouseListener,
 		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener {
 
-	private static final long serialVersionUID = 1L;	
+	private static final long serialVersionUID = 1L;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
-	
+
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
@@ -125,7 +124,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.nodeIdProperty = nodeIdProperty;
 		this.edgeIdProperty = edgeIdProperty;
 		this.edgeFromProperty = edgeFromProperty;
-		this.edgeToProperty = edgeToProperty;		
+		this.edgeToProperty = edgeToProperty;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -157,16 +156,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
-		popup = new CanvasPopupMenu(viewer);
-		popup.addClickListener(this);		
-
-		optionsPanel = new CanvasOptionsPanel();
-		optionsPanel.addChangeListener(this);		
-
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
-		add(UI.createWestPanel(optionsPanel), BorderLayout.SOUTH);
-		viewer.setGraphMouse(createMouseModel());
+		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 	}
 
 	public void addCanvasListener(CanvasListener listener) {
@@ -191,7 +183,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setEditingMode(Mode editingMode) {
 		optionsPanel.setEditingMode(editingMode);
-		viewer.setGraphMouse(createMouseModel());
+		viewer.setGraphMouse(createMouseModel(editingMode));
 	}
 
 	public boolean isShowLegend() {
@@ -794,7 +786,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void editingModeChanged() {
-		viewer.setGraphMouse(createMouseModel());
+		viewer.setGraphMouse(createMouseModel(optionsPanel.getEditingMode()));
 	}
 
 	@Override
@@ -834,11 +826,29 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return viewer;
 	}
 
-	protected void updatePanelAndPopup(boolean allowEdges, boolean allowLayout,
-			boolean allowCollapse, boolean allowNodeResize,
-			boolean allowPolygons) {
-		optionsPanel.createPanel(allowEdges, allowNodeResize, allowPolygons);
-		popup.createMenu(allowEdges, allowLayout, allowCollapse);
+	protected CanvasOptionsPanel getOptionsPanel() {
+		return optionsPanel;
+	}
+
+	protected void setOptionsPanel(CanvasOptionsPanel optionsPanel) {
+		if (this.optionsPanel != null) {
+			remove(this.optionsPanel);
+		}
+
+		this.optionsPanel = optionsPanel;
+		optionsPanel.addChangeListener(this);
+		add(optionsPanel, BorderLayout.SOUTH);
+		revalidate();
+	}
+
+	protected CanvasPopupMenu getPopupMenu() {
+		return popup;
+	}
+
+	protected void setPopupMenu(CanvasPopupMenu popup) {
+		this.popup = popup;
+		popup.addClickListener(this);
+		viewer.setComponentPopupMenu(popup);
 	}
 
 	protected Point2D toGraphCoordinates(int x, int y) {
@@ -868,7 +878,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract void applyTransform();
 
-	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
+	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
 

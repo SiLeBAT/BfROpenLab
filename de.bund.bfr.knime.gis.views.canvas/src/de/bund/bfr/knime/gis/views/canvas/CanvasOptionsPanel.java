@@ -23,6 +23,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -84,51 +85,44 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 
 	private List<ChangeListener> listeners;
 
-	public CanvasOptionsPanel() {
-		listeners = new ArrayList<ChangeListener>();
+	public CanvasOptionsPanel(boolean allowEdges, boolean allowNodeResize,
+			boolean allowPolygons) {
+		init();
 
-		editingMode = DEFAULT_MODE;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
-		nodeSize = DEFAULT_NODE_SIZE;
-		borderAlpha = DEFAULT_BORDER_ALPHA;
+		JPanel panel = new JPanel();
 
-		editingModeBox = new JComboBox<Mode>(new Mode[] { Mode.TRANSFORMING,
-				Mode.PICKING });
-		editingModeBox.setSelectedItem(editingMode);
-		editingModeBox.addActionListener(this);
-		showLegendBox = new JCheckBox("Activate");
-		showLegendBox.setSelected(showLegend);
-		showLegendBox.addActionListener(this);
-		joinEdgesBox = new JCheckBox("Activate");
-		joinEdgesBox.setSelected(joinEdges);
-		joinEdgesBox.addActionListener(this);
-		skipEdgelessNodesBox = new JCheckBox("Activate");
-		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
-		skipEdgelessNodesBox.addActionListener(this);
-		fontSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
-		fontSizeBox.setEditable(true);
-		((JTextField) fontSizeBox.getEditor().getEditorComponent())
-				.setColumns(3);
-		fontSizeBox.setSelectedItem(fontSize);
-		fontSizeBox.addActionListener(this);
-		fontBoldBox = new JCheckBox("Bold");
-		fontBoldBox.setSelected(fontBold);
-		fontBoldBox.addActionListener(this);
-		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
-		nodeSizeBox.setEditable(true);
-		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
-				.setColumns(3);
-		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addActionListener(this);
-		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
-		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
-				.getPreferredSize().height));
-		borderAlphaButton = new JButton("Apply");
-		borderAlphaButton.addActionListener(this);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		panel.add(getOptionPanel("Editing Mode", editingModeBox));
+		panel.add(Box.createHorizontalStrut(5));
+		panel.add(getOptionPanel("Show Legend", showLegendBox));
+		panel.add(Box.createHorizontalStrut(5));
+		panel.add(getOptionPanel("Font", fontSizeBox, fontBoldBox));
+
+		if (allowEdges) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Join Edges", joinEdgesBox));
+		}
+
+		if (allowEdges && allowNodeResize) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Skip Edgeless Nodes",
+					skipEdgelessNodesBox));
+		}
+
+		if (allowNodeResize) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Node Size", nodeSizeBox));
+		}
+
+		if (allowPolygons) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Border Alpha", borderAlphaSlider,
+					borderAlphaButton));
+		}
+
+		setLayout(new BorderLayout());
+		add(panel, BorderLayout.WEST);
 	}
 
 	public void addChangeListener(ChangeListener listener) {
@@ -137,33 +131,6 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 
 	public void removeChangeListener(ChangeListener listener) {
 		listeners.remove(listener);
-	}
-
-	public void createPanel(boolean allowEdges, boolean allowNodeResize,
-			boolean allowPolygons) {
-		removeAll();
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		addOptionsItem("Editing Mode", editingModeBox);
-		addOptionsItem("Show Legend", showLegendBox);
-		addOptionsItem("Font", fontSizeBox, fontBoldBox);
-
-		if (allowEdges) {
-			addOptionsItem("Join Edges", joinEdgesBox);
-		}
-
-		if (allowEdges && allowNodeResize) {
-			addOptionsItem("Skip Edgeless Nodes", skipEdgelessNodesBox);
-		}
-
-		if (allowNodeResize) {
-			addOptionsItem("Node Size", nodeSizeBox);
-		}
-
-		if (allowPolygons) {
-			addOptionsItem("Border Alpha", borderAlphaSlider, borderAlphaButton);
-		}
 	}
 
 	public Mode getEditingMode() {
@@ -309,7 +276,54 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 		}
 	}
 
-	private void addOptionsItem(String name, JComponent... components) {
+	private void init() {
+		listeners = new ArrayList<ChangeListener>();
+
+		editingMode = DEFAULT_MODE;
+		showLegend = DEFAULT_SHOW_LEGEND;
+		joinEdges = DEFAULT_JOIN_EDGES;
+		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
+		fontSize = DEFAULT_FONT_SIZE;
+		fontBold = DEFAULT_FONT_BOLD;
+		nodeSize = DEFAULT_NODE_SIZE;
+		borderAlpha = DEFAULT_BORDER_ALPHA;
+
+		editingModeBox = new JComboBox<Mode>(new Mode[] { Mode.TRANSFORMING,
+				Mode.PICKING });
+		editingModeBox.setSelectedItem(editingMode);
+		editingModeBox.addActionListener(this);
+		showLegendBox = new JCheckBox("Activate");
+		showLegendBox.setSelected(showLegend);
+		showLegendBox.addActionListener(this);
+		joinEdgesBox = new JCheckBox("Activate");
+		joinEdgesBox.setSelected(joinEdges);
+		joinEdgesBox.addActionListener(this);
+		skipEdgelessNodesBox = new JCheckBox("Activate");
+		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
+		skipEdgelessNodesBox.addActionListener(this);
+		fontSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
+		fontSizeBox.setEditable(true);
+		((JTextField) fontSizeBox.getEditor().getEditorComponent())
+				.setColumns(3);
+		fontSizeBox.setSelectedItem(fontSize);
+		fontSizeBox.addActionListener(this);
+		fontBoldBox = new JCheckBox("Bold");
+		fontBoldBox.setSelected(fontBold);
+		fontBoldBox.addActionListener(this);
+		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
+		nodeSizeBox.setEditable(true);
+		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
+				.setColumns(3);
+		nodeSizeBox.setSelectedItem(nodeSize);
+		nodeSizeBox.addActionListener(this);
+		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
+		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
+				.getPreferredSize().height));
+		borderAlphaButton = new JButton("Apply");
+		borderAlphaButton.addActionListener(this);
+	}
+
+	private JPanel getOptionPanel(String name, JComponent... components) {
 		JPanel panel = new JPanel();
 		TitledBorder border = BorderFactory.createTitledBorder(name);
 
@@ -328,8 +342,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 					components[0].getPreferredSize().height));
 		}
 
-		add(panel);
-		add(Box.createHorizontalStrut(5));
+		return panel;
 	}
 
 	public static interface ChangeListener {

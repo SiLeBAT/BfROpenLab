@@ -39,6 +39,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class LocationCanvas extends GisCanvas<LocationNode> {
 
@@ -90,7 +91,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<LocationNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
-		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();		
+		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<LocationNode>(getNodeSize(),
@@ -102,7 +103,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
 
-		updatePanelAndPopup(allowEdges, false, false, true, true);
+		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
+		setOptionsPanel(new CanvasOptionsPanel(allowEdges, true, true));
 	}
 
 	public Set<LocationNode> getNodes() {
@@ -152,7 +154,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel() {
+	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
+			Mode editingMode) {
 		return new GraphMouse<LocationNode, Edge<LocationNode>>(
 				new PickingGraphMousePlugin<LocationNode, Edge<LocationNode>>() {
 
@@ -190,7 +193,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 							super.mouseDragged(e);
 						}
 					}
-				}, getEditingMode());
+				}, editingMode);
 	}
 
 	@Override

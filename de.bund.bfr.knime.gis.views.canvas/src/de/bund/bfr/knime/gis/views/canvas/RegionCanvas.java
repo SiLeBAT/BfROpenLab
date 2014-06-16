@@ -48,6 +48,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**
@@ -95,7 +96,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.allEdges = edges;
 		this.nodes = new LinkedHashSet<RegionNode>(nodes);
 		this.edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
-		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();		
+		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
 
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<RegionNode>(2,
@@ -112,8 +113,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		for (RegionNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
 		}
-		
-		updatePanelAndPopup(allowEdges, false, false, false, true);
+
+		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
+		setOptionsPanel(new CanvasOptionsPanel(allowEdges, false, true));
 	}
 
 	public Set<RegionNode> getNodes() {
@@ -172,7 +174,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel() {
+	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel(
+			Mode editingMode) {
 		return new GraphMouse<RegionNode, Edge<RegionNode>>(
 				new PickingGraphMousePlugin<RegionNode, Edge<RegionNode>>() {
 
@@ -237,7 +240,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 							super.mouseDragged(e);
 						}
 					}
-				}, getEditingMode());
+				}, editingMode);
 	}
 
 	@Override

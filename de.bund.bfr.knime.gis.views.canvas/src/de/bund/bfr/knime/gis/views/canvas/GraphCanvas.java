@@ -54,6 +54,7 @@ import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 /**
@@ -123,13 +124,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
+		setPopupMenu(new CanvasPopupMenu(true, true, true));
+		setOptionsPanel(new CanvasOptionsPanel(true, true, false));
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
-		updatePanelAndPopup(true, true, allowCollapse, true, false);
 	}
 
 	public Set<GraphNode> getNodes() {
@@ -377,7 +379,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel() {
+	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
+			Mode editingMode) {
 		return new GraphMouse<GraphNode, Edge<GraphNode>>(
 				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
 
@@ -407,7 +410,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 							}
 						}
 					}
-				}, getEditingMode());
+				}, editingMode);
 	}
 
 	@Override
