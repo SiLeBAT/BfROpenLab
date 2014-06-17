@@ -323,8 +323,10 @@ public class ViewUtilities {
 						transform);
 			} catch (MismatchedDimensionException e) {
 				e.printStackTrace();
+				continue;
 			} catch (TransformException e) {
 				e.printStackTrace();
+				continue;
 			}
 
 			Map<String, Object> properties = new LinkedHashMap<String, Object>();
