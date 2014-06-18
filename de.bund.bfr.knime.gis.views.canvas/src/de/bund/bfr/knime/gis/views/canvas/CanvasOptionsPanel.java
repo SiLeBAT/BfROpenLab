@@ -23,7 +23,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,17 +38,18 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.lang.ArrayUtils;
 
 import de.bund.bfr.knime.UI;
-
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class CanvasOptionsPanel extends JPanel implements ActionListener {
+public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -121,8 +121,11 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 					borderAlphaButton));
 		}
 
-		setLayout(new BorderLayout());
-		add(panel, BorderLayout.WEST);
+		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
+		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		setPreferredSize(getPreferredSize());
+		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);		
 	}
 
 	public void addChangeListener(ChangeListener listener) {
