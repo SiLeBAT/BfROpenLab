@@ -81,9 +81,6 @@ public class CanvasLegend<V extends Node> {
 				}
 
 				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
-				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, LEGEND_COLOR_BOX_WIDTH - 1,
-						LEGEND_COLOR_BOX_WIDTH - 1);
 				nodeLegend.put(name, image);
 			}
 		}
@@ -111,9 +108,6 @@ public class CanvasLegend<V extends Node> {
 				}
 
 				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
-				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, LEGEND_COLOR_BOX_WIDTH - 1,
-						LEGEND_COLOR_BOX_WIDTH - 1);
 				edgeLegend.put(name, image);
 			}
 		}
@@ -186,6 +180,7 @@ public class CanvasLegend<V extends Node> {
 			g.drawImage(nodeLegend.get(name), xNodeColor, yNode,
 					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
 			g.setColor(Color.BLACK);
+			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(name, xNodeName, yNode + fontAscent);
 			yNode += legendHeight + LEGEND_DY;
 		}
@@ -194,6 +189,7 @@ public class CanvasLegend<V extends Node> {
 			g.drawImage(edgeLegend.get(name), xEdgeColor, yEdge,
 					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
 			g.setColor(Color.BLACK);
+			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(name, xEdgeName, yEdge + fontAscent);
 			yEdge += legendHeight + LEGEND_DY;
 		}
