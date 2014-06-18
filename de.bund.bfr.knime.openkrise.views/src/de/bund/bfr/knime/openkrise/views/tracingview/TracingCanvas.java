@@ -511,7 +511,7 @@ public class TracingCanvas extends GraphCanvas implements
 		}
 	}
 
-	private int getIntegerId(Edge<GraphNode> edge) {
+	private static int getIntegerId(Edge<GraphNode> edge) {
 		return Integer.parseInt(edge.getId());
 	}
 

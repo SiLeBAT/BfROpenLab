@@ -126,9 +126,9 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 	public Color getForeground() {
 		if (!isValueValid && isEnabled()) {
 			return Color.RED;
-		} else {
-			return super.getForeground();
 		}
+
+		return super.getForeground();
 	}
 
 	@Override
@@ -136,9 +136,9 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		if (!isValueValid && isEnabled() && getDocument() != null
 				&& getText().trim().isEmpty()) {
 			return Color.RED;
-		} else {
-			return super.getBackground();
 		}
+
+		return super.getBackground();
 	}
 
 	protected void formatText() {

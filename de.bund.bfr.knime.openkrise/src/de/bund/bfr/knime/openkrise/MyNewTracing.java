@@ -105,7 +105,7 @@ public class MyNewTracing {
 			}
 			return sum / caseSum;
 		}
-		else return -1.0;
+		return -1.0;
 	}
 	public Double getDeliveryScore(int id) {
 		if (sortedDeliveries == null) getScores(false);
@@ -117,7 +117,7 @@ public class MyNewTracing {
 			return sum / caseSum;
 //			return ((double) sortedDeliveries.get(id).size()) / caseStations.size();
 		}
-		else return -1.0;
+		return -1.0;
 	}
 	@SuppressWarnings("unchecked")
 	private LinkedHashMap<Integer, HashSet<Integer>> getScores(boolean stations) {
@@ -403,7 +403,7 @@ public class MyNewTracing {
 			}
 			return forwardDeliveries;
 		}
-		else return null;
+		return null;
 	}
 	private HashSet<Integer> getBackwardDeliveries(MyDelivery md) {
 		if (md != null) {
@@ -416,7 +416,7 @@ public class MyNewTracing {
 			}
 			return backwardDeliveries;
 		}
-		else return null;
+		return null;
 	}
 	private HashSet<Integer> getBackwardStations(MyDelivery md) {
 		HashSet<Integer> result = null;

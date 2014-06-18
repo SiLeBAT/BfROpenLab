@@ -35,7 +35,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -156,8 +155,7 @@ public class ColumnEditorPanel extends JPanel {
 		}
 	}
 
-	protected void saveSettingsTo(final NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		// work around a jtable cell value persistence problem
 		// by explicitly stopping editing if a cell is currently in edit mode
 		int editingRow = table.getEditingRow();

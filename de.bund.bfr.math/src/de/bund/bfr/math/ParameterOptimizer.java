@@ -132,7 +132,7 @@ public class ParameterOptimizer {
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
-			boolean stopWhenSuccessful) throws ParseException {
+			boolean stopWhenSuccessful) {
 		List<Double> paramMin = new ArrayList<>();
 		List<Integer> paramStepCount = new ArrayList<>();
 		List<Double> paramStepSize = new ArrayList<>();

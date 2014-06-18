@@ -270,8 +270,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
 			BufferedDataTable table, ExecutionContext exec)
-			throws CanceledExecutionException, InterruptedException,
-			ParseException {
+			throws ParseException {
 		Map<String, Point2D.Double> parameterGuesses;
 		int nParameterSpace;
 		int nLevenberg;

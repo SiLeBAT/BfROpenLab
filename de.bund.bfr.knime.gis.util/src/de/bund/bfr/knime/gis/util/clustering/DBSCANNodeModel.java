@@ -144,9 +144,8 @@ public class DBSCANNodeModel extends NodeModel {
             buf.close();
             return new BufferedDataTable[]{buf.getTable()};
     	}
-    	else {
-    		return new BufferedDataTable[]{null};
-    	}
+    	
+    	return new BufferedDataTable[]{null};    	
     }
     private DataTableSpec createSpec(DataTableSpec inSpec) {
         DataColumnSpec[] spec = new DataColumnSpec[inSpec.getNumColumns() + 1];

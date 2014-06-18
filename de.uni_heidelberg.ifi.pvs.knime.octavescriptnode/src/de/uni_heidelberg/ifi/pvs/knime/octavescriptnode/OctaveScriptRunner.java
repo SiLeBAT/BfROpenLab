@@ -130,11 +130,11 @@ public class OctaveScriptRunner {
 		this.outVariableName = outVariableName;
 	}
 
-	private boolean variableContentIsValid(OctaveObject octaveObject) {
+	private static boolean variableContentIsValid(OctaveObject octaveObject) {
 		return octaveObject != null;
 	}
 
-	private boolean variableNameIsValid(String variableName) {
+	private static boolean variableNameIsValid(String variableName) {
 		return variableName != "";
 	}
 

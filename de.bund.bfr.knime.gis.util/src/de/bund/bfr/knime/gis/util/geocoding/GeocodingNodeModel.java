@@ -60,7 +60,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.IO;
 
@@ -323,8 +322,7 @@ public class GeocodingNodeModel extends NodeModel {
 	private GeocodingResult performMapQuestGeocoding(String street,
 			String city, String county, String state, String country,
 			String postalCode) throws IOException,
-			ParserConfigurationException, SAXException,
-			XPathExpressionException {
+			ParserConfigurationException, XPathExpressionException {
 		if (street == null && city == null && county == null && state == null
 				&& country == null && postalCode == null) {
 			return new GeocodingResult("", GeocodingResult.STATUS_FAILED);
@@ -469,8 +467,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private GeocodingResult performGisgraphyGeocoding(String address,
 			String countryCode) throws IOException,
-			ParserConfigurationException, SAXException,
-			XPathExpressionException {
+			ParserConfigurationException, XPathExpressionException {
 		if (address == null || countryCode == null) {
 			return new GeocodingResult(null, GeocodingResult.STATUS_FAILED);
 		}

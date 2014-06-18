@@ -323,7 +323,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 		borderAlphaButton.addActionListener(this);
 	}
 
-	private JPanel getOptionPanel(String name, JComponent... components) {
+	private static JPanel getOptionPanel(String name, JComponent... components) {
 		JPanel panel = new JPanel();
 		TitledBorder border = BorderFactory.createTitledBorder(name);
 

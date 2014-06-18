@@ -77,7 +77,7 @@ public class OctaveStructToKNIMETableConverter {
 	 * @param cellData
 	 * @return
 	 */
-	private OctaveObject getCellArrayData(OctaveCell cell, int rowID) {
+	private static OctaveObject getCellArrayData(OctaveCell cell, int rowID) {
 		return cell.get(rowID + 1);
 	}
 
@@ -87,7 +87,7 @@ public class OctaveStructToKNIMETableConverter {
 	 * @return
 	 * @throws ParseException
 	 */
-	private OctaveCell getOctaveCellArrayFromStruct(
+	private static OctaveCell getOctaveCellArrayFromStruct(
 			final OctaveStruct octaveResult, String columnName)
 			throws ParseException {
 		OctaveCell cellData = null;
@@ -147,7 +147,7 @@ public class OctaveStructToKNIMETableConverter {
 		return new DefaultRow("row_" + rowID, cells);
 	}
 
-	private int getRowCount(OctaveStruct struct) throws ParseException {
+	private static int getRowCount(OctaveStruct struct) throws ParseException {
 		int maxRow = 0;
 
 		for (String columnName : struct.getData().keySet()) {

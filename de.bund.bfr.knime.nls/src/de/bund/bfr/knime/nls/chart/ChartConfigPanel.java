@@ -255,9 +255,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public double getMinX() {
 		if (minXField.isValueValid()) {
 			return minXField.getValue();
-		} else {
-			return DEFAULT_MINX;
 		}
+
+		return DEFAULT_MINX;
 	}
 
 	public void setMinX(double minX) {
@@ -267,9 +267,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public double getMinY() {
 		if (minYField.isValueValid()) {
 			return minYField.getValue();
-		} else {
-			return DEFAULT_MINY;
 		}
+
+		return DEFAULT_MINY;
 	}
 
 	public void setMinY(double minY) {
@@ -279,9 +279,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public double getMaxX() {
 		if (maxXField.isValueValid()) {
 			return maxXField.getValue();
-		} else {
-			return DEFAULT_MAXX;
 		}
+
+		return DEFAULT_MAXX;
 	}
 
 	public void setMaxX(double maxX) {
@@ -291,9 +291,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public double getMaxY() {
 		if (maxYField.isValueValid()) {
 			return maxYField.getValue();
-		} else {
-			return DEFAULT_MAXY;
 		}
+		
+		return DEFAULT_MAXY;
 	}
 
 	public void setMaxY(double maxY) {

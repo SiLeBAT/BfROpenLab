@@ -73,7 +73,7 @@ public class KNIMETableToOctaveStructConverter {
 	 * @param cell
 	 * @return true if cell contains a number (double or integer)
 	 */
-	private boolean cellContainsNumber(DataCell cell) {
+	private static boolean cellContainsNumber(DataCell cell) {
 		return cell.getType() == IntCell.TYPE
 				|| cell.getType() == DoubleCell.TYPE;
 	}
@@ -84,7 +84,7 @@ public class KNIMETableToOctaveStructConverter {
 	 * @param cell
 	 * @return true if cell contains a string
 	 */
-	private boolean cellContainsString(DataCell cell) {
+	private static boolean cellContainsString(DataCell cell) {
 		return cell.getType() == StringCell.TYPE;
 	}
 
@@ -99,7 +99,7 @@ public class KNIMETableToOctaveStructConverter {
 	 * @return a converted DataCell
 	 * @throws NotConfigurableException
 	 */
-	private OctaveObject dataCellToOctaveObject(DataCell cell)
+	private static OctaveObject dataCellToOctaveObject(DataCell cell)
 			throws NotConfigurableException {
 		OctaveObject result;
 

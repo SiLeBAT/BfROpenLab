@@ -121,7 +121,7 @@ public class KNIMEColumnTable {
 	 *            number of rows
 	 * @return a nested Vector table with given number of columns and rows
 	 */
-	private Vector<Vector<DataCell>> createEmptyDataCellTable(
+	private static Vector<Vector<DataCell>> createEmptyDataCellTable(
 			final int columnNumber, final int rowNumber) {
 		Vector<Vector<DataCell>> newTable = new Vector<>(columnNumber);
 

@@ -148,17 +148,17 @@ public class LogicalHighlightCondition implements Serializable {
 	private boolean isGreater(Object nodeValue) {
 		if (nodeValue instanceof Number && doubleValue != null) {
 			return ((Number) nodeValue).doubleValue() > doubleValue;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	private boolean isLess(Object nodeValue) {
 		if (nodeValue instanceof Number && doubleValue != null) {
 			return ((Number) nodeValue).doubleValue() < doubleValue;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	private boolean isEqualRegex(Object nodeValue, boolean ignoreCase) {

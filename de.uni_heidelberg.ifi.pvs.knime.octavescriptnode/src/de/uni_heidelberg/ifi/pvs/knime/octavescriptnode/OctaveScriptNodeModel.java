@@ -150,13 +150,13 @@ public class OctaveScriptNodeModel extends NodeModel {
 	 * @param result
 	 * @throws Exception
 	 */
-	private void checkResult(OctaveObject result) throws Exception {
+	private static void checkResult(OctaveObject result) throws Exception {
 		if (!(result instanceof OctaveStruct))
 			throw new InvalidSettingsException(
 					"The out variable needs to be a nx1 cell with a nested struct, whose keys are the table column names");
 	}
 
-	private OctaveObject flowVariableToOctaveObject(FlowVariable flowVariable)
+	private static OctaveObject flowVariableToOctaveObject(FlowVariable flowVariable)
 			throws NotConfigurableException {
 		if (flowVariable.getType() == FlowVariable.Type.DOUBLE) {
 			double[] d = { flowVariable.getDoubleValue() };
