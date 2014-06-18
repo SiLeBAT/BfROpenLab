@@ -90,7 +90,7 @@ public class EditablePropertiesTable extends JTable {
 					new JTable().getDefaultRenderer(Boolean.class));
 		}
 
-		UI.packColumns(this);
+		UI.packColumns(this, 200);
 	}
 
 	public void updateElements() {

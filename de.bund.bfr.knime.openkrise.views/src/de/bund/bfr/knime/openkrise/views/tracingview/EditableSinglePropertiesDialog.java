@@ -141,7 +141,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 				BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
-		UI.adjustDialog(this);
+		UI.adjustDialog(this, 0.5, 1.0);
 	}
 
 	public boolean isApproved() {

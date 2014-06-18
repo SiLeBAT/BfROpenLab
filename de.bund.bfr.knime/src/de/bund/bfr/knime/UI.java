@@ -59,12 +59,13 @@ public class UI {
 		}
 	}
 
-	public static void adjustDialog(JDialog dialog) {
+	public static void adjustDialog(JDialog dialog, double widthFraction,
+			double heightFraction) {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
 				dialog.getGraphicsConfiguration());
-		int maxWidth = screenSize.width - insets.left - insets.right;
-		int maxHeight = screenSize.height - insets.top - insets.bottom;
+		int maxWidth = (int) ((screenSize.width - insets.left - insets.right) * widthFraction);
+		int maxHeight = (int) ((screenSize.height - insets.top - insets.bottom) * heightFraction);
 
 		dialog.setSize(Math.min(dialog.getWidth(), maxWidth),
 				Math.min(dialog.getHeight(), maxHeight));
@@ -78,6 +79,10 @@ public class UI {
 				Math.max(dialog.getY(), minY));
 		dialog.setLocation(Math.min(dialog.getX(), maxX),
 				Math.min(dialog.getY(), maxY));
+	}
+
+	public static void adjustDialog(JDialog dialog) {
+		adjustDialog(dialog, 1.0, 1.0);
 	}
 
 	public static Dimension getMaxDimension(Dimension d1, Dimension d2) {
@@ -200,7 +205,7 @@ public class UI {
 		return p;
 	}
 
-	public static void packColumns(JTable table) {
+	public static void packColumns(JTable table, int maxColumnWidth) {
 		for (int c = 0; c < table.getColumnCount(); c++) {
 			TableColumn col = table.getColumnModel().getColumn(c);
 
@@ -224,8 +229,12 @@ public class UI {
 			}
 
 			width += 5;
-			col.setPreferredWidth(width);
+			col.setPreferredWidth(Math.min(width, maxColumnWidth));
 		}
+	}
+
+	public static void packColumns(JTable table) {
+		packColumns(table, Integer.MAX_VALUE);
 	}
 
 	public static int findColumn(JTable table, String columnName) {

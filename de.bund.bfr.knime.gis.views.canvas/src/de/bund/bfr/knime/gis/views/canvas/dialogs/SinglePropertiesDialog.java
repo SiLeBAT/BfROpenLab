@@ -91,7 +91,7 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 				BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
-		UI.adjustDialog(this);
+		UI.adjustDialog(this, 0.5, 1.0);
 	}
 
 	@Override
