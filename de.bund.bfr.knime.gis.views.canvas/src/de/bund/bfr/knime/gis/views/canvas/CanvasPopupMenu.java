@@ -50,6 +50,8 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	private Map<JMenuItem, LayoutType> layoutItems;
 
 	private JMenuItem selectConnectionsItem;
+	private JMenuItem selectIncomingItem;
+	private JMenuItem selectOutgoingItem;	
 	private JMenuItem clearSelectedNodesItem;
 	private JMenuItem clearSelectedEdgesItem;
 	private JMenuItem highlightSelectedNodesItem;
@@ -91,8 +93,11 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		if (allowEdges) {
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectedNodesItem);
-			nodeSelectionMenu.add(selectConnectionsItem);
 			nodeSelectionMenu.add(highlightSelectedNodesItem);
+			nodeSelectionMenu.add(new JSeparator());
+			nodeSelectionMenu.add(selectConnectionsItem);
+			nodeSelectionMenu.add(selectIncomingItem);
+			nodeSelectionMenu.add(selectOutgoingItem);			
 
 			if (allowCollapse) {
 				nodeSelectionMenu.add(new JSeparator());
@@ -177,6 +182,14 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		} else if (e.getSource() == selectConnectionsItem) {
 			for (ClickListener l : listeners) {
 				l.selectConnectionsItemClicked();
+			}
+		} else if (e.getSource() == selectIncomingItem) {
+			for (ClickListener l : listeners) {
+				l.selectIncomingItemClicked();
+			}
+		} else if (e.getSource() == selectOutgoingItem) {
+			for (ClickListener l : listeners) {
+				l.selectOutgoingItemClicked();
 			}
 		} else if (e.getSource() == clearSelectedNodesItem) {
 			for (ClickListener l : listeners) {
@@ -277,10 +290,14 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearSelectedNodesItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Properties");
 		nodePropertiesItem.addActionListener(this);
-		selectConnectionsItem = new JMenuItem("Select Connections");
-		selectConnectionsItem.addActionListener(this);
 		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedNodesItem.addActionListener(this);
+		selectConnectionsItem = new JMenuItem("Select Connections");
+		selectConnectionsItem.addActionListener(this);		
+		selectIncomingItem = new JMenuItem("Select Incoming");
+		selectIncomingItem.addActionListener(this);
+		selectOutgoingItem = new JMenuItem("Select Outgoing");
+		selectOutgoingItem.addActionListener(this);
 
 		clearSelectedEdgesItem = new JMenuItem("Clear");
 		clearSelectedEdgesItem.addActionListener(this);
@@ -337,6 +354,10 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		public void layoutItemClicked(LayoutType layoutType);
 
 		public void selectConnectionsItemClicked();
+
+		public void selectIncomingItemClicked();
+
+		public void selectOutgoingItemClicked();
 
 		public void clearSelectedNodesItemClicked();
 

@@ -603,34 +603,28 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectConnectionsItemClicked() {
-		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<>();
-
-		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
-			connectingEdges.put(node, new ArrayList<Edge<V>>());
+		for (Edge<V> edge : getVisibleEdges()) {
+			if (getSelectedNodes().contains(edge.getFrom())
+					&& getSelectedNodes().contains(edge.getTo())) {
+				viewer.getPickedEdgeState().pick(edge, true);
+			}
 		}
+	}
 
-		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
-			connectingEdges.get(edge.getFrom()).add(edge);
-			connectingEdges.get(edge.getTo()).add(edge);
+	@Override
+	public void selectIncomingItemClicked() {
+		for (Edge<V> edge : getVisibleEdges()) {
+			if (getSelectedNodes().contains(edge.getTo())) {
+				viewer.getPickedEdgeState().pick(edge, true);
+			}
 		}
+	}
 
-		for (V node : getViewer().getPickedVertexState().getPicked()) {
-			for (Edge<V> edge : connectingEdges.get(node)) {
-				if (!getViewer().getGraphLayout().getGraph().containsEdge(edge)) {
-					continue;
-				}
-
-				V otherNode = null;
-
-				if (edge.getFrom() == node) {
-					otherNode = edge.getTo();
-				} else if (edge.getTo() == node) {
-					otherNode = edge.getFrom();
-				}
-
-				if (getViewer().getPickedVertexState().isPicked(otherNode)) {
-					getViewer().getPickedEdgeState().pick(edge, true);
-				}
+	@Override
+	public void selectOutgoingItemClicked() {
+		for (Edge<V> edge : getVisibleEdges()) {
+			if (getSelectedNodes().contains(edge.getFrom())) {
+				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
 	}
