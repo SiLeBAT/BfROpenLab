@@ -25,14 +25,18 @@ import edu.uci.ics.jung.graph.util.Pair;
 /**
  * Implements the Fruchterman-Reingold force-directed algorithm for node layout.
  * 
- * <p>Behavior is determined by the following settable parameters:
+ * <p>
+ * Behavior is determined by the following settable parameters:
  * <ul>
- * <li/>attraction multiplier: how much edges try to keep their vertices together
+ * <li/>attraction multiplier: how much edges try to keep their vertices
+ * together
  * <li/>repulsion multiplier: how much vertices try to push each other apart
- * <li/>maximum iterations: how many iterations this algorithm will use before stopping
+ * <li/>maximum iterations: how many iterations this algorithm will use before
+ * stopping
  * </ul>
- * Each of the first two defaults to 0.75; the maximum number of iterations defaults to 700.
- *
+ * Each of the first two defaults to 0.75; the maximum number of iterations
+ * defaults to 700.
+ * 
  * @see "Fruchterman and Reingold, 'Graph Drawing by Force-directed Placement'"
  * @see "http://i11www.ilkd.uni-karlsruhe.de/teaching/SS_04/visualisierung/papers/fruchterman91graph.pdf"
  * @author Scott White, Yan-Biao Boey, Danyel Fisher

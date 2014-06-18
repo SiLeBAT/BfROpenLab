@@ -53,7 +53,7 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 
-		Set<String> variables = new LinkedHashSet<String>();
+		Set<String> variables = new LinkedHashSet<>();
 
 		variables.add(valueVariable);
 		variables.addAll(variableValues.keySet());

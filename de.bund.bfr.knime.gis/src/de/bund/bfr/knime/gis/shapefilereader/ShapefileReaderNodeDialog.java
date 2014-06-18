@@ -111,7 +111,7 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 		set.setFileName(filePanel.getFileName());
 		set.saveSettings(settings);
 	}
-	
+
 	@Override
 	public void fileChanged(FilePanel source) {
 		try {

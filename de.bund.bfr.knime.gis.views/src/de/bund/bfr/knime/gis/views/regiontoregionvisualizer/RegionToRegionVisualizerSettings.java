@@ -35,24 +35,24 @@ public class RegionToRegionVisualizerSettings extends
 
 	private static final String CFG_SHAPE_REGION_COLUMN = "ShapeRegionColumn";
 	private static final String CFG_NODE_REGION_COLUMN = "NodeRegionColumn";
-	
+
 	private static final String CFG_GIS_NODE_HIGHLIGHT_CONDITIONS = "GisNodeHighlightConditions";
 	private static final String CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS = "GisEdgeHighlightConditions";
 
 	private String shapeRegionColumn;
 	private String nodeRegionColumn;
-	
+
 	private HighlightConditionList gisNodeHighlightConditions;
 	private HighlightConditionList gisEdgeHighlightConditions;
 
 	public RegionToRegionVisualizerSettings() {
 		shapeRegionColumn = null;
 		nodeRegionColumn = null;
-		
+
 		gisNodeHighlightConditions = new HighlightConditionList();
 		gisEdgeHighlightConditions = new HighlightConditionList();
 	}
-	
+
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
@@ -87,7 +87,7 @@ public class RegionToRegionVisualizerSettings extends
 		super.saveSettings(settings);
 		settings.addString(CFG_SHAPE_REGION_COLUMN, shapeRegionColumn);
 		settings.addString(CFG_NODE_REGION_COLUMN, nodeRegionColumn);
-		
+
 		settings.addString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(gisNodeHighlightConditions));
 		settings.addString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS,

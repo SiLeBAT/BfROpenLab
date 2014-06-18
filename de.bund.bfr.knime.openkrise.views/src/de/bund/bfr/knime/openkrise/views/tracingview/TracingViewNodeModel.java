@@ -287,8 +287,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
 			throws InvalidSettingsException {
-		List<DataColumnSpec> newNodeSpec = new ArrayList<DataColumnSpec>();
-		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
+		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
+		Map<String, DataType> columns = new LinkedHashMap<>();
 
 		for (DataColumnSpec column : nodeSpec) {
 			if (column.getName().equals(TracingConstants.ID_COLUMN)) {
@@ -300,7 +300,7 @@ public class TracingViewNodeModel extends NodeModel {
 			columns.put(column.getName(), column.getType());
 		}
 
-		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
 		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
@@ -308,7 +308,7 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);		
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 
 		for (String column : newColumns.keySet()) {
 			if (!columns.containsKey(column)) {
@@ -325,8 +325,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
 			throws InvalidSettingsException {
-		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
-		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
+		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
+		Map<String, DataType> columns = new LinkedHashMap<>();
 
 		for (DataColumnSpec column : edgeSpec) {
 			if (column.getName().equals(TracingConstants.ID_COLUMN)
@@ -340,7 +340,7 @@ public class TracingViewNodeModel extends NodeModel {
 			columns.put(column.getName(), column.getType());
 		}
 
-		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);

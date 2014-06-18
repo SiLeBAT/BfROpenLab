@@ -129,24 +129,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
 		translationY = Double.NaN;
-		canvasListeners = new ArrayList<CanvasListener>();
+		canvasListeners = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
-		viewer = new VisualizationViewer<V, Edge<V>>(
-				new StaticLayout<V, Edge<V>>(
-						new DirectedSparseMultigraph<V, Edge<V>>()));
+		viewer = new VisualizationViewer<>(new StaticLayout<>(
+				new DirectedSparseMultigraph<V, Edge<V>>()));
 		viewer.setBackground(Color.WHITE);
 		viewer.addKeyListener(this);
 		viewer.addMouseListener(this);
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new NodeFillTransformer<V>(viewer,
+				new NodeFillTransformer<>(viewer,
 						new LinkedHashMap<V, List<Double>>(),
 						new ArrayList<Color>()));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<Edge<V>>(viewer,
+				new EdgeDrawTransformer<>(viewer,
 						new LinkedHashMap<Edge<V>, List<Double>>(),
 						new ArrayList<Color>()));
 		((MutableAffineTransformer) viewer.getRenderContext()
@@ -156,7 +155,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 
 		setLayout(new BorderLayout());
-		add(viewer, BorderLayout.CENTER);		
+		add(viewer, BorderLayout.CENTER);
 	}
 
 	public void addCanvasListener(CanvasListener listener) {
@@ -551,7 +550,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectConnectionsItemClicked() {
-		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<V, List<Edge<V>>>();
+		Map<V, List<Edge<V>>> connectingEdges = new LinkedHashMap<>();
 
 		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
 			connectingEdges.put(node, new ArrayList<Edge<V>>());
@@ -596,7 +595,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void highlightSelectedNodesItemClicked() {
 		HighlightListDialog dialog = openNodeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : getSelectedNodeIds()) {
 			LogicalHighlightCondition c = new LogicalHighlightCondition(
@@ -619,7 +618,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void highlightSelectedEdgesItemClicked() {
 		HighlightListDialog dialog = openEdgeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<List<LogicalHighlightCondition>>();
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : getSelectedEdgeIds()) {
 			LogicalHighlightCondition c = new LogicalHighlightCondition(
@@ -736,7 +735,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		Set<V> picked = new LinkedHashSet<V>(getSelectedNodes());
+		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
 
 		picked.retainAll(getVisibleNodes());
 
@@ -748,7 +747,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
 		picked.retainAll(getVisibleEdges());
 
@@ -760,11 +759,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<Edge<V>>(getSelectedEdges());
+		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
 		picked.retainAll(getVisibleEdges());
 
-		Set<Edge<V>> allPicked = new LinkedHashSet<Edge<V>>();
+		Set<Edge<V>> allPicked = new LinkedHashSet<>();
 
 		if (!getJoinMap().isEmpty()) {
 			for (Edge<V> p : picked) {
@@ -861,7 +860,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
 			final boolean toSvg) {
-		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<V, Edge<V>>(
+		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
 				viewer.getGraphLayout(), viewer.getSize());
 
 		server.setBackground(Color.WHITE);
@@ -930,7 +929,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		@Override
 		public void paint(Graphics g) {
 			if (optionsPanel.isShowLegend()) {
-				new CanvasLegend<V>(nodeHighlightConditions, getVisibleNodes(),
+				new CanvasLegend<>(nodeHighlightConditions, getVisibleNodes(),
 						edgeHighlightConditions, getVisibleEdges()).paint(g,
 						getCanvasSize().width, getCanvasSize().height,
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());

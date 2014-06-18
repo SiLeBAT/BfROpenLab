@@ -190,8 +190,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 			}
 		}
 
-		List<DataColumnSpec> specs1 = new ArrayList<DataColumnSpec>();
-		List<DataColumnSpec> specs2 = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> specs1 = new ArrayList<>();
+		List<DataColumnSpec> specs2 = new ArrayList<>();
 
 		specs1.add(new DataColumnSpecCreator(NlsConstants.ID_COLUMN,
 				StringCell.TYPE).createSpec());
@@ -290,9 +290,9 @@ public class FunctionFittingNodeModel extends NodeModel {
 		}
 
 		String formula = function.getTerm();
-		List<String> parameters = new ArrayList<String>();
-		Map<String, Double> minParameterValues = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxParameterValues = new LinkedHashMap<String, Double>();
+		List<String> parameters = new ArrayList<>();
+		Map<String, Double> minParameterValues = new LinkedHashMap<>();
+		Map<String, Double> maxParameterValues = new LinkedHashMap<>();
 
 		for (String param : function.getParameters()) {
 			Double min = null;
@@ -316,13 +316,13 @@ public class FunctionFittingNodeModel extends NodeModel {
 		}
 
 		DataTableSpec spec = table.getSpec();
-		Map<String, List<Double>> targetValues = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
 		for (DataRow row : table) {
 			String id = IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN)));
-			Map<String, Double> values = new LinkedHashMap<String, Double>();
+			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getVariables()) {
 				values.put(var,
@@ -336,7 +336,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 			if (!targetValues.containsKey(id)) {
 				targetValues.put(id, new ArrayList<Double>());
 				argumentValues.put(id,
-						new LinkedHashMap<String, List<Double>>());				
+						new LinkedHashMap<String, List<Double>>());
 
 				for (String indep : function.getIndependentVariables()) {
 					argumentValues.get(id).put(indep, new ArrayList<Double>());
@@ -344,14 +344,14 @@ public class FunctionFittingNodeModel extends NodeModel {
 			}
 
 			targetValues.get(id).add(
-					values.get(function.getDependentVariable()));			
+					values.get(function.getDependentVariable()));
 
 			for (String indep : function.getIndependentVariables()) {
 				argumentValues.get(id).get(indep).add(values.get(indep));
 			}
 		}
 
-		Map<String, ParameterOptimizer> results = new LinkedHashMap<String, ParameterOptimizer>();
+		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
 		for (String id : targetValues.keySet()) {
 			ParameterOptimizer optimizer;

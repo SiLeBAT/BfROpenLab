@@ -4,7 +4,7 @@ Bundle-Name: Collections15
 Bundle-SymbolicName: org.apache.commons.collections15
 Bundle-Version: 4.0.1
 Bundle-Vendor: Apache
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/collections-generic-4.01.jar
 Export-Package: org.apache.commons.collections15,
  org.apache.commons.collections15.bag,

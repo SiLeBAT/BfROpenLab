@@ -109,10 +109,10 @@ public class TracingViewSettings extends TracingSettings {
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
-		caseWeights = new LinkedHashMap<String, Double>();
-		crossContaminations = new LinkedHashMap<String, Boolean>();
-		filter = new LinkedHashMap<String, Boolean>();
-		edgeFilter = new LinkedHashMap<String, Boolean>();
+		caseWeights = new LinkedHashMap<>();
+		crossContaminations = new LinkedHashMap<>();
+		filter = new LinkedHashMap<>();
+		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 
 		graphShowLegend = DEFAULT_GRAPH_SHOW_LEGEND;
@@ -120,17 +120,17 @@ public class TracingViewSettings extends TracingSettings {
 		graphScaleY = Double.NaN;
 		graphTranslationX = Double.NaN;
 		graphTranslationY = Double.NaN;
-		graphNodePositions = new LinkedHashMap<String, Point2D>();
+		graphNodePositions = new LinkedHashMap<>();
 		graphNodeSize = DEFAULT_GRAPH_NODE_SIZE;
 		graphFontSize = DEFAULT_GRAPH_FONT_SIZE;
 		graphFontBold = DEFAULT_GRAPH_FONT_BOLD;
 		graphEditingMode = DEFAULT_GRAPH_EDITING_MODE;
 		graphCanvasSize = DEFAULT_GRAPH_CANVAS_SIZE;
-		graphSelectedNodes = new ArrayList<String>();
-		graphSelectedEdges = new ArrayList<String>();
+		graphSelectedNodes = new ArrayList<>();
+		graphSelectedEdges = new ArrayList<>();
 		graphNodeHighlightConditions = new HighlightConditionList();
 		graphEdgeHighlightConditions = new HighlightConditionList();
-		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+		collapsedNodes = new LinkedHashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -221,7 +221,7 @@ public class TracingViewSettings extends TracingSettings {
 			graphFontSize = settings.getInt(CFG_GRAPH_FONT_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
-		
+
 		try {
 			graphFontBold = settings.getBoolean(CFG_GRAPH_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
@@ -436,7 +436,7 @@ public class TracingViewSettings extends TracingSettings {
 	public void setGraphFontSize(int graphFontSize) {
 		this.graphFontSize = graphFontSize;
 	}
-	
+
 	public boolean isGraphFontBold() {
 		return graphFontBold;
 	}

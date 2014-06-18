@@ -52,9 +52,9 @@ public class EditablePropertiesTable extends JTable {
 			Map<String, Class<?>> properties) {
 		this.elements = elements;
 
-		List<String> columnNames = new ArrayList<String>();
-		List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-		List<List<Object>> columnValueTuples = new ArrayList<List<Object>>();
+		List<String> columnNames = new ArrayList<>();
+		List<Class<?>> columnTypes = new ArrayList<>();
+		List<List<Object>> columnValueTuples = new ArrayList<>();
 
 		for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
 			columnNames.add(entry.getKey());
@@ -62,7 +62,7 @@ public class EditablePropertiesTable extends JTable {
 		}
 
 		for (Element element : elements) {
-			List<Object> tuple = new ArrayList<Object>();
+			List<Object> tuple = new ArrayList<>();
 
 			for (String property : columnNames) {
 				tuple.add(element.getProperties().get(property));
@@ -98,7 +98,7 @@ public class EditablePropertiesTable extends JTable {
 			getCellEditor().stopCellEditing();
 		}
 
-		Map<String, Element> elementsById = new LinkedHashMap<String, Element>();
+		Map<String, Element> elementsById = new LinkedHashMap<>();
 
 		for (Element element : elements) {
 			elementsById.put(element.getId(), element);

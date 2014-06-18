@@ -102,19 +102,19 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
-				edgeProperties, nodes);		
+				edgeProperties, nodes);
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), 0);
 
-		Map<String, Double> weights = new LinkedHashMap<String, Double>();
-		Set<String> crossNodes = new LinkedHashSet<String>();
-		Set<String> filterNodes = new LinkedHashSet<String>();
-		Set<String> filderEdges = new LinkedHashSet<String>();
-		Set<String> backwardNodes = new LinkedHashSet<String>();
-		Set<String> forwardNodes = new LinkedHashSet<String>();
-		Set<String> backwardEdges = new LinkedHashSet<String>();
-		Set<String> forwardEdges = new LinkedHashSet<String>();
+		Map<String, Double> weights = new LinkedHashMap<>();
+		Set<String> crossNodes = new LinkedHashSet<>();
+		Set<String> filterNodes = new LinkedHashSet<>();
+		Set<String> filderEdges = new LinkedHashSet<>();
+		Set<String> backwardNodes = new LinkedHashSet<>();
+		Set<String> forwardNodes = new LinkedHashSet<>();
+		Set<String> backwardEdges = new LinkedHashSet<>();
+		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (GraphNode node : nodes.values()) {
 			String id = node.getId();
@@ -365,8 +365,8 @@ public class TracingParametersNodeModel extends NodeModel {
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
 			throws InvalidSettingsException {
-		List<DataColumnSpec> newNodeSpec = new ArrayList<DataColumnSpec>();
-		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
+		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
 		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
@@ -374,7 +374,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);		
+		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : nodeSpec) {
 			if (newColumns.containsKey(column.getName())) {
@@ -395,8 +395,8 @@ public class TracingParametersNodeModel extends NodeModel {
 
 	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
 			throws InvalidSettingsException {
-		List<DataColumnSpec> newEdgeSpec = new ArrayList<DataColumnSpec>();
-		Map<String, DataType> newColumns = new LinkedHashMap<String, DataType>();
+		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
+		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);

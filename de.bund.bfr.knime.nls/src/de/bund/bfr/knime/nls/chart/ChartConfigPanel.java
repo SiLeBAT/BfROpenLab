@@ -94,7 +94,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private List<JSlider> parameterSliders;
 
 	public ChartConfigPanel(boolean showParamFields) {
-		configListeners = new ArrayList<ConfigListener>();
+		configListeners = new ArrayList<>();
 		lastParamX = null;
 
 		JPanel mainPanel = new JPanel();
@@ -172,12 +172,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 		mainPanel.add(outerRangePanel, createConstraints(1));
 
-		xBox = new JComboBox<String>();
+		xBox = new JComboBox<>();
 		xBox.addActionListener(this);
-		yBox = new JComboBox<String>();
-		xTransBox = new JComboBox<Transform>(Transform.values());
+		yBox = new JComboBox<>();
+		xTransBox = new JComboBox<>(Transform.values());
 		xTransBox.addActionListener(this);
-		yTransBox = new JComboBox<Transform>(Transform.values());
+		yTransBox = new JComboBox<>(Transform.values());
 		yTransBox.addActionListener(this);
 
 		JPanel parametersPanel = new JPanel();
@@ -204,10 +204,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setLayout(new GridBagLayout());
-		parameters = new ArrayList<String>();
-		parameterFields = new ArrayList<DoubleTextField>();
-		parameterLabels = new ArrayList<JLabel>();
-		parameterSliders = new ArrayList<JSlider>();
+		parameters = new ArrayList<>();
+		parameterFields = new ArrayList<>();
+		parameterLabels = new ArrayList<>();
+		parameterSliders = new ArrayList<>();
 
 		JPanel outerParameterValuesPanel = new JPanel();
 
@@ -368,15 +368,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			Map<String, Double> minParamValuesX,
 			Map<String, Double> maxParamValuesX) {
 		if (parametersX == null) {
-			parametersX = new LinkedHashMap<String, Double>();
+			parametersX = new LinkedHashMap<>();
 		}
 
 		if (minParamValuesX == null) {
-			minParamValuesX = new LinkedHashMap<String, Double>();
+			minParamValuesX = new LinkedHashMap<>();
 		}
 
 		if (maxParamValuesX == null) {
-			maxParamValuesX = new LinkedHashMap<String, Double>();
+			maxParamValuesX = new LinkedHashMap<>();
 		}
 
 		if (!parametersX.equals(this.parametersX)
@@ -419,7 +419,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, Double> getParamsX() {
-		Map<String, Double> valueLists = new LinkedHashMap<String, Double>();
+		Map<String, Double> valueLists = new LinkedHashMap<>();
 
 		for (int i = 0; i < parameterFields.size(); i++) {
 			DoubleTextField field = parameterFields.get(i);

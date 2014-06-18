@@ -56,7 +56,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
 				variableValues.keySet()));
 		function = parser.parse(formula);
-		derivatives = new LinkedHashMap<String, Node>();
+		derivatives = new LinkedHashMap<>();
 
 		for (String param : parameters) {
 			derivatives.put(param, parser.differentiate(function, param));
@@ -73,7 +73,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		double[][] retValue = new double[dimension][parameters.size()];
 
 		try {
-			Map<String, Double> paramValues = new LinkedHashMap<String, Double>();
+			Map<String, Double> paramValues = new LinkedHashMap<>();
 
 			for (int i = 0; i < parameters.size(); i++) {
 				paramValues.put(parameters.get(i), point[i]);
@@ -136,12 +136,11 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			Map<String, List<Double>> argumentValues) {
 		int n = argumentValues.size();
 		boolean done = false;
-		List<List<Integer>> variationList = new ArrayList<List<Integer>>();
-		List<Integer> variation = new ArrayList<Integer>(Collections.nCopies(n,
-				-1));
+		List<List<Integer>> variationList = new ArrayList<>();
+		List<Integer> variation = new ArrayList<>(Collections.nCopies(n, -1));
 
 		while (!done) {
-			variationList.add(new ArrayList<Integer>(variation));
+			variationList.add(new ArrayList<>(variation));
 
 			for (int i = 0;; i++) {
 				if (i >= n) {
@@ -188,14 +187,14 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		});
 
-		List<Map<String, List<Double>>> argumentVariationList = new ArrayList<Map<String, List<Double>>>();
+		List<Map<String, List<Double>>> argumentVariationList = new ArrayList<>();
 
 		for (List<Integer> changeList : variationList) {
-			Map<String, List<Double>> newArgumentValues = new LinkedHashMap<String, List<Double>>();
+			Map<String, List<Double>> newArgumentValues = new LinkedHashMap<>();
 			int i = 0;
 
 			for (String arg : argumentValues.keySet()) {
-				List<Double> newValues = new ArrayList<Double>();
+				List<Double> newValues = new ArrayList<>();
 				double d = changeList.get(i) * EPSILON;
 
 				for (double v : argumentValues.get(arg)) {

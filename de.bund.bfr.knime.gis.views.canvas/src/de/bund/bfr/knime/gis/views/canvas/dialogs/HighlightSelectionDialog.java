@@ -62,7 +62,7 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 		this.highlightConditions = null;
 		approved = false;
 
-		list = new JList<HighlightCondition>();
+		list = new JList<>();
 		list.getSelectionModel().setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());

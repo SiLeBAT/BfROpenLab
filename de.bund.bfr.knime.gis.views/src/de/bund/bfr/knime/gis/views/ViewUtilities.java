@@ -105,7 +105,7 @@ public class ViewUtilities {
 	public static Map<String, String> getIdToRegionMap(
 			BufferedDataTable nodeTable, String nodeIdColumn,
 			String nodeRegionColumn) {
-		Map<String, String> idToRegionMap = new LinkedHashMap<String, String>();
+		Map<String, String> idToRegionMap = new LinkedHashMap<>();
 		int idIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int regionIndex = nodeTable.getSpec().findColumnIndex(nodeRegionColumn);
 
@@ -126,7 +126,7 @@ public class ViewUtilities {
 	public static Map<String, MultiPolygon> readPolygons(
 			BufferedDataTable shapeTable, String shapeColumn,
 			String shapeRegionColumn) {
-		Map<String, MultiPolygon> polygonMap = new LinkedHashMap<String, MultiPolygon>();
+		Map<String, MultiPolygon> polygonMap = new LinkedHashMap<>();
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumn);
 		int shapeRegionIndex = shapeTable.getSpec().findColumnIndex(
 				shapeRegionColumn);
@@ -157,7 +157,7 @@ public class ViewUtilities {
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
 			String nodeIdColumn, String nodeRegionColumn) {
-		Map<String, GraphNode> nodes = new LinkedHashMap<String, GraphNode>();
+		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int nodeRegionIndex = nodeTable.getSpec().findColumnIndex(
 				nodeRegionColumn);
@@ -175,7 +175,7 @@ public class ViewUtilities {
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(nodeIdIndex));
 			String region = null;
-			Map<String, Object> properties = new LinkedHashMap<String, Object>();
+			Map<String, Object> properties = new LinkedHashMap<>();
 
 			if (nodeRegionIndex != -1) {
 				region = IO.getToCleanString(row.getCell(nodeRegionIndex));
@@ -193,7 +193,7 @@ public class ViewUtilities {
 
 	public static List<RegionNode> readRegionNodes(
 			BufferedDataTable shapeTable, String shapeColumn) {
-		List<RegionNode> nodes = new ArrayList<RegionNode>();
+		List<RegionNode> nodes = new ArrayList<>();
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumn);
 		int index = 0;
 
@@ -226,8 +226,8 @@ public class ViewUtilities {
 			Map<String, MultiPolygon> polygonMap,
 			Map<String, String> idToRegionMap, String nodeIdColumn,
 			Set<String> nonExistingRegions) {
-		Map<String, RegionNode> nodes = new LinkedHashMap<String, RegionNode>();
-		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<String, Map<String, Object>>();
+		Map<String, RegionNode> nodes = new LinkedHashMap<>();
+		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 
 		if (nodeIdIndex == -1) {
@@ -260,7 +260,7 @@ public class ViewUtilities {
 			Map<String, Object> properties = nodeMap.get(id);
 
 			if (properties == null) {
-				properties = new LinkedHashMap<String, Object>();
+				properties = new LinkedHashMap<>();
 
 				for (String property : nodeProperties.keySet()) {
 					properties.put(property, null);
@@ -284,7 +284,7 @@ public class ViewUtilities {
 	public static Map<String, LocationNode> readLocationNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
 			String nodeIdColumn, String latitudeColumn, String longitudeColumn) {
-		Map<String, LocationNode> nodes = new LinkedHashMap<String, LocationNode>();
+		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		int latIndex = nodeTable.getSpec().findColumnIndex(latitudeColumn);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(longitudeColumn);
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
@@ -329,7 +329,7 @@ public class ViewUtilities {
 				continue;
 			}
 
-			Map<String, Object> properties = new LinkedHashMap<String, Object>();
+			Map<String, Object> properties = new LinkedHashMap<>();
 
 			ViewUtilities.addToProperties(properties, nodeProperties,
 					nodeTable, row);
@@ -347,7 +347,7 @@ public class ViewUtilities {
 			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
 			Map<String, V> nodes, Map<String, String> idToRegionMap,
 			String edgeFromColumn, String edgeToColumn) {
-		List<Edge<V>> edges = new ArrayList<Edge<V>>();
+		List<Edge<V>> edges = new ArrayList<>();
 		int fromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
 		int toIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
 
@@ -373,13 +373,13 @@ public class ViewUtilities {
 			V node2 = nodes.get(to);
 
 			if (node1 != null && node2 != null) {
-				Map<String, Object> properties = new LinkedHashMap<String, Object>();
+				Map<String, Object> properties = new LinkedHashMap<>();
 
 				ViewUtilities.addToProperties(properties, edgeProperties,
 						edgeTable, row);
 				properties.put(edgeFromColumn, from);
 				properties.put(edgeToColumn, to);
-				edges.add(new Edge<V>(edgeIndex + "", properties, node1, node2));
+				edges.add(new Edge<>(edgeIndex + "", properties, node1, node2));
 				edgeIndex++;
 			}
 		}

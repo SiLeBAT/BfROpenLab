@@ -56,7 +56,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
-		Set<String> variables = new LinkedHashSet<String>();
+		Set<String> variables = new LinkedHashSet<>();
 
 		variables.add(valueVariable);
 		variables.add(diffVariable);

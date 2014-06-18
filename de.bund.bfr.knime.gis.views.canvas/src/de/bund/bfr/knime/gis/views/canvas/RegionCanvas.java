@@ -93,15 +93,15 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			String edgeToProperty, boolean allowEdges) {
 		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.nodes = new LinkedHashSet<RegionNode>(nodes);
-		this.edges = new LinkedHashSet<Edge<RegionNode>>(edges);
+		this.nodes = new LinkedHashSet<>(nodes);
+		this.edges = new LinkedHashSet<>(edges);
 		allEdges = edges;
-		joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
+		joinMap = new LinkedHashMap<>();
 
 		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(allowEdges, false, true));
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<RegionNode>(2,
+				new NodeShapeTransformer<>(2,
 						new LinkedHashMap<RegionNode, Double>()));
 		getViewer().getRenderContext().setVertexDrawPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
@@ -148,8 +148,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 					CanvasUtilities.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
-			edges = new LinkedHashSet<Edge<RegionNode>>(allEdges);
-			joinMap = new LinkedHashMap<Edge<RegionNode>, Set<Edge<RegionNode>>>();
+			edges = new LinkedHashSet<>(allEdges);
+			joinMap = new LinkedHashMap<>();
 		}
 
 		getViewer().getGraphLayout().setGraph(
@@ -175,7 +175,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	@Override
 	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel(
 			Mode editingMode) {
-		return new GraphMouse<RegionNode, Edge<RegionNode>>(
+		return new GraphMouse<>(
 				new PickingGraphMousePlugin<RegionNode, Edge<RegionNode>>() {
 
 					@Override
@@ -275,8 +275,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			}
 		}
 
-		List<Color> nodeColors = new ArrayList<Color>();
-		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<RegionNode, List<Double>>();
+		List<Color> nodeColors = new ArrayList<>();
+		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<>();
 		boolean prioritize = getNodeHighlightConditions().isPrioritizeColors();
 
 		for (RegionNode node : nodes) {

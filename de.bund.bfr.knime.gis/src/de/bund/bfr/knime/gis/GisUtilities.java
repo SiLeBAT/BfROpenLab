@@ -57,7 +57,7 @@ public class GisUtilities {
 	}
 
 	public static DataColumnSpec[] getShapeColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			if (column.getType() == ShapeBlobCell.TYPE) {

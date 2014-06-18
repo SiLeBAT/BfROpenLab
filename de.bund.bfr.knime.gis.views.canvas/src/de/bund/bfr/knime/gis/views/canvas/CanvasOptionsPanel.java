@@ -277,7 +277,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 	}
 
 	private void init() {
-		listeners = new ArrayList<ChangeListener>();
+		listeners = new ArrayList<>();
 
 		editingMode = DEFAULT_MODE;
 		showLegend = DEFAULT_SHOW_LEGEND;
@@ -288,7 +288,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 		nodeSize = DEFAULT_NODE_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
-		editingModeBox = new JComboBox<Mode>(new Mode[] { Mode.TRANSFORMING,
+		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING,
 				Mode.PICKING });
 		editingModeBox.setSelectedItem(editingMode);
 		editingModeBox.addActionListener(this);
@@ -301,7 +301,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
 		skipEdgelessNodesBox.addActionListener(this);
-		fontSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(TEXT_SIZES));
+		fontSizeBox = new JComboBox<>(ArrayUtils.toObject(TEXT_SIZES));
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);
@@ -310,7 +310,7 @@ public class CanvasOptionsPanel extends JPanel implements ActionListener {
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(fontBold);
 		fontBoldBox.addActionListener(this);
-		nodeSizeBox = new JComboBox<Integer>(ArrayUtils.toObject(NODE_SIZES));
+		nodeSizeBox = new JComboBox<>(ArrayUtils.toObject(NODE_SIZES));
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Geotools
 Bundle-SymbolicName: org.geotools
 Bundle-Version: 10.2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: OSGeo Project
 Bundle-ClassPath: lib/gt-api-10.2.jar,
  lib/gt-data-10.2.jar,

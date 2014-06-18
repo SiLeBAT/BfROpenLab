@@ -121,7 +121,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("");
 		}
 
-		Map<String, Point2D.Double> guesses = new LinkedHashMap<String, Point2D.Double>();
+		Map<String, Point2D.Double> guesses = new LinkedHashMap<>();
 
 		for (String param : minimumFields.keySet()) {
 			Double min = minimumFields.get(param).getValue();
@@ -219,8 +219,8 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
-		minimumFields = new LinkedHashMap<String, DoubleTextField>();
-		maximumFields = new LinkedHashMap<String, DoubleTextField>();
+		minimumFields = new LinkedHashMap<>();
+		maximumFields = new LinkedHashMap<>();
 
 		JPanel northRangePanel = new JPanel();
 
@@ -237,7 +237,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		rightPanel.setLayout(new GridLayout(params.size(), 1));
 
 		if (guesses == null) {
-			guesses = new LinkedHashMap<String, Point2D.Double>();
+			guesses = new LinkedHashMap<>();
 		}
 
 		for (String param : params) {

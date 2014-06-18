@@ -90,15 +90,14 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		this.allowInvisible = allowInvisible;
 		this.allowThickness = allowThickness;
 		this.allowLabel = allowLabel;
-		this.highlightConditions = new HighlightConditionList(
-				new ArrayList<HighlightCondition>(
-						highlightConditions.getConditions()),
+		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
+				highlightConditions.getConditions()),
 				highlightConditions.isPrioritizeColors());
 		this.checker = checker;
 		autoAddCondition = null;
 		approved = false;
 
-		list = new JList<HighlightCondition>();
+		list = new JList<>();
 		list.getSelectionModel().setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());

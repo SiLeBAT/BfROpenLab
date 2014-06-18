@@ -65,9 +65,9 @@ public class ShapeViewNodeView extends NodeView<ShapeViewNodeModel> implements
 
 	private final MapOverlayRectangle m_selectionRectangle;
 
-	private final Set<KnimeMapMarker2> m_hiliteSet = new HashSet<KnimeMapMarker2>();
+	private final Set<KnimeMapMarker2> m_hiliteSet = new HashSet<>();
 
-	private final Set<KnimeMapMarker2> m_unhiliteSet = new HashSet<KnimeMapMarker2>();
+	private final Set<KnimeMapMarker2> m_unhiliteSet = new HashSet<>();
 
 	private HiLiteHandler m_hiliteHandler;
 
@@ -391,8 +391,7 @@ public class ShapeViewNodeView extends NodeView<ShapeViewNodeModel> implements
 			if (m_hiliteFilter == FILTER_NONE) {
 				m_map.setKnimeMapMarkers(markers);
 			} else {
-				List<KnimeMapMarker2> filtered = new ArrayList<KnimeMapMarker2>(
-						markers.size());
+				List<KnimeMapMarker2> filtered = new ArrayList<>(markers.size());
 				for (KnimeMapMarker2 marker : markers) {
 					if (m_hiliteFilter == FILTER_HILITE_ONLY) {
 						if (marker.isHilited()) {

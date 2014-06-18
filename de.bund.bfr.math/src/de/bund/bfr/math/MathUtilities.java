@@ -88,7 +88,7 @@ public class MathUtilities {
 	}
 
 	public static List<String> getSymbols(String formula) {
-		List<String> symbols = new ArrayList<String>();
+		List<String> symbols = new ArrayList<>();
 		DJep parser = MathUtilities.createParser();
 
 		try {
@@ -195,16 +195,16 @@ public class MathUtilities {
 
 		return parser;
 	}
-	
+
 	public static DJep createParser(Collection<String> variables) {
 		DJep parser = createParser();
-		
+
 		for (String var : variables) {
 			parser.addVariable(var, 0.0);
 		}
-		
+
 		return parser;
-	}	
+	}
 
 	private static class ZeroDiffRule implements DiffRulesI {
 

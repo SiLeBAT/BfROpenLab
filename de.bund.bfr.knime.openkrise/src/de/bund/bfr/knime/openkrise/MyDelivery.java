@@ -24,8 +24,8 @@ public class MyDelivery {
 		this.deliveryMonth = deliveryMonth;
 		this.deliveryYear = deliveryYear;
 		
-		allNextIDs = new HashSet<Integer>();
-		allPreviousIDs = new HashSet<Integer>();
+		allNextIDs = new HashSet<>();
+		allPreviousIDs = new HashSet<>();
 	}
 
 	public HashSet<Integer> getAllNextIDs() {
@@ -102,6 +102,7 @@ public class MyDelivery {
 		forwardDeliveries = null;
 		backwardDeliveries = null;
 	}
+	@Override
 	public MyDelivery clone() {
 		MyDelivery md = this;
 		MyDelivery mdNew = new MyDelivery(md.getId(), md.getSupplierID(), md.getRecipientID(), md.getDeliveryDay(), md.getDeliveryMonth(), md.getDeliveryYear());

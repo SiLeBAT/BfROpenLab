@@ -93,7 +93,7 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton),
 				BorderLayout.EAST);
 
-		List<JButton> buttons = new ArrayList<JButton>();
+		List<JButton> buttons = new ArrayList<>();
 
 		if (properties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
 			buttons.add(weightButton);

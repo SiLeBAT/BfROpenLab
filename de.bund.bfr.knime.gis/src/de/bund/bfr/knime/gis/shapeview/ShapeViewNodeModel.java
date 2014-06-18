@@ -86,7 +86,7 @@ public class ShapeViewNodeModel extends NodeModel {
 				.getDataTableSpec() : null);
 
 		// create map markers
-		m_mapMarkers = new HashMap<RowKey, KnimeMapMarker2>();
+		m_mapMarkers = new HashMap<>();
 		if (latlon[0] != -1 && latlon[1] != -1) {
 			int[] hoverInfoColIndices;
 			if (inData[0] != null) {
@@ -195,7 +195,7 @@ public class ShapeViewNodeModel extends NodeModel {
 		BufferedInputStream bufIn = new BufferedInputStream(fileIn);
 		ObjectInputStream objectIn = new ObjectInputStream(bufIn);
 		int size = objectIn.readInt();
-		m_mapMarkers = new HashMap<RowKey, KnimeMapMarker2>(size);
+		m_mapMarkers = new HashMap<>(size);
 		for (int i = 0; i < size; i++) {
 			RowKey rk = new RowKey(objectIn.readUTF());
 			Object marker = null;

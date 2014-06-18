@@ -43,8 +43,7 @@ import javax.swing.SwingUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
-public class SinglePropertiesDialog extends JDialog implements
-		ActionListener {
+public class SinglePropertiesDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 

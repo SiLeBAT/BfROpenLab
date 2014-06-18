@@ -41,7 +41,6 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	public static final int DEFAULT_N_LEVENBERG = 10;
 	public static final boolean DEFAULT_STOP_WHEN_SUCCESSFUL = false;
 	public static final boolean DEFAULT_ENFORCE_LIMITS = false;
-	public static final LinkedHashMap<String, Point2D.Double> DEFAULT_PARAMETER_GUESSES = new LinkedHashMap<String, Point2D.Double>();
 
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
@@ -63,7 +62,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 		nLevenberg = DEFAULT_N_LEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOP_WHEN_SUCCESSFUL;
 		enforceLimits = DEFAULT_ENFORCE_LIMITS;
-		parameterGuesses = DEFAULT_PARAMETER_GUESSES;
+		parameterGuesses = new LinkedHashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")

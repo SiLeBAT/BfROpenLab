@@ -47,7 +47,7 @@ public class StringTextField extends JTextField implements DocumentListener {
 		super(columns);
 		this.optional = optional;
 		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<TextListener>();
+		listeners = new ArrayList<>();
 		textChanged();
 	}
 

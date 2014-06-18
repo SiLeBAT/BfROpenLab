@@ -62,7 +62,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		idToRegionMap = ViewUtilities.getIdToRegionMap(nodeTable,
 				set.getNodeIdColumn(), set.getNodeRegionColumn());
-		nonExistingRegions = new LinkedHashSet<String>();
+		nonExistingRegions = new LinkedHashSet<>();
 	}
 
 	public GraphCanvas createGraphCanvas() {
@@ -83,10 +83,10 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), false);
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
+				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
+				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn(),
+				false);
 
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
@@ -98,9 +98,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
 				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
 				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())
@@ -136,10 +136,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
-		RegionCanvas canvas = new RegionCanvas(new ArrayList<RegionNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
+		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
+				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
+				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn());
 
 		canvas.setShowLegend(set.isGisShowLegend());
 		canvas.setCanvasSize(set.getGisCanvasSize());
@@ -173,8 +172,8 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 	public static Set<RegionNode> getSelectedGisNodes(Set<RegionNode> gisNodes,
 			Set<GraphNode> selectedGraphNodes) {
-		Set<RegionNode> selectedGisNodes = new LinkedHashSet<RegionNode>();
-		Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<String, RegionNode>();
+		Set<RegionNode> selectedGisNodes = new LinkedHashSet<>();
+		Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<>();
 
 		for (RegionNode gisNode : gisNodes) {
 			gisNodesByRegion.put(gisNode.getId(), gisNode);
@@ -194,10 +193,10 @@ public class RegionToRegionVisualizerCanvasCreator {
 	public static Set<Edge<RegionNode>> getSelectedGisEdges(
 			Set<Edge<RegionNode>> gisEdges,
 			Set<Edge<GraphNode>> graphSelectedEdges, boolean joinEdges) {
-		Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<Edge<RegionNode>>();
+		Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<>();
 
 		if (!joinEdges) {
-			Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<String, Edge<RegionNode>>();
+			Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<>();
 
 			for (Edge<RegionNode> gisEdge : gisEdges) {
 				gisEdgesById.put(gisEdge.getId(), gisEdge);
@@ -207,7 +206,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				selectedGisEdges.add(gisEdgesById.get(graphEdge.getId()));
 			}
 		} else {
-			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<String, Map<String, Edge<RegionNode>>>();
+			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<>();
 
 			for (Edge<RegionNode> gisEdge : gisEdges) {
 				String fromRegion = gisEdge.getFrom().getId();

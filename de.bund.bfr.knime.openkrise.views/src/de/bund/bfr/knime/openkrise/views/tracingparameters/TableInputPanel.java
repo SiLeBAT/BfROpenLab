@@ -114,14 +114,14 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			inputTable.getDefaultEditor(type).stopCellEditing();
 		}
 
-		Set<String> filteredIds = new LinkedHashSet<String>();
+		Set<String> filteredIds = new LinkedHashSet<>();
 		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			filteredIds.add((String) table.getValueAt(row, idColumn));
 		}
 
-		Map<String, T> newValues = new LinkedHashMap<String, T>();
+		Map<String, T> newValues = new LinkedHashMap<>();
 
 		for (String id : filteredIds) {
 			newValues.put(id, values.get(id));
@@ -277,7 +277,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			return nodes;
 		}
 
-		Collection<T> filteredNodes = new ArrayList<T>();
+		Collection<T> filteredNodes = new ArrayList<>();
 		Map<T, Double> values = condition.getValues(nodes);
 
 		for (T node : values.keySet()) {

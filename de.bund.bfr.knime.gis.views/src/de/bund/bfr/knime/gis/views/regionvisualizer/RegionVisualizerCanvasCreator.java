@@ -52,7 +52,7 @@ public class RegionVisualizerCanvasCreator {
 		this.nodeTable = nodeTable;
 		this.set = set;
 
-		nonExistingRegions = new LinkedHashSet<String>();
+		nonExistingRegions = new LinkedHashSet<>();
 	}
 
 	public RegionCanvas createCanvas() {
@@ -60,9 +60,9 @@ public class RegionVisualizerCanvasCreator {
 				shapeTable, set.getShapeColumn(), set.getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
-		List<RegionNode> nodes = new ArrayList<RegionNode>(ViewUtilities
-				.readRegionNodes(nodeTable, nodeProperties, polygonMap, null,
-						set.getNodeRegionColumn(), nonExistingRegions).values());
+		List<RegionNode> nodes = new ArrayList<>(ViewUtilities.readRegionNodes(
+				nodeTable, nodeProperties, polygonMap, null,
+				set.getNodeRegionColumn(), nonExistingRegions).values());
 
 		if (nodes.isEmpty()) {
 			return null;

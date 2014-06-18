@@ -102,7 +102,7 @@ public class KnimeUtilities {
 	}
 
 	public static List<String> stringToList(String s) {
-		return new ArrayList<String>(Arrays.asList(s.split(",")));
+		return new ArrayList<>(Arrays.asList(s.split(",")));
 	}
 
 	public static File getFile(String fileName) throws FileNotFoundException {
@@ -123,7 +123,7 @@ public class KnimeUtilities {
 	}
 
 	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
-		Map<String, Class<?>> tableColumns = new LinkedHashMap<String, Class<?>>();
+		Map<String, Class<?>> tableColumns = new LinkedHashMap<>();
 
 		for (int i = 0; i < spec.getNumColumns(); i++) {
 			DataColumnSpec cSpec = spec.getColumnSpec(i);
@@ -143,7 +143,7 @@ public class KnimeUtilities {
 	}
 
 	public static DataColumnSpec[] getAllColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			columns.add(column);
@@ -153,7 +153,7 @@ public class KnimeUtilities {
 	}
 
 	public static DataColumnSpec[] getStringColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			if (column.getType().equals(StringCell.TYPE)) {
@@ -165,7 +165,7 @@ public class KnimeUtilities {
 	}
 
 	public static DataColumnSpec[] getDoubleColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			if (column.getType().equals(DoubleCell.TYPE)) {
@@ -177,7 +177,7 @@ public class KnimeUtilities {
 	}
 
 	public static DataColumnSpec[] getStringIntColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
 			if (column.getType().equals(StringCell.TYPE)
@@ -190,7 +190,7 @@ public class KnimeUtilities {
 	}
 
 	public static List<String> getColumnNames(DataColumnSpec[] columns) {
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 
 		for (DataColumnSpec column : columns) {
 			names.add(column.getName());
@@ -211,5 +211,5 @@ public class KnimeUtilities {
 				return newValue;
 			}
 		}
-	}	
+	}
 }

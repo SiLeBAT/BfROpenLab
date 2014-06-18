@@ -49,7 +49,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 	public FunctionCreatorSettings() {
 		dependentVariable = null;
 		term = null;
-		independentVariables = new ArrayList<String>();
+		independentVariables = new ArrayList<>();
 		diffVariable = null;
 	}
 

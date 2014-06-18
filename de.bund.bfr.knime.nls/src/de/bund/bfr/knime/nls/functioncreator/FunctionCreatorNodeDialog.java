@@ -84,7 +84,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	 */
 	protected FunctionCreatorNodeDialog() {
 		set = new FunctionCreatorSettings();
-		usedIndeps = new ArrayList<String>();
+		usedIndeps = new ArrayList<>();
 
 		functionPanel = createFunctionPanel();
 		mainPanel = new JPanel();
@@ -220,7 +220,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		indepVarBoxes = new ArrayList<JCheckBox>();
+		indepVarBoxes = new ArrayList<>();
 
 		for (String el : elements) {
 			JCheckBox box = new JCheckBox(el);
@@ -250,7 +250,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	private void updateFunction() {
 		List<String> params = MathUtilities.getSymbols(set.getTerm());
-		List<String> indeps = new ArrayList<String>();
+		List<String> indeps = new ArrayList<>();
 
 		for (String indep : set.getIndependentVariables()) {
 			if (params.contains(indep)) {

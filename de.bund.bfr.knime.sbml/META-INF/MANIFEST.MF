@@ -14,5 +14,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.sbml.reader
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

@@ -66,7 +66,7 @@ public class TileSources {
 	private void loadTileSources() {
 
 		if (m_tileSources == null) {
-			m_tileSources = new HashMap<String, TileSource>();
+			m_tileSources = new HashMap<>();
 			// default tile sources
 			m_tileSources.put("Mapnik", new OsmTileSource.Mapnik());
 			m_tileSources.put("CycleMap", new OsmTileSource.CycleMap());

@@ -18,5 +18,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.lang,
  de.bund.bfr.knime,
  de.bund.bfr.knime.gis
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

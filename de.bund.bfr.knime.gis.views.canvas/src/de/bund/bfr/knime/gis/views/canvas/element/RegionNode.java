@@ -75,7 +75,7 @@ public class RegionNode extends Node {
 
 	public void setTransform(double translationX, double translationY,
 			double scaleX, double scaleY) {
-		transformedPolygon = new ArrayList<Polygon>();
+		transformedPolygon = new ArrayList<>();
 		transformedCenter = new Point();
 
 		for (int index = 0; index < polygon.getNumGeometries(); index++) {

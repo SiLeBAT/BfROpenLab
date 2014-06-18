@@ -66,10 +66,10 @@ public class GraphVisualizerCanvasCreator {
 				set.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<GraphNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				set.getNodeIdColumn(), edgeIdProperty, set.getEdgeFromColumn(),
-				set.getEdgeToColumn(), true);
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
+				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
+				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn(),
+				true);
 
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
@@ -82,9 +82,9 @@ public class GraphVisualizerCanvasCreator {
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
 				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
 				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())

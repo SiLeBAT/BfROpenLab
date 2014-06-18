@@ -81,7 +81,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	public ChartSelectionPanel(List<String> ids,
 			Map<String, List<String>> stringValues,
 			Map<String, List<Double>> doubleValues) {
-		listeners = new ArrayList<SelectionListener>();
+		listeners = new ArrayList<>();
 		colorAndShapes = new ColorAndShapeCreator(ids.size());
 
 		selectAllBox = new JCheckBox("Select All");
@@ -112,7 +112,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		selectTable.getColumn(ChartUtilities.COLOR).setCellRenderer(
 				new ColorRenderer());
 		selectTable.getColumn(ChartUtilities.SHAPE).setCellEditor(
-				new DefaultCellEditor(new JComboBox<String>(
+				new DefaultCellEditor(new JComboBox<>(
 						ColorAndShapeCreator.SHAPE_NAMES)));
 		selectTable.getColumn(ChartUtilities.COLOR).getCellEditor()
 				.addCellEditorListener(this);
@@ -165,7 +165,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public List<String> getSelectedIds() {
-		List<String> selectedIds = new ArrayList<String>();
+		List<String> selectedIds = new ArrayList<>();
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
 			if ((Boolean) selectTable.getValueAt(i, 1)) {
@@ -177,7 +177,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public void setSelectedIds(List<String> selectedIds) {
-		Set<String> idSet = new LinkedHashSet<String>(selectedIds);
+		Set<String> idSet = new LinkedHashSet<>(selectedIds);
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
 			if (idSet.contains(selectTable.getValueAt(i, 0))) {
@@ -191,7 +191,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public Map<String, Color> getColors() {
-		Map<String, Color> paints = new LinkedHashMap<String, Color>(
+		Map<String, Color> paints = new LinkedHashMap<>(
 				selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -213,7 +213,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public Map<String, Shape> getShapes() {
-		Map<String, Shape> shapes = new LinkedHashMap<String, Shape>(
+		Map<String, Shape> shapes = new LinkedHashMap<>(
 				selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
@@ -303,11 +303,11 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 				Map<String, List<Double>> doubleColumns, List<Color> colors,
 				List<String> shapes) {
 			if (stringColumns == null) {
-				stringColumns = new LinkedHashMap<String, List<String>>();
+				stringColumns = new LinkedHashMap<>();
 			}
 
 			if (doubleColumns == null) {
-				doubleColumns = new LinkedHashMap<String, List<Double>>();
+				doubleColumns = new LinkedHashMap<>();
 			}
 
 			this.ids = ids;
@@ -316,10 +316,9 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			this.colors = colors;
 			this.shapes = shapes;
 
-			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
-					false));
-			stringByIndex = new LinkedHashMap<Integer, String>();
-			doubleByIndex = new LinkedHashMap<Integer, String>();
+			selections = new ArrayList<>(Collections.nCopies(ids.size(), false));
+			stringByIndex = new LinkedHashMap<>();
+			doubleByIndex = new LinkedHashMap<>();
 
 			int columnIndex = 4;
 

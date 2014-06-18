@@ -236,7 +236,7 @@ public class GeocodingNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (int i = 0; i < inSpecs[0].getNumColumns(); i++) {
 			String name = inSpecs[0].getColumnSpec(i).getName();
@@ -386,14 +386,14 @@ public class GeocodingNodeModel extends NodeModel {
 		int n = ((NodeList) xPath.compile(
 				"/response/results/result/locations/location").evaluate(doc,
 				XPathConstants.NODESET)).getLength();
-		List<String> streets = new ArrayList<String>();
-		List<String> cities = new ArrayList<String>();
-		List<String> counties = new ArrayList<String>();
-		List<String> states = new ArrayList<String>();
-		List<String> countries = new ArrayList<String>();
-		List<String> postalCodes = new ArrayList<String>();
-		List<Double> latitudes = new ArrayList<Double>();
-		List<Double> longitudes = new ArrayList<Double>();
+		List<String> streets = new ArrayList<>();
+		List<String> cities = new ArrayList<>();
+		List<String> counties = new ArrayList<>();
+		List<String> states = new ArrayList<>();
+		List<String> countries = new ArrayList<>();
+		List<String> postalCodes = new ArrayList<>();
+		List<Double> latitudes = new ArrayList<>();
+		List<Double> longitudes = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			streets.add(xPath.compile(
@@ -425,7 +425,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 		String address = getAddress(street, city, county, state, country,
 				postalCode);
-		List<String> addresses = new ArrayList<String>();
+		List<String> addresses = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			addresses.add(getAddress(streets.get(i), cities.get(i),
@@ -503,11 +503,11 @@ public class GeocodingNodeModel extends NodeModel {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		int n = ((NodeList) xPath.compile("/results/result").evaluate(doc,
 				XPathConstants.NODESET)).getLength();
-		List<String> cities = new ArrayList<String>();
-		List<String> states = new ArrayList<String>();
-		List<String> countryCodes = new ArrayList<String>();
-		List<Double> latitudes = new ArrayList<Double>();
-		List<Double> longitudes = new ArrayList<Double>();
+		List<String> cities = new ArrayList<>();
+		List<String> states = new ArrayList<>();
+		List<String> countryCodes = new ArrayList<>();
+		List<Double> latitudes = new ArrayList<>();
+		List<Double> longitudes = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			cities.add(xPath.compile("/results/result[" + (i + 1) + "]/city")
@@ -526,7 +526,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 		String fullAddress = getAddress(address, null, null, null, countryCode,
 				null);
-		List<String> addresses = new ArrayList<String>();
+		List<String> addresses = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			addresses.add(getAddress(null, cities.get(i), null, states.get(i),

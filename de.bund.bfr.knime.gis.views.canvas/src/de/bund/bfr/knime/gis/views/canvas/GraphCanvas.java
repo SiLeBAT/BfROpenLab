@@ -91,34 +91,32 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty, boolean allowCollapse) {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
-				edgeFromProperty, edgeToProperty);		
-		this.nodes = new LinkedHashSet<GraphNode>();
-		this.edges = new LinkedHashSet<Edge<GraphNode>>();		
+				edgeFromProperty, edgeToProperty);
+		this.nodes = new LinkedHashSet<>();
+		this.edges = new LinkedHashSet<>();
 
-		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
+		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
 			GraphNode newNode = new GraphNode(node.getId(),
-					new LinkedHashMap<String, Object>(node.getProperties()),
-					node.getRegion());
+					new LinkedHashMap<>(node.getProperties()), node.getRegion());
 
 			nodesById.put(node.getId(), newNode);
 			this.nodes.add(newNode);
 		}
 
 		for (Edge<GraphNode> edge : edges) {
-			this.edges.add(new Edge<GraphNode>(edge.getId(),
-					new LinkedHashMap<String, Object>(edge.getProperties()),
-					nodesById.get(edge.getFrom().getId()), nodesById.get(edge
-							.getTo().getId())));
+			this.edges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge
+					.getProperties()), nodesById.get(edge.getFrom().getId()),
+					nodesById.get(edge.getTo().getId())));
 		}
 
 		allNodes = nodes;
 		allEdges = edges;
 		nodeSaveMap = CanvasUtilities.getElementsById(this.nodes);
 		edgeSaveMap = CanvasUtilities.getElementsById(this.edges);
-		joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
-		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+		joinMap = new LinkedHashMap<>();
+		collapsedNodes = new LinkedHashMap<>();
 		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
@@ -126,7 +124,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setPopupMenu(new CanvasPopupMenu(true, true, true));
 		setOptionsPanel(new CanvasOptionsPanel(true, true, false));
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<GraphNode>(getNodeSize(),
+				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
@@ -166,7 +164,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<GraphNode, Edge<GraphNode>>(
+		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(
 				getViewer().getGraphLayout().getGraph());
 		Point2D upperLeft = toGraphCoordinates(0, 0);
 		Point2D upperRight = toGraphCoordinates(
@@ -247,7 +245,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities
 				.getElementsById(getViewer().getGraphLayout().getGraph()
 						.getVertices(), selectedIds));
-		Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
+		Map<String, Point2D> relPos = new LinkedHashMap<>();
 		Point2D center = CanvasUtilities.getCenter(absPos.values());
 
 		for (String id : absPos.keySet()) {
@@ -257,7 +255,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		collapsedNodes.put(newId, relPos);
 		applyChanges();
-		setSelectedNodeIds(new LinkedHashSet<String>(Arrays.asList(newId)));
+		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
 	}
 
 	@Override
@@ -273,7 +271,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Set<String> newIds = new LinkedHashSet<String>();
+		Set<String> newIds = new LinkedHashSet<>();
 
 		for (String id : selectedIds) {
 			Map<String, Point2D> removed = collapsedNodes.remove(id);
@@ -311,7 +309,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		collapsedNodes.clear();
 
-		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<String, Set<GraphNode>>();
+		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<>();
 
 		for (String id : CanvasUtilities.getElementIds(allNodes)) {
 			GraphNode node = nodeSaveMap.get(id);
@@ -336,7 +334,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					nodeSaveMap.keySet());
 			Map<String, Point2D> absPos = getNodePositions(nodesByProperty
 					.get(value));
-			Map<String, Point2D> relPos = new LinkedHashMap<String, Point2D>();
+			Map<String, Point2D> relPos = new LinkedHashMap<>();
 			Point2D center = CanvasUtilities.getCenter(absPos.values());
 
 			for (String id : absPos.keySet()) {
@@ -381,7 +379,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
 			Mode editingMode) {
-		return new GraphMouse<GraphNode, Edge<GraphNode>>(
+		return new GraphMouse<>(
 				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
 
 					@Override
@@ -427,10 +425,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyNodeCollapse() {
-		nodes = new LinkedHashSet<GraphNode>();
-		edges = new LinkedHashSet<Edge<GraphNode>>();
+		nodes = new LinkedHashSet<>();
+		edges = new LinkedHashSet<>();
 
-		Map<String, String> collapseTo = new LinkedHashMap<String, String>();
+		Map<String, String> collapseTo = new LinkedHashMap<>();
 
 		for (String to : collapsedNodes.keySet()) {
 			for (String from : collapsedNodes.get(to).keySet()) {
@@ -438,7 +436,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Map<String, GraphNode> nodesById = new LinkedHashMap<String, GraphNode>();
+		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
 
 		for (String id : CanvasUtilities.getElementIds(allNodes)) {
 			if (!collapseTo.keySet().contains(id)) {
@@ -449,7 +447,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Set<GraphNode> metaNodes = new LinkedHashSet<GraphNode>();
+		Set<GraphNode> metaNodes = new LinkedHashSet<>();
 
 		for (String newId : collapsedNodes.keySet()) {
 			GraphNode newNode = nodeSaveMap.get(newId);
@@ -483,13 +481,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
-			if (!newEdge.getFrom().equals(from)
-					|| !newEdge.getTo().equals(to)) {
+			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
 				newEdge.getProperties()
 						.put(getEdgeFromProperty(), from.getId());
 				newEdge.getProperties().put(getEdgeToProperty(), to.getId());
-				newEdge = new Edge<GraphNode>(newEdge.getId(),
-						newEdge.getProperties(), from, to);
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
 			}
 
 			if (newEdge.getFrom().equals(newEdge.getTo())) {
@@ -510,7 +507,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					CanvasUtilities.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
-			joinMap = new LinkedHashMap<Edge<GraphNode>, Set<Edge<GraphNode>>>();
+			joinMap = new LinkedHashMap<>();
 		}
 
 		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
@@ -518,7 +515,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(nodes, edges));
 		getViewer().getRenderContext().setVertexStrokeTransformer(
-				new NodeStrokeTransformer<GraphNode>(metaNodes));
+				new NodeStrokeTransformer<>(metaNodes));
 		getViewer().getPickedVertexState().clear();
 	}
 
@@ -576,25 +573,25 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		switch (layoutType) {
 		case CIRCLE_LAYOUT:
-			layout = new CircleLayout<GraphNode, Edge<GraphNode>>(graph);
+			layout = new CircleLayout<>(graph);
 			break;
 		case FR_LAYOUT:
-			layout = new FRLayout<GraphNode, Edge<GraphNode>>(graph);
+			layout = new FRLayout<>(graph);
 			break;
 		case FR_LAYOUT_2:
-			layout = new FRLayout2<GraphNode, Edge<GraphNode>>(graph);
+			layout = new FRLayout2<>(graph);
 			break;
 		case ISOM_LAYOUT:
-			layout = new ISOMLayout<GraphNode, Edge<GraphNode>>(graph);
+			layout = new ISOMLayout<>(graph);
 			break;
 		case KK_LAYOUT:
-			layout = new KKLayout<GraphNode, Edge<GraphNode>>(graph);
+			layout = new KKLayout<>(graph);
 			break;
 		case SPRING_LAYOUT:
-			layout = new SpringLayout<GraphNode, Edge<GraphNode>>(graph);
+			layout = new SpringLayout<>(graph);
 			break;
 		case SPRING_LAYOUT_2:
-			layout = new SpringLayout2<GraphNode, Edge<GraphNode>>(graph);
+			layout = new SpringLayout2<>(graph);
 			break;
 		}
 
@@ -624,7 +621,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
-		Map<String, Point2D> map = new LinkedHashMap<String, Point2D>();
+		Map<String, Point2D> map = new LinkedHashMap<>();
 		Layout<GraphNode, Edge<GraphNode>> layout = getViewer()
 				.getGraphLayout();
 
@@ -640,7 +637,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private GraphNode combineNodes(String id, Collection<GraphNode> nodes) {
-		Map<String, Object> properties = new LinkedHashMap<String, Object>();
+		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
 			CanvasUtilities.addMapToMap(properties, getNodeProperties(),

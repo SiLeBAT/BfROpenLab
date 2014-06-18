@@ -62,8 +62,8 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 
 	private boolean approved;
 
-	public EditableSinglePropertiesDialog(Component parent,
-			Element element, Map<String, Class<?>> properties) {
+	public EditableSinglePropertiesDialog(Component parent, Element element,
+			Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 		this.element = element;

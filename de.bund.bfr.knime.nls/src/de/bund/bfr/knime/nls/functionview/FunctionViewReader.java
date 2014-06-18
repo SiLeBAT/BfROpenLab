@@ -63,15 +63,15 @@ public class FunctionViewReader {
 			indep = f.getIndependentVariables().get(0);
 		}
 
-		ids = new ArrayList<String>();
+		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
-		plotables = new LinkedHashMap<String, Plotable>();
-		legend = new LinkedHashMap<String, String>();
-		doubleColumns = new LinkedHashMap<String, List<Double>>();
-		stringColumns = new LinkedHashMap<String, List<String>>();
+		plotables = new LinkedHashMap<>();
+		legend = new LinkedHashMap<>();
+		doubleColumns = new LinkedHashMap<>();
+		stringColumns = new LinkedHashMap<>();
 		stringColumns.put(NlsConstants.ID_COLUMN, new ArrayList<String>());
 		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
-		doubleColumns = new LinkedHashMap<String, List<Double>>();
+		doubleColumns = new LinkedHashMap<>();
 
 		if (f.getDiffVariable() == null) {
 			for (String i : f.getIndependentVariables()) {
@@ -211,7 +211,7 @@ public class FunctionViewReader {
 	}
 
 	private static List<String> getIds(BufferedDataTable table) {
-		List<String> ids = new ArrayList<String>();
+		List<String> ids = new ArrayList<>();
 
 		for (DataRow row : table) {
 			String id = IO.getString(row.getCell(table.getSpec()
@@ -227,7 +227,7 @@ public class FunctionViewReader {
 
 	private static List<String> getQualityColumns(BufferedDataTable table,
 			Function f) {
-		List<String> columns = new ArrayList<String>();
+		List<String> columns = new ArrayList<>();
 
 		for (DataColumnSpec spec : table.getSpec()) {
 			if ((spec.getType() == DoubleCell.TYPE || spec.getType() == IntCell.TYPE)
@@ -241,7 +241,7 @@ public class FunctionViewReader {
 
 	private static Map<String, Double> getQualityValues(
 			BufferedDataTable table, String id, List<String> columns) {
-		Map<String, Double> values = new LinkedHashMap<String, Double>();
+		Map<String, Double> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
@@ -268,7 +268,7 @@ public class FunctionViewReader {
 
 	private static Map<String, Double> getParameters(BufferedDataTable table,
 			String id, Function f) {
-		Map<String, Double> params = new LinkedHashMap<String, Double>();
+		Map<String, Double> params = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
@@ -288,13 +288,13 @@ public class FunctionViewReader {
 
 	private static Map<String, Map<String, Double>> getCovariances(
 			BufferedDataTable table, String id, Function f) {
-		Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+		Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
-				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+				Map<String, Double> cov = new LinkedHashMap<>();
 				String param1 = IO.getString(row.getCell(spec
 						.findColumnIndex(NlsConstants.PARAM_COLUMN)));
 
@@ -312,7 +312,7 @@ public class FunctionViewReader {
 
 	private static Map<String, Double> getVariables(String indep,
 			Map<String, Double> fixed) {
-		Map<String, Double> vars = new LinkedHashMap<String, Double>();
+		Map<String, Double> vars = new LinkedHashMap<>();
 
 		vars.put(indep, 0.0);
 		vars.putAll(fixed);
@@ -321,7 +321,7 @@ public class FunctionViewReader {
 	}
 
 	private static Map<String, Double> getVariables(Function f) {
-		Map<String, Double> vars = new LinkedHashMap<String, Double>();
+		Map<String, Double> vars = new LinkedHashMap<>();
 
 		for (String var : f.getIndependentVariables()) {
 			vars.put(var, 0.0);
@@ -333,7 +333,7 @@ public class FunctionViewReader {
 	private static Map<String, List<Double>> getVariableValues(
 			BufferedDataTable table, String id, Function f,
 			Map<String, Double> fixed) {
-		Map<String, List<Double>> values = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (String var : f.getVariables()) {
@@ -343,7 +343,7 @@ public class FunctionViewReader {
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
-				Map<String, Double> v = new LinkedHashMap<String, Double>();
+				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getVariables()) {
 					v.put(var, IO.getDouble(row.getCell(spec
@@ -372,7 +372,7 @@ public class FunctionViewReader {
 
 	private static Map<String, List<Double>> getVariableValues(
 			BufferedDataTable table, String id, Function f) {
-		Map<String, List<Double>> values = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (String var : f.getVariables()) {
@@ -382,7 +382,7 @@ public class FunctionViewReader {
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
-				Map<String, Double> v = new LinkedHashMap<String, Double>();
+				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getVariables()) {
 					v.put(var, IO.getDouble(row.getCell(spec
@@ -400,13 +400,13 @@ public class FunctionViewReader {
 
 	private static List<Map<String, Double>> getFixVariables(
 			BufferedDataTable table, String id, Function f, String indep) {
-		List<Map<String, Double>> values = new ArrayList<Map<String, Double>>();
+		List<Map<String, Double>> values = new ArrayList<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
-				Map<String, Double> v = new LinkedHashMap<String, Double>();
+				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getIndependentVariables()) {
 					if (!var.equals(indep)) {

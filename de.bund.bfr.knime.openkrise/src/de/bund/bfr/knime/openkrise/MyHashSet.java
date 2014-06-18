@@ -8,7 +8,7 @@ public class MyHashSet<T> extends HashSet<T> {
 	final static int FD = 4;
 	final static int BD = 5;
 	
-	private HashSet<Integer> furtherIds = new HashSet<Integer>();
+	private HashSet<Integer> furtherIds = new HashSet<>();
 	/**
 	 * 
 	 */

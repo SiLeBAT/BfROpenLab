@@ -40,7 +40,7 @@ public class GraphVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
 	public GraphVisualizerSettings() {
-		collapsedNodes = new LinkedHashMap<String, Map<String, Point2D>>();
+		collapsedNodes = new LinkedHashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")

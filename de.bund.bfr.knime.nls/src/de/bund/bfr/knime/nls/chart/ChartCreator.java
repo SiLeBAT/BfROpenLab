@@ -81,9 +81,9 @@ public class ChartCreator extends ChartPanel {
 		super(new JFreeChart(new XYPlot()));
 		this.plotables = plotables;
 		this.legend = legend;
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		zoomListeners = new ArrayList<ZoomListener>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
+		zoomListeners = new ArrayList<>();
 		getPopupMenu().removeAll();
 	}
 
@@ -124,7 +124,7 @@ public class ChartCreator extends ChartPanel {
 		List<String> idsToPaint;
 
 		if (selectAll) {
-			idsToPaint = new ArrayList<String>(plotables.keySet());
+			idsToPaint = new ArrayList<>(plotables.keySet());
 		} else {
 			idsToPaint = selectedIds;
 		}

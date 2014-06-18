@@ -4,7 +4,6 @@ Bundle-Name: JOSM
 Bundle-SymbolicName: org.openstreemap.josm
 Bundle-Version: 6767
 Bundle-Vendor: OpenStreetMap
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: lib/josm-tested.jar
 Export-Package: com.drew.imaging,
  com.drew.imaging.jpeg,
@@ -127,3 +126,4 @@ Export-Package: com.drew.imaging,
  org.openstreetmap.josm.plugins,
  org.openstreetmap.josm.tools,
  org.openstreetmap.josm.tools.template_engine
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -185,7 +185,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		if (set.getFileName() != null) {
 			try {
 				File shpFile = KnimeUtilities.getFile(set.getFileName());
-				Map<String, URL> map = new HashMap<String, URL>();
+				Map<String, URL> map = new HashMap<>();
 
 				map.put("url", shpFile.toURI().toURL());
 
@@ -271,8 +271,8 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	private DataTableSpec createSpec(FeatureCollection<?, ?> collection) {
 		FeatureIterator<?> iterator = collection.features();
 		Feature feature = iterator.next();
-		List<DataColumnSpec> columns = new ArrayList<DataColumnSpec>();
-		Set<String> columnNames = new LinkedHashSet<String>();
+		List<DataColumnSpec> columns = new ArrayList<>();
+		Set<String> columnNames = new LinkedHashSet<>();
 
 		for (Property p : feature.getProperties()) {
 			String name = p.getName().toString().trim();

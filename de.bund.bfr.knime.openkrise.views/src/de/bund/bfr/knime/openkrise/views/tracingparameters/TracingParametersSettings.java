@@ -66,10 +66,10 @@ public class TracingParametersSettings extends TracingSettings {
 	private boolean enforeTemporalOrder;
 
 	public TracingParametersSettings() {
-		caseWeights = new LinkedHashMap<String, Double>();
-		crossContaminations = new LinkedHashMap<String, Boolean>();
-		filter = new LinkedHashMap<String, Boolean>();
-		edgeFilter = new LinkedHashMap<String, Boolean>();
+		caseWeights = new LinkedHashMap<>();
+		crossContaminations = new LinkedHashMap<>();
+		filter = new LinkedHashMap<>();
+		edgeFilter = new LinkedHashMap<>();
 		weightCondition = null;
 		contaminationCondition = null;
 		filterCondition = null;
@@ -261,7 +261,8 @@ public class TracingParametersSettings extends TracingSettings {
 		return edgeFilterCondition;
 	}
 
-	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
+	public void setEdgeFilterCondition(
+			AndOrHighlightCondition edgeFilterCondition) {
 		this.edgeFilterCondition = edgeFilterCondition;
 	}
 
@@ -277,7 +278,8 @@ public class TracingParametersSettings extends TracingSettings {
 		return contaminationConditionValue;
 	}
 
-	public void setContaminationConditionValue(Boolean contaminationConditionValue) {
+	public void setContaminationConditionValue(
+			Boolean contaminationConditionValue) {
 		this.contaminationConditionValue = contaminationConditionValue;
 	}
 

@@ -101,7 +101,7 @@ public class CanvasUtilities {
 			Collection<Edge<V>> edges, Map<String, Class<?>> properties,
 			String idProperty, String fromProperty, String toProperty,
 			Set<String> usedIds) {
-		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<V, Map<V, Set<Edge<V>>>>();
+		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			V from = edge.getFrom();
@@ -118,12 +118,12 @@ public class CanvasUtilities {
 			edgeMap.get(from).get(to).add(edge);
 		}
 
-		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<Edge<V>, Set<Edge<V>>>();
+		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<>();
 		int index = 0;
 
 		for (V from : edgeMap.keySet()) {
 			for (V to : edgeMap.get(from).keySet()) {
-				Map<String, Object> prop = new LinkedHashMap<String, Object>();
+				Map<String, Object> prop = new LinkedHashMap<>();
 
 				for (Edge<V> edge : edgeMap.get(from).get(to)) {
 					CanvasUtilities.addMapToMap(prop, properties,
@@ -137,8 +137,8 @@ public class CanvasUtilities {
 				prop.put(idProperty, index + "");
 				prop.put(fromProperty, from.getId());
 				prop.put(toProperty, to.getId());
-				joined.put(new Edge<V>(index + "", prop, from, to), edgeMap
-						.get(from).get(to));
+				joined.put(new Edge<>(index + "", prop, from, to),
+						edgeMap.get(from).get(to));
 			}
 		}
 
@@ -202,7 +202,7 @@ public class CanvasUtilities {
 
 	public static <T extends Element> Set<T> getHighlightedElements(
 			Collection<T> elements, List<HighlightCondition> highlightConditions) {
-		Set<T> highlightedElements = new LinkedHashSet<T>();
+		Set<T> highlightedElements = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions) {
 			Map<T, Double> highlighted = condition.getValues(elements);
@@ -219,7 +219,7 @@ public class CanvasUtilities {
 
 	public static Set<String> getElementIds(
 			Collection<? extends Element> elements) {
-		Set<String> ids = new LinkedHashSet<String>();
+		Set<String> ids = new LinkedHashSet<>();
 
 		for (Element element : elements) {
 			ids.add(element.getId());
@@ -230,7 +230,7 @@ public class CanvasUtilities {
 
 	public static <T extends Element> Set<T> getElementsById(
 			Collection<T> elements, Collection<String> ids) {
-		Set<T> result = new LinkedHashSet<T>();
+		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
 			if (ids.contains(element.getId())) {
@@ -243,7 +243,7 @@ public class CanvasUtilities {
 
 	public static <T extends Element> Map<String, T> getElementsById(
 			Collection<T> elements) {
-		Map<String, T> result = new LinkedHashMap<String, T>();
+		Map<String, T> result = new LinkedHashMap<>();
 
 		for (T element : elements) {
 			result.put(element.getId(), element);
@@ -254,7 +254,7 @@ public class CanvasUtilities {
 
 	public static <T extends Element> Set<T> getElementsById(
 			Map<String, T> elements, Collection<String> ids) {
-		Set<T> result = new LinkedHashSet<T>();
+		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {
 			if (elements.containsKey(id)) {
@@ -269,12 +269,12 @@ public class CanvasUtilities {
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize,
 			boolean nodesInvisibleDyDefault) {
-		List<Color> colors = new ArrayList<Color>();
-		Map<V, List<Double>> alphaValues = new LinkedHashMap<V, List<Double>>();
-		Map<V, Double> thicknessValues = new LinkedHashMap<V, Double>();
-		Map<V, Set<String>> labelLists = new LinkedHashMap<V, Set<String>>();
+		List<Color> colors = new ArrayList<>();
+		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
+		Map<V, Double> thicknessValues = new LinkedHashMap<>();
+		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-		Set<V> invisibleNodes = new LinkedHashSet<V>();
+		Set<V> invisibleNodes = new LinkedHashSet<>();
 
 		if (nodesInvisibleDyDefault) {
 			invisibleNodes.addAll(nodes);
@@ -338,7 +338,7 @@ public class CanvasUtilities {
 			}
 		}
 
-		Map<V, String> labels = new LinkedHashMap<V, String>();
+		Map<V, String> labels = new LinkedHashMap<>();
 
 		for (V node : labelLists.keySet()) {
 			if (!labelLists.get(node).isEmpty()) {
@@ -367,19 +367,19 @@ public class CanvasUtilities {
 		}
 
 		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<V>(nodeSize, thicknessValues));
+				new NodeShapeTransformer<>(nodeSize, thicknessValues));
 		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new NodeFillTransformer<V>(viewer, alphaValues, colors));
+				new NodeFillTransformer<>(viewer, alphaValues, colors));
 		viewer.getRenderContext().setVertexLabelTransformer(
-				new LabelTransformer<V>(labels));
+				new LabelTransformer<>(labels));
 	}
 
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions) {
-		Map<V, List<Double>> alphaValues = new LinkedHashMap<V, List<Double>>();
-		Map<V, Double> thicknessValues = new LinkedHashMap<V, Double>();
-		Map<V, Set<String>> labelLists = new LinkedHashMap<V, Set<String>>();
+		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
+		Map<V, Double> thicknessValues = new LinkedHashMap<>();
+		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
 
 		for (V node : nodes) {
 			alphaValues.put(node, new ArrayList<Double>());
@@ -407,7 +407,7 @@ public class CanvasUtilities {
 			}
 		}
 
-		Map<V, String> labels = new LinkedHashMap<V, String>();
+		Map<V, String> labels = new LinkedHashMap<>();
 
 		for (V node : labelLists.keySet()) {
 			if (!labelLists.get(node).isEmpty()) {
@@ -422,18 +422,18 @@ public class CanvasUtilities {
 		}
 
 		viewer.getRenderContext().setVertexLabelTransformer(
-				new LabelTransformer<V>(labels));
+				new LabelTransformer<>(labels));
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<Edge<V>> edges,
 			HighlightConditionList edgeHighlightConditions) {
-		List<Color> colors = new ArrayList<Color>();
-		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<Edge<V>, List<Double>>();
-		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<Edge<V>, Double>();
-		Map<Edge<V>, Set<String>> labelLists = new LinkedHashMap<Edge<V>, Set<String>>();
+		List<Color> colors = new ArrayList<>();
+		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
+		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
+		Map<Edge<V>, Set<String>> labelLists = new LinkedHashMap<>();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
-		Set<Edge<V>> invisibleEdges = new LinkedHashSet<Edge<V>>();
+		Set<Edge<V>> invisibleEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : edges) {
 			alphaValues.put(edge, new ArrayList<Double>());
@@ -489,7 +489,7 @@ public class CanvasUtilities {
 			}
 		}
 
-		Map<Edge<V>, String> labels = new LinkedHashMap<Edge<V>, String>();
+		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
 		for (Edge<V> edge : labelLists.keySet()) {
 			if (!labelLists.get(edge).isEmpty()) {
@@ -522,11 +522,11 @@ public class CanvasUtilities {
 		}
 
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<Edge<V>>(viewer, alphaValues, colors));
+				new EdgeDrawTransformer<>(viewer, alphaValues, colors));
 		viewer.getRenderContext().setEdgeStrokeTransformer(
-				new EdgeStrokeTransformer<Edge<V>>(thicknessValues));
+				new EdgeStrokeTransformer<>(thicknessValues));
 		viewer.getRenderContext().setEdgeLabelTransformer(
-				new LabelTransformer<Edge<V>>(labels));
+				new LabelTransformer<>(labels));
 	}
 
 	public static <V extends Node> void applyEdgelessNodes(
@@ -535,7 +535,7 @@ public class CanvasUtilities {
 			return;
 		}
 
-		Set<V> edgelessNodes = new LinkedHashSet<V>(viewer.getGraphLayout()
+		Set<V> edgelessNodes = new LinkedHashSet<>(viewer.getGraphLayout()
 				.getGraph().getVertices());
 
 		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
@@ -555,7 +555,7 @@ public class CanvasUtilities {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
-		List<Color> cs = new ArrayList<Color>();
+		List<Color> cs = new ArrayList<>();
 
 		for (int i = 0; i < colors.size(); i++) {
 			double alpha = alphas.get(i);
@@ -616,7 +616,7 @@ public class CanvasUtilities {
 	public static <T extends Element> Set<T> removeInvisibleElements(
 			Collection<T> elements,
 			HighlightConditionList edgeHighlightConditions) {
-		Set<T> result = new LinkedHashSet<T>(elements);
+		Set<T> result = new LinkedHashSet<>(elements);
 
 		for (HighlightCondition condition : edgeHighlightConditions
 				.getConditions()) {
@@ -636,7 +636,7 @@ public class CanvasUtilities {
 
 	public static <V extends Node> Graph<V, Edge<V>> createGraph(
 			Collection<V> nodes, Collection<Edge<V>> edges) {
-		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<V, Edge<V>>();
+		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
 		for (V node : nodes) {
 			graph.addVertex(node);

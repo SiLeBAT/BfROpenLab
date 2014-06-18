@@ -50,7 +50,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 		setLineWrap(true);
 		setBorder(BorderFactory.createLoweredBevelBorder());
 		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<TextListener>();
+		listeners = new ArrayList<>();
 		textChanged();
 	}
 

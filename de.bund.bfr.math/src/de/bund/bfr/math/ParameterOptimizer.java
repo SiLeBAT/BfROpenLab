@@ -133,9 +133,9 @@ public class ParameterOptimizer {
 
 	public void optimize(int nParameterSpace, int nLevenberg,
 			boolean stopWhenSuccessful) throws ParseException {
-		List<Double> paramMin = new ArrayList<Double>();
-		List<Integer> paramStepCount = new ArrayList<Integer>();
-		List<Double> paramStepSize = new ArrayList<Double>();
+		List<Double> paramMin = new ArrayList<>();
+		List<Integer> paramStepCount = new ArrayList<>();
+		List<Double> paramStepSize = new ArrayList<>();
 		int paramsWithRange = 0;
 		int maxStepCount = 10;
 
@@ -193,8 +193,8 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<double[]> bestValues = new ArrayList<double[]>();
-		List<Double> bestError = new ArrayList<Double>();
+		List<double[]> bestValues = new ArrayList<>();
+		List<Double> bestError = new ArrayList<>();
 
 		for (int i = 0; i < nLevenberg; i++) {
 			double[] v = new double[parameters.size()];
@@ -204,8 +204,8 @@ public class ParameterOptimizer {
 			bestError.add(Double.POSITIVE_INFINITY);
 		}
 
-		List<Integer> paramStepIndex = new ArrayList<Integer>(
-				Collections.nCopies(parameters.size(), 0));
+		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(
+				parameters.size(), 0));
 		boolean done = false;
 
 		while (!done) {
@@ -384,10 +384,10 @@ public class ParameterOptimizer {
 		double factor = optimizer.getChiSquare()
 				/ (targetValues.size() - parameters.size());
 
-		parameterStandardErrors = new LinkedHashMap<String, Double>();
-		parameterTValues = new LinkedHashMap<String, Double>();
-		parameterPValues = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
+		parameterStandardErrors = new LinkedHashMap<>();
+		parameterTValues = new LinkedHashMap<>();
+		parameterPValues = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
 
 		for (int i = 0; i < parameters.size(); i++) {
 			double error = Math.sqrt(factor * covMatrix[i][i]);
@@ -403,7 +403,7 @@ public class ParameterOptimizer {
 		}
 
 		for (int i = 0; i < parameters.size(); i++) {
-			Map<String, Double> cov = new LinkedHashMap<String, Double>();
+			Map<String, Double> cov = new LinkedHashMap<>();
 
 			for (int j = 0; j < parameters.size(); j++) {
 				cov.put(parameters.get(j), factor * covMatrix[i][j]);
@@ -414,11 +414,11 @@ public class ParameterOptimizer {
 	}
 
 	private void resetResults() {
-		parameterValues = new LinkedHashMap<String, Double>();
-		parameterStandardErrors = new LinkedHashMap<String, Double>();
-		parameterTValues = new LinkedHashMap<String, Double>();
-		parameterPValues = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
+		parameterValues = new LinkedHashMap<>();
+		parameterStandardErrors = new LinkedHashMap<>();
+		parameterTValues = new LinkedHashMap<>();
+		parameterPValues = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
 		sse = null;
 		mse = null;
 		rmse = null;

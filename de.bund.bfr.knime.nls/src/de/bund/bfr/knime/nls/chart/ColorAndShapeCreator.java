@@ -88,11 +88,11 @@ public class ColorAndShapeCreator {
 	private Map<Shape, String> nameByShapeMap;
 
 	public ColorAndShapeCreator(int n) {
-		colorList = new ArrayList<Color>();
-		shapeList = new ArrayList<Shape>();
-		shapeNameList = new ArrayList<String>();
-		shapeByNameMap = new LinkedHashMap<String, Shape>();
-		nameByShapeMap = new LinkedHashMap<Shape, String>();
+		colorList = new ArrayList<>();
+		shapeList = new ArrayList<>();
+		shapeNameList = new ArrayList<>();
+		shapeByNameMap = new LinkedHashMap<>();
+		nameByShapeMap = new LinkedHashMap<>();
 
 		for (int i = 0; i < n; i++) {
 			colorList.add(COLORS[i % COLORS.length]);

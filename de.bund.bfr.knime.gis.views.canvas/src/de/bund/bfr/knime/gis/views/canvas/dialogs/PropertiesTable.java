@@ -43,9 +43,9 @@ public class PropertiesTable extends JTable {
 
 	public PropertiesTable(Collection<? extends Element> elements,
 			Map<String, Class<?>> properties) {
-		List<String> columnNames = new ArrayList<String>();
-		List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-		List<List<Object>> columnValueTuples = new ArrayList<List<Object>>();
+		List<String> columnNames = new ArrayList<>();
+		List<Class<?>> columnTypes = new ArrayList<>();
+		List<List<Object>> columnValueTuples = new ArrayList<>();
 
 		for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
 			columnNames.add(entry.getKey());
@@ -53,7 +53,7 @@ public class PropertiesTable extends JTable {
 		}
 
 		for (Element element : elements) {
-			List<Object> tuple = new ArrayList<Object>();
+			List<Object> tuple = new ArrayList<>();
 
 			for (String property : columnNames) {
 				tuple.add(element.getProperties().get(property));

@@ -42,7 +42,7 @@ public class EdgeDrawTransformer<E> implements Transformer<E, Paint> {
 	public EdgeDrawTransformer(VisualizationViewer<?, E> viewer,
 			Map<E, List<Double>> alphaValues, List<Color> colors) {
 		this.viewer = viewer;
-		edgeColors = new LinkedHashMap<E, Paint>();
+		edgeColors = new LinkedHashMap<>();
 
 		for (E edge : alphaValues.keySet()) {
 			List<Double> alphas = alphaValues.get(edge);

@@ -38,15 +38,15 @@ public class ScriptNodeOutputColumnsTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = 2904071119465971558L;
 
-	ArrayList<String> columnNames = new ArrayList<String>();
-	ArrayList<ArrayList<Object>> data = new ArrayList<ArrayList<Object>>();
+	ArrayList<String> columnNames = new ArrayList<>();
+	ArrayList<ArrayList<Object>> data = new ArrayList<>();
 
 	public void addColumn(String columnName) {
 		columnNames.add(columnName);
 	}
 
 	public void addRow(Object dataTableColumnName, Object dataTableColumnType) {
-		ArrayList<Object> row = new ArrayList<Object>();
+		ArrayList<Object> row = new ArrayList<>();
 		row.add(dataTableColumnName);
 		row.add(dataTableColumnType);
 
@@ -57,7 +57,7 @@ public class ScriptNodeOutputColumnsTableModel extends AbstractTableModel {
 	}
 
 	public void clearRows() {
-		data = new ArrayList<ArrayList<Object>>();
+		data = new ArrayList<>();
 	}
 
 	@Override

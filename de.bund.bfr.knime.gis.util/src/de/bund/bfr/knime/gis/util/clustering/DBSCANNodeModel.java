@@ -79,9 +79,9 @@ public class DBSCANNodeModel extends NodeModel {
     		else if (data.getSpec().getColumnNames()[i].equals("Clusterable")) doItCol = i;
     	}
     	if (latCol >= 0 && lonCol >= 0) {
-    		HashMap<Integer, DoublePoint> idp = new HashMap<Integer, DoublePoint>(); 
-    		HashMap<Double, Integer> dim = new HashMap<Double, Integer>();
-    	    List<DoublePoint> points = new ArrayList<DoublePoint>();
+    		HashMap<Integer, DoublePoint> idp = new HashMap<>(); 
+    		HashMap<Double, Integer> dim = new HashMap<>();
+    	    List<DoublePoint> points = new ArrayList<>();
             int rowNumber = 0;
         	for (DataRow row : data) {
             	exec.checkCanceled();
@@ -158,13 +158,13 @@ public class DBSCANNodeModel extends NodeModel {
        }
 
 	private List<CentroidCluster<DoublePoint>> kMeans(List<DoublePoint> points) {
-	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<DoublePoint>(m_minPts.getIntValue());
-	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<DoublePoint>(km, 5);
+	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(m_minPts.getIntValue());
+	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(km, 5);
 	    List<CentroidCluster<DoublePoint>> cluster = mkm.cluster(points);
 	    return cluster;
 	}
 	private List<Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
-	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<DoublePoint>(m_eps.getDoubleValue(), m_minPts.getIntValue());
+	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(m_eps.getDoubleValue(), m_minPts.getIntValue());
 	    List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
 	    return cluster;
 	}

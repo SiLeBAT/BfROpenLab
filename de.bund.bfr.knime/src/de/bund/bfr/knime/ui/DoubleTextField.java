@@ -55,7 +55,7 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		this.optional = optional;
 		getDocument().addDocumentListener(this);
 		addFocusListener(this);
-		listeners = new ArrayList<TextListener>();
+		listeners = new ArrayList<>();
 		textChanged();
 		formatText();
 	}

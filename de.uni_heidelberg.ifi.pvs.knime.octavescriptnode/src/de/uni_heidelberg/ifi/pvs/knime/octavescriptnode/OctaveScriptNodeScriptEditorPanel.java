@@ -229,8 +229,8 @@ public class OctaveScriptNodeScriptEditorPanel extends JPanel {
 		m_textExpression.addKeyListener(new UndoRedoKeyListener(m_undoManager));
 
 		// init in column list
-		m_inListModel = new DefaultListModel<DataColumnSpec>();
-		m_inList = new JList<DataColumnSpec>(m_inListModel);
+		m_inListModel = new DefaultListModel<>();
+		m_inList = new JList<>(m_inListModel);
 		m_inList.setBorder(BorderFactory.createTitledBorder(" Column List"));
 		m_inList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		m_inList.setCellRenderer(new DataColumnSpecListCellRenderer());
@@ -256,8 +256,8 @@ public class OctaveScriptNodeScriptEditorPanel extends JPanel {
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		// init variable list
-		m_listModelVars = new DefaultListModel<FlowVariable>();
-		m_listVars = new JList<FlowVariable>(m_listModelVars);
+		m_listModelVars = new DefaultListModel<>();
+		m_listVars = new JList<>(m_listModelVars);
 
 		final JSplitPane allSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		allSplit.setResizeWeight(0.25);

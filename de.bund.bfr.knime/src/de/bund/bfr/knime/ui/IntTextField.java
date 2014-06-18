@@ -51,7 +51,7 @@ public class IntTextField extends JTextField implements DocumentListener {
 		this.maxValue = Integer.MAX_VALUE;
 		this.optional = optional;
 		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<TextListener>();
+		listeners = new ArrayList<>();
 		textChanged();
 	}
 

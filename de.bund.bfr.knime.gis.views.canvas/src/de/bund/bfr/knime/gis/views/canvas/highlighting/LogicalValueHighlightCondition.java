@@ -111,8 +111,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 
 		valueCondition.setType(type);
 
-		Map<T, Double> values = new LinkedHashMap<T, Double>();
-		List<T> nonZeroElements = new ArrayList<T>();
+		Map<T, Double> values = new LinkedHashMap<>();
+		List<T> nonZeroElements = new ArrayList<>();
 		double min = 1.0;
 		double max = 0.0;
 
@@ -175,7 +175,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 
 		valueCondition.setType(type);
 
-		List<Double> values = new ArrayList<Double>();
+		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
 			if (logicalValues.get(element) != 0.0) {

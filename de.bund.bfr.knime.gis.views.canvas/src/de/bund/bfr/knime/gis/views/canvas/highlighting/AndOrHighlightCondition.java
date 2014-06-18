@@ -128,10 +128,10 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
-		List<List<Map<T, Double>>> valuesList = new ArrayList<List<Map<T, Double>>>();
+		List<List<Map<T, Double>>> valuesList = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> andLists : conditions) {
-			List<Map<T, Double>> v = new ArrayList<Map<T, Double>>();
+			List<Map<T, Double>> v = new ArrayList<>();
 
 			for (LogicalHighlightCondition condition : andLists) {
 				v.add(condition.getValues(elements));
@@ -140,7 +140,7 @@ public class AndOrHighlightCondition implements HighlightCondition,
 			valuesList.add(v);
 		}
 
-		Map<T, Double> returnValues = new LinkedHashMap<T, Double>();
+		Map<T, Double> returnValues = new LinkedHashMap<>();
 
 		for (T element : elements) {
 			boolean allFalse = true;

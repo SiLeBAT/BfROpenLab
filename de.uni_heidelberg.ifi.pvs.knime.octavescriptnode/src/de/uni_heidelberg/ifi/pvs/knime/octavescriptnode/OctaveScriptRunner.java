@@ -55,7 +55,7 @@ public class OctaveScriptRunner {
 	public OctaveScriptRunner(final OctaveObject inVariable,
 			final String inVariableName, final String outVariableName) {
 		super();
-		this.inVariables = new HashMap<String, OctaveObject>();
+		this.inVariables = new HashMap<>();
 		this.addInVariable(inVariableName, inVariable);
 		this.outVariableName = outVariableName;
 	}

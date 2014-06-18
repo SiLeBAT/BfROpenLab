@@ -55,8 +55,8 @@ public class CanvasLegend<V extends Node> {
 			Collection<V> nodes,
 			HighlightConditionList edgeHighlightConditions,
 			Collection<Edge<V>> edges) {
-		nodeLegend = new LinkedHashMap<String, Image>();
-		edgeLegend = new LinkedHashMap<String, Image>();
+		nodeLegend = new LinkedHashMap<>();
+		edgeLegend = new LinkedHashMap<>();
 
 		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {

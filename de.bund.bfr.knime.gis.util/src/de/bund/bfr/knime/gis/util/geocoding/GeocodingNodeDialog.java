@@ -82,7 +82,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	 */
 	protected GeocodingNodeDialog() {
 		set = new GeocodingSettings();
-		providerBox = new JComboBox<String>(GeocodingSettings.PROVIDER_CHOICES);
+		providerBox = new JComboBox<>(GeocodingSettings.PROVIDER_CHOICES);
 		providerBox.addItemListener(this);
 		addressBox = new ColumnComboBox(true);
 		streetBox = new ColumnComboBox(true);
@@ -95,7 +95,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		keyField = new JTextField();
 		serverField = new JTextField();
 		delayField = new JTextField();
-		multipleBox = new JComboBox<String>(GeocodingSettings.MULTIPLE_CHOICES);
+		multipleBox = new JComboBox<>(GeocodingSettings.MULTIPLE_CHOICES);
 
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -197,7 +197,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		set.saveSettings(settings);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void updatePanel() {
 		String provider = (String) providerBox.getSelectedItem();
 

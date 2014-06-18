@@ -20,8 +20,8 @@ public class MyNewTracingLoader {
 
 	public static MyNewTracing getNewTracingModel(MyDBI myDBi) {
 		// Zeroly: get all cases
-		caseStations = new HashMap<Integer, Double>();
-		ccStations = new HashSet<Integer>();
+		caseStations = new HashMap<>();
+		ccStations = new HashSet<>();
 		//ccDeliveries = new HashSet<Integer>();
 		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CasePriority") + " FROM " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("CasePriority") + " > 0";
 		try {
@@ -41,7 +41,7 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 
-		allDeliveries = new HashMap<Integer, MyDelivery>();		
+		allDeliveries = new HashMap<>();		
 		// Firstly: get all deliveries
 		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") +
 				" FROM " + DBKernel.delimitL("Lieferungen") +

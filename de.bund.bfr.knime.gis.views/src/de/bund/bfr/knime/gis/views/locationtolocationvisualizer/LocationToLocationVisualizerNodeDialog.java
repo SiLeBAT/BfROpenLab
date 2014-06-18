@@ -175,8 +175,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	public void nodeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<LocationNode> selectedGisNodes = new LinkedHashSet<LocationNode>();
-			Map<String, LocationNode> gisNodesById = new LinkedHashMap<String, LocationNode>();
+			Set<LocationNode> selectedGisNodes = new LinkedHashSet<>();
+			Map<String, LocationNode> gisNodesById = new LinkedHashMap<>();
 
 			for (LocationNode gisNode : gisCanvas.getNodes()) {
 				gisNodesById.put(gisNode.getId(), gisNode);
@@ -190,8 +190,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 			gisCanvas.setSelectedNodes(selectedGisNodes);
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
-			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<GraphNode>();
-			Map<String, GraphNode> graphNodesById = new LinkedHashMap<String, GraphNode>();
+			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<>();
+			Map<String, GraphNode> graphNodesById = new LinkedHashMap<>();
 
 			for (GraphNode graphNode : graphCanvas.getNodes()) {
 				graphNodesById.put(graphNode.getId(), graphNode);
@@ -210,8 +210,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	public void edgeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<Edge<LocationNode>> selectedGisEdges = new LinkedHashSet<Edge<LocationNode>>();
-			Map<String, Edge<LocationNode>> gisEdgesById = new LinkedHashMap<String, Edge<LocationNode>>();
+			Set<Edge<LocationNode>> selectedGisEdges = new LinkedHashSet<>();
+			Map<String, Edge<LocationNode>> gisEdgesById = new LinkedHashMap<>();
 
 			for (Edge<LocationNode> gisEdge : gisCanvas.getEdges()) {
 				gisEdgesById.put(gisEdge.getId(), gisEdge);
@@ -225,8 +225,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 			gisCanvas.setSelectedEdges(selectedGisEdges);
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
-			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<Edge<GraphNode>>();
-			Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<String, Edge<GraphNode>>();
+			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<>();
+			Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<>();
 
 			for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
 				graphEdgesById.put(graphEdge.getId(), graphEdge);
@@ -337,9 +337,9 @@ public class LocationToLocationVisualizerNodeDialog extends
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<String>(
+		List<String> selectedGraphNodes = new ArrayList<>(
 				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<String>(
+		List<String> selectedGraphEdges = new ArrayList<>(
 				graphCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);

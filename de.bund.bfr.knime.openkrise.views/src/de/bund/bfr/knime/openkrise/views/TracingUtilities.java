@@ -82,14 +82,14 @@ public class TracingUtilities {
 
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
-		Map<String, GraphNode> nodes = new LinkedHashMap<String, GraphNode>();
+		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 
 		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec()
 					.findColumnIndex(TracingConstants.ID_COLUMN)));
-			Map<String, Object> properties = new LinkedHashMap<String, Object>();
+			Map<String, Object> properties = new LinkedHashMap<>();
 
 			TracingUtilities.addToProperties(properties, nodeProperties,
 					nodeTable, row);
@@ -102,7 +102,7 @@ public class TracingUtilities {
 
 	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
 			Map<String, Class<?>> edgeProperties, Map<String, GraphNode> nodes) {
-		List<Edge<GraphNode>> edges = new ArrayList<Edge<GraphNode>>();
+		List<Edge<GraphNode>> edges = new ArrayList<>();
 
 		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
 		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
@@ -119,14 +119,14 @@ public class TracingUtilities {
 			GraphNode node2 = nodes.get(to);
 
 			if (node1 != null && node2 != null) {
-				Map<String, Object> properties = new LinkedHashMap<String, Object>();
+				Map<String, Object> properties = new LinkedHashMap<>();
 
 				TracingUtilities.addToProperties(properties, edgeProperties,
 						edgeTable, row);
 				properties.put(TracingConstants.ID_COLUMN, id);
 				properties.put(TracingConstants.FROM_COLUMN, from);
 				properties.put(TracingConstants.TO_COLUMN, to);
-				edges.add(new Edge<GraphNode>(id, properties, node1, node2));
+				edges.add(new Edge<>(id, properties, node1, node2));
 			}
 		}
 
@@ -134,7 +134,7 @@ public class TracingUtilities {
 	}
 
 	public static Set<String> toString(Set<?> set) {
-		Set<String> stringSet = new LinkedHashSet<String>();
+		Set<String> stringSet = new LinkedHashSet<>();
 
 		for (Object o : set) {
 			stringSet.add(o.toString());

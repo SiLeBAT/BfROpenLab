@@ -36,9 +36,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private JMenu nodeSelectionMenu;
 	private JMenu edgeSelectionMenu;
 	private JMenu nodeHighlightMenu;
@@ -258,7 +258,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	}
 
 	private void init() {
-		listeners = new ArrayList<ClickListener>();
+		listeners = new ArrayList<>();
 
 		nodeSelectionMenu = new JMenu("Node Selection");
 		nodeSelectionMenu.setEnabled(false);
@@ -318,7 +318,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
 		clearCollapsedNodesItem.addActionListener(this);
 
-		layoutItems = new LinkedHashMap<JMenuItem, LayoutType>();
+		layoutItems = new LinkedHashMap<>();
 
 		for (LayoutType layoutType : LayoutType.values()) {
 			JMenuItem item = new JMenuItem(layoutType.toString());

@@ -78,10 +78,10 @@ public class Function implements Serializable {
 	}
 
 	public List<String> getVariables() {
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 
-		names.add(dependentVariable);	
-		names.addAll(independentVariables);		
+		names.add(dependentVariable);
+		names.addAll(independentVariables);
 
 		return names;
 	}

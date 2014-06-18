@@ -42,7 +42,7 @@ public class NodeFillTransformer<V> implements Transformer<V, Paint> {
 	public NodeFillTransformer(VisualizationViewer<V, ?> viewer,
 			Map<V, List<Double>> alphaValues, List<Color> colors) {
 		this.viewer = viewer;
-		nodeColors = new LinkedHashMap<V, Paint>();
+		nodeColors = new LinkedHashMap<>();
 
 		for (V node : alphaValues.keySet()) {
 			List<Double> alphas = alphaValues.get(node);

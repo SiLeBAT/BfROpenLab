@@ -198,7 +198,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (graphCanvas == null) {
 			graphCanvas = new TracingCanvas();
 			graphCanvas
-					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);			
+					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -212,9 +212,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<String>(
+		List<String> selectedGraphNodes = new ArrayList<>(
 				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<String>(
+		List<String> selectedGraphEdges = new ArrayList<>(
 				graphCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);

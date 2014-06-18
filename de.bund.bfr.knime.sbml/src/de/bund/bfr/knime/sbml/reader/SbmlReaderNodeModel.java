@@ -84,8 +84,8 @@ public class SbmlReaderNodeModel extends NodeModel {
 			throw new Exception(path + " is not a directory");
 		}
 
-		Map<String, DataType> columns = new LinkedHashMap<String, DataType>();
-		List<Map<String, DataCell>> rows = new ArrayList<Map<String, DataCell>>();
+		Map<String, DataType> columns = new LinkedHashMap<>();
+		List<Map<String, DataCell>> rows = new ArrayList<>();
 		File[] files = path.listFiles();
 		int index1 = 0;
 
@@ -112,9 +112,9 @@ public class SbmlReaderNodeModel extends NodeModel {
 		for (Map<String, DataCell> row : rows) {
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-			for (int i = 0; i < spec.getNumColumns(); i++) {				
+			for (int i = 0; i < spec.getNumColumns(); i++) {
 				cells[i] = row.get(spec.getColumnNames()[i]);
-				
+
 				if (cells[i] == null) {
 					cells[i] = DataType.getMissingCell();
 				}
@@ -193,7 +193,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	private static void readSBML(SBMLDocument doc,
 			Map<String, DataType> columns, List<Map<String, DataCell>> rows) {
 		Model model = doc.getModel();
-		Map<String, DataCell> row = new LinkedHashMap<String, DataCell>();
+		Map<String, DataCell> row = new LinkedHashMap<>();
 
 		if (!columns.containsKey(MODEL_ID)) {
 			columns.put(MODEL_ID, StringCell.TYPE);
@@ -221,7 +221,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 		}
 
 		AlgebraicRule rule = getAssignmentRule(model.getListOfRules());
-		Map<String, AlgebraicRule> minMaxRules = new LinkedHashMap<String, AlgebraicRule>();
+		Map<String, AlgebraicRule> minMaxRules = new LinkedHashMap<>();
 
 		for (AlgebraicRule r : getMinMaxRules(model.getListOfRules())) {
 			minMaxRules.put(getParam(r.getMath()), r);
@@ -241,8 +241,8 @@ public class SbmlReaderNodeModel extends NodeModel {
 				IO.createCell(rule.getMath().getChild(1).toFormula()));
 
 		String dependentVariable = null;
-		List<String> independentVariables = new ArrayList<String>();
-		List<String> paramters = new ArrayList<String>();
+		List<String> independentVariables = new ArrayList<>();
+		List<String> paramters = new ArrayList<>();
 
 		for (Parameter param : model.getListOfParameters()) {
 			if (!param.isConstant()) {
@@ -316,7 +316,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	}
 
 	private static DataTableSpec createSpec(Map<String, DataType> columns) {
-		List<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
+		List<DataColumnSpec> specs = new ArrayList<>();
 
 		for (String name : columns.keySet()) {
 			specs.add(new DataColumnSpecCreator(name, columns.get(name))
@@ -331,7 +331,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	}
 
 	private static List<AlgebraicRule> getMinMaxRules(ListOf<Rule> rules) {
-		List<AlgebraicRule> minMaxRules = new ArrayList<AlgebraicRule>();
+		List<AlgebraicRule> minMaxRules = new ArrayList<>();
 
 		for (int i = 1; i < rules.size(); i++) {
 			minMaxRules.add((AlgebraicRule) rules.get(i));

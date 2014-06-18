@@ -84,16 +84,16 @@ public class Plotable {
 
 	public Plotable(Type type) {
 		this.type = type;
-		valueLists = new LinkedHashMap<String, List<Double>>();
+		valueLists = new LinkedHashMap<>();
 		function = null;
 		dependentVariable = null;
 		diffVariable = null;
-		constants = new LinkedHashMap<String, Double>();
-		independentVariables = new LinkedHashMap<String, Double>();
-		minVariables = new LinkedHashMap<String, Double>();
-		maxVariables = new LinkedHashMap<String, Double>();
-		parameters = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
+		constants = new LinkedHashMap<>();
+		independentVariables = new LinkedHashMap<>();
+		minVariables = new LinkedHashMap<>();
+		maxVariables = new LinkedHashMap<>();
+		parameters = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
 		degreesOfFreedom = null;
 	}
 
@@ -198,8 +198,7 @@ public class Plotable {
 			return null;
 		}
 
-		List<Point2D.Double> points = new ArrayList<Point2D.Double>(
-				xList.size());
+		List<Point2D.Double> points = new ArrayList<>(xList.size());
 
 		for (int i = 0; i < xList.size(); i++) {
 			Double x = Transform.transform(xList.get(i), transformX);
@@ -279,7 +278,7 @@ public class Plotable {
 
 		double[][] points = new double[2][FUNCTION_STEPS];
 		Node f = parser.parse(function);
-		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+		Map<String, Node> derivatives = new LinkedHashMap<>();
 		TDistribution tDist = new TDistribution(degreesOfFreedom);
 
 		for (String param : parameters.keySet()) {
@@ -377,8 +376,8 @@ public class Plotable {
 				return false;
 			}
 
-			int n = valueLists.get(
-					new ArrayList<String>(valueLists.keySet()).get(0)).size();
+			int n = valueLists.get(new ArrayList<>(valueLists.keySet()).get(0))
+					.size();
 			boolean containsData = false;
 
 			for (int i = 0; i < n; i++) {
@@ -463,7 +462,7 @@ public class Plotable {
 	private Double getError(DJep parser, Map<String, Node> derivatives,
 			TDistribution tDist) throws ParseException {
 		Double y = 0.0;
-		List<String> paramList = new ArrayList<String>(parameters.keySet());
+		List<String> paramList = new ArrayList<>(parameters.keySet());
 
 		for (String param : paramList) {
 			Object obj = parser.evaluate(derivatives.get(param));

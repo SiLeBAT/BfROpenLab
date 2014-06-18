@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,8 +50,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class TracingCanvas extends GraphCanvas implements
 		HighlightConditionChecker {
@@ -86,7 +85,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	public Map<String, Double> getCaseWeights() {
-		Map<String, Double> caseWeights = new LinkedHashMap<String, Double>();
+		Map<String, Double> caseWeights = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Double value = (Double) node.getProperties().get(
@@ -116,7 +115,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	public Map<String, Boolean> getCrossContaminations() {
-		Map<String, Boolean> contaminations = new LinkedHashMap<String, Boolean>();
+		Map<String, Boolean> contaminations = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
@@ -147,7 +146,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	public Map<String, Boolean> getFilter() {
-		Map<String, Boolean> filter = new LinkedHashMap<String, Boolean>();
+		Map<String, Boolean> filter = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
@@ -177,7 +176,7 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	public Map<String, Boolean> getEdgeFilter() {
-		Map<String, Boolean> edgeFilter = new LinkedHashMap<String, Boolean>();
+		Map<String, Boolean> edgeFilter = new LinkedHashMap<>();
 
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			Boolean value = (Boolean) edge.getProperties().get(
@@ -270,7 +269,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		Set<GraphNode> picked = new LinkedHashSet<GraphNode>(getSelectedNodes());
+		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
 
 		picked.retainAll(getVisibleNodes());
 
@@ -286,8 +285,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		Set<Edge<GraphNode>> picked = new LinkedHashSet<Edge<GraphNode>>(
-				getSelectedEdges());
+		Set<Edge<GraphNode>> picked = new LinkedHashSet<>(getSelectedEdges());
 
 		picked.retainAll(getVisibleEdges());
 
@@ -304,7 +302,7 @@ public class TracingCanvas extends GraphCanvas implements
 	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
 			Mode editingMode) {
-		return new GraphMouse<GraphNode, Edge<GraphNode>>(
+		return new GraphMouse<>(
 				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
 
 					@Override
@@ -384,7 +382,7 @@ public class TracingCanvas extends GraphCanvas implements
 			return;
 		}
 
-		Set<Integer> edgeIds = new LinkedHashSet<Integer>();
+		Set<Integer> edgeIds = new LinkedHashSet<>();
 
 		for (Edge<GraphNode> edge : getVisibleEdges()) {
 			if (!isJoinEdges()) {
@@ -396,7 +394,7 @@ public class TracingCanvas extends GraphCanvas implements
 			}
 		}
 
-		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<Integer, MyDelivery>();
+		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
 		for (int id : edgeIds) {
 			activeDeliveries.put(id, deliveries.get(id));
@@ -408,7 +406,7 @@ public class TracingCanvas extends GraphCanvas implements
 
 		for (String id : getCollapsedNodes().keySet()) {
 			Set<String> nodeIdStrings = getCollapsedNodes().get(id).keySet();
-			HashSet<Integer> nodeIds = new HashSet<Integer>();
+			Set<Integer> nodeIds = new LinkedHashSet<>();
 
 			for (String idString : nodeIdStrings) {
 				nodeIds.add(Integer.parseInt(idString));
@@ -439,10 +437,10 @@ public class TracingCanvas extends GraphCanvas implements
 
 		tracing.fillDeliveries(enforceTemporalOrder);
 
-		Set<Integer> backwardNodes = new LinkedHashSet<Integer>();
-		Set<Integer> forwardNodes = new LinkedHashSet<Integer>();
-		Set<Integer> backwardEdges = new LinkedHashSet<Integer>();
-		Set<Integer> forwardEdges = new LinkedHashSet<Integer>();
+		Set<Integer> backwardNodes = new LinkedHashSet<>();
+		Set<Integer> forwardNodes = new LinkedHashSet<>();
+		Set<Integer> backwardEdges = new LinkedHashSet<>();
+		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
 		for (GraphNode node : getVisibleNodes()) {
 			int id = getIntegerId(node);
@@ -518,6 +516,6 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	private static int createId(Collection<String> c) {
-		return KnimeUtilities.listToString(new ArrayList<String>(c)).hashCode();
+		return KnimeUtilities.listToString(new ArrayList<>(c)).hashCode();
 	}
 }

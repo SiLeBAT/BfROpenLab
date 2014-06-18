@@ -45,9 +45,9 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 		setLayout(new BorderLayout(5, 5));
 
 		if (columns != null) {
-			selectionBox = new JComboBox<DataColumnSpec>(columns);
+			selectionBox = new JComboBox<>(columns);
 		} else {
-			selectionBox = new JComboBox<DataColumnSpec>();
+			selectionBox = new JComboBox<>();
 		}
 
 		add(selectionBox, BorderLayout.CENTER);

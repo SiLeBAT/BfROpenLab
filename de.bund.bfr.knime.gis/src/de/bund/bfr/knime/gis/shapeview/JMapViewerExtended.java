@@ -25,7 +25,7 @@ public class JMapViewerExtended extends JMapViewer {
 
 	private final MapOverlay[] m_mapOverlays;
 
-	private final Set<Pair<KnimeMapMarker2, Point>> m_paintedMarkers = new HashSet<Pair<KnimeMapMarker2, Point>>();
+	private final Set<Pair<KnimeMapMarker2, Point>> m_paintedMarkers = new HashSet<>();
 
 	/**
 	 * Initializes the map viewer.
@@ -79,8 +79,7 @@ public class JMapViewerExtended extends JMapViewer {
 					int mapSize = tilesize << zoom;
 					p.x = p.x % mapSize;
 				}
-				m_paintedMarkers.add(new Pair<KnimeMapMarker2, Point>(
-						(KnimeMapMarker2) marker, p));
+				m_paintedMarkers.add(new Pair<>((KnimeMapMarker2) marker, p));
 			}
 		}
 	}

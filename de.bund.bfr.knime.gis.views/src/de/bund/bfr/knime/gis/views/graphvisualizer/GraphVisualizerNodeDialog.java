@@ -183,9 +183,9 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<String>(
+		List<String> selectedGraphNodes = new ArrayList<>(
 				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<String>(
+		List<String> selectedGraphEdges = new ArrayList<>(
 				graphCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);

@@ -90,7 +90,7 @@ public class LogicalHighlightCondition implements Serializable {
 	}
 
 	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
-		Map<T, Double> values = new LinkedHashMap<T, Double>();
+		Map<T, Double> values = new LinkedHashMap<>();
 
 		try {
 			doubleValue = Double.parseDouble(value);

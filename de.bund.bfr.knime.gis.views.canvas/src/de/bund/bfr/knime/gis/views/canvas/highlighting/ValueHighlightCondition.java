@@ -142,7 +142,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
-		Map<T, Double> values = new LinkedHashMap<T, Double>();
+		Map<T, Double> values = new LinkedHashMap<>();
 
 		for (T element : elements) {
 			Object value = element.getProperties().get(property);
@@ -195,7 +195,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	@Override
 	public Point2D getValueRange(Collection<? extends Element> elements) {
-		List<Double> values = new ArrayList<Double>();
+		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
 			Object value = element.getProperties().get(property);

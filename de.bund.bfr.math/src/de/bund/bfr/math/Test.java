@@ -51,10 +51,10 @@ public class Test {
 	private static void nls() throws ParseException {
 		String formula = "a*x^2+b*x+c";
 		List<String> parameters = Arrays.asList("a", "b", "c");
-		Map<String, Double> minParams = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxParams = new LinkedHashMap<String, Double>();
+		Map<String, Double> minParams = new LinkedHashMap<>();
+		Map<String, Double> maxParams = new LinkedHashMap<>();
 		List<Double> targetValues = Arrays.asList(1.0, 5.0, 8.0, 17.0, 30.0);
-		Map<String, List<Double>> argumentValues = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> argumentValues = new LinkedHashMap<>();
 
 		argumentValues.put("x", Arrays.asList(0.0, 2.0, 3.0, 4.0, 5.0));
 
@@ -71,8 +71,8 @@ public class Test {
 	private static void diff() throws ParseException {
 		String formula = "-1/Dref*exp(ln(10)/z*(T-Tref))";
 		List<String> parameters = Arrays.asList("Dref", "Tref", "z");
-		Map<String, Double> minParams = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxParams = new LinkedHashMap<String, Double>();
+		Map<String, Double> minParams = new LinkedHashMap<>();
+		Map<String, Double> maxParams = new LinkedHashMap<>();
 
 		minParams.put("Dref", 0.0);
 		minParams.put("Tref", 0.0);
@@ -81,7 +81,7 @@ public class Test {
 		maxParams.put("Tref", 50.0);
 		maxParams.put("z", 50.0);
 
-		Map<String, List<Double>> variableValues = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> variableValues = new LinkedHashMap<>();
 
 		variableValues.put("time", new ArrayList<Double>());
 		variableValues.put("T", new ArrayList<Double>());
@@ -91,7 +91,7 @@ public class Test {
 			variableValues.get("T").add(20.0 + 0.1 * i);
 		}
 
-		List<Double> targetValues = new ArrayList<Double>();
+		List<Double> targetValues = new ArrayList<>();
 
 		for (double v : new VectorDiffFunction(formula, parameters, "y",
 				"time", variableValues, 10.0).value(new double[] { 9.43,

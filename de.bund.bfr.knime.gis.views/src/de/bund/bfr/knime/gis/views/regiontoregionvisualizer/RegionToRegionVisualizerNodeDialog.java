@@ -183,8 +183,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
-			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<GraphNode>();
-			Map<String, List<GraphNode>> graphNodesByRegion = new LinkedHashMap<String, List<GraphNode>>();
+			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<>();
+			Map<String, List<GraphNode>> graphNodesByRegion = new LinkedHashMap<>();
 
 			for (GraphNode graphNode : graphCanvas.getNodes()) {
 				if (!graphNodesByRegion.containsKey(graphNode.getRegion())) {
@@ -222,10 +222,10 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
-			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<Edge<GraphNode>>();
+			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<>();
 
 			if (!set.isJoinEdges()) {
-				Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<String, Edge<GraphNode>>();
+				Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<>();
 
 				for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
 					graphEdgesById.put(graphEdge.getId(), graphEdge);
@@ -235,7 +235,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 					selectedGraphEdges.add(graphEdgesById.get(gisEdgeId));
 				}
 			} else {
-				Map<String, Map<String, List<Edge<GraphNode>>>> graphEdgesByRegion = new LinkedHashMap<String, Map<String, List<Edge<GraphNode>>>>();
+				Map<String, Map<String, List<Edge<GraphNode>>>> graphEdgesByRegion = new LinkedHashMap<>();
 
 				for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
 					String fromRegion = graphEdge.getFrom().getRegion();
@@ -358,9 +358,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<String>(
+		List<String> selectedGraphNodes = new ArrayList<>(
 				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<String>(
+		List<String> selectedGraphEdges = new ArrayList<>(
 				graphCanvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);

@@ -110,9 +110,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = new LinkedHashMap<String, Double>();
-		Map<String, Double> minValues = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
+		Map<String, Double> paramsX = new LinkedHashMap<>();
+		Map<String, Double> minValues = new LinkedHashMap<>();
+		Map<String, Double> maxValues = new LinkedHashMap<>();
 
 		for (Plotable plotable : reader.getPlotables().values()) {
 			paramsX.putAll(plotable.getIndependentVariables());
@@ -187,7 +187,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setSelectedIds(selectionPanel.getSelectedIds());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
-		
+
 		try {
 			chartCreator.setChart(chartCreator.createChart());
 		} catch (ParseException e) {

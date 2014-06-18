@@ -106,14 +106,14 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 		graphScaleY = Double.NaN;
 		graphTranslationX = Double.NaN;
 		graphTranslationY = Double.NaN;
-		graphNodePositions = new LinkedHashMap<String, Point2D>();
+		graphNodePositions = new LinkedHashMap<>();
 		graphNodeSize = DEFAULT_GRAPH_NODE_SIZE;
 		graphFontSize = DEFAULT_GRAPH_FONT_SIZE;
 		graphFontBold = DEFAULT_GRAPH_FONT_BOLD;
 		graphEditingMode = DEFAULT_GRAPH_EDITING_MODE;
 		graphCanvasSize = DEFAULT_GRAPH_CANVAS_SIZE;
-		graphSelectedNodes = new ArrayList<String>();
-		graphSelectedEdges = new ArrayList<String>();
+		graphSelectedNodes = new ArrayList<>();
+		graphSelectedEdges = new ArrayList<>();
 		graphNodeHighlightConditions = new HighlightConditionList();
 		graphEdgeHighlightConditions = new HighlightConditionList();
 	}

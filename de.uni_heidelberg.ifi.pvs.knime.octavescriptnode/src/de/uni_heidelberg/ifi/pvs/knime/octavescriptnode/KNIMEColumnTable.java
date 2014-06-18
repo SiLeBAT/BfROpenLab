@@ -123,8 +123,7 @@ public class KNIMEColumnTable {
 	 */
 	private Vector<Vector<DataCell>> createEmptyDataCellTable(
 			final int columnNumber, final int rowNumber) {
-		Vector<Vector<DataCell>> newTable = new Vector<Vector<DataCell>>(
-				columnNumber);
+		Vector<Vector<DataCell>> newTable = new Vector<>(columnNumber);
 
 		int i = 0;
 		while (i < columnNumber) {

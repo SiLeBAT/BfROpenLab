@@ -23,5 +23,5 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: de.uni_heidelberg.ifi.pvs.knime.octavescriptnode.Oct
  aveScriptNodePlugin
 Bundle-SymbolicName: de.uni_heidelberg.ifi.pvs.nodes;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

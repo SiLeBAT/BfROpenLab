@@ -88,15 +88,15 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
-		this.nodes = new LinkedHashSet<LocationNode>(nodes);
-		this.edges = new LinkedHashSet<Edge<LocationNode>>(edges);
+		this.nodes = new LinkedHashSet<>(nodes);
+		this.edges = new LinkedHashSet<>(edges);
 		allEdges = edges;
-		joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
+		joinMap = new LinkedHashMap<>();
 
 		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(allowEdges, true, true));
 		getViewer().getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<LocationNode>(getNodeSize(),
+				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(this.nodes, this.edges));
@@ -127,8 +127,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 					CanvasUtilities.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
-			edges = new LinkedHashSet<Edge<LocationNode>>(allEdges);
-			joinMap = new LinkedHashMap<Edge<LocationNode>, Set<Edge<LocationNode>>>();
+			edges = new LinkedHashSet<>(allEdges);
+			joinMap = new LinkedHashMap<>();
 		}
 
 		getViewer().getGraphLayout().setGraph(
@@ -155,7 +155,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
 			Mode editingMode) {
-		return new GraphMouse<LocationNode, Edge<LocationNode>>(
+		return new GraphMouse<>(
 				new PickingGraphMousePlugin<LocationNode, Edge<LocationNode>>() {
 
 					@Override

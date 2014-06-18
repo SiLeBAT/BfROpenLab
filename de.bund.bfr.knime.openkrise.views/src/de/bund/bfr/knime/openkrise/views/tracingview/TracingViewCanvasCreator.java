@@ -112,11 +112,11 @@ public class TracingViewCanvasCreator {
 
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);
-		TracingCanvas canvas = new TracingCanvas(new ArrayList<GraphNode>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				deliveries, set.isEnforeTemporalOrder());
+		TracingCanvas canvas = new TracingCanvas(
+				new ArrayList<>(nodes.values()), edges, nodeProperties,
+				edgeProperties, deliveries, set.isEnforeTemporalOrder());
 
-		canvas.setPerformTracing(false);		
+		canvas.setPerformTracing(false);
 		canvas.setShowLegend(set.isGraphShowLegend());
 		canvas.setCanvasSize(set.getGraphCanvasSize());
 		canvas.setEditingMode(set.getGraphEditingMode());
@@ -133,9 +133,9 @@ public class TracingViewCanvasCreator {
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
 		canvas.setPerformTracing(true);
-		canvas.setSelectedNodeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
 				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<String>(set
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
 				.getGraphSelectedEdges()));
 
 		if (!Double.isNaN(set.getGraphScaleX())

@@ -103,9 +103,9 @@ public class FunctionViewSettings extends NlsNodeSettings {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		selectAll = DEFAULT_SELECT_ALL;
-		selectedIDs = new ArrayList<String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
+		selectedIDs = new ArrayList<>();
+		colors = new LinkedHashMap<>();
+		shapes = new LinkedHashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")
