@@ -86,6 +86,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
+	public void nodeAllPropertiesItemClicked() {
+	}
+
+	@Override
 	public void collapseToNodeItemClicked() {
 	}
 

@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -209,6 +210,29 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
 		applyLayout(layoutType, getSelectedNodes());
+	}
+
+	@Override
+	public void nodeAllPropertiesItemClicked() {
+		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
+		Set<GraphNode> pickedAll = new LinkedHashSet<>();
+
+		picked.retainAll(getVisibleNodes());
+
+		for (GraphNode node : picked) {
+			if (collapsedNodes.containsKey(node.getId())) {
+				for (String id : collapsedNodes.get(node.getId()).keySet()) {
+					pickedAll.add(nodeSaveMap.get(id));
+				}
+			} else {
+				pickedAll.add(node);
+			}
+		}
+
+		PropertiesDialog dialog = new PropertiesDialog(this, pickedAll,
+				getNodeProperties());
+
+		dialog.setVisible(true);
 	}
 
 	@Override
