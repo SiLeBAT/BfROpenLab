@@ -29,6 +29,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -327,12 +329,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			return;
 		}
 
-		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
-		}
-
-		collapsedNodes.clear();
-
 		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<>();
 
 		for (String id : CanvasUtilities.getElementIds(allNodes)) {
@@ -352,6 +348,27 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			nodesByProperty.get(stringValue).add(node);
 		}
+
+		List<String> propertyList = new ArrayList<>(nodesByProperty.keySet());
+
+		Collections.sort(propertyList);
+
+		ListFilterDialog<String> dialog = new ListFilterDialog<>(this,
+				propertyList);
+
+		dialog.setVisible(true);
+
+		if (!dialog.isApproved()) {
+			return;
+		}
+		
+		nodesByProperty.keySet().retainAll(dialog.getFiltered());		
+
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
 
 		for (String value : nodesByProperty.keySet()) {
 			String newId = KnimeUtilities.createNewValue(value,
