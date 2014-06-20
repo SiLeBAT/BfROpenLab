@@ -29,7 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.io.input.ReaderInputStream;
+import org.xml.sax.InputSource;
 
 public class XmlConverter {
 
@@ -48,7 +48,7 @@ public class XmlConverter {
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		XMLEncoder encoder = new XMLEncoder(out);
+		XMLEncoder encoder = new XMLEncoder(out, "UTF-8", true, 0);
 
 		currentThread.setContextClassLoader(loader);
 		encoder.writeObject(obj);
@@ -71,8 +71,8 @@ public class XmlConverter {
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
-		StringReader in = new StringReader(s);
-		XMLDecoder decoder = new XMLDecoder(new ReaderInputStream(in, "UTF-8"));
+		XMLDecoder decoder = new XMLDecoder(
+				new InputSource(new StringReader(s)));
 		Object obj;
 
 		currentThread.setContextClassLoader(loader);
