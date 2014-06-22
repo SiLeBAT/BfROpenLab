@@ -42,6 +42,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
@@ -142,54 +143,23 @@ public class KnimeUtilities {
 		return tableColumns;
 	}
 
-	public static DataColumnSpec[] getAllColumns(DataTableSpec spec) {
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
+			DataType... types) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
-			columns.add(column);
-		}
-
-		return columns.toArray(new DataColumnSpec[0]);
-	}
-
-	public static DataColumnSpec[] getStringColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<>();
-
-		for (DataColumnSpec column : spec) {
-			if (column.getType().equals(StringCell.TYPE)) {
-				columns.add(column);
+			for (DataType type : types) {
+				if (column.getType().equals(type)) {
+					columns.add(column);
+					break;
+				}
 			}
 		}
 
-		return columns.toArray(new DataColumnSpec[0]);
+		return columns;
 	}
 
-	public static DataColumnSpec[] getDoubleColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<>();
-
-		for (DataColumnSpec column : spec) {
-			if (column.getType().equals(DoubleCell.TYPE)) {
-				columns.add(column);
-			}
-		}
-
-		return columns.toArray(new DataColumnSpec[0]);
-	}
-
-	public static DataColumnSpec[] getStringIntColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<>();
-
-		for (DataColumnSpec column : spec) {
-			if (column.getType().equals(StringCell.TYPE)
-					|| column.getType().equals(IntCell.TYPE)) {
-				columns.add(column);
-			}
-		}
-
-		return columns.toArray(new DataColumnSpec[0]);
-	}
-
-	public static List<String> getColumnNames(DataColumnSpec[] columns) {
+	public static List<String> getColumnNames(List<DataColumnSpec> columns) {
 		List<String> names = new ArrayList<>();
 
 		for (DataColumnSpec column : columns) {

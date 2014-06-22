@@ -56,7 +56,7 @@ public class GisUtilities {
 		return null;
 	}
 
-	public static DataColumnSpec[] getShapeColumns(DataTableSpec spec) {
+	public static List<DataColumnSpec> getShapeColumns(DataTableSpec spec) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
@@ -65,7 +65,7 @@ public class GisUtilities {
 			}
 		}
 
-		return columns.toArray(new DataColumnSpec[0]);
+		return columns;
 	}
 
 	public static Point2D.Double getCenter(MultiPolygon poly) {

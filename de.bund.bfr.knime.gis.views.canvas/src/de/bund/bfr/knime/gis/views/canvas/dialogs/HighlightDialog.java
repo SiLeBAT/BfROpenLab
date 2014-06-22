@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -435,8 +436,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 				LogicalHighlightCondition cond = condition.getConditions()
 						.get(i).get(j);
 
-				JComboBox<String> propertyBox = new JComboBox<>(nodeProperties
-						.keySet().toArray(new String[0]));
+				JComboBox<String> propertyBox = new JComboBox<>(new Vector<>(
+						nodeProperties.keySet()));
 				JComboBox<String> typeBox = new JComboBox<>(
 						LogicalHighlightCondition.TYPES);
 				JTextField valueField = new JTextField(20);
@@ -501,8 +502,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 			}
 		}
 
-		valuePropertyBox = new JComboBox<>(
-				numberProperties.toArray(new String[0]));
+		valuePropertyBox = new JComboBox<>(new Vector<>(numberProperties));
 		valueTypeBox = new JComboBox<>(ValueHighlightCondition.TYPES);
 
 		if (condition != null) {

@@ -40,6 +40,9 @@ import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
@@ -75,20 +78,20 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
-		nodeIdBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(nodeSpec));
+		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
-		nodeLatitudeBox = new ColumnComboBox(false,
-				KnimeUtilities.getDoubleColumns(nodeSpec));
+		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false,
-				KnimeUtilities.getDoubleColumns(nodeSpec));
+		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getNodeLongitudeColumn());
-		edgeFromBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(edgeSpec));
+		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(edgeSpec));
+		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

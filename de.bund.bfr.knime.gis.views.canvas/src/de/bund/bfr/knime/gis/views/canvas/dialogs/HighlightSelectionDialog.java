@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -66,7 +67,7 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 		list.getSelectionModel().setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());
-		list.setListData(highlightConditions.toArray(new HighlightCondition[0]));
+		list.setListData(new Vector<>(highlightConditions));
 
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);

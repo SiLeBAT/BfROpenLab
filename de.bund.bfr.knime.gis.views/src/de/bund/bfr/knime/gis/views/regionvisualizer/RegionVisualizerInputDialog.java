@@ -40,6 +40,8 @@ import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
@@ -73,11 +75,11 @@ public class RegionVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(shapeSpec));
+		shapeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
-		nodeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(nodeSpec));
+		nodeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

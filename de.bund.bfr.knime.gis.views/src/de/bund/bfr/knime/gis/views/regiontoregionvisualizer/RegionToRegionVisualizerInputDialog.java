@@ -40,6 +40,8 @@ import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
@@ -75,20 +77,20 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(shapeSpec));
+		shapeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
-		nodeIdBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(nodeSpec));
+		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
-		nodeRegionBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(nodeSpec));
+		nodeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
-		edgeFromBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(edgeSpec));
+		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false,
-				KnimeUtilities.getStringIntColumns(edgeSpec));
+		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

@@ -172,9 +172,11 @@ public class FunctionFittingNodeModel extends NodeModel {
 		List<String> variables = function.getVariables();
 		List<String> parameters = function.getParameters();
 		List<String> stringColumns = KnimeUtilities
-				.getColumnNames(KnimeUtilities.getStringColumns(spec));
+				.getColumnNames(KnimeUtilities
+						.getColumns(spec, StringCell.TYPE));
 		List<String> doubleColumns = KnimeUtilities
-				.getColumnNames(KnimeUtilities.getDoubleColumns(spec));
+				.getColumnNames(KnimeUtilities
+						.getColumns(spec, DoubleCell.TYPE));
 
 		if (!stringColumns.contains(NlsConstants.ID_COLUMN)) {
 			throw new InvalidSettingsException(

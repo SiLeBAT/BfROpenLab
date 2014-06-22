@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -114,7 +115,8 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		countryCodeBox.removeAllColumns();
 		postalCodeBox.removeAllColumns();
 
-		for (DataColumnSpec column : KnimeUtilities.getStringColumns(specs[0])) {
+		for (DataColumnSpec column : KnimeUtilities.getColumns(specs[0],
+				StringCell.TYPE)) {
 			addressBox.addColumn(column);
 			streetBox.addColumn(column);
 			cityBox.addColumn(column);

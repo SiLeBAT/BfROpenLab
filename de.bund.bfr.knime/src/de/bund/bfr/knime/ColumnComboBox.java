@@ -26,6 +26,8 @@ package de.bund.bfr.knime;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -41,11 +43,11 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	private JComboBox<DataColumnSpec> selectionBox;
 	private JCheckBox enableBox;
 
-	public ColumnComboBox(boolean optional, DataColumnSpec[] columns) {
+	public ColumnComboBox(boolean optional, List<DataColumnSpec> columns) {
 		setLayout(new BorderLayout(5, 5));
 
 		if (columns != null) {
-			selectionBox = new JComboBox<>(columns);
+			selectionBox = new JComboBox<>(new Vector<>(columns));
 		} else {
 			selectionBox = new JComboBox<>();
 		}

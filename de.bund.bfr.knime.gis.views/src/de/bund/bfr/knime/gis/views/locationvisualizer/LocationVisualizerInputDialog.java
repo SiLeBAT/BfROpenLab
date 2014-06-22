@@ -40,6 +40,7 @@ import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.DoubleCell;
 
 import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
@@ -73,11 +74,11 @@ public class LocationVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getShapeColumn());
-		nodeLatitudeBox = new ColumnComboBox(false,
-				KnimeUtilities.getDoubleColumns(nodeSpec));
+		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false,
-				KnimeUtilities.getDoubleColumns(nodeSpec));
+		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+				nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getLongitudeColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
