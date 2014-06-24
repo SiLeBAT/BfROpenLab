@@ -519,6 +519,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			if (to == null) {
 				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
 			}
+			
+			if (from == to && metaNodes.contains(from)) {
+				continue;
+			}
 
 			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
@@ -529,14 +533,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
 						from, to);
 			}
-
-			if (newEdge.getFrom().equals(newEdge.getTo())) {
-				if (!metaNodes.contains(newEdge.getFrom())) {
-					edges.add(newEdge);
-				}
-			} else {
-				edges.add(newEdge);
-			}
+			
+			edges.add(newEdge);
 		}
 
 		if (isJoinEdges()) {
