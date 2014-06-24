@@ -32,9 +32,9 @@ import de.bund.bfr.knime.ui.StandardFileFilter;
 
 public class ImageFileChooser extends JFileChooser {
 
-	public static int NO_FORMAT = -1;
-	public static int PNG_FORMAT = 0;
-	public static int SVG_FORMAT = 1;
+	public static enum Format {
+		PNG_FORMAT, SVG_FORMAT
+	}
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,11 +54,11 @@ public class ImageFileChooser extends JFileChooser {
 	public File getImageFile() {
 		File file = getSelectedFile();
 
-		if (getFileFormat() == PNG_FORMAT) {
+		if (getFileFormat() == Format.PNG_FORMAT) {
 			if (!file.getName().toLowerCase().endsWith(".png")) {
 				file = new File(file.getAbsolutePath() + ".png");
 			}
-		} else if (getFileFormat() == SVG_FORMAT) {
+		} else if (getFileFormat() == Format.SVG_FORMAT) {
 			if (!file.getName().toLowerCase().endsWith(".svg")) {
 				file = new File(file.getAbsolutePath() + ".svg");
 			}
@@ -67,15 +67,15 @@ public class ImageFileChooser extends JFileChooser {
 		return file;
 	}
 
-	public int getFileFormat() {
+	public Format getFileFormat() {
 		FileFilter filter = getFileFilter();
 
 		if (filter == pngFilter) {
-			return PNG_FORMAT;
+			return Format.PNG_FORMAT;
 		} else if (filter == svgFilter) {
-			return SVG_FORMAT;
+			return Format.SVG_FORMAT;
 		}
 
-		return NO_FORMAT;
+		return null;
 	}
 }
