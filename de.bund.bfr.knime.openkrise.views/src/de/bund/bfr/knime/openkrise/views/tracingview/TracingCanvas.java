@@ -279,7 +279,7 @@ public class TracingCanvas extends GraphCanvas implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			applyTracing();
+			applyChanges();
 		}
 	}
 
@@ -295,7 +295,7 @@ public class TracingCanvas extends GraphCanvas implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			applyTracing();
+			applyChanges();
 		}
 	}
 
