@@ -230,10 +230,18 @@ public class MyNewTracing {
 		return getBackwardStations(allDeliveries.get(deliveryId));
 	}
 	public Set<Integer> getForwardDeliveries2(int deliveryId) {
-		return getForwardDeliveries(allDeliveries.get(deliveryId));
+		Set<Integer> f = new HashSet<>(getForwardDeliveries(allDeliveries.get(deliveryId)));
+		
+		f.remove(deliveryId);
+		
+		return f;
 	}
-	public Set<Integer> getBackwardDeliveries2(int deliveryId) {		
-		return getBackwardDeliveries(allDeliveries.get(deliveryId));
+	public Set<Integer> getBackwardDeliveries2(int deliveryId) {
+		Set<Integer> b = new HashSet<>(getBackwardDeliveries(allDeliveries.get(deliveryId)));
+		
+		b.remove(deliveryId);
+		
+		return b;
 	}
 
 	public static XStream getXStream() {
