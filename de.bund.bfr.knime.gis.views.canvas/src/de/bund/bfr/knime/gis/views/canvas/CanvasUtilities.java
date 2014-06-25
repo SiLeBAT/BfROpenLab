@@ -48,6 +48,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeArrowTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
@@ -525,6 +526,8 @@ public class CanvasUtilities {
 				new EdgeDrawTransformer<>(viewer, alphaValues, colors));
 		viewer.getRenderContext().setEdgeStrokeTransformer(
 				new EdgeStrokeTransformer<>(thicknessValues));
+		viewer.getRenderContext().setEdgeArrowTransformer(
+				new EdgeArrowTransformer<>(thicknessValues));
 		viewer.getRenderContext().setEdgeLabelTransformer(
 				new LabelTransformer<>(labels));
 	}
