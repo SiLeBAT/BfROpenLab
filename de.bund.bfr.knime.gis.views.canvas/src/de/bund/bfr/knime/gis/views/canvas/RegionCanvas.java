@@ -243,30 +243,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg) {
-		paintBackground(g);
-		paintRegions(g);
-		paintRegionBorders(g, toSvg);
-	}
-
-	@Override
-	protected Map<Edge<RegionNode>, Set<Edge<RegionNode>>> getJoinMap() {
-		return joinMap;
-	}
-
-	@Override
-	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), false, false,
-				true, getNodeHighlightConditions(), null);
-	}
-
-	@Override
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), null);
-	}
-
-	private void paintRegions(Graphics g) {
+	protected void paintGis(Graphics g, boolean toSvg) {		
 		for (RegionNode node : getViewer().getPickedVertexState().getPicked()) {
 			g.setColor(Color.BLUE);
 
@@ -314,6 +291,25 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				}
 			}
 		}
+		
+		super.paintGis(g, toSvg);		
+	}
+
+	@Override
+	protected Map<Edge<RegionNode>, Set<Edge<RegionNode>>> getJoinMap() {
+		return joinMap;
+	}
+
+	@Override
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, getNodeProperties(), false, false,
+				true, getNodeHighlightConditions(), null);
+	}
+
+	@Override
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, getEdgeProperties(), true, true,
+				true, getEdgeHighlightConditions(), null);
 	}
 
 	private RegionNode getContainingNode(int x, int y) {

@@ -136,17 +136,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	protected void paintGis(Graphics g, boolean toSvg) {
-		paintBackground(g);
-		paintRegionBorders(g, toSvg);
-	}
-
-	protected void paintBackground(Graphics g) {
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, getCanvasSize().width, getCanvasSize().height);
-	}
-
-	protected void paintRegionBorders(Graphics g, boolean toSvg) {
+	protected void paintGis(Graphics g, boolean toSvg) {		
 		if (!toSvg) {
 			BufferedImage borderImage = new BufferedImage(
 					getCanvasSize().width, getCanvasSize().height,
