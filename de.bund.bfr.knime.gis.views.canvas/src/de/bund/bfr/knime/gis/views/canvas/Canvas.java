@@ -27,7 +27,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -981,6 +983,27 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						getCanvasSize().width, getCanvasSize().height,
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}
+
+			Font font = new Font("Default", Font.BOLD, 10);
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dx = 10;
+			int dy = 2;
+			int w = getCanvasSize().width;
+			int h = getCanvasSize().height;
+			String s = "Powered by BfR";
+			int sw = (int) font.getStringBounds(s,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
+					fontHeight + 2 * dy);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
+					fontHeight + 2 * dy);
+			g.setFont(font);
+			g.drawString(s, w - sw - dx, h - fontHeight - dy + fontAscent);
+
 		}
 	}
 }
