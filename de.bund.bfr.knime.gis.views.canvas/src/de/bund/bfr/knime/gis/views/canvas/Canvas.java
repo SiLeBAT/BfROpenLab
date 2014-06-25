@@ -981,13 +981,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		@Override
 		public void paint(Graphics g) {
-			Font font1 = new Font("Default", Font.BOLD, 60);
-			Font font2 = new Font("Default", Font.BOLD, 120);
+			Font font1 = new Font("Default", Font.BOLD, 120);
+			Font font2 = new Font("Default", Font.BOLD, 240);
 			int w = getCanvasSize().width;
 			int h = getCanvasSize().height;
 
-			String s1 = "Powered by";
-			String s2 = "BfR";
+			String s1 = new String(new char[]{'P','o','w','e','r','e','d',' ','b','y'});
+			String s2 = new String(new char[]{'B','f','R'});
 			Rectangle2D size1 = font1.getStringBounds(s1,
 					((Graphics2D) g).getFontRenderContext());
 			Rectangle2D size2 = font2.getStringBounds(s2,
