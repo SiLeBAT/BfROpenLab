@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -47,7 +46,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -169,7 +167,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPreRenderPaintable(new PrePaintable());
-		viewer.addPostRenderPaintable(new PostPaintable());
+		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 		viewer.registerKeyboardAction(this, COPY, KeyStroke.getKeyStroke(
 				KeyEvent.VK_C, ActionEvent.CTRL_MASK, false),
@@ -919,7 +917,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		server.setRenderContext(viewer.getRenderContext());
 		server.setRenderer(viewer.getRenderer());
 		server.addPreRenderPaintable(new PrePaintable());
-		server.addPostRenderPaintable(new PostPaintable());
+		server.addPostRenderPaintable(new PostPaintable(true));
 
 		return server;
 	}
@@ -981,34 +979,40 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		@Override
 		public void paint(Graphics g) {
-			Font font1 = new Font("Default", Font.BOLD, 120);
-			Font font2 = new Font("Default", Font.BOLD, 240);
-			int w = getCanvasSize().width;
-			int h = getCanvasSize().height;
-
-			String s1 = new String(new char[] { 'P', 'o', 'w', 'e', 'r', 'e',
-					'd', ' ', 'b', 'y' });
-			String s2 = new String(new char[] { 'B', 'f', 'R' });
-			Rectangle2D size1 = font1.getStringBounds(s1,
-					((Graphics2D) g).getFontRenderContext());
-			Rectangle2D size2 = font2.getStringBounds(s2,
-					((Graphics2D) g).getFontRenderContext());
-
-			int x1 = (int) (w - size1.getWidth()) / 2;
-			int x2 = (int) (w - size2.getWidth()) / 2;
-			int y1 = (int) (h - size1.getHeight() - size2.getHeight()) / 2;
-			int y2 = (int) (y1 + size1.getHeight());
-
-			((Graphics2D) g).setPaint(new GradientPaint(0, 0, new Color(0.8f,
-					0.8f, 0.8f), 10, 0, new Color(0.9f, 0.9f, 0.9f), true));
-			g.setFont(font1);
-			g.drawString(s1, x1, y1 + g.getFontMetrics(font1).getAscent());
-			g.setFont(font2);
-			g.drawString(s2, x2, y2 + g.getFontMetrics(font2).getAscent());
+			// Font font1 = new Font("Default", Font.BOLD, 120);
+			// Font font2 = new Font("Default", Font.BOLD, 240);
+			// int w = getCanvasSize().width;
+			// int h = getCanvasSize().height;
+			//
+			// String s1 = new String(new char[] { 'P', 'o', 'w', 'e', 'r', 'e',
+			// 'd', ' ', 'b', 'y' });
+			// String s2 = new String(new char[] { 'B', 'f', 'R' });
+			// Rectangle2D size1 = font1.getStringBounds(s1,
+			// ((Graphics2D) g).getFontRenderContext());
+			// Rectangle2D size2 = font2.getStringBounds(s2,
+			// ((Graphics2D) g).getFontRenderContext());
+			//
+			// int x1 = (int) (w - size1.getWidth()) / 2;
+			// int x2 = (int) (w - size2.getWidth()) / 2;
+			// int y1 = (int) (h - size1.getHeight() - size2.getHeight()) / 2;
+			// int y2 = (int) (y1 + size1.getHeight());
+			//
+			// ((Graphics2D) g).setPaint(new GradientPaint(0, 0, new Color(0.8f,
+			// 0.8f, 0.8f), 10, 0, new Color(0.9f, 0.9f, 0.9f), true));
+			// g.setFont(font1);
+			// g.drawString(s1, x1, y1 + g.getFontMetrics(font1).getAscent());
+			// g.setFont(font2);
+			// g.drawString(s2, x2, y2 + g.getFontMetrics(font2).getAscent());
 		}
 	}
 
 	private class PostPaintable implements Paintable {
+
+		private boolean toImage;
+
+		public PostPaintable(boolean toImage) {
+			this.toImage = toImage;
+		}
 
 		@Override
 		public boolean useTransform() {
@@ -1022,6 +1026,30 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						edgeHighlightConditions, getVisibleEdges()).paint(g,
 						getCanvasSize().width, getCanvasSize().height,
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
+			}
+
+			Font font = new Font("Default", Font.BOLD, 20);
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dx = 10;
+			int dy = 2;
+			int w = getCanvasSize().width;
+			int h = getCanvasSize().height;
+			String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
+			int sw = (int) font.getStringBounds(s,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
+					fontHeight + 2 * dy);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
+					fontHeight + 2 * dy);
+			g.setFont(font);
+			g.drawString(s, w - sw - dx, h - fontHeight - dy + fontAscent);
+
+			if (toImage) {
+				g.drawRect(0, 0, w - 1, h - 1);
 			}
 		}
 	}
