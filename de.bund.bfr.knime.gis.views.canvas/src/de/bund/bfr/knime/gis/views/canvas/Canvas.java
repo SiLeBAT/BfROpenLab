@@ -986,8 +986,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			int w = getCanvasSize().width;
 			int h = getCanvasSize().height;
 
-			String s1 = new String(new char[]{'P','o','w','e','r','e','d',' ','b','y'});
-			String s2 = new String(new char[]{'B','f','R'});
+			String s1 = new String(new char[] { 'P', 'o', 'w', 'e', 'r', 'e',
+					'd', ' ', 'b', 'y' });
+			String s2 = new String(new char[] { 'B', 'f', 'R' });
 			Rectangle2D size1 = font1.getStringBounds(s1,
 					((Graphics2D) g).getFontRenderContext());
 			Rectangle2D size2 = font2.getStringBounds(s2,
@@ -999,7 +1000,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			int y2 = (int) (y1 + size1.getHeight());
 
 			((Graphics2D) g).setPaint(new GradientPaint(0, 0, new Color(0.8f,
-					0.8f, 0.8f), w, 0, new Color(0.75f, 0.75f, 0.75f)));
+					0.8f, 0.8f), 10, 0, new Color(0.9f, 0.9f, 0.9f), true));
 			g.setFont(font1);
 			g.drawString(s1, x1, y1 + g.getFontMetrics(font1).getAscent());
 			g.setFont(font2);
