@@ -108,10 +108,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final long serialVersionUID = 1L;
 	private static final String COPY = "Copy";
 	private static final String PASTE = "Paste";
+	private static final boolean DEFAULT_DRAW_BFR = false;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
+
+	private boolean drawBfR;
 
 	private double scaleX;
 	private double scaleY;
@@ -140,6 +143,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeIdProperty = edgeIdProperty;
 		this.edgeFromProperty = edgeFromProperty;
 		this.edgeToProperty = edgeToProperty;
+		drawBfR = DEFAULT_DRAW_BFR;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -186,6 +190,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void removeCanvasListener(CanvasListener listener) {
 		canvasListeners.remove(listener);
+	}
+
+	public boolean isDrawBfR() {
+		return drawBfR;
+	}
+
+	public void setDrawBfR(boolean drawBfR) {
+		this.drawBfR = drawBfR;
+		viewer.repaint();
 	}
 
 	public Dimension getCanvasSize() {
@@ -1028,28 +1041,30 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}
 
-			Font font = new Font("Default", Font.BOLD, 20);
-			int fontHeight = g.getFontMetrics(font).getHeight();
-			int fontAscent = g.getFontMetrics(font).getAscent();
-			int dx = 10;
-			int dy = 2;
-			int w = getCanvasSize().width;
-			int h = getCanvasSize().height;
-			String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
-			int sw = (int) font.getStringBounds(s,
-					((Graphics2D) g).getFontRenderContext()).getWidth();
+			if (drawBfR) {
+				Font font = new Font("Default", Font.BOLD, 20);
+				int fontHeight = g.getFontMetrics(font).getHeight();
+				int fontAscent = g.getFontMetrics(font).getAscent();
+				int dx = 10;
+				int dy = 2;
+				int w = getCanvasSize().width;
+				int h = getCanvasSize().height;
+				String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
+				int sw = (int) font.getStringBounds(s,
+						((Graphics2D) g).getFontRenderContext()).getWidth();
 
-			g.setColor(Color.LIGHT_GRAY);
-			g.fillRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
-					fontHeight + 2 * dy);
-			g.setColor(Color.BLACK);
-			g.drawRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2 * dx,
-					fontHeight + 2 * dy);
-			g.setFont(font);
-			g.drawString(s, w - sw - dx, h - fontHeight - dy + fontAscent);
+				g.setColor(Color.LIGHT_GRAY);
+				g.fillRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2
+						* dx, fontHeight + 2 * dy);
+				g.setColor(Color.BLACK);
+				g.drawRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2
+						* dx, fontHeight + 2 * dy);
+				g.setFont(font);
+				g.drawString(s, w - sw - dx, h - fontHeight - dy + fontAscent);
 
-			if (toImage) {
-				g.drawRect(0, 0, w - 1, h - 1);
+				if (toImage) {
+					g.drawRect(0, 0, w - 1, h - 1);
+				}
 			}
 		}
 	}
