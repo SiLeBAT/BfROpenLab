@@ -170,7 +170,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
-		viewer.addPreRenderPaintable(new PrePaintable());
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 		viewer.registerKeyboardAction(this, COPY, KeyStroke.getKeyStroke(
@@ -929,7 +928,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		server.setBackground(Color.WHITE);
 		server.setRenderContext(viewer.getRenderContext());
 		server.setRenderer(viewer.getRenderer());
-		server.addPreRenderPaintable(new PrePaintable());
 		server.addPostRenderPaintable(new PostPaintable(true));
 
 		return server;
@@ -983,42 +981,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
-	private class PrePaintable implements Paintable {
-
-		@Override
-		public boolean useTransform() {
-			return false;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			// Font font1 = new Font("Default", Font.BOLD, 120);
-			// Font font2 = new Font("Default", Font.BOLD, 240);
-			// int w = getCanvasSize().width;
-			// int h = getCanvasSize().height;
-			//
-			// String s1 = new String(new char[] { 'P', 'o', 'w', 'e', 'r', 'e',
-			// 'd', ' ', 'b', 'y' });
-			// String s2 = new String(new char[] { 'B', 'f', 'R' });
-			// Rectangle2D size1 = font1.getStringBounds(s1,
-			// ((Graphics2D) g).getFontRenderContext());
-			// Rectangle2D size2 = font2.getStringBounds(s2,
-			// ((Graphics2D) g).getFontRenderContext());
-			//
-			// int x1 = (int) (w - size1.getWidth()) / 2;
-			// int x2 = (int) (w - size2.getWidth()) / 2;
-			// int y1 = (int) (h - size1.getHeight() - size2.getHeight()) / 2;
-			// int y2 = (int) (y1 + size1.getHeight());
-			//
-			// ((Graphics2D) g).setPaint(new GradientPaint(0, 0, new Color(0.8f,
-			// 0.8f, 0.8f), 10, 0, new Color(0.9f, 0.9f, 0.9f), true));
-			// g.setFont(font1);
-			// g.drawString(s1, x1, y1 + g.getFontMetrics(font1).getAscent());
-			// g.setFont(font2);
-			// g.drawString(s2, x2, y2 + g.getFontMetrics(font2).getAscent());
-		}
-	}
-
 	private class PostPaintable implements Paintable {
 
 		private boolean toImage;
@@ -1065,9 +1027,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				if (toImage) {
 					g.drawRect(0, 0, w - 1, h - 1);
 				}
-
-				// g.drawImage(ResourceLoader.getInstance().getBfrLogo(), 0, 0,
-				// null);
 			}
 		}
 	}
