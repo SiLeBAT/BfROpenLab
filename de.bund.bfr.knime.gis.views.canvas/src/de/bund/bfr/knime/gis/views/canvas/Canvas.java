@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -88,7 +87,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.res.ResourceLoader;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -1017,8 +1015,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
 				int sw = (int) font.getStringBounds(s,
 						((Graphics2D) g).getFontRenderContext()).getWidth();
-				Image img = ResourceLoader.getInstance().getBfrLogo();
-				int iw = img.getWidth(null) * fontHeight / img.getHeight(null);
+				BfrLogo logo = new BfrLogo();
+				int iw = logo.getOrigWidth() * fontHeight
+						/ logo.getOrigHeight();
 
 				g.setColor(Color.WHITE);
 				g.fillRect(w - sw - iw - 3 * dx, h - fontHeight - 2 * dy, sw
@@ -1029,8 +1028,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				g.setFont(font);
 				g.drawString(s, w - sw - iw - 2 * dx, h - fontHeight - dy
 						+ fontAscent);
-				g.drawImage(img, w - iw - dx, h - fontHeight - dy, iw,
-						fontHeight, null);
+				logo.setDimension(new Dimension(iw, fontHeight));
+				logo.paintIcon(null, g, w - iw - dx, h - fontHeight - dy);
 			}
 
 			if (toImage) {
