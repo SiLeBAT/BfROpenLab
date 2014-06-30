@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -87,6 +88,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.res.ResourceLoader;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -1003,30 +1005,36 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}
 
+			int w = getCanvasSize().width;
+			int h = getCanvasSize().height;
+
 			if (drawBfR) {
 				Font font = new Font("Default", Font.BOLD, 20);
 				int fontHeight = g.getFontMetrics(font).getHeight();
 				int fontAscent = g.getFontMetrics(font).getAscent();
 				int dx = 10;
 				int dy = 2;
-				int w = getCanvasSize().width;
-				int h = getCanvasSize().height;
 				String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
 				int sw = (int) font.getStringBounds(s,
 						((Graphics2D) g).getFontRenderContext()).getWidth();
+				Image img = ResourceLoader.getInstance().getBfrLogo();
+				int iw = img.getWidth(null) * fontHeight / img.getHeight(null);
 
-				g.setColor(Color.LIGHT_GRAY);
-				g.fillRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2
-						* dx, fontHeight + 2 * dy);
+				g.setColor(Color.WHITE);
+				g.fillRect(w - sw - iw - 3 * dx, h - fontHeight - 2 * dy, sw
+						+ iw + +3 * dx, fontHeight + 2 * dy);
 				g.setColor(Color.BLACK);
-				g.drawRect(w - sw - 2 * dx, h - fontHeight - 2 * dy, sw + 2
-						* dx, fontHeight + 2 * dy);
+				g.drawRect(w - sw - iw - 3 * dx, h - fontHeight - 2 * dy, sw
+						+ iw + +3 * dx, fontHeight + 2 * dy);
 				g.setFont(font);
-				g.drawString(s, w - sw - dx, h - fontHeight - dy + fontAscent);
+				g.drawString(s, w - sw - iw - 2 * dx, h - fontHeight - dy
+						+ fontAscent);
+				g.drawImage(img, w - iw - dx, h - fontHeight - dy, iw,
+						fontHeight, null);
+			}
 
-				if (toImage) {
-					g.drawRect(0, 0, w - 1, h - 1);
-				}
+			if (toImage) {
+				g.drawRect(0, 0, w - 1, h - 1);
 			}
 		}
 	}
