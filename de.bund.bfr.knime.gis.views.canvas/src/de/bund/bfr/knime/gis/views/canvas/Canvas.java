@@ -1065,6 +1065,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				if (toImage) {
 					g.drawRect(0, 0, w - 1, h - 1);
 				}
+
+				// g.drawImage(ResourceLoader.getInstance().getBfrLogo(), 0, 0,
+				// null);
 			}
 		}
 	}
