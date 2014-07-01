@@ -1008,28 +1008,44 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			if (drawBfR) {
 				Font font = new Font("Default", Font.BOLD, 20);
-				int fontHeight = g.getFontMetrics(font).getHeight();
+
+				int height = 28;
+				int fontHeight = g.getFontMetrics(font).getHeight();				
 				int fontAscent = g.getFontMetrics(font).getAscent();
+				int dFont = (height - fontHeight) / 2;
+				int logoHeight = 18;
+				int dLogo = (height - logoHeight) / 2;
+
 				int dx = 10;
-				int dy = 2;
-				String s = "Created with FoodChain-Lab. Provided by";
-				int sw = (int) font.getStringBounds(s,
+				String s1 = "Created with";
+				int sw1 = (int) font.getStringBounds(s1,
 						((Graphics2D) g).getFontRenderContext()).getWidth();
-				BfrLogo logo = new BfrLogo();
-				int iw = logo.getOrigWidth() * fontHeight
-						/ logo.getOrigHeight();
+				String s2 = "by";
+				int sw2 = (int) font.getStringBounds(s2,
+						((Graphics2D) g).getFontRenderContext()).getWidth();
+				FoodChainLabLogo logo1 = new FoodChainLabLogo();
+				int iw1 = logo1.getOrigWidth() * logoHeight
+						/ logo1.getOrigHeight();
+				BfrLogo logo2 = new BfrLogo();
+				int iw2 = logo2.getOrigWidth() * logoHeight
+						/ logo2.getOrigHeight();
 
 				g.setColor(Color.WHITE);
-				g.fillRect(w - sw - iw - 3 * dx, h - fontHeight - 2 * dy, sw
-						+ iw + +3 * dx, fontHeight + 2 * dy);
+				g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+						+ iw1 + sw2 + iw2 + 5 * dx, height);
 				g.setColor(Color.BLACK);
-				g.drawRect(w - sw - iw - 3 * dx, h - fontHeight - 2 * dy, sw
-						+ iw + +3 * dx, fontHeight + 2 * dy);
+				g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+						+ iw1 + sw2 + iw2 + 5 * dx, height);
 				g.setFont(font);
-				g.drawString(s, w - sw - iw - 2 * dx, h - fontHeight - dy
+				g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h
+						- fontHeight - dFont + fontAscent);
+				logo1.setDimension(new Dimension(iw1, logoHeight));
+				logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
+						- logoHeight - dLogo);
+				g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
 						+ fontAscent);
-				logo.setDimension(new Dimension(iw, fontHeight));
-				logo.paintIcon(null, g, w - iw - dx, h - fontHeight - dy);
+				logo2.setDimension(new Dimension(iw2, logoHeight));
+				logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
 			}
 
 			if (toImage) {
