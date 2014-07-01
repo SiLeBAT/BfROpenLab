@@ -23,6 +23,11 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +54,11 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCond
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.views.BfrLogo;
+import de.bund.bfr.knime.openkrise.views.FoodChainLabLogo;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
+import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
@@ -79,7 +88,7 @@ public class TracingCanvas extends GraphCanvas implements
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
-		setDrawBfR(true);
+		getViewer().prependPostRenderPaintable(new PostPaintable());
 		this.deliveries = deliveries;
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		performTracing = DEFAULT_PERFORM_TRACING;
@@ -301,6 +310,17 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
+	protected VisualizationImageServer<GraphNode, Edge<GraphNode>> createVisualizationServer(
+			boolean toSvg) {
+		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
+				.createVisualizationServer(toSvg);
+		
+		server.prependPostRenderPaintable(new PostPaintable());
+		
+		return server;
+	}
+
+	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
 			Mode editingMode) {
 		return new GraphMouse<>(
@@ -518,5 +538,57 @@ public class TracingCanvas extends GraphCanvas implements
 
 	private static int createId(Collection<String> c) {
 		return KnimeUtilities.listToString(new ArrayList<>(c)).hashCode();
+	}
+
+	private class PostPaintable implements Paintable {
+
+		@Override
+		public boolean useTransform() {
+			return false;
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			int w = getCanvasSize().width;
+			int h = getCanvasSize().height;
+
+			Font font = new Font("Default", Font.BOLD, 20);
+
+			int height = 28;
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dFont = (height - fontHeight) / 2;
+			int logoHeight = 18;
+			int dLogo = (height - logoHeight) / 2;
+
+			int dx = 10;
+			String s1 = "Created with";
+			int sw1 = (int) font.getStringBounds(s1,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+			String s2 = "by";
+			int sw2 = (int) font.getStringBounds(s2,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+			FoodChainLabLogo logo1 = new FoodChainLabLogo();
+			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
+			BfrLogo logo2 = new BfrLogo();
+			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
+
+			g.setColor(new Color(230, 230, 230));
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.setFont(font);
+			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight
+					- dFont + fontAscent);
+			logo1.setDimension(new Dimension(iw1, logoHeight));
+			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
+					- logoHeight - dLogo);
+			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
+					+ fontAscent);
+			logo2.setDimension(new Dimension(iw2, logoHeight));
+			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
+		}
 	}
 }

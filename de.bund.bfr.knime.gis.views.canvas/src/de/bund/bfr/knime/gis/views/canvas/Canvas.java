@@ -27,9 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -108,13 +106,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final long serialVersionUID = 1L;
 	private static final String COPY = "Copy";
 	private static final String PASTE = "Paste";
-	private static final boolean DEFAULT_DRAW_BFR = false;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
-
-	private boolean drawBfR;
 
 	private double scaleX;
 	private double scaleY;
@@ -143,7 +138,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeIdProperty = edgeIdProperty;
 		this.edgeFromProperty = edgeFromProperty;
 		this.edgeToProperty = edgeToProperty;
-		drawBfR = DEFAULT_DRAW_BFR;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -189,15 +183,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void removeCanvasListener(CanvasListener listener) {
 		canvasListeners.remove(listener);
-	}
-
-	public boolean isDrawBfR() {
-		return drawBfR;
-	}
-
-	public void setDrawBfR(boolean drawBfR) {
-		this.drawBfR = drawBfR;
-		viewer.repaint();
 	}
 
 	public Dimension getCanvasSize() {
@@ -1003,53 +988,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}
 
-			int w = getCanvasSize().width;
-			int h = getCanvasSize().height;
-
-			if (drawBfR) {
-				Font font = new Font("Default", Font.BOLD, 20);
-
-				int height = 28;
-				int fontHeight = g.getFontMetrics(font).getHeight();
-				int fontAscent = g.getFontMetrics(font).getAscent();
-				int dFont = (height - fontHeight) / 2;
-				int logoHeight = 18;
-				int dLogo = (height - logoHeight) / 2;
-
-				int dx = 10;
-				String s1 = "Created with";
-				int sw1 = (int) font.getStringBounds(s1,
-						((Graphics2D) g).getFontRenderContext()).getWidth();
-				String s2 = "by";
-				int sw2 = (int) font.getStringBounds(s2,
-						((Graphics2D) g).getFontRenderContext()).getWidth();
-				FoodChainLabLogo logo1 = new FoodChainLabLogo();
-				int iw1 = logo1.getOrigWidth() * logoHeight
-						/ logo1.getOrigHeight();
-				BfrLogo logo2 = new BfrLogo();
-				int iw2 = logo2.getOrigWidth() * logoHeight
-						/ logo2.getOrigHeight();
-
-				g.setColor(new Color(230, 230, 230));
-				g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-						+ iw1 + sw2 + iw2 + 5 * dx, height);
-				g.setColor(Color.BLACK);
-				g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-						+ iw1 + sw2 + iw2 + 5 * dx, height);
-				g.setFont(font);
-				g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h
-						- fontHeight - dFont + fontAscent);
-				logo1.setDimension(new Dimension(iw1, logoHeight));
-				logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
-						- logoHeight - dLogo);
-				g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
-						+ fontAscent);
-				logo2.setDimension(new Dimension(iw2, logoHeight));
-				logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
-			}
-
 			if (toImage) {
-				g.drawRect(0, 0, w - 1, h - 1);
+				g.drawRect(0, 0, getCanvasSize().width - 1,
+						getCanvasSize().height - 1);
 			}
 		}
 	}
