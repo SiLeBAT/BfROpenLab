@@ -1010,7 +1010,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				Font font = new Font("Default", Font.BOLD, 20);
 
 				int height = 28;
-				int fontHeight = g.getFontMetrics(font).getHeight();				
+				int fontHeight = g.getFontMetrics(font).getHeight();
 				int fontAscent = g.getFontMetrics(font).getAscent();
 				int dFont = (height - fontHeight) / 2;
 				int logoHeight = 18;
@@ -1030,7 +1030,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				int iw2 = logo2.getOrigWidth() * logoHeight
 						/ logo2.getOrigHeight();
 
-				g.setColor(Color.WHITE);
+				g.setColor(new Color(230, 230, 230));
 				g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
 						+ iw1 + sw2 + iw2 + 5 * dx, height);
 				g.setColor(Color.BLACK);
