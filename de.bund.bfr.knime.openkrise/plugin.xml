@@ -24,7 +24,7 @@
    <extension
          point="org.knime.workbench.repository.categories">
       <category
-            icon="icons/foodchain.png"
+            icon="icons/FoodChainLab.png"
             level-id="foodchain"
             name="FoodChain-Lab"
             path="/">
