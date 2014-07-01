@@ -67,7 +67,7 @@ public class DeployToBintray {
 		if (!artifactsFile.exists() || !contentFile.exists()
 				|| !featuresDir.exists() || !pluginsDir.exists()) {
 			System.out.println("p2 files cannot be found");
-			System.exit(0);
+			return;
 		}
 
 		String user = readFromSystemIn("user");
@@ -83,13 +83,13 @@ public class DeployToBintray {
 		}
 
 		try {
-			uploadFile(user, password, version, artifactsFile, ARTIFACTS_JAR);
+			uploadFile(user, password, artifactsFile, ARTIFACTS_JAR);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
 
 		try {
-			uploadFile(user, password, version, contentFile, CONTENT_JAR);
+			uploadFile(user, password, contentFile, CONTENT_JAR);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
@@ -97,8 +97,8 @@ public class DeployToBintray {
 		for (File f : featuresDir.listFiles()) {
 			if (f.getName().endsWith(".jar")) {
 				try {
-					uploadFile(user, password, version, f, PACKAGE + "/"
-							+ version + "/" + FEATURES + "/" + f.getName());
+					uploadFile(user, password, f, PACKAGE + "/" + version + "/"
+							+ FEATURES + "/" + f.getName());
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
 				}
@@ -108,8 +108,8 @@ public class DeployToBintray {
 		for (File f : pluginsDir.listFiles()) {
 			if (f.getName().endsWith(".jar")) {
 				try {
-					uploadFile(user, password, version, f, PACKAGE + "/"
-							+ version + "/" + PLUGINS + "/" + f.getName());
+					uploadFile(user, password, f, PACKAGE + "/" + version + "/"
+							+ PLUGINS + "/" + f.getName());
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
 				}
@@ -172,8 +172,8 @@ public class DeployToBintray {
 		in.close();
 	}
 
-	private static void uploadFile(String user, String password,
-			String version, File file, String toPath) throws IOException {
+	private static void uploadFile(String user, String password, File file,
+			String toPath) throws IOException {
 		String userpass = user + ":" + password;
 		String basicAuth = "Basic "
 				+ new String(Base64.encode(userpass.getBytes()));
