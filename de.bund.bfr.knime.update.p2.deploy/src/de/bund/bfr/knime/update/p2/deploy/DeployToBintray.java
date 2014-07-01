@@ -67,6 +67,7 @@ public class DeployToBintray {
 		if (!artifactsFile.exists() || !contentFile.exists()
 				|| !featuresDir.exists() || !pluginsDir.exists()) {
 			System.out.println("p2 files cannot be found");
+			System.exit(0);
 		}
 
 		String user = readFromSystemIn("user");
