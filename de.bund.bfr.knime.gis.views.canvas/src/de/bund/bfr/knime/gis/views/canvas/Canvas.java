@@ -1012,7 +1012,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				int fontAscent = g.getFontMetrics(font).getAscent();
 				int dx = 10;
 				int dy = 2;
-				String s = "Created with FoodChain-Lab. Provided by BfR, Germany";
+				String s = "Created with FoodChain-Lab. Provided by";
 				int sw = (int) font.getStringBounds(s,
 						((Graphics2D) g).getFontRenderContext()).getWidth();
 				BfrLogo logo = new BfrLogo();
