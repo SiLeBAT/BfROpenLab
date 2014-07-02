@@ -173,7 +173,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				//if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 				//id2Code.put(stationID, company);
 				RowKey key = RowKey.createRowKey(rowNumber);
-				DataCell[] cells = new DataCell[18];
+				DataCell[] cells = new DataCell[19];
 				cells[0] = new IntCell(stationID);
 				cells[1] = new StringCell(company);
 				//cells[2] = new StringCell("square"); // circle, square, triangle
@@ -183,22 +183,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Hausnummer"));
 				cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
 				cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
-				cells[6] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(
+				cells[6] = DataType.getMissingCell();
+				cells[7] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(
 						rs.getString("Bundesland"));
-				cells[7] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
-				cells[8] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
-				cells[9] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+				cells[8] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
+				cells[9] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
+				cells[10] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
 
-				cells[10] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
-				cells[11] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-				cells[12] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-				cells[13] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+				cells[11] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
+				cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+				cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+				cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
 
-				cells[14] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
+				cells[15] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
 				//if (cp != null) cells[14] = new StringCell(""+cp.intValue());
-				cells[15] = mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-	            cells[16] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-	            cells[17] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+				cells[16] = mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+	            cells[17] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+	            cells[18] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
 
 				DataRow outputRow = new DefaultRow(key, cells);
 
@@ -350,25 +351,26 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 * DataTableSpec(spec); }
 	 */
 	private DataTableSpec getSpec33Nodes() {
-		DataColumnSpec[] spec = new DataColumnSpec[18];
+		DataColumnSpec[] spec = new DataColumnSpec[19];
 		spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
 		spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
 		spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
 		spec[3] = new DataColumnSpecCreator("HouseNumber", StringCell.TYPE).createSpec();
 		spec[4] = new DataColumnSpecCreator(isDE ? "PLZ" : "ZIP", StringCell.TYPE).createSpec();
 		spec[5] = new DataColumnSpecCreator(isDE ? "Ort" : "City", StringCell.TYPE).createSpec();
-		spec[6] = new DataColumnSpecCreator(isDE ? "Bundesland" : "County", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
-		spec[9] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
-		spec[12] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
-		spec[13] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
-		spec[14] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
-	    spec[15] = new DataColumnSpecCreator("SimpleSupplier", BooleanCell.TYPE).createSpec();
-	    spec[16] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
-	    spec[17] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
+		spec[6] = new DataColumnSpecCreator(isDE ? "Landkreis" : "District", StringCell.TYPE).createSpec();
+		spec[7] = new DataColumnSpecCreator(isDE ? "Bundesland" : "County", StringCell.TYPE).createSpec();
+		spec[8] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
+		spec[9] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
+		spec[10] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
+		spec[11] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
+		spec[12] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
+		spec[13] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
+		spec[14] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
+		spec[15] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
+	    spec[16] = new DataColumnSpecCreator("SimpleSupplier", BooleanCell.TYPE).createSpec();
+	    spec[17] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
+	    spec[18] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
 	}
 
