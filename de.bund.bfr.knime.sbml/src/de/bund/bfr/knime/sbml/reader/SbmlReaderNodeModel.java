@@ -61,6 +61,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	private static final String DEPENDENT_VARIABLE = "DependentVariable";
 	private static final String INDEPENDENT_VARIABLES = "IndependentVariables";
 	private static final String PARAMETERS = "Parameters";
+	private static final String START_PARAMETER = "StartParameter";
 
 	private static final String UNIT = " Unit";
 	private static final String MIN_MAX = " MinMax";
@@ -235,6 +236,10 @@ public class SbmlReaderNodeModel extends NodeModel {
 			columns.put(FORMULA_RIGHT, StringCell.TYPE);
 		}
 
+		if (!columns.containsKey(START_PARAMETER)) {
+			columns.put(START_PARAMETER, StringCell.TYPE);
+		}
+
 		row.put(FORMULA_LEFT,
 				IO.createCell(rule.getMath().getChild(0).toFormula()));
 		row.put(FORMULA_RIGHT,
@@ -249,6 +254,11 @@ public class SbmlReaderNodeModel extends NodeModel {
 				String name = param.getId();
 				UnitDefinition unit = param.getUnitsInstance();
 				AlgebraicRule minMax = minMaxRules.get(name);
+				String annotation = param.getAnnotation().getNonRDFannotation();
+
+				if (annotation != null && annotation.trim().equals("<start>")) {
+					row.put(START_PARAMETER, IO.createCell(name));
+				}
 
 				if (!columns.containsKey(name + UNIT)) {
 					columns.put(name + UNIT, StringCell.TYPE);
