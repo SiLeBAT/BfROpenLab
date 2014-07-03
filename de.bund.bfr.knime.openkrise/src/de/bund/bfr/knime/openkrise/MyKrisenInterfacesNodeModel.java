@@ -235,25 +235,25 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				int to = id2;//id2Code.get(id2);
 				RowKey key = RowKey.createRowKey(rowNumber);
 				DataCell[] cells = new DataCell[20];
-				cells[0] = new IntCell(from);
-				cells[1] = new IntCell(to);
-				//cells[2] = new StringCell("black"); // black
-				cells[2] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
-				cells[3] = (rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
-				cells[4] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
-				cells[5] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
-				cells[6] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
+				cells[0] = new IntCell(lieferID);
+				cells[1] = new IntCell(from);
+				cells[2] = new IntCell(to);
+				//cells[3] = new StringCell("black"); // black
+				cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
+				cells[4] = (rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
+				cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
+				cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
+				cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
 				String mhd = sdfFormat(rs.getString("MHD_day"), rs.getString("MHD_month"), rs.getString("MHD_year"));
-				cells[7] = (mhd == null) ? DataType.getMissingCell() : new StringCell(mhd);
+				cells[8] = (mhd == null) ? DataType.getMissingCell() : new StringCell(mhd);
 				String pd = sdfFormat(rs.getString("pd_day"), rs.getString("pd_month"), rs.getString("pd_year"));
-				cells[8] = (pd == null) ? DataType.getMissingCell() : new StringCell(pd);
+				cells[9] = (pd == null) ? DataType.getMissingCell() : new StringCell(pd);
 				String dd = sdfFormat(rs.getString("Lieferungen.dd_day"), rs.getString("Lieferungen.dd_month"), rs.getString("Lieferungen.dd_year"));
-				cells[9] = (dd == null) ? DataType.getMissingCell() : new StringCell(dd);
+				cells[10] = (dd == null) ? DataType.getMissingCell() : new StringCell(dd);
 				Double menge = calcMenge(rs.getObject("Unitmenge"), rs.getObject("UnitEinheit"));
-				cells[10] = menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0); // Menge [kg]
-				cells[11] = new StringCell("Row" + rowNumber);
+				cells[11] = menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0); // Menge [kg]
+				cells[12] = new StringCell("Row" + rowNumber);
 
-				cells[12] = new IntCell(lieferID);
 				cells[13] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Serial"));
 				cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.OriginCountry"));
 
@@ -376,19 +376,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataTableSpec getSpec33Links() {
 		DataColumnSpec[] spec = new DataColumnSpec[20];
-		spec[0] = new DataColumnSpecCreator("from", IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator("to", IntCell.TYPE).createSpec();
-		spec[2] = new DataColumnSpecCreator(isDE ? "Artikelnummer" : "Item Number", StringCell.TYPE).createSpec();
-		spec[3] = new DataColumnSpecCreator(isDE ? "Bezeichnung" : "Name", StringCell.TYPE).createSpec();
-		spec[4] = new DataColumnSpecCreator(isDE ? "Prozessierung" : "Processing", StringCell.TYPE).createSpec();
-		spec[5] = new DataColumnSpecCreator("IntendedUse", StringCell.TYPE).createSpec();
-		spec[6] = new DataColumnSpecCreator(isDE ? "ChargenNr" : "Charge Number", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator(isDE ? "MHD" : "Date Expiration", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator(isDE ? "Herstellungsdatum" : "Date Manufactoring", StringCell.TYPE).createSpec();
-		spec[9] = new DataColumnSpecCreator(isDE ? "Lieferdatum" : "Date Delivery", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(isDE ? "Menge [kg]" : "Amount [kg]", DoubleCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
-		spec[12] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
+		spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
+		spec[1] = new DataColumnSpecCreator("from", IntCell.TYPE).createSpec();
+		spec[2] = new DataColumnSpecCreator("to", IntCell.TYPE).createSpec();
+		spec[3] = new DataColumnSpecCreator(isDE ? "Artikelnummer" : "Item Number", StringCell.TYPE).createSpec();
+		spec[4] = new DataColumnSpecCreator(isDE ? "Bezeichnung" : "Name", StringCell.TYPE).createSpec();
+		spec[5] = new DataColumnSpecCreator(isDE ? "Prozessierung" : "Processing", StringCell.TYPE).createSpec();
+		spec[6] = new DataColumnSpecCreator("IntendedUse", StringCell.TYPE).createSpec();
+		spec[7] = new DataColumnSpecCreator(isDE ? "ChargenNr" : "Charge Number", StringCell.TYPE).createSpec();
+		spec[8] = new DataColumnSpecCreator(isDE ? "MHD" : "Date Expiration", StringCell.TYPE).createSpec();
+		spec[9] = new DataColumnSpecCreator(isDE ? "Herstellungsdatum" : "Date Manufactoring", StringCell.TYPE).createSpec();
+		spec[10] = new DataColumnSpecCreator(isDE ? "Lieferdatum" : "Date Delivery", StringCell.TYPE).createSpec();
+		spec[11] = new DataColumnSpecCreator(isDE ? "Menge [kg]" : "Amount [kg]", DoubleCell.TYPE).createSpec();
+		spec[12] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
 		spec[14] = new DataColumnSpecCreator("OriginCountry", StringCell.TYPE).createSpec();
 		spec[15] = new DataColumnSpecCreator("EndChain", StringCell.TYPE).createSpec();
