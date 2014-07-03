@@ -74,6 +74,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JPanel tablePanel;
 
 	private JButton filterButton;
+	private JButton clearButton;
 	private JCheckBox setAllBox;
 	private JTextField setAllField;
 	private JTable table;
@@ -164,6 +165,15 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 								properties), BorderLayout.CENTER);
 				tablePanel.revalidate();
 			}
+		} else if (e.getSource() == clearButton) {
+			if (setAllBox.isSelected()) {
+				setAllBox.setSelected(false);
+				updateSetAll(false);
+			}
+
+			for (int i = 0; i < inputTable.getRowCount(); i++) {
+				inputTable.setValueAt(null, i, 0);
+			}
 		} else if (e.getSource() == setAllBox) {
 			updateSetAll(setAllBox.isSelected());
 		}
@@ -213,6 +223,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JComponent createOptionsPanel() {
 		filterButton = new JButton("Filter");
 		filterButton.addActionListener(this);
+		clearButton = new JButton("Clear");
+		clearButton.addActionListener(this);
 		setAllBox = new JCheckBox("Set All");
 		setAllBox.addActionListener(this);
 		setAllField = new JTextField(10);
@@ -220,10 +232,10 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		if (type == Boolean.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					setAllBox));
+					clearButton, setAllBox));
 		} else if (type == Double.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					setAllBox, setAllField));
+					clearButton, setAllBox, setAllField));
 		}
 
 		return null;

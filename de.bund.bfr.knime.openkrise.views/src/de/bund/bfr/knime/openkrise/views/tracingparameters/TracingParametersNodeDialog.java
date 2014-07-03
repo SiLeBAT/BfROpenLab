@@ -85,7 +85,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		addTab("Case Weights", weightPanel);
 		addTab("Cross Contaminations", contPanel);
-		addTab("Filter", filterPanel);
+		addTab("Node Filter", filterPanel);
 		addTab("Edge Filter", edgeFilterPanel);
 	}
 
