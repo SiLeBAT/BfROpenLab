@@ -164,6 +164,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 						createInputPanel(filterElements(elements, condition),
 								properties), BorderLayout.CENTER);
 				tablePanel.revalidate();
+				updateSetAll(setAllBox.isSelected());
 			}
 		} else if (e.getSource() == clearButton) {
 			if (setAllBox.isSelected()) {
