@@ -62,8 +62,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingCanvas extends GraphCanvas implements
-		HighlightConditionChecker {
+public class TracingCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
@@ -228,56 +227,6 @@ public class TracingCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	public String findError(HighlightCondition condition) {
-		List<String> tracingColumns = Arrays.asList(
-				TracingConstants.SCORE_COLUMN,
-				TracingConstants.BACKWARD_COLUMN,
-				TracingConstants.FORWARD_COLUMN);
-		String error = "The following columns cannot be used with \"Invisible\" option:\n";
-
-		for (String column : tracingColumns) {
-			error += column + ", ";
-		}
-
-		error = error.substring(0, error.length() - 2);
-
-		if (condition != null && condition.isInvisible()) {
-			AndOrHighlightCondition logicalCondition = null;
-			ValueHighlightCondition valueCondition = null;
-
-			if (condition instanceof AndOrHighlightCondition) {
-				logicalCondition = (AndOrHighlightCondition) condition;
-			} else if (condition instanceof ValueHighlightCondition) {
-				valueCondition = (ValueHighlightCondition) condition;
-			} else if (condition instanceof LogicalValueHighlightCondition) {
-				logicalCondition = ((LogicalValueHighlightCondition) condition)
-						.getLogicalCondition();
-				valueCondition = ((LogicalValueHighlightCondition) condition)
-						.getValueCondition();
-			}
-
-			if (logicalCondition != null) {
-				for (List<LogicalHighlightCondition> cc : logicalCondition
-						.getConditions()) {
-					for (LogicalHighlightCondition c : cc) {
-						if (tracingColumns.contains(c.getProperty())) {
-							return error;
-						}
-					}
-				}
-			}
-
-			if (valueCondition != null) {
-				if (tracingColumns.contains(valueCondition.getProperty())) {
-					return error;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	@Override
 	public void nodePropertiesItemClicked() {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
 
@@ -388,20 +337,18 @@ public class TracingCanvas extends GraphCanvas implements
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
-		HighlightListDialog dialog = new HighlightListDialog(this,
-				getNodeProperties(), getNodeHighlightConditions());
+		HighlightListDialog dialog = super.openNodeHighlightDialog();
 
-		dialog.addChecker(this);
+		dialog.addChecker(new HighlightChecker());
 
 		return dialog;
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
-		HighlightListDialog dialog = new HighlightListDialog(this,
-				getEdgeProperties(), getEdgeHighlightConditions());
-		
-		dialog.addChecker(this);
+		HighlightListDialog dialog = super.openEdgeHighlightDialog();
+
+		dialog.addChecker(new HighlightChecker());
 
 		return dialog;
 	}
@@ -546,6 +493,59 @@ public class TracingCanvas extends GraphCanvas implements
 
 	private static int createId(Collection<String> c) {
 		return KnimeUtilities.listToString(new ArrayList<>(c)).hashCode();
+	}
+
+	private class HighlightChecker implements HighlightConditionChecker {
+
+		@Override
+		public String findError(HighlightCondition condition) {
+			List<String> tracingColumns = Arrays.asList(
+					TracingConstants.SCORE_COLUMN,
+					TracingConstants.BACKWARD_COLUMN,
+					TracingConstants.FORWARD_COLUMN);
+			String error = "The following columns cannot be used with \"Invisible\" option:\n";
+
+			for (String column : tracingColumns) {
+				error += column + ", ";
+			}
+
+			error = error.substring(0, error.length() - 2);
+
+			if (condition != null && condition.isInvisible()) {
+				AndOrHighlightCondition logicalCondition = null;
+				ValueHighlightCondition valueCondition = null;
+
+				if (condition instanceof AndOrHighlightCondition) {
+					logicalCondition = (AndOrHighlightCondition) condition;
+				} else if (condition instanceof ValueHighlightCondition) {
+					valueCondition = (ValueHighlightCondition) condition;
+				} else if (condition instanceof LogicalValueHighlightCondition) {
+					logicalCondition = ((LogicalValueHighlightCondition) condition)
+							.getLogicalCondition();
+					valueCondition = ((LogicalValueHighlightCondition) condition)
+							.getValueCondition();
+				}
+
+				if (logicalCondition != null) {
+					for (List<LogicalHighlightCondition> cc : logicalCondition
+							.getConditions()) {
+						for (LogicalHighlightCondition c : cc) {
+							if (tracingColumns.contains(c.getProperty())) {
+								return error;
+							}
+						}
+					}
+				}
+
+				if (valueCondition != null) {
+					if (tracingColumns.contains(valueCondition.getProperty())) {
+						return error;
+					}
+				}
+			}
+
+			return null;
+		}
 	}
 
 	private class PostPaintable implements Paintable {

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -195,18 +194,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
 		return joinMap;
-	}
-
-	@Override
-	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(),
-				getNodeHighlightConditions());
-	}
-
-	@Override
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(),
-				getEdgeHighlightConditions());
 	}
 
 }

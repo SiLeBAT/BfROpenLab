@@ -918,6 +918,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return server;
 	}
 
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, nodeProperties,
+				nodeHighlightConditions);
+	}
+
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		return new HighlightListDialog(this, edgeProperties,
+				edgeHighlightConditions);
+	}
+
 	protected abstract void applyChanges();
 
 	protected abstract void applyTransform();
@@ -925,10 +935,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
 
 	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
-
-	protected abstract HighlightListDialog openNodeHighlightDialog();
-
-	protected abstract HighlightListDialog openEdgeHighlightDialog();
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

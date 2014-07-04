@@ -302,19 +302,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
-		HighlightListDialog dialog = new HighlightListDialog(this,
-				getNodeProperties(), getNodeHighlightConditions());
+		HighlightListDialog dialog = super.openNodeHighlightDialog();
 
 		dialog.setAllowInvisible(false);
 		dialog.setAllowThickness(false);
 
 		return dialog;
-	}
-
-	@Override
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(),
-				getEdgeHighlightConditions());
 	}
 
 	private RegionNode getContainingNode(int x, int y) {
