@@ -75,6 +75,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
@@ -83,8 +84,11 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -924,8 +928,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, edgeProperties,
-				edgeHighlightConditions);
+		HighlightListDialog dialog = new HighlightListDialog(this,
+				edgeProperties, edgeHighlightConditions);
+
+		dialog.addChecker(new EdgeHighlightChecker());
+
+		return dialog;
 	}
 
 	protected abstract void applyChanges();
@@ -969,6 +977,51 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireSkipEdgelessChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
+		}
+	}
+
+	private class EdgeHighlightChecker implements HighlightConditionChecker {
+
+		@Override
+		public String findError(HighlightCondition condition) {
+			String error = "The column \""
+					+ edgeIdProperty
+					+ "\" cannot be used with \"Invisible\" option as it is used as edge ID";
+
+			if (condition != null && condition.isInvisible()) {
+				AndOrHighlightCondition logicalCondition = null;
+				ValueHighlightCondition valueCondition = null;
+
+				if (condition instanceof AndOrHighlightCondition) {
+					logicalCondition = (AndOrHighlightCondition) condition;
+				} else if (condition instanceof ValueHighlightCondition) {
+					valueCondition = (ValueHighlightCondition) condition;
+				} else if (condition instanceof LogicalValueHighlightCondition) {
+					logicalCondition = ((LogicalValueHighlightCondition) condition)
+							.getLogicalCondition();
+					valueCondition = ((LogicalValueHighlightCondition) condition)
+							.getValueCondition();
+				}
+
+				if (logicalCondition != null) {
+					for (List<LogicalHighlightCondition> cc : logicalCondition
+							.getConditions()) {
+						for (LogicalHighlightCondition c : cc) {
+							if (edgeIdProperty.equals(c.getProperty())) {
+								return error;
+							}
+						}
+					}
+				}
+
+				if (valueCondition != null) {
+					if (edgeIdProperty.equals(valueCondition.getProperty())) {
+						return error;
+					}
+				}
+			}
+
+			return null;
 		}
 	}
 
