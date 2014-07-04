@@ -314,9 +314,9 @@ public class TracingCanvas extends GraphCanvas implements
 			boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
 				.createVisualizationServer(toSvg);
-		
+
 		server.prependPostRenderPaintable(new PostPaintable());
-		
+
 		return server;
 	}
 
@@ -388,14 +388,22 @@ public class TracingCanvas extends GraphCanvas implements
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), true, true,
-				true, getNodeHighlightConditions(), this);
+		HighlightListDialog dialog = new HighlightListDialog(this,
+				getNodeProperties(), getNodeHighlightConditions());
+
+		dialog.addChecker(this);
+
+		return dialog;
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), this);
+		HighlightListDialog dialog = new HighlightListDialog(this,
+				getEdgeProperties(), getEdgeHighlightConditions());
+		
+		dialog.addChecker(this);
+
+		return dialog;
 	}
 
 	private void applyTracing() {

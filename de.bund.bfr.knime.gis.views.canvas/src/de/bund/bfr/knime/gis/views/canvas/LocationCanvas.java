@@ -48,7 +48,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
-	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;	
+	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -84,7 +84,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			String edgeToProperty, List<RegionNode> regionNodes,
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);		
+				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<>(nodes);
 		this.edges = new LinkedHashSet<>(edges);
 		allEdges = edges;
@@ -199,14 +199,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), true, true,
-				true, getNodeHighlightConditions(), null);
+		return new HighlightListDialog(this, getNodeProperties(),
+				getNodeHighlightConditions());
 	}
 
 	@Override
 	protected HighlightListDialog openEdgeHighlightDialog() {
-		return new HighlightListDialog(this, getEdgeProperties(), true, true,
-				true, getEdgeHighlightConditions(), null);
+		return new HighlightListDialog(this, getEdgeProperties(),
+				getEdgeHighlightConditions());
 	}
 
 }

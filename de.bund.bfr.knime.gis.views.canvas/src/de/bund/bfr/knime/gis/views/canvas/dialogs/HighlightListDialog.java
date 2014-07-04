@@ -33,6 +33,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -57,6 +58,9 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 	private static final long serialVersionUID = 1L;
 
+	private static final boolean DEFAULT_ALLOW_INVISIBLE = true;
+	private static final boolean DEFAULT_ALLOW_THICKNESS = true;
+
 	private JList<HighlightCondition> list;
 	private JButton addButton;
 	private JButton removeButton;
@@ -70,30 +74,25 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	private Map<String, Class<?>> nodeProperties;
 	private boolean allowInvisible;
 	private boolean allowThickness;
-	private boolean allowLabel;
-	private HighlightConditionChecker checker;
-
+	private List<HighlightConditionChecker> checkers;
 	private HighlightCondition autoAddCondition;
 
 	private HighlightConditionList highlightConditions;
 	private boolean approved;
 
 	public HighlightListDialog(Component parent,
-			Map<String, Class<?>> nodeProperties, boolean allowInvisible,
-			boolean allowThickness, boolean allowLabel,
-			HighlightConditionList highlightConditions,
-			HighlightConditionChecker checker) {
+			Map<String, Class<?>> nodeProperties,
+			HighlightConditionList highlightConditions) {
 		super(SwingUtilities.getWindowAncestor(parent),
 				"Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
 		this.nodeProperties = nodeProperties;
-		this.allowInvisible = allowInvisible;
-		this.allowThickness = allowThickness;
-		this.allowLabel = allowLabel;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
 				highlightConditions.getConditions()),
 				highlightConditions.isPrioritizeColors());
-		this.checker = checker;
+		allowInvisible = DEFAULT_ALLOW_INVISIBLE;
+		allowThickness = DEFAULT_ALLOW_THICKNESS;
+		checkers = new ArrayList<>();
 		autoAddCondition = null;
 		approved = false;
 
@@ -158,6 +157,30 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+	}
+
+	public boolean isAllowInvisible() {
+		return allowInvisible;
+	}
+
+	public void setAllowInvisible(boolean allowInvisible) {
+		this.allowInvisible = allowInvisible;
+	}
+
+	public boolean isAllowThickness() {
+		return allowThickness;
+	}
+
+	public void setAllowThickness(boolean allowThickness) {
+		this.allowThickness = allowThickness;
+	}
+
+	public void addChecker(HighlightConditionChecker checker) {
+		checkers.add(checker);
+	}
+
+	public void removeChecker(HighlightConditionChecker checker) {
+		checkers.remove(checker);
 	}
 
 	public HighlightCondition getAutoAddCondition() {
@@ -226,8 +249,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 		if (e.getClickCount() == 2 && i != -1) {
 			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-					true, true, allowInvisible, allowThickness, allowLabel,
-					true, highlightConditions.getConditions().get(i), checker);
+					true, true, allowInvisible, allowThickness, true, true,
+					highlightConditions.getConditions().get(i), checkers);
 
 			dialog.setVisible(true);
 
@@ -288,8 +311,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 	private void addCondition(HighlightCondition condition) {
 		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
-				true, true, allowInvisible, allowThickness, allowLabel, true,
-				condition, checker);
+				true, true, allowInvisible, allowThickness, true, true,
+				condition, checkers);
 
 		dialog.setVisible(true);
 
