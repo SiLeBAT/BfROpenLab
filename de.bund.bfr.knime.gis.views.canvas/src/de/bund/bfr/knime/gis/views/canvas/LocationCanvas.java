@@ -38,8 +38,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class LocationCanvas extends GisCanvas<LocationNode> {
 
@@ -48,9 +48,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
-	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
-
-	private boolean allowEdges;
+	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;	
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -86,8 +84,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			String edgeToProperty, List<RegionNode> regionNodes,
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.allowEdges = allowEdges;
+				edgeIdProperty, edgeFromProperty, edgeToProperty);		
 		this.nodes = new LinkedHashSet<>(nodes);
 		this.edges = new LinkedHashSet<>(edges);
 		allEdges = edges;
@@ -135,7 +132,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				CanvasUtilities.createGraph(nodes, edges));
 
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), getNodeSize(), !allowEdges);
+				getNodeHighlightConditions(), getNodeSize());
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
@@ -202,8 +199,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, getNodeProperties(), allowEdges,
-				true, true, getNodeHighlightConditions(), null);
+		return new HighlightListDialog(this, getNodeProperties(), true, true,
+				true, getNodeHighlightConditions(), null);
 	}
 
 	@Override

@@ -361,8 +361,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		if (!dialog.isApproved()) {
 			return;
 		}
-		
-		nodesByProperty.keySet().retainAll(dialog.getFiltered());		
+
+		nodesByProperty.keySet().retainAll(dialog.getFiltered());
 
 		for (String id : collapsedNodes.keySet()) {
 			nodeSaveMap.remove(id);
@@ -519,7 +519,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			if (to == null) {
 				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
 			}
-			
+
 			if (from == to && metaNodes.contains(from)) {
 				continue;
 			}
@@ -533,7 +533,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
 						from, to);
 			}
-			
+
 			edges.add(newEdge);
 		}
 
@@ -560,7 +560,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	protected void applyHighlights() {
 		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
-				getNodeHighlightConditions(), getNodeSize(), false);
+				getNodeHighlightConditions(), getNodeSize());
 
 		if (!isJoinEdges()) {
 			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,

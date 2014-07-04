@@ -268,18 +268,13 @@ public class CanvasUtilities {
 
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize,
-			boolean nodesInvisibleDyDefault) {
+			HighlightConditionList nodeHighlightConditions, int nodeSize) {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
 		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-		Set<V> invisibleNodes = new LinkedHashSet<>();
-
-		if (nodesInvisibleDyDefault) {
-			invisibleNodes.addAll(nodes);
-		}
+		Set<V> invisibleNodes = new LinkedHashSet<>();		
 
 		for (V node : nodes) {
 			alphaValues.put(node, new ArrayList<Double>());
@@ -314,11 +309,7 @@ public class CanvasUtilities {
 						alphas.add(values.get(node));
 					} else {
 						alphas.add(0.0);
-					}
-
-					if (nodesInvisibleDyDefault && values.get(node) != 0.0) {
-						invisibleNodes.remove(node);
-					}
+					}					
 				}
 			}
 
