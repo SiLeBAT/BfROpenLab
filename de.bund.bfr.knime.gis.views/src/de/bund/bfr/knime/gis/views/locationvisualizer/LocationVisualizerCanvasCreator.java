@@ -54,18 +54,16 @@ public class LocationVisualizerCanvasCreator {
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(ViewUtilities
-				.readLocationNodes(nodeTable, nodeProperties, null,
-						set.getLatitudeColumn(), set.getLongitudeColumn())
-				.values());
+				.readLocationNodes(nodeTable, nodeProperties,
+						set.getNodeIdColumn(), set.getLatitudeColumn(),
+						set.getLongitudeColumn()).values());
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		String nodeIdProperty = ViewUtilities.createNewIdProperty(nodes,
-				nodeProperties);
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
-				nodeIdProperty, regions);
+				set.getNodeIdColumn(), regions);
 
 		canvas.setShowLegend(set.isShowLegend());
 		canvas.setCanvasSize(set.getCanvasSize());

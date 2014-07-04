@@ -35,15 +35,18 @@ public class LocationVisualizerSettings extends
 
 	public static final int DEFAULT_NODE_SIZE = 4;
 
+	private static final String CFG_NODE_ID_COLUMN = "NodeIdColumn";
 	private static final String CFG_LATITUDE_COLUMN = "LatitudeColumn";
 	private static final String CFG_LONGITUDE_COLUMN = "LongitudeColumn";
 	private static final String CFG_NODE_SIZE = "LocationSize";
 
+	private String nodeIdColumn;
 	private String latitudeColumn;
 	private String longitudeColumn;
 	private int nodeSize;
 
 	public LocationVisualizerSettings() {
+		nodeIdColumn = null;
 		latitudeColumn = null;
 		longitudeColumn = null;
 		nodeSize = DEFAULT_NODE_SIZE;
@@ -52,6 +55,11 @@ public class LocationVisualizerSettings extends
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
+		
+		try {
+			nodeIdColumn = settings.getString(CFG_NODE_ID_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
 
 		try {
 			latitudeColumn = settings.getString(CFG_LATITUDE_COLUMN);
@@ -72,9 +80,18 @@ public class LocationVisualizerSettings extends
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
+		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);
 		settings.addString(CFG_LATITUDE_COLUMN, latitudeColumn);
 		settings.addString(CFG_LONGITUDE_COLUMN, longitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+	}
+	
+	public String getNodeIdColumn() {
+		return nodeIdColumn;
+	}
+
+	public void setNodeIdColumn(String nodeIdColumn) {
+		this.nodeIdColumn = nodeIdColumn;
 	}
 
 	public String getLatitudeColumn() {
