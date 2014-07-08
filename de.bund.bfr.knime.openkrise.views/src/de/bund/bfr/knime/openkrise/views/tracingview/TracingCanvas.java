@@ -244,12 +244,45 @@ public class TracingCanvas extends GraphCanvas {
 
 	@Override
 	public void edgePropertiesItemClicked() {
+		if (isJoinEdges()) {
+			super.edgePropertiesItemClicked();
+		} else {
+			Set<Edge<GraphNode>> picked = new LinkedHashSet<>(
+					getSelectedEdges());
+
+			picked.retainAll(getVisibleEdges());
+
+			EditablePropertiesDialog dialog = new EditablePropertiesDialog(
+					this, picked, getEdgeProperties());
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				applyChanges();
+			}
+		}
+	}
+
+	@Override
+	public void edgeAllPropertiesItemClicked() {
 		Set<Edge<GraphNode>> picked = new LinkedHashSet<>(getSelectedEdges());
 
 		picked.retainAll(getVisibleEdges());
 
+		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
+
+		if (!getJoinMap().isEmpty()) {
+			for (Edge<GraphNode> p : picked) {
+				if (getJoinMap().containsKey(p)) {
+					allPicked.addAll(getJoinMap().get(p));
+				}
+			}
+		} else {
+			allPicked.addAll(picked);
+		}
+
 		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
-				picked, getEdgeProperties());
+				allPicked, getEdgeProperties());
 
 		dialog.setVisible(true);
 
@@ -358,22 +391,21 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		Set<Integer> edgeIds = new LinkedHashSet<>();
+		Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
 
-		for (Edge<GraphNode> edge : getVisibleEdges()) {
-			if (!isJoinEdges()) {
-				edgeIds.add(getIntegerId(edge));
-			} else {
-				for (Edge<GraphNode> e : getJoinMap().get(edge)) {
-					edgeIds.add(getIntegerId(e));
-				}
+		if (!isJoinEdges()) {
+			edges.addAll(getVisibleEdges());
+		} else {
+			for (Edge<GraphNode> edge : getVisibleEdges()) {
+				edges.addAll(getJoinMap().get(edge));
 			}
 		}
 
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
-		for (int id : edgeIds) {
-			activeDeliveries.put(id, deliveries.get(id));
+		for (Edge<GraphNode> id : edges) {
+			activeDeliveries.put(getIntegerId(id),
+					deliveries.get(getIntegerId(id)));
 		}
 
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
@@ -431,18 +463,16 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		if (!isJoinEdges()) {
-			for (Edge<GraphNode> edge : getVisibleEdges()) {
-				int id = getIntegerId(edge);
-				Boolean value = (Boolean) edge.getProperties().get(
-						TracingConstants.FILTER_COLUMN);
+		for (Edge<GraphNode> edge : edges) {
+			int id = getIntegerId(edge);
+			Boolean value = (Boolean) edge.getProperties().get(
+					TracingConstants.FILTER_COLUMN);
 
-				if (value != null && value == true) {
-					backwardNodes.addAll(tracing.getBackwardStations2(id));
-					forwardNodes.addAll(tracing.getForwardStations2(id));
-					backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-					forwardEdges.addAll(tracing.getForwardDeliveries2(id));
-				}
+			if (value != null && value == true) {
+				backwardNodes.addAll(tracing.getBackwardStations2(id));
+				forwardNodes.addAll(tracing.getForwardStations2(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
 			}
 		}
 
@@ -457,18 +487,18 @@ public class TracingCanvas extends GraphCanvas {
 					forwardNodes.contains(id));
 		}
 
-		if (!isJoinEdges()) {
-			for (Edge<GraphNode> edge : getEdges()) {
-				int id = Integer.parseInt(edge.getId());
+		for (Edge<GraphNode> edge : edges) {
+			int id = Integer.parseInt(edge.getId());
 
-				edge.getProperties().put(TracingConstants.SCORE_COLUMN,
-						tracing.getDeliveryScore(id));
-				edge.getProperties().put(TracingConstants.BACKWARD_COLUMN,
-						backwardEdges.contains(id));
-				edge.getProperties().put(TracingConstants.FORWARD_COLUMN,
-						forwardEdges.contains(id));
-			}
-		} else {
+			edge.getProperties().put(TracingConstants.SCORE_COLUMN,
+					tracing.getDeliveryScore(id));
+			edge.getProperties().put(TracingConstants.BACKWARD_COLUMN,
+					backwardEdges.contains(id));
+			edge.getProperties().put(TracingConstants.FORWARD_COLUMN,
+					forwardEdges.contains(id));
+		}
+
+		if (isJoinEdges()) {
 			for (Edge<GraphNode> edge : getEdges()) {
 				edge.getProperties().put(TracingConstants.FILTER_COLUMN, null);
 				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
