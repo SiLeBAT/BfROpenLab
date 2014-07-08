@@ -114,7 +114,7 @@ public class TracingViewCanvasCreator {
 				edgeProperties, nodes);
 		TracingCanvas canvas = new TracingCanvas(
 				new ArrayList<>(nodes.values()), edges, nodeProperties,
-				edgeProperties, deliveries, set.isEnforeTemporalOrder());
+				edgeProperties, deliveries);
 
 		canvas.setPerformTracing(false);
 		canvas.setShowLegend(set.isGraphShowLegend());
@@ -127,8 +127,9 @@ public class TracingViewCanvasCreator {
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
 		canvas.setCaseWeights(set.getCaseWeights());
 		canvas.setCrossContaminations(set.getCrossContaminations());
-		canvas.setFilter(set.getFilter());
+		canvas.setNodeFilter(set.getNodeFilter());
 		canvas.setEdgeFilter(set.getEdgeFilter());
+		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
 		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
 		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());

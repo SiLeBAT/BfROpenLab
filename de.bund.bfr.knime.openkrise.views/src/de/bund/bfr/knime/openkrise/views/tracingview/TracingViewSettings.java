@@ -58,7 +58,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
 	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
-	private static final String CFG_FILTER = "Filter";
+	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
@@ -84,7 +84,7 @@ public class TracingViewSettings extends TracingSettings {
 	private boolean exportAsSvg;
 	private Map<String, Double> caseWeights;
 	private Map<String, Boolean> crossContaminations;
-	private Map<String, Boolean> filter;
+	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
 
@@ -111,7 +111,7 @@ public class TracingViewSettings extends TracingSettings {
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
 		caseWeights = new LinkedHashMap<>();
 		crossContaminations = new LinkedHashMap<>();
-		filter = new LinkedHashMap<>();
+		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 
@@ -164,8 +164,8 @@ public class TracingViewSettings extends TracingSettings {
 		}
 
 		try {
-			filter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_FILTER));
+			nodeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -280,7 +280,7 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addString(CFG_CASE_WEIGHTS, SERIALIZER.toXml(caseWeights));
 		settings.addString(CFG_CROSS_CONTAMINATIONS,
 				SERIALIZER.toXml(crossContaminations));
-		settings.addString(CFG_FILTER, SERIALIZER.toXml(filter));
+		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 
@@ -349,12 +349,12 @@ public class TracingViewSettings extends TracingSettings {
 		this.crossContaminations = crossContaminations;
 	}
 
-	public Map<String, Boolean> getFilter() {
-		return filter;
+	public Map<String, Boolean> getNodeFilter() {
+		return nodeFilter;
 	}
 
-	public void setFilter(Map<String, Boolean> filter) {
-		this.filter = filter;
+	public void setNodeFilter(Map<String, Boolean> nodeFilter) {
+		this.nodeFilter = nodeFilter;
 	}
 
 	public Map<String, Boolean> getEdgeFilter() {

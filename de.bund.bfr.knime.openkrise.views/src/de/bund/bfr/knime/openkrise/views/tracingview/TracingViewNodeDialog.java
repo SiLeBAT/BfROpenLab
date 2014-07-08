@@ -36,7 +36,6 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -68,7 +67,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		ActionListener, ComponentListener {
 
 	private JPanel panel;
-	private TracingCanvas graphCanvas;
+	private TracingCanvas canvas;
 
 	private boolean resized;
 
@@ -132,7 +131,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		updateGraphCanvas(false);
+		updateGraphCanvas();
 		resized = false;
 	}
 
@@ -167,55 +166,47 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (e.getSource() == resetWeightsButton) {
 			updateSettings();
 			set.getCaseWeights().clear();
-			updateGraphCanvas(false);
+			updateGraphCanvas();
 		} else if (e.getSource() == resetCrossButton) {
 			updateSettings();
 			set.getCrossContaminations().clear();
-			updateGraphCanvas(false);
+			updateGraphCanvas();
 		} else if (e.getSource() == resetFilterButton) {
 			updateSettings();
-			set.getFilter().clear();
+			set.getNodeFilter().clear();
 			set.getEdgeFilter().clear();
-			updateGraphCanvas(false);
+			updateGraphCanvas();
 		} else if (e.getSource() == enforceTempBox) {
-			updateSettings();
-			updateGraphCanvas(false);
+			canvas.setEnforceTemporalOrder(enforceTempBox.isSelected());
 		} else if (e.getSource() == exportAsSvgBox) {
 			updateSettings();
 		}
 	}
 
-	private void updateGraphCanvas(boolean showWarning) {
-		if (graphCanvas != null) {
-			panel.remove(graphCanvas);
+	private void updateGraphCanvas() {
+		if (canvas != null) {
+			panel.remove(canvas);
 		}
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, deliveries, set);
 
-		graphCanvas = creator.createGraphCanvas();
+		canvas = creator.createGraphCanvas();
 
-		if (graphCanvas == null) {
-			graphCanvas = new TracingCanvas();
-			graphCanvas
-					.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
-
-			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
-						JOptionPane.ERROR_MESSAGE);
-			}
+		if (canvas == null) {
+			canvas = new TracingCanvas();
+			canvas.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
 		}
 
-		panel.add(graphCanvas, BorderLayout.CENTER);
+		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
 	}
 
 	private void updateSettings() {
 		List<String> selectedGraphNodes = new ArrayList<>(
-				graphCanvas.getSelectedNodeIds());
+				canvas.getSelectedNodeIds());
 		List<String> selectedGraphEdges = new ArrayList<>(
-				graphCanvas.getSelectedEdgeIds());
+				canvas.getSelectedEdgeIds());
 
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
@@ -223,32 +214,30 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 
-		set.setGraphShowLegend(graphCanvas.isShowLegend());
-		set.setGraphScaleX(graphCanvas.getScaleX());
-		set.setGraphScaleY(graphCanvas.getScaleY());
-		set.setGraphTranslationX(graphCanvas.getTranslationX());
-		set.setGraphTranslationY(graphCanvas.getTranslationY());
-		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphNodeSize(graphCanvas.getNodeSize());
-		set.setGraphFontSize(graphCanvas.getFontSize());
-		set.setGraphFontBold(graphCanvas.isFontBold());
-		set.setJoinEdges(graphCanvas.isJoinEdges());
-		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
-		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
+		set.setGraphShowLegend(canvas.isShowLegend());
+		set.setGraphScaleX(canvas.getScaleX());
+		set.setGraphScaleY(canvas.getScaleY());
+		set.setGraphTranslationX(canvas.getTranslationX());
+		set.setGraphTranslationY(canvas.getTranslationY());
+		set.setGraphNodePositions(canvas.getNodePositions());
+		set.setGraphNodeSize(canvas.getNodeSize());
+		set.setGraphFontSize(canvas.getFontSize());
+		set.setGraphFontBold(canvas.isFontBold());
+		set.setJoinEdges(canvas.isJoinEdges());
+		set.setSkipEdgelessNodes(canvas.isSkipEdgelessNodes());
+		set.setCollapsedNodes(canvas.getCollapsedNodes());
 		set.setGraphSelectedNodes(selectedGraphNodes);
 		set.setGraphSelectedEdges(selectedGraphEdges);
-		set.setGraphNodeHighlightConditions(graphCanvas
-				.getNodeHighlightConditions());
-		set.setGraphEdgeHighlightConditions(graphCanvas
-				.getEdgeHighlightConditions());
-		set.setGraphEditingMode(graphCanvas.getEditingMode());
-		set.setCaseWeights(graphCanvas.getCaseWeights());
-		set.setCrossContaminations(graphCanvas.getCrossContaminations());
-		set.setFilter(graphCanvas.getFilter());
-		set.setEdgeFilter(graphCanvas.getEdgeFilter());
+		set.setGraphNodeHighlightConditions(canvas.getNodeHighlightConditions());
+		set.setGraphEdgeHighlightConditions(canvas.getEdgeHighlightConditions());
+		set.setGraphEditingMode(canvas.getEditingMode());
+		set.setCaseWeights(canvas.getCaseWeights());
+		set.setCrossContaminations(canvas.getCrossContaminations());
+		set.setNodeFilter(canvas.getNodeFilter());
+		set.setEdgeFilter(canvas.getEdgeFilter());
 
 		if (resized) {
-			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
+			set.setGraphCanvasSize(canvas.getCanvasSize());
 		}
 	}
 }

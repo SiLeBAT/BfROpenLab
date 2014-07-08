@@ -66,6 +66,7 @@ public class TracingCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
+	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
 	private HashMap<Integer, MyDelivery> deliveries;
@@ -76,21 +77,20 @@ public class TracingCanvas extends GraphCanvas {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new HashMap<Integer, MyDelivery>(), false);
+				new HashMap<Integer, MyDelivery>());
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties,
-			HashMap<Integer, MyDelivery> deliveries,
-			boolean enforceTemporalOrder) {
+			HashMap<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties,
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
-		getViewer().prependPostRenderPaintable(new PostPaintable());
 		this.deliveries = deliveries;
-		this.enforceTemporalOrder = enforceTemporalOrder;
+		enforceTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 		performTracing = DEFAULT_PERFORM_TRACING;
+		getViewer().prependPostRenderPaintable(new PostPaintable());
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -100,10 +100,6 @@ public class TracingCanvas extends GraphCanvas {
 			Double value = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 
-			if (value == null) {
-				value = 0.0;
-			}
-
 			caseWeights.put(node.getId(), value);
 		}
 
@@ -111,16 +107,16 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setCaseWeights(Map<String, Double> caseWeights) {
-		if (caseWeights.isEmpty()) {
-			return;
-		}
-
 		for (GraphNode node : getNodeSaveMap().values()) {
-			node.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
-					caseWeights.get(node.getId()));
+			if (caseWeights.containsKey(node.getId())) {
+				node.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
+						caseWeights.get(node.getId()));
+			}
 		}
 
-		applyChanges();
+		if (performTracing) {
+			applyChanges();
+		}
 	}
 
 	public Map<String, Boolean> getCrossContaminations() {
@@ -130,10 +126,6 @@ public class TracingCanvas extends GraphCanvas {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN);
 
-			if (value == null) {
-				value = false;
-			}
-
 			contaminations.put(node.getId(), value);
 		}
 
@@ -141,29 +133,25 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
-		if (crossContaminations.isEmpty()) {
-			return;
-		}
-
 		for (GraphNode node : getNodeSaveMap().values()) {
-			node.getProperties().put(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN,
-					crossContaminations.get(node.getId()));
+			if (crossContaminations.containsKey(node.getId())) {
+				node.getProperties().put(
+						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+						crossContaminations.get(node.getId()));
+			}
 		}
 
-		applyChanges();
+		if (performTracing) {
+			applyChanges();
+		}
 	}
 
-	public Map<String, Boolean> getFilter() {
+	public Map<String, Boolean> getNodeFilter() {
 		Map<String, Boolean> filter = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
-
-			if (value == null) {
-				value = false;
-			}
 
 			filter.put(node.getId(), value);
 		}
@@ -171,17 +159,17 @@ public class TracingCanvas extends GraphCanvas {
 		return filter;
 	}
 
-	public void setFilter(Map<String, Boolean> filter) {
-		if (filter.isEmpty()) {
-			return;
-		}
-
+	public void setNodeFilter(Map<String, Boolean> nodeFilter) {
 		for (GraphNode node : getNodeSaveMap().values()) {
-			node.getProperties().put(TracingConstants.FILTER_COLUMN,
-					filter.get(node.getId()));
+			if (nodeFilter.containsKey(node.getId())) {
+				node.getProperties().put(TracingConstants.FILTER_COLUMN,
+						nodeFilter.get(node.getId()));
+			}
 		}
 
-		applyChanges();
+		if (performTracing) {
+			applyChanges();
+		}
 	}
 
 	public Map<String, Boolean> getEdgeFilter() {
@@ -191,10 +179,6 @@ public class TracingCanvas extends GraphCanvas {
 			Boolean value = (Boolean) edge.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
 
-			if (value == null) {
-				value = false;
-			}
-
 			edgeFilter.put(edge.getId(), value);
 		}
 
@@ -202,16 +186,28 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
-		if (edgeFilter.isEmpty()) {
-			return;
-		}
-
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
-			edge.getProperties().put(TracingConstants.FILTER_COLUMN,
-					edgeFilter.get(edge.getId()));
+			if (edgeFilter.containsKey(edge.getId())) {
+				edge.getProperties().put(TracingConstants.FILTER_COLUMN,
+						edgeFilter.get(edge.getId()));
+			}
 		}
 
-		applyChanges();
+		if (performTracing) {
+			applyChanges();
+		}
+	}
+
+	public boolean isEnforceTemporalOrder() {
+		return enforceTemporalOrder;
+	}
+
+	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
+		this.enforceTemporalOrder = enforceTemporalOrder;
+		
+		if (performTracing) {
+			applyChanges();
+		}
 	}
 
 	public boolean isPerformTracing() {
@@ -443,7 +439,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		tracing.fillDeliveries(enforceTemporalOrder);
+		tracing.fillDeliveries(enforceTemporalOrder);		
 
 		Set<Integer> backwardNodes = new LinkedHashSet<>();
 		Set<Integer> forwardNodes = new LinkedHashSet<>();
