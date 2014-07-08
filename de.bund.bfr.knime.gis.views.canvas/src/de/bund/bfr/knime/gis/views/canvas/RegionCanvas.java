@@ -44,11 +44,10 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**
@@ -139,9 +138,10 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
+		edges = CanvasUtilities.removeInvisibleElements(allEdges,
+				getEdgeHighlightConditions());
+
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleElements(allEdges,
-					getEdgeHighlightConditions());
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
@@ -154,18 +154,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(nodes, edges));
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+
+		CanvasUtilities.applyNodeLabels(getViewer(),
 				getNodeHighlightConditions());
-
-		if (!isJoinEdges()) {
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-					getEdgeHighlightConditions());
-		} else {
-			HighlightConditionList conditions = CanvasUtilities
-					.removeInvisibleConditions(getEdgeHighlightConditions());
-
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
-		}
+		CanvasUtilities.applyEdgeHighlights(getViewer(),
+				getEdgeHighlightConditions());
 
 		setSelectedEdgeIds(selectedEdgeIds);
 		flushImage();

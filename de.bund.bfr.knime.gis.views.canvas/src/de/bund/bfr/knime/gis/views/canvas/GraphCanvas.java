@@ -44,7 +44,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -500,6 +499,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 				newNode = combineNodes(newId, nodes);
 				getViewer().getGraphLayout().setLocation(newNode, pos);
+				nodeSaveMap.put(newId, newNode);
 			}
 
 			nodes.add(newNode);
@@ -526,19 +526,24 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
 
 			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
 				newEdge.getProperties()
 						.put(getEdgeFromProperty(), from.getId());
 				newEdge.getProperties().put(getEdgeToProperty(), to.getId());
-				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
-						from, to);
+				edgeSaveMap.put(newEdge.getId(), newEdge);
 			}
 
 			edges.add(newEdge);
 		}
 
+		nodes = CanvasUtilities.removeInvisibleElements(nodes,
+				getNodeHighlightConditions());
+		edges = CanvasUtilities.removeInvisibleElements(edges,
+				getEdgeHighlightConditions());
+		edges = CanvasUtilities.getEdgesWithNodes(edges, nodes);
+
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleElements(edges,
-					getEdgeHighlightConditions());
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
@@ -548,8 +553,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			joinMap = new LinkedHashMap<>();
 		}
 
-		nodeSaveMap.putAll(CanvasUtilities.getElementsById(nodes));
-		edgeSaveMap.putAll(CanvasUtilities.getElementsById(edges));
+		if (isSkipEdgelessNodes()) {
+			nodes = CanvasUtilities.getNodesWithEdges(edges);
+		}
+
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(nodes, edges));
 		getViewer().getRenderContext().setVertexStrokeTransformer(
@@ -558,20 +565,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyHighlights() {
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+		CanvasUtilities.applyNodeHighlights(getViewer(),
 				getNodeHighlightConditions(), getNodeSize());
-
-		if (!isJoinEdges()) {
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-					getEdgeHighlightConditions());
-		} else {
-			HighlightConditionList conditions = CanvasUtilities
-					.removeInvisibleConditions(getEdgeHighlightConditions());
-
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
-		}
-
-		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
+		CanvasUtilities.applyEdgeHighlights(getViewer(),
+				getEdgeHighlightConditions());
 	}
 
 	@Override

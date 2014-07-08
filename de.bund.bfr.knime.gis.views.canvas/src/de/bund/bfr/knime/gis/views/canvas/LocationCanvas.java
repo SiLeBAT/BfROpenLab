@@ -35,7 +35,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
@@ -44,6 +43,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
+	private List<LocationNode> allNodes;
 	private List<Edge<LocationNode>> allEdges;
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
@@ -86,6 +86,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<>(nodes);
 		this.edges = new LinkedHashSet<>(edges);
+		allNodes = nodes;
 		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
 
@@ -114,36 +115,34 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
+		nodes = CanvasUtilities.removeInvisibleElements(allNodes,
+				getNodeHighlightConditions());
+		edges = CanvasUtilities.removeInvisibleElements(allEdges,
+				getEdgeHighlightConditions());
+		edges = CanvasUtilities.getEdgesWithNodes(edges, nodes);
+
 		if (isJoinEdges()) {
-			edges = CanvasUtilities.removeInvisibleElements(allEdges,
-					getEdgeHighlightConditions());
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
 					CanvasUtilities.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
-			edges = new LinkedHashSet<>(allEdges);
 			joinMap = new LinkedHashMap<>();
+		}
+
+		if (isSkipEdgelessNodes()) {
+			nodes = CanvasUtilities.getNodesWithEdges(edges);
 		}
 
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtilities.createGraph(nodes, edges));
 
-		CanvasUtilities.applyNodeHighlights(getViewer(), nodes,
+		CanvasUtilities.applyNodeHighlights(getViewer(),
 				getNodeHighlightConditions(), getNodeSize());
+		CanvasUtilities.applyEdgeHighlights(getViewer(),
+				getEdgeHighlightConditions());
 
-		if (!isJoinEdges()) {
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges,
-					getEdgeHighlightConditions());
-		} else {
-			HighlightConditionList conditions = CanvasUtilities
-					.removeInvisibleConditions(getEdgeHighlightConditions());
-
-			CanvasUtilities.applyEdgeHighlights(getViewer(), edges, conditions);
-		}
-
-		CanvasUtilities.applyEdgelessNodes(getViewer(), isSkipEdgelessNodes());
 		setSelectedEdgeIds(selectedEdgeIds);
 		getViewer().repaint();
 	}
