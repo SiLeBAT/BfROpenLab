@@ -65,6 +65,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
 
+	private JPanel panel;
+
 	private Mode editingMode;
 	private JComboBox<Mode> editingModeBox;
 	private boolean showLegend;
@@ -89,8 +91,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 			boolean allowPolygons) {
 		init();
 
-		JPanel panel = new JPanel();
-
+		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		panel.add(getOptionPanel("Editing Mode", editingModeBox));
@@ -125,7 +126,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		setPreferredSize(getPreferredSize());
-		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);		
+		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	public void addChangeListener(ChangeListener listener) {
@@ -134,6 +135,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 
 	public void removeChangeListener(ChangeListener listener) {
 		listeners.remove(listener);
+	}
+
+	public void addOption(String name, JComponent... components) {
+		panel.add(Box.createHorizontalStrut(5));
+		panel.add(getOptionPanel(name, components));
 	}
 
 	public Mode getEditingMode() {

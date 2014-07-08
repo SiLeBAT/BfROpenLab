@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -70,8 +73,8 @@ public class TracingCanvas extends GraphCanvas {
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
 	private HashMap<Integer, MyDelivery> deliveries;
-	private boolean enforceTemporalOrder;
 	private boolean performTracing;
+	private JCheckBox enforceTemporalOrderBox;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -88,9 +91,14 @@ public class TracingCanvas extends GraphCanvas {
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
 		this.deliveries = deliveries;
-		enforceTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 		performTracing = DEFAULT_PERFORM_TRACING;
+		enforceTemporalOrderBox = new JCheckBox("Activate");
+		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
+		enforceTemporalOrderBox.addActionListener(this);
+
 		getViewer().prependPostRenderPaintable(new PostPaintable());
+		getOptionsPanel().addOption("Enforce Temporal Order",
+				enforceTemporalOrderBox);
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -199,12 +207,12 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public boolean isEnforceTemporalOrder() {
-		return enforceTemporalOrder;
+		return enforceTemporalOrderBox.isSelected();
 	}
 
 	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
-		this.enforceTemporalOrder = enforceTemporalOrder;
-		
+		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
+
 		if (performTracing) {
 			applyChanges();
 		}
@@ -219,6 +227,17 @@ public class TracingCanvas extends GraphCanvas {
 
 		if (performTracing) {
 			applyChanges();
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+
+		if (e.getSource() == enforceTemporalOrderBox) {
+			if (performTracing) {
+				applyChanges();
+			}
 		}
 	}
 
@@ -439,7 +458,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		tracing.fillDeliveries(enforceTemporalOrder);		
+		tracing.fillDeliveries(enforceTemporalOrderBox.isSelected());
 
 		Set<Integer> backwardNodes = new LinkedHashSet<>();
 		Set<Integer> forwardNodes = new LinkedHashSet<>();
