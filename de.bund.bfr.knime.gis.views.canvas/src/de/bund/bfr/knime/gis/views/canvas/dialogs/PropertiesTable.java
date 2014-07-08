@@ -82,7 +82,7 @@ public class PropertiesTable extends JTable {
 		Set<Element> selected = new LinkedHashSet<>();
 
 		for (int index : getSelectedRows()) {
-			selected.add(elementList.get(index));
+			selected.add(elementList.get(convertRowIndexToModel(index)));
 		}
 
 		return selected;

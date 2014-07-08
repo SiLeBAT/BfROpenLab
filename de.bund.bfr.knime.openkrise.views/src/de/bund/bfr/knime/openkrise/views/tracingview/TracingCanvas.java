@@ -232,8 +232,8 @@ public class TracingCanvas extends GraphCanvas {
 
 		picked.retainAll(getVisibleNodes());
 
-		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
-				picked, getNodeProperties());
+		EditablePropertiesDialog dialog = EditablePropertiesDialog
+				.createNodeDialog(this, picked, getNodeProperties());
 
 		dialog.setVisible(true);
 
@@ -252,8 +252,8 @@ public class TracingCanvas extends GraphCanvas {
 
 			picked.retainAll(getVisibleEdges());
 
-			EditablePropertiesDialog dialog = new EditablePropertiesDialog(
-					this, picked, getEdgeProperties());
+			EditablePropertiesDialog dialog = EditablePropertiesDialog
+					.createEdgeDialog(this, picked, getEdgeProperties());
 
 			dialog.setVisible(true);
 
@@ -281,8 +281,8 @@ public class TracingCanvas extends GraphCanvas {
 			allPicked.addAll(picked);
 		}
 
-		EditablePropertiesDialog dialog = new EditablePropertiesDialog(this,
-				allPicked, getEdgeProperties());
+		EditablePropertiesDialog dialog = EditablePropertiesDialog
+				.createEdgeDialog(this, allPicked, getEdgeProperties());
 
 		dialog.setVisible(true);
 

@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
@@ -46,12 +48,10 @@ public class EditablePropertiesTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Collection<? extends Element> elements;
+	private List<? extends Element> elementList;
 
 	public EditablePropertiesTable(Collection<? extends Element> elements,
 			Map<String, Class<?>> properties) {
-		this.elements = elements;
-
 		List<String> columnNames = new ArrayList<>();
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
@@ -61,7 +61,9 @@ public class EditablePropertiesTable extends JTable {
 			columnTypes.add(entry.getValue());
 		}
 
-		for (Element element : elements) {
+		elementList = new ArrayList<>(elements);
+
+		for (Element element : elementList) {
 			List<Object> tuple = new ArrayList<>();
 
 			for (String property : columnNames) {
@@ -93,6 +95,16 @@ public class EditablePropertiesTable extends JTable {
 		UI.packColumns(this, 200);
 	}
 
+	public Set<Element> getSelectedElements() {
+		Set<Element> selected = new LinkedHashSet<>();
+
+		for (int index : getSelectedRows()) {
+			selected.add(elementList.get(convertRowIndexToModel(index)));
+		}
+
+		return selected;
+	}
+
 	public void updateElements() {
 		if (isEditing()) {
 			getCellEditor().stopCellEditing();
@@ -100,7 +112,7 @@ public class EditablePropertiesTable extends JTable {
 
 		Map<String, Element> elementsById = new LinkedHashMap<>();
 
-		for (Element element : elements) {
+		for (Element element : elementList) {
 			elementsById.put(element.getId(), element);
 		}
 

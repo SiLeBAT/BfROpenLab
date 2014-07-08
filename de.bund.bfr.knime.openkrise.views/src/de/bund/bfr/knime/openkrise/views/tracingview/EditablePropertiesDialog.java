@@ -28,11 +28,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -41,48 +42,63 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.views.TracingConstants;
 
 public class EditablePropertiesDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private static enum Type {
+		NODE, EDGE
+	}
+
+	private TracingCanvas parent;
+	private Type type;
+
 	private EditablePropertiesTable table;
 	private JButton okButton;
 	private JButton cancelButton;
 
+	private JButton selectButton;
 	private JButton weightButton;
 	private JButton contaminationButton;
 	private JButton filterButton;
 
 	private boolean approved;
 
-	public EditablePropertiesDialog(JComponent parent,
+	private EditablePropertiesDialog(TracingCanvas parent,
 			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties) {
+			Map<String, Class<?>> properties, Type type) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
+		this.parent = parent;
+		this.type = type;
 
 		table = new EditablePropertiesTable(elements, properties);
-
-		JScrollPane scrollPane = new JScrollPane(table);
-
-		scrollPane.setPreferredSize(UI.getMaxDimension(
-				scrollPane.getPreferredSize(), table.getPreferredSize()));
-
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 
-		weightButton = new JButton("Set " + TracingConstants.CASE_WEIGHT_COLUMN);
+		selectButton = new JButton("Select in View");
+		selectButton.addActionListener(this);
+		weightButton = new JButton("Set All "
+				+ TracingConstants.CASE_WEIGHT_COLUMN);
 		weightButton.addActionListener(this);
-		contaminationButton = new JButton("Set "
+		contaminationButton = new JButton("Set All "
 				+ TracingConstants.CROSS_CONTAMINATION_COLUMN);
 		contaminationButton.addActionListener(this);
-		filterButton = new JButton("Set " + TracingConstants.FILTER_COLUMN);
+		filterButton = new JButton("Set All " + TracingConstants.FILTER_COLUMN);
 		filterButton.addActionListener(this);
+
+		JScrollPane scrollPane = new JScrollPane(table);
+
+		scrollPane.setPreferredSize(UI.getMaxDimension(
+				scrollPane.getPreferredSize(), table.getPreferredSize()));
 
 		JPanel southPanel = new JPanel();
 
@@ -94,6 +110,8 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 				BorderLayout.EAST);
 
 		List<JButton> buttons = new ArrayList<>();
+
+		buttons.add(selectButton);
 
 		if (properties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
 			buttons.add(weightButton);
@@ -117,10 +135,25 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		UI.adjustDialog(this);
 	}
 
+	public static EditablePropertiesDialog createNodeDialog(
+			TracingCanvas parent, Collection<GraphNode> nodes,
+			Map<String, Class<?>> properties) {
+		return new EditablePropertiesDialog(parent, nodes, properties,
+				Type.NODE);
+	}
+
+	public static <V extends Node> EditablePropertiesDialog createEdgeDialog(
+			TracingCanvas parent, Collection<Edge<GraphNode>> edges,
+			Map<String, Class<?>> properties) {
+		return new EditablePropertiesDialog(parent, edges, properties,
+				Type.EDGE);
+	}
+
 	public boolean isApproved() {
 		return approved;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
@@ -130,6 +163,27 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		} else if (e.getSource() == cancelButton) {
 			approved = false;
 			dispose();
+		} else if (e.getSource() == selectButton) {
+			switch (type) {
+			case NODE:
+				Set<GraphNode> nodes = new LinkedHashSet<>();
+
+				for (Element element : table.getSelectedElements()) {
+					nodes.add((GraphNode) element);
+				}
+
+				parent.setSelectedNodes(nodes);
+				break;
+			case EDGE:
+				Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
+
+				for (Element element : table.getSelectedElements()) {
+					edges.add((Edge<GraphNode>) element);
+				}
+
+				parent.setSelectedEdges(edges);
+				break;
+			}
 		} else if (e.getSource() == weightButton) {
 			Object result = JOptionPane.showInputDialog(this,
 					"Set All Values to?", TracingConstants.CASE_WEIGHT_COLUMN,
