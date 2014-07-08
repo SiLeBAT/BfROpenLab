@@ -25,8 +25,10 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
@@ -41,6 +43,8 @@ public class PropertiesTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 
+	private List<? extends Element> elementList;
+
 	public PropertiesTable(Collection<? extends Element> elements,
 			Map<String, Class<?>> properties) {
 		List<String> columnNames = new ArrayList<>();
@@ -52,7 +56,9 @@ public class PropertiesTable extends JTable {
 			columnTypes.add(entry.getValue());
 		}
 
-		for (Element element : elements) {
+		elementList = new ArrayList<>(elements);
+
+		for (Element element : elementList) {
 			List<Object> tuple = new ArrayList<>();
 
 			for (String property : columnNames) {
@@ -70,6 +76,16 @@ public class PropertiesTable extends JTable {
 		setDefaultRenderer(Boolean.class, new BooleanCellRenderer());
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
 		UI.packColumns(this, 200);
+	}
+
+	public Set<Element> getSelectedElements() {
+		Set<Element> selected = new LinkedHashSet<>();
+
+		for (int index : getSelectedRows()) {
+			selected.add(elementList.get(index));
+		}
+
+		return selected;
 	}
 
 	private static class PropertiesTableModel extends AbstractTableModel {

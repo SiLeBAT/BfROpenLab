@@ -229,8 +229,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		PropertiesDialog dialog = new PropertiesDialog(this, pickedAll,
-				getNodeProperties());
+		PropertiesDialog<GraphNode> dialog = PropertiesDialog.createNodeDialog(
+				this, pickedAll, getNodeProperties());
 
 		dialog.setVisible(true);
 	}

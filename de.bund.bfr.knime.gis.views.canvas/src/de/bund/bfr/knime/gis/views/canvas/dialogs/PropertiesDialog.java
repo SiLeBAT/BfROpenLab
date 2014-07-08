@@ -27,10 +27,11 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -38,38 +39,57 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
-public class PropertiesDialog extends JDialog implements ActionListener {
+public class PropertiesDialog<V extends Node> extends JDialog implements
+		ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	public PropertiesDialog(JComponent parent,
-			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties",
-				DEFAULT_MODALITY_TYPE);
+	private static enum Type {
+		NODE, EDGE
+	}
 
-		PropertiesTable table = new PropertiesTable(elements, properties);
+	private Canvas<V> parent;
+	private Type type;
+
+	private PropertiesTable table;
+	private JButton selectButton;
+	private JButton okButton;
+
+	private PropertiesDialog(Canvas<V> parent,
+			Collection<? extends Element> elements,
+			Map<String, Class<?>> properties, Type type) {
+		super(SwingUtilities.getWindowAncestor(parent),
+				type == Type.NODE ? "Node Properties" : "Edge Properties",
+				DEFAULT_MODALITY_TYPE);
+		this.parent = parent;
+		this.type = type;
+
+		table = new PropertiesTable(elements, properties);
+		selectButton = new JButton("Select in View");
+		selectButton.addActionListener(this);
+		okButton = new JButton("OK");
+		okButton.addActionListener(this);
+
 		JScrollPane scrollPane = new JScrollPane(table);
 
 		scrollPane.setPreferredSize(UI.getMaxDimension(
 				scrollPane.getPreferredSize(), table.getPreferredSize()));
 
-		JLabel numberLabel = new JLabel("Number of Elements: "
-				+ elements.size());
-		JButton okButton = new JButton("OK");
-
-		okButton.addActionListener(this);
-
 		JPanel bottomPanel = new JPanel();
 
 		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(UI.createEmptyBorderPanel(numberLabel),
-				BorderLayout.WEST);
+		bottomPanel.add(
+				UI.createEmptyBorderPanel(new JLabel("Number of Elements: "
+						+ elements.size())), BorderLayout.WEST);
 		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
+		add(UI.createHorizontalPanel(selectButton), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
@@ -77,8 +97,44 @@ public class PropertiesDialog extends JDialog implements ActionListener {
 		UI.adjustDialog(this);
 	}
 
+	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
+			Canvas<V> parent, Collection<V> nodes,
+			Map<String, Class<?>> properties) {
+		return new PropertiesDialog<>(parent, nodes, properties, Type.NODE);
+	}
+
+	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
+			Canvas<V> parent, Collection<Edge<V>> edges,
+			Map<String, Class<?>> properties) {
+		return new PropertiesDialog<>(parent, edges, properties, Type.EDGE);
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		dispose();
+		if (e.getSource() == selectButton) {
+			switch (type) {
+			case NODE:
+				Set<V> nodes = new LinkedHashSet<>();
+
+				for (Element element : table.getSelectedElements()) {
+					nodes.add((V) element);
+				}
+
+				parent.setSelectedNodes(nodes);
+				break;
+			case EDGE:
+				Set<Edge<V>> edges = new LinkedHashSet<>();
+
+				for (Element element : table.getSelectedElements()) {
+					edges.add((Edge<V>) element);
+				}
+
+				parent.setSelectedEdges(edges);
+				break;
+			}
+		} else if (e.getSource() == okButton) {
+			dispose();
+		}
 	}
 }
