@@ -72,8 +72,10 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 
 	private EditablePropertiesDialog(TracingCanvas parent,
 			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Type type) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties",
+			Map<String, Class<?>> properties, Type type,
+			boolean allowViewSelection) {
+		super(SwingUtilities.getWindowAncestor(parent),
+				type == Type.NODE ? "Node Properties" : "Edge Properties",
 				DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
@@ -111,7 +113,9 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 
 		List<JButton> buttons = new ArrayList<>();
 
-		buttons.add(selectButton);
+		if (allowViewSelection) {
+			buttons.add(selectButton);
+		}
 
 		if (properties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
 			buttons.add(weightButton);
@@ -137,16 +141,16 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 
 	public static EditablePropertiesDialog createNodeDialog(
 			TracingCanvas parent, Collection<GraphNode> nodes,
-			Map<String, Class<?>> properties) {
+			Map<String, Class<?>> properties, boolean allowViewSelection) {
 		return new EditablePropertiesDialog(parent, nodes, properties,
-				Type.NODE);
+				Type.NODE, allowViewSelection);
 	}
 
 	public static <V extends Node> EditablePropertiesDialog createEdgeDialog(
 			TracingCanvas parent, Collection<Edge<GraphNode>> edges,
-			Map<String, Class<?>> properties) {
+			Map<String, Class<?>> properties, boolean allowViewSelection) {
 		return new EditablePropertiesDialog(parent, edges, properties,
-				Type.EDGE);
+				Type.EDGE, allowViewSelection);
 	}
 
 	public boolean isApproved() {

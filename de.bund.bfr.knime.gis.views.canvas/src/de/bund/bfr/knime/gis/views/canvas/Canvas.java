@@ -791,7 +791,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		picked.retainAll(getVisibleNodes());
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
-				picked, nodeProperties);
+				picked, nodeProperties, true);
 
 		dialog.setVisible(true);
 	}
@@ -803,7 +803,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		picked.retainAll(getVisibleEdges());
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this,
-				picked, edgeProperties);
+				picked, edgeProperties, true);
 
 		dialog.setVisible(true);
 	}
@@ -827,7 +827,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this,
-				allPicked, edgeProperties);
+				allPicked, edgeProperties, false);
 
 		dialog.setVisible(true);
 	}

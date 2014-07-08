@@ -230,7 +230,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		PropertiesDialog<GraphNode> dialog = PropertiesDialog.createNodeDialog(
-				this, pickedAll, getNodeProperties());
+				this, pickedAll, getNodeProperties(), false);
 
 		dialog.setVisible(true);
 	}

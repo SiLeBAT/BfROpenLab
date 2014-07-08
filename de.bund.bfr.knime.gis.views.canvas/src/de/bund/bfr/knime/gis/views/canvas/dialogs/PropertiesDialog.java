@@ -62,7 +62,8 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 
 	private PropertiesDialog(Canvas<V> parent,
 			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Type type) {
+			Map<String, Class<?>> properties, Type type,
+			boolean allowViewSelection) {
 		super(SwingUtilities.getWindowAncestor(parent),
 				type == Type.NODE ? "Node Properties" : "Edge Properties",
 				DEFAULT_MODALITY_TYPE);
@@ -89,7 +90,11 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
 
 		setLayout(new BorderLayout());
-		add(UI.createHorizontalPanel(selectButton), BorderLayout.NORTH);
+
+		if (allowViewSelection) {
+			add(UI.createHorizontalPanel(selectButton), BorderLayout.NORTH);
+		}
+
 		add(scrollPane, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
@@ -99,14 +104,16 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
 			Canvas<V> parent, Collection<V> nodes,
-			Map<String, Class<?>> properties) {
-		return new PropertiesDialog<>(parent, nodes, properties, Type.NODE);
+			Map<String, Class<?>> properties, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, nodes, properties, Type.NODE,
+				allowViewSelection);
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
 			Canvas<V> parent, Collection<Edge<V>> edges,
-			Map<String, Class<?>> properties) {
-		return new PropertiesDialog<>(parent, edges, properties, Type.EDGE);
+			Map<String, Class<?>> properties, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, edges, properties, Type.EDGE,
+				allowViewSelection);
 	}
 
 	@SuppressWarnings("unchecked")
