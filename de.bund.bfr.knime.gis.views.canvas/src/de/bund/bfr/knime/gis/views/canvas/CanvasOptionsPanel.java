@@ -70,17 +70,12 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	private JPanel panel;
 
-	private Mode editingMode;
 	private JComboBox<Mode> editingModeBox;
-	private boolean showLegend;
 	private JCheckBox showLegendBox;
-	private boolean joinEdges;
 	private JCheckBox joinEdgesBox;
-	private boolean skipEdgelessNodes;
 	private JCheckBox skipEdgelessNodesBox;
 	private int fontSize;
 	private JComboBox<Integer> fontSizeBox;
-	private boolean fontBold;
 	private JCheckBox fontBoldBox;
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
@@ -146,38 +141,34 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	}
 
 	public Mode getEditingMode() {
-		return editingMode;
+		return (Mode) editingModeBox.getSelectedItem();
 	}
 
 	public void setEditingMode(Mode editingMode) {
-		this.editingMode = editingMode;
 		editingModeBox.setSelectedItem(editingMode);
 	}
 
 	public boolean isShowLegend() {
-		return showLegend;
+		return showLegendBox.isSelected();
 	}
 
 	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
 		showLegendBox.setSelected(showLegend);
 	}
 
 	public boolean isJoinEdges() {
-		return joinEdges;
+		return joinEdgesBox.isSelected();
 	}
 
 	public void setJoinEdges(boolean joinEdges) {
-		this.joinEdges = joinEdges;
 		joinEdgesBox.setSelected(joinEdges);
 	}
 
 	public boolean isSkipEdgelessNodes() {
-		return skipEdgelessNodes;
+		return skipEdgelessNodesBox.isSelected();
 	}
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
-		this.skipEdgelessNodes = skipEdgelessNodes;
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
 	}
 
@@ -191,11 +182,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	}
 
 	public boolean isFontBold() {
-		return fontBold;
+		return fontBoldBox.isSelected();
 	}
 
 	public void setFontBold(boolean fontBold) {
-		this.fontBold = fontBold;
 		fontBoldBox.setSelected(fontBold);
 	}
 
@@ -231,35 +221,25 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() != ItemEvent.SELECTED) {
-			return;
-		}
-
-		if (e.getSource() == editingModeBox) {
-			editingMode = (Mode) editingModeBox.getSelectedItem();
-
+		if (e.getSource() == editingModeBox
+				&& e.getStateChange() == ItemEvent.SELECTED) {
 			for (ChangeListener l : listeners) {
 				l.editingModeChanged();
 			}
 		} else if (e.getSource() == showLegendBox) {
-			showLegend = showLegendBox.isSelected();
-
 			for (ChangeListener l : listeners) {
 				l.showLegendChanged();
 			}
 		} else if (e.getSource() == joinEdgesBox) {
-			joinEdges = joinEdgesBox.isSelected();
-
 			for (ChangeListener l : listeners) {
 				l.joinEdgesChanged();
 			}
 		} else if (e.getSource() == skipEdgelessNodesBox) {
-			skipEdgelessNodes = skipEdgelessNodesBox.isSelected();
-
 			for (ChangeListener l : listeners) {
 				l.skipEdgelessNodesChanged();
 			}
-		} else if (e.getSource() == fontSizeBox) {
+		} else if (e.getSource() == fontSizeBox
+				&& e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = fontSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
@@ -275,12 +255,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 				fontSizeBox.setSelectedItem(fontSize);
 			}
 		} else if (e.getSource() == fontBoldBox) {
-			fontBold = fontBoldBox.isSelected();
-
 			for (ChangeListener l : listeners) {
 				l.fontChanged();
 			}
-		} else if (e.getSource() == nodeSizeBox) {
+		} else if (e.getSource() == nodeSizeBox
+				&& e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = nodeSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
@@ -301,27 +280,22 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	private void init() {
 		listeners = new ArrayList<>();
 
-		editingMode = DEFAULT_MODE;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
 		nodeSize = DEFAULT_NODE_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
 		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING,
 				Mode.PICKING });
-		editingModeBox.setSelectedItem(editingMode);
+		editingModeBox.setSelectedItem(DEFAULT_MODE);
 		editingModeBox.addItemListener(this);
 		showLegendBox = new JCheckBox("Activate");
-		showLegendBox.setSelected(showLegend);
+		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
 		showLegendBox.addItemListener(this);
 		joinEdgesBox = new JCheckBox("Activate");
-		joinEdgesBox.setSelected(joinEdges);
+		joinEdgesBox.setSelected(DEFAULT_JOIN_EDGES);
 		joinEdgesBox.addItemListener(this);
 		skipEdgelessNodesBox = new JCheckBox("Activate");
-		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
+		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
 		skipEdgelessNodesBox.addItemListener(this);
 		fontSizeBox = new JComboBox<>(ArrayUtils.toObject(TEXT_SIZES));
 		fontSizeBox.setEditable(true);
@@ -330,7 +304,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		fontSizeBox.setSelectedItem(fontSize);
 		fontSizeBox.addItemListener(this);
 		fontBoldBox = new JCheckBox("Bold");
-		fontBoldBox.setSelected(fontBold);
+		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
 		fontBoldBox.addItemListener(this);
 		nodeSizeBox = new JComboBox<>(ArrayUtils.toObject(NODE_SIZES));
 		nodeSizeBox.setEditable(true);
