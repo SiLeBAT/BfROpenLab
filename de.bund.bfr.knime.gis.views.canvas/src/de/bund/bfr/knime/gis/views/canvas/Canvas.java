@@ -203,7 +203,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setEditingMode(Mode editingMode) {
 		optionsPanel.setEditingMode(editingMode);
-		viewer.setGraphMouse(createMouseModel(editingMode));
 	}
 
 	public boolean isShowLegend() {
@@ -212,7 +211,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setShowLegend(boolean showLegend) {
 		optionsPanel.setShowLegend(showLegend);
-		viewer.repaint();
 	}
 
 	public boolean isJoinEdges() {
@@ -221,8 +219,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setJoinEdges(boolean joinEdges) {
 		optionsPanel.setJoinEdges(joinEdges);
-		applyChanges();
-		fireEdgeJoinChanged();
 	}
 
 	public boolean isSkipEdgelessNodes() {
@@ -231,8 +227,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		optionsPanel.setSkipEdgelessNodes(skipEdgelessNodes);
-		applyChanges();
-		fireSkipEdgelessChanged();
 	}
 
 	public int getFontSize() {
@@ -241,7 +235,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setFontSize(int fontSize) {
 		optionsPanel.setFontSize(fontSize);
-		fontChanged();
 	}
 
 	public boolean isFontBold() {
@@ -250,7 +243,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setFontBold(boolean fontBold) {
 		optionsPanel.setFontBold(fontBold);
-		fontChanged();
 	}
 
 	public int getNodeSize() {
@@ -259,7 +251,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setNodeSize(int nodeSize) {
 		optionsPanel.setNodeSize(nodeSize);
-		applyChanges();
 	}
 
 	public int getBorderAlpha() {

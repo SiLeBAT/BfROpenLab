@@ -64,13 +64,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	public void setBorderAlpha(int borderAlpha) {
-		super.setBorderAlpha(borderAlpha);
-		flushImage();
-		getViewer().repaint();
-	}
-
-	@Override
 	public void setCanvasSize(Dimension canvasSize) {
 		super.setCanvasSize(canvasSize);
 		computeTransform(canvasSize);
@@ -136,7 +129,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	protected void paintGis(Graphics g, boolean toSvg) {		
+	protected void paintGis(Graphics g, boolean toSvg) {
 		if (!toSvg) {
 			BufferedImage borderImage = new BufferedImage(
 					getCanvasSize().width, getCanvasSize().height,

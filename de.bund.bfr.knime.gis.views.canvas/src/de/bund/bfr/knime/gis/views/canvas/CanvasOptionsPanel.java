@@ -26,6 +26,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +51,8 @@ import org.apache.commons.lang.ArrayUtils;
 import de.bund.bfr.knime.UI;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
+public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
+		ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -212,10 +215,26 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 	public void setBorderAlpha(int borderAlpha) {
 		this.borderAlpha = borderAlpha;
 		borderAlphaSlider.setValue(borderAlpha);
+		borderAlphaButton.doClick();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == borderAlphaButton) {
+			borderAlpha = borderAlphaSlider.getValue();
+
+			for (ChangeListener l : listeners) {
+				l.borderAlphaChanged();
+			}
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() != ItemEvent.SELECTED) {
+			return;
+		}
+
 		if (e.getSource() == editingModeBox) {
 			editingMode = (Mode) editingModeBox.getSelectedItem();
 
@@ -276,12 +295,6 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
-		} else if (e.getSource() == borderAlphaButton) {
-			borderAlpha = borderAlphaSlider.getValue();
-
-			for (ChangeListener l : listeners) {
-				l.borderAlphaChanged();
-			}
 		}
 	}
 
@@ -300,31 +313,31 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener {
 		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING,
 				Mode.PICKING });
 		editingModeBox.setSelectedItem(editingMode);
-		editingModeBox.addActionListener(this);
+		editingModeBox.addItemListener(this);
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(showLegend);
-		showLegendBox.addActionListener(this);
+		showLegendBox.addItemListener(this);
 		joinEdgesBox = new JCheckBox("Activate");
 		joinEdgesBox.setSelected(joinEdges);
-		joinEdgesBox.addActionListener(this);
+		joinEdgesBox.addItemListener(this);
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
-		skipEdgelessNodesBox.addActionListener(this);
+		skipEdgelessNodesBox.addItemListener(this);
 		fontSizeBox = new JComboBox<>(ArrayUtils.toObject(TEXT_SIZES));
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);
 		fontSizeBox.setSelectedItem(fontSize);
-		fontSizeBox.addActionListener(this);
+		fontSizeBox.addItemListener(this);
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(fontBold);
-		fontBoldBox.addActionListener(this);
+		fontBoldBox.addItemListener(this);
 		nodeSizeBox = new JComboBox<>(ArrayUtils.toObject(NODE_SIZES));
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addActionListener(this);
+		nodeSizeBox.addItemListener(this);
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
 		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
 				.getPreferredSize().height));
