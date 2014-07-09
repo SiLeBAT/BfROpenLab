@@ -28,7 +28,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +94,7 @@ public class TracingCanvas extends GraphCanvas {
 		performTracing = DEFAULT_PERFORM_TRACING;
 		enforceTemporalOrderBox = new JCheckBox("Activate");
 		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
-		enforceTemporalOrderBox.addActionListener(this);
+		enforceTemporalOrderBox.addItemListener(this);
 
 		getViewer().prependPostRenderPaintable(new PostPaintable());
 		getOptionsPanel().addOption("Enforce Temporal Order",
@@ -212,10 +212,6 @@ public class TracingCanvas extends GraphCanvas {
 
 	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
 		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public boolean isPerformTracing() {
@@ -231,16 +227,16 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
+	public void itemStateChanged(ItemEvent e) {
+		super.itemStateChanged(e);
+		
 		if (e.getSource() == enforceTemporalOrderBox) {
 			if (performTracing) {
 				applyChanges();
 			}
 		}
 	}
-
+	
 	@Override
 	public void nodePropertiesItemClicked() {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
