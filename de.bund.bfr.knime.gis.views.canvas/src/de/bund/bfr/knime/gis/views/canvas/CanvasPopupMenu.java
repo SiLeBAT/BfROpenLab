@@ -296,7 +296,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearSelectedNodesItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Properties");
 		nodePropertiesItem.addActionListener(this);
-		nodeAllPropertiesItem = new JMenuItem("Show All Properties");
+		nodeAllPropertiesItem = new JMenuItem("Show Uncollapsed Properties");
 		nodeAllPropertiesItem.addActionListener(this);
 		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedNodesItem.addActionListener(this);
@@ -311,7 +311,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearSelectedEdgesItem.addActionListener(this);
 		edgePropertiesItem = new JMenuItem("Show Properties");
 		edgePropertiesItem.addActionListener(this);
-		edgeAllPropertiesItem = new JMenuItem("Show All Properties");
+		edgeAllPropertiesItem = new JMenuItem("Show Unjoined Properties");
 		edgeAllPropertiesItem.addActionListener(this);
 		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedEdgesItem.addActionListener(this);
