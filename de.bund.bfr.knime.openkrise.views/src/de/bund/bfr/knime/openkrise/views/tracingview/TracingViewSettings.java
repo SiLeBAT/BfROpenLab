@@ -56,8 +56,10 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
-	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
-	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
+	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
+	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
+	private static final String CFG_NODE_CROSS_CONTAMINATIONS = "CrossContaminations";
+	private static final String CFG_EDGE_CROSS_CONTAMINATIONS = "EdgeCrossContaminations";
 	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
@@ -83,8 +85,10 @@ public class TracingViewSettings extends TracingSettings {
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
 	private boolean exportAsSvg;
-	private Map<String, Double> caseWeights;
-	private Map<String, Boolean> crossContaminations;
+	private Map<String, Double> nodeWeights;
+	private Map<String, Double> edgeWeights;
+	private Map<String, Boolean> nodeCrossContaminations;
+	private Map<String, Boolean> edgeCrossContaminations;
 	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
@@ -111,8 +115,10 @@ public class TracingViewSettings extends TracingSettings {
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
-		caseWeights = new LinkedHashMap<>();
-		crossContaminations = new LinkedHashMap<>();
+		nodeWeights = new LinkedHashMap<>();
+		edgeWeights = new LinkedHashMap<>();
+		nodeCrossContaminations = new LinkedHashMap<>();
+		edgeCrossContaminations = new LinkedHashMap<>();
 		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
@@ -155,14 +161,26 @@ public class TracingViewSettings extends TracingSettings {
 		}
 
 		try {
-			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_CASE_WEIGHTS));
+			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			crossContaminations = (Map<String, Boolean>) SERIALIZER
-					.fromXml(settings.getString(CFG_CROSS_CONTAMINATIONS));
+			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_WEIGHTS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_CROSS_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -285,9 +303,12 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
-		settings.addString(CFG_CASE_WEIGHTS, SERIALIZER.toXml(caseWeights));
-		settings.addString(CFG_CROSS_CONTAMINATIONS,
-				SERIALIZER.toXml(crossContaminations));
+		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
+		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
+		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
+				SERIALIZER.toXml(nodeCrossContaminations));
+		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS,
+				SERIALIZER.toXml(edgeCrossContaminations));
 		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
@@ -342,20 +363,38 @@ public class TracingViewSettings extends TracingSettings {
 		this.exportAsSvg = exportAsSvg;
 	}
 
-	public Map<String, Double> getCaseWeights() {
-		return caseWeights;
+	public Map<String, Double> getNodeWeights() {
+		return nodeWeights;
 	}
 
-	public void setCaseWeights(Map<String, Double> caseWeights) {
-		this.caseWeights = caseWeights;
+	public void setNodeWeights(Map<String, Double> nodeWeights) {
+		this.nodeWeights = nodeWeights;
 	}
 
-	public Map<String, Boolean> getCrossContaminations() {
-		return crossContaminations;
+	public Map<String, Double> getEdgeWeights() {
+		return edgeWeights;
 	}
 
-	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
-		this.crossContaminations = crossContaminations;
+	public void setEdgeWeights(Map<String, Double> edgeWeights) {
+		this.edgeWeights = edgeWeights;
+	}
+
+	public Map<String, Boolean> getNodeCrossContaminations() {
+		return nodeCrossContaminations;
+	}
+
+	public void setNodeCrossContaminations(
+			Map<String, Boolean> nodeCrossContaminations) {
+		this.nodeCrossContaminations = nodeCrossContaminations;
+	}
+
+	public Map<String, Boolean> getEdgeCrossContaminations() {
+		return edgeCrossContaminations;
+	}
+
+	public void setEdgeCrossContaminations(
+			Map<String, Boolean> edgeCrossContaminations) {
+		this.edgeCrossContaminations = edgeCrossContaminations;
 	}
 
 	public Map<String, Boolean> getNodeFilter() {

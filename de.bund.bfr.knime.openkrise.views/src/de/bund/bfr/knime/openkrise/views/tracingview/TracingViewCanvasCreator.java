@@ -87,6 +87,17 @@ public class TracingViewCanvasCreator {
 			nodeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
+		if (!edgeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
+			edgeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
+					Double.class);
+		}
+
+		if (!edgeProperties
+				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+			edgeProperties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+					Boolean.class);
+		}
+
 		if (!edgeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
 			edgeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
 		}
@@ -125,8 +136,10 @@ public class TracingViewCanvasCreator {
 		canvas.setFontBold(set.isGraphFontBold());
 		canvas.setJoinEdges(set.isJoinEdges());
 		canvas.setCollapsedNodes(set.getCollapsedNodes());
-		canvas.setCaseWeights(set.getCaseWeights());
-		canvas.setCrossContaminations(set.getCrossContaminations());
+		canvas.setNodeWeights(set.getNodeWeights());
+		canvas.setEdgeWeights(set.getEdgeWeights());
+		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
+		canvas.setEdgeCrossContaminations(set.getEdgeCrossContaminations());
 		canvas.setNodeFilter(set.getNodeFilter());
 		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());

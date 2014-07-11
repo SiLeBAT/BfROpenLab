@@ -115,24 +115,24 @@ public class TracingCanvas extends GraphCanvas {
 		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
-	public Map<String, Double> getCaseWeights() {
-		Map<String, Double> caseWeights = new LinkedHashMap<>();
+	public Map<String, Double> getNodeWeights() {
+		Map<String, Double> nodeWeights = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Double value = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 
-			caseWeights.put(node.getId(), value);
+			nodeWeights.put(node.getId(), value);
 		}
 
-		return caseWeights;
+		return nodeWeights;
 	}
 
-	public void setCaseWeights(Map<String, Double> caseWeights) {
+	public void setNodeWeights(Map<String, Double> nodeWeights) {
 		for (GraphNode node : getNodeSaveMap().values()) {
-			if (caseWeights.containsKey(node.getId())) {
+			if (nodeWeights.containsKey(node.getId())) {
 				node.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
-						caseWeights.get(node.getId()));
+						nodeWeights.get(node.getId()));
 			}
 		}
 
@@ -141,25 +141,80 @@ public class TracingCanvas extends GraphCanvas {
 		}
 	}
 
-	public Map<String, Boolean> getCrossContaminations() {
-		Map<String, Boolean> contaminations = new LinkedHashMap<>();
+	public Map<String, Double> getEdgeWeights() {
+		Map<String, Double> edgeWeights = new LinkedHashMap<>();
+
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
+			Double value = (Double) edge.getProperties().get(
+					TracingConstants.CASE_WEIGHT_COLUMN);
+
+			edgeWeights.put(edge.getId(), value);
+		}
+
+		return edgeWeights;
+	}
+
+	public void setEdgeWeights(Map<String, Double> edgeWeights) {
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
+			if (edgeWeights.containsKey(edge.getId())) {
+				edge.getProperties().put(TracingConstants.CASE_WEIGHT_COLUMN,
+						edgeWeights.get(edge.getId()));
+			}
+		}
+
+		if (performTracing) {
+			applyChanges();
+		}
+	}
+
+	public Map<String, Boolean> getNodeCrossContaminations() {
+		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.CROSS_CONTAMINATION_COLUMN);
 
-			contaminations.put(node.getId(), value);
+			nodeCrossContaminations.put(node.getId(), value);
 		}
 
-		return contaminations;
+		return nodeCrossContaminations;
 	}
 
-	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
+	public void setNodeCrossContaminations(
+			Map<String, Boolean> nodeCrossContaminations) {
 		for (GraphNode node : getNodeSaveMap().values()) {
-			if (crossContaminations.containsKey(node.getId())) {
+			if (nodeCrossContaminations.containsKey(node.getId())) {
 				node.getProperties().put(
 						TracingConstants.CROSS_CONTAMINATION_COLUMN,
-						crossContaminations.get(node.getId()));
+						nodeCrossContaminations.get(node.getId()));
+			}
+		}
+
+		if (performTracing) {
+			applyChanges();
+		}
+	}
+
+	public Map<String, Boolean> getEdgeCrossContaminations() {
+		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
+
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
+			Boolean value = (Boolean) edge.getProperties().get(
+					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+
+			edgeCrossContaminations.put(edge.getId(), value);
+		}
+
+		return edgeCrossContaminations;
+	}
+
+	public void setEdgeCrossContaminations(
+			Map<String, Boolean> edgeCrossContaminations) {
+		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
+			if (edgeCrossContaminations.containsKey(edge.getId())) {
+				edge.getProperties().put(
+						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+						edgeCrossContaminations.get(edge.getId()));
 			}
 		}
 
@@ -483,6 +538,26 @@ public class TracingCanvas extends GraphCanvas {
 
 			if (contaminationValue != null) {
 				tracing.setCrossContamination(id, contaminationValue);
+			} else {
+				tracing.setCrossContamination(id, false);
+			}
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			int id = getIntegerId(edge);
+			Double caseValue = (Double) edge.getProperties().get(
+					TracingConstants.CASE_WEIGHT_COLUMN);
+			Boolean contaminationValue = (Boolean) edge.getProperties().get(
+					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+
+			if (caseValue != null) {
+				tracing.setCaseDelivery(id, caseValue);
+			} else {
+				tracing.setCase(id, 0.0);
+			}
+
+			if (contaminationValue != null) {
+				tracing.setCrossContaminationDelivery(id, contaminationValue);
 			} else {
 				tracing.setCrossContamination(id, false);
 			}

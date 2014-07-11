@@ -161,11 +161,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == resetWeightsButton) {
 			updateSettings();
-			set.getCaseWeights().clear();
+			set.getNodeWeights().clear();
+			set.getEdgeWeights().clear();
 			updateGraphCanvas();
 		} else if (e.getSource() == resetCrossButton) {
 			updateSettings();
-			set.getCrossContaminations().clear();
+			set.getNodeCrossContaminations().clear();
+			set.getEdgeCrossContaminations().clear();
 			updateGraphCanvas();
 		} else if (e.getSource() == resetFilterButton) {
 			updateSettings();
@@ -224,8 +226,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setGraphNodeHighlightConditions(canvas.getNodeHighlightConditions());
 		set.setGraphEdgeHighlightConditions(canvas.getEdgeHighlightConditions());
 		set.setGraphEditingMode(canvas.getEditingMode());
-		set.setCaseWeights(canvas.getCaseWeights());
-		set.setCrossContaminations(canvas.getCrossContaminations());
+		set.setNodeWeights(canvas.getNodeWeights());
+		set.setEdgeWeights(canvas.getEdgeWeights());
+		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
+		set.setEdgeCrossContaminations(canvas.getEdgeCrossContaminations());
 		set.setNodeFilter(canvas.getNodeFilter());
 		set.setEdgeFilter(canvas.getEdgeFilter());
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
