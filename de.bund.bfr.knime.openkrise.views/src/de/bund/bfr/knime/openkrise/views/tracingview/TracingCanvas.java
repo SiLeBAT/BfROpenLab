@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -40,7 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -74,7 +77,11 @@ public class TracingCanvas extends GraphCanvas {
 
 	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean performTracing;
+
 	private JCheckBox enforceTemporalOrderBox;
+	private String label;
+	private JTextField labelField;
+	private JButton labelButton;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -92,13 +99,20 @@ public class TracingCanvas extends GraphCanvas {
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
 		this.deliveries = deliveries;
 		performTracing = DEFAULT_PERFORM_TRACING;
+
 		enforceTemporalOrderBox = new JCheckBox("Activate");
 		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
 		enforceTemporalOrderBox.addItemListener(this);
 
+		label = new String();
+		labelField = new JTextField(label, 20);
+		labelButton = new JButton("Apply");
+		labelButton.addActionListener(this);
+
 		getViewer().prependPostRenderPaintable(new PostPaintable());
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
+		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
 	public Map<String, Double> getCaseWeights() {
@@ -214,6 +228,16 @@ public class TracingCanvas extends GraphCanvas {
 		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
 	}
 
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+		labelField.setText(label != null ? label : "");
+		getViewer().repaint();
+	}
+
 	public boolean isPerformTracing() {
 		return performTracing;
 	}
@@ -227,16 +251,25 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+
+		if (e.getSource() == labelButton) {
+			setLabel(labelField.getText());
+		}
+	}
+
+	@Override
 	public void itemStateChanged(ItemEvent e) {
 		super.itemStateChanged(e);
-		
+
 		if (e.getSource() == enforceTemporalOrderBox) {
 			if (performTracing) {
 				applyChanges();
 			}
 		}
 	}
-	
+
 	@Override
 	public void nodePropertiesItemClicked() {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
@@ -422,8 +455,7 @@ public class TracingCanvas extends GraphCanvas {
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
-				new LinkedHashSet<Integer>(),
-				new LinkedHashSet<Integer>(), 0.0);
+				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
 
 		for (String id : getCollapsedNodes().keySet()) {
 			Set<String> nodeIdStrings = getCollapsedNodes().get(id).keySet();
@@ -600,6 +632,11 @@ public class TracingCanvas extends GraphCanvas {
 
 		@Override
 		public void paint(Graphics g) {
+			paintLogo(g);
+			paintLabel(g);
+		}
+
+		private void paintLogo(Graphics g) {
 			int w = getCanvasSize().width;
 			int h = getCanvasSize().height;
 
@@ -640,6 +677,29 @@ public class TracingCanvas extends GraphCanvas {
 					+ fontAscent);
 			logo2.setDimension(new Dimension(iw2, logoHeight));
 			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
+		}
+
+		private void paintLabel(Graphics g) {
+			if (label == null || label.isEmpty()) {
+				return;
+			}
+
+			int w = getCanvasSize().width;
+			Font font = new Font("Default", Font.BOLD, 10);
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dy = 2;
+
+			int dx = 5;
+			int sw = (int) font.getStringBounds(label,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+
+			g.setColor(new Color(230, 230, 230));
+			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
+			g.setFont(font);
+			g.drawString(label, w - sw - dx, dy + fontAscent);
 		}
 	}
 }

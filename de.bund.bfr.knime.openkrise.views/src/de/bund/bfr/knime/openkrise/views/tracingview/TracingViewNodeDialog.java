@@ -229,6 +229,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setNodeFilter(canvas.getNodeFilter());
 		set.setEdgeFilter(canvas.getEdgeFilter());
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
+		set.setLabel(canvas.getLabel());
 
 		if (resized) {
 			set.setGraphCanvasSize(canvas.getCanvasSize());

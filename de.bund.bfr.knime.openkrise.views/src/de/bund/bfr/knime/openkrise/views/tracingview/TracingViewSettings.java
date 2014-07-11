@@ -61,6 +61,7 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
+	private static final String CFG_LABEL = "Label";
 
 	private static final String CFG_GRAPH_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_GRAPH_SCALE_X = "GraphScaleX";
@@ -87,6 +88,7 @@ public class TracingViewSettings extends TracingSettings {
 	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
+	private String label;
 
 	private boolean graphShowLegend;
 	private double graphScaleX;
@@ -114,6 +116,7 @@ public class TracingViewSettings extends TracingSettings {
 		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
+		label = null;
 
 		graphShowLegend = DEFAULT_GRAPH_SHOW_LEGEND;
 		graphScaleX = Double.NaN;
@@ -178,6 +181,11 @@ public class TracingViewSettings extends TracingSettings {
 		try {
 			enforeTemporalOrder = settings
 					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			label = settings.getString(CFG_LABEL);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -283,6 +291,7 @@ public class TracingViewSettings extends TracingSettings {
 		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
+		settings.addString(CFG_LABEL, label);
 
 		settings.addBoolean(CFG_GRAPH_SHOW_LEGEND, graphShowLegend);
 		settings.addDouble(CFG_GRAPH_SCALE_X, graphScaleX);
@@ -371,6 +380,14 @@ public class TracingViewSettings extends TracingSettings {
 
 	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
 		this.enforeTemporalOrder = enforeTemporalOrder;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public boolean isGraphShowLegend() {
