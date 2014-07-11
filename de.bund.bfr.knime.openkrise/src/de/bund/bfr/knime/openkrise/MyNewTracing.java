@@ -103,8 +103,15 @@ public class MyNewTracing {
 		if (caseSum > 0 && sortedStations.get(id) != null) {
 			double sum = 0;
 			for (Integer key : sortedStations.get(id)) {
-				if (caseStations.get(key) != null) {
-					sum += caseStations.get(key);
+				if (key < 0) {
+					if (caseDeliveries.get(-key) != null) {
+						sum += caseDeliveries.get(-key);
+					}
+				}
+				else {
+					if (caseStations.get(key) != null) {
+						sum += caseStations.get(key);
+					}
 				}
 			}
 			return sum / caseSum;
@@ -116,7 +123,8 @@ public class MyNewTracing {
 		if (caseSum > 0 && sortedDeliveries.get(id) != null) {
 			double sum = 0;
 			for (Integer key : sortedDeliveries.get(id)) {
-				sum += caseStations.get(key);
+				if (key < 0) sum += caseDeliveries.get(-key);
+				else sum += caseStations.get(key);
 			}
 			return sum / caseSum;
 //			return ((double) sortedDeliveries.get(id).size()) / caseStations.size();
@@ -124,7 +132,7 @@ public class MyNewTracing {
 		return -1.0;
 	}
 	@SuppressWarnings("unchecked")
-	private LinkedHashMap<Integer, HashSet<Integer>> getScores(boolean stations) {
+	private LinkedHashMap<Integer, HashSet<Integer>> getScores(boolean doStations) {
 		// getForwardStationsWithCases counts for each delivery. But: it might be the case that a station delivers into "different" directions (deliveries), and all of them have cases!!!
 		// Therefore, we sum here based on the suppliers (supplierSum), not on the deliveries!!!
 		HashMap<Integer, HashSet<Integer>> supplierSum = new HashMap<>(); 
@@ -142,6 +150,20 @@ public class MyNewTracing {
 				supplierSum.put(md.getSupplierID(), (HashSet<Integer>) fswc.clone());
 			}
 			deliverySum.put(md.getId(), (HashSet<Integer>) fswc.clone());
+			
+			// now the scores for the delivery cases
+			HashSet<Integer> fdwc = getForwardDeliveriesWithCases(md);
+			if (supplierSum.containsKey(md.getSupplierID())) {
+				HashSet<Integer> hi = supplierSum.get(md.getSupplierID());
+				for (Integer i : fdwc) {
+					hi.add(i);
+				}
+				supplierSum.put(md.getSupplierID(), hi);
+			}
+			else {
+				supplierSum.put(md.getSupplierID(), (HashSet<Integer>) fdwc.clone());
+			}
+			deliverySum.put(md.getId(), (HashSet<Integer>) fdwc.clone());
 		}
 		
 		sortedStations = sortByValues(supplierSum);
@@ -156,7 +178,7 @@ public class MyNewTracing {
             System.err.println("DeliveryID: " + key + ":\t" + hi.size() + (caseStations != null ? " / " + caseStations.size() : "") + "\t" + hi.toString());
         }             
         */
-        return stations ? sortedStations : sortedDeliveries;
+        return doStations ? sortedStations : sortedDeliveries;
 	}
 	private LinkedHashMap<Integer, HashSet<Integer>> sortByValues(HashMap<Integer, HashSet<Integer>> map) {
         List<Map.Entry<Integer, HashSet<Integer>>> entries = new LinkedList<>(map.entrySet());
@@ -281,7 +303,7 @@ public class MyNewTracing {
 		if (priority < 0) priority = 0;
 		if (caseDeliveries.containsKey(deliveryID)) {			
 			caseSum = caseSum - caseDeliveries.get(deliveryID) + priority;
-			caseStations.put(deliveryID, priority);
+			caseDeliveries.put(deliveryID, priority);
 		}
 		else {
 			caseSum = caseSum + priority;
@@ -309,7 +331,7 @@ public class MyNewTracing {
 	}
 	public void setCrossContaminationDelivery(int deliveryID, boolean possible) {
 		if (ccDeliveries == null) ccDeliveries = new HashSet<>();
-		if (possible) ccStations.add(deliveryID);
+		if (possible) ccDeliveries.add(deliveryID);
 		else if (ccDeliveries.contains(deliveryID)) ccDeliveries.remove(deliveryID);  
 
 		sortedStations = null;
@@ -325,7 +347,7 @@ public class MyNewTracing {
 	}	
 	private void tcocc() {
 		if (ccStations != null && ccStations.size() > 0) {
-			boolean only1_ergo_allCross = false;
+			boolean only1_ergo_allCross = false; // wegen dem Hollandproblem, damit die Performance nicht leidet, muss hier auf true gesetzt werden...
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
 				if (ccStations.contains(md.getRecipientID())) {
@@ -334,7 +356,7 @@ public class MyNewTracing {
 					if (mdl != null) {
 						for (Integer i : mdl) {
 							MyDelivery d = allDeliveries.get(i);
-							if (d.getSupplierID() != d.getRecipientID()) { // sometimes (e.g. artificially or selfcustoming) the recipient is the supplier
+							//if (d.getSupplierID() != d.getRecipientID()) { // sometimes (e.g. artificially or selfcustoming) the recipient is the supplier
 								if (!enforceTemporalOrder || (is1MaybeNewer(d, md))) {
 									if (only1_ergo_allCross) {
 										if (!hi.containsKey(md.getSupplierID())) hi.put(md.getSupplierID(), new HashSet<Integer>());
@@ -351,12 +373,35 @@ public class MyNewTracing {
 										d.addPrevious(md.getId());
 									}
 								}
-							}
+							//}
 						}
 					}
 				}
 				allDeliveries.put(key, md);		// -559268585					
 			}	
+		}
+		// delivery cc: es werden alle CCs VOR einer Station mit allen CCs NACH einer Station "vermischt"
+		if (ccDeliveries != null && ccDeliveries.size() > 0) {
+			for (Integer key : ccDeliveries) {
+				MyDelivery md = allDeliveries.get(key);
+				for (Integer key2 : ccDeliveries) {
+					if (key.intValue() != key2) {
+						MyDelivery md2 = allDeliveries.get(key2);
+						if (md2.getRecipientID() == md.getSupplierID()) {
+							if (!enforceTemporalOrder || (is1MaybeNewer(md, md2))) {
+								md2.addNext(md.getId());
+								md.addPrevious(md2.getId());								
+							}
+						}
+						if (md.getRecipientID() == md2.getSupplierID()) {
+							if (!enforceTemporalOrder || (is1MaybeNewer(md2, md))) {
+								md.addNext(md2.getId());
+								md2.addPrevious(md.getId());
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	private boolean is1MaybeNewer(MyDelivery md1, MyDelivery md2) { // e.g. Jan 2012 vs. 18.Jan 2012 - be generous
@@ -493,6 +538,20 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					if (caseStations.containsKey(mdn.getRecipientID())) result.add(mdn.getRecipientID());
+				}
+			}
+		}
+		return result;
+	}
+	private HashSet<Integer> getForwardDeliveriesWithCases(MyDelivery md) {
+		HashSet<Integer> result = null;
+		if (md != null) {
+			HashSet<Integer> fd = getForwardDeliveries(md);
+			if (fd != null && fd.size() > 0) {
+				result = new HashSet<>();
+				for (Integer i : fd) {
+					MyDelivery mdn = allDeliveries.get(i);
+					if (caseDeliveries.containsKey(mdn.getId())) result.add(-mdn.getId()); // hier minus, damit nachher unterschieden werden kann zwischen Delivery und Station, siehe in Funktion getStationScore bzw. getDeliveryScore
 				}
 			}
 		}

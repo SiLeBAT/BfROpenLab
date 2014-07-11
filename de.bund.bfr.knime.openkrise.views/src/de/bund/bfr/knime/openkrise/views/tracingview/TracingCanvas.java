@@ -559,7 +559,7 @@ public class TracingCanvas extends GraphCanvas {
 			if (contaminationValue != null) {
 				tracing.setCrossContaminationDelivery(id, contaminationValue);
 			} else {
-				tracing.setCrossContamination(id, false);
+				tracing.setCrossContaminationDelivery(id, false);
 			}
 		}
 
