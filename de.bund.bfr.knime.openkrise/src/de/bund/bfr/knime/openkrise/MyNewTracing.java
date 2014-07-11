@@ -22,17 +22,21 @@ public class MyNewTracing {
 	private HashMap<Integer, HashSet<Integer>> allIncoming;
 	private HashMap<Integer, HashSet<Integer>> allOutgoing;
 	private HashMap<Integer, Double> caseStations = null;
+	private HashMap<Integer, Double> caseDeliveries = null;
 	private HashSet<Integer> ccStations = null;
+	private HashSet<Integer> ccDeliveries = null;
 	//private HashSet<Integer> ccDeliveries = null;
 	private LinkedHashMap<Integer, HashSet<Integer>> sortedStations = null;
 	private LinkedHashMap<Integer, HashSet<Integer>> sortedDeliveries = null;
 	private double caseSum = 0;
 	private boolean enforceTemporalOrder = false;
 	
-	public MyNewTracing(HashMap<Integer, MyDelivery> allDeliveries, HashMap<Integer, Double> caseStations, HashSet<Integer> ccStations, double caseSum) {
+	public MyNewTracing(HashMap<Integer, MyDelivery> allDeliveries, HashMap<Integer, Double> caseStations, HashMap<Integer, Double> caseDeliveries, HashSet<Integer> ccStations, HashSet<Integer> ccDeliveries, double caseSum) {
 		this.allDeliveries = getClone(allDeliveries);
 		this.caseStations = caseStations;
 		this.ccStations = ccStations;
+		this.caseDeliveries = caseDeliveries;
+		this.ccDeliveries = ccDeliveries;
 		this.caseSum = caseSum;
 		removeEmptyIds(this.allDeliveries);
 	}
@@ -249,8 +253,10 @@ public class MyNewTracing {
 //		xstream.setClassLoader(Activator.class.getClassLoader());
 		//xstream.alias("mynewtracing", MyNewTracing.class);
 		xstream.omitField(MyNewTracing.class, "caseStations");
+		xstream.omitField(MyNewTracing.class, "caseDeliveries");
 		xstream.omitField(MyNewTracing.class, "caseSum");
 		xstream.omitField(MyNewTracing.class, "ccStations");
+		xstream.omitField(MyNewTracing.class, "ccDeliveries");
 		xstream.omitField(MyNewTracing.class, "enforceTemporalOrder");
 		xstream.omitField(MyNewTracing.class, "sortedStations");
 		xstream.omitField(MyNewTracing.class, "sortedDeliveries");
@@ -270,6 +276,21 @@ public class MyNewTracing {
 		}
 		tcocc();
 	}
+	public void setCaseDelivery(int deliveryID, double priority) {
+		if (caseDeliveries == null) caseDeliveries = new HashMap<>();
+		if (priority < 0) priority = 0;
+		if (caseDeliveries.containsKey(deliveryID)) {			
+			caseSum = caseSum - caseDeliveries.get(deliveryID) + priority;
+			caseStations.put(deliveryID, priority);
+		}
+		else {
+			caseSum = caseSum + priority;
+			caseDeliveries.put(deliveryID, priority);
+		}
+		if (priority == 0) caseDeliveries.remove(deliveryID);
+		sortedStations = null;
+		sortedDeliveries = null;
+	}
 	public void setCase(int stationID, double priority) {
 		if (caseStations == null) caseStations = new HashMap<>();
 		if (priority < 0) priority = 0;
@@ -286,6 +307,14 @@ public class MyNewTracing {
 		sortedStations = null;
 		sortedDeliveries = null;
 	}
+	public void setCrossContaminationDelivery(int deliveryID, boolean possible) {
+		if (ccDeliveries == null) ccDeliveries = new HashSet<>();
+		if (possible) ccStations.add(deliveryID);
+		else if (ccDeliveries.contains(deliveryID)) ccDeliveries.remove(deliveryID);  
+
+		sortedStations = null;
+		sortedDeliveries = null;
+	}	
 	public void setCrossContamination(int stationID, boolean possible) {
 		if (ccStations == null) ccStations = new HashSet<>();
 		if (possible) ccStations.add(stationID);

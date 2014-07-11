@@ -105,6 +105,8 @@ public class TracingParametersNodeModel extends NodeModel {
 				edgeProperties, nodes);
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashSet<Integer>(),
 				new LinkedHashSet<Integer>(), 0);
 
 		Map<String, Double> weights = new LinkedHashMap<>();

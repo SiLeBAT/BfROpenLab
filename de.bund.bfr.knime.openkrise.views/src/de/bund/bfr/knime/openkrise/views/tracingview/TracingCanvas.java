@@ -421,6 +421,8 @@ public class TracingCanvas extends GraphCanvas {
 
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
 				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashSet<Integer>(),
 				new LinkedHashSet<Integer>(), 0.0);
 
 		for (String id : getCollapsedNodes().keySet()) {

@@ -87,7 +87,7 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 		
-		MyNewTracing mnt = new MyNewTracing(allDeliveries, caseStations, ccStations, caseSum);
+		MyNewTracing mnt = new MyNewTracing(allDeliveries, caseStations, null, ccStations, null, caseSum);
 		return mnt;
 	}
 }
