@@ -125,61 +125,52 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 		while (iterator.hasNext()) {
 			Feature feature = iterator.next();
 			DataCell[] cells1 = new DataCell[spec1.getNumColumns()];
-			boolean isPolygon = true;
+			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
-				String name = p.getName().toString().trim();
-
 				if (p.getValue() instanceof Geometry) {
-					if (!(p.getValue() instanceof MultiPolygon)) {
-						isPolygon = false;
-						break;
-					}
-
-					MultiPolygon shape = (MultiPolygon) p.getValue();
-
-					if (transform != null) {
-						shape = (MultiPolygon) JTS.transform(shape, transform);
-					}
-
-					List<StringCell> rowIdCells = new ArrayList<>();
-
-					for (int index = 0; index < shape.getNumGeometries(); index++) {
-						Polygon poly = (Polygon) shape.getGeometryN(index);
-
-						for (Coordinate c : poly.getExteriorRing()
-								.getCoordinates()) {
-							DataCell[] cells2 = new DataCell[spec2
-									.getNumColumns()];
-
-							cells2[spec2.findColumnIndex(LATITUDE_COLUMN)] = new DoubleCell(
-									c.x);
-							cells2[spec2.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
-									c.y);
-
-							container2.addRowToTable(new DefaultRow(
-									index2 + "", cells2));
-							rowIdCells.add(new StringCell(index2 + ""));
-							index2++;
-						}
-					}
-
-					cells1[spec1.findColumnIndex(name)] = CollectionCellFactory
-							.createListCell(rowIdCells);
+					geoProperty = p;
 				} else {
-					cells1[spec1.findColumnIndex(name)] = new StringCell(p
-							.getValue().toString());
+					cells1[spec1.findColumnIndex(p.getName().toString())] = new StringCell(
+							p.getValue().toString());
 				}
 			}
 
-			if (!isPolygon) {
+			if (!(geoProperty.getValue() instanceof MultiPolygon)) {
 				continue;
 			}
 
-			exec.checkCanceled();
-			exec.setProgress((double) index1 / (double) collection.size());
-			container1.addRowToTable(new DefaultRow(index1 + "", cells1));
-			index1++;
+			MultiPolygon shape = (MultiPolygon) geoProperty.getValue();
+
+			if (transform != null) {
+				shape = (MultiPolygon) JTS.transform(shape, transform);
+			}
+
+			for (int index = 0; index < shape.getNumGeometries(); index++) {
+				Polygon poly = (Polygon) shape.getGeometryN(index);
+				List<StringCell> rowIdCells = new ArrayList<>();
+
+				for (Coordinate c : poly.getExteriorRing().getCoordinates()) {
+					DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
+
+					cells2[spec2.findColumnIndex(LATITUDE_COLUMN)] = new DoubleCell(
+							c.x);
+					cells2[spec2.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
+							c.y);
+
+					container2
+							.addRowToTable(new DefaultRow(index2 + "", cells2));
+					rowIdCells.add(new StringCell(index2 + ""));
+					index2++;
+				}
+
+				cells1[spec1.findColumnIndex(geoProperty.getName().toString())] = CollectionCellFactory
+						.createListCell(rowIdCells);
+				exec.checkCanceled();
+				exec.setProgress((double) index1 / (double) collection.size());
+				container1.addRowToTable(new DefaultRow(index1 + "", cells1));
+				index1++;
+			}
 		}
 
 		container1.close();
