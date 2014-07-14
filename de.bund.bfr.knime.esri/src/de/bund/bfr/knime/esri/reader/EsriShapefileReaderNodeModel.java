@@ -47,6 +47,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.DefaultRow;
@@ -70,7 +71,7 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.KnimeUtilities;
@@ -128,35 +129,47 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
-				if (p.getValue() instanceof Geometry) {
+				int column = spec1.findColumnIndex(p.getName().toString());
+				Object value = p.getValue();
+
+				if (value instanceof Geometry) {
 					geoProperty = p;
+				} else if (value == null) {
+					cells1[column] = DataType.getMissingCell();
 				} else {
-					cells1[spec1.findColumnIndex(p.getName().toString())] = new StringCell(
-							p.getValue().toString());
+					cells1[column] = new StringCell(p.getValue().toString());
 				}
 			}
 
-			if (!(geoProperty.getValue() instanceof MultiPolygon)) {
-				continue;
-			}
-
-			MultiPolygon shape = (MultiPolygon) geoProperty.getValue();
+			Geometry geo = (Geometry) geoProperty.getValue();
 
 			if (transform != null) {
-				shape = (MultiPolygon) JTS.transform(shape, transform);
+				geo = JTS.transform(geo, transform);
 			}
 
-			for (int index = 0; index < shape.getNumGeometries(); index++) {
-				Polygon poly = (Polygon) shape.getGeometryN(index);
+			List<Geometry> geos = getSimpleGeometries(geo);
+
+			for (Geometry g : geos) {
+				Coordinate[] coordinates;
+
+				if (g instanceof Polygon) {
+					coordinates = ((Polygon) g).getExteriorRing()
+							.getCoordinates();
+				} else {
+					coordinates = g.getCoordinates();
+				}
+
 				List<StringCell> rowIdCells = new ArrayList<>();
 
-				for (Coordinate c : poly.getExteriorRing().getCoordinates()) {
+				for (Coordinate c : coordinates) {
 					DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
+					double lat = system != null ? c.x : c.y;
+					double lon = system != null ? c.y : c.x;
 
 					cells2[spec2.findColumnIndex(LATITUDE_COLUMN)] = new DoubleCell(
-							c.x);
+							lat);
 					cells2[spec2.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
-							c.y);
+							lon);
 
 					container2
 							.addRowToTable(new DefaultRow(index2 + "", cells2));
@@ -287,11 +300,9 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 
 		for (Property p : feature.getProperties()) {
 			if (p.getValue() instanceof Geometry) {
-				if (p.getValue() instanceof MultiPolygon) {
-					columns1.add(new DataColumnSpecCreator(p.getName()
-							.toString(), ListCell
-							.getCollectionType(StringCell.TYPE)).createSpec());
-				}
+				columns1.add(new DataColumnSpecCreator(p.getName().toString(),
+						ListCell.getCollectionType(StringCell.TYPE))
+						.createSpec());
 			} else {
 				columns1.add(new DataColumnSpecCreator(p.getName().toString(),
 						StringCell.TYPE).createSpec());
@@ -308,5 +319,21 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 		return new DataTableSpec[] {
 				new DataTableSpec(columns1.toArray(new DataColumnSpec[0])),
 				new DataTableSpec(columns2.toArray(new DataColumnSpec[0])) };
+	}
+
+	private static List<Geometry> getSimpleGeometries(Geometry g) {
+		List<Geometry> list = new ArrayList<>();
+
+		if (g instanceof GeometryCollection) {
+			GeometryCollection collection = (GeometryCollection) g;
+
+			for (int i = 0; i < collection.getNumGeometries(); i++) {
+				list.add(collection.getGeometryN(i));
+			}
+		} else {
+			list.add(g);
+		}
+
+		return list;
 	}
 }

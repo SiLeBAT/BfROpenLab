@@ -47,7 +47,7 @@ public class EsriShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
 	protected EsriShapefileReaderNodeDialog() {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
 				new SettingsModelString(EsriShapefileReaderNodeModel.SHP_FILE,
-						null), "ShpFileHistory", "shp");
+						null), "ShpFileHistory", ".shp");
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);
