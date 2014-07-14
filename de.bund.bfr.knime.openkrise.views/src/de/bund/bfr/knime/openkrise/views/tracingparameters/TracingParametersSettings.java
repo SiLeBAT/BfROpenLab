@@ -37,46 +37,64 @@ public class TracingParametersSettings extends TracingSettings {
 
 	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 
-	private static final String CFG_CASE_WEIGHTS = "CaseWeights";
-	private static final String CFG_CROSS_CONTAMINATIONS = "CrossContaminations";
-	private static final String CFG_FILTER = "Filter";
+	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
+	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
+	private static final String CFG_NODE_CROSS_CONTAMINATIONS = "CrossContaminations";
+	private static final String CFG_EDGE_CROSS_CONTAMINATIONS = "EdgeCrossContaminations";
+	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
-	private static final String CFG_WEIGHT_CONDITION = "WeightCondition";
-	private static final String CFG_CONTAMINATION_CONDITION = "ContaminationCondition";
-	private static final String CFG_FILTER_CONDITION = "FilterCondition";
+	private static final String CFG_NODE_WEIGHT_CONDITION = "WeightCondition";
+	private static final String CFG_EDGE_WEIGHT_CONDITION = "EdgeWeightCondition";
+	private static final String CFG_NODE_CONTAMINATION_CONDITION = "ContaminationCondition";
+	private static final String CFG_EDGE_CONTAMINATION_CONDITION = "EdgeContaminationCondition";
+	private static final String CFG_NODE_FILTER_CONDITION = "FilterCondition";
 	private static final String CFG_EDGE_FILTER_CONDITION = "EdgeFilterCondition";
-	private static final String CFG_WEIGHT_CONDITION_VALUE = "WeightConditionValue";
-	private static final String CFG_CONTAMINATION_CONDITION_VALUE = "ContaminationConditionValue";
-	private static final String CFG_FILTER_CONDITION_VALUE = "FilterConditionValue";
+	private static final String CFG_NODE_WEIGHT_CONDITION_VALUE = "WeightConditionValue";
+	private static final String CFG_EDGE_WEIGHT_CONDITION_VALUE = "EdgeWeightConditionValue";
+	private static final String CFG_NODE_CONTAMINATION_CONDITION_VALUE = "ContaminationConditionValue";
+	private static final String CFG_EDGE_CONTAMINATION_CONDITION_VALUE = "EdgeContaminationConditionValue";
+	private static final String CFG_NODE_FILTER_CONDITION_VALUE = "FilterConditionValue";
 	private static final String CFG_EDGE_FILTER_CONDITION_VALUE = "EdgeFilterConditionValue";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
-	private Map<String, Double> caseWeights;
-	private Map<String, Boolean> crossContaminations;
-	private Map<String, Boolean> filter;
+	private Map<String, Double> nodeWeights;
+	private Map<String, Double> edgeWeights;
+	private Map<String, Boolean> nodeCrossContaminations;
+	private Map<String, Boolean> edgeCrossContaminations;
+	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
-	private AndOrHighlightCondition weightCondition;
-	private AndOrHighlightCondition contaminationCondition;
-	private AndOrHighlightCondition filterCondition;
+	private AndOrHighlightCondition nodeWeightCondition;
+	private AndOrHighlightCondition edgeWeightCondition;
+	private AndOrHighlightCondition nodeContaminationCondition;
+	private AndOrHighlightCondition edgeContaminationCondition;
+	private AndOrHighlightCondition nodeFilterCondition;
 	private AndOrHighlightCondition edgeFilterCondition;
-	private Double weightConditionValue;
-	private Boolean contaminationConditionValue;
-	private Boolean filterConditionValue;
+	private Double nodeWeightConditionValue;
+	private Double edgeWeightConditionValue;
+	private Boolean nodeContaminationConditionValue;
+	private Boolean edgeContaminationConditionValue;
+	private Boolean nodeFilterConditionValue;
 	private Boolean edgeFilterConditionValue;
 	private boolean enforeTemporalOrder;
 
 	public TracingParametersSettings() {
-		caseWeights = new LinkedHashMap<>();
-		crossContaminations = new LinkedHashMap<>();
-		filter = new LinkedHashMap<>();
+		nodeWeights = new LinkedHashMap<>();
+		edgeWeights = new LinkedHashMap<>();
+		nodeCrossContaminations = new LinkedHashMap<>();
+		edgeCrossContaminations = new LinkedHashMap<>();
+		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
-		weightCondition = null;
-		contaminationCondition = null;
-		filterCondition = null;
+		nodeWeightCondition = null;
+		edgeWeightCondition = null;
+		nodeContaminationCondition = null;
+		edgeContaminationCondition = null;
+		nodeFilterCondition = null;
 		edgeFilterCondition = null;
-		weightConditionValue = Double.NaN;
-		contaminationConditionValue = false;
-		filterConditionValue = false;
+		nodeWeightConditionValue = Double.NaN;
+		edgeWeightConditionValue = Double.NaN;
+		nodeContaminationConditionValue = false;
+		edgeContaminationConditionValue = false;
+		nodeFilterConditionValue = false;
 		edgeFilterConditionValue = false;
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 	}
@@ -85,20 +103,32 @@ public class TracingParametersSettings extends TracingSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			caseWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_CASE_WEIGHTS));
+			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			crossContaminations = (Map<String, Boolean>) SERIALIZER
-					.fromXml(settings.getString(CFG_CROSS_CONTAMINATIONS));
+			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			filter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_FILTER));
+			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_CROSS_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -109,20 +139,34 @@ public class TracingParametersSettings extends TracingSettings {
 		}
 
 		try {
-			weightCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_WEIGHT_CONDITION));
+			nodeWeightCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_WEIGHT_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			contaminationCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_CONTAMINATION_CONDITION));
+			edgeWeightCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_WEIGHT_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			filterCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_FILTER_CONDITION));
+			nodeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings
+							.getString(CFG_NODE_CONTAMINATION_CONDITION));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings
+							.getString(CFG_EDGE_CONTAMINATION_CONDITION));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeFilterCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_FILTER_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -133,34 +177,38 @@ public class TracingParametersSettings extends TracingSettings {
 		}
 
 		try {
-			weightConditionValue = settings
-					.getDouble(CFG_WEIGHT_CONDITION_VALUE);
-			weightConditionValue = Double.isNaN(weightConditionValue) ? null
-					: weightConditionValue;
+			nodeWeightConditionValue = nanToNull(settings
+					.getDouble(CFG_NODE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			contaminationConditionValue = settings
-					.getBoolean(CFG_CONTAMINATION_CONDITION_VALUE);
-			contaminationConditionValue = !contaminationConditionValue ? null
-					: contaminationConditionValue;
+			edgeWeightConditionValue = nanToNull(settings
+					.getDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			filterConditionValue = settings
-					.getBoolean(CFG_FILTER_CONDITION_VALUE);
-			filterConditionValue = !filterConditionValue ? null
-					: filterConditionValue;
+			nodeContaminationConditionValue = falseToNull(settings
+					.getBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeFilterConditionValue = settings
-					.getBoolean(CFG_EDGE_FILTER_CONDITION_VALUE);
-			edgeFilterConditionValue = !edgeFilterConditionValue ? null
-					: edgeFilterConditionValue;
+			edgeContaminationConditionValue = falseToNull(settings
+					.getBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeFilterConditionValue = falseToNull(settings
+					.getBoolean(CFG_NODE_FILTER_CONDITION_VALUE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeFilterConditionValue = falseToNull(settings
+					.getBoolean(CFG_EDGE_FILTER_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -173,55 +221,81 @@ public class TracingParametersSettings extends TracingSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_CASE_WEIGHTS, SERIALIZER.toXml(caseWeights));
-		settings.addString(CFG_CROSS_CONTAMINATIONS,
-				SERIALIZER.toXml(crossContaminations));
-		settings.addString(CFG_FILTER, SERIALIZER.toXml(filter));
+		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
+		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
+		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
+				SERIALIZER.toXml(nodeCrossContaminations));
+		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS,
+				SERIALIZER.toXml(edgeCrossContaminations));
+		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
-		settings.addString(CFG_WEIGHT_CONDITION,
-				SERIALIZER.toXml(weightCondition));
-		settings.addString(CFG_CONTAMINATION_CONDITION,
-				SERIALIZER.toXml(contaminationCondition));
-		settings.addString(CFG_FILTER_CONDITION,
-				SERIALIZER.toXml(filterCondition));
+		settings.addString(CFG_NODE_WEIGHT_CONDITION,
+				SERIALIZER.toXml(nodeWeightCondition));
+		settings.addString(CFG_EDGE_WEIGHT_CONDITION,
+				SERIALIZER.toXml(edgeWeightCondition));
+		settings.addString(CFG_NODE_CONTAMINATION_CONDITION,
+				SERIALIZER.toXml(nodeContaminationCondition));
+		settings.addString(CFG_EDGE_CONTAMINATION_CONDITION,
+				SERIALIZER.toXml(edgeContaminationCondition));
+		settings.addString(CFG_NODE_FILTER_CONDITION,
+				SERIALIZER.toXml(nodeFilterCondition));
 		settings.addString(CFG_EDGE_FILTER_CONDITION,
 				SERIALIZER.toXml(edgeFilterCondition));
-		settings.addDouble(CFG_WEIGHT_CONDITION_VALUE,
-				weightConditionValue == null ? Double.NaN
-						: weightConditionValue);
-		settings.addBoolean(CFG_CONTAMINATION_CONDITION_VALUE,
-				contaminationConditionValue == null ? false
-						: contaminationConditionValue);
-		settings.addBoolean(CFG_FILTER_CONDITION_VALUE,
-				filterConditionValue == null ? false : filterConditionValue);
+		settings.addDouble(CFG_NODE_WEIGHT_CONDITION_VALUE,
+				nullToNan(nodeWeightConditionValue));
+		settings.addDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE,
+				nullToNan(edgeWeightConditionValue));
+		settings.addBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE,
+				nullToFalse(nodeContaminationConditionValue));
+		settings.addBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE,
+				nullToFalse(edgeContaminationConditionValue));
+		settings.addBoolean(CFG_NODE_FILTER_CONDITION_VALUE,
+				nullToFalse(nodeFilterConditionValue));
 		settings.addBoolean(CFG_EDGE_FILTER_CONDITION_VALUE,
-				edgeFilterConditionValue == null ? false
-						: edgeFilterConditionValue);
+				nullToFalse(edgeFilterConditionValue));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 
-	public Map<String, Double> getCaseWeights() {
-		return caseWeights;
+	public Map<String, Double> getNodeWeights() {
+		return nodeWeights;
 	}
 
-	public void setCaseWeights(Map<String, Double> caseWeights) {
-		this.caseWeights = caseWeights;
+	public void setNodeWeights(Map<String, Double> nodeWeights) {
+		this.nodeWeights = nodeWeights;
 	}
 
-	public Map<String, Boolean> getCrossContaminations() {
-		return crossContaminations;
+	public Map<String, Double> getEdgeWeights() {
+		return edgeWeights;
 	}
 
-	public void setCrossContaminations(Map<String, Boolean> crossContaminations) {
-		this.crossContaminations = crossContaminations;
+	public void setEdgeWeights(Map<String, Double> edgeWeights) {
+		this.edgeWeights = edgeWeights;
 	}
 
-	public Map<String, Boolean> getFilter() {
-		return filter;
+	public Map<String, Boolean> getNodeCrossContaminations() {
+		return nodeCrossContaminations;
 	}
 
-	public void setFilter(Map<String, Boolean> filter) {
-		this.filter = filter;
+	public void setNodeCrossContaminations(
+			Map<String, Boolean> nodeCrossContaminations) {
+		this.nodeCrossContaminations = nodeCrossContaminations;
+	}
+
+	public Map<String, Boolean> getEdgeCrossContaminations() {
+		return edgeCrossContaminations;
+	}
+
+	public void setEdgeCrossContaminations(
+			Map<String, Boolean> edgeCrossContaminations) {
+		this.edgeCrossContaminations = edgeCrossContaminations;
+	}
+
+	public Map<String, Boolean> getNodeFilter() {
+		return nodeFilter;
+	}
+
+	public void setNodeFilter(Map<String, Boolean> nodeFilter) {
+		this.nodeFilter = nodeFilter;
 	}
 
 	public Map<String, Boolean> getEdgeFilter() {
@@ -232,63 +306,96 @@ public class TracingParametersSettings extends TracingSettings {
 		this.edgeFilter = edgeFilter;
 	}
 
-	public AndOrHighlightCondition getWeightCondition() {
-		return weightCondition;
+	public AndOrHighlightCondition getNodeWeightCondition() {
+		return nodeWeightCondition;
 	}
 
-	public void setWeightCondition(AndOrHighlightCondition weightCondition) {
-		this.weightCondition = weightCondition;
+	public void setNodeWeightCondition(AndOrHighlightCondition nodeWeightCondition) {
+		this.nodeWeightCondition = nodeWeightCondition;
 	}
 
-	public AndOrHighlightCondition getContaminationCondition() {
-		return contaminationCondition;
+	public AndOrHighlightCondition getEdgeWeightCondition() {
+		return edgeWeightCondition;
 	}
 
-	public void setContaminationCondition(
-			AndOrHighlightCondition contaminationCondition) {
-		this.contaminationCondition = contaminationCondition;
+	public void setEdgeWeightCondition(AndOrHighlightCondition edgeWeightCondition) {
+		this.edgeWeightCondition = edgeWeightCondition;
 	}
 
-	public AndOrHighlightCondition getFilterCondition() {
-		return filterCondition;
+	public AndOrHighlightCondition getNodeContaminationCondition() {
+		return nodeContaminationCondition;
 	}
 
-	public void setFilterCondition(AndOrHighlightCondition filterCondition) {
-		this.filterCondition = filterCondition;
+	public void setNodeContaminationCondition(
+			AndOrHighlightCondition nodeContaminationCondition) {
+		this.nodeContaminationCondition = nodeContaminationCondition;
+	}
+
+	public AndOrHighlightCondition getEdgeContaminationCondition() {
+		return edgeContaminationCondition;
+	}
+
+	public void setEdgeContaminationCondition(
+			AndOrHighlightCondition edgeContaminationCondition) {
+		this.edgeContaminationCondition = edgeContaminationCondition;
+	}
+
+	public AndOrHighlightCondition getNodeFilterCondition() {
+		return nodeFilterCondition;
+	}
+
+	public void setNodeFilterCondition(AndOrHighlightCondition nodeFilterCondition) {
+		this.nodeFilterCondition = nodeFilterCondition;
 	}
 
 	public AndOrHighlightCondition getEdgeFilterCondition() {
 		return edgeFilterCondition;
 	}
 
-	public void setEdgeFilterCondition(
-			AndOrHighlightCondition edgeFilterCondition) {
+	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
 		this.edgeFilterCondition = edgeFilterCondition;
 	}
 
-	public Double getWeightConditionValue() {
-		return weightConditionValue;
+	public Double getNodeWeightConditionValue() {
+		return nodeWeightConditionValue;
 	}
 
-	public void setWeightConditionValue(Double weightConditionValue) {
-		this.weightConditionValue = weightConditionValue;
+	public void setNodeWeightConditionValue(Double nodeWeightConditionValue) {
+		this.nodeWeightConditionValue = nodeWeightConditionValue;
 	}
 
-	public Boolean getContaminationConditionValue() {
-		return contaminationConditionValue;
+	public Double getEdgeWeightConditionValue() {
+		return edgeWeightConditionValue;
 	}
 
-	public void setContaminationConditionValue(
-			Boolean contaminationConditionValue) {
-		this.contaminationConditionValue = contaminationConditionValue;
+	public void setEdgeWeightConditionValue(Double edgeWeightConditionValue) {
+		this.edgeWeightConditionValue = edgeWeightConditionValue;
 	}
 
-	public Boolean getFilterConditionValue() {
-		return filterConditionValue;
+	public Boolean getNodeContaminationConditionValue() {
+		return nodeContaminationConditionValue;
 	}
 
-	public void setFilterConditionValue(Boolean filterConditionValue) {
-		this.filterConditionValue = filterConditionValue;
+	public void setNodeContaminationConditionValue(
+			Boolean nodeContaminationConditionValue) {
+		this.nodeContaminationConditionValue = nodeContaminationConditionValue;
+	}
+
+	public Boolean getEdgeContaminationConditionValue() {
+		return edgeContaminationConditionValue;
+	}
+
+	public void setEdgeContaminationConditionValue(
+			Boolean edgeContaminationConditionValue) {
+		this.edgeContaminationConditionValue = edgeContaminationConditionValue;
+	}
+
+	public Boolean getNodeFilterConditionValue() {
+		return nodeFilterConditionValue;
+	}
+
+	public void setNodeFilterConditionValue(Boolean nodeFilterConditionValue) {
+		this.nodeFilterConditionValue = nodeFilterConditionValue;
 	}
 
 	public Boolean getEdgeFilterConditionValue() {
@@ -305,5 +412,21 @@ public class TracingParametersSettings extends TracingSettings {
 
 	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
 		this.enforeTemporalOrder = enforeTemporalOrder;
+	}
+
+	private static boolean nullToFalse(Boolean b) {
+		return b != null ? b : false;
+	}
+
+	private static Boolean falseToNull(boolean b) {
+		return b ? b : null;
+	}
+
+	private static double nullToNan(Double d) {
+		return d != null ? d : Double.NaN;
+	}
+
+	private static Double nanToNull(double d) {
+		return !Double.isNaN(d) ? d : null;
 	}
 }

@@ -23,12 +23,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingparameters;
 
-import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -59,9 +57,11 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 	private TracingParametersSettings set;
 
-	private TableInputPanel<Double> weightPanel;
-	private TableInputPanel<Boolean> contaminationPanel;
-	private TableInputPanel<Boolean> filterPanel;
+	private TableInputPanel<Double> nodeWeightPanel;
+	private TableInputPanel<Double> edgeWeightPanel;
+	private TableInputPanel<Boolean> nodeContaminationPanel;
+	private TableInputPanel<Boolean> edgeContaminationPanel;
+	private TableInputPanel<Boolean> nodeFilterPanel;
 	private TableInputPanel<Boolean> edgeFilterPanel;
 	private JCheckBox enforceTempBox;
 
@@ -70,22 +70,21 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	 */
 	protected TracingParametersNodeDialog() {
 		set = new TracingParametersSettings();
-		weightPanel = new TableInputPanel<>(Double.class);
-		contaminationPanel = new TableInputPanel<>(Boolean.class);
-		filterPanel = new TableInputPanel<>(Boolean.class);
+		nodeWeightPanel = new TableInputPanel<>(Double.class);
+		edgeWeightPanel = new TableInputPanel<>(Double.class);
+		nodeContaminationPanel = new TableInputPanel<>(Boolean.class);
+		edgeContaminationPanel = new TableInputPanel<>(Boolean.class);
+		nodeFilterPanel = new TableInputPanel<>(Boolean.class);
 		edgeFilterPanel = new TableInputPanel<>(Boolean.class);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
-		JPanel contPanel = new JPanel();
-
-		contPanel.setLayout(new BorderLayout());
-		contPanel.add(UI.createEmptyBorderPanel(enforceTempBox),
-				BorderLayout.NORTH);
-		contPanel.add(contaminationPanel, BorderLayout.CENTER);
-
-		addTab("Case Weights", weightPanel);
-		addTab("Cross Contaminations", contPanel);
-		addTab("Node Filter", filterPanel);
+		addTab("Options",
+				UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
+		addTab("Node Weights", nodeWeightPanel);
+		addTab("Edge Weights", edgeWeightPanel);
+		addTab("Node Cross Contaminations", nodeContaminationPanel);
+		addTab("Edge Cross Contaminations", edgeContaminationPanel);
+		addTab("Node Filter", nodeFilterPanel);
 		addTab("Edge Filter", edgeFilterPanel);
 	}
 
@@ -106,14 +105,24 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
 				edgeProperties, nodes);
 
-		weightPanel.update(nodes.values(), nodeProperties,
-				set.getCaseWeights(), set.getWeightCondition(),
-				set.getWeightConditionValue());
-		contaminationPanel.update(nodes.values(), nodeProperties,
-				set.getCrossContaminations(), set.getContaminationCondition(),
-				set.getContaminationConditionValue());
-		filterPanel.update(nodes.values(), nodeProperties, set.getFilter(),
-				set.getFilterCondition(), set.getFilterConditionValue());
+		nodeWeightPanel.update(nodes.values(), nodeProperties,
+				set.getNodeWeights(), set.getNodeWeightCondition(),
+				set.getNodeWeightConditionValue());
+		edgeWeightPanel
+				.update(edges, edgeProperties, set.getEdgeWeights(),
+						set.getEdgeWeightCondition(),
+						set.getEdgeWeightConditionValue());
+		nodeContaminationPanel.update(nodes.values(), nodeProperties,
+				set.getNodeCrossContaminations(),
+				set.getNodeContaminationCondition(),
+				set.getNodeContaminationConditionValue());
+		edgeContaminationPanel.update(edges, edgeProperties,
+				set.getEdgeCrossContaminations(),
+				set.getEdgeContaminationCondition(),
+				set.getEdgeContaminationConditionValue());
+		nodeFilterPanel.update(nodes.values(), nodeProperties,
+				set.getNodeFilter(), set.getNodeFilterCondition(),
+				set.getNodeFilterConditionValue());
 		edgeFilterPanel
 				.update(edges, edgeProperties, set.getEdgeFilter(),
 						set.getEdgeFilterCondition(),
@@ -124,19 +133,34 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		set.setCaseWeights(weightPanel.getValues());
-		set.setWeightCondition(weightPanel.getCondition());
-		set.setWeightConditionValue(weightPanel.getValueForAll());
-		set.setCrossContaminations(contaminationPanel.getValues());
-		set.setContaminationCondition(contaminationPanel.getCondition());
-		set.setContaminationConditionValue(contaminationPanel.getValueForAll());
-		set.setFilter(filterPanel.getValues());
-		set.setFilterCondition(filterPanel.getCondition());
-		set.setFilterConditionValue(filterPanel.getValueForAll());
+		set.setNodeWeights(nodeWeightPanel.getValues());
+		set.setNodeWeightCondition(nodeWeightPanel.getCondition());
+		set.setNodeWeightConditionValue(nodeWeightPanel.getValueForAll());
+
+		set.setEdgeWeights(edgeWeightPanel.getValues());
+		set.setEdgeWeightCondition(edgeWeightPanel.getCondition());
+		set.setEdgeWeightConditionValue(edgeWeightPanel.getValueForAll());
+
+		set.setNodeCrossContaminations(nodeContaminationPanel.getValues());
+		set.setNodeContaminationCondition(nodeContaminationPanel.getCondition());
+		set.setNodeContaminationConditionValue(nodeContaminationPanel
+				.getValueForAll());
+
+		set.setEdgeCrossContaminations(edgeContaminationPanel.getValues());
+		set.setEdgeContaminationCondition(edgeContaminationPanel.getCondition());
+		set.setEdgeContaminationConditionValue(edgeContaminationPanel
+				.getValueForAll());
+
+		set.setNodeFilter(nodeFilterPanel.getValues());
+		set.setNodeFilterCondition(nodeFilterPanel.getCondition());
+		set.setNodeFilterConditionValue(nodeFilterPanel.getValueForAll());
+
 		set.setEdgeFilter(edgeFilterPanel.getValues());
 		set.setEdgeFilterCondition(edgeFilterPanel.getCondition());
 		set.setEdgeFilterConditionValue(edgeFilterPanel.getValueForAll());
+
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
+
 		set.saveSettings(settings);
 	}
 }

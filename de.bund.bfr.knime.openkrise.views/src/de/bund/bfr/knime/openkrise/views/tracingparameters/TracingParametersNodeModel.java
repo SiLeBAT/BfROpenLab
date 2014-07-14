@@ -106,13 +106,14 @@ public class TracingParametersNodeModel extends NodeModel {
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
-				new LinkedHashSet<Integer>(),
-				new LinkedHashSet<Integer>(), 0);
+				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0);
 
-		Map<String, Double> weights = new LinkedHashMap<>();
+		Map<String, Double> nodeWeights = new LinkedHashMap<>();
+		Map<String, Double> edgeWeights = new LinkedHashMap<>();
 		Set<String> crossNodes = new LinkedHashSet<>();
+		Set<String> crossEdges = new LinkedHashSet<>();
 		Set<String> filterNodes = new LinkedHashSet<>();
-		Set<String> filderEdges = new LinkedHashSet<>();
+		Set<String> filterEdges = new LinkedHashSet<>();
 		Set<String> backwardNodes = new LinkedHashSet<>();
 		Set<String> forwardNodes = new LinkedHashSet<>();
 		Set<String> backwardEdges = new LinkedHashSet<>();
@@ -122,32 +123,66 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = node.getId();
 			Double weight = null;
 
-			if (set.getWeightConditionValue() != null) {
-				if (isInCondition(node, set.getWeightCondition())) {
-					weight = set.getWeightConditionValue();
+			if (set.getNodeWeightConditionValue() != null) {
+				if (isInCondition(node, set.getNodeWeightCondition())) {
+					weight = set.getNodeWeightConditionValue();
 				}
 			} else {
-				weight = set.getCaseWeights().get(id);
+				weight = set.getNodeWeights().get(id);
 			}
 
 			if (weight != null && weight != 0.0) {
-				weights.put(id, weight);
+				nodeWeights.put(id, weight);
 				tracing.setCase(Integer.parseInt(id), weight);
 			}
 
 			Boolean cross = null;
 
-			if (set.getContaminationConditionValue() != null) {
-				if (isInCondition(node, set.getContaminationCondition())) {
-					cross = set.getContaminationConditionValue();
+			if (set.getNodeContaminationConditionValue() != null) {
+				if (isInCondition(node, set.getNodeContaminationCondition())) {
+					cross = set.getNodeContaminationConditionValue();
 				}
 			} else {
-				cross = set.getCrossContaminations().get(id);
+				cross = set.getNodeCrossContaminations().get(id);
 			}
 
 			if (cross != null && cross) {
 				crossNodes.add(id);
 				tracing.setCrossContamination(Integer.parseInt(id), cross);
+			}
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			String id = edge.getId();
+			Double weight = null;
+
+			if (set.getEdgeWeightConditionValue() != null) {
+				if (isInCondition(edge, set.getEdgeWeightCondition())) {
+					weight = set.getEdgeWeightConditionValue();
+				}
+			} else {
+				weight = set.getEdgeWeights().get(id);
+			}
+
+			if (weight != null && weight != 0.0) {
+				edgeWeights.put(id, weight);
+				tracing.setCaseDelivery(Integer.parseInt(id), weight);
+			}
+
+			Boolean cross = null;
+
+			if (set.getEdgeContaminationConditionValue() != null) {
+				if (isInCondition(edge, set.getEdgeContaminationCondition())) {
+					cross = set.getEdgeContaminationConditionValue();
+				}
+			} else {
+				cross = set.getEdgeCrossContaminations().get(id);
+			}
+
+			if (cross != null && cross) {
+				crossEdges.add(id);
+				tracing.setCrossContaminationDelivery(Integer.parseInt(id),
+						cross);
 			}
 		}
 
@@ -157,12 +192,12 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = node.getId();
 			Boolean filter = null;
 
-			if (set.getFilterConditionValue() != null) {
-				if (isInCondition(node, set.getFilterCondition())) {
-					filter = set.getFilterConditionValue();
+			if (set.getNodeFilterConditionValue() != null) {
+				if (isInCondition(node, set.getNodeFilterCondition())) {
+					filter = set.getNodeFilterConditionValue();
 				}
 			} else {
-				filter = set.getFilter().get(id);
+				filter = set.getNodeFilter().get(id);
 			}
 
 			if (filter != null && filter) {
@@ -191,7 +226,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 
 			if (filter != null && filter) {
-				filderEdges.add(id);
+				filterEdges.add(id);
 				backwardNodes.addAll(TracingUtilities.toString(tracing
 						.getBackwardStations2(Integer.parseInt(id))));
 				forwardNodes.addAll(TracingUtilities.toString(tracing
@@ -221,7 +256,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
-					.createCell(weights.get(id));
+					.createCell(nodeWeights.get(id));
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
 					.createCell(crossNodes.contains(id));
@@ -259,8 +294,14 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(edgeInSpec.findColumnIndex(column.getName()));
 			}
 
+			cells[edgeOutSpec
+					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
+					.createCell(edgeWeights.get(id));
+			cells[edgeOutSpec
+					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
+					.createCell(crossEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
-					.createCell(filderEdges.contains(id));
+					.createCell(filterEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
 					.createCell(tracing.getDeliveryScore(Integer.parseInt(id)));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
@@ -400,6 +441,9 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
+		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				BooleanCell.TYPE);
 		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
