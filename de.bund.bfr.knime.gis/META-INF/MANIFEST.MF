@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base,
  org.apache.commons.io,
  org.geotools;visibility:=reexport,
- org.openstreemap.josm,
  de.bund.bfr.knime
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,
