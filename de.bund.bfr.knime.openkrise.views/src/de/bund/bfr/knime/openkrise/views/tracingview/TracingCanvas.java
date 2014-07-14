@@ -553,7 +553,7 @@ public class TracingCanvas extends GraphCanvas {
 			if (caseValue != null) {
 				tracing.setCaseDelivery(id, caseValue);
 			} else {
-				tracing.setCase(id, 0.0);
+				tracing.setCaseDelivery(id, 0.0);
 			}
 
 			if (contaminationValue != null) {
