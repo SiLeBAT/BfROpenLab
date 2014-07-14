@@ -280,11 +280,11 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			columnNames.add(name);
 
 			if (p.getValue() instanceof Geometry) {
-				columns.add(new DataColumnSpecCreator(p.getName().toString(),
-						ShapeBlobCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE)
+						.createSpec());
 			} else {
-				columns.add(new DataColumnSpecCreator(p.getName().toString(),
-						StringCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE)
+						.createSpec());
 			}
 		}
 
