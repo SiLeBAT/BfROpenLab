@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EsriShapefileReader-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.esri.reader; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: esrishapefilereader.jar
+Bundle-Activator: de.bund.bfr.knime.esri.Activator
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.geotools;visibility:=reexport,
+ de.bund.bfr.knime
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.esri.reader
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+
