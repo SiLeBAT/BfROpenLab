@@ -104,7 +104,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 				exportAsSvgBox)), BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

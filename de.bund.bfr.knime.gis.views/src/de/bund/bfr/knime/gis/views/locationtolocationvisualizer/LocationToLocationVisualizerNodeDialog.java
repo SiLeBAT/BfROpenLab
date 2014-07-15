@@ -107,7 +107,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
 				BorderLayout.NORTH);
 
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override

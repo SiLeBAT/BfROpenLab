@@ -87,7 +87,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 				BorderLayout.NORTH);
 		panel.addComponentListener(this);
 
-		addTab("Options", panel);
+		addTab("Options", panel, false);
 	}
 
 	@Override
