@@ -159,7 +159,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		int n = 0;
 
-		for (GraphNode node : nodes) {
+		for (GraphNode node : nodeSaveMap.values()) {
 			if (nodePositions.get(node.getId()) == null) {
 				n++;
 			}
@@ -175,7 +175,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		double y = upperLeft.getY();
 		int i = 0;
 
-		for (GraphNode node : nodes) {
+		for (GraphNode node : nodeSaveMap.values()) {
 			Point2D pos = nodePositions.get(node.getId());
 
 			if (pos != null) {
