@@ -21,7 +21,7 @@
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.knime.workbench.core"/>
       <import plugin="org.knime.workbench.repository"/>
-      <import plugin="org.knime.base"/>
+      <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

@@ -9,7 +9,7 @@ Bundle-Vendor: Armin Weiser
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
- org.knime.base,
+ org.knime.base;bundle-version="2.10.0",
  org.hsh.bfr.db,
  com.thoughtworks.xstream;visibility:=reexport
 Bundle-ActivationPolicy: lazy
