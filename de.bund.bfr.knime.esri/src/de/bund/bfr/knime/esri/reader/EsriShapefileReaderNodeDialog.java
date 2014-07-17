@@ -25,7 +25,9 @@
 package de.bund.bfr.knime.esri.reader;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -42,8 +44,13 @@ public class EsriShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
 				new SettingsModelString(EsriShapefileReaderNodeModel.SHP_FILE,
 						null), "ShpFileHistory", ".shp");
+		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
+				new SettingsModelBoolean(
+						EsriShapefileReaderNodeModel.GET_EXTERIOR_POLYGON,
+						false), "Get Exterior Ring of Polygons");
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);
+		addDialogComponent(exteriorDialog);
 	}
 }

@@ -62,9 +62,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -85,11 +88,13 @@ import de.bund.bfr.knime.KnimeUtilities;
 public class EsriShapefileReaderNodeModel extends NodeModel {
 
 	protected static final String SHP_FILE = "ShpFile";
+	protected static final String GET_EXTERIOR_POLYGON = "GetExteriorPolygon";
 
 	private static final String LATITUDE_COLUMN = "Latitude";
 	private static final String LONGITUDE_COLUMN = "Longitude";
 
 	private SettingsModelString shpFile;
+	private SettingsModelBoolean getExteriorPolygon;
 
 	private FeatureCollection<?, ?> collection;
 	private CoordinateReferenceSystem system;
@@ -100,6 +105,8 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	protected EsriShapefileReaderNodeModel() {
 		super(0, 2);
 		shpFile = new SettingsModelString(SHP_FILE, null);
+		getExteriorPolygon = new SettingsModelBoolean(GET_EXTERIOR_POLYGON,
+				false);
 	}
 
 	/**
@@ -152,7 +159,8 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 			for (Geometry g : geos) {
 				Coordinate[] coordinates;
 
-				if (g instanceof Polygon) {
+				if (g instanceof Polygon
+						&& getExteriorPolygon.getBooleanValue()) {
 					coordinates = ((Polygon) g).getExteriorRing()
 							.getCoordinates();
 				} else {
@@ -255,6 +263,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		shpFile.saveSettingsTo(settings);
+		getExteriorPolygon.saveSettingsTo(settings);
 	}
 
 	/**
@@ -264,6 +273,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.loadSettingsFrom(settings);
+		getExteriorPolygon.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -273,6 +283,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.validateSettings(settings);
+		getExteriorPolygon.validateSettings(settings);
 	}
 
 	/**
@@ -294,17 +305,16 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	}
 
 	private static DataTableSpec[] createSpec(FeatureCollection<?, ?> collection) {
-		FeatureIterator<?> iterator = collection.features();
-		Feature feature = iterator.next();
+		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
 		List<DataColumnSpec> columns1 = new ArrayList<>();
 
-		for (Property p : feature.getProperties()) {
-			if (p.getValue() instanceof Geometry) {
-				columns1.add(new DataColumnSpecCreator(p.getName().toString(),
-						ListCell.getCollectionType(StringCell.TYPE))
-						.createSpec());
-			} else {
-				columns1.add(new DataColumnSpecCreator(p.getName().toString(),
+		for (AttributeType t : type.getTypes()) {
+			if (t == type.getGeometryDescriptor().getType()) {
+				columns1.add(new DataColumnSpecCreator(type
+						.getGeometryDescriptor().getName().toString(), ListCell
+						.getCollectionType(StringCell.TYPE)).createSpec());
+			} else {				
+				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
 						StringCell.TYPE).createSpec());
 			}
 		}
