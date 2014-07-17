@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,8 +52,10 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -76,8 +80,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
-
-import de.bund.bfr.knime.KnimeUtilities;
 
 /**
  * This is the model implementation of EsriShapefileReader.
@@ -139,13 +141,23 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 				int column = spec1.findColumnIndex(p.getName().toString());
 				Object value = p.getValue();
 
-				if (value instanceof Geometry) {
-					geoProperty = p;
-				} else if (value == null) {
+				if (value == null) {
 					cells1[column] = DataType.getMissingCell();
+				} else if (value instanceof Geometry) {
+					geoProperty = p;
+				} else if (value instanceof Integer) {
+					cells1[column] = new IntCell((Integer) p.getValue());
+				} else if (value instanceof Double) {
+					cells1[column] = new DoubleCell((Double) p.getValue());
+				} else if (value instanceof Boolean) {
+					cells1[column] = BooleanCell.get((Boolean) p.getValue());
 				} else {
 					cells1[column] = new StringCell(p.getValue().toString());
 				}
+			}
+
+			if (geoProperty == null) {
+				continue;
 			}
 
 			Geometry geo = (Geometry) geoProperty.getValue();
@@ -221,7 +233,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			File shpFile = KnimeUtilities.getFile(fileName);
+			File shpFile = getFile(fileName);
 			Map<String, URL> map = new HashMap<>();
 
 			map.put("url", shpFile.toURI().toURL());
@@ -233,8 +245,8 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 			collection = source.getFeatures();
 
 			try {
-				File prjFile = KnimeUtilities.getFile(FilenameUtils
-						.removeExtension(shpFile.getAbsolutePath()) + ".prj");
+				File prjFile = getFile(FilenameUtils.removeExtension(shpFile
+						.getAbsolutePath()) + ".prj");
 				BufferedReader reader = new BufferedReader(new FileReader(
 						prjFile));
 				String wkt = "";
@@ -313,7 +325,16 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 				columns1.add(new DataColumnSpecCreator(type
 						.getGeometryDescriptor().getName().toString(), ListCell
 						.getCollectionType(StringCell.TYPE)).createSpec());
-			} else {				
+			} else if (t.getBinding() == Integer.class) {
+				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
+						IntCell.TYPE).createSpec());
+			} else if (t.getBinding() == Double.class) {
+				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
+						DoubleCell.TYPE).createSpec());
+			} else if (t.getBinding() == Boolean.class) {
+				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
+						BooleanCell.TYPE).createSpec());
+			} else {
 				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
 						StringCell.TYPE).createSpec());
 			}
@@ -345,5 +366,22 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 		}
 
 		return list;
+	}
+
+	private static File getFile(String fileName) throws FileNotFoundException {
+		File file = new File(fileName);
+
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(fileName).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
+		if (!file.exists()) {
+			throw new FileNotFoundException(fileName);
+		}
+
+		return file;
 	}
 }
