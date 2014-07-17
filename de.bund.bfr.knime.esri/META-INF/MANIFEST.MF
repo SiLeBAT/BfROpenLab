@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EsriShapefileReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.esri;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.esri.Activator
 Bundle-Vendor: Christian Thoens
