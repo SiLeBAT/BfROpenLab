@@ -131,10 +131,12 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 			transform = CRS.findMathTransform(system, CRS.decode("EPSG:4326"),
 					true);
 		}
+		
+		DataCell[] cells1 = new DataCell[spec1.getNumColumns()];
+		DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
 
 		while (iterator.hasNext()) {
-			Feature feature = iterator.next();
-			DataCell[] cells1 = new DataCell[spec1.getNumColumns()];
+			Feature feature = iterator.next();			
 			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
@@ -181,8 +183,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 
 				List<StringCell> rowIdCells = new ArrayList<>();
 
-				for (Coordinate c : coordinates) {
-					DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
+				for (Coordinate c : coordinates) {					
 					double lat = system != null ? c.x : c.y;
 					double lon = system != null ? c.y : c.x;
 
