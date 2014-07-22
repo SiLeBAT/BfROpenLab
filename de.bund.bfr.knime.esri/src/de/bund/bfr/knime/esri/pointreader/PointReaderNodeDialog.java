@@ -22,35 +22,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.esri.polygonreader;
+package de.bund.bfr.knime.esri.pointreader;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
- * <code>NodeDialog</code> for the "PolygonReader" Node.
+ * <code>NodeDialog</code> for the "PointReader" Node.
+ * 
+ * 
+ * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
+ * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Christian Thoens
  */
-public class PolygonReaderNodeDialog extends DefaultNodeSettingsPane {
+public class PointReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
-	 * New pane for configuring the PolygonReader node.
+	 * New pane for configuring the PointReader node.
 	 */
-	protected PolygonReaderNodeDialog() {
+	protected PointReaderNodeDialog() {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
-				new SettingsModelString(PolygonReaderNodeModel.SHP_FILE,
-						null), "ShpFileHistory", ".shp");
-		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
-				new SettingsModelBoolean(
-						PolygonReaderNodeModel.GET_EXTERIOR_POLYGON,
-						false), "Get Exterior Ring of Polygons");
+				new SettingsModelString(PointReaderNodeModel.SHP_FILE, null),
+				"ShpFileHistory", ".shp");
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);
-		addDialogComponent(exteriorDialog);
 	}
 }

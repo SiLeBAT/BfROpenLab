@@ -22,12 +22,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.esri.polygonreader;
+package de.bund.bfr.knime.esri.pointreader;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -38,8 +43,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.collection.CollectionCellFactory;
-import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -54,7 +57,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
@@ -67,26 +69,23 @@ import org.opengis.referencing.operation.MathTransform;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.esri.EsriUtils;
 
 /**
- * This is the model implementation of PolygonReader.
+ * This is the model implementation of PointReader.
  * 
  * 
  * @author Christian Thoens
  */
-public class PolygonReaderNodeModel extends NodeModel {
+public class PointReaderNodeModel extends NodeModel {
 
 	protected static final String SHP_FILE = "ShpFile";
-	protected static final String GET_EXTERIOR_POLYGON = "GetExteriorPolygon";
 
 	private static final String LATITUDE_COLUMN = "Latitude";
 	private static final String LONGITUDE_COLUMN = "Longitude";
 
 	private SettingsModelString shpFile;
-	private SettingsModelBoolean getExteriorPolygon;
 
 	private FeatureCollection<?, ?> collection;
 	private CoordinateReferenceSystem system;
@@ -94,11 +93,9 @@ public class PolygonReaderNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
-	protected PolygonReaderNodeModel() {
-		super(0, 2);
+	protected PointReaderNodeModel() {
+		super(0, 1);
 		shpFile = new SettingsModelString(SHP_FILE, null);
-		getExteriorPolygon = new SettingsModelBoolean(GET_EXTERIOR_POLYGON,
-				false);
 	}
 
 	/**
@@ -107,15 +104,12 @@ public class PolygonReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		DataTableSpec[] spec = createSpec(collection);
-		DataTableSpec spec1 = spec[0];
-		DataTableSpec spec2 = spec[1];
-		BufferedDataContainer container1 = exec.createDataContainer(spec1);
-		BufferedDataContainer container2 = exec.createDataContainer(spec2);
+		Map<String, String> renaming = getRenaming(collection);
+		DataTableSpec spec = createSpec(collection, renaming)[0];
+		BufferedDataContainer container = exec.createDataContainer(spec);
 		FeatureIterator<?> iterator = collection.features();
 		MathTransform transform = null;
-		int index1 = 0;
-		int index2 = 0;
+		int index = 0;
 		int count = 0;
 
 		if (system != null) {
@@ -123,29 +117,29 @@ public class PolygonReaderNodeModel extends NodeModel {
 					true);
 		}
 
-		DataCell[] cells1 = new DataCell[spec1.getNumColumns()];
-		DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
+		DataCell[] cells = new DataCell[spec.getNumColumns()];
 
 		while (iterator.hasNext()) {
 			Feature feature = iterator.next();
 			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
-				int column = spec1.findColumnIndex(p.getName().toString());
+				int column = spec.findColumnIndex(renaming.get(p.getName()
+						.toString()));
 				Object value = p.getValue();
 
 				if (value == null) {
-					cells1[column] = DataType.getMissingCell();
+					cells[column] = DataType.getMissingCell();
 				} else if (value instanceof Geometry) {
 					geoProperty = p;
 				} else if (value instanceof Integer) {
-					cells1[column] = new IntCell((Integer) p.getValue());
+					cells[column] = new IntCell((Integer) p.getValue());
 				} else if (value instanceof Double) {
-					cells1[column] = new DoubleCell((Double) p.getValue());
+					cells[column] = new DoubleCell((Double) p.getValue());
 				} else if (value instanceof Boolean) {
-					cells1[column] = BooleanCell.get((Boolean) p.getValue());
+					cells[column] = BooleanCell.get((Boolean) p.getValue());
 				} else {
-					cells1[column] = new StringCell(p.getValue().toString());
+					cells[column] = new StringCell(p.getValue().toString());
 				}
 			}
 
@@ -162,41 +156,29 @@ public class PolygonReaderNodeModel extends NodeModel {
 			List<Geometry> geos = EsriUtils.getSimpleGeometries(geo);
 
 			for (Geometry g : geos) {
-				Coordinate[] coordinates;
-
-				if (g instanceof Point) {
+				if (!(g instanceof Point)) {
 					continue;
 				}
 
-				if (g instanceof Polygon
-						&& getExteriorPolygon.getBooleanValue()) {
-					coordinates = ((Polygon) g).getExteriorRing()
-							.getCoordinates();
-				} else {
-					coordinates = g.getCoordinates();
-				}
+				Coordinate c = g.getCoordinate();
 
-				List<StringCell> rowIdCells = new ArrayList<>();
-
-				for (Coordinate c : coordinates) {
+				if (c != null) {
 					double lat = system != null ? c.x : c.y;
 					double lon = system != null ? c.y : c.x;
 
-					cells2[spec2.findColumnIndex(LATITUDE_COLUMN)] = new DoubleCell(
+					cells[spec.findColumnIndex(LATITUDE_COLUMN)] = new DoubleCell(
 							lat);
-					cells2[spec2.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
+					cells[spec.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
 							lon);
-
-					container2
-							.addRowToTable(new DefaultRow(index2 + "", cells2));
-					rowIdCells.add(new StringCell(index2 + ""));
-					index2++;
+				} else {
+					cells[spec.findColumnIndex(LATITUDE_COLUMN)] = DataType
+							.getMissingCell();
+					cells[spec.findColumnIndex(LONGITUDE_COLUMN)] = DataType
+							.getMissingCell();
 				}
 
-				cells1[spec1.findColumnIndex(geoProperty.getName().toString())] = CollectionCellFactory
-						.createListCell(rowIdCells);
-				container1.addRowToTable(new DefaultRow(index1 + "", cells1));
-				index1++;
+				container.addRowToTable(new DefaultRow(index + "", cells));
+				index++;
 			}
 
 			exec.checkCanceled();
@@ -204,11 +186,9 @@ public class PolygonReaderNodeModel extends NodeModel {
 			count++;
 		}
 
-		container1.close();
-		container2.close();
+		container.close();
 
-		return new BufferedDataTable[] { container1.getTable(),
-				container2.getTable() };
+		return new BufferedDataTable[] { container.getTable() };
 	}
 
 	/**
@@ -237,7 +217,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException(e.getMessage());
 		}
 
-		return createSpec(collection);
+		return createSpec(collection, getRenaming(collection));
 	}
 
 	/**
@@ -246,7 +226,6 @@ public class PolygonReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		shpFile.saveSettingsTo(settings);
-		getExteriorPolygon.saveSettingsTo(settings);
 	}
 
 	/**
@@ -256,7 +235,6 @@ public class PolygonReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.loadSettingsFrom(settings);
-		getExteriorPolygon.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -266,7 +244,6 @@ public class PolygonReaderNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.validateSettings(settings);
-		getExteriorPolygon.validateSettings(settings);
 	}
 
 	/**
@@ -287,39 +264,77 @@ public class PolygonReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static DataTableSpec[] createSpec(FeatureCollection<?, ?> collection) {
+	private static DataTableSpec[] createSpec(
+			FeatureCollection<?, ?> collection, Map<String, String> renaming) {
 		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
-		List<DataColumnSpec> columns1 = new ArrayList<>();
+		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (AttributeType t : type.getTypes()) {
 			if (t == type.getGeometryDescriptor().getType()) {
-				columns1.add(new DataColumnSpecCreator(type
-						.getGeometryDescriptor().getName().toString(), ListCell
-						.getCollectionType(StringCell.TYPE)).createSpec());
-			} else if (t.getBinding() == Integer.class) {
-				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
-						IntCell.TYPE).createSpec());
+				continue;
+			}
+
+			String name = renaming.get(t.getName().toString());
+
+			if (t.getBinding() == Integer.class) {
+				columns.add(new DataColumnSpecCreator(name, IntCell.TYPE)
+						.createSpec());
 			} else if (t.getBinding() == Double.class) {
-				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
-						DoubleCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(name, DoubleCell.TYPE)
+						.createSpec());
 			} else if (t.getBinding() == Boolean.class) {
-				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
-						BooleanCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(name, BooleanCell.TYPE)
+						.createSpec());
 			} else {
-				columns1.add(new DataColumnSpecCreator(t.getName().toString(),
-						StringCell.TYPE).createSpec());
+				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE)
+						.createSpec());
 			}
 		}
 
-		List<DataColumnSpec> columns2 = new ArrayList<>();
-
-		columns2.add(new DataColumnSpecCreator(LATITUDE_COLUMN, DoubleCell.TYPE)
+		columns.add(new DataColumnSpecCreator(LATITUDE_COLUMN, DoubleCell.TYPE)
 				.createSpec());
-		columns2.add(new DataColumnSpecCreator(LONGITUDE_COLUMN,
-				DoubleCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(LONGITUDE_COLUMN, DoubleCell.TYPE)
+				.createSpec());
 
-		return new DataTableSpec[] {
-				new DataTableSpec(columns1.toArray(new DataColumnSpec[0])),
-				new DataTableSpec(columns2.toArray(new DataColumnSpec[0])) };
+		return new DataTableSpec[] { new DataTableSpec(
+				columns.toArray(new DataColumnSpec[0])) };
+	}
+
+	private static Map<String, String> getRenaming(
+			FeatureCollection<?, ?> collection) {
+		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
+		Map<String, String> renaming = new LinkedHashMap<>();
+		Set<String> columnNames = new LinkedHashSet<>();
+
+		columnNames.add(LATITUDE_COLUMN);
+		columnNames.add(LONGITUDE_COLUMN);
+
+		for (AttributeType t : type.getTypes()) {
+			if (t == type.getGeometryDescriptor().getType()) {
+				continue;
+			}
+
+			String name = t.getName().toString();
+			String newName = createNewName(name, columnNames);
+
+			renaming.put(name, newName);
+			columnNames.add(newName);
+		}
+
+		return renaming;
+	}
+
+	private static String createNewName(String name, Collection<String> names) {
+		if (!names.contains(name)) {
+			return name;
+		}
+
+		for (int i = 2;; i++) {
+			String newValue = name + "_" + i;
+
+			if (!names.contains(newValue)) {
+				return newValue;
+			}
+		}
 	}
 }
