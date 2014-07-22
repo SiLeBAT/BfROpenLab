@@ -267,7 +267,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 				if (unit != null) {
 					row.put(name + UNIT, IO.createCell(unit.toString()));
 				} else {
-					row.put(name + UNIT, IO.createCell("No Unit"));
+					row.put(name + UNIT, DataType.getMissingCell());
 				}
 
 				if (!columns.containsKey(name + MIN_MAX)) {
@@ -278,7 +278,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 					row.put(name + MIN_MAX,
 							IO.createCell(minMax.getMath().toFormula()));
 				} else {
-					row.put(name + MIN_MAX, IO.createCell(""));
+					row.put(name + MIN_MAX, DataType.getMissingCell());
 				}
 
 				if (dependentVariable == null) {
