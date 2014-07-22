@@ -22,35 +22,60 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.esri.reader;
+package de.bund.bfr.knime.esri.polygonreader;
 
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeDialog</code> for the "EsriShapefileReader" Node.
+ * <code>NodeFactory</code> for the "EsriShapefileReader" Node.
+ * 
  * 
  * @author Christian Thoens
  */
-public class EsriShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
+public class PolygonReaderNodeFactory extends
+		NodeFactory<PolygonReaderNodeModel> {
 
 	/**
-	 * New pane for configuring the EsriShapefileReader node.
+	 * {@inheritDoc}
 	 */
-	protected EsriShapefileReaderNodeDialog() {
-		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
-				new SettingsModelString(EsriShapefileReaderNodeModel.SHP_FILE,
-						null), "ShpFileHistory", ".shp");
-		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
-				new SettingsModelBoolean(
-						EsriShapefileReaderNodeModel.GET_EXTERIOR_POLYGON,
-						false), "Get Exterior Ring of Polygons");
-
-		shpDialog.setBorderTitle("SHP File");
-		addDialogComponent(shpDialog);
-		addDialogComponent(exteriorDialog);
+	@Override
+	public PolygonReaderNodeModel createNodeModel() {
+		return new PolygonReaderNodeModel();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<PolygonReaderNodeModel> createNodeView(
+			final int viewIndex, final PolygonReaderNodeModel nodeModel) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new PolygonReaderNodeDialog();
+	}
+
 }

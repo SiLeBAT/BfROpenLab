@@ -12,6 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base;bundle-version="2.10.0",
  org.geotools;visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.esri.reader
+Export-Package: de.bund.bfr.knime.esri.polygonreader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

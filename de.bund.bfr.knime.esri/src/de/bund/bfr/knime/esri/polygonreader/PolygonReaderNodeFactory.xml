@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./ESRI.png" type="Source" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>Shapefile Polygon Reader</name>
+
+	<shortDescription>
+        Reads in Polygons, Polylines and Points from ESRI Shapefiles.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			Insert long description here...
+		</intro>
+
+		<option name="SHP File">
+			description of first option
+		</option>
+		<option name="Get Exterior Ring of Polygons">
+			description of second option
+		</option>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Out-Port name">
+			Description of first output port...
+		</outPort>
+		<outPort index="1" name="Out-Port name">
+			Description of second output port...
+		</outPort>
+	</ports>
+</knimeNode>

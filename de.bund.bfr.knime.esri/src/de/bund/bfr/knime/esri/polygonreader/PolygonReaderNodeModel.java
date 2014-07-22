@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.esri.reader;
+package de.bund.bfr.knime.esri.polygonreader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -87,7 +87,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * @author Christian Thoens
  */
-public class EsriShapefileReaderNodeModel extends NodeModel {
+public class PolygonReaderNodeModel extends NodeModel {
 
 	protected static final String SHP_FILE = "ShpFile";
 	protected static final String GET_EXTERIOR_POLYGON = "GetExteriorPolygon";
@@ -104,7 +104,7 @@ public class EsriShapefileReaderNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
-	protected EsriShapefileReaderNodeModel() {
+	protected PolygonReaderNodeModel() {
 		super(0, 2);
 		shpFile = new SettingsModelString(SHP_FILE, null);
 		getExteriorPolygon = new SettingsModelBoolean(GET_EXTERIOR_POLYGON,

@@ -22,60 +22,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.esri.reader;
+package de.bund.bfr.knime.esri.polygonreader;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
- * <code>NodeFactory</code> for the "EsriShapefileReader" Node.
- * 
+ * <code>NodeDialog</code> for the "EsriShapefileReader" Node.
  * 
  * @author Christian Thoens
  */
-public class EsriShapefileReaderNodeFactory extends
-		NodeFactory<EsriShapefileReaderNodeModel> {
+public class PolygonReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
-	 * {@inheritDoc}
+	 * New pane for configuring the EsriShapefileReader node.
 	 */
-	@Override
-	public EsriShapefileReaderNodeModel createNodeModel() {
-		return new EsriShapefileReaderNodeModel();
-	}
+	protected PolygonReaderNodeDialog() {
+		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
+				new SettingsModelString(PolygonReaderNodeModel.SHP_FILE,
+						null), "ShpFileHistory", ".shp");
+		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
+				new SettingsModelBoolean(
+						PolygonReaderNodeModel.GET_EXTERIOR_POLYGON,
+						false), "Get Exterior Ring of Polygons");
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNrNodeViews() {
-		return 0;
+		shpDialog.setBorderTitle("SHP File");
+		addDialogComponent(shpDialog);
+		addDialogComponent(exteriorDialog);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeView<EsriShapefileReaderNodeModel> createNodeView(
-			final int viewIndex, final EsriShapefileReaderNodeModel nodeModel) {
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasDialog() {
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeDialogPane createNodeDialogPane() {
-		return new EsriShapefileReaderNodeDialog();
-	}
-
 }

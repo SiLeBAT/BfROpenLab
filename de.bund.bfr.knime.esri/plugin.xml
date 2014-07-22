@@ -18,8 +18,8 @@
          point="org.knime.workbench.repository.nodes">
       <node
             category-path="/"
-            factory-class="de.bund.bfr.knime.esri.reader.EsriShapefileReaderNodeFactory"
-            id="de.bund.bfr.knime.esri.reader.EsriShapefileReaderNodeFactory"/>
+            factory-class="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory"
+            id="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory"/>
    </extension>
    
 </plugin>
