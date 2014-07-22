@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.layout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +29,12 @@ import java.util.List;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
-public class GridLayout<V, E> extends AbstractLayout<V, E> {
+public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 
-	public GridLayout(Graph<V, E> graph) {
-		super(graph);
+	public CircleLayout(Graph<V, E> g) {
+		super(g);
 	}
 
-	@Override
 	public void initialize() {
 		List<V> nodes = new ArrayList<>();
 
@@ -45,26 +44,20 @@ public class GridLayout<V, E> extends AbstractLayout<V, E> {
 			}
 		}
 
-		int n = (int) Math.ceil(Math.sqrt(nodes.size()));		
-		int index = 0;
-		double d = Math.min(getSize().width, getSize().height) / (n + 1);
+		double width = getSize().getWidth();
+		double height = getSize().getHeight();
+		double radius = 0.45 * Math.min(width, height);
 
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (index >= nodes.size()) {
-					break;
-				}
+		for (int i = 0; i < nodes.size(); i++) {
+			double angle = (2 * Math.PI * i) / nodes.size();
 
-				transform(nodes.get(index)).setLocation((i + 1) * d,
-						(j + 1) * d);
-				index++;
-			}
+			transform(nodes.get(i)).setLocation(
+					Math.cos(angle) * radius + width / 2,
+					Math.sin(angle) * radius + height / 2);
 		}
 	}
 
-	@Override
 	public void reset() {
 		initialize();
 	}
-
 }

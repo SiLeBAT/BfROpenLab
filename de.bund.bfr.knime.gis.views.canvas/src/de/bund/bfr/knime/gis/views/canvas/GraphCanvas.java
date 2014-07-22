@@ -44,9 +44,11 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
+import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
+import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
@@ -624,7 +626,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		if (nodesSelected) {
 			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
 					getTranslationY() / getScaleY());
-			
+
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
 					layout.setLocation(node, CanvasUtilities.addPoints(

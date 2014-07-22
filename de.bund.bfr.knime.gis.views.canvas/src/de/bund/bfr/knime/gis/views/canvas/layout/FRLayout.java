@@ -5,7 +5,7 @@
  * This software is open-source under the BSD license; see either "license.txt"
  * or http://jung.sourceforge.net/license.txt for a description.
  */
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
