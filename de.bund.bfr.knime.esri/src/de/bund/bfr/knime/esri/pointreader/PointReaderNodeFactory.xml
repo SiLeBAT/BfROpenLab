@@ -9,17 +9,20 @@
 
 	<fullDescription>
 		<intro>
-			Insert long description here...
+			Reads points from ESRI shapefiles. The out port contains the points plus metadata. The
+			points may be visualized via the "Open Street Map" nodes.
 		</intro>
 
 		<option name="SHP File">
-			description of first option
-		</option>		
+			Enter a valid *.shp file here. The related *.dbf, *.shx and all optional files
+			have to be in the same folder.
+		</option>
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Out-Port name">
-			Description of first output port...
-		</outPort>		
+		<outPort index="0" name="Points">
+			All imported points. "Latitude" and "Longitude" are in the
+			respective columns. May be used as input for the first port of the "Open Street Map" nodes.
+		</outPort>
 	</ports>
 </knimeNode>

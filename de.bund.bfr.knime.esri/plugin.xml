@@ -14,8 +14,18 @@
    -->
    
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/" factory-class="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory" id="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory"/>
-   <node category-path="/" factory-class="de.bund.bfr.knime.esri.pointreader.PointReaderNodeFactory" id="de.bund.bfr.knime.esri.pointreader.PointReaderNodeFactory"/>
+      <node category-path="/esri" factory-class="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory" id="de.bund.bfr.knime.esri.polygonreader.PolygonReaderNodeFactory"/>
+   <node category-path="/esri" factory-class="de.bund.bfr.knime.esri.pointreader.PointReaderNodeFactory" id="de.bund.bfr.knime.esri.pointreader.PointReaderNodeFactory"/>
 </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icons/ESRI.png"
+            level-id="esri"
+            locked="true"
+            name="ESRI Shapefiles"
+            path="/">
+      </category>
+   </extension>
    
 </plugin>
