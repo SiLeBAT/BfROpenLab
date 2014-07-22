@@ -23,31 +23,48 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-public enum LayoutType {
+import java.util.ArrayList;
+import java.util.List;
 
-	GRID_LAYOUT, CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.graph.Graph;
+
+public class GridLayout<V, E> extends AbstractLayout<V, E> {
+
+	public GridLayout(Graph<V, E> graph) {
+		super(graph);
+	}
 
 	@Override
-	public String toString() {
-		switch (this) {
-		case GRID_LAYOUT:
-			return "Grid Layout";
-		case CIRCLE_LAYOUT:
-			return "Circle Layout";
-		case FR_LAYOUT:
-			return "FR Layout";
-		case FR_LAYOUT_2:
-			return "FR Layout 2";
-		case ISOM_LAYOUT:
-			return "ISOM Layout";
-		case KK_LAYOUT:
-			return "KK Layout";
-		case SPRING_LAYOUT:
-			return "Spring Layout";
-		case SPRING_LAYOUT_2:
-			return "Spring Layout 2";
+	public void initialize() {
+		List<V> nodes = new ArrayList<>();
+
+		for (V node : getGraph().getVertices()) {
+			if (!isLocked(node)) {
+				nodes.add(node);
+			}
 		}
 
-		return super.toString();
+		int n = (int) Math.ceil(Math.sqrt(nodes.size()));		
+		int index = 0;
+		double d = Math.min(getSize().width, getSize().height) / (n + 1);
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (index >= nodes.size()) {
+					break;
+				}
+
+				transform(nodes.get(index)).setLocation((i + 1) * d,
+						(j + 1) * d);
+				index++;
+			}
+		}
 	}
+
+	@Override
+	public void reset() {
+		initialize();
+	}
+
 }

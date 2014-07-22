@@ -595,6 +595,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		switch (layoutType) {
+		case GRID_LAYOUT:
+			layout = new GridLayout<>(graph);
+			break;
 		case CIRCLE_LAYOUT:
 			layout = new CircleLayout<>(graph);
 			break;
@@ -621,6 +624,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		if (nodesSelected) {
 			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
 					getTranslationY() / getScaleY());
+			
+			for (GraphNode node : nodes) {
+				if (!selectedNodes.contains(node)) {
+					layout.setLocation(node, CanvasUtilities.addPoints(
+							getViewer().getGraphLayout().transform(node), move));
+					layout.lock(node, true);
+				}
+			}
 
 			layout.setSize(new Dimension(
 					(int) (getViewer().getSize().width / getScaleX()),
