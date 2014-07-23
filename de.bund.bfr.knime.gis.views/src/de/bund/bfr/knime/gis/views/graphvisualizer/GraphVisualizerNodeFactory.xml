@@ -36,14 +36,15 @@
 				If checked, a legend with all highlight conditions, which have "Show in
 				Legend" activated, is display in the lower left corner of the canvas.
 			</option>
+			<option name="Font">
+				Font Size and type (plain or bold) can be specified here. This font is used
+				for node/edge labels and in the legend.
+			</option>
 			<option name="Join Edges">
 				If checked, edges with the same source and target are joined.
 			</option>
 			<option name="Skip Edgeless Nodes">
 				If checked, nodes without any connected edges are not shown.
-			</option>
-			<option name="Layout">
-				Layout to visualize the graph.
 			</option>
 			<option name="Node Size">
 				Diameter of the nodes.
@@ -56,18 +57,29 @@
 			<option name="Save As ...">
 				The image as can be saved as a PNG- or SVG-file.
 			</option>
+			<option name="Apply Layout">
+				Several graph layout algorithms (e.g. Fruchterman-Reingold) can be applied
+				here. The algorithms are applied to the selected nodes and to all nodes if no nodes are
+				selected.
+			</option>
 			<option name="Node Selection -> Show Properties">
 				Shows the properties of all selected nodes.
 			</option>
 			<option name="Node Selection -> Clear">
 				Clears node selection.
 			</option>
+			<option name="Node Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected nodes.
+			</option>
 			<option name="Node Selection -> Select Connections">
 				Selects all edges, whose source and target nodes
 				are already selected.
 			</option>
-			<option name="Node Selection -> Highlight Selected">
-				Opens a dialog to help the user highlight all selected nodes.
+			<option name="Node Selection -> Select Incoming">
+				Selects all edges, whose target nodes are already selected.
+			</option>
+			<option name="Node Selection -> Select Outgoing">
+				Selects all edges, whose source nodes are already selected.
 			</option>
 			<option name="Node Selection -> Collapse To Meta Node">
 				Collapses all selected nodes into one new Meta Node.
@@ -75,8 +87,15 @@
 			<option name="Node Selection -> Expand From Meta Node">
 				Expands each selected Meta Node to its original nodes.
 			</option>
+			<option name="Node Selection -> Show Uncollapsed Properties">
+				Shows the properties of all nodes that were collapsed to the selected meta
+				nodes and all selected nodes that are not meta nodes.
+			</option>
 			<option name="Edge Selection -> Show Properties">
 				Shows the properties of all selected edges.
+			</option>
+			<option name="Edge Selection -> Show Unjoined Properties">
+				Shows the properties of all edges that were joined to the selected edges.
 			</option>
 			<option name="Edge Selection -> Clear">
 				Clears edge selection.
@@ -103,6 +122,20 @@
 			<option name="Edge Highlighting -> Select Highlighted">
 				All edge that have non zero values for the specified Highlight Condition will
 				be selected.
+			</option>
+			<option name="Select Nodes">
+				Opens a dialog to select nodes based on a logical condition.
+			</option>
+			<option name="Select Edges">
+				Opens a dialog to select edges based on a logical condition.
+			</option>
+			<option name="Collapse by Property">
+				Opens a dialog to collapse all nodes (visible and invisible) to meta nodes
+				based on a certain property. That means all nodes with the same property value will be collapsed
+				to the same meta node.
+			</option>
+			<option name="Clear Collapsed Nodes">
+				Expands all meta nodes.
 			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">
@@ -131,18 +164,18 @@
 				Type of the condition: "Logical Condition", "Value Condition" or "Logical
 				Value Condition". Types are explained in the sections below.
 			</option>
-			<option name="Name">				
+			<option name="Name">
 			</option>
-			<option name="Show in Legend">				
+			<option name="Show in Legend">
 			</option>
 			<option name="Color">
 				Color of the highlighted elements. For a logical conditions all true elements
 				are painted. For a value condition all elements with values > 0 are painted (the higher the
 				value the higher alpha value used for painting).
 			</option>
-			<option name="Invisible">				
+			<option name="Invisible">
 			</option>
-			<option name="Adjust Thickness">				
+			<option name="Adjust Thickness">
 			</option>
 			<option name="Label">
 				Property, that should be used as a label for all painted elements.
