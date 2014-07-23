@@ -51,7 +51,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 
 	private JMenuItem selectConnectionsItem;
 	private JMenuItem selectIncomingItem;
-	private JMenuItem selectOutgoingItem;	
+	private JMenuItem selectOutgoingItem;
 	private JMenuItem clearSelectedNodesItem;
 	private JMenuItem clearSelectedEdgesItem;
 	private JMenuItem highlightSelectedNodesItem;
@@ -92,13 +92,13 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		}
 
 		if (allowEdges) {
-			nodeSelectionMenu.add(nodePropertiesItem);			
+			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectedNodesItem);
 			nodeSelectionMenu.add(highlightSelectedNodesItem);
 			nodeSelectionMenu.add(new JSeparator());
 			nodeSelectionMenu.add(selectConnectionsItem);
 			nodeSelectionMenu.add(selectIncomingItem);
-			nodeSelectionMenu.add(selectOutgoingItem);			
+			nodeSelectionMenu.add(selectOutgoingItem);
 
 			if (allowCollapse) {
 				nodeSelectionMenu.add(new JSeparator());
@@ -119,15 +119,15 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
 			nodeHighlightMenu.add(selectHighlightedNodesItem);
-			nodeHighlightMenu.add(selectNodesItem);
 
 			edgeHighlightMenu.add(highlightEdgesItem);
 			edgeHighlightMenu.add(clearHighlightedEdgesItem);
 			edgeHighlightMenu.add(selectHighlightedEdgesItem);
-			edgeHighlightMenu.add(selectEdgesItem);
 
 			add(nodeHighlightMenu);
 			add(edgeHighlightMenu);
+			add(selectNodesItem);
+			add(selectEdgesItem);
 		} else {
 			nodeSelectionMenu.add(nodePropertiesItem);
 			nodeSelectionMenu.add(clearSelectedNodesItem);
@@ -139,9 +139,9 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
 			nodeHighlightMenu.add(selectHighlightedNodesItem);
-			nodeHighlightMenu.add(selectNodesItem);
 
 			add(nodeHighlightMenu);
+			add(selectNodesItem);
 		}
 
 		if (allowCollapse) {
@@ -301,7 +301,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
 		highlightSelectedNodesItem.addActionListener(this);
 		selectConnectionsItem = new JMenuItem("Select Connections");
-		selectConnectionsItem.addActionListener(this);		
+		selectConnectionsItem.addActionListener(this);
 		selectIncomingItem = new JMenuItem("Select Incoming");
 		selectIncomingItem.addActionListener(this);
 		selectOutgoingItem = new JMenuItem("Select Outgoing");
@@ -322,8 +322,6 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearHighlightedNodesItem.addActionListener(this);
 		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedNodesItem.addActionListener(this);
-		selectNodesItem = new JMenuItem("Select");
-		selectNodesItem.addActionListener(this);
 
 		highlightEdgesItem = new JMenuItem("Edit");
 		highlightEdgesItem.addActionListener(this);
@@ -331,7 +329,10 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearHighlightedEdgesItem.addActionListener(this);
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select");
+
+		selectNodesItem = new JMenuItem("Select Nodes");
+		selectNodesItem.addActionListener(this);
+		selectEdgesItem = new JMenuItem("Select Edges");
 		selectEdgesItem.addActionListener(this);
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
@@ -392,7 +393,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		public void selectEdgesItemClicked();
 
 		public void nodePropertiesItemClicked();
-		
+
 		public void nodeAllPropertiesItemClicked();
 
 		public void edgePropertiesItemClicked();
