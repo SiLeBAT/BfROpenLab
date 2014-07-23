@@ -45,9 +45,13 @@ public class GridLayout<V, E> extends AbstractLayout<V, E> {
 			}
 		}
 
-		int n = (int) Math.ceil(Math.sqrt(nodes.size()));		
+		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
 		int index = 0;
-		double d = Math.min(getSize().width, getSize().height) / (n + 1);
+		double width = getSize().getWidth();
+		double height = getSize().getHeight();
+		double d = Math.min(width, height) / (n + 1);
+		double sx = width / 2 - (n - 1) * d / 2;
+		double sy = height / 2 - (n - 1) * d / 2;
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
@@ -55,8 +59,7 @@ public class GridLayout<V, E> extends AbstractLayout<V, E> {
 					break;
 				}
 
-				transform(nodes.get(index)).setLocation((i + 1) * d,
-						(j + 1) * d);
+				transform(nodes.get(index)).setLocation(i * d + sx, j * d + sy);
 				index++;
 			}
 		}
