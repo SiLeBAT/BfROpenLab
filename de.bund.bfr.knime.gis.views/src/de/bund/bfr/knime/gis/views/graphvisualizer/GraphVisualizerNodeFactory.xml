@@ -149,8 +149,9 @@
 			<option name="Remove">
 				Removes the selected Highlight Condition from the list.
 			</option>
-			<option name="Prioritize">
-				If selected, each condition overwrites all conditions below it.
+			<option name="Prioritize Colors">
+				If selected, the color of each condition overwrites all colors of conditions
+				below it. Otherwise the colors are mixed.
 			</option>
 			<option name="Up">
 				Moves the selected condition up.
@@ -165,8 +166,11 @@
 				Value Condition". Types are explained in the sections below.
 			</option>
 			<option name="Name">
+				Name of the condition. The name is used in the "Highlight Condition List
+				Dialog" and in the legend.
 			</option>
 			<option name="Show in Legend">
+				If selected the condition will be shown in the legend.
 			</option>
 			<option name="Color">
 				Color of the highlighted elements. For a logical conditions all true elements
@@ -174,11 +178,16 @@
 				value the higher alpha value used for painting).
 			</option>
 			<option name="Invisible">
+				If selected all true elements and elements with values > 0 are made
+				invisible.
 			</option>
 			<option name="Adjust Thickness">
+				If selected the size/thickness of the node/edge will be adjusted based on the
+				value of the node/edge.
 			</option>
 			<option name="Label">
-				Property, that should be used as a label for all painted elements.
+				Property, that should be used as a label for all true elements and elements
+				with values > 0.
 			</option>
 		</tab>
 		<tab name="Logical Condition">
