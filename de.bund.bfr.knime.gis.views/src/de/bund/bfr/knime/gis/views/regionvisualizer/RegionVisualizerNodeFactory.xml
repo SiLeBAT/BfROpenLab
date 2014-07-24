@@ -15,6 +15,7 @@
 			below).
 		</intro>
 
+
 		<tab name="Input">
 			<option name="Shape Column (Shape Table)">
 				Shape table column containing the shapes.
