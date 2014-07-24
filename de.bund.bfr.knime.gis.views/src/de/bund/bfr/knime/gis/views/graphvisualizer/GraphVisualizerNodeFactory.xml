@@ -9,9 +9,9 @@
 
 	<fullDescription>
 		<intro>
-			This node can visualize a graph with different layouts. The node table in port 1 must
-			contain node IDs and the edge table in port 2 must contain source and target node IDs. Any data
-			in the node or edge table can be used for highlighting (as explained below).
+			This node can visualize a graph with different layouts. The node table in the first port
+			must contain node IDs and the edge table in the second port must contain source and target node
+			IDs. Any data in the node or edge table can be used for highlighting (as explained below).
 		</intro>
 		<tab name="Input">
 			<option name="Node ID Column">
