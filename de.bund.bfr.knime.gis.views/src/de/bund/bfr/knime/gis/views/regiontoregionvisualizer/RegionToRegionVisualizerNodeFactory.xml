@@ -27,7 +27,7 @@
 			<option name="Shape Column (Shape Table)">
 				Shape table column containing the shapes.
 			</option>
-			<option name="Region ID Column (Shapefile)">
+			<option name="Region ID Column (Shape Table)">
 				Shapefile column containing the region IDs.
 			</option>
 			<option name="Node ID Column (Node Table)">

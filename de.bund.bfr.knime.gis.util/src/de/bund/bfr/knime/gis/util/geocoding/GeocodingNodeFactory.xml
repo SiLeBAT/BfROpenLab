@@ -1,44 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./Geocoding.png" type="Manipulator">
-    <name>Geocoding</name>
-    
-    <shortDescription>
-    	Provides latitude and longitude for given addresses.    
-    </shortDescription>
-    
-    <fullDescription>
-        <intro>
-        	This node provides latitude and longitude for given addresses by using the Google Geocoding API. There
-        	is a query limit of 2,500 geolocation requests per day (100,000 requests per day for Google Maps API for
-        	Business users)). 
-        </intro>
-        
-        <option name="Addresses">
-        	Column containing the addresses.
-        </option>
-        <option name="Region Biasing (ccTLD codes)">
-        	The result of the Geocoding service is influenced by the region (typically the country) from which
-        	the request is sent. To get a result biased to a particular country, the ccTLD code for this country
-        	can be specified here. If it is the same for all rows, it can be entered in the text field. Otherwise
-        	a column containing the ccTLD codes must be used.        
-        </option>
-        <option name="Delay between Request">
-        	Google enforces a request rate for the Geocoding service. To satisfy this rate, the user can specify
-        	the delay between two request.
-        </option>
-        <option name="When multiple Results">
-        	In some cases multiple results are returned for a single address. Several options are provided on how
-        	to perform in this case.
-        </option>        
-    </fullDescription>
-    
-    <ports>
-        <inPort index="0" name="Addresses">
-        	Table with addresses
-        </inPort>        
-        <outPort index="0" name="Coordinates">
-        	Table with latitudes and longitudes
-        </outPort>        
-    </ports>    
+	<name>Geocoding</name>
+
+	<shortDescription>
+		Provides latitude and longitude for given addresses.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This node provides latitude and longitude for given addresses by using the MapQuest Open
+			Geocoding API or an installation of the Gisgraphy Geocoder.
+		</intro>
+
+		<tab name="Common">
+			<option name="Delay between Request">
+				Some services enforce a request rate for the Geocoding. To satisfy this rate,
+				the user can specify the delay between two request.
+			</option>
+			<option name="When multiple Results">
+				In some cases multiple results are returned for a single address. Several
+				options are provided on how to perform in this case.
+			</option>
+		</tab>
+		<tab name="Mapquest">
+			<option name="Address">
+				Different parts of the address have to be in seperate columns. At least one
+				the following columns must be provided: Street, City, County, State, Country, Postal Code.
+			</option>
+			<option name="MapQuest Key">
+				The Application Key from MapQuest. Can be obtained from
+				"http://developer.mapquest.com/web/info/account/app-keys".
+			</option>
+		</tab>
+		<tab name="Gisgraphy">
+			<option name="Address">
+				The address that should be geocoded.
+			</option>
+			<option name="Country Code">
+				The mandatory country code (ISO 3166-1 alpha-2).
+			</option>
+			<option name="Server Address">
+				Address of the Gisgraphy Server.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Addresses">
+			Table with addresses
+		</inPort>
+		<outPort index="0" name="Coordinates">
+			Table with latitudes and longitudes
+		</outPort>
+	</ports>
 </knimeNode>

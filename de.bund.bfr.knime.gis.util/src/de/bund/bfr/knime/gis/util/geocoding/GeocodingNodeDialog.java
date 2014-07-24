@@ -201,7 +201,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 				Arrays.asList(providerBox)));
 
 		if (provider.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
-			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
+			panel.add(UI.createOptionsPanel("Address", Arrays.asList(
 					new JLabel("Street:"), new JLabel("City:"), new JLabel(
 							"County:"), new JLabel("State:"), new JLabel(
 							"Country:"), new JLabel("Postal Code:")), Arrays
