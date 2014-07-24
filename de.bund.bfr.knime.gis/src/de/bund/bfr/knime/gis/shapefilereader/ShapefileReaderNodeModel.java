@@ -50,8 +50,11 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -132,10 +135,19 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			for (Property p : feature.getProperties()) {
 				String name = p.getName().toString().trim();
 				int i = spec.findColumnIndex(name);
+				Object value = p.getValue();
 
-				if (p.getValue() instanceof Geometry) {
+				if (value == null) {
+					cells[i] = DataType.getMissingCell();
+				} else if (value instanceof Geometry) {
 					shape = JTS.transform((Geometry) p.getValue(), transform);
 					cells[i] = ShapeCellFactory.create(shape);
+				} else if (value instanceof Integer) {
+					cells[i] = new IntCell((Integer) p.getValue());
+				} else if (value instanceof Double) {
+					cells[i] = new DoubleCell((Double) p.getValue());
+				} else if (value instanceof Boolean) {
+					cells[i] = BooleanCell.get((Boolean) p.getValue());
 				} else {
 					cells[i] = new StringCell(p.getValue().toString());
 				}
@@ -274,10 +286,23 @@ public class ShapefileReaderNodeModel extends NodeModel {
 
 			if (t == type.getGeometryDescriptor().getType()) {
 				name = type.getGeometryDescriptor().getName().toString();
-				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE)
-						.createSpec());
 			} else {
 				name = t.getName().toString();
+			}
+
+			if (t == type.getGeometryDescriptor().getType()) {
+				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE)
+						.createSpec());
+			} else if (t.getBinding() == Integer.class) {
+				columns.add(new DataColumnSpecCreator(name, IntCell.TYPE)
+						.createSpec());
+			} else if (t.getBinding() == Double.class) {
+				columns.add(new DataColumnSpecCreator(name, DoubleCell.TYPE)
+						.createSpec());
+			} else if (t.getBinding() == Boolean.class) {
+				columns.add(new DataColumnSpecCreator(name, BooleanCell.TYPE)
+						.createSpec());
+			} else {
 				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE)
 						.createSpec());
 			}
