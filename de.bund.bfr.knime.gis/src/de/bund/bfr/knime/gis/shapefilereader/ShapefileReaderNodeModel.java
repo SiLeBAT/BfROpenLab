@@ -65,6 +65,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -90,24 +91,27 @@ import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
  */
 public class ShapefileReaderNodeModel extends NodeModel {
 
+	protected static final String SHP_FILE = "FileName";
+
+	private SettingsModelString shpFile;
+
 	private static final String LATITUDE_COLUMN = "PolygonCenterLatitude";
 	private static final String LONGITUDE_COLUMN = "PolygonCenterLongitude";
 	private static final String AREA_COLUMN = "PolygonArea";
 
-	private ShapefileReaderSettings set;
-	private FeatureCollection<?, ?> collection;
-	private CoordinateReferenceSystem system;
-
 	private String latitudeColumn;
 	private String longitudeColumn;
 	private String areaColumn;
+
+	private FeatureCollection<?, ?> collection;
+	private CoordinateReferenceSystem system;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ShapefileReaderNodeModel() {
 		super(0, 1);
-		set = new ShapefileReaderSettings();
+		shpFile = new SettingsModelString(SHP_FILE, null);
 	}
 
 	@Override
@@ -190,44 +194,41 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (set.getFileName() != null) {
-			try {
-				File shpFile = KnimeUtilities.getFile(set.getFileName());
-				Map<String, URL> map = new HashMap<>();
-
-				map.put("url", shpFile.toURI().toURL());
-
-				DataStore dataStore = DataStoreFinder.getDataStore(map);
-				String typeName = dataStore.getTypeNames()[0];
-				FeatureSource<?, ?> source = dataStore
-						.getFeatureSource(typeName);
-
-				collection = source.getFeatures();
-
-				try {
-					File prjFile = KnimeUtilities.getFile(FilenameUtils
-							.removeExtension(shpFile.getAbsolutePath())
-							+ ".prj");
-					BufferedReader reader = new BufferedReader(new FileReader(
-							prjFile));
-					String wkt = "";
-					String line;
-
-					while ((line = reader.readLine()) != null) {
-						wkt += line;
-					}
-
-					system = CRS.parseWKT(wkt);
-				} catch (FileNotFoundException e) {
-					system = null;
-				}
-			} catch (IOException e) {
-				throw new InvalidSettingsException(e.getMessage());
-			} catch (FactoryException e) {
-				throw new InvalidSettingsException(e.getMessage());
-			}
-		} else {
+		if (shpFile.getStringValue() == null) {
 			throw new InvalidSettingsException("No file name specified");
+		}
+
+		try {
+			File f = KnimeUtilities.getFile(shpFile.getStringValue());
+			Map<String, URL> map = new HashMap<>();
+
+			map.put("url", f.toURI().toURL());
+
+			DataStore dataStore = DataStoreFinder.getDataStore(map);
+			String typeName = dataStore.getTypeNames()[0];
+			FeatureSource<?, ?> source = dataStore.getFeatureSource(typeName);
+
+			collection = source.getFeatures();
+
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(
+						KnimeUtilities.getFile(FilenameUtils.removeExtension(f
+								.getAbsolutePath()) + ".prj")));
+				String wkt = "";
+				String line;
+
+				while ((line = reader.readLine()) != null) {
+					wkt += line;
+				}
+
+				system = CRS.parseWKT(wkt);
+			} catch (FileNotFoundException e) {
+				system = null;
+			}
+		} catch (IOException e) {
+			throw new InvalidSettingsException(e.getMessage());
+		} catch (FactoryException e) {
+			throw new InvalidSettingsException(e.getMessage());
 		}
 
 		return new DataTableSpec[] { createSpec(collection) };
@@ -238,7 +239,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		set.saveSettings(settings);
+		shpFile.saveSettingsTo(settings);
 	}
 
 	/**
@@ -247,7 +248,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		set.loadSettings(settings);
+		shpFile.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -256,6 +257,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		shpFile.validateSettings(settings);
 	}
 
 	/**

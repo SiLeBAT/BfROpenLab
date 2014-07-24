@@ -23,46 +23,21 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.shapefilereader;
 
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.ui.FilePanel;
-import de.bund.bfr.knime.ui.StandardFileFilter;
+public class ShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
 
-public class ShapefileReaderNodeDialog extends NodeDialogPane {
+	/**
+	 * New pane for configuring the ShapefileReader node.
+	 */
+	protected ShapefileReaderNodeDialog() {
+		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
+				new SettingsModelString(ShapefileReaderNodeModel.SHP_FILE, null),
+				"ShpFileHistory", ".shp");
 
-	private ShapefileReaderSettings set;
-
-	private FilePanel filePanel;
-
-	public ShapefileReaderNodeDialog() {
-		set = new ShapefileReaderSettings();
-
-		filePanel = new FilePanel("Shapefile", FilePanel.OPEN_DIALOG);
-		filePanel.setAcceptAllFiles(false);
-		filePanel.addFileFilter(new StandardFileFilter(".shp",
-				"Shapefile (*.shp)"));
-
-		addTab("Options", UI.createNorthPanel(filePanel));
+		shpDialog.setBorderTitle("SHP File");
+		addDialogComponent(shpDialog);
 	}
-
-	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
-		set.loadSettings(settings);
-		filePanel.setFileName(set.getFileName());
-	}
-
-	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		set.setFileName(filePanel.getFileName());
-		set.saveSettings(settings);
-	}
-
 }
