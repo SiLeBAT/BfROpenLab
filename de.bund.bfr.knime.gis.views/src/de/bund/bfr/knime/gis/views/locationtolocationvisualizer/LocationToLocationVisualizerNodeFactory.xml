@@ -38,11 +38,11 @@
 			<option name="Longitude Column (Node Table)">
 				Node table column containing the longitudes.
 			</option>
-			<option name="Origin Node ID Column (Edge Table)">
-				Edge table column containing the node IDs of the origin nodes.
+			<option name="Source Node ID Column (Edge Table)">
+				Edge table column containing the node IDs of the source nodes.
 			</option>
-			<option name="Destination Node ID Column (Edge Table)">
-				Edge table column containing the node IDs of the destination nodes.
+			<option name="Target Node ID Column (Edge Table)">
+				Edge table column containing the node IDs of the target nodes.
 			</option>
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
@@ -239,8 +239,8 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Shapefile">
-			Shapefile to visualize.
+		<inPort index="0" name="Shape Table">
+			Table with shape column.
 		</inPort>
 		<inPort index="1" name="Node Table">
 			Table with node data.
@@ -249,7 +249,7 @@
 			Table with edge data.
 		</inPort>
 		<inPort index="3" name="Settings">
-			Configure Settings.
+			Optional port with settings.
 		</inPort>
 		<outPort index="0" name="Graph Image">
 			Image of the Graph.
@@ -258,7 +258,7 @@
 			Geographical Image of the Graph.
 		</outPort>
 		<outPort index="2" name="Settings">
-			Configure Settings.
+			Settings Output.
 		</outPort>
 	</ports>
 </knimeNode>

@@ -1,210 +1,262 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./RegionToRegionView.png" type="Visualizer">
-    <name>Region To Region View</name>
-    
-    <shortDescription>
-        Provides geographic and network visualization of a graph.
-    </shortDescription>
-    
-    <fullDescription>
-        <intro>
-        	This node can visualize a graph with different layouts and in a geographical map. The geographical map is 
-        	read from the shapefile in port 0. Additionally a node table in port 1, which contains nodes with the IDs of the 
-        	shapefile regions, and an edge table in port 2, that specifies how the nodes are connected, are needed as input.
-        	Any data in the node or edge table can be used for highlighting (as explained below).        	
-        	Two views of the graph are available, one
-        	showing the graph's structure and the other one its geographical representation. These views are synchronized.
-        	Whenever the user selects a node or edge in one view, its representation in the other view is
-        	automatically selected.        	 
-        </intro>
-        
-        <tab name="Input">            
-            <option name="Region ID Column (Shapefile)">
-            	Shapefile column containing the region IDs.
-            </option>
-            <option name="Node ID Column (Node Table)">
-            	Node table column containing the node IDs.
-            </option>
-            <option name="Region ID Column (Node Table)">
-            	Node table column containing the region IDs.
-            </option>
-            <option name="Skip Nodes without Edges">
-            	If true, nodes without any connected edges are not visualized.
-            </option>
-            <option name="Origin Node ID Column (Edge Table)">
-            	Edge table column containing the node IDs of the origin nodes.
-            </option>
-            <option name="Destination Node ID Column (Edge Table)">
-            	Edge table column containing the node IDs of the destination nodes.
-            </option>
-        </tab>
-        <tab name="Left Options Bar">
-            <option name="Layout">
-            	Layout to visualize the graph.
-            </option>
-            <option name="Node Size">
-            	Diameter of the nodes.
-            </option>
-            <option name="Editing Mode">
-            	Current editing mode. If "Transforming" is selected the user can move the graph by using the mouse. In
-            	"Picking" mode the user can select and unselect nodes and edges.          
-            </option>
-        </tab>
-        <tab name="Right Options Bar">
-            <option name="Border Alpha">
-            	Alpha value used to draw the geographical borders.
-            </option>
-            <option name="Edge Alpha">
-            	Alpha value used to draw the edges.
-            </option>
-            <option name="Editing Mode">
-            	Current editing mode. If "Transforming" is selected the user can move the map by using the mouse. In
-            	"Node Picking" mode the user can select and unselect nodes. "Edge Picking" mode is for selecting
-            	and unselecting edges.          
-            </option>
-        </tab>
-        <tab name="Left Context Menu">
-        	<option name="Select Highlighted Nodes">
-            	All highlighted nodes are selected.
-            </option>
-            <option name="Clear Node Selection">
-            	Clears the selected nodes.
-            </option>
-            <option name="Show Node Properties">
-            	Shows the properties of all selected nodes.
-            </option>
-            <option name="Select Highlighted Edges">
-            	All highlighted edges are selected.
-            </option>
-            <option name="Select Connection Edges">
-            	Selects all edges, whose origin and destinations nodes are already selected.
-            </option>
-            <option name="Clear Edge Selection">
-            	Clears the selected edges.
-            </option>
-            <option name="Show Edge Properties">
-            	Shows the properties of all selected edges.
-            </option>
-            <option name="Highlight Nodes">
-            	Opens a dialog that allows specifying multiple highlight conditions for the nodes. How to create
-            	a highlight condition is explained in the "Highlight Condition Dialog"-section.
-            </option>
-            <option name="Clear Nodes Highlights">
-            	Removes all node highlight conditions.
-            </option>
-            <option name="Highlight Edges">
-            	Opens a dialog that allows specifying multiple highlight conditions for the edges. How to create
-            	a highlight condition is explained in the "Highlight Condition Dialog"-section.
-            </option>
-            <option name="Clear Edges Highlights">
-            	Removes all edge highlight conditions.
-            </option>            
-            <option name="Save As ...">
-            	The image as can be saved as a PNG- or SVG-file.
-            </option>
-        </tab>
-        <tab name="Right Context Menu">
-            <option name="Select Highlighted Nodes">
-            	All highlighted regions are selected.
-            </option>
-            <option name="Clear Node Selection">
-            	Clears the selected regions.
-            </option>
-            <option name="Show Node Properties">
-            	Shows the properties of all selected regions.
-            </option>
-            <option name="Select Highlighted Edges">
-            	All highlighted edges are selected.
-            </option>
-            <option name="Select Connection Edges">
-            	Selects all edges, whose origin and destinations regions are already selected.
-            </option>
-            <option name="Clear Edge Selection">
-            	Clears the selected edges.
-            </option>
-            <option name="Show Edge Properties">
-            	Shows the properties of all selected edges.
-            </option>
-            <option name="Highlight Nodes">
-            	Opens a dialog that allows specifying multiple highlight conditions for the regions. How to create
-            	a highlight condition is explained in the "Highlight Condition Dialog"-section.
-            </option>
-            <option name="Clear Nodes Highlights">
-            	Removes all region highlight conditions.
-            </option>
-            <option name="Highlight Edges">
-            	Opens a dialog that allows specifying multiple highlight conditions for the edges. How to create
-            	a highlight condition is explained in the "Highlight Condition Dialog"-section.
-            </option>
-            <option name="Clear Edges Highlights">
-            	Removes all edge highlight conditions.
-            </option>                        
-            <option name="Reset Layout">
-            	Resets the layout so that map perfectly fits in the window.
-            </option>
-            <option name="Save As ...">
-            	The image as can be saved as a PNG- or SVG-file.
-            </option>
-        </tab>
-        <tab name="Highlight Condition Dialog">
-            <option name="Type">
-            	Type of the condition. One option is a logical condition, which is an And/Or conjunction of logical 
-            	expressions like "City == Berlin" or "Inhabitants > 10". It can only be true or false. In the
-            	"Logical Condition"-section it is shown how to create a logical condition. The other option is a 
-            	value condition, for example "Log value of Inhabitants". In the "Value Condition"-section it is shown
-            	how to create a value condition.
-            </option>
-            <option name="Color">
-            	Color of the highlighted elements. For a logical conditions all true elements are painted. For a value
-            	condition all elements with values > 0 are painted (the higher the value the higher alpha value used for
-            	painting). 
-            </option>
-            <option name="Label">
-            	Property, that should be used as a label for all painted elements.
-            </option>     
-        </tab>
-        <tab name="Logical Condition">
-       		<option name="And/Or">
-            	When a logical conditions consists of multiple expressions, And/Or conjunctions between these expressions
-            	must be specified. "And"-conjunctions will be evaluated before "Or"-conjunctions.
-            </option>
-            <option name="Property">
-            	Property of the logical expression. Is compared to "Value".
-            </option>
-            <option name="Operation">
-            	Type of the logical expression.
-            </option>
-            <option name="Value">
-            	Value of the logical expression. Is compared to "Property".
-            </option>
-        </tab>
-        <tab name="Value Condition">
-        	<option name="Property">
-            	Property of the value condition.
-            </option>
-            <option name="Value Type">
-            	Type of the value condition. If "Log Value" is used, the logarithmic function with base 10
-            	is applied to all property values, before visualizing. For "Value" no function is applied.
-            </option>    	
-        </tab>        
-    </fullDescription>
-    
-    <ports>
-    	<inPort index="0" name="Shapefile">
-        	Shapefile to visualize.
-       	</inPort>
-        <inPort index="1" name="Node Table">
-        	Table with node data.
-       	</inPort>
-       	<inPort index="2" name="Edge Table">
-        	Table with edge data.
-       	</inPort>
-       	<outPort index="0" name="Graph Image">
-        	Image of the Graph.
-        </outPort>         
-        <outPort index="1" name="Geographical Image">
-        	Geographical Image of the Graph.
-        </outPort>
-    </ports>        
+	<name>Region To Region View</name>
+
+	<shortDescription>
+		Provides geographic and network visualization of a graph.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			<p>
+				This node can visualize a graph with different layouts and in a geographical map. The
+				geographical map is read from the table in the first port. Additionally a node table in second
+				port, which contains nodes with the IDs of the shapefile regions, and an edge table in the third
+				port, that specifies how the nodes are connected, are needed as input. Any data in the node or
+				edge table can be used for highlighting (as explained below).
+			</p>
+			<p>
+				Two views of the graph are available, one showing the graph's structure and the other one its
+				geographical representation. These views are synchronized. Whenever the user selects a node or
+				edge in one view, its representation in the other view is automatically selected.
+			</p>
+		</intro>
+
+		<tab name="Input">
+			<option name="Shape Column (Shape Table)">
+				Shape table column containing the shapes.
+			</option>
+			<option name="Region ID Column (Shapefile)">
+				Shapefile column containing the region IDs.
+			</option>
+			<option name="Node ID Column (Node Table)">
+				Node table column containing the node IDs.
+			</option>
+			<option name="Region ID Column (Node Table)">
+				Node table column containing the region IDs.
+			</option>			
+			<option name="Source Node ID Column (Edge Table)">
+				Edge table column containing the node IDs of the source nodes.
+			</option>
+			<option name="Target Node ID Column (Edge Table)">
+				Edge table column containing the node IDs of the target nodes.
+			</option>
+			<option name="Export As Svg">
+				When checked a svg graphic instead of a png is put in the ouput port.
+			</option>
+		</tab>
+		<tab name="Options Bar">
+			<option name="Editing Mode">
+				Current editing mode. If "Transforming" is selected the user can move the
+				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+			</option>
+			<option name="Show Legend">
+				If checked, a legend with all highlight conditions, which have "Show in
+				Legend" activated, is display in the lower left corner of the canvas.
+			</option>
+			<option name="Font">
+				Font Size and type (plain or bold) can be specified here. This font is used
+				for node/edge labels and in the legend.
+			</option>
+			<option name="Join Edges">
+				If checked, edges with the same source and target are joined.
+			</option>
+			<option name="Skip Edgeless Nodes">
+				If checked, nodes without any connected edges are not shown.
+			</option>
+			<option name="Node Size">
+				Diameter of the nodes.
+			</option>
+			<option name="Border Alpha">
+				Alpha value used to draw the geographical borders.
+			</option>
+		</tab>
+		<tab name="Context Menu">
+			<option name="Reset Layout">
+				Resets translation and scale to default.
+			</option>
+			<option name="Save As ...">
+				The image as can be saved as a PNG- or SVG-file.
+			</option>
+			<option name="Apply Layout">
+				Several graph layout algorithms (e.g. Fruchterman-Reingold) can be applied
+				here. The algorithms are applied to the selected nodes and to all nodes if no nodes are
+				selected.
+			</option>
+			<option name="Node Selection -> Show Properties">
+				Shows the properties of all selected nodes.
+			</option>
+			<option name="Node Selection -> Clear">
+				Clears node selection.
+			</option>
+			<option name="Node Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected nodes.
+			</option>
+			<option name="Node Selection -> Select Connections">
+				Selects all edges, whose source and target nodes
+				are already selected.
+			</option>
+			<option name="Node Selection -> Select Incoming">
+				Selects all edges, whose target nodes are already selected.
+			</option>
+			<option name="Node Selection -> Select Outgoing">
+				Selects all edges, whose source nodes are already selected.
+			</option>
+			<option name="Edge Selection -> Show Properties">
+				Shows the properties of all selected edges.
+			</option>
+			<option name="Edge Selection -> Show Unjoined Properties">
+				Shows the properties of all edges that were joined to the selected edges.
+			</option>
+			<option name="Edge Selection -> Clear">
+				Clears edge selection.
+			</option>
+			<option name="Edge Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected edges.
+			</option>
+			<option name="Node Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for nodes.
+			</option>
+			<option name="Node Highlighting -> Clear">
+				Removes all Highlight Conditions for nodes.
+			</option>
+			<option name="Node Highlighting -> Select Highlighted">
+				All nodes that have non zero values for the specified Highlight Condition
+				will be selected.
+			</option>
+			<option name="Edge Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for edges.
+			</option>
+			<option name="Edge Highlighting -> Clear">
+				Removes all Highlight Conditions for edges.
+			</option>
+			<option name="Edge Highlighting -> Select Highlighted">
+				All edge that have non zero values for the specified Highlight Condition will
+				be selected.
+			</option>
+			<option name="Select Nodes">
+				Opens a dialog to select nodes based on a logical condition.
+			</option>
+			<option name="Select Edges">
+				Opens a dialog to select edges based on a logical condition.
+			</option>
+		</tab>
+		<tab name="Highlight Condition List Dialog">
+			<option name="">
+				This dialog lets you manage the Highlight Conditions, either for nodes or
+				edges. To edit a Condition double click on it.
+			</option>
+			<option name="Add">
+				Adds a new Highlight Condition to the list.
+			</option>
+			<option name="Remove">
+				Removes the selected Highlight Condition from the list.
+			</option>
+			<option name="Prioritize Colors">
+				If selected, the color of each condition overwrites all colors of conditions
+				below it. Otherwise the colors are mixed.
+			</option>
+			<option name="Up">
+				Moves the selected condition up.
+			</option>
+			<option name="Down">
+				Moves the selected condition down.
+			</option>
+		</tab>
+		<tab name="Highlight Condition Dialog">
+			<option name="Type">
+				Type of the condition: "Logical Condition", "Value Condition" or "Logical
+				Value Condition". Types are explained in the sections below.
+			</option>
+			<option name="Name">
+				Name of the condition. The name is used in the "Highlight Condition List
+				Dialog" and in the legend.
+			</option>
+			<option name="Show in Legend">
+				If selected the condition will be shown in the legend.
+			</option>
+			<option name="Color">
+				Color of the highlighted elements. For a logical conditions all true elements
+				are painted. For a value condition all elements with values > 0 are painted (the higher the
+				value the higher alpha value used for painting).
+			</option>
+			<option name="Invisible">
+				If selected all true elements and elements with values > 0 are made
+				invisible.
+			</option>
+			<option name="Adjust Thickness">
+				If selected the size/thickness of the node/edge will be adjusted based on the
+				value of the node/edge.
+			</option>
+			<option name="Label">
+				Property, that should be used as a label for all true elements and elements
+				with values > 0.
+			</option>
+		</tab>
+		<tab name="Logical Condition">
+			<option name="">
+				A logical condition is an And/Or conjunction of logical expressions like
+				"City == Berlin" or "Inhabitants > 10". It can only be true or false.
+			</option>
+			<option name="And/Or">
+				When a logical condition consists of multiple expressions, And/Or
+				conjunctions between these expressions must be specified. "And"-conjunctions will be evaluated
+				before "Or"-conjunctions.
+			</option>
+			<option name="Property">
+				Property of the logical expression. Is compared to "Value".
+			</option>
+			<option name="Operation">
+				Type of the logical expression.
+			</option>
+			<option name="Value">
+				Value of the logical expression. Is compared to "Property".
+			</option>
+		</tab>
+		<tab name="Value Condition">
+			<option name="">
+				A value condition uses numerical properties, for example "Log value of
+				Inhabitants".
+			</option>
+			<option name="Property">
+				Property of the value condition.
+			</option>
+			<option name="Value Type">
+				Type of the value condition. If "Log Value" is used, the logarithmic function
+				with base 10 is applied to all property values, before visualizing. For "Value" no function is
+				applied.
+			</option>
+		</tab>
+		<tab name="Logical Value Condition">
+			<option name="">
+				A logical value condition is a value condition that is only applied to
+				elements, for which the logical condition is true.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Shape Table">
+			Table with shape column.
+		</inPort>
+		<inPort index="1" name="Node Table">
+			Table with node data.
+		</inPort>
+		<inPort index="2" name="Edge Table">
+			Table with edge data.
+		</inPort>
+		<inPort index="3" name="Settings">
+			Optional port with settings.
+		</inPort>
+		<outPort index="0" name="Graph Image">
+			Image of the Graph.
+		</outPort>
+		<outPort index="1" name="Geographical Image">
+			Geographical Image of the Graph.
+		</outPort>
+		<outPort index="2" name="Settings">
+			Settings Output.
+		</outPort>
+	</ports>
 </knimeNode>
