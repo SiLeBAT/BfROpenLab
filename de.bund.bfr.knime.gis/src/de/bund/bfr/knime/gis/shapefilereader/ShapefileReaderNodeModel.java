@@ -64,6 +64,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -263,23 +265,24 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	}
 
 	private DataTableSpec createSpec(FeatureCollection<?, ?> collection) {
-		FeatureIterator<?> iterator = collection.features();
-		Feature feature = iterator.next();
+		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
 		List<DataColumnSpec> columns = new ArrayList<>();
 		Set<String> columnNames = new LinkedHashSet<>();
 
-		for (Property p : feature.getProperties()) {
-			String name = p.getName().toString().trim();
+		for (AttributeType t : type.getTypes()) {
+			String name;
 
-			columnNames.add(name);
-
-			if (p.getValue() instanceof Geometry) {
+			if (t == type.getGeometryDescriptor().getType()) {
+				name = type.getGeometryDescriptor().getName().toString();
 				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE)
 						.createSpec());
 			} else {
+				name = t.getName().toString();
 				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE)
 						.createSpec());
 			}
+
+			columnNames.add(name);
 		}
 
 		latitudeColumn = KnimeUtilities.createNewValue(LATITUDE_COLUMN,
