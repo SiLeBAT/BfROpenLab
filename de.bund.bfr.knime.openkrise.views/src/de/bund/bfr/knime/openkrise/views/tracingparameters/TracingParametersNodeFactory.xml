@@ -1,23 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>Tracing</name>
-    
-    <shortDescription>
-        
+<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>Tracing</name>
+
+	<shortDescription>
+      	Provides forward and backward tracing. 
     </shortDescription>
-    
-    <fullDescription>
-        <intro>Tracing Parameters...</intro>
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-    </fullDescription>
-    
-    <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <inPort index="1" name="In-Port name">Description of first input port...</inPort>
-        <inPort index="2" name="In-Port name">Description of first input port...</inPort>
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <outPort index="1" name="Out-Port name">Description of first output port...</outPort>
-    </ports>    
+
+	<fullDescription>
+		<intro>
+			This node can visualize a supply chain. The three input ports expect a node/station table,
+			an edge/delivery table and a data table. These tables are provided by the Supply Chain Analyzer.
+			Tracing can be performed by setting the following three properties for nodes/stations or
+			edges/deliveries: "Case Weight", "Cross Contamination" and "Filter". Each of the properties can
+			be set in the respective tab. Based on the properties the following values are computed: "Score",
+			"Forward", "Backward".
+		</intro>
+		<tab name="Options">
+			<option name="Filter">
+				Allows to apply a filter to all nodes/edges. Only filtered nodes/edges are
+				shown in the table.
+			</option>
+			<option name="Clear">
+				Clears the input in the table. True/false values are set to false and numbers
+				are set to zero.
+			</option>
+			<option name="Set All">
+				Sets all the values for all filtered nodes/edges to "true"/"specfied value".
+			</option>
+		</tab>
+		<tab name="Properties">
+			<option name="Node Weights">
+				Weights for nodes/stations. The computed scores are based on these weights.
+			</option>
+			<option name="Edge Weights">
+				Weights for edges/deliveries. The computed scores are based on these weights.
+			</option>
+			<option name="Node Cross Contamination">
+				Set cross contamination for nodes/stations.
+			</option>
+			<option name="Edge Cross Contamination">
+				Set cross contamination for edges/deliveries.
+			</option>
+			<option name="Node Filter">
+				For all nodes/edges that can reached by forward/backward tracing from nodes
+				selected here, the "Forward"/"Backward" is set to true.
+			</option>
+			<option name="Edge Filter">
+				For all nodes/edges that can reached by forward/backward tracing from edges
+				selected here, the "Forward"/"Backward" is set to true.
+			</option>
+		</tab>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Nodes/Stations">
+			Table with Node/Station data.
+		</inPort>
+		<inPort index="1" name="Edges/Deliveries">
+			Table with Edge/Delivery data.
+		</inPort>
+		<inPort index="2" name="Data model">
+			Model that contains the relations between deliveries. Is provided by
+			third out port of Supply Chain Reader.
+		</inPort>
+		<outPort index="0" name="Nodes/Stations Tracing">
+			Table with Node/Station data and tracing results.
+		</outPort>
+		<outPort index="1" name="Edges/Deliveries Tracing">
+			Table with Edge/Delivery data and tracing results.
+		</outPort>
+	</ports>
 </knimeNode>
