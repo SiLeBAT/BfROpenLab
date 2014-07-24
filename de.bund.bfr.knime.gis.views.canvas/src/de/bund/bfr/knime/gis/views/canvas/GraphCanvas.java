@@ -124,7 +124,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
-		setPopupMenu(new CanvasPopupMenu(true, true, true));
+		setPopupMenu(new CanvasPopupMenu(true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(true, true, false));
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
