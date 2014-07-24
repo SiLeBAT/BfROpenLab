@@ -19,8 +19,8 @@
     </fullDescription>
     
     <ports>               
-        <outPort index="0" name="Shapefile">
-        	Shapefile.
+        <outPort index="0" name="Shape Table">
+        	Table with Shape column.
         </outPort>        
     </ports>
 </knimeNode>

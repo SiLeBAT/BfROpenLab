@@ -31,15 +31,12 @@ import de.bund.bfr.knime.NodeSettings;
 
 public class ShapefileReaderSettings extends NodeSettings {
 
-	private static final String CFG_FILE_NAME = "FileName";
-	private static final String CFG_SYSTEM_CODE = "SystemCode";
+	private static final String CFG_FILE_NAME = "FileName";	
 
-	private String fileName;
-	private String systemCode;
+	private String fileName;	
 
 	public ShapefileReaderSettings() {
-		fileName = null;
-		systemCode = null;
+		fileName = null;		
 	}
 
 	@Override
@@ -47,18 +44,12 @@ public class ShapefileReaderSettings extends NodeSettings {
 		try {
 			fileName = settings.getString(CFG_FILE_NAME);
 		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			systemCode = settings.getString(CFG_SYSTEM_CODE);
-		} catch (InvalidSettingsException e) {
-		}
+		}		
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_FILE_NAME, fileName);
-		settings.addString(CFG_SYSTEM_CODE, systemCode);
+		settings.addString(CFG_FILE_NAME, fileName);		
 	}
 
 	public String getFileName() {
@@ -67,13 +58,5 @@ public class ShapefileReaderSettings extends NodeSettings {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-
-	public String getSystemCode() {
-		return systemCode;
-	}
-
-	public void setSystemCode(String systemCode) {
-		this.systemCode = systemCode;
 	}
 }

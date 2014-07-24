@@ -45,6 +45,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -118,8 +119,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			transform = CRS.findMathTransform(system, CRS.decode("EPSG:4326"),
 					true);
 		} else {
-			transform = CRS.findMathTransform(CRS.decode(set.getSystemCode()),
-					CRS.decode("EPSG:4326"), true);
+			transform = new AffineTransform2D(0, 1, 1, 0, 0, 0);
 		}
 
 		while (iterator.hasNext()) {
@@ -132,13 +132,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				int i = spec.findColumnIndex(name);
 
 				if (p.getValue() instanceof Geometry) {
-					if (transform != null) {
-						shape = JTS.transform((Geometry) p.getValue(),
-								transform);
-					} else {
-						shape = (Geometry) p.getValue();
-					}
-
+					shape = JTS.transform((Geometry) p.getValue(), transform);
 					cells[i] = ShapeCellFactory.create(shape);
 				} else {
 					cells[i] = new StringCell(p.getValue().toString());

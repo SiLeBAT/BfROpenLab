@@ -23,17 +23,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.shapefilereader;
 
-import java.awt.BorderLayout;
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import org.apache.commons.io.FilenameUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -41,20 +30,15 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.ui.FileListener;
 import de.bund.bfr.knime.ui.FilePanel;
 import de.bund.bfr.knime.ui.StandardFileFilter;
 
-public class ShapefileReaderNodeDialog extends NodeDialogPane implements
-		FileListener {
+public class ShapefileReaderNodeDialog extends NodeDialogPane {
 
 	private ShapefileReaderSettings set;
 
 	private FilePanel filePanel;
-	private JLabel systemLabel;
-	private JTextField systemField;
 
 	public ShapefileReaderNodeDialog() {
 		set = new ShapefileReaderSettings();
@@ -63,31 +47,8 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(new StandardFileFilter(".shp",
 				"Shapefile (*.shp)"));
-		filePanel.addFileListener(this);
-		systemLabel = new JLabel();
-		systemField = new JTextField();
 
-		JPanel innerSystemPanel = new JPanel();
-
-		innerSystemPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		innerSystemPanel.setLayout(new BorderLayout(5, 5));
-		innerSystemPanel.add(systemLabel, BorderLayout.WEST);
-		innerSystemPanel.add(systemField, BorderLayout.CENTER);
-
-		JPanel outerSystemPanel = new JPanel();
-
-		outerSystemPanel.setBorder(BorderFactory
-				.createTitledBorder("Coordinate Reference System"));
-		outerSystemPanel.setLayout(new BorderLayout());
-		outerSystemPanel.add(innerSystemPanel, BorderLayout.CENTER);
-
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(filePanel);
-		panel.add(outerSystemPanel);
-
-		addTab("Options", UI.createNorthPanel(panel));
+		addTab("Options", UI.createNorthPanel(filePanel));
 	}
 
 	@Override
@@ -95,44 +56,13 @@ public class ShapefileReaderNodeDialog extends NodeDialogPane implements
 			DataTableSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
 		filePanel.setFileName(set.getFileName());
-		systemField.setText(set.getSystemCode() != null ? set.getSystemCode()
-				: "");
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (systemField.isEditable()) {
-			set.setSystemCode(systemField.getText());
-		} else {
-			set.setSystemCode(null);
-		}
-
 		set.setFileName(filePanel.getFileName());
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void fileChanged(FilePanel source) {
-		try {
-			File shpFile = KnimeUtilities.getFile(filePanel.getFileName());
-
-			try {
-				KnimeUtilities.getFile(FilenameUtils.removeExtension(shpFile
-						.getAbsolutePath()) + ".prj");
-				systemLabel.setText("Code is read from Prj file");
-				systemField.setEditable(false);
-			} catch (FileNotFoundException e) {
-				systemLabel
-						.setText("Prj file not found: please enter code manually");
-				systemField.setEditable(true);
-			}
-		} catch (FileNotFoundException e) {
-			systemLabel.setText("Please enter filename first");
-			systemField.setEditable(false);
-		}
-
-		((JPanel) systemLabel.getParent()).revalidate();
 	}
 
 }
