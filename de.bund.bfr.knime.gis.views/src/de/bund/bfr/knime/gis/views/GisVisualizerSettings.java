@@ -33,14 +33,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
-
-	public static final boolean DEFAULT_SHOW_LEGEND = false;
-	public static final int DEFAULT_FONT_SIZE = 12;
-	public static final boolean DEFAULT_FONT_BOLD = false;
-	public static final int DEFAULT_BORDER_ALPHA = 255;
-	public static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
-	public static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
+public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {	
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
@@ -54,6 +47,13 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_EDITING_MODE = "EditingMode";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
+	
+	private static final boolean DEFAULT_SHOW_LEGEND = false;
+	private static final int DEFAULT_FONT_SIZE = 12;
+	private static final boolean DEFAULT_FONT_BOLD = false;
+	private static final int DEFAULT_BORDER_ALPHA = 255;
+	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
+	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
 	private String shapeColumn;
 	private boolean showLegend;

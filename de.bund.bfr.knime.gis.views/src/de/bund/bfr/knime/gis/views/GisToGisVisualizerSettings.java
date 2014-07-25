@@ -31,15 +31,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
-
-	public static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
-	public static final int DEFAULT_GIS_FONT_SIZE = 12;
-	public static final boolean DEFAULT_GIS_FONT_BOLD = false;
-	public static final int DEFAULT_GIS_BORDER_ALPHA = 255;
-	public static final Mode DEFAULT_GIS_EDITING_MODE = Mode.PICKING;
-	public static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
-			600);
+public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {	
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 
@@ -53,6 +45,14 @@ public class GisToGisVisualizerSettings extends SimpleGraphVisualizerSettings {
 	private static final String CFG_GIS_BORDER_ALPHA = "GisBorderAlpha";
 	private static final String CFG_GIS_EDITING_MODE = "GisEditingMode2";
 	private static final String CFG_GIS_CANVAS_SIZE = "GisCanvasSize";
+	
+	private static final boolean DEFAULT_GIS_SHOW_LEGEND = false;
+	private static final int DEFAULT_GIS_FONT_SIZE = 12;
+	private static final boolean DEFAULT_GIS_FONT_BOLD = false;
+	private static final int DEFAULT_GIS_BORDER_ALPHA = 255;
+	private static final Mode DEFAULT_GIS_EDITING_MODE = Mode.PICKING;
+	private static final Dimension DEFAULT_GIS_CANVAS_SIZE = new Dimension(400,
+			600);
 
 	private String shapeColumn;
 

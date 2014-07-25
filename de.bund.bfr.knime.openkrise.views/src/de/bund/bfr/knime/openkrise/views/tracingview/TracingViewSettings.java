@@ -40,19 +40,6 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends TracingSettings {
 
-	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	public static final boolean DEFAULT_JOIN_EDGES = true;
-	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
-	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-
-	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
-	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
-	public static final int DEFAULT_GRAPH_FONT_SIZE = 12;
-	public static final boolean DEFAULT_GRAPH_FONT_BOLD = false;
-	public static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
-	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
-			400, 600);
-
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
@@ -81,6 +68,19 @@ public class TracingViewSettings extends TracingSettings {
 	private static final String CFG_GRAPH_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_GRAPH_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
 	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
+	
+	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
+	private static final boolean DEFAULT_JOIN_EDGES = true;
+	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
+	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
+
+	private static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
+	private static final int DEFAULT_GRAPH_NODE_SIZE = 10;
+	private static final int DEFAULT_GRAPH_FONT_SIZE = 12;
+	private static final boolean DEFAULT_GRAPH_FONT_BOLD = false;
+	private static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
+	private static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
+			400, 600);
 
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;

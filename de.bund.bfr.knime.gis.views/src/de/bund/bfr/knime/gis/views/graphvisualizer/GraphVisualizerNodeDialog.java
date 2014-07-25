@@ -48,7 +48,6 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 
 /**
@@ -161,8 +160,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		if (graphCanvas == null) {
 			graphCanvas = new GraphCanvas(true);
-			graphCanvas
-					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
+			graphCanvas.setCanvasSize(set.getGraphCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,

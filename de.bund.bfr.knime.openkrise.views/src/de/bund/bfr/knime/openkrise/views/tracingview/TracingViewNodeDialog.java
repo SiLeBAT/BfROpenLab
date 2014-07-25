@@ -184,7 +184,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (canvas == null) {
 			canvas = new TracingCanvas();
-			canvas.setCanvasSize(TracingViewSettings.DEFAULT_GRAPH_CANVAS_SIZE);
+			canvas.setCanvasSize(set.getGraphCanvasSize());
 		}
 
 		panel.add(canvas, BorderLayout.CENTER);

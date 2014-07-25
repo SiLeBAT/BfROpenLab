@@ -43,7 +43,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.GisVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 
 /**
@@ -145,7 +144,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		if (canvas == null) {
 			canvas = new LocationCanvas(false);
-			canvas.setCanvasSize(GisVisualizerSettings.DEFAULT_CANVAS_SIZE);
+			canvas.setCanvasSize(set.getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,

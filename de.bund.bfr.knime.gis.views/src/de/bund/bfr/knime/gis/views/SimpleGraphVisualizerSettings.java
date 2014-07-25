@@ -39,17 +39,6 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 
-	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	public static final boolean DEFAULT_JOIN_EDGES = true;
-
-	public static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
-	public static final int DEFAULT_GRAPH_NODE_SIZE = 10;
-	public static final int DEFAULT_GRAPH_FONT_SIZE = 12;
-	public static final boolean DEFAULT_GRAPH_FONT_BOLD = false;
-	public static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
-	public static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
-			400, 600);
-
 	private static final String CFG_NODE_ID_COLUMN = "NodeIdColumn";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
@@ -71,6 +60,17 @@ public class SimpleGraphVisualizerSettings extends VisualizerSettings {
 	private static final String CFG_GRAPH_CANVAS_SIZE = "GraphCanvasSize";
 	private static final String CFG_GRAPH_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_GRAPH_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
+	
+	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
+	private static final boolean DEFAULT_JOIN_EDGES = true;
+
+	private static final boolean DEFAULT_GRAPH_SHOW_LEGEND = false;
+	private static final int DEFAULT_GRAPH_NODE_SIZE = 10;
+	private static final int DEFAULT_GRAPH_FONT_SIZE = 12;
+	private static final boolean DEFAULT_GRAPH_FONT_BOLD = false;
+	private static final Mode DEFAULT_GRAPH_EDITING_MODE = Mode.PICKING;
+	private static final Dimension DEFAULT_GRAPH_CANVAS_SIZE = new Dimension(
+			400, 600);
 
 	private String nodeIdColumn;
 	private boolean skipEdgelessNodes;

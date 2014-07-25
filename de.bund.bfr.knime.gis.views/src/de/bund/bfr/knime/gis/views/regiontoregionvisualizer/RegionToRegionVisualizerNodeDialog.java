@@ -53,8 +53,6 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
-import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -328,11 +326,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		} else {
 			graphCanvas = new GraphCanvas(false);
-			graphCanvas
-					.setCanvasSize(SimpleGraphVisualizerSettings.DEFAULT_GRAPH_CANVAS_SIZE);
+			graphCanvas.setCanvasSize(set.getGraphCanvasSize());
 			gisCanvas = new RegionCanvas(true);
-			gisCanvas
-					.setCanvasSize(GisToGisVisualizerSettings.DEFAULT_GIS_CANVAS_SIZE);
+			gisCanvas.setCanvasSize(set.getGisCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
