@@ -35,7 +35,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
-import org.knime.core.node.util.ColumnComboBoxRenderer;
+import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 
 public class ColumnComboBox extends JPanel implements ActionListener {
 
@@ -67,9 +67,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 			add(enableBox, BorderLayout.WEST);
 		}
 
-		ColumnComboBoxRenderer renderer = new ColumnComboBoxRenderer();
-
-		renderer.attachTo(selectionBox);
+		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());
 	}
 
 	public ColumnComboBox(boolean optional) {
@@ -97,7 +95,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	public void setSelectedColumn(DataColumnSpec column) {
 		if (columns.contains(column)) {
 			selectionBox.setSelectedItem(column);
-		} else {
+		} else if (optional) {
 			selectionBox.setSelectedItem(null);
 		}
 
