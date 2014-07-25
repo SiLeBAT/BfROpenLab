@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime;
+package de.bund.bfr.knime.ui;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -50,24 +50,23 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	public ColumnComboBox(boolean optional, List<DataColumnSpec> columns) {
 		this.optional = optional;
 		this.columns = columns;
-		setLayout(new BorderLayout(5, 5));
 
 		if (this.columns == null) {
 			this.columns = new ArrayList<>();
 		}
 
 		selectionBox = new JComboBox<>(new Vector<>(this.columns));
+		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());
+		enableBox = new JCheckBox();
+		enableBox.setSelected(true);
+		enableBox.addActionListener(this);
+
+		setLayout(new BorderLayout(5, 5));
 		add(selectionBox, BorderLayout.CENTER);
 
 		if (optional) {
-			enableBox = new JCheckBox();
-			enableBox.setSelected(true);
-			enableBox.addActionListener(this);
-			selectionBox.setEnabled(false);
 			add(enableBox, BorderLayout.WEST);
 		}
-
-		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());
 	}
 
 	public ColumnComboBox(boolean optional) {

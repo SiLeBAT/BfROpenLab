@@ -43,10 +43,10 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		ActionListener {

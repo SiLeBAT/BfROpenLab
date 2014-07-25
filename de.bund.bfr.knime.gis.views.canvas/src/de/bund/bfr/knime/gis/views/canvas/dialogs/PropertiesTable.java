@@ -34,10 +34,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import de.bund.bfr.knime.BooleanCellRenderer;
-import de.bund.bfr.knime.DoubleCellRenderer;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.ui.BooleanCellRenderer;
+import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class PropertiesTable extends JTable {
 

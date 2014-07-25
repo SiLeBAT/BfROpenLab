@@ -31,7 +31,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.text.JTextComponent;
 
-import de.bund.bfr.knime.DoubleCellRenderer;
+import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class InputTable extends JTable {
 

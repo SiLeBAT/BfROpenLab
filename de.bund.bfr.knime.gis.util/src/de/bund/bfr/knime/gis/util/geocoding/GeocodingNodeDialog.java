@@ -42,9 +42,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
-import de.bund.bfr.knime.ColumnComboBox;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.ColumnComboBox;
 
 /**
  * <code>NodeDialog</code> for the "Geocoding" Node.
