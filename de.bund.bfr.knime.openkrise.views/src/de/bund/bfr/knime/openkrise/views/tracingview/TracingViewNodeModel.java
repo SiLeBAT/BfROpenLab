@@ -366,14 +366,14 @@ public class TracingViewNodeModel extends NodeModel {
 	private static TracingCanvas createAllEdgesCanvas(
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
 			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set) {
-		boolean joinEdges = set.isJoinEdges();
+		boolean joinEdges = set.getGraphSettings().isJoinEdges();
 
-		set.setJoinEdges(false);
+		set.getGraphSettings().setJoinEdges(false);
 
 		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, deliveries, set).createGraphCanvas();
 
-		set.setJoinEdges(joinEdges);
+		set.getGraphSettings().setJoinEdges(joinEdges);
 
 		return canvas;
 	}

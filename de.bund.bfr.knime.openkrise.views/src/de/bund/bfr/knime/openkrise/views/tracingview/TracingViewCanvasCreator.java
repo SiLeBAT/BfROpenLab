@@ -128,14 +128,14 @@ public class TracingViewCanvasCreator {
 				edgeProperties, deliveries);
 
 		canvas.setPerformTracing(false);
-		canvas.setShowLegend(set.isGraphShowLegend());
-		canvas.setCanvasSize(set.getGraphCanvasSize());
-		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setFontSize(set.getGraphFontSize());
-		canvas.setFontBold(set.isGraphFontBold());
-		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setCollapsedNodes(set.getCollapsedNodes());
+		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+		canvas.setEditingMode(set.getGraphSettings().getEditingMode());
+		canvas.setNodeSize(set.getGraphSettings().getNodeSize());
+		canvas.setFontSize(set.getGraphSettings().getFontSize());
+		canvas.setFontBold(set.getGraphSettings().isFontBold());
+		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setCollapsedNodes(set.getGraphSettings().getCollapsedNodes());
 		canvas.setNodeWeights(set.getNodeWeights());
 		canvas.setEdgeWeights(set.getEdgeWeights());
 		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
@@ -144,24 +144,29 @@ public class TracingViewCanvasCreator {
 		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
 		canvas.setLabel(set.getLabel());
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
+		canvas.setNodeHighlightConditions(set.getGraphSettings()
+				.getNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphSettings()
+				.getEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.getGraphSettings()
+				.isSkipEdgelessNodes());
 		canvas.setPerformTracing(true);
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
-				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
-				.getGraphSelectedEdges()));
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedEdges()));
 
-		if (!Double.isNaN(set.getGraphScaleX())
-				&& !Double.isNaN(set.getGraphScaleY())
-				&& !Double.isNaN(set.getGraphTranslationX())
-				&& !Double.isNaN(set.getGraphTranslationY())) {
-			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
-					set.getGraphTranslationX(), set.getGraphTranslationY());
+		if (!Double.isNaN(set.getGraphSettings().getScaleX())
+				&& !Double.isNaN(set.getGraphSettings().getScaleY())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationX())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationY())) {
+			canvas.setTransform(set.getGraphSettings().getScaleX(), set
+					.getGraphSettings().getScaleY(), set.getGraphSettings()
+					.getTranslationX(), set.getGraphSettings()
+					.getTranslationY());
 		}
 
-		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
 
 		return canvas;
 	}

@@ -184,7 +184,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (canvas == null) {
 			canvas = new TracingCanvas();
-			canvas.setCanvasSize(set.getGraphCanvasSize());
+			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 		}
 
 		panel.add(canvas, BorderLayout.CENTER);
@@ -202,23 +202,26 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 
-		set.setGraphShowLegend(canvas.isShowLegend());
-		set.setGraphScaleX(canvas.getScaleX());
-		set.setGraphScaleY(canvas.getScaleY());
-		set.setGraphTranslationX(canvas.getTranslationX());
-		set.setGraphTranslationY(canvas.getTranslationY());
-		set.setGraphNodePositions(canvas.getNodePositions());
-		set.setGraphNodeSize(canvas.getNodeSize());
-		set.setGraphFontSize(canvas.getFontSize());
-		set.setGraphFontBold(canvas.isFontBold());
-		set.setJoinEdges(canvas.isJoinEdges());
-		set.setSkipEdgelessNodes(canvas.isSkipEdgelessNodes());
-		set.setCollapsedNodes(canvas.getCollapsedNodes());
-		set.setGraphSelectedNodes(selectedGraphNodes);
-		set.setGraphSelectedEdges(selectedGraphEdges);
-		set.setGraphNodeHighlightConditions(canvas.getNodeHighlightConditions());
-		set.setGraphEdgeHighlightConditions(canvas.getEdgeHighlightConditions());
-		set.setGraphEditingMode(canvas.getEditingMode());
+		set.getGraphSettings().setShowLegend(canvas.isShowLegend());
+		set.getGraphSettings().setScaleX(canvas.getScaleX());
+		set.getGraphSettings().setScaleY(canvas.getScaleY());
+		set.getGraphSettings().setTranslationX(canvas.getTranslationX());
+		set.getGraphSettings().setTranslationY(canvas.getTranslationY());
+		set.getGraphSettings().setNodePositions(canvas.getNodePositions());
+		set.getGraphSettings().setNodeSize(canvas.getNodeSize());
+		set.getGraphSettings().setFontSize(canvas.getFontSize());
+		set.getGraphSettings().setFontBold(canvas.isFontBold());
+		set.getGraphSettings().setJoinEdges(canvas.isJoinEdges());
+		set.getGraphSettings().setSkipEdgelessNodes(
+				canvas.isSkipEdgelessNodes());
+		set.getGraphSettings().setCollapsedNodes(canvas.getCollapsedNodes());
+		set.getGraphSettings().setSelectedNodes(selectedGraphNodes);
+		set.getGraphSettings().setSelectedEdges(selectedGraphEdges);
+		set.getGraphSettings().setNodeHighlightConditions(
+				canvas.getNodeHighlightConditions());
+		set.getGraphSettings().setEdgeHighlightConditions(
+				canvas.getEdgeHighlightConditions());
+		set.getGraphSettings().setEditingMode(canvas.getEditingMode());
 		set.setNodeWeights(canvas.getNodeWeights());
 		set.setEdgeWeights(canvas.getEdgeWeights());
 		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
@@ -229,7 +232,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setLabel(canvas.getLabel());
 
 		if (resized) {
-			set.setGraphCanvasSize(canvas.getCanvasSize());
+			set.getGraphSettings().setCanvasSize(canvas.getCanvasSize());
 		}
 	}
 }
