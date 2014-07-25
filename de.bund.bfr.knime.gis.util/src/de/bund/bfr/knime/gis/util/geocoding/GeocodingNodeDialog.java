@@ -56,18 +56,20 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	private GeocodingSettings set;
 
 	private JComboBox<String> providerBox;
+	private JTextField delayField;
+	private JComboBox<String> multipleBox;
+
 	private ColumnComboBox addressBox;
+	private ColumnComboBox countryCodeBox;
+	private JTextField serverField;
+
 	private ColumnComboBox streetBox;
 	private ColumnComboBox cityBox;
 	private ColumnComboBox countyBox;
 	private ColumnComboBox stateBox;
 	private ColumnComboBox countryBox;
-	private ColumnComboBox countryCodeBox;
 	private ColumnComboBox postalCodeBox;
 	private JTextField keyField;
-	private JTextField serverField;
-	private JTextField delayField;
-	private JComboBox<String> multipleBox;
 
 	private JPanel panel;
 
@@ -78,18 +80,20 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		set = new GeocodingSettings();
 		providerBox = new JComboBox<>(GeocodingSettings.PROVIDER_CHOICES);
 		providerBox.addItemListener(this);
-		addressBox = new ColumnComboBox(true);
+		delayField = new JTextField();
+		multipleBox = new JComboBox<>(GeocodingSettings.MULTIPLE_CHOICES);
+
+		addressBox = new ColumnComboBox(false);
+		countryCodeBox = new ColumnComboBox(false);
+		serverField = new JTextField();
+
 		streetBox = new ColumnComboBox(true);
 		cityBox = new ColumnComboBox(true);
 		countyBox = new ColumnComboBox(true);
 		stateBox = new ColumnComboBox(true);
 		countryBox = new ColumnComboBox(true);
-		countryCodeBox = new ColumnComboBox(true);
 		postalCodeBox = new ColumnComboBox(true);
 		keyField = new JTextField();
-		serverField = new JTextField();
-		delayField = new JTextField();
-		multipleBox = new JComboBox<>(GeocodingSettings.MULTIPLE_CHOICES);
 
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -100,42 +104,47 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
 		addressBox.removeAllColumns();
+		countryCodeBox.removeAllColumns();
+
 		streetBox.removeAllColumns();
 		cityBox.removeAllColumns();
 		countyBox.removeAllColumns();
 		stateBox.removeAllColumns();
 		countryBox.removeAllColumns();
-		countryCodeBox.removeAllColumns();
 		postalCodeBox.removeAllColumns();
 
 		for (DataColumnSpec column : KnimeUtilities.getColumns(specs[0],
 				StringCell.TYPE)) {
 			addressBox.addColumn(column);
+			countryCodeBox.addColumn(column);
+
 			streetBox.addColumn(column);
 			cityBox.addColumn(column);
 			countyBox.addColumn(column);
 			stateBox.addColumn(column);
 			countryBox.addColumn(column);
-			countryCodeBox.addColumn(column);
 			postalCodeBox.addColumn(column);
 		}
 
 		set.loadSettings(settings);
+
 		providerBox.setSelectedItem(set.getServiceProvider());
+		delayField.setText(set.getRequestDelay() + "");
+		multipleBox.setSelectedItem(set.getMultipleResults());
+
 		addressBox.setSelectedColumnName(set.getAddressColumn());
+		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
+		serverField.setText(set.getGisgraphyServer() != null ? set
+				.getGisgraphyServer() : "");
+
 		streetBox.setSelectedColumnName(set.getStreetColumn());
 		cityBox.setSelectedColumnName(set.getCityColumn());
 		countyBox.setSelectedColumnName(set.getCountyColumn());
 		stateBox.setSelectedColumnName(set.getStateColumn());
 		countryBox.setSelectedColumnName(set.getCountryColumn());
-		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
 		postalCodeBox.setSelectedColumnName(set.getPostalCodeColumn());
 		keyField.setText(set.getMapQuestKey() != null ? set.getMapQuestKey()
 				: "");
-		serverField.setText(set.getGisgraphyServer() != null ? set
-				.getGisgraphyServer() : "");
-		delayField.setText(set.getRequestDelay() + "");
-		multipleBox.setSelectedItem(set.getMultipleResults());
 
 		updatePanel();
 	}
@@ -159,8 +168,17 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 
 		if (set.getServiceProvider()
 				.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
+			if (streetBox.getSelectedColumnName() == null
+					&& cityBox.getSelectedColumnName() == null
+					&& countyBox.getSelectedColumnName() == null
+					&& stateBox.getSelectedColumnName() == null
+					&& countryBox.getSelectedColumnName() == null
+					&& postalCodeBox.getSelectedColumnName() == null) {
+				throw new InvalidSettingsException("No Address Data specified");
+			}
+
 			if (keyField.getText().trim().isEmpty()) {
-				throw new InvalidSettingsException("No MapQuest key specified");
+				throw new InvalidSettingsException("No MapQuest Key specified");
 			}
 
 			set.setStreetColumn(streetBox.getSelectedColumnName());
