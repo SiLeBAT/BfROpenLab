@@ -23,52 +23,37 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.graphvisualizer;
 
-import java.awt.geom.Point2D;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
+import de.bund.bfr.knime.gis.views.GraphSettings;
+import de.bund.bfr.knime.gis.views.ViewSettings;
 
-public class GraphVisualizerSettings extends SimpleGraphVisualizerSettings {
+public class GraphVisualizerSettings extends ViewSettings {
 
-	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
-
-	private Map<String, Map<String, Point2D>> collapsedNodes;
+	private GraphSettings graphSettings;	
 
 	public GraphVisualizerSettings() {
-		collapsedNodes = new LinkedHashMap<>();
+		graphSettings = new GraphSettings();
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-
-		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
-					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
-		} catch (InvalidSettingsException e) {
-		}
+		graphSettings.loadSettings(settings);
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		settings.addString(CFG_COLLAPSED_NODES,
-				SERIALIZER.toXml(collapsedNodes));
+		graphSettings.saveSettings(settings);
+	}
+	
+	public GraphSettings getGraphSettings() {
+		return graphSettings;
 	}
 
-	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
-		return collapsedNodes;
+	public void setGraphSettings(GraphSettings graphSettings) {
+		this.graphSettings = graphSettings;
 	}
-
-	public void setCollapsedNodes(
-			Map<String, Map<String, Point2D>> collapsedNodes) {
-		this.collapsedNodes = collapsedNodes;
-	}
-
 }

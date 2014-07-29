@@ -144,7 +144,7 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		if (canvas == null) {
 			canvas = new LocationCanvas(false);
-			canvas.setCanvasSize(set.getCanvasSize());
+			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -158,20 +158,21 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
-		set.setShowLegend(canvas.isShowLegend());
-		set.setScaleX(canvas.getScaleX());
-		set.setScaleY(canvas.getScaleY());
-		set.setTranslationX(canvas.getTranslationX());
-		set.setTranslationY(canvas.getTranslationY());
-		set.setFontSize(canvas.getFontSize());
-		set.setFontBold(canvas.isFontBold());
-		set.setBorderAlpha(canvas.getBorderAlpha());
-		set.setEditingMode(canvas.getEditingMode());
-		set.setNodeSize(canvas.getNodeSize());
-		set.setNodeHighlightConditions(canvas.getNodeHighlightConditions());
+		set.getGisSettings().setShowLegend(canvas.isShowLegend());
+		set.getGisSettings().setScaleX(canvas.getScaleX());
+		set.getGisSettings().setScaleY(canvas.getScaleY());
+		set.getGisSettings().setTranslationX(canvas.getTranslationX());
+		set.getGisSettings().setTranslationY(canvas.getTranslationY());
+		set.getGisSettings().setFontSize(canvas.getFontSize());
+		set.getGisSettings().setFontBold(canvas.isFontBold());
+		set.getGisSettings().setBorderAlpha(canvas.getBorderAlpha());
+		set.getGisSettings().setEditingMode(canvas.getEditingMode());
+		set.getGisSettings().setNodeSize(canvas.getNodeSize());
+		set.getGisSettings().setNodeHighlightConditions(
+				canvas.getNodeHighlightConditions());
 
 		if (resized) {
-			set.setCanvasSize(canvas.getCanvasSize());
+			set.getGisSettings().setCanvasSize(canvas.getCanvasSize());
 		}
 	}
 

@@ -23,80 +23,50 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
+import de.bund.bfr.knime.gis.views.GraphSettings;
+import de.bund.bfr.knime.gis.views.LocationSettings;
+import de.bund.bfr.knime.gis.views.ViewSettings;
 
-public class LocationToLocationVisualizerSettings extends
-		GisToGisVisualizerSettings {
+public class LocationToLocationVisualizerSettings extends ViewSettings {
 
-	public static final int DEFAULT_GIS_NODE_SIZE = 4;
-
-	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
-	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
-	private static final String CFG_GIS_NODE_SIZE = "GisLocationSize";
-
-	private String nodeLatitudeColumn;
-	private String nodeLongitudeColumn;
-	private int gisNodeSize;
+	private GraphSettings graphSettings;
+	private LocationSettings gisSettings;
 
 	public LocationToLocationVisualizerSettings() {
-		nodeLatitudeColumn = null;
-		nodeLongitudeColumn = null;
-		gisNodeSize = DEFAULT_GIS_NODE_SIZE;
+		graphSettings = new GraphSettings();
+		gisSettings = new LocationSettings();
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-
-		try {
-			nodeLatitudeColumn = settings.getString(CFG_NODE_LATITUDE_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			nodeLongitudeColumn = settings.getString(CFG_NODE_LONGITUDE_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisNodeSize = settings.getInt(CFG_GIS_NODE_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
+		graphSettings.loadSettings(settings);
+		gisSettings.loadSettings(settings);
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
-		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
-		settings.addInt(CFG_GIS_NODE_SIZE, gisNodeSize);
+		graphSettings.saveSettings(settings);
+		gisSettings.saveSettings(settings);
 	}
 
-	public String getNodeLatitudeColumn() {
-		return nodeLatitudeColumn;
+	public GraphSettings getGraphSettings() {
+		return graphSettings;
 	}
 
-	public void setNodeLatitudeColumn(String nodeLatitudeColumn) {
-		this.nodeLatitudeColumn = nodeLatitudeColumn;
+	public void setGraphSettings(GraphSettings graphSettings) {
+		this.graphSettings = graphSettings;
 	}
 
-	public String getNodeLongitudeColumn() {
-		return nodeLongitudeColumn;
+	public LocationSettings getGisSettings() {
+		return gisSettings;
 	}
 
-	public void setNodeLongitudeColumn(String nodeLongitudeColumn) {
-		this.nodeLongitudeColumn = nodeLongitudeColumn;
-	}
-
-	public int getGisNodeSize() {
-		return gisNodeSize;
-	}
-
-	public void setGisLocationSize(int gisNodeSize) {
-		this.gisNodeSize = gisNodeSize;
+	public void setGisSettings(LocationSettings gisSettings) {
+		this.gisSettings = gisSettings;
 	}
 }

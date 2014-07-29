@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -60,8 +61,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 		this.edgeTable = edgeTable;
 		this.set = set;
 
-		idToRegionMap = ViewUtilities.getIdToRegionMap(nodeTable,
-				set.getNodeIdColumn(), set.getNodeRegionColumn());
+		idToRegionMap = ViewUtilities.getIdToRegionMap(nodeTable, set
+				.getGraphSettings().getNodeIdColumn(), set.getGisSettings()
+				.getNodeRegionColumn());
 		nonExistingRegions = new LinkedHashSet<>();
 	}
 
@@ -71,96 +73,113 @@ public class RegionToRegionVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
-				nodeProperties, set.getNodeIdColumn(),
-				set.getNodeRegionColumn());
+				nodeProperties, set.getGraphSettings().getNodeIdColumn(), set
+						.getGisSettings().getNodeRegionColumn());
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
+				edgeProperties, nodes, null, set.getGraphSettings()
+						.getEdgeFromColumn(), set.getGraphSettings()
+						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
-				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn(),
-				false);
+				edges, nodeProperties, edgeProperties, set.getGraphSettings()
+						.getNodeIdColumn(), edgeIdProperty, set
+						.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn(), false);
 
-		canvas.setShowLegend(set.isGraphShowLegend());
-		canvas.setCanvasSize(set.getGraphCanvasSize());
-		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setFontSize(set.getGraphFontSize());
-		canvas.setFontBold(set.isGraphFontBold());
-		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
-				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
-				.getGraphSelectedEdges()));
+		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+		canvas.setEditingMode(set.getGraphSettings().getEditingMode());
+		canvas.setNodeSize(set.getGraphSettings().getNodeSize());
+		canvas.setFontSize(set.getGraphSettings().getFontSize());
+		canvas.setFontBold(set.getGraphSettings().isFontBold());
+		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setNodeHighlightConditions(set.getGraphSettings()
+				.getNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphSettings()
+				.getEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.getGraphSettings()
+				.isSkipEdgelessNodes());
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedEdges()));
 
-		if (!Double.isNaN(set.getGraphScaleX())
-				&& !Double.isNaN(set.getGraphScaleY())
-				&& !Double.isNaN(set.getGraphTranslationX())
-				&& !Double.isNaN(set.getGraphTranslationY())) {
-			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
-					set.getGraphTranslationX(), set.getGraphTranslationY());
+		if (!Double.isNaN(set.getGraphSettings().getScaleX())
+				&& !Double.isNaN(set.getGraphSettings().getScaleY())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationX())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationY())) {
+			canvas.setTransform(set.getGraphSettings().getScaleX(), set
+					.getGraphSettings().getScaleY(), set.getGraphSettings()
+					.getTranslationX(), set.getGraphSettings()
+					.getTranslationY());
 		}
 
-		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
 
 		return canvas;
 	}
 
 	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
-				shapeTable, set.getShapeColumn(), set.getShapeRegionColumn());
+				shapeTable, set.getGisSettings().getShapeColumn(), set
+						.getGisSettings().getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, RegionNode> nodes = ViewUtilities.readRegionNodes(
-				nodeTable, nodeProperties, polygonMap, idToRegionMap,
-				set.getNodeIdColumn(), nonExistingRegions);
+				nodeTable, nodeProperties, polygonMap, idToRegionMap, set
+						.getGraphSettings().getNodeIdColumn(),
+				nonExistingRegions);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
 		List<Edge<RegionNode>> edges = ViewUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, idToRegionMap, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
+				edgeProperties, nodes, idToRegionMap, set.getGraphSettings()
+						.getEdgeFromColumn(), set.getGraphSettings()
+						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
-				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn());
+				edges, nodeProperties, edgeProperties, set.getGraphSettings()
+						.getNodeIdColumn(), edgeIdProperty, set
+						.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn());
 
-		canvas.setShowLegend(set.isGisShowLegend());
-		canvas.setCanvasSize(set.getGisCanvasSize());
-		canvas.setEditingMode(set.getGisEditingMode());
-		canvas.setFontSize(set.getGisFontSize());
-		canvas.setFontBold(set.isGisFontBold());
-		canvas.setBorderAlpha(set.getGisBorderAlpha());
-		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setNodeHighlightConditions(set.getGisNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGisEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
-		canvas.setSelectedNodes(getSelectedGisNodes(canvas.getNodes(),
+		canvas.setShowLegend(set.getGisSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+		canvas.setEditingMode(set.getGisSettings().getEditingMode());
+		canvas.setFontSize(set.getGisSettings().getFontSize());
+		canvas.setFontBold(set.getGisSettings().isFontBold());
+		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
+		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setNodeHighlightConditions(set.getGisSettings()
+				.getNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphSettings()
+				.getEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.getGraphSettings()
+				.isSkipEdgelessNodes());
+		canvas.setSelectedNodeIds(getSelectedGisNodeIds(canvas.getNodes(),
 				graphCanvas.getSelectedNodes()));
-		canvas.setSelectedEdges(getSelectedGisEdges(canvas.getEdges(),
-				graphCanvas.getSelectedEdges(), set.isJoinEdges()));
+		canvas.setSelectedEdgeIds(getSelectedGisEdgeIds(canvas.getEdges(),
+				graphCanvas.getSelectedEdges(), set.getGraphSettings()
+						.isJoinEdges()));
 
-		if (!Double.isNaN(set.getGisScaleX())
-				&& !Double.isNaN(set.getGisScaleY())
-				&& !Double.isNaN(set.getGisTranslationX())
-				&& !Double.isNaN(set.getGisTranslationY())) {
-			canvas.setTransform(set.getGisScaleX(), set.getGisScaleY(),
-					set.getGisTranslationX(), set.getGisTranslationY());
+		if (!Double.isNaN(set.getGisSettings().getScaleX())
+				&& !Double.isNaN(set.getGisSettings().getScaleY())
+				&& !Double.isNaN(set.getGisSettings().getTranslationX())
+				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
+			canvas.setTransform(set.getGisSettings().getScaleX(), set
+					.getGisSettings().getScaleY(), set.getGisSettings()
+					.getTranslationX(), set.getGisSettings().getTranslationY());
 		}
 
 		return canvas;
@@ -170,9 +189,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return nonExistingRegions;
 	}
 
-	public static Set<RegionNode> getSelectedGisNodes(Set<RegionNode> gisNodes,
+	public static Set<String> getSelectedGisNodeIds(Set<RegionNode> gisNodes,
 			Set<GraphNode> selectedGraphNodes) {
-		Set<RegionNode> selectedGisNodes = new LinkedHashSet<>();
+		Set<String> selectedGisNodeIds = new LinkedHashSet<>();
 		Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<>();
 
 		for (RegionNode gisNode : gisNodes) {
@@ -183,28 +202,21 @@ public class RegionToRegionVisualizerCanvasCreator {
 			RegionNode gisNode = gisNodesByRegion.get(graphNode.getRegion());
 
 			if (gisNode != null) {
-				selectedGisNodes.add(gisNode);
+				selectedGisNodeIds.add(gisNode.getId());
 			}
 		}
 
-		return selectedGisNodes;
+		return selectedGisNodeIds;
 	}
 
-	public static Set<Edge<RegionNode>> getSelectedGisEdges(
+	public static Set<String> getSelectedGisEdgeIds(
 			Set<Edge<RegionNode>> gisEdges,
 			Set<Edge<GraphNode>> graphSelectedEdges, boolean joinEdges) {
-		Set<Edge<RegionNode>> selectedGisEdges = new LinkedHashSet<>();
+		Set<String> selectedGisEdgeIds = new LinkedHashSet<>();
 
 		if (!joinEdges) {
-			Map<String, Edge<RegionNode>> gisEdgesById = new LinkedHashMap<>();
-
-			for (Edge<RegionNode> gisEdge : gisEdges) {
-				gisEdgesById.put(gisEdge.getId(), gisEdge);
-			}
-
-			for (Edge<GraphNode> graphEdge : graphSelectedEdges) {
-				selectedGisEdges.add(gisEdgesById.get(graphEdge.getId()));
-			}
+			selectedGisEdgeIds.addAll(CanvasUtilities
+					.getElementIds(graphSelectedEdges));
 		} else {
 			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<>();
 
@@ -229,12 +241,12 @@ public class RegionToRegionVisualizerCanvasCreator {
 							.get(toRegion);
 
 					if (gisEdge != null) {
-						selectedGisEdges.add(gisEdge);
+						selectedGisEdgeIds.add(gisEdge.getId());
 					}
 				}
 			}
 		}
 
-		return selectedGisEdges;
+		return selectedGisEdgeIds;
 	}
 }

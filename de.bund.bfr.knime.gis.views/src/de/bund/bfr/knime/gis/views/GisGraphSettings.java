@@ -21,39 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.views.regionvisualizer;
+package de.bund.bfr.knime.gis.views;
 
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
+public class GisGraphSettings extends GisSettings {
 
-import de.bund.bfr.knime.gis.views.RegionSettings;
-import de.bund.bfr.knime.gis.views.ViewSettings;
-
-public class RegionVisualizerSettings extends ViewSettings {
-
-	private RegionSettings gisSettings;
-
-	public RegionVisualizerSettings() {
-		gisSettings = new RegionSettings();
-	}
-
-	@Override
-	public void loadSettings(NodeSettingsRO settings) {
-		super.loadSettings(settings);
-		gisSettings.loadSettings(settings);
-	}
-
-	@Override
-	public void saveSettings(NodeSettingsWO settings) {
-		super.saveSettings(settings);
-		gisSettings.saveSettings(settings);
-	}
-
-	public RegionSettings getGisSettings() {
-		return gisSettings;
-	}
-
-	public void setGisSettings(RegionSettings gisSettings) {
-		this.gisSettings = gisSettings;
-	}
 }

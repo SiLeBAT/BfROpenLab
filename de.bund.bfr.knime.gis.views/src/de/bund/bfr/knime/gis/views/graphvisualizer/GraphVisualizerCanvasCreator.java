@@ -55,47 +55,54 @@ public class GraphVisualizerCanvasCreator {
 		Map<String, Class<?>> edgeProperties = KnimeUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
-				nodeProperties, set.getNodeIdColumn(), null);
+				nodeProperties, set.getGraphSettings().getNodeIdColumn(), null);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
 		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
-				edgeProperties, nodes, null, set.getEdgeFromColumn(),
-				set.getEdgeToColumn());
+				edgeProperties, nodes, null, set.getGraphSettings()
+						.getEdgeFromColumn(), set.getGraphSettings()
+						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getNodeIdColumn(),
-				edgeIdProperty, set.getEdgeFromColumn(), set.getEdgeToColumn(),
-				true);
+				edges, nodeProperties, edgeProperties, set.getGraphSettings()
+						.getNodeIdColumn(), edgeIdProperty, set
+						.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn(), true);
 
-		canvas.setShowLegend(set.isGraphShowLegend());
-		canvas.setCanvasSize(set.getGraphCanvasSize());
-		canvas.setEditingMode(set.getGraphEditingMode());
-		canvas.setNodeSize(set.getGraphNodeSize());
-		canvas.setFontSize(set.getGraphFontSize());
-		canvas.setFontBold(set.isGraphFontBold());
-		canvas.setJoinEdges(set.isJoinEdges());
-		canvas.setCollapsedNodes(set.getCollapsedNodes());
-		canvas.setNodeHighlightConditions(set.getGraphNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set
-				.getGraphSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set
-				.getGraphSelectedEdges()));
+		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+		canvas.setEditingMode(set.getGraphSettings().getEditingMode());
+		canvas.setNodeSize(set.getGraphSettings().getNodeSize());
+		canvas.setFontSize(set.getGraphSettings().getFontSize());
+		canvas.setFontBold(set.getGraphSettings().isFontBold());
+		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setCollapsedNodes(set.getGraphSettings().getCollapsedNodes());
+		canvas.setNodeHighlightConditions(set.getGraphSettings()
+				.getNodeHighlightConditions());
+		canvas.setEdgeHighlightConditions(set.getGraphSettings()
+				.getEdgeHighlightConditions());
+		canvas.setSkipEdgelessNodes(set.getGraphSettings()
+				.isSkipEdgelessNodes());
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
+				.getSelectedEdges()));
 
-		if (!Double.isNaN(set.getGraphScaleX())
-				&& !Double.isNaN(set.getGraphScaleY())
-				&& !Double.isNaN(set.getGraphTranslationX())
-				&& !Double.isNaN(set.getGraphTranslationY())) {
-			canvas.setTransform(set.getGraphScaleX(), set.getGraphScaleY(),
-					set.getGraphTranslationX(), set.getGraphTranslationY());
+		if (!Double.isNaN(set.getGraphSettings().getScaleX())
+				&& !Double.isNaN(set.getGraphSettings().getScaleY())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationX())
+				&& !Double.isNaN(set.getGraphSettings().getTranslationY())) {
+			canvas.setTransform(set.getGraphSettings().getScaleX(), set
+					.getGraphSettings().getScaleY(), set.getGraphSettings()
+					.getTranslationX(), set.getGraphSettings()
+					.getTranslationY());
 		}
 
-		canvas.setNodePositions(set.getGraphNodePositions());
+		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
 
 		return canvas;
 	}

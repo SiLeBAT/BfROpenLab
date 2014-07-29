@@ -21,39 +21,60 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.views.regionvisualizer;
+package de.bund.bfr.knime.gis.views;
 
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.RegionSettings;
-import de.bund.bfr.knime.gis.views.ViewSettings;
+public class RegionSettings extends GisSettings {
 
-public class RegionVisualizerSettings extends ViewSettings {
+	private static final String CFG_SHAPE_REGION_COLUMN = "ShapeRegionColumn";
+	private static final String CFG_NODE_REGION_COLUMN = "NodeRegionColumn";
 
-	private RegionSettings gisSettings;
+	private String shapeRegionColumn;
+	private String nodeRegionColumn;
 
-	public RegionVisualizerSettings() {
-		gisSettings = new RegionSettings();
+	public RegionSettings() {
+		shapeRegionColumn = null;
+		nodeRegionColumn = null;
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-		gisSettings.loadSettings(settings);
+
+		try {
+			shapeRegionColumn = settings.getString(CFG_SHAPE_REGION_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeRegionColumn = settings.getString(CFG_NODE_REGION_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		gisSettings.saveSettings(settings);
+		settings.addString(CFG_SHAPE_REGION_COLUMN, shapeRegionColumn);
+		settings.addString(CFG_NODE_REGION_COLUMN, nodeRegionColumn);
 	}
 
-	public RegionSettings getGisSettings() {
-		return gisSettings;
+	public String getShapeRegionColumn() {
+		return shapeRegionColumn;
 	}
 
-	public void setGisSettings(RegionSettings gisSettings) {
-		this.gisSettings = gisSettings;
+	public void setShapeRegionColumn(String shapeRegionColumn) {
+		this.shapeRegionColumn = shapeRegionColumn;
+	}
+
+	public String getNodeRegionColumn() {
+		return nodeRegionColumn;
+	}
+
+	public void setNodeRegionColumn(String nodeRegionColumn) {
+		this.nodeRegionColumn = nodeRegionColumn;
 	}
 }

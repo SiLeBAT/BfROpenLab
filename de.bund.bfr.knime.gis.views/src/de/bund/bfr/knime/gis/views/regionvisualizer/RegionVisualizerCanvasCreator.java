@@ -57,33 +57,38 @@ public class RegionVisualizerCanvasCreator {
 
 	public RegionCanvas createCanvas() {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
-				shapeTable, set.getShapeColumn(), set.getShapeRegionColumn());
+				shapeTable, set.getGisSettings().getShapeColumn(), set
+						.getGisSettings().getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<RegionNode> nodes = new ArrayList<>(ViewUtilities.readRegionNodes(
 				nodeTable, nodeProperties, polygonMap, null,
-				set.getNodeRegionColumn(), nonExistingRegions).values());
+				set.getGisSettings().getNodeRegionColumn(), nonExistingRegions)
+				.values());
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		RegionCanvas canvas = new RegionCanvas(nodes, nodeProperties,
-				set.getNodeRegionColumn());
+		RegionCanvas canvas = new RegionCanvas(nodes, nodeProperties, set
+				.getGisSettings().getNodeRegionColumn());
 
-		canvas.setShowLegend(set.isShowLegend());
-		canvas.setCanvasSize(set.getCanvasSize());
-		canvas.setFontSize(set.getFontSize());
-		canvas.setFontBold(set.isFontBold());
-		canvas.setBorderAlpha(set.getBorderAlpha());
-		canvas.setEditingMode(set.getEditingMode());
-		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());
+		canvas.setShowLegend(set.getGisSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+		canvas.setFontSize(set.getGisSettings().getFontSize());
+		canvas.setFontBold(set.getGisSettings().isFontBold());
+		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
+		canvas.setEditingMode(set.getGisSettings().getEditingMode());
+		canvas.setNodeHighlightConditions(set.getGisSettings()
+				.getNodeHighlightConditions());
 
-		if (!Double.isNaN(set.getScaleX()) && !Double.isNaN(set.getScaleY())
-				&& !Double.isNaN(set.getTranslationX())
-				&& !Double.isNaN(set.getTranslationY())) {
-			canvas.setTransform(set.getScaleX(), set.getScaleY(),
-					set.getTranslationX(), set.getTranslationY());
+		if (!Double.isNaN(set.getGisSettings().getScaleX())
+				&& !Double.isNaN(set.getGisSettings().getScaleY())
+				&& !Double.isNaN(set.getGisSettings().getTranslationX())
+				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
+			canvas.setTransform(set.getGisSettings().getScaleX(), set
+					.getGisSettings().getScaleY(), set.getGisSettings()
+					.getTranslationX(), set.getGisSettings().getTranslationY());
 		}
 
 		return canvas;

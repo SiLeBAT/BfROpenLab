@@ -45,7 +45,6 @@ import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.SimpleGraphVisualizerSettings;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class GraphVisualizerInputDialog extends JDialog implements
@@ -61,7 +60,7 @@ public class GraphVisualizerInputDialog extends JDialog implements
 	private JButton cancelButton;
 
 	private boolean approved;
-	private SimpleGraphVisualizerSettings set;
+	private GraphVisualizerSettings set;
 
 	public GraphVisualizerInputDialog(JComponent owner, DataTableSpec nodeSpec,
 			DataTableSpec edgeSpec, GraphVisualizerSettings set) {
@@ -72,13 +71,16 @@ public class GraphVisualizerInputDialog extends JDialog implements
 
 		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
+		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
+				.getNodeIdColumn());
 		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
+		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeFromColumn());
 		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
+		edgeToBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -132,9 +134,10 @@ public class GraphVisualizerInputDialog extends JDialog implements
 						JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.setNodeIdColumn(nodeIdColumn.getName());
-				set.setEdgeFromColumn(edgeFromColumn.getName());
-				set.setEdgeToColumn(edgeToColumn.getName());
+				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
+				set.getGraphSettings().setEdgeFromColumn(
+						edgeFromColumn.getName());
+				set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

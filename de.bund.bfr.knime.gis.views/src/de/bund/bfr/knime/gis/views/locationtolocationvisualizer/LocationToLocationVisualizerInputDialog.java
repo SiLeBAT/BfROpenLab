@@ -77,22 +77,27 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
-		shapeBox.setSelectedColumnName(set.getShapeColumn());
+		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
+		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
+				.getNodeIdColumn());
 		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, DoubleCell.TYPE));
-		nodeLatitudeBox.setSelectedColumnName(set.getNodeLatitudeColumn());
+		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeLatitudeColumn());
 		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, DoubleCell.TYPE));
-		nodeLongitudeBox.setSelectedColumnName(set.getNodeLongitudeColumn());
+		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeLongitudeColumn());
 		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
+		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeFromColumn());
 		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
+		edgeToBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -158,14 +163,18 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 						JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.setShapeColumn(shapeBox.getSelectedColumnName());
-				set.setNodeIdColumn(nodeIdBox.getSelectedColumnName());
-				set.setNodeLatitudeColumn(nodeLatitudeBox
-						.getSelectedColumnName());
-				set.setNodeLongitudeColumn(nodeLongitudeBox
-						.getSelectedColumnName());
-				set.setEdgeFromColumn(edgeFromBox.getSelectedColumnName());
-				set.setEdgeToColumn(edgeToBox.getSelectedColumnName());
+				set.getGisSettings().setShapeColumn(
+						shapeBox.getSelectedColumnName());
+				set.getGraphSettings().setNodeIdColumn(
+						nodeIdBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLatitudeColumn(
+						nodeLatitudeBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLongitudeColumn(
+						nodeLongitudeBox.getSelectedColumnName());
+				set.getGraphSettings().setEdgeFromColumn(
+						edgeFromBox.getSelectedColumnName());
+				set.getGraphSettings().setEdgeToColumn(
+						edgeToBox.getSelectedColumnName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

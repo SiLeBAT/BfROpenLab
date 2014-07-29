@@ -50,35 +50,40 @@ public class LocationVisualizerCanvasCreator {
 
 	public LocationCanvas createCanvas() {
 		List<RegionNode> regions = ViewUtilities.readRegionNodes(shapeTable,
-				set.getShapeColumn());
+				set.getGisSettings().getShapeColumn());
 		Map<String, Class<?>> nodeProperties = KnimeUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(ViewUtilities
-				.readLocationNodes(nodeTable, nodeProperties,
-						set.getNodeIdColumn(), set.getLatitudeColumn(),
-						set.getLongitudeColumn()).values());
+				.readLocationNodes(nodeTable, nodeProperties, null,
+						set.getGisSettings().getNodeLatitudeColumn(),
+						set.getGisSettings().getNodeLongitudeColumn()).values());
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
+		String nodeIdProperty = ViewUtilities.createNewIdProperty(nodes,
+				nodeProperties);
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
-				set.getNodeIdColumn(), regions);
+				nodeIdProperty, regions);
 
-		canvas.setShowLegend(set.isShowLegend());
-		canvas.setCanvasSize(set.getCanvasSize());
-		canvas.setFontSize(set.getFontSize());
-		canvas.setFontBold(set.isFontBold());
-		canvas.setBorderAlpha(set.getBorderAlpha());
-		canvas.setEditingMode(set.getEditingMode());
-		canvas.setNodeSize(set.getNodeSize());
-		canvas.setNodeHighlightConditions(set.getNodeHighlightConditions());
+		canvas.setShowLegend(set.getGisSettings().isShowLegend());
+		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+		canvas.setFontSize(set.getGisSettings().getFontSize());
+		canvas.setFontBold(set.getGisSettings().isFontBold());
+		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
+		canvas.setEditingMode(set.getGisSettings().getEditingMode());
+		canvas.setNodeSize(set.getGisSettings().getNodeSize());
+		canvas.setNodeHighlightConditions(set.getGisSettings()
+				.getNodeHighlightConditions());
 
-		if (!Double.isNaN(set.getScaleX()) && !Double.isNaN(set.getScaleY())
-				&& !Double.isNaN(set.getTranslationX())
-				&& !Double.isNaN(set.getTranslationY())) {
-			canvas.setTransform(set.getScaleX(), set.getScaleY(),
-					set.getTranslationX(), set.getTranslationY());
+		if (!Double.isNaN(set.getGisSettings().getScaleX())
+				&& !Double.isNaN(set.getGisSettings().getScaleY())
+				&& !Double.isNaN(set.getGisSettings().getTranslationX())
+				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
+			canvas.setTransform(set.getGisSettings().getScaleX(), set
+					.getGisSettings().getScaleY(), set.getGisSettings()
+					.getTranslationX(), set.getGisSettings().getTranslationY());
 		}
 
 		return canvas;

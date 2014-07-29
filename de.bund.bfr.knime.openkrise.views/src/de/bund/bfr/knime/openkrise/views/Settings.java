@@ -26,7 +26,7 @@ package de.bund.bfr.knime.openkrise.views;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 
-public abstract class TracingSettings extends NodeSettings {
+public abstract class Settings extends NodeSettings {
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());

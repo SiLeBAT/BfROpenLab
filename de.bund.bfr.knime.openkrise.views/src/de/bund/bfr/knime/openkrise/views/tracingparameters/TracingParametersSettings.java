@@ -31,9 +31,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.TracingSettings;
+import de.bund.bfr.knime.openkrise.views.Settings;
 
-public class TracingParametersSettings extends TracingSettings {
+public class TracingParametersSettings extends Settings {
 
 	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 

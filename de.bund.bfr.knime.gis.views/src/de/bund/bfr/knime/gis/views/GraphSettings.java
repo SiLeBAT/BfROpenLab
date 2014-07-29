@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.gis.views;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -39,6 +39,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphSettings extends Settings {
 
+	private static final String CFG_NODE_ID_COLUMN = "NodeIdColumn";
+	private static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
+	private static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
@@ -67,6 +70,9 @@ public class GraphSettings extends Settings {
 	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
 	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
+	private String nodeIdColumn;
+	private String edgeFromColumn;
+	private String edgeToColumn;
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
 	private boolean showLegend;
@@ -87,6 +93,9 @@ public class GraphSettings extends Settings {
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
 	public GraphSettings() {
+		nodeIdColumn = null;
+		edgeFromColumn = null;
+		edgeToColumn = null;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
 		showLegend = DEFAULT_SHOW_LEGEND;
@@ -110,6 +119,21 @@ public class GraphSettings extends Settings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			nodeIdColumn = settings.getString(CFG_NODE_ID_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeFromColumn = settings.getString(CFG_EDGE_FROM_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeToColumn = settings.getString(CFG_EDGE_TO_COLUMN);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
 		} catch (InvalidSettingsException e) {
@@ -210,6 +234,9 @@ public class GraphSettings extends Settings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);		
+		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
+		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
@@ -231,6 +258,30 @@ public class GraphSettings extends Settings {
 				SERIALIZER.toXml(edgeHighlightConditions));
 		settings.addString(CFG_COLLAPSED_NODES,
 				SERIALIZER.toXml(collapsedNodes));
+	}
+	
+	public String getNodeIdColumn() {
+		return nodeIdColumn;
+	}
+
+	public void setNodeIdColumn(String nodeIdColumn) {
+		this.nodeIdColumn = nodeIdColumn;
+	}
+
+	public String getEdgeFromColumn() {
+		return edgeFromColumn;
+	}
+
+	public void setEdgeFromColumn(String edgeFromColumn) {
+		this.edgeFromColumn = edgeFromColumn;
+	}
+
+	public String getEdgeToColumn() {
+		return edgeToColumn;
+	}
+
+	public void setEdgeToColumn(String edgeToColumn) {
+		this.edgeToColumn = edgeToColumn;
 	}
 
 	public boolean isSkipEdgelessNodes() {
@@ -375,7 +426,8 @@ public class GraphSettings extends Settings {
 		return collapsedNodes;
 	}
 
-	public void setCollapsedNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
+	public void setCollapsedNodes(
+			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
 }

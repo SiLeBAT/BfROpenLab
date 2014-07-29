@@ -76,22 +76,27 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
-		shapeBox.setSelectedColumnName(set.getShapeColumn());
+		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				shapeSpec, StringCell.TYPE, IntCell.TYPE));
-		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
+		shapeRegionBox.setSelectedColumnName(set.getGisSettings()
+				.getShapeRegionColumn());
 		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
+		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
+				.getNodeIdColumn());
 		nodeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
+		nodeRegionBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeRegionColumn());
 		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeFromBox.setSelectedColumnName(set.getEdgeFromColumn());
+		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeFromColumn());
 		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
-		edgeToBox.setSelectedColumnName(set.getEdgeToColumn());
+		edgeToBox.setSelectedColumnName(set.getGraphSettings()
+				.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -161,12 +166,15 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 						JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.setShapeColumn(shapeColumn.getName());
-				set.setShapeRegionColumn(shapeRegionColumn.getName());
-				set.setNodeIdColumn(nodeIdColumn.getName());
-				set.setNodeRegionColumn(nodeRegionColumn.getName());
-				set.setEdgeFromColumn(edgeFromColumn.getName());
-				set.setEdgeToColumn(edgeToColumn.getName());
+				set.getGisSettings().setShapeColumn(shapeColumn.getName());
+				set.getGisSettings().setShapeRegionColumn(
+						shapeRegionColumn.getName());
+				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
+				set.getGisSettings().setNodeRegionColumn(
+						nodeRegionColumn.getName());
+				set.getGraphSettings().setEdgeFromColumn(
+						edgeFromColumn.getName());
+				set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

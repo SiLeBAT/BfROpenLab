@@ -23,108 +23,50 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.GisToGisVisualizerSettings;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.GraphSettings;
+import de.bund.bfr.knime.gis.views.RegionSettings;
+import de.bund.bfr.knime.gis.views.ViewSettings;
 
-public class RegionToRegionVisualizerSettings extends
-		GisToGisVisualizerSettings {
+public class RegionToRegionVisualizerSettings extends ViewSettings {
 
-	private static final String CFG_SHAPE_REGION_COLUMN = "ShapeRegionColumn";
-	private static final String CFG_NODE_REGION_COLUMN = "NodeRegionColumn";
-
-	private static final String CFG_GIS_NODE_HIGHLIGHT_CONDITIONS = "GisNodeHighlightConditions";
-	private static final String CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS = "GisEdgeHighlightConditions";
-
-	private String shapeRegionColumn;
-	private String nodeRegionColumn;
-
-	private HighlightConditionList gisNodeHighlightConditions;
-	private HighlightConditionList gisEdgeHighlightConditions;
+	private GraphSettings graphSettings;
+	private RegionSettings gisSettings;
 
 	public RegionToRegionVisualizerSettings() {
-		shapeRegionColumn = null;
-		nodeRegionColumn = null;
-
-		gisNodeHighlightConditions = new HighlightConditionList();
-		gisEdgeHighlightConditions = new HighlightConditionList();
+		graphSettings = new GraphSettings();
+		gisSettings = new RegionSettings();
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-
-		try {
-			shapeRegionColumn = settings.getString(CFG_SHAPE_REGION_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			nodeRegionColumn = settings.getString(CFG_NODE_REGION_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisNodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings
-							.getString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			gisEdgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings
-							.getString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
+		graphSettings.loadSettings(settings);
+		gisSettings.loadSettings(settings);
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		settings.addString(CFG_SHAPE_REGION_COLUMN, shapeRegionColumn);
-		settings.addString(CFG_NODE_REGION_COLUMN, nodeRegionColumn);
-
-		settings.addString(CFG_GIS_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(gisNodeHighlightConditions));
-		settings.addString(CFG_GIS_EDGE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(gisEdgeHighlightConditions));
+		graphSettings.saveSettings(settings);
+		gisSettings.saveSettings(settings);
 	}
 
-	public String getShapeRegionColumn() {
-		return shapeRegionColumn;
+	public GraphSettings getGraphSettings() {
+		return graphSettings;
 	}
 
-	public void setShapeRegionColumn(String shapeRegionColumn) {
-		this.shapeRegionColumn = shapeRegionColumn;
+	public void setGraphSettings(GraphSettings graphSettings) {
+		this.graphSettings = graphSettings;
 	}
 
-	public String getNodeRegionColumn() {
-		return nodeRegionColumn;
+	public RegionSettings getGisSettings() {
+		return gisSettings;
 	}
 
-	public void setNodeRegionColumn(String nodeRegionColumn) {
-		this.nodeRegionColumn = nodeRegionColumn;
-	}
-
-	public HighlightConditionList getGisNodeHighlightConditions() {
-		return gisNodeHighlightConditions;
-	}
-
-	public void setGisNodeHighlightConditions(
-			HighlightConditionList gisNodeHighlightConditions) {
-		this.gisNodeHighlightConditions = gisNodeHighlightConditions;
-	}
-
-	public HighlightConditionList getGisEdgeHighlightConditions() {
-		return gisEdgeHighlightConditions;
-	}
-
-	public void setGisEdgeHighlightConditions(
-			HighlightConditionList gisEdgeHighlightConditions) {
-		this.gisEdgeHighlightConditions = gisEdgeHighlightConditions;
+	public void setGisSettings(RegionSettings gisSettings) {
+		this.gisSettings = gisSettings;
 	}
 }

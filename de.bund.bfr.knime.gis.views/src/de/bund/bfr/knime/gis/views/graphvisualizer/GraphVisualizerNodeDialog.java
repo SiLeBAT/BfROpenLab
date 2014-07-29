@@ -93,12 +93,14 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
 
-		set.loadSettings(settings);
+		set.getGraphSettings().loadSettings(settings);
 
 		if (input[2] != null) {
 			try {
-				set.loadFromXml(KnimeUtilities
-						.tableToXml((BufferedDataTable) input[2]));
+				set.getGraphSettings()
+						.loadFromXml(
+								KnimeUtilities
+										.tableToXml((BufferedDataTable) input[2]));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -112,7 +114,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		updateSettings();
-		set.saveSettings(settings);
+		set.getGraphSettings().saveSettings(settings);
 	}
 
 	@Override
@@ -160,7 +162,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		if (graphCanvas == null) {
 			graphCanvas = new GraphCanvas(true);
-			graphCanvas.setCanvasSize(set.getGraphCanvasSize());
+			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -182,28 +184,30 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		Collections.sort(selectedGraphNodes);
 		Collections.sort(selectedGraphEdges);
 
-		set.setGraphShowLegend(graphCanvas.isShowLegend());
-		set.setGraphScaleX(graphCanvas.getScaleX());
-		set.setGraphScaleY(graphCanvas.getScaleY());
-		set.setGraphTranslationX(graphCanvas.getTranslationX());
-		set.setGraphTranslationY(graphCanvas.getTranslationY());
-		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphNodeSize(graphCanvas.getNodeSize());
-		set.setGraphFontSize(graphCanvas.getFontSize());
-		set.setGraphFontBold(graphCanvas.isFontBold());
-		set.setJoinEdges(graphCanvas.isJoinEdges());
-		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
-		set.setCollapsedNodes(graphCanvas.getCollapsedNodes());
-		set.setGraphSelectedNodes(selectedGraphNodes);
-		set.setGraphSelectedEdges(selectedGraphEdges);
-		set.setGraphNodeHighlightConditions(graphCanvas
-				.getNodeHighlightConditions());
-		set.setGraphEdgeHighlightConditions(graphCanvas
-				.getEdgeHighlightConditions());
-		set.setGraphEditingMode(graphCanvas.getEditingMode());
+		set.getGraphSettings().setShowLegend(graphCanvas.isShowLegend());
+		set.getGraphSettings().setScaleX(graphCanvas.getScaleX());
+		set.getGraphSettings().setScaleY(graphCanvas.getScaleY());
+		set.getGraphSettings().setTranslationX(graphCanvas.getTranslationX());
+		set.getGraphSettings().setTranslationY(graphCanvas.getTranslationY());
+		set.getGraphSettings().setNodePositions(graphCanvas.getNodePositions());
+		set.getGraphSettings().setNodeSize(graphCanvas.getNodeSize());
+		set.getGraphSettings().setFontSize(graphCanvas.getFontSize());
+		set.getGraphSettings().setFontBold(graphCanvas.isFontBold());
+		set.getGraphSettings().setJoinEdges(graphCanvas.isJoinEdges());
+		set.getGraphSettings().setSkipEdgelessNodes(
+				graphCanvas.isSkipEdgelessNodes());
+		set.getGraphSettings().setCollapsedNodes(
+				graphCanvas.getCollapsedNodes());
+		set.getGraphSettings().setSelectedNodes(selectedGraphNodes);
+		set.getGraphSettings().setSelectedEdges(selectedGraphEdges);
+		set.getGraphSettings().setNodeHighlightConditions(
+				graphCanvas.getNodeHighlightConditions());
+		set.getGraphSettings().setEdgeHighlightConditions(
+				graphCanvas.getEdgeHighlightConditions());
+		set.getGraphSettings().setEditingMode(graphCanvas.getEditingMode());
 
 		if (resized) {
-			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
+			set.getGraphSettings().setCanvasSize(graphCanvas.getCanvasSize());
 		}
 	}
 }

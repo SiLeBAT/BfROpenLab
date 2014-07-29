@@ -24,16 +24,17 @@
 package de.bund.bfr.knime.gis.views;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {	
+public class GisSettings extends Settings {
 
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
@@ -46,8 +47,9 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
 	private static final String CFG_EDITING_MODE = "EditingMode";
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
+	private static final String CFG_SELECTED_NODES = "SelectedNodes";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
-	
+
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final int DEFAULT_FONT_SIZE = 12;
 	private static final boolean DEFAULT_FONT_BOLD = false;
@@ -66,9 +68,10 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 	private int borderAlpha;
 	private Mode editingMode;
 	private Dimension canvasSize;
+	private List<String> selectedNodes;
 	private HighlightConditionList nodeHighlightConditions;
 
-	public GisVisualizerSettings() {
+	public GisSettings() {
 		shapeColumn = null;
 		showLegend = DEFAULT_SHOW_LEGEND;
 		scaleX = Double.NaN;
@@ -79,14 +82,14 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		fontBold = DEFAULT_FONT_BOLD;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 		editingMode = DEFAULT_EDITING_MODE;
+		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = DEFAULT_CANVAS_SIZE;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		super.loadSettings(settings);
-
 		try {
 			shapeColumn = settings.getString(CFG_SHAPE_COLUMN);
 		} catch (InvalidSettingsException e) {
@@ -138,6 +141,12 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		}
 
 		try {
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
+					.getString(CFG_SELECTED_NODES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
 					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
@@ -152,7 +161,6 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		super.saveSettings(settings);
 		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, scaleX);
@@ -163,6 +171,7 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
+		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
@@ -254,6 +263,14 @@ public class GisVisualizerSettings<V extends Node> extends VisualizerSettings {
 
 	public void setCanvasSize(Dimension canvasSize) {
 		this.canvasSize = canvasSize;
+	}
+
+	public List<String> getSelectedNodes() {
+		return selectedNodes;
+	}
+
+	public void setSelectedNodes(List<String> selectedNodes) {
+		this.selectedNodes = selectedNodes;
 	}
 
 	public HighlightConditionList getNodeHighlightConditions() {

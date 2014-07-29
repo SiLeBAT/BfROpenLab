@@ -74,13 +74,15 @@ public class RegionVisualizerInputDialog extends JDialog implements
 
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
-		shapeBox.setSelectedColumnName(set.getShapeColumn());
+		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				shapeSpec, StringCell.TYPE, IntCell.TYPE));
-		shapeRegionBox.setSelectedColumnName(set.getShapeRegionColumn());
+		shapeRegionBox.setSelectedColumnName(set.getGisSettings()
+				.getShapeRegionColumn());
 		nodeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeRegionBox.setSelectedColumnName(set.getNodeRegionColumn());
+		nodeRegionBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -135,9 +137,11 @@ public class RegionVisualizerInputDialog extends JDialog implements
 						JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.setShapeColumn(shapeColumn.getName());
-				set.setShapeRegionColumn(shapeRegionColumn.getName());
-				set.setNodeRegionColumn(nodeRegionColumn.getName());
+				set.getGisSettings().setShapeColumn(shapeColumn.getName());
+				set.getGisSettings().setShapeRegionColumn(
+						shapeRegionColumn.getName());
+				set.getGisSettings().setNodeRegionColumn(
+						nodeRegionColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

@@ -21,39 +21,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.views.regionvisualizer;
+package de.bund.bfr.knime.gis.views;
 
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
 
-import de.bund.bfr.knime.gis.views.RegionSettings;
-import de.bund.bfr.knime.gis.views.ViewSettings;
+public abstract class Settings extends NodeSettings {
 
-public class RegionVisualizerSettings extends ViewSettings {
-
-	private RegionSettings gisSettings;
-
-	public RegionVisualizerSettings() {
-		gisSettings = new RegionSettings();
-	}
-
-	@Override
-	public void loadSettings(NodeSettingsRO settings) {
-		super.loadSettings(settings);
-		gisSettings.loadSettings(settings);
-	}
-
-	@Override
-	public void saveSettings(NodeSettingsWO settings) {
-		super.saveSettings(settings);
-		gisSettings.saveSettings(settings);
-	}
-
-	public RegionSettings getGisSettings() {
-		return gisSettings;
-	}
-
-	public void setGisSettings(RegionSettings gisSettings) {
-		this.gisSettings = gisSettings;
-	}
+	protected static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
 }

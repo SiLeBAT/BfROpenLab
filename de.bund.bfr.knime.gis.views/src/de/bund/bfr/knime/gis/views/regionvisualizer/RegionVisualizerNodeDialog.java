@@ -87,7 +87,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
-		set.loadSettings(settings);
+		set.getGisSettings().loadSettings(settings);
 		updateGisCanvas(false);
 		resized = false;
 	}
@@ -96,7 +96,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		updateSettings();
-		set.saveSettings(settings);
+		set.getGisSettings().saveSettings(settings);
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		} else {
 			canvas = new RegionCanvas(false);
-			canvas.setCanvasSize(set.getCanvasSize());
+			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -165,19 +165,20 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
-		set.setShowLegend(canvas.isShowLegend());
-		set.setScaleX(canvas.getScaleX());
-		set.setScaleY(canvas.getScaleY());
-		set.setTranslationX(canvas.getTranslationX());
-		set.setTranslationY(canvas.getTranslationY());
-		set.setFontSize(canvas.getFontSize());
-		set.setFontBold(canvas.isFontBold());
-		set.setBorderAlpha(canvas.getBorderAlpha());
-		set.setEditingMode(canvas.getEditingMode());
-		set.setNodeHighlightConditions(canvas.getNodeHighlightConditions());
+		set.getGisSettings().setShowLegend(canvas.isShowLegend());
+		set.getGisSettings().setScaleX(canvas.getScaleX());
+		set.getGisSettings().setScaleY(canvas.getScaleY());
+		set.getGisSettings().setTranslationX(canvas.getTranslationX());
+		set.getGisSettings().setTranslationY(canvas.getTranslationY());
+		set.getGisSettings().setFontSize(canvas.getFontSize());
+		set.getGisSettings().setFontBold(canvas.isFontBold());
+		set.getGisSettings().setBorderAlpha(canvas.getBorderAlpha());
+		set.getGisSettings().setEditingMode(canvas.getEditingMode());
+		set.getGisSettings().setNodeHighlightConditions(
+				canvas.getNodeHighlightConditions());
 
 		if (resized) {
-			set.setCanvasSize(canvas.getCanvasSize());
+			set.getGisSettings().setCanvasSize(canvas.getCanvasSize());
 		}
 	}
 

@@ -27,7 +27,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-public class ViewSettings extends TracingSettings {
+public class ViewSettings extends Settings {
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 

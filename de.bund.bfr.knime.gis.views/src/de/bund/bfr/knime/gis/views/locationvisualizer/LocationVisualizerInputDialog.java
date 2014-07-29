@@ -41,8 +41,6 @@ import javax.swing.SwingUtilities;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
@@ -55,7 +53,6 @@ public class LocationVisualizerInputDialog extends JDialog implements
 	private static final long serialVersionUID = 1L;
 
 	private ColumnComboBox shapeBox;
-	private ColumnComboBox nodeIdBox;
 	private ColumnComboBox nodeLatitudeBox;
 	private ColumnComboBox nodeLongitudeBox;
 	private JCheckBox exportAsSvgBox;
@@ -76,16 +73,15 @@ public class LocationVisualizerInputDialog extends JDialog implements
 
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
-		shapeBox.setSelectedColumnName(set.getShapeColumn());
-		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
-				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getNodeIdColumn());
+		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, DoubleCell.TYPE));
-		nodeLatitudeBox.setSelectedColumnName(set.getLatitudeColumn());
+		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeLatitudeColumn());
 		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
 				nodeSpec, DoubleCell.TYPE));
-		nodeLongitudeBox.setSelectedColumnName(set.getLongitudeColumn());
+		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings()
+				.getNodeLongitudeColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -99,10 +95,10 @@ public class LocationVisualizerInputDialog extends JDialog implements
 		mainPanel.add(UI.createOptionsPanel("Shape Table",
 				Arrays.asList(new JLabel("Shape Column:")),
 				Arrays.asList(shapeBox)));
-		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays.asList(
-				new JLabel("Node ID column:"), new JLabel("Latitude Column:"),
-				new JLabel("Longitude Column:")), Arrays.asList(nodeIdBox,
-				nodeLatitudeBox, nodeLongitudeBox)));
+		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays
+				.asList(new JLabel("Latitude Column:"), new JLabel(
+						"Longitude Column:")), Arrays.asList(nodeLatitudeBox,
+				nodeLongitudeBox)));
 		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
 				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
@@ -122,14 +118,12 @@ public class LocationVisualizerInputDialog extends JDialog implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
-			DataColumnSpec nodeIdColumn = nodeIdBox.getSelectedColumn();
 			DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox
 					.getSelectedColumn();
 			DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox
 					.getSelectedColumn();
 
-			if (shapeColumn == null || nodeIdColumn == null
-					|| nodeLatitudeColumn == null
+			if (shapeColumn == null || nodeLatitudeColumn == null
 					|| nodeLongitudeColumn == null) {
 				String error = "\"Shape\", \"Latitude\" and \"Longitude\""
 						+ " columns must be selected";
@@ -138,10 +132,12 @@ public class LocationVisualizerInputDialog extends JDialog implements
 						JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.setShapeColumn(shapeBox.getSelectedColumnName());
-				set.setNodeIdColumn(nodeIdBox.getSelectedColumnName());
-				set.setLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
-				set.setLongitudeColumn(nodeLongitudeBox.getSelectedColumnName());
+				set.getGisSettings().setShapeColumn(
+						shapeBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLatitudeColumn(
+						nodeLatitudeBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLongitudeColumn(
+						nodeLongitudeBox.getSelectedColumnName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();
 			}

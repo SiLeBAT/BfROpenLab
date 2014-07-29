@@ -31,11 +31,7 @@ import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -57,9 +53,6 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
  * <code>NodeDialog</code> for the "LocationToLocationVisualizer" Node.
@@ -166,34 +159,12 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	public void nodeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<LocationNode> selectedGisNodes = new LinkedHashSet<>();
-			Map<String, LocationNode> gisNodesById = new LinkedHashMap<>();
-
-			for (LocationNode gisNode : gisCanvas.getNodes()) {
-				gisNodesById.put(gisNode.getId(), gisNode);
-			}
-
-			for (String graphNodeId : graphCanvas.getSelectedNodeIds()) {
-				selectedGisNodes.add(gisNodesById.get(graphNodeId));
-			}
-
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setSelectedNodes(selectedGisNodes);
+			gisCanvas.setSelectedNodeIds(graphCanvas.getSelectedNodeIds());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
-			Set<GraphNode> selectedGraphNodes = new LinkedHashSet<>();
-			Map<String, GraphNode> graphNodesById = new LinkedHashMap<>();
-
-			for (GraphNode graphNode : graphCanvas.getNodes()) {
-				graphNodesById.put(graphNode.getId(), graphNode);
-			}
-
-			for (String gisNodeId : gisCanvas.getSelectedNodeIds()) {
-				selectedGraphNodes.add(graphNodesById.get(gisNodeId));
-			}
-
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setSelectedNodes(selectedGraphNodes);
+			graphCanvas.setSelectedNodeIds(gisCanvas.getSelectedNodeIds());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -201,34 +172,12 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	public void edgeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
-			Set<Edge<LocationNode>> selectedGisEdges = new LinkedHashSet<>();
-			Map<String, Edge<LocationNode>> gisEdgesById = new LinkedHashMap<>();
-
-			for (Edge<LocationNode> gisEdge : gisCanvas.getEdges()) {
-				gisEdgesById.put(gisEdge.getId(), gisEdge);
-			}
-
-			for (String graphEdgeId : graphCanvas.getSelectedEdgeIds()) {
-				selectedGisEdges.add(gisEdgesById.get(graphEdgeId));
-			}
-
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setSelectedEdges(selectedGisEdges);
+			gisCanvas.setSelectedEdgeIds(graphCanvas.getSelectedEdgeIds());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
-			Set<Edge<GraphNode>> selectedGraphEdges = new LinkedHashSet<>();
-			Map<String, Edge<GraphNode>> graphEdgesById = new LinkedHashMap<>();
-
-			for (Edge<GraphNode> graphEdge : graphCanvas.getEdges()) {
-				graphEdgesById.put(graphEdge.getId(), graphEdge);
-			}
-
-			for (String gisEdgeId : gisCanvas.getSelectedEdgeIds()) {
-				selectedGraphEdges.add(graphEdgesById.get(gisEdgeId));
-			}
-
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setSelectedEdges(selectedGraphEdges);
+			graphCanvas.setSelectedEdgeIds(gisCanvas.getSelectedEdgeIds());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -305,9 +254,9 @@ public class LocationToLocationVisualizerNodeDialog extends
 			gisCanvas.addCanvasListener(this);
 		} else {
 			graphCanvas = new GraphCanvas(false);
-			graphCanvas.setCanvasSize(set.getGraphCanvasSize());
+			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 			gisCanvas = new LocationCanvas(true);
-			gisCanvas.setCanvasSize(set.getGisCanvasSize());
+			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,
@@ -326,46 +275,51 @@ public class LocationToLocationVisualizerNodeDialog extends
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<>(
+		List<String> selectedNodes = new ArrayList<>(
 				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<>(
+		List<String> selectedEdges = new ArrayList<>(
 				graphCanvas.getSelectedEdgeIds());
 
-		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);
+		Collections.sort(selectedNodes);
+		Collections.sort(selectedEdges);
 
-		set.setGraphShowLegend(graphCanvas.isShowLegend());
-		set.setGraphScaleX(graphCanvas.getScaleX());
-		set.setGraphScaleY(graphCanvas.getScaleY());
-		set.setGraphTranslationX(graphCanvas.getTranslationX());
-		set.setGraphTranslationY(graphCanvas.getTranslationY());
-		set.setGraphNodePositions(graphCanvas.getNodePositions());
-		set.setGraphNodeSize(graphCanvas.getNodeSize());
-		set.setGraphFontSize(graphCanvas.getFontSize());
-		set.setGraphFontBold(graphCanvas.isFontBold());
-		set.setJoinEdges(graphCanvas.isJoinEdges());
-		set.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
-		set.setGraphSelectedNodes(selectedGraphNodes);
-		set.setGraphSelectedEdges(selectedGraphEdges);
-		set.setGraphNodeHighlightConditions(graphCanvas
-				.getNodeHighlightConditions());
-		set.setGraphEdgeHighlightConditions(graphCanvas
-				.getEdgeHighlightConditions());
-		set.setGraphEditingMode(graphCanvas.getEditingMode());
-		set.setGisShowLegend(gisCanvas.isShowLegend());
-		set.setGisScaleX(gisCanvas.getScaleX());
-		set.setGisScaleY(gisCanvas.getScaleY());
-		set.setGisTranslationX(gisCanvas.getTranslationX());
-		set.setGisTranslationY(gisCanvas.getTranslationY());
-		set.setGisFontSize(gisCanvas.getFontSize());
-		set.setGisFontBold(gisCanvas.isFontBold());
-		set.setGisBorderAlpha(gisCanvas.getBorderAlpha());
-		set.setGisLocationSize(gisCanvas.getNodeSize());
-		set.setGisEditingMode(gisCanvas.getEditingMode());
+		set.getGraphSettings().setShowLegend(graphCanvas.isShowLegend());
+		set.getGraphSettings().setScaleX(graphCanvas.getScaleX());
+		set.getGraphSettings().setScaleY(graphCanvas.getScaleY());
+		set.getGraphSettings().setTranslationX(graphCanvas.getTranslationX());
+		set.getGraphSettings().setTranslationY(graphCanvas.getTranslationY());
+		set.getGraphSettings().setNodePositions(graphCanvas.getNodePositions());
+		set.getGraphSettings().setNodeSize(graphCanvas.getNodeSize());
+		set.getGraphSettings().setFontSize(graphCanvas.getFontSize());
+		set.getGraphSettings().setFontBold(graphCanvas.isFontBold());
+		set.getGraphSettings().setJoinEdges(graphCanvas.isJoinEdges());
+		set.getGraphSettings().setSkipEdgelessNodes(
+				graphCanvas.isSkipEdgelessNodes());
+		set.getGraphSettings().setSelectedNodes(selectedNodes);
+		set.getGraphSettings().setSelectedEdges(selectedEdges);
+		set.getGraphSettings().setNodeHighlightConditions(
+				graphCanvas.getNodeHighlightConditions());
+		set.getGraphSettings().setEdgeHighlightConditions(
+				graphCanvas.getEdgeHighlightConditions());
+		set.getGraphSettings().setEditingMode(graphCanvas.getEditingMode());
+
+		set.getGisSettings().setShowLegend(gisCanvas.isShowLegend());
+		set.getGisSettings().setScaleX(gisCanvas.getScaleX());
+		set.getGisSettings().setScaleY(gisCanvas.getScaleY());
+		set.getGisSettings().setTranslationX(gisCanvas.getTranslationX());
+		set.getGisSettings().setTranslationY(gisCanvas.getTranslationY());
+		set.getGisSettings().setFontSize(gisCanvas.getFontSize());
+		set.getGisSettings().setFontBold(gisCanvas.isFontBold());
+		set.getGisSettings().setBorderAlpha(gisCanvas.getBorderAlpha());
+		set.getGisSettings().setNodeSize(gisCanvas.getNodeSize());
+		set.getGisSettings().setEditingMode(gisCanvas.getEditingMode());
+		set.getGisSettings().setSelectedNodes(selectedNodes);
+		set.getGisSettings().setNodeHighlightConditions(
+				gisCanvas.getNodeHighlightConditions());
 
 		if (resized) {
-			set.setGraphCanvasSize(graphCanvas.getCanvasSize());
-			set.setGisCanvasSize(gisCanvas.getCanvasSize());
+			set.getGraphSettings().setCanvasSize(graphCanvas.getCanvasSize());
+			set.getGisSettings().setCanvasSize(gisCanvas.getCanvasSize());
 		}
 	}
 }
