@@ -18,6 +18,7 @@
       <node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory" id="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory">
       </node>
    <node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.gisview.GisViewNodeFactory" id="de.bund.bfr.knime.openkrise.views.gisview.GisViewNodeFactory"/>
+<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.gisgraphview.GisGraphViewNodeFactory" id="de.bund.bfr.knime.openkrise.views.gisgraphview.GisGraphViewNodeFactory"/>
 </extension>
    
 </plugin>

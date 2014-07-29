@@ -11,6 +11,7 @@ Export-Package: de.bund.bfr.knime.gis.views.canvas,
  de.bund.bfr.knime.gis.views.canvas.dialogs,
  de.bund.bfr.knime.gis.views.canvas.element,
  de.bund.bfr.knime.gis.views.canvas.highlighting,
+ de.bund.bfr.knime.gis.views.canvas.layout,
  de.bund.bfr.knime.gis.views.canvas.transformer
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.ext.svg,

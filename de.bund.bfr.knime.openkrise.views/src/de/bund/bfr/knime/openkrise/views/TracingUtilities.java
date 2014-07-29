@@ -64,6 +64,7 @@ import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -102,6 +103,40 @@ public class TracingUtilities {
 		}
 	}
 
+	public static <V extends Node> List<Edge<V>> readEdges(
+			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
+			Map<String, V> nodes) {
+		List<Edge<V>> edges = new ArrayList<>();
+
+		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
+		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
+		edgeProperties.put(TracingConstants.TO_COLUMN, String.class);
+
+		for (DataRow row : edgeTable) {
+			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.ID_COLUMN)));
+			String from = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.FROM_COLUMN)));
+			String to = IO.getToCleanString(row.getCell(edgeTable.getSpec()
+					.findColumnIndex(TracingConstants.TO_COLUMN)));
+			V node1 = nodes.get(from);
+			V node2 = nodes.get(to);
+
+			if (node1 != null && node2 != null) {
+				Map<String, Object> properties = new LinkedHashMap<>();
+
+				TracingUtilities.addToProperties(properties, edgeProperties,
+						edgeTable, row);
+				properties.put(TracingConstants.ID_COLUMN, id);
+				properties.put(TracingConstants.FROM_COLUMN, from);
+				properties.put(TracingConstants.TO_COLUMN, to);
+				edges.add(new Edge<>(id, properties, node1, node2));
+			}
+		}
+
+		return edges;
+	}
+
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
@@ -120,39 +155,6 @@ public class TracingUtilities {
 		}
 
 		return nodes;
-	}
-
-	public static List<Edge<GraphNode>> readEdges(BufferedDataTable edgeTable,
-			Map<String, Class<?>> edgeProperties, Map<String, GraphNode> nodes) {
-		List<Edge<GraphNode>> edges = new ArrayList<>();
-
-		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
-		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
-		edgeProperties.put(TracingConstants.TO_COLUMN, String.class);
-
-		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
-			String from = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.FROM_COLUMN)));
-			String to = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.TO_COLUMN)));
-			GraphNode node1 = nodes.get(from);
-			GraphNode node2 = nodes.get(to);
-
-			if (node1 != null && node2 != null) {
-				Map<String, Object> properties = new LinkedHashMap<>();
-
-				TracingUtilities.addToProperties(properties, edgeProperties,
-						edgeTable, row);
-				properties.put(TracingConstants.ID_COLUMN, id);
-				properties.put(TracingConstants.FROM_COLUMN, from);
-				properties.put(TracingConstants.TO_COLUMN, to);
-				edges.add(new Edge<>(id, properties, node1, node2));
-			}
-		}
-
-		return edges;
 	}
 
 	public static Map<String, LocationNode> readLocationNodes(
