@@ -21,23 +21,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.views.gisview;
 
-public interface TracingConstants {
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 
-	public static final String ID_COLUMN = "ID";
-	public static final String FROM_COLUMN = "from";
-	public static final String TO_COLUMN = "to";
+import de.bund.bfr.knime.openkrise.views.GisSettings;
+import de.bund.bfr.knime.openkrise.views.ViewSettings;
 
-	public static final String CASE_WEIGHT_COLUMN = "CaseWeight";
-	public static final String CROSS_CONTAMINATION_COLUMN = "CrossContamination";
-	public static final String SCORE_COLUMN = "Score";
+public class GisViewSettings extends ViewSettings {
 
-	public static final String FILTER_COLUMN = "Filter";
-	public static final String BACKWARD_COLUMN = "Backward";
-	public static final String FORWARD_COLUMN = "Forward";
-	
-	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
-	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+	private GisSettings gisSettings;
 
+	public GisViewSettings() {
+		gisSettings = new GisSettings();
+	}
+
+	@Override
+	public void loadSettings(NodeSettingsRO settings) {
+		super.loadSettings(settings);
+		gisSettings.loadSettings(settings);
+	}
+
+	@Override
+	public void saveSettings(NodeSettingsWO settings) {
+		super.saveSettings(settings);
+		gisSettings.saveSettings(settings);
+	}
+
+	public GisSettings getGisSettings() {
+		return gisSettings;
+	}
+
+	public void setGisSettings(GisSettings gisSettings) {
+		this.gisSettings = gisSettings;
+	}
 }

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
-<plugin>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?><plugin>
 
    <!-- This is an example for providing an own category 
       <extension
@@ -14,17 +13,11 @@
    </extension>
    -->
    
-   <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/foodchain"
-            factory-class="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"
-            id="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"/>
-      <node
-            category-path="/foodchain"
-            factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory"
-            id="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory">
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory" id="de.bund.bfr.knime.openkrise.views.tracingparameters.TracingParametersNodeFactory"/>
+      <node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory" id="de.bund.bfr.knime.openkrise.views.tracingview.TracingView2NodeFactory">
       </node>
-   </extension>
+   <node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.views.gisview.GisViewNodeFactory" id="de.bund.bfr.knime.openkrise.views.gisview.GisViewNodeFactory"/>
+</extension>
    
 </plugin>
