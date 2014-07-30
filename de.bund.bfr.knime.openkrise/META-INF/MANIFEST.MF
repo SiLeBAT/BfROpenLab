@@ -4,7 +4,7 @@ Bundle-Name: MyKrisenInterfaces-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise; singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: mykriseninterfaces.jar
-Bundle-Activator: de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodePlugin
+Bundle-Activator: de.bund.bfr.knime.openkrise.Activator
 Bundle-Vendor: Armin Weiser
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
