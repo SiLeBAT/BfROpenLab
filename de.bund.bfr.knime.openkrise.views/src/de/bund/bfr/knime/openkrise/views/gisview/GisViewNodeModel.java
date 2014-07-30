@@ -39,7 +39,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.openkrise.views.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 /**
  * This is the model implementation of GisView.

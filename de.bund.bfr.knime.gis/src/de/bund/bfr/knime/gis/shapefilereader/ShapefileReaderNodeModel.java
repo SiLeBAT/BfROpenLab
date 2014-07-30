@@ -109,7 +109,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
-	protected ShapefileReaderNodeModel() {
+	public ShapefileReaderNodeModel() {
 		super(0, 1);
 		shpFile = new SettingsModelString(SHP_FILE, null);
 	}

@@ -60,9 +60,9 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCond
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.openkrise.views.BfrLogo;
 import de.bund.bfr.knime.openkrise.views.FoodChainLabLogo;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;

@@ -21,27 +21,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.shapefilereader;
+package de.bund.bfr.knime.openkrise.util.geocode;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeDialog;
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+
 /**
- * <code>NodeFactory</code> for the "ShapefileReader" Node.
+ * <code>NodeFactory</code> for the "Geocoding" Node.
  * 
  * 
  * @author Christian Thoens
  */
-public class ShapefileReaderNodeFactory extends
-		NodeFactory<ShapefileReaderNodeModel> {
+public class GeocodeNodeFactory extends NodeFactory<GeocodingNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ShapefileReaderNodeModel createNodeModel() {
-		return new ShapefileReaderNodeModel();
+	public GeocodingNodeModel createNodeModel() {
+		return new GeocodingNodeModel();
 	}
 
 	/**
@@ -56,8 +58,8 @@ public class ShapefileReaderNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<ShapefileReaderNodeModel> createNodeView(
-			final int viewIndex, final ShapefileReaderNodeModel nodeModel) {
+	public NodeView<GeocodingNodeModel> createNodeView(final int viewIndex,
+			final GeocodingNodeModel nodeModel) {
 		return null;
 	}
 
@@ -74,7 +76,7 @@ public class ShapefileReaderNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new ShapefileReaderNodeDialog();
+		return new GeocodingNodeDialog();
 	}
 
 }

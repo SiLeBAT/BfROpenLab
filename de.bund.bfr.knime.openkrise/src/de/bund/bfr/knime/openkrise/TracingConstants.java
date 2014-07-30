@@ -21,23 +21,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.shapefilereader;
+package de.bund.bfr.knime.openkrise;
 
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+public interface TracingConstants {
 
-public class ShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
+	public static final String ID_COLUMN = "ID";
+	public static final String FROM_COLUMN = "from";
+	public static final String TO_COLUMN = "to";
 
-	/**
-	 * New pane for configuring the ShapefileReader node.
-	 */
-	public ShapefileReaderNodeDialog() {
-		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
-				new SettingsModelString(ShapefileReaderNodeModel.SHP_FILE, null),
-				"ShpFileHistory", ".shp");
+	public static final String CASE_WEIGHT_COLUMN = "CaseWeight";
+	public static final String CROSS_CONTAMINATION_COLUMN = "CrossContamination";
+	public static final String SCORE_COLUMN = "Score";
 
-		shpDialog.setBorderTitle("SHP File");
-		addDialogComponent(shpDialog);
-	}
+	public static final String FILTER_COLUMN = "Filter";
+	public static final String BACKWARD_COLUMN = "Backward";
+	public static final String FORWARD_COLUMN = "Forward";
+	
+	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
+	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+
 }

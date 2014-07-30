@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingparameters;
+package de.bund.bfr.knime.openkrise.util.tracing;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -56,7 +56,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingConstants;
 
 public class TableInputPanel<T> extends JPanel implements ActionListener,
 		RowSorterListener, CellEditorListener, ListSelectionListener {

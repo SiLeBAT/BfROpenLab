@@ -40,7 +40,7 @@ import javax.swing.text.JTextComponent;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.ui.BooleanCellRenderer;
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
 

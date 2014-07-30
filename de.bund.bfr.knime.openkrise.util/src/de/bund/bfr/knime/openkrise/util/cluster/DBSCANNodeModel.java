@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.util.clustering;
+package de.bund.bfr.knime.openkrise.util.cluster;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class DBSCANNodeModel extends NodeModel {
     /**
      * Constructor for the node model.
      */
-    protected DBSCANNodeModel() {
+    public DBSCANNodeModel() {
         super(1, 1);
     }
 

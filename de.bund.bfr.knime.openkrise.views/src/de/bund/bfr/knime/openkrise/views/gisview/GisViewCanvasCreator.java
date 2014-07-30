@@ -33,8 +33,8 @@ import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
-import de.bund.bfr.knime.openkrise.views.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 public class GisViewCanvasCreator {
 

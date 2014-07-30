@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.util.clustering;
+package de.bund.bfr.knime.openkrise.util.cluster;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -48,7 +48,7 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane {
     /**
      * New pane for configuring the DBSCAN node.
      */
-    protected DBSCANNodeDialog() {
+    public DBSCANNodeDialog() {
         addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(DBSCANNodeModel.MINPTS, 2), "Enter minPts:", 1));
         addDialogComponent(new DialogComponentNumber(new SettingsModelDouble(DBSCANNodeModel.EPS, 2.0), "Enter epsilon (km):", 0.5));
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(DBSCANNodeModel.DOUBLETTES, false), "Allow multiple unique points?"));

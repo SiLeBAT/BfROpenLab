@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.util.geocoding;
+package de.bund.bfr.knime.gis.geocode;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -76,7 +76,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	/**
 	 * New pane for configuring the Geocoding node.
 	 */
-	protected GeocodingNodeDialog() {
+	public GeocodingNodeDialog() {
 		set = new GeocodingSettings();
 		providerBox = new JComboBox<>(GeocodingSettings.PROVIDER_CHOICES);
 		providerBox.addItemListener(this);

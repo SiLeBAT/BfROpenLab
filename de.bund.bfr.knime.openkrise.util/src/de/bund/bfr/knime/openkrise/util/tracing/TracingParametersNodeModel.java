@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingparameters;
+package de.bund.bfr.knime.openkrise.util.tracing;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,8 +65,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
-import de.bund.bfr.knime.openkrise.views.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 /**
  * This is the model implementation of TracingVisualizer.

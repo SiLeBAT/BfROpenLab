@@ -35,8 +35,8 @@ import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.views.TracingConstants;
-import de.bund.bfr.knime.openkrise.views.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 public class TracingViewCanvasCreator {
 

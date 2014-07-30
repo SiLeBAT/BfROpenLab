@@ -11,11 +11,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
  org.knime.ext.svg,
- de.bund.bfr.knime,
- de.bund.bfr.knime.gis,
- de.bund.bfr.knime.gis.views.canvas,
  de.bund.bfr.knime.openkrise
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.openkrise.views.tracingparameters
+Export-Package: de.bund.bfr.knime.openkrise.views,
+ de.bund.bfr.knime.openkrise.views.gisgraphview,
+ de.bund.bfr.knime.openkrise.views.gisview,
+ de.bund.bfr.knime.openkrise.views.tracingview
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

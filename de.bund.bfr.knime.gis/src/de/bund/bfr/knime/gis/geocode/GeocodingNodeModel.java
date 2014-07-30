@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.gis.util.geocoding;
+package de.bund.bfr.knime.gis.geocode;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class GeocodingNodeModel extends NodeModel {
 	/**
 	 * Constructor for the node model.
 	 */
-	protected GeocodingNodeModel() {
+	public GeocodingNodeModel() {
 		super(1, 1);
 		set = new GeocodingSettings();
 	}

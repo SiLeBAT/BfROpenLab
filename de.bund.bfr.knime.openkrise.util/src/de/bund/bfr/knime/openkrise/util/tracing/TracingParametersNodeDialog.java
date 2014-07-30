@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingparameters;
+package de.bund.bfr.knime.openkrise.util.tracing;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.openkrise.views.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.

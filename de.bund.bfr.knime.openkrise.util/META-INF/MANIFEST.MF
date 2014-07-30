@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.openkrise.util; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: test.jar
+Bundle-Activator: de.bund.bfr.knime.openkrise.util.Activator
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.apache.commons.math3,
+ de.bund.bfr.knime.openkrise
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.openkrise.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+

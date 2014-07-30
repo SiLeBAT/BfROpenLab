@@ -15,6 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis.util,
- de.bund.bfr.knime.gis.util.geocoding
+ de.bund.bfr.knime.gis.util.geocode
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

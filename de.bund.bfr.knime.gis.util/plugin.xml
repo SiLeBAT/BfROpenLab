@@ -2,12 +2,13 @@
 <?eclipse version="3.0"?><plugin>
 
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory" id="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory"/>
+      <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocode.GeocodingNodeFactory" id="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory"/>
       <node
             category-path="/gisnodes"
-            factory-class="de.bund.bfr.knime.gis.util.clustering.DBSCANNodeFactory"
-            id="de.bund.bfr.knime.gis.util.clustering.DBSCANNodeFactory">
-      </node>      
+            expert-flag="false"
+            factory-class="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory"
+            id="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory">
+      </node>
 </extension>
    
 </plugin>

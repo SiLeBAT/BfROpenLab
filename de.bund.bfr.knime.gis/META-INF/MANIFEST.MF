@@ -11,10 +11,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
  org.apache.commons.io,
+ org.apache.commons.math3,
  org.geotools;visibility:=reexport,
  de.bund.bfr.knime
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,
+ de.bund.bfr.knime.gis.geocode,
  de.bund.bfr.knime.gis.shapecell,
  de.bund.bfr.knime.gis.shapefilereader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

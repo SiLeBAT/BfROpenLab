@@ -21,23 +21,60 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.util.tracing;
 
-public interface TracingConstants {
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
-	public static final String ID_COLUMN = "ID";
-	public static final String FROM_COLUMN = "from";
-	public static final String TO_COLUMN = "to";
+/**
+ * <code>NodeFactory</code> for the "TracingVisualizer" Node.
+ * 
+ * 
+ * @author Christian Thoens
+ */
+public class TracingParametersNodeFactory extends
+		NodeFactory<TracingParametersNodeModel> {
 
-	public static final String CASE_WEIGHT_COLUMN = "CaseWeight";
-	public static final String CROSS_CONTAMINATION_COLUMN = "CrossContamination";
-	public static final String SCORE_COLUMN = "Score";
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TracingParametersNodeModel createNodeModel() {
+		return new TracingParametersNodeModel();
+	}
 
-	public static final String FILTER_COLUMN = "Filter";
-	public static final String BACKWARD_COLUMN = "Backward";
-	public static final String FORWARD_COLUMN = "Forward";
-	
-	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
-	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<TracingParametersNodeModel> createNodeView(
+			final int viewIndex, final TracingParametersNodeModel nodeModel) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new TracingParametersNodeDialog();
+	}
 
 }

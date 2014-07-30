@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.tracingparameters;
+package de.bund.bfr.knime.openkrise.util.tracing;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,12 +30,15 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.views.Settings;
+import de.bund.bfr.knime.openkrise.util.Activator;
 
-public class TracingParametersSettings extends Settings {
+public class TracingParametersSettings extends NodeSettings {
 
-	public static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
+	private static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
 
 	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
@@ -56,6 +59,8 @@ public class TracingParametersSettings extends Settings {
 	private static final String CFG_NODE_FILTER_CONDITION_VALUE = "FilterConditionValue";
 	private static final String CFG_EDGE_FILTER_CONDITION_VALUE = "EdgeFilterConditionValue";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
+
+	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
@@ -310,7 +315,8 @@ public class TracingParametersSettings extends Settings {
 		return nodeWeightCondition;
 	}
 
-	public void setNodeWeightCondition(AndOrHighlightCondition nodeWeightCondition) {
+	public void setNodeWeightCondition(
+			AndOrHighlightCondition nodeWeightCondition) {
 		this.nodeWeightCondition = nodeWeightCondition;
 	}
 
@@ -318,7 +324,8 @@ public class TracingParametersSettings extends Settings {
 		return edgeWeightCondition;
 	}
 
-	public void setEdgeWeightCondition(AndOrHighlightCondition edgeWeightCondition) {
+	public void setEdgeWeightCondition(
+			AndOrHighlightCondition edgeWeightCondition) {
 		this.edgeWeightCondition = edgeWeightCondition;
 	}
 
@@ -344,7 +351,8 @@ public class TracingParametersSettings extends Settings {
 		return nodeFilterCondition;
 	}
 
-	public void setNodeFilterCondition(AndOrHighlightCondition nodeFilterCondition) {
+	public void setNodeFilterCondition(
+			AndOrHighlightCondition nodeFilterCondition) {
 		this.nodeFilterCondition = nodeFilterCondition;
 	}
 
@@ -352,7 +360,8 @@ public class TracingParametersSettings extends Settings {
 		return edgeFilterCondition;
 	}
 
-	public void setEdgeFilterCondition(AndOrHighlightCondition edgeFilterCondition) {
+	public void setEdgeFilterCondition(
+			AndOrHighlightCondition edgeFilterCondition) {
 		this.edgeFilterCondition = edgeFilterCondition;
 	}
 
