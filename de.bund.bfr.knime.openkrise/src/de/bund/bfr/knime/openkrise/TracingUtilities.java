@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Point;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
@@ -161,9 +162,9 @@ public class TracingUtilities {
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		int latIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.LATITUDE_COLUMN);
+				GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.LONGITUDE_COLUMN);
+				GeocodingNodeModel.LONGITUDE_COLUMN);
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
 				TracingConstants.ID_COLUMN);
 		int locationIndex = 0;

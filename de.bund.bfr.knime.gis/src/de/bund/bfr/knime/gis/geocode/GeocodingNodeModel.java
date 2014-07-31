@@ -71,15 +71,15 @@ import de.bund.bfr.knime.IO;
  */
 public class GeocodingNodeModel extends NodeModel {
 
-	private static final String URL_COLUMN = "GeocodingURL";
-	private static final String STREET_COLUMN = "GeocodingStreet";
-	private static final String CITY_COLUMN = "GeocodingCity";
-	private static final String COUNTY_COLUMN = "GeocodingCounty";
-	private static final String STATE_COLUMN = "GeocodingState";
-	private static final String COUNTRY_COLUMN = "GeocodingCountry";
-	private static final String POSTAL_CODE_COLUMN = "GeocodingPostalCode";
-	private static final String LATITUDE_COLUMN = "GeocodingLatitude";
-	private static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+	public static final String URL_COLUMN = "GeocodingURL";
+	public static final String STREET_COLUMN = "GeocodingStreet";
+	public static final String CITY_COLUMN = "GeocodingCity";
+	public static final String COUNTY_COLUMN = "GeocodingCounty";
+	public static final String STATE_COLUMN = "GeocodingState";
+	public static final String COUNTRY_COLUMN = "GeocodingCountry";
+	public static final String POSTAL_CODE_COLUMN = "GeocodingPostalCode";
+	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
+	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
 
 	private GeocodingSettings set;
 

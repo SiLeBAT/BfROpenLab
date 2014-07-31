@@ -60,6 +60,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+
 /**
  * This is the model implementation of DBSCAN.
  * 
@@ -97,8 +99,8 @@ public class DBSCANNodeModel extends NodeModel {
     	int lonCol = -1;
     	int doItCol = -1;
     	for (int i=0;i<data.getSpec().getNumColumns();i++) {
-    		if (data.getSpec().getColumnNames()[i].equals("GeocodingLatitude")) latCol = i;
-    		else if (data.getSpec().getColumnNames()[i].equals("GeocodingLongitude")) lonCol = i;
+    		if (data.getSpec().getColumnNames()[i].equals(GeocodingNodeModel.LATITUDE_COLUMN)) latCol = i;
+    		else if (data.getSpec().getColumnNames()[i].equals(GeocodingNodeModel.LONGITUDE_COLUMN)) lonCol = i;
     		else if (data.getSpec().getColumnNames()[i].equals("Clusterable")) doItCol = i;
     	}
     	if (latCol >= 0 && lonCol >= 0) {

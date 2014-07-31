@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.bund.bfr.knime.gis.util; singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.util.Activator
-Bundle-Vendor: Christian Thoens
+Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,

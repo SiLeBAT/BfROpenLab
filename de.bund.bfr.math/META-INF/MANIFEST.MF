@@ -4,7 +4,7 @@ Bundle-Name: Math
 Bundle-SymbolicName: de.bund.bfr.math
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: de.bund.bfr.math.Activator
-Bundle-Vendor: Christian Thoens
+Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework;version="1.3.0"
 Require-Bundle: org.apache.commons.lang,
