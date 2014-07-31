@@ -49,7 +49,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	
     	//dbui = new DbConfigurationUi();
 
-    	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymize?"); panel.add(doAnonymize);
+    	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymize Data"); panel.add(doAnonymize);
     	
     	addTab("Tracing/Filtering", panel);
     	//addTab("Database connection", dbui);

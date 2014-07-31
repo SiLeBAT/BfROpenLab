@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./FoodChainLab_transp.png" type="Source">
-    <name>Supply Chain Reader</name>
-    
-    <shortDescription>
-        
-    </shortDescription>
-    
-    <fullDescription>
-        <intro>Insert long description here...</intro>
-        
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-    </fullDescription>
-    
-    <ports>
-        <outPort index="0" name="Nodes33">Nodes33</outPort>
-        <outPort index="1" name="Links33">Links33</outPort>
-        <outPort index="2" name="Tracing-DataModel">Tracing-DataModel</outPort>
-    </ports>    
+	<name>Supply Chain Reader</name>
+
+	<shortDescription>
+		Reads supply chain data from the database.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This node reads supply chain data from the integrated database. It provides a table with
+			Node/Station data, a table with Edge/Delivery data and a table containing the tracing data model.
+			The data model is needed for all nodes that perform tracing ("Tracing View" and "Tracing").
+		</intro>
+
+		<option name="Anonymize Data">
+			If checked, the data is anonymized. That means addresses, names of companies
+			and names of products are removed.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<outPort index="0" name="Nodes/Stations">
+			Table with Node/Station data.
+		</outPort>
+		<outPort index="1" name="Edges/Deliveries">
+			Table with Edge/Delivery data.
+		</outPort>
+		<outPort index="2" name="Tracing Data Model">
+			Model that contains the relations between deliveries. Is provided
+			by third out port of Supply Chain Reader.
+		</outPort>
+	</ports>
 </knimeNode>

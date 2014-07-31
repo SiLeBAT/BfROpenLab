@@ -60,7 +60,7 @@
 		<inPort index="1" name="Edges/Deliveries">
 			Table with Edge/Delivery data.
 		</inPort>
-		<inPort index="2" name="Data model">
+		<inPort index="2" name="Tracing Data Model">
 			Model that contains the relations between deliveries. Is provided by
 			third out port of Supply Chain Reader.
 		</inPort>
