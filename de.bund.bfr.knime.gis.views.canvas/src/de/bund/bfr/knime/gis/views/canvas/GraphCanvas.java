@@ -151,7 +151,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public Map<String, Point2D> getNodePositions() {
-		return getNodePositions(nodes);
+		return getNodePositions(nodeSaveMap.values());
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
