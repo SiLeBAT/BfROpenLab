@@ -32,9 +32,10 @@ import java.util.List;
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+import org.apache.commons.math3.ml.clustering.DoublePoint;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.clustering.MultiKMeansPlusPlusClusterer;
-import org.apache.commons.math3.ml.clustering.DoublePoint;
+import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -115,10 +116,10 @@ public class DBSCANNodeModel extends NodeModel {
     	        		DoubleCell latCell = (DoubleCell) row.getCell(latCol);
     	        		DoubleCell lonCell = (DoubleCell) row.getCell(lonCol);
             	        double[] d = new double[2];
-            	        d[0] = latCell.getDoubleValue();
-            	        d[1] = lonCell.getDoubleValue();
-            	        d[0] *= 111.32; // 1° of latitude is ca. 111 km
-            	        d[1] *= Math.cos(d[1]*Math.PI/180) * 111.32;
+            	        d[0] = Math.toRadians(latCell.getDoubleValue());
+            	        d[1] = Math.toRadians(lonCell.getDoubleValue());
+//            	        d[0] *= 111.32; // 1° of latitude is ca. 111 km
+//            	        d[1] *= Math.cos(d[1]*Math.PI/180) * 111.32;
     	        		Double dblKey = d[0] * 100000 + d[1];
     	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
     	        	        DoublePoint dp = new DoublePoint(d);
@@ -182,13 +183,13 @@ public class DBSCANNodeModel extends NodeModel {
        }
 
 	private List<CentroidCluster<DoublePoint>> kMeans(List<DoublePoint> points) {
-	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(m_minPts.getIntValue());
+	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(m_minPts.getIntValue(), -1, new HaversineDistance());
 	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(km, 5);
 	    List<CentroidCluster<DoublePoint>> cluster = mkm.cluster(points);
 	    return cluster;
 	}
 	private List<Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
-	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(m_eps.getDoubleValue(), m_minPts.getIntValue());
+	    DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(m_eps.getDoubleValue(), m_minPts.getIntValue(), new HaversineDistance());
 	    List<Cluster<DoublePoint>> cluster = dbscan.cluster(points);
 	    return cluster;
 	}
@@ -263,5 +264,22 @@ public class DBSCANNodeModel extends NodeModel {
             CanceledExecutionException {
     }
 
+    private static class HaversineDistance implements DistanceMeasure {
+
+		private static final long serialVersionUID = 1L;
+		private static final double AVERAGE_RADIUS_OF_EARTH = 6372.8;
+
+		@Override
+		public double compute(double[] p1, double[] p2) {
+			double d2LatSin = Math.sin((p2[0] - p1[0]) / 2);
+			double d2LonSin = Math.sin((p2[1] - p1[1]) / 2);
+
+			double a = d2LatSin * d2LatSin + Math.cos(p1[0]) * Math.cos(p2[0])
+					* d2LonSin * d2LonSin;
+
+			return 2 * AVERAGE_RADIUS_OF_EARTH * Math.asin(Math.sqrt(a));
+		}
+
+	}
 }
 
