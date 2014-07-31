@@ -39,7 +39,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
@@ -59,10 +58,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	 */
 	protected RegionToRegionVisualizerNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE,
-				BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE }, new PortType[] {
+				ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new RegionToRegionVisualizerSettings();
 	}
 
@@ -87,8 +84,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 		return new PortObject[] {
 				ViewUtilities.getImage(graphCanvas, set.isExportAsSvg()),
-				ViewUtilities.getImage(gisCanvas, set.isExportAsSvg()),
-				KnimeUtilities.xmlToTable(set.toXml(), exec) };
+				ViewUtilities.getImage(gisCanvas, set.isExportAsSvg()) };
 	}
 
 	/**
@@ -106,8 +102,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
 				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				KnimeUtilities.getXmlSpec() };
+				ViewUtilities.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**

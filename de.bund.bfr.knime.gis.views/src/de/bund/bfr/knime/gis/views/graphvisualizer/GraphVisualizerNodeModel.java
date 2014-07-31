@@ -39,7 +39,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 
 /**
@@ -56,9 +55,9 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected GraphVisualizerNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				ImagePortObject.TYPE, BufferedDataTable.TYPE });
+		super(
+				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+				new PortType[] { ImagePortObject.TYPE });
 		set = new GraphVisualizerSettings();
 	}
 
@@ -73,10 +72,8 @@ public class GraphVisualizerNodeModel extends NodeModel {
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
-		return new PortObject[] {
-				ViewUtilities.getImage(creator.createGraphCanvas(),
-						set.isExportAsSvg()),
-				KnimeUtilities.xmlToTable(set.toXml(), exec) };
+		return new PortObject[] { ViewUtilities.getImage(
+				creator.createGraphCanvas(), set.isExportAsSvg()) };
 	}
 
 	/**
@@ -92,9 +89,8 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] {
-				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				KnimeUtilities.getXmlSpec() };
+		return new PortObjectSpec[] { ViewUtilities.getImageSpec(set
+				.isExportAsSvg()) };
 	}
 
 	/**

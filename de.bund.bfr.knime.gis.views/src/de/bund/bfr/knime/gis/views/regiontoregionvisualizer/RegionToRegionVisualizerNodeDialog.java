@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -51,7 +50,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -106,17 +104,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
-
-		set.loadSettings(settings);
-
-		if (input[3] != null) {
-			try {
-				set.loadFromXml(KnimeUtilities
-						.tableToXml((BufferedDataTable) input[3]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		set.loadSettings(settings);		
 
 		updateSplitPane(false);
 		resized = false;

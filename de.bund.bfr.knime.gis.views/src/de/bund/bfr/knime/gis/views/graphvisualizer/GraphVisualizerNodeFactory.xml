@@ -238,15 +238,9 @@
 		</inPort>
 		<inPort index="1" name="Edge Table">
 			Table with edge data.
-		</inPort>
-		<inPort index="2" name="Settings">
-			Optional port with settings.
-		</inPort>
+		</inPort>		
 		<outPort index="0" name="Graph Image">
 			Image of the Graph.
-		</outPort>
-		<outPort index="1" name="Settings">
-			Settings Output.
-		</outPort>
+		</outPort>		
 	</ports>
 </knimeNode>

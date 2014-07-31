@@ -39,7 +39,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 
 /**
@@ -57,10 +56,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 */
 	protected LocationToLocationVisualizerNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE,
-				BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE }, new PortType[] {
+				ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new LocationToLocationVisualizerSettings();
 	}
 
@@ -80,8 +77,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 				ViewUtilities.getImage(creator.createGraphCanvas(),
 						set.isExportAsSvg()),
 				ViewUtilities.getImage(creator.createLocationCanvas(),
-						set.isExportAsSvg()),
-				KnimeUtilities.xmlToTable(set.toXml(), exec) };
+						set.isExportAsSvg()) };
 	}
 
 	/**
@@ -99,8 +95,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
 				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				KnimeUtilities.getXmlSpec() };
+				ViewUtilities.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
