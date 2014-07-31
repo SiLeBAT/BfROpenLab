@@ -320,7 +320,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private String getAnonymizedStation(String bl, int stationID, String country) {
-		return getISO3166_2(country) + "_" + stationID;//bl + stationID + "(" + country + ")";
+		return getISO3166_2(country) + "#" + stationID;//bl + stationID + "(" + country + ")";
 	}
 
 	private String sdfFormat(String day, String month, String year) {
