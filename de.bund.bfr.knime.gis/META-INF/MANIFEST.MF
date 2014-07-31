@@ -10,14 +10,23 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
+ org.knime.ext.svg,
  org.apache.commons.io,
+ org.apache.commons.lang,
  org.apache.commons.math3,
  org.geotools;visibility:=reexport,
- de.bund.bfr.knime
+ edu.uci.ics.jung;visibility:=reexport,
+ de.bund.bfr.knime;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,
  de.bund.bfr.knime.gis.geocode,
  de.bund.bfr.knime.gis.shapecell,
- de.bund.bfr.knime.gis.shapefilereader
+ de.bund.bfr.knime.gis.shapefilereader,
+ de.bund.bfr.knime.gis.views.canvas,
+ de.bund.bfr.knime.gis.views.canvas.dialogs,
+ de.bund.bfr.knime.gis.views.canvas.element,
+ de.bund.bfr.knime.gis.views.canvas.highlighting,
+ de.bund.bfr.knime.gis.views.canvas.layout,
+ de.bund.bfr.knime.gis.views.canvas.transformer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

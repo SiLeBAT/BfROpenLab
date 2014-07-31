@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
  org.apache.commons.math3,
- de.bund.bfr.knime,
  de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis.util,

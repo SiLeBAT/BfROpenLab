@@ -10,10 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
- org.knime.ext.svg;visibility:=reexport,
- de.bund.bfr.knime,
- de.bund.bfr.knime.gis,
- de.bund.bfr.knime.gis.views.canvas;visibility:=reexport
+ org.knime.ext.svg,
+ de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis.views,
  de.bund.bfr.knime.gis.views.graphvisualizer,
