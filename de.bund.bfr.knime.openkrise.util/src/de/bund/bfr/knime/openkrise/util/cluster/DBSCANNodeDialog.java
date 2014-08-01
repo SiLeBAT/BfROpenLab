@@ -69,10 +69,10 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 				DBSCANNodeModel.DOUBLETTES, false),
 				"Allow multiple unique points?");
 		minPointsComp = new DialogComponentNumber(new SettingsModelInteger(
-				DBSCANNodeModel.MINPTS, 2),
-				"Min Number of Points per Cluster:", 1);
+				DBSCANNodeModel.MINPTS, 2), "Min Number of Points per Cluster",
+				1);
 		maxDistComp = new DialogComponentNumber(new SettingsModelDouble(
-				DBSCANNodeModel.EPS, 2.0), "Max Neighborhood Distance (km):",
+				DBSCANNodeModel.EPS, 2.0), "Max Neighborhood Distance (km)",
 				0.5);
 		clustersComp = new DialogComponentNumber(new SettingsModelInteger(
 				DBSCANNodeModel.CLUSTERS, 3), "Number of Clusters", 1);

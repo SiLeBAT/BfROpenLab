@@ -1,20 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>GIS Cluster</name>
-    
-    <shortDescription>
-        
+<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>GIS Cluster</name>
+
+	<shortDescription>
+        Performs clustering bases on geographical coordinates.
     </shortDescription>
-    
-    <fullDescription>
-        <intro>GisCluster...</intro>
-                
-        <option name="kmeans">kmeans...</option>
-        <option name="dbscan">dbscan...</option>
-    </fullDescription>
-    
-    <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-    </ports>    
+
+	<fullDescription>
+		<intro>
+			This node performs a clustering based on geographical coordinates. The geographical
+			coordinates can be acquired via the "Geocoding" node. Two clustering algorithms are supported:
+			DBSCAN and k-means.
+		</intro>
+
+		<option name="Algorithm">
+			Algorithm used for clustering: DBSCAN (http://en.wikipedia.org/wiki/DBSCAN) or
+			k-means (http://en.wikipedia.org/wiki/K-means_clustering).
+		</option>
+		<option name="DBSCAN -> Min Number of Points per Cluster">
+			Minimum number of points needed for a cluster. Only used by DBSCAN.
+		</option>
+		<option name="DBSCAN -> Max Neighborhood Distance (km)">
+			Maximum radius of the neighborhood to be considered. Only used by DBSCAN.
+		</option>
+		<option name="k-means -> Number of Clusters">
+			The number of clusters to split the data into. Only used by k-means.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Input Data">
+			Input data table. Latitude must be in column "GeocodingLatitude" and
+			longitude in column "GeocodingLongitude".
+		</inPort>
+		<outPort index="0" name="Clustered Data">
+			Clustered data table. Cluster IDs are in column "ClusterID".
+		</outPort>
+	</ports>
 </knimeNode>
