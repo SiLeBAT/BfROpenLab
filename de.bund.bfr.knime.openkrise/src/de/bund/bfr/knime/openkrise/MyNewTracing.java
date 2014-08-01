@@ -404,22 +404,23 @@ public class MyNewTracing {
 			}	
 		}
 		// delivery cc: es werden alle CCs VOR einer Station mit allen CCs NACH einer Station "vermischt"
+		// NEW: all incoming-ccs are mixed
 		if (ccDeliveries != null && ccDeliveries.size() > 0) {
 			for (Integer key : ccDeliveries) {
 				MyDelivery md = allDeliveries.get(key);
 				for (Integer key2 : ccDeliveries) {
 					if (key.intValue() != key2) {
 						MyDelivery md2 = allDeliveries.get(key2);
-						if (md2.getRecipientID() == md.getSupplierID()) {
-							if (!enforceTemporalOrder || (is1MaybeNewer(md, md2))) {
-								md2.addNext(md.getId());
-								md.addPrevious(md2.getId());								
+						if (md2.getRecipientID() == md.getRecipientID()) {
+							for (Integer idn : md.getAllNextIDs()) {
+								md2.addNext(idn);								
+								MyDelivery md3 = allDeliveries.get(idn);
+								md3.addPrevious(md.getId());								
 							}
-						}
-						if (md.getRecipientID() == md2.getSupplierID()) {
-							if (!enforceTemporalOrder || (is1MaybeNewer(md2, md))) {
-								md.addNext(md2.getId());
-								md2.addPrevious(md.getId());
+							for (Integer idn : md2.getAllNextIDs()) {
+								md.addNext(idn);								
+								MyDelivery md3 = allDeliveries.get(idn);
+								md3.addPrevious(md2.getId());								
 							}
 						}
 					}
