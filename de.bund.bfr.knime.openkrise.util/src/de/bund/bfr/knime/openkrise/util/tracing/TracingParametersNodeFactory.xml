@@ -16,7 +16,38 @@
 			be set in the respective tab. Based on the properties the following values are computed: "Score",
 			"Forward", "Backward".
 		</intro>
+		
+		<tab name="Properties">
+			<option name="Node Weights">
+				Weights for nodes/stations. The computed scores are based on these weights.
+			</option>
+			<option name="Edge Weights">
+				Weights for edges/deliveries. The computed scores are based on these weights.
+			</option>
+			<option name="Node Cross Contamination">
+				Set cross contamination for nodes/stations. That means all incoming
+				deliveries can contaminate all outgoing deliveries (see "Enforce Temporal Order").
+			</option>
+			<option name="Edge Cross Contamination">
+				Set cross contamination for edges/deliveries. Similar to "Node Cross
+				Contamination", but unselected (no cross contamination) incoming deliveries and outgoing
+				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
+				cross contamination.
+			</option>
+			<option name="Node Filter">
+				For all nodes/edges that can reached by forward/backward tracing from nodes
+				selected here, the "Forward"/"Backward" is set to true.
+			</option>
+			<option name="Edge Filter">
+				For all nodes/edges that can reached by forward/backward tracing from edges
+				selected here, the "Forward"/"Backward" is set to true.
+			</option>
+		</tab>
 		<tab name="Options">
+			<option name="Enforce Temporal Order">
+				If checked, the delivery date is used for cross contamination. That means a
+				delivery can only contaminate deliveries with a later date.
+			</option>
 			<option name="Filter">
 				Allows to apply a filter to all nodes/edges. Only filtered nodes/edges are
 				shown in the table.
@@ -28,29 +59,7 @@
 			<option name="Set All">
 				Sets all the values for all filtered nodes/edges to "true"/"specfied value".
 			</option>
-		</tab>
-		<tab name="Properties">
-			<option name="Node Weights">
-				Weights for nodes/stations. The computed scores are based on these weights.
-			</option>
-			<option name="Edge Weights">
-				Weights for edges/deliveries. The computed scores are based on these weights.
-			</option>
-			<option name="Node Cross Contamination">
-				Set cross contamination for nodes/stations.
-			</option>
-			<option name="Edge Cross Contamination">
-				Set cross contamination for edges/deliveries.
-			</option>
-			<option name="Node Filter">
-				For all nodes/edges that can reached by forward/backward tracing from nodes
-				selected here, the "Forward"/"Backward" is set to true.
-			</option>
-			<option name="Edge Filter">
-				For all nodes/edges that can reached by forward/backward tracing from edges
-				selected here, the "Forward"/"Backward" is set to true.
-			</option>
-		</tab>
+		</tab>		
 	</fullDescription>
 
 	<ports>
