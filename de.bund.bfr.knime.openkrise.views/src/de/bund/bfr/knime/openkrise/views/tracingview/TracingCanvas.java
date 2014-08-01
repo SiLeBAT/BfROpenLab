@@ -120,7 +120,7 @@ public class TracingCanvas extends GraphCanvas {
 		getViewer().prependPostRenderPaintable(new PostPaintable());
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
-		getOptionsPanel().addOption("Show Connected Deliveries",
+		getOptionsPanel().addOption("Show Forward Deliveries",
 				showConnectedBox);
 		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
