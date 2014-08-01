@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,6 +47,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
@@ -508,12 +510,34 @@ public class TracingCanvas extends GraphCanvas {
 	@Override
 	protected void removeInvisibleElements(Set<GraphNode> nodes,
 			Set<Edge<GraphNode>> edges) {
-		if (!isShowConnected()) {			
+		if (!isShowConnected()) {
 			super.removeInvisibleElements(nodes, edges);
 			return;
 		}
-		
-		// TODO
+
+		MyNewTracing tracing = createTracing(edges);
+		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
+
+		CanvasUtilities.removeInvisibleElements(nodes,
+				getNodeHighlightConditions());
+		removedEdges.addAll(CanvasUtilities.removeInvisibleElements(edges,
+				getEdgeHighlightConditions()));
+		removedEdges.addAll(CanvasUtilities.removeNodelessEdges(edges, nodes));
+
+		Set<Integer> forwardEdges = new LinkedHashSet<>();
+
+		for (Edge<GraphNode> edge : edges) {
+			forwardEdges.addAll(tracing
+					.getForwardDeliveries2(getIntegerId(edge)));
+		}
+
+		for (Edge<GraphNode> edge : removedEdges) {
+			if (forwardEdges.contains(getIntegerId(edge))) {
+				nodes.add(edge.getFrom());
+				nodes.add(edge.getTo());
+				edges.add(edge);
+			}
+		}
 	}
 
 	private void applyTracing() {
@@ -531,6 +555,73 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
+		MyNewTracing tracing = createTracing(edges);
+
+		Set<Integer> backwardNodes = new LinkedHashSet<>();
+		Set<Integer> forwardNodes = new LinkedHashSet<>();
+		Set<Integer> backwardEdges = new LinkedHashSet<>();
+		Set<Integer> forwardEdges = new LinkedHashSet<>();
+
+		for (GraphNode node : getNodes()) {
+			int id = getIntegerId(node, getCollapsedNodes());
+			Boolean value = (Boolean) node.getProperties().get(
+					TracingConstants.FILTER_COLUMN);
+
+			if (value != null && value == true) {
+				backwardNodes.addAll(tracing.getBackwardStations(id));
+				forwardNodes.addAll(tracing.getForwardStations(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+			}
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			int id = getIntegerId(edge);
+			Boolean value = (Boolean) edge.getProperties().get(
+					TracingConstants.FILTER_COLUMN);
+
+			if (value != null && value == true) {
+				backwardNodes.addAll(tracing.getBackwardStations2(id));
+				forwardNodes.addAll(tracing.getForwardStations2(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+			}
+		}
+
+		for (GraphNode node : getNodes()) {
+			int id = getIntegerId(node, getCollapsedNodes());
+
+			node.getProperties().put(TracingConstants.SCORE_COLUMN,
+					tracing.getStationScore(id));
+			node.getProperties().put(TracingConstants.BACKWARD_COLUMN,
+					backwardNodes.contains(id));
+			node.getProperties().put(TracingConstants.FORWARD_COLUMN,
+					forwardNodes.contains(id));
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			int id = Integer.parseInt(edge.getId());
+
+			edge.getProperties().put(TracingConstants.SCORE_COLUMN,
+					tracing.getDeliveryScore(id));
+			edge.getProperties().put(TracingConstants.BACKWARD_COLUMN,
+					backwardEdges.contains(id));
+			edge.getProperties().put(TracingConstants.FORWARD_COLUMN,
+					forwardEdges.contains(id));
+		}
+
+		if (isJoinEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
+				edge.getProperties().put(TracingConstants.FILTER_COLUMN, null);
+				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
+				edge.getProperties()
+						.put(TracingConstants.BACKWARD_COLUMN, null);
+				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
+			}
+		}
+	}
+
+	private MyNewTracing createTracing(Set<Edge<GraphNode>> edges) {
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
 		for (Edge<GraphNode> id : edges) {
@@ -555,7 +646,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		for (GraphNode node : getNodes()) {
-			int id = getIntegerId(node);
+			int id = getIntegerId(node, getCollapsedNodes());
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
@@ -596,73 +687,13 @@ public class TracingCanvas extends GraphCanvas {
 
 		tracing.fillDeliveries(enforceTemporalOrderBox.isSelected());
 
-		Set<Integer> backwardNodes = new LinkedHashSet<>();
-		Set<Integer> forwardNodes = new LinkedHashSet<>();
-		Set<Integer> backwardEdges = new LinkedHashSet<>();
-		Set<Integer> forwardEdges = new LinkedHashSet<>();
-
-		for (GraphNode node : getNodes()) {
-			int id = getIntegerId(node);
-			Boolean value = (Boolean) node.getProperties().get(
-					TracingConstants.FILTER_COLUMN);
-
-			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations(id));
-				forwardNodes.addAll(tracing.getForwardStations(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries(id));
-			}
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			int id = getIntegerId(edge);
-			Boolean value = (Boolean) edge.getProperties().get(
-					TracingConstants.FILTER_COLUMN);
-
-			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations2(id));
-				forwardNodes.addAll(tracing.getForwardStations2(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
-			}
-		}
-
-		for (GraphNode node : getNodes()) {
-			int id = getIntegerId(node);
-
-			node.getProperties().put(TracingConstants.SCORE_COLUMN,
-					tracing.getStationScore(id));
-			node.getProperties().put(TracingConstants.BACKWARD_COLUMN,
-					backwardNodes.contains(id));
-			node.getProperties().put(TracingConstants.FORWARD_COLUMN,
-					forwardNodes.contains(id));
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			int id = Integer.parseInt(edge.getId());
-
-			edge.getProperties().put(TracingConstants.SCORE_COLUMN,
-					tracing.getDeliveryScore(id));
-			edge.getProperties().put(TracingConstants.BACKWARD_COLUMN,
-					backwardEdges.contains(id));
-			edge.getProperties().put(TracingConstants.FORWARD_COLUMN,
-					forwardEdges.contains(id));
-		}
-
-		if (isJoinEdges()) {
-			for (Edge<GraphNode> edge : getEdges()) {
-				edge.getProperties().put(TracingConstants.FILTER_COLUMN, null);
-				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
-				edge.getProperties()
-						.put(TracingConstants.BACKWARD_COLUMN, null);
-				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
-			}
-		}
+		return tracing;
 	}
 
-	private int getIntegerId(GraphNode node) {
-		if (getCollapsedNodes().containsKey(node.getId())) {
-			return createId(getCollapsedNodes().get(node.getId()).keySet());
+	private static int getIntegerId(GraphNode node,
+			Map<String, Map<String, Point2D>> collapsedNodes) {
+		if (collapsedNodes.containsKey(node.getId())) {
+			return createId(collapsedNodes.get(node.getId()).keySet());
 		} else {
 			return Integer.parseInt(node.getId());
 		}
