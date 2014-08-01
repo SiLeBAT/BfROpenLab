@@ -104,7 +104,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
-		set.loadSettings(settings);		
+		set.loadSettings(settings);
 
 		updateSplitPane(false);
 		resized = false;

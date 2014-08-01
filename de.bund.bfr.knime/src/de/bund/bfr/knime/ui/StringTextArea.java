@@ -103,8 +103,8 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 		if (!isValueValid && isEnabled()) {
 			return Color.RED;
 		}
-		
-		return super.getForeground();		
+
+		return super.getForeground();
 	}
 
 	@Override
@@ -113,8 +113,8 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 				&& getText().trim().isEmpty()) {
 			return Color.RED;
 		}
-		
-		return super.getBackground();		
+
+		return super.getBackground();
 	}
 
 	private void textChanged() {

@@ -35,6 +35,6 @@ public interface TracingConstants {
 
 	public static final String FILTER_COLUMN = "Filter";
 	public static final String BACKWARD_COLUMN = "Backward";
-	public static final String FORWARD_COLUMN = "Forward";	
+	public static final String FORWARD_COLUMN = "Forward";
 
 }

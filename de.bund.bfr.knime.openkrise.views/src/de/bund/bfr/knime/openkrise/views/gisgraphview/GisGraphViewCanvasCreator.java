@@ -47,9 +47,9 @@ public class GisGraphViewCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private GisGraphViewSettings set;
 
-	public GisGraphViewCanvasCreator(
-			BufferedDataTable shapeTable, BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, GisGraphViewSettings set) {
+	public GisGraphViewCanvasCreator(BufferedDataTable shapeTable,
+			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			GisGraphViewSettings set) {
 		this.shapeTable = shapeTable;
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;

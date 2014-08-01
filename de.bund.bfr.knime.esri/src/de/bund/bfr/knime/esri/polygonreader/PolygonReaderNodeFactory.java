@@ -57,8 +57,8 @@ public class PolygonReaderNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<PolygonReaderNodeModel> createNodeView(
-			final int viewIndex, final PolygonReaderNodeModel nodeModel) {
+	public NodeView<PolygonReaderNodeModel> createNodeView(final int viewIndex,
+			final PolygonReaderNodeModel nodeModel) {
 		return null;
 	}
 

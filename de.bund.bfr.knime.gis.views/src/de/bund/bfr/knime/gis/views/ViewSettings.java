@@ -30,13 +30,13 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 
-public class ViewSettings extends NodeSettings {	
+public class ViewSettings extends NodeSettings {
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
-	
+
 	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
 
 	private boolean exportAsSvg;

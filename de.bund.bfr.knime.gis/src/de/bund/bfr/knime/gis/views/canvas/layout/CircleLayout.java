@@ -35,6 +35,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 		super(g);
 	}
 
+	@Override
 	public void initialize() {
 		List<V> nodes = new ArrayList<>();
 
@@ -57,6 +58,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 		}
 	}
 
+	@Override
 	public void reset() {
 		initialize();
 	}

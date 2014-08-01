@@ -234,7 +234,7 @@ public class GraphSettings extends Settings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);		
+		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);
 		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
@@ -259,7 +259,7 @@ public class GraphSettings extends Settings {
 		settings.addString(CFG_COLLAPSED_NODES,
 				SERIALIZER.toXml(collapsedNodes));
 	}
-	
+
 	public String getNodeIdColumn() {
 		return nodeIdColumn;
 	}

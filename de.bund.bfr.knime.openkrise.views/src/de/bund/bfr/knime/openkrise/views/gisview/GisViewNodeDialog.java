@@ -150,7 +150,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private void updateSettings() {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
-		
+
 		set.getGisSettings().setShowLegend(canvas.isShowLegend());
 		set.getGisSettings().setScaleX(canvas.getScaleX());
 		set.getGisSettings().setScaleY(canvas.getScaleY());

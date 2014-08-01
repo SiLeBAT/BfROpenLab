@@ -723,8 +723,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getNodes(), dialog.getHighlightConditions()));
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(getNodes(),
+					dialog.getHighlightConditions()));
 		}
 	}
 
@@ -736,8 +736,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getEdges(), dialog.getHighlightConditions()));
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(getEdges(),
+					dialog.getHighlightConditions()));
 		}
 
 	}
@@ -750,8 +750,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getNodes(),
+			setSelectedNodes(CanvasUtilities.getHighlightedElements(getNodes(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -764,8 +763,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getEdges(),
+			setSelectedEdges(CanvasUtilities.getHighlightedElements(getEdges(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}

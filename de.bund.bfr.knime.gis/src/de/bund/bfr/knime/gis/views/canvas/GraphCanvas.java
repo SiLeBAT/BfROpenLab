@@ -221,7 +221,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
 		Set<GraphNode> pickedAll = new LinkedHashSet<>();
 
-		picked.retainAll(getNodes());
+		picked.retainAll(nodes);
 
 		for (GraphNode node : picked) {
 			if (collapsedNodes.containsKey(node.getId())) {
@@ -554,7 +554,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (isSkipEdgelessNodes()) {
-			CanvasUtilities.removeEdgelessNodes(nodes, edges);			
+			CanvasUtilities.removeEdgelessNodes(nodes, edges);
 		}
 
 		getViewer().getGraphLayout().setGraph(

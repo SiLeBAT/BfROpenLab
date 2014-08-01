@@ -292,7 +292,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		if (maxYField.isValueValid()) {
 			return maxYField.getValue();
 		}
-		
+
 		return DEFAULT_MAXY;
 	}
 

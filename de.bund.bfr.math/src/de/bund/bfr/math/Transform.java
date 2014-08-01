@@ -108,9 +108,9 @@ public enum Transform {
 
 	public String getName(String attr) {
 		if (this != Transform.NO_TRANSFORM) {
-			return this + "(" + attr + ")";			
+			return this + "(" + attr + ")";
 		}
-		
+
 		return attr;
 	}
 }

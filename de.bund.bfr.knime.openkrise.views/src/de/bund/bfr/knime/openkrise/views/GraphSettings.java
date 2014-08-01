@@ -375,7 +375,8 @@ public class GraphSettings extends Settings {
 		return collapsedNodes;
 	}
 
-	public void setCollapsedNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
+	public void setCollapsedNodes(
+			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
 }

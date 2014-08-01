@@ -109,8 +109,8 @@ public class IntTextField extends JTextField implements DocumentListener {
 		if (!isValueValid && isEnabled()) {
 			return Color.RED;
 		}
-		
-		return super.getForeground();		
+
+		return super.getForeground();
 	}
 
 	@Override
@@ -119,8 +119,8 @@ public class IntTextField extends JTextField implements DocumentListener {
 				&& getText().trim().isEmpty()) {
 			return Color.RED;
 		}
-		
-		return super.getBackground();		
+
+		return super.getBackground();
 	}
 
 	private void textChanged() {

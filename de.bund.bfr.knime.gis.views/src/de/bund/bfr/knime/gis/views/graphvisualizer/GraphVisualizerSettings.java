@@ -31,12 +31,12 @@ import de.bund.bfr.knime.gis.views.ViewSettings;
 
 public class GraphVisualizerSettings extends ViewSettings {
 
-	private GraphSettings graphSettings;	
+	private GraphSettings graphSettings;
 
 	public GraphVisualizerSettings() {
 		graphSettings = new GraphSettings();
 	}
-	
+
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
@@ -48,7 +48,7 @@ public class GraphVisualizerSettings extends ViewSettings {
 		super.saveSettings(settings);
 		graphSettings.saveSettings(settings);
 	}
-	
+
 	public GraphSettings getGraphSettings() {
 		return graphSettings;
 	}

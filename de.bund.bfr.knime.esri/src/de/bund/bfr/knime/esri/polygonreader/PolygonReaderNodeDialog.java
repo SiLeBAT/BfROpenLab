@@ -42,12 +42,12 @@ public class PolygonReaderNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	protected PolygonReaderNodeDialog() {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
-				new SettingsModelString(PolygonReaderNodeModel.SHP_FILE,
-						null), "ShpFileHistory", ".shp");
+				new SettingsModelString(PolygonReaderNodeModel.SHP_FILE, null),
+				"ShpFileHistory", ".shp");
 		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
 				new SettingsModelBoolean(
-						PolygonReaderNodeModel.GET_EXTERIOR_POLYGON,
-						false), "Get Exterior Ring of Polygons");
+						PolygonReaderNodeModel.GET_EXTERIOR_POLYGON, false),
+				"Get Exterior Ring of Polygons");
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);
