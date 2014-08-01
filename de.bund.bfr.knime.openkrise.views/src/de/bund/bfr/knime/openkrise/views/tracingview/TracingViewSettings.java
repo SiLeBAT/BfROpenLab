@@ -42,11 +42,11 @@ public class TracingViewSettings extends ViewSettings {
 	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
-	private static final String CFG_SHOW_CONNECTED = "ShowConnected";
+	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 	private static final String CFG_LABEL = "Label";
 
 	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-	private static final boolean DEFAULT_SHOW_CONNECTED = false;
+	private static final boolean DEFAULT_SHOW_FORWARD = false;
 
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
@@ -55,7 +55,7 @@ public class TracingViewSettings extends ViewSettings {
 	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
-	private boolean showConnected;
+	private boolean showForward;
 	private String label;
 
 	private GraphSettings graphSettings;
@@ -68,7 +68,7 @@ public class TracingViewSettings extends ViewSettings {
 		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
-		showConnected = DEFAULT_SHOW_CONNECTED;
+		showForward = DEFAULT_SHOW_FORWARD;
 		label = null;
 
 		graphSettings = new GraphSettings();
@@ -120,7 +120,7 @@ public class TracingViewSettings extends ViewSettings {
 		}
 
 		try {
-			showConnected = settings.getBoolean(CFG_SHOW_CONNECTED);
+			showForward = settings.getBoolean(CFG_SHOW_FORWARD);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -143,7 +143,7 @@ public class TracingViewSettings extends ViewSettings {
 		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
-		settings.addBoolean(CFG_SHOW_CONNECTED, showConnected);
+		settings.addBoolean(CFG_SHOW_FORWARD, showForward);
 		settings.addString(CFG_LABEL, label);
 
 		graphSettings.saveSettings(settings);
@@ -207,12 +207,12 @@ public class TracingViewSettings extends ViewSettings {
 		this.enforeTemporalOrder = enforeTemporalOrder;
 	}
 
-	public boolean isShowConnected() {
-		return showConnected;
+	public boolean isShowForward() {
+		return showForward;
 	}
 
-	public void setShowConnected(boolean showConnected) {
-		this.showConnected = showConnected;
+	public void setShowForward(boolean showForward) {
+		this.showForward = showForward;
 	}
 
 	public String getLabel() {

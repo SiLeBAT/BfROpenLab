@@ -75,14 +75,14 @@ public class TracingCanvas extends GraphCanvas {
 	private static final long serialVersionUID = 1L;
 
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-	private static boolean DEFAULT_SHOW_CONNECTED = false;
+	private static boolean DEFAULT_SHOW_FORWARD = false;
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
 	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
-	private JCheckBox showConnectedBox;
+	private JCheckBox showForwardBox;
 	private String label;
 	private JTextField labelField;
 	private JButton labelButton;
@@ -108,9 +108,9 @@ public class TracingCanvas extends GraphCanvas {
 		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
 		enforceTemporalOrderBox.addItemListener(this);
 
-		showConnectedBox = new JCheckBox("Activate");
-		showConnectedBox.setSelected(DEFAULT_SHOW_CONNECTED);
-		showConnectedBox.addItemListener(this);
+		showForwardBox = new JCheckBox("Activate");
+		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
+		showForwardBox.addItemListener(this);
 
 		label = new String();
 		labelField = new JTextField(label, 20);
@@ -120,8 +120,7 @@ public class TracingCanvas extends GraphCanvas {
 		getViewer().prependPostRenderPaintable(new PostPaintable());
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
-		getOptionsPanel().addOption("Show Forward Deliveries",
-				showConnectedBox);
+		getOptionsPanel().addOption("Show Forward Deliveries", showForwardBox);
 		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
@@ -293,12 +292,12 @@ public class TracingCanvas extends GraphCanvas {
 		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
 	}
 
-	public boolean isShowConnected() {
-		return showConnectedBox.isSelected();
+	public boolean isShowForward() {
+		return showForwardBox.isSelected();
 	}
 
-	public void setShowConnected(boolean showConnected) {
-		showConnectedBox.setSelected(showConnected);
+	public void setShowForward(boolean showForward) {
+		showForwardBox.setSelected(showForward);
 	}
 
 	public String getLabel() {
@@ -340,7 +339,7 @@ public class TracingCanvas extends GraphCanvas {
 			if (performTracing) {
 				applyChanges();
 			}
-		} else if (e.getSource() == showConnectedBox) {
+		} else if (e.getSource() == showForwardBox) {
 			if (performTracing) {
 				applyChanges();
 			}
@@ -510,7 +509,7 @@ public class TracingCanvas extends GraphCanvas {
 	@Override
 	protected void removeInvisibleElements(Set<GraphNode> nodes,
 			Set<Edge<GraphNode>> edges) {
-		if (!isShowConnected()) {
+		if (!isShowForward()) {
 			super.removeInvisibleElements(nodes, edges);
 			return;
 		}
