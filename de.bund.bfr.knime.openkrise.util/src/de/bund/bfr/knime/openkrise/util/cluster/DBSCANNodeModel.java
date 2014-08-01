@@ -75,11 +75,17 @@ public class DBSCANNodeModel extends NodeModel {
     static final String EPS = "eps";
     static final String DOUBLETTES = "doublettes";
     static final String CHOSENMODEL = "chosenmodel";
+    static final String CLUSTERS = "clusters"; 
+    
+    static final String DBSCAN = "DBSCAN";
+    static final String K_MEANS = "k-means";
 
     private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 2);
     private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, 2.0);
     private final SettingsModelBoolean m_doublettes = new SettingsModelBoolean(DOUBLETTES, false);
-    private final SettingsModelString m_chosenModel = new SettingsModelString(CHOSENMODEL, "DBSCAN");
+    private final SettingsModelString m_chosenModel = new SettingsModelString(CHOSENMODEL, DBSCAN);
+    private final SettingsModelInteger m_clusters = new SettingsModelInteger(CLUSTERS, 3);
+    
     /**
      * Constructor for the node model.
      */
@@ -135,10 +141,10 @@ public class DBSCANNodeModel extends NodeModel {
                 rowNumber++;
         	}
         	List<?> cluster = null;
-    		if (m_chosenModel.getStringValue().equals("DBSCAN")) {
+    		if (m_chosenModel.getStringValue().equals(DBSCAN)) {
     			cluster = dbScan(points);
     		}
-    		else if (m_chosenModel.getStringValue().equals("KMeans")) {
+    		else if (m_chosenModel.getStringValue().equals(K_MEANS)) {
     			cluster = kMeans(points);
     		}
         	
@@ -183,7 +189,7 @@ public class DBSCANNodeModel extends NodeModel {
        }
 
 	private List<CentroidCluster<DoublePoint>> kMeans(List<DoublePoint> points) {
-	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(m_minPts.getIntValue(), -1, new HaversineDistance());
+	    KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(m_clusters.getIntValue(), -1, new HaversineDistance());
 	    MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(km, 5);
 	    List<CentroidCluster<DoublePoint>> cluster = mkm.cluster(points);
 	    return cluster;
@@ -220,6 +226,7 @@ public class DBSCANNodeModel extends NodeModel {
     	m_minPts.saveSettingsTo(settings);
     	m_doublettes.saveSettingsTo(settings);
     	m_chosenModel.saveSettingsTo(settings);
+    	m_clusters.saveSettingsTo(settings);
     }
 
     /**
@@ -232,6 +239,7 @@ public class DBSCANNodeModel extends NodeModel {
     	m_minPts.loadSettingsFrom(settings);
     	m_doublettes.loadSettingsFrom(settings);
     	m_chosenModel.loadSettingsFrom(settings);
+    	m_clusters.loadSettingsFrom(settings);
     }
 
     /**
@@ -244,6 +252,7 @@ public class DBSCANNodeModel extends NodeModel {
     	m_minPts.validateSettings(settings);
     	m_doublettes.validateSettings(settings);
     	m_chosenModel.validateSettings(settings);
+    	m_clusters.validateSettings(settings);
     }
     
     /**

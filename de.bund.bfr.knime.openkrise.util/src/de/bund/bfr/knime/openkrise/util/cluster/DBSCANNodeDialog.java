@@ -23,7 +23,11 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.cluster;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
@@ -35,24 +39,58 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 /**
  * <code>NodeDialog</code> for the "DBSCAN" Node.
  * 
- *
+ * 
  * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends DefaultNodeSettingsPane {
+public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
+		ChangeListener {
 
-    /**
-     * New pane for configuring the DBSCAN node.
-     */
-    public DBSCANNodeDialog() {
-        addDialogComponent(new DialogComponentNumber(new SettingsModelInteger(DBSCANNodeModel.MINPTS, 2), "Enter minPts:", 1));
-        addDialogComponent(new DialogComponentNumber(new SettingsModelDouble(DBSCANNodeModel.EPS, 2.0), "Enter epsilon (km):", 0.5));
-        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(DBSCANNodeModel.DOUBLETTES, false), "Allow multiple unique points?"));
-        addDialogComponent(new DialogComponentStringSelection(new SettingsModelString(DBSCANNodeModel.CHOSENMODEL, "DBSCAN"), "Choose model:", new String[]{"DBSCAN","KMeans"}));
-    }
+	private DialogComponent algorithmComp;
+	private DialogComponent duplicateComp;
+	private DialogComponent minPointsComp;
+	private DialogComponent maxDistComp;
+	private DialogComponent clustersComp;
+
+	/**
+	 * New pane for configuring the DBSCAN node.
+	 */
+	public DBSCANNodeDialog() {
+		algorithmComp = new DialogComponentStringSelection(
+				new SettingsModelString(DBSCANNodeModel.CHOSENMODEL,
+						DBSCANNodeModel.DBSCAN), "Algorithm", new String[] {
+						DBSCANNodeModel.DBSCAN, DBSCANNodeModel.K_MEANS });
+		algorithmComp.getModel().addChangeListener(this);
+		duplicateComp = new DialogComponentBoolean(new SettingsModelBoolean(
+				DBSCANNodeModel.DOUBLETTES, false),
+				"Allow multiple unique points?");
+		minPointsComp = new DialogComponentNumber(new SettingsModelInteger(
+				DBSCANNodeModel.MINPTS, 2),
+				"Min Number of Points per Cluster:", 1);
+		maxDistComp = new DialogComponentNumber(new SettingsModelDouble(
+				DBSCANNodeModel.EPS, 2.0), "Max Neighborhood Distance (km):",
+				0.5);
+		clustersComp = new DialogComponentNumber(new SettingsModelInteger(
+				DBSCANNodeModel.CLUSTERS, 3), "Number of Clusters", 1);
+
+		addDialogComponent(algorithmComp);
+		addDialogComponent(duplicateComp);
+		addDialogComponent(minPointsComp);
+		addDialogComponent(maxDistComp);
+		addDialogComponent(clustersComp);
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		boolean isDBSCAN = ((SettingsModelString) algorithmComp.getModel())
+				.getStringValue().equals(DBSCANNodeModel.DBSCAN);
+
+		minPointsComp.getModel().setEnabled(isDBSCAN);
+		maxDistComp.getModel().setEnabled(isDBSCAN);
+		clustersComp.getModel().setEnabled(!isDBSCAN);
+	}
 }
-
