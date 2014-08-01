@@ -42,10 +42,12 @@ public class TracingViewSettings extends ViewSettings {
 	private static final String CFG_NODE_FILTER = "Filter";
 	private static final String CFG_EDGE_FILTER = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
-	private static final String CFG_LABEL = "Label";	
-		
-	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;	
-	
+	private static final String CFG_SHOW_CONNECTED = "ShowConnected";
+	private static final String CFG_LABEL = "Label";
+
+	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
+	private static final boolean DEFAULT_SHOW_CONNECTED = false;
+
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
 	private Map<String, Boolean> nodeCrossContaminations;
@@ -53,11 +55,12 @@ public class TracingViewSettings extends ViewSettings {
 	private Map<String, Boolean> nodeFilter;
 	private Map<String, Boolean> edgeFilter;
 	private boolean enforeTemporalOrder;
+	private boolean showConnected;
 	private String label;
-	
+
 	private GraphSettings graphSettings;
 
-	public TracingViewSettings() {			
+	public TracingViewSettings() {
 		nodeWeights = new LinkedHashMap<>();
 		edgeWeights = new LinkedHashMap<>();
 		nodeCrossContaminations = new LinkedHashMap<>();
@@ -65,8 +68,9 @@ public class TracingViewSettings extends ViewSettings {
 		nodeFilter = new LinkedHashMap<>();
 		edgeFilter = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
+		showConnected = DEFAULT_SHOW_CONNECTED;
 		label = null;
-		
+
 		graphSettings = new GraphSettings();
 	}
 
@@ -116,15 +120,20 @@ public class TracingViewSettings extends ViewSettings {
 		}
 
 		try {
+			showConnected = settings.getBoolean(CFG_SHOW_CONNECTED);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			label = settings.getString(CFG_LABEL);
 		} catch (InvalidSettingsException e) {
 		}
-		
-		graphSettings.loadSettings(settings);		
+
+		graphSettings.loadSettings(settings);
 	}
 
 	@Override
-	public void saveSettings(NodeSettingsWO settings) {		
+	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
 		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
@@ -134,8 +143,9 @@ public class TracingViewSettings extends ViewSettings {
 		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
 		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
+		settings.addBoolean(CFG_SHOW_CONNECTED, showConnected);
 		settings.addString(CFG_LABEL, label);
-		
+
 		graphSettings.saveSettings(settings);
 	}
 
@@ -195,6 +205,14 @@ public class TracingViewSettings extends ViewSettings {
 
 	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
 		this.enforeTemporalOrder = enforeTemporalOrder;
+	}
+
+	public boolean isShowConnected() {
+		return showConnected;
+	}
+
+	public void setShowConnected(boolean showConnected) {
+		this.showConnected = showConnected;
 	}
 
 	public String getLabel() {

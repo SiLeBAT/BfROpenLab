@@ -143,6 +143,7 @@ public class TracingViewCanvasCreator {
 		canvas.setNodeFilter(set.getNodeFilter());
 		canvas.setEdgeFilter(set.getEdgeFilter());
 		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
+		canvas.setShowConnected(set.isShowConnected());
 		canvas.setLabel(set.getLabel());
 		canvas.setNodeHighlightConditions(set.getGraphSettings()
 				.getNodeHighlightConditions());

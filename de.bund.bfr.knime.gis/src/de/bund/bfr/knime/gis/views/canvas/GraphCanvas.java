@@ -539,11 +539,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			edges.add(newEdge);
 		}
 
-		nodes = CanvasUtilities.removeInvisibleElements(nodes,
-				getNodeHighlightConditions());
-		edges = CanvasUtilities.removeInvisibleElements(edges,
-				getEdgeHighlightConditions());
-		edges = CanvasUtilities.getEdgesWithNodes(edges, nodes);
+		removeInvisibleElements(nodes, edges);
 
 		if (isJoinEdges()) {
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
@@ -556,7 +552,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (isSkipEdgelessNodes()) {
-			nodes = CanvasUtilities.getNodesWithEdges(edges);
+			CanvasUtilities.removeEdgelessNodes(nodes, edges);			
 		}
 
 		getViewer().getGraphLayout().setGraph(
@@ -571,6 +567,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeHighlightConditions(), getNodeSize());
 		CanvasUtilities.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
+	}
+
+	protected void removeInvisibleElements(Set<GraphNode> nodes,
+			Set<Edge<GraphNode>> edges) {
+		CanvasUtilities.removeInvisibleElements(nodes,
+				getNodeHighlightConditions());
+		CanvasUtilities.removeInvisibleElements(edges,
+				getEdgeHighlightConditions());
+		CanvasUtilities.removeNodelessEdges(edges, nodes);
 	}
 
 	@Override

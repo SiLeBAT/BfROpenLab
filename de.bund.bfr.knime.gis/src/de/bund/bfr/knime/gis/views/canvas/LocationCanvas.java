@@ -115,11 +115,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
-		nodes = CanvasUtilities.removeInvisibleElements(allNodes,
+		nodes = new LinkedHashSet<>(allNodes);
+		edges = new LinkedHashSet<>(allEdges);
+
+		CanvasUtilities.removeInvisibleElements(nodes,
 				getNodeHighlightConditions());
-		edges = CanvasUtilities.removeInvisibleElements(allEdges,
+		CanvasUtilities.removeInvisibleElements(edges,
 				getEdgeHighlightConditions());
-		edges = CanvasUtilities.getEdgesWithNodes(edges, nodes);
+		CanvasUtilities.removeNodelessEdges(edges, nodes);
 
 		if (isJoinEdges()) {
 			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
@@ -132,7 +135,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		}
 
 		if (isSkipEdgelessNodes()) {
-			nodes = CanvasUtilities.getNodesWithEdges(edges);
+			CanvasUtilities.removeEdgelessNodes(nodes, edges);
 		}
 
 		getViewer().getGraphLayout().setGraph(

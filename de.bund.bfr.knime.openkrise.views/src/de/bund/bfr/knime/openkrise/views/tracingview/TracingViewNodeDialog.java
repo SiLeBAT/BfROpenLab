@@ -87,7 +87,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetCrossButton.addActionListener(this);
 		resetFilterButton = new JButton("Reset Filters");
 		resetFilterButton.addActionListener(this);
-		exportAsSvgBox = new JCheckBox("Export As Svg");		
+		exportAsSvgBox = new JCheckBox("Export As Svg");
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -226,6 +226,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setNodeFilter(canvas.getNodeFilter());
 		set.setEdgeFilter(canvas.getEdgeFilter());
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
+		set.setShowConnected(canvas.isShowConnected());
 		set.setLabel(canvas.getLabel());
 
 		if (resized) {

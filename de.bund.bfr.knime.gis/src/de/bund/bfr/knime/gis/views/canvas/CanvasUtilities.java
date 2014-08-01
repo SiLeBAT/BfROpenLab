@@ -36,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -482,31 +483,6 @@ public class CanvasUtilities {
 				new LabelTransformer<>(labels));
 	}
 
-	public static <V extends Node> Set<Edge<V>> getEdgesWithNodes(
-			Collection<Edge<V>> edges, Set<V> nodes) {
-		Set<Edge<V>> edgesWithNodes = new LinkedHashSet<>();
-
-		for (Edge<V> edge : edges) {
-			if (nodes.contains(edge.getFrom()) && nodes.contains(edge.getTo())) {
-				edgesWithNodes.add(edge);
-			}
-		}
-
-		return edgesWithNodes;
-	}
-
-	public static <V extends Node> Set<V> getNodesWithEdges(
-			Collection<Edge<V>> edges) {
-		Set<V> nodesWithEdges = new LinkedHashSet<>();
-
-		for (Edge<V> edge : edges) {
-			nodesWithEdges.add(edge.getFrom());
-			nodesWithEdges.add(edge.getTo());
-		}
-
-		return nodesWithEdges;
-	}
-
 	public static Paint mixColors(Color backgroundColor, List<Color> colors,
 			List<Double> alphas) {
 		double rb = backgroundColor.getRed() / 255.0;
@@ -556,22 +532,67 @@ public class CanvasUtilities {
 	}
 
 	public static <T extends Element> Set<T> removeInvisibleElements(
-			Collection<T> elements, HighlightConditionList highlightConditions) {
-		Set<T> result = new LinkedHashSet<>(elements);
+			Set<T> elements, HighlightConditionList highlightConditions) {
+		Set<T> removed = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions.getConditions()) {
+			if (!condition.isInvisible()) {
+				continue;
+			}
+
 			Map<T, Double> values = condition.getValues(elements);
 
-			if (condition.isInvisible()) {
-				for (T element : elements) {
-					if (values.get(element) != 0.0) {
-						result.remove(element);
-					}
+			for (Iterator<T> iterator = elements.iterator(); iterator.hasNext();) {
+				T element = iterator.next();
+
+				if (values.get(element) != 0.0) {
+					removed.add(element);
+					iterator.remove();
 				}
 			}
 		}
 
-		return result;
+		return removed;
+	}
+
+	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(
+			Set<Edge<V>> edges, Set<V> nodes) {
+		Set<Edge<V>> removed = new LinkedHashSet<>();
+
+		for (Iterator<Edge<V>> iterator = edges.iterator(); iterator.hasNext();) {
+			Edge<V> edge = iterator.next();
+
+			if (!nodes.contains(edge.getFrom())
+					|| !nodes.contains(edge.getTo())) {
+				removed.add(edge);
+				iterator.remove();
+			}
+		}
+
+		return removed;
+	}
+
+	public static <V extends Node> Set<V> removeEdgelessNodes(Set<V> nodes,
+			Set<Edge<V>> edges) {
+		Set<V> nodesWithEdges = new LinkedHashSet<>();
+
+		for (Edge<V> edge : edges) {
+			nodesWithEdges.add(edge.getFrom());
+			nodesWithEdges.add(edge.getTo());
+		}
+
+		Set<V> removed = new LinkedHashSet<>();
+
+		for (Iterator<V> iterator = nodes.iterator(); iterator.hasNext();) {
+			V node = iterator.next();
+
+			if (!nodesWithEdges.contains(node)) {
+				removed.add(node);
+				iterator.remove();
+			}
+		}
+
+		return removed;
 	}
 
 	public static <V extends Node> Graph<V, Edge<V>> createGraph(

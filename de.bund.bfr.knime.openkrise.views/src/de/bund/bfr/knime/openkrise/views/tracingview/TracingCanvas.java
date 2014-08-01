@@ -73,12 +73,14 @@ public class TracingCanvas extends GraphCanvas {
 	private static final long serialVersionUID = 1L;
 
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
+	private static boolean DEFAULT_SHOW_CONNECTED = false;
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
 	private HashMap<Integer, MyDelivery> deliveries;
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
+	private JCheckBox showConnectedBox;
 	private String label;
 	private JTextField labelField;
 	private JButton labelButton;
@@ -104,6 +106,10 @@ public class TracingCanvas extends GraphCanvas {
 		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
 		enforceTemporalOrderBox.addItemListener(this);
 
+		showConnectedBox = new JCheckBox("Activate");
+		showConnectedBox.setSelected(DEFAULT_SHOW_CONNECTED);
+		showConnectedBox.addItemListener(this);
+
 		label = new String();
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
@@ -112,6 +118,8 @@ public class TracingCanvas extends GraphCanvas {
 		getViewer().prependPostRenderPaintable(new PostPaintable());
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
+		getOptionsPanel().addOption("Show Connected Deliveries",
+				showConnectedBox);
 		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
@@ -283,6 +291,14 @@ public class TracingCanvas extends GraphCanvas {
 		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
 	}
 
+	public boolean isShowConnected() {
+		return showConnectedBox.isSelected();
+	}
+
+	public void setShowConnected(boolean showConnected) {
+		showConnectedBox.setSelected(showConnected);
+	}
+
 	public String getLabel() {
 		return label;
 	}
@@ -319,6 +335,10 @@ public class TracingCanvas extends GraphCanvas {
 		super.itemStateChanged(e);
 
 		if (e.getSource() == enforceTemporalOrderBox) {
+			if (performTracing) {
+				applyChanges();
+			}
+		} else if (e.getSource() == showConnectedBox) {
 			if (performTracing) {
 				applyChanges();
 			}
@@ -483,6 +503,17 @@ public class TracingCanvas extends GraphCanvas {
 		dialog.addChecker(new HighlightChecker());
 
 		return dialog;
+	}
+
+	@Override
+	protected void removeInvisibleElements(Set<GraphNode> nodes,
+			Set<Edge<GraphNode>> edges) {
+		if (!isShowConnected()) {			
+			super.removeInvisibleElements(nodes, edges);
+			return;
+		}
+		
+		// TODO
 	}
 
 	private void applyTracing() {
