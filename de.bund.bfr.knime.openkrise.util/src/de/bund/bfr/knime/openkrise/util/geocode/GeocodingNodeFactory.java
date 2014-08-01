@@ -36,7 +36,7 @@ import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
  * 
  * @author Christian Thoens
  */
-public class GeocodeNodeFactory extends NodeFactory<GeocodingNodeModel> {
+public class GeocodingNodeFactory extends NodeFactory<GeocodingNodeModel> {
 
 	/**
 	 * {@inheritDoc}

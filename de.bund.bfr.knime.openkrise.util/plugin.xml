@@ -23,8 +23,8 @@
       </node>
       <node
             category-path="/foodchain"
-            factory-class="de.bund.bfr.knime.openkrise.util.geocode.GeocodeNodeFactory"
-            id="de.bund.bfr.knime.openkrise.util.geocode.GeocodeNodeFactory">
+            factory-class="de.bund.bfr.knime.openkrise.util.geocode.GeocodingNodeFactory"
+            id="de.bund.bfr.knime.openkrise.util.geocode.GeocodingNodeFactory">
       </node>
       <node
             category-path="/foodchain"
