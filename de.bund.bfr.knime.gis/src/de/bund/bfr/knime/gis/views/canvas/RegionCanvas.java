@@ -116,10 +116,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 	}
 
+	@Override
 	public Set<RegionNode> getNodes() {
 		return nodes;
 	}
 
+	@Override
 	public Set<Edge<RegionNode>> getEdges() {
 		return edges;
 	}

@@ -134,10 +134,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
+	@Override
 	public Set<GraphNode> getNodes() {
 		return nodes;
 	}
 
+	@Override
 	public Set<Edge<GraphNode>> getEdges() {
 		return edges;
 	}
@@ -219,7 +221,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
 		Set<GraphNode> pickedAll = new LinkedHashSet<>();
 
-		picked.retainAll(getVisibleNodes());
+		picked.retainAll(getNodes());
 
 		for (GraphNode node : picked) {
 			if (collapsedNodes.containsKey(node.getId())) {

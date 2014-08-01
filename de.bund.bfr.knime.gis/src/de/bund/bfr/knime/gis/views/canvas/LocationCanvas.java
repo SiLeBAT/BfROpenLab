@@ -103,10 +103,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		}
 	}
 
+	@Override
 	public Set<LocationNode> getNodes() {
 		return nodes;
 	}
 
+	@Override
 	public Set<Edge<LocationNode>> getEdges() {
 		return edges;
 	}

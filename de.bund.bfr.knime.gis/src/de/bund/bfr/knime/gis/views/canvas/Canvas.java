@@ -51,7 +51,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -261,13 +260,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setBorderAlpha(borderAlpha);
 	}
 
-	public Collection<V> getVisibleNodes() {
-		return viewer.getGraphLayout().getGraph().getVertices();
-	}
+	public abstract Set<V> getNodes();
 
-	public Collection<Edge<V>> getVisibleEdges() {
-		return viewer.getGraphLayout().getGraph().getEdges();
-	}
+	public abstract Set<Edge<V>> getEdges();
 
 	public Map<String, Class<?>> getNodeProperties() {
 		return nodeProperties;
@@ -598,7 +593,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectConnectionsItemClicked() {
-		for (Edge<V> edge : getVisibleEdges()) {
+		for (Edge<V> edge : getEdges()) {
 			if (getSelectedNodes().contains(edge.getFrom())
 					&& getSelectedNodes().contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
@@ -608,7 +603,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectIncomingItemClicked() {
-		for (Edge<V> edge : getVisibleEdges()) {
+		for (Edge<V> edge : getEdges()) {
 			if (getSelectedNodes().contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
@@ -617,7 +612,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectOutgoingItemClicked() {
-		for (Edge<V> edge : getVisibleEdges()) {
+		for (Edge<V> edge : getEdges()) {
 			if (getSelectedNodes().contains(edge.getFrom())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
@@ -729,7 +724,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (dialog.isApproved()) {
 			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getVisibleNodes(), dialog.getHighlightConditions()));
+					getNodes(), dialog.getHighlightConditions()));
 		}
 	}
 
@@ -742,7 +737,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (dialog.isApproved()) {
 			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getVisibleEdges(), dialog.getHighlightConditions()));
+					getEdges(), dialog.getHighlightConditions()));
 		}
 
 	}
@@ -756,7 +751,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (dialog.isApproved()) {
 			setSelectedNodes(CanvasUtilities.getHighlightedElements(
-					getVisibleNodes(),
+					getNodes(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -770,7 +765,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		if (dialog.isApproved()) {
 			setSelectedEdges(CanvasUtilities.getHighlightedElements(
-					getVisibleEdges(),
+					getEdges(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -779,7 +774,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void nodePropertiesItemClicked() {
 		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
 
-		picked.retainAll(getVisibleNodes());
+		picked.retainAll(getNodes());
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
 				picked, nodeProperties, true);
@@ -791,7 +786,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void edgePropertiesItemClicked() {
 		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
-		picked.retainAll(getVisibleEdges());
+		picked.retainAll(getEdges());
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this,
 				picked, edgeProperties, true);
@@ -803,7 +798,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void edgeAllPropertiesItemClicked() {
 		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
-		picked.retainAll(getVisibleEdges());
+		picked.retainAll(getEdges());
 
 		Set<Edge<V>> allPicked = new LinkedHashSet<>();
 
@@ -1032,8 +1027,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		@Override
 		public void paint(Graphics g) {
 			if (optionsPanel.isShowLegend()) {
-				new CanvasLegend<>(nodeHighlightConditions, getVisibleNodes(),
-						edgeHighlightConditions, getVisibleEdges()).paint(g,
+				new CanvasLegend<>(nodeHighlightConditions, getNodes(),
+						edgeHighlightConditions, getEdges()).paint(g,
 						getCanvasSize().width, getCanvasSize().height,
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}

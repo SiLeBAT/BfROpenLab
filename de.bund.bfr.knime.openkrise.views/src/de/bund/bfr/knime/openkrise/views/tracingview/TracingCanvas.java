@@ -349,7 +349,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void nodePropertiesItemClicked() {
 		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
 
-		picked.retainAll(getVisibleNodes());
+		picked.retainAll(getNodes());
 
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
 				.createNodeDialog(this, picked, getNodeProperties(), true);
@@ -369,7 +369,7 @@ public class TracingCanvas extends GraphCanvas {
 			Set<Edge<GraphNode>> picked = new LinkedHashSet<>(
 					getSelectedEdges());
 
-			picked.retainAll(getVisibleEdges());
+			picked.retainAll(getEdges());
 
 			EditablePropertiesDialog dialog = EditablePropertiesDialog
 					.createEdgeDialog(this, picked, getEdgeProperties(), true);
@@ -386,7 +386,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void edgeAllPropertiesItemClicked() {
 		Set<Edge<GraphNode>> picked = new LinkedHashSet<>(getSelectedEdges());
 
-		picked.retainAll(getVisibleEdges());
+		picked.retainAll(getEdges());
 
 		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
 
@@ -524,9 +524,9 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
 
 		if (!isJoinEdges()) {
-			edges.addAll(getVisibleEdges());
+			edges.addAll(getEdges());
 		} else {
-			for (Edge<GraphNode> edge : getVisibleEdges()) {
+			for (Edge<GraphNode> edge : getEdges()) {
 				edges.addAll(getJoinMap().get(edge));
 			}
 		}
@@ -554,7 +554,7 @@ public class TracingCanvas extends GraphCanvas {
 			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
 		}
 
-		for (GraphNode node : getVisibleNodes()) {
+		for (GraphNode node : getNodes()) {
 			int id = getIntegerId(node);
 			Double caseValue = (Double) node.getProperties().get(
 					TracingConstants.CASE_WEIGHT_COLUMN);
@@ -601,7 +601,7 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> backwardEdges = new LinkedHashSet<>();
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
-		for (GraphNode node : getVisibleNodes()) {
+		for (GraphNode node : getNodes()) {
 			int id = getIntegerId(node);
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingConstants.FILTER_COLUMN);
