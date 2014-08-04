@@ -1,10 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
  * 
- * Developers and contributors are
- * Armin A. Weiser (BfR) 
+ * Developers and contributors are 
+ * Armin A. Weiser (BfR)
  * Christian Thoens (BfR)
  * Matthias Filter (BfR)
+ * Alexander Falenski (BfR)
  * Annemarie Kaesbohrer (BfR)
  * Bernd Appel (BfR)
  * 
@@ -124,7 +125,7 @@ public class DBSCANNodeModel extends NodeModel {
             	        double[] d = new double[2];
             	        d[0] = Math.toRadians(latCell.getDoubleValue());
             	        d[1] = Math.toRadians(lonCell.getDoubleValue());
-//            	        d[0] *= 111.32; // 1° of latitude is ca. 111 km
+//            	        d[0] *= 111.32; // 1? of latitude is ca. 111 km
 //            	        d[1] *= Math.cos(d[1]*Math.PI/180) * 111.32;
     	        		Double dblKey = d[0] * 100000 + d[1];
     	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {

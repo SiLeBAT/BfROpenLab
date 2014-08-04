@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Federal Institute for Risk Assessment (BfR), Germany 
+ * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
  * 
  * Developers and contributors are 
  * Christian Thoens (BfR)

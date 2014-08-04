@@ -1,10 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
  * 
- * Developers and contributors are
- * Armin A. Weiser (BfR) 
+ * Developers and contributors are 
+ * Armin A. Weiser (BfR)
  * Christian Thoens (BfR)
  * Matthias Filter (BfR)
+ * Alexander Falenski (BfR)
  * Annemarie Kaesbohrer (BfR)
  * Bernd Appel (BfR)
  * 
@@ -252,7 +253,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			do {
 				int lieferID = rs.getInt("Lieferungen.ID");
 				int id1 = rs.getInt("Produktkatalog.Station");
-				int id2 = rs.getInt("Lieferungen.Empfänger");
+				int id2 = rs.getInt("Lieferungen.Empf?nger");
 				//if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
 				int from = id1;//id2Code.get(id1);
 				int to = id2;//id2Code.get(id2);

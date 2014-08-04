@@ -1,10 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany 
  * 
- * Developers and contributors are
- * Armin A. Weiser (BfR) 
+ * Developers and contributors are 
+ * Armin A. Weiser (BfR)
  * Christian Thoens (BfR)
  * Matthias Filter (BfR)
+ * Alexander Falenski (BfR)
  * Annemarie Kaesbohrer (BfR)
  * Bernd Appel (BfR)
  * 
