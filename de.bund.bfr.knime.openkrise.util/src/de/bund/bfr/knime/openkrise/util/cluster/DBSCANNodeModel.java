@@ -57,12 +57,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.openkrise.TracingConstants;
 
 /**
  * This is the model implementation of DBSCAN.
@@ -74,7 +74,7 @@ public class DBSCANNodeModel extends NodeModel {
     
     static final String MINPTS = "minPts";
     static final String EPS = "eps";
-    static final String DOUBLETTES = "doublettes";
+//    static final String DOUBLETTES = "doublettes";
     static final String CHOSENMODEL = "chosenmodel";
     static final String CLUSTERS = "clusters"; 
     
@@ -83,7 +83,7 @@ public class DBSCANNodeModel extends NodeModel {
 
     private final SettingsModelInteger m_minPts = new SettingsModelInteger(MINPTS, 2);
     private final SettingsModelDouble m_eps = new SettingsModelDouble(EPS, 2.0);
-    private final SettingsModelBoolean m_doublettes = new SettingsModelBoolean(DOUBLETTES, false);
+//    private final SettingsModelBoolean m_doublettes = new SettingsModelBoolean(DOUBLETTES, false);
     private final SettingsModelString m_chosenModel = new SettingsModelString(CHOSENMODEL, DBSCAN);
     private final SettingsModelInteger m_clusters = new SettingsModelInteger(CLUSTERS, 3);
     
@@ -109,11 +109,11 @@ public class DBSCANNodeModel extends NodeModel {
     	for (int i=0;i<data.getSpec().getNumColumns();i++) {
     		if (data.getSpec().getColumnNames()[i].equals(GeocodingNodeModel.LATITUDE_COLUMN)) latCol = i;
     		else if (data.getSpec().getColumnNames()[i].equals(GeocodingNodeModel.LONGITUDE_COLUMN)) lonCol = i;
-    		else if (data.getSpec().getColumnNames()[i].equals("Clusterable")) doItCol = i;
+    		else if (data.getSpec().getColumnNames()[i].equals(TracingConstants.CLUSTERABLE_COLUMN)) doItCol = i;
     	}
     	if (latCol >= 0 && lonCol >= 0) {
     		HashMap<Integer, DoublePoint> idp = new HashMap<>(); 
-    		HashMap<Double, Integer> dim = new HashMap<>();
+//    		HashMap<Double, Integer> dim = new HashMap<>();
     	    List<DoublePoint> points = new ArrayList<>();
             int rowNumber = 0;
         	for (DataRow row : data) {
@@ -127,16 +127,16 @@ public class DBSCANNodeModel extends NodeModel {
             	        d[1] = Math.toRadians(lonCell.getDoubleValue());
 //            	        d[0] *= 111.32; // 1? of latitude is ca. 111 km
 //            	        d[1] *= Math.cos(d[1]*Math.PI/180) * 111.32;
-    	        		Double dblKey = d[0] * 100000 + d[1];
-    	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
+//    	        		Double dblKey = d[0] * 100000 + d[1];
+//    	        		if (!m_doublettes.getBooleanValue() || !dim.containsKey(dblKey.doubleValue())) {
     	        	        DoublePoint dp = new DoublePoint(d);
     	        	        idp.put(rowNumber, dp);
     	        	        points.add(dp);
-    	        	        dim.put(dblKey, rowNumber);
-    	        		}
-    	        		else {
-    	        			idp.put(rowNumber, idp.get(dim.get(dblKey)));
-    	        		}
+//    	        	        dim.put(dblKey, rowNumber);
+//    	        		}
+//    	        		else {
+//    	        			idp.put(rowNumber, idp.get(dim.get(dblKey)));
+//    	        		}
             		}
             	}
                 rowNumber++;
@@ -185,7 +185,7 @@ public class DBSCANNodeModel extends NodeModel {
         for (int i=0;i<inSpec.getNumColumns();i++) {
             spec[i] = inSpec.getColumnSpec(i);
         }
-        spec[inSpec.getNumColumns()] = new DataColumnSpecCreator("ClusterID",IntCell.TYPE).createSpec();
+        spec[inSpec.getNumColumns()] = new DataColumnSpecCreator(TracingConstants.CLUSTER_ID_COLUMN,IntCell.TYPE).createSpec();
         return new DataTableSpec(spec);
        }
 
@@ -225,7 +225,7 @@ public class DBSCANNodeModel extends NodeModel {
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	m_eps.saveSettingsTo(settings);
     	m_minPts.saveSettingsTo(settings);
-    	m_doublettes.saveSettingsTo(settings);
+//    	m_doublettes.saveSettingsTo(settings);
     	m_chosenModel.saveSettingsTo(settings);
     	m_clusters.saveSettingsTo(settings);
     }
@@ -238,7 +238,7 @@ public class DBSCANNodeModel extends NodeModel {
             throws InvalidSettingsException {
     	m_eps.loadSettingsFrom(settings);
     	m_minPts.loadSettingsFrom(settings);
-    	m_doublettes.loadSettingsFrom(settings);
+//    	m_doublettes.loadSettingsFrom(settings);
     	m_chosenModel.loadSettingsFrom(settings);
     	m_clusters.loadSettingsFrom(settings);
     }
@@ -251,7 +251,7 @@ public class DBSCANNodeModel extends NodeModel {
             throws InvalidSettingsException {
     	m_eps.validateSettings(settings);
     	m_minPts.validateSettings(settings);
-    	m_doublettes.validateSettings(settings);
+//    	m_doublettes.validateSettings(settings);
     	m_chosenModel.validateSettings(settings);
     	m_clusters.validateSettings(settings);
     }

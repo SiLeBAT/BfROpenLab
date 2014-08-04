@@ -29,10 +29,8 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -52,7 +50,7 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 		ChangeListener {
 
 	private DialogComponent algorithmComp;
-	private DialogComponent duplicateComp;
+//	private DialogComponent duplicateComp;
 	private DialogComponent minPointsComp;
 	private DialogComponent maxDistComp;
 	private DialogComponent clustersComp;
@@ -66,9 +64,9 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 						DBSCANNodeModel.DBSCAN), "Algorithm", new String[] {
 						DBSCANNodeModel.DBSCAN, DBSCANNodeModel.K_MEANS });
 		algorithmComp.getModel().addChangeListener(this);
-		duplicateComp = new DialogComponentBoolean(new SettingsModelBoolean(
-				DBSCANNodeModel.DOUBLETTES, false),
-				"Allow multiple unique points?");
+//		duplicateComp = new DialogComponentBoolean(new SettingsModelBoolean(
+//				DBSCANNodeModel.DOUBLETTES, false),
+//				"Allow multiple unique points?");
 		minPointsComp = new DialogComponentNumber(new SettingsModelInteger(
 				DBSCANNodeModel.MINPTS, 2), "Min Number of Points per Cluster",
 				1);
@@ -79,7 +77,7 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 				DBSCANNodeModel.CLUSTERS, 3), "Number of Clusters", 1);
 
 		addDialogComponent(algorithmComp);
-		addDialogComponent(duplicateComp);
+//		addDialogComponent(duplicateComp);
 		addDialogComponent(minPointsComp);
 		addDialogComponent(maxDistComp);
 		addDialogComponent(clustersComp);
