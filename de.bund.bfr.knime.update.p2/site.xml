@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.bund.bfr.knime.gis.feature_1.0.0.201407151433.jar" id="de.bund.bfr.knime.gis.feature" version="1.0.0.201407151433">
+   <feature url="features/de.bund.bfr.knime.gis.feature_1.0.0.201408041642.jar" id="de.bund.bfr.knime.gis.feature" version="1.0.0.201408041642">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.nls.feature_1.0.0.201407151433.jar" id="de.bund.bfr.knime.nls.feature" version="1.0.0.201407151433">
+   <feature url="features/de.bund.bfr.knime.nls.feature_1.0.0.201408041642.jar" id="de.bund.bfr.knime.nls.feature" version="1.0.0.201408041642">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.openkrise.feature_1.0.0.201407151433.jar" id="de.bund.bfr.knime.openkrise.feature" version="1.0.0.201407151433">
+   <feature url="features/de.bund.bfr.knime.openkrise.feature_1.0.0.201408041642.jar" id="de.bund.bfr.knime.openkrise.feature" version="1.0.0.201408041642">
       <category name="bfropenlab"/>
    </feature>
-   <feature url="features/de.bund.bfr.knime.sbml.feature_1.0.0.201407151433.jar" id="de.bund.bfr.knime.sbml.feature" version="1.0.0.201407151433">
+   <feature url="features/de.bund.bfr.knime.sbml.feature_1.0.0.201408041642.jar" id="de.bund.bfr.knime.sbml.feature" version="1.0.0.201408041642">
       <category name="bfropenlab"/>
    </feature>
    <category-def name="bfropenlab" label="BfROpenLab"/>
