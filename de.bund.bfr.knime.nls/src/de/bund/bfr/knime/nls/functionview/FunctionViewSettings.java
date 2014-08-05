@@ -43,6 +43,7 @@ import de.bund.bfr.math.Transform;
 
 public class FunctionViewSettings extends NlsNodeSettings {
 
+	public static final boolean DEFAULT_MIN_TO_ZERO = false;
 	public static final boolean DEFAULT_MANUAL_RANGE = false;
 	public static final double DEFAULT_MIN_X = 0.0;
 	public static final double DEFAULT_MAX_X = 10.0;
@@ -55,6 +56,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	public static final Transform DEFAULT_TRANSFORM = Transform.NO_TRANSFORM;
 	public static final boolean DEFAULT_SELECT_ALL = false;
 
+	private static final String CFG_MIN_TO_ZERO = "MinToZero";
 	private static final String CFG_MANUAL_RANGE = "ManualRange";
 	private static final String CFG_MIN_X = "MinX";
 	private static final String CFG_MAX_X = "MaxX";
@@ -72,6 +74,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	private static final String CFG_COLORS = "Colors";
 	private static final String CFG_SHAPES = "Shapes";
 
+	private boolean minToZero;
 	private boolean manualRange;
 	private double minX;
 	private double maxX;
@@ -90,6 +93,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	private Map<String, Shape> shapes;
 
 	public FunctionViewSettings() {
+		minToZero = DEFAULT_MIN_TO_ZERO;
 		manualRange = DEFAULT_MANUAL_RANGE;
 		minX = DEFAULT_MIN_X;
 		maxX = DEFAULT_MAX_X;
@@ -111,6 +115,11 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			minToZero = settings.getBoolean(CFG_MIN_TO_ZERO);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			manualRange = settings.getBoolean(CFG_MANUAL_RANGE);
 		} catch (InvalidSettingsException e) {
@@ -199,6 +208,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addBoolean(CFG_MIN_TO_ZERO, minToZero);
 		settings.addBoolean(CFG_MANUAL_RANGE, manualRange);
 		settings.addDouble(CFG_MIN_X, minX);
 		settings.addDouble(CFG_MAX_X, maxX);
@@ -219,6 +229,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	}
 
 	public void setToChartCreator(ChartCreator creator) {
+		creator.setMinToZero(minToZero);
 		creator.setManualRange(manualRange);
 		creator.setMinX(minX);
 		creator.setMaxX(maxX);
@@ -237,6 +248,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	}
 
 	public void setFromConfigPanel(ChartConfigPanel configPanel) {
+		minToZero = configPanel.isMinToZero();
 		manualRange = configPanel.isManualRange();
 		minX = configPanel.getMinX();
 		maxX = configPanel.getMaxX();
@@ -252,6 +264,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	}
 
 	public void setToConfigPanel(ChartConfigPanel configPanel) {
+		configPanel.setMinToZero(minToZero);
 		configPanel.setManualRange(manualRange);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
@@ -278,6 +291,14 @@ public class FunctionViewSettings extends NlsNodeSettings {
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setSelectedIds(selectedIDs);
+	}
+
+	public boolean isMinToZero() {
+		return minToZero;
+	}
+
+	public void setMinToZero(boolean minToZero) {
+		this.minToZero = minToZero;
 	}
 
 	public boolean isManualRange() {

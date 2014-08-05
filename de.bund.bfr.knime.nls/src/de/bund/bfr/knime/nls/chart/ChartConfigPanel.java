@@ -72,6 +72,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JCheckBox exportAsSvgBox;
 	private JCheckBox showConfidenceBox;
 
+	private JCheckBox minToZeroBox;
 	private JCheckBox manualRangeBox;
 	private DoubleTextField minXField;
 	private DoubleTextField minYField;
@@ -134,6 +135,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		JPanel rangePanel = new JPanel();
 
+		minToZeroBox = new JCheckBox("Set Minimum to Zero");
+		minToZeroBox.setSelected(false);
+		minToZeroBox.addActionListener(this);
 		manualRangeBox = new JCheckBox("Set Manual Range");
 		manualRangeBox.setSelected(false);
 		manualRangeBox.addActionListener(this);
@@ -155,15 +159,16 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		maxYField.addTextListener(this);
 
 		rangePanel.setLayout(new GridBagLayout());
-		rangePanel.add(manualRangeBox, createConstraints(0, 0, 4, 1));
-		rangePanel.add(new JLabel("Min X:"), createConstraints(0, 1, 1, 1));
-		rangePanel.add(minXField, createConstraints(1, 1, 1, 1));
-		rangePanel.add(new JLabel("Max X:"), createConstraints(2, 1, 1, 1));
-		rangePanel.add(maxXField, createConstraints(3, 1, 1, 1));
-		rangePanel.add(new JLabel("Min Y:"), createConstraints(0, 2, 1, 1));
-		rangePanel.add(minYField, createConstraints(1, 2, 1, 1));
-		rangePanel.add(new JLabel("Max Y:"), createConstraints(2, 2, 1, 1));
-		rangePanel.add(maxYField, createConstraints(3, 2, 1, 1));
+		rangePanel.add(minToZeroBox, createConstraints(0, 0, 4, 1));
+		rangePanel.add(manualRangeBox, createConstraints(0, 1, 4, 1));
+		rangePanel.add(new JLabel("Min X:"), createConstraints(0, 2, 1, 1));
+		rangePanel.add(minXField, createConstraints(1, 2, 1, 1));
+		rangePanel.add(new JLabel("Max X:"), createConstraints(2, 2, 1, 1));
+		rangePanel.add(maxXField, createConstraints(3, 2, 1, 1));
+		rangePanel.add(new JLabel("Min Y:"), createConstraints(0, 3, 1, 1));
+		rangePanel.add(minYField, createConstraints(1, 3, 1, 1));
+		rangePanel.add(new JLabel("Max Y:"), createConstraints(2, 3, 1, 1));
+		rangePanel.add(maxYField, createConstraints(3, 3, 1, 1));
 
 		JPanel outerRangePanel = new JPanel();
 
@@ -232,6 +237,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		configListeners.remove(listener);
 	}
 
+	public boolean isMinToZero() {
+		return minToZeroBox.isSelected();
+	}
+
+	public void setMinToZero(boolean minToZero) {
+		minToZeroBox.setSelected(minToZero);
+	}
+
 	public boolean isManualRange() {
 		return manualRangeBox.isSelected();
 	}
@@ -240,11 +253,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		manualRangeBox.setSelected(manualRange);
 
 		if (manualRangeBox.isSelected()) {
+			minToZeroBox.setEnabled(false);
 			minXField.setEnabled(true);
 			minYField.setEnabled(true);
 			maxXField.setEnabled(true);
 			maxYField.setEnabled(true);
 		} else {
+			minToZeroBox.setEnabled(true);
 			minXField.setEnabled(false);
 			minYField.setEnabled(false);
 			maxXField.setEnabled(false);
@@ -448,11 +463,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == manualRangeBox) {
 			if (manualRangeBox.isSelected()) {
+				minToZeroBox.setEnabled(false);
 				minXField.setEnabled(true);
 				minYField.setEnabled(true);
 				maxXField.setEnabled(true);
 				maxYField.setEnabled(true);
 			} else {
+				minToZeroBox.setEnabled(true);
 				minXField.setEnabled(false);
 				minYField.setEnabled(false);
 				maxXField.setEnabled(false);

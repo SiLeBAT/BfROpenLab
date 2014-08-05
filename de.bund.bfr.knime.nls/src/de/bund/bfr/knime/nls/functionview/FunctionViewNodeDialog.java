@@ -168,6 +168,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setParamY(configPanel.getParamY());
 		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
+		chartCreator.setMinToZero(configPanel.isMinToZero());
 		chartCreator.setManualRange(configPanel.isManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

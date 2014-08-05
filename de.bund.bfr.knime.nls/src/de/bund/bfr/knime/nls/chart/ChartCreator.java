@@ -67,6 +67,7 @@ public class ChartCreator extends ChartPanel {
 	private String paramY;
 	private Transform transformX;
 	private Transform transformY;
+	private boolean minToZero;
 	private boolean useManualRange;
 	private double minX;
 	private double minY;
@@ -247,6 +248,18 @@ public class ChartCreator extends ChartPanel {
 			}
 		}
 
+		if (minToZero && !useManualRange) {
+			Range xRange = xAxis.getRange();
+			Range yRange = yAxis.getRange();
+
+			if (xRange.getUpperBound() <= 0.0 || yRange.getUpperBound() <= 0.0) {
+				return null;
+			}
+
+			xAxis.setRange(new Range(0.0, xRange.getUpperBound()));
+			yAxis.setRange(new Range(0.0, yRange.getUpperBound()));
+		}
+
 		return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,
 				showLegend);
 	}
@@ -265,6 +278,10 @@ public class ChartCreator extends ChartPanel {
 
 	public void setTransformY(Transform transformY) {
 		this.transformY = transformY;
+	}
+
+	public void setMinToZero(boolean minToZero) {
+		this.minToZero = minToZero;
 	}
 
 	public void setManualRange(boolean useManualRange) {
