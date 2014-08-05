@@ -30,8 +30,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.math.Transform;
 
-public class ChartConfigPanel extends JPanel implements ActionListener,
+public class ChartConfigPanel extends JPanel implements ItemListener,
 		TextListener, ChangeListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
@@ -104,15 +104,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		drawLinesBox = new JCheckBox("Draw Lines");
 		drawLinesBox.setSelected(false);
-		drawLinesBox.addActionListener(this);
+		drawLinesBox.addItemListener(this);
 		showLegendBox = new JCheckBox("Show Legend");
 		showLegendBox.setSelected(true);
-		showLegendBox.addActionListener(this);
+		showLegendBox.addItemListener(this);
 		exportAsSvgBox = new JCheckBox("Export as SVG");
 		exportAsSvgBox.setSelected(false);
 		showConfidenceBox = new JCheckBox("Show Confidence Interval");
 		showConfidenceBox.setSelected(false);
-		showConfidenceBox.addActionListener(this);
+		showConfidenceBox.addItemListener(this);
 
 		JPanel displayOptionsPanel = new JPanel();
 
@@ -137,10 +137,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		minToZeroBox = new JCheckBox("Set Minimum to Zero");
 		minToZeroBox.setSelected(false);
-		minToZeroBox.addActionListener(this);
+		minToZeroBox.addItemListener(this);
 		manualRangeBox = new JCheckBox("Set Manual Range");
 		manualRangeBox.setSelected(false);
-		manualRangeBox.addActionListener(this);
+		manualRangeBox.addItemListener(this);
 		minXField = new DoubleTextField(false, 8);
 		minXField.setValue(DEFAULT_MINX);
 		minXField.setEnabled(false);
@@ -178,12 +178,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		mainPanel.add(outerRangePanel, createConstraints(1));
 
 		xBox = new JComboBox<>();
-		xBox.addActionListener(this);
+		xBox.addItemListener(this);
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
-		xTransBox.addActionListener(this);
+		xTransBox.addItemListener(this);
 		yTransBox = new JComboBox<>(Transform.values());
-		yTransBox.addActionListener(this);
+		yTransBox.addItemListener(this);
 
 		JPanel parametersPanel = new JPanel();
 
@@ -251,20 +251,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setManualRange(boolean manualRange) {
 		manualRangeBox.setSelected(manualRange);
-
-		if (manualRangeBox.isSelected()) {
-			minToZeroBox.setEnabled(false);
-			minXField.setEnabled(true);
-			minYField.setEnabled(true);
-			maxXField.setEnabled(true);
-			maxYField.setEnabled(true);
-		} else {
-			minToZeroBox.setEnabled(true);
-			minXField.setEnabled(false);
-			minYField.setEnabled(false);
-			maxXField.setEnabled(false);
-			maxYField.setEnabled(false);
-		}
 	}
 
 	public double getMinX() {
@@ -401,7 +387,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			this.minParamValuesX = minParamValuesX;
 			this.maxParamValuesX = maxParamValuesX;
 
-			xBox.removeActionListener(this);
+			xBox.removeItemListener(this);
 			xBox.removeAllItems();
 
 			for (String param : parametersX.keySet()) {
@@ -420,7 +406,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				lastParamX = null;
 			}
 
-			xBox.addActionListener(this);
+			xBox.addItemListener(this);
 			updateParametersPanel();
 		}
 
@@ -460,7 +446,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == manualRangeBox) {
 			if (manualRangeBox.isSelected()) {
 				minToZeroBox.setEnabled(false);
@@ -475,13 +461,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				maxXField.setEnabled(false);
 				maxYField.setEnabled(false);
 			}
-
-			fireConfigChanged();
 		} else if (e.getSource() == xBox) {
 			lastParamX = (String) xBox.getSelectedItem();
 			updateParametersPanel();
-			fireConfigChanged();
-		} else {
+		}
+
+		if (e.getSource() instanceof JCheckBox
+				|| (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.SELECTED)) {
 			fireConfigChanged();
 		}
 	}
