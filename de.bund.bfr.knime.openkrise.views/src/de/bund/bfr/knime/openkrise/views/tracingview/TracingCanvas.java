@@ -515,7 +515,8 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		MyNewTracing tracing = createTracing(edges);
+		MyNewTracing tracingWithCC = createTracing(edges, true);
+		MyNewTracing tracingWithoutCC = createTracing(edges, false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtilities.removeInvisibleElements(nodes,
@@ -527,7 +528,12 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
 		for (Edge<GraphNode> edge : edges) {
-			forwardEdges.addAll(tracing
+			forwardEdges.addAll(tracingWithCC
+					.getForwardDeliveries2(getIntegerId(edge)));
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			forwardEdges.removeAll(tracingWithoutCC
 					.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
@@ -555,7 +561,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		MyNewTracing tracing = createTracing(edges);
+		MyNewTracing tracing = createTracing(edges, true);
 
 		Set<Integer> backwardNodes = new LinkedHashSet<>();
 		Set<Integer> forwardNodes = new LinkedHashSet<>();
@@ -621,7 +627,8 @@ public class TracingCanvas extends GraphCanvas {
 		}
 	}
 
-	private MyNewTracing createTracing(Set<Edge<GraphNode>> edges) {
+	private MyNewTracing createTracing(Set<Edge<GraphNode>> edges,
+			boolean useCrossContamination) {
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
 		for (Edge<GraphNode> id : edges) {
@@ -658,10 +665,12 @@ public class TracingCanvas extends GraphCanvas {
 				tracing.setCase(id, 0.0);
 			}
 
-			if (contaminationValue != null) {
-				tracing.setCrossContamination(id, contaminationValue);
-			} else {
-				tracing.setCrossContamination(id, false);
+			if (useCrossContamination) {
+				if (contaminationValue != null) {
+					tracing.setCrossContamination(id, contaminationValue);
+				} else {
+					tracing.setCrossContamination(id, false);
+				}
 			}
 		}
 
@@ -678,10 +687,13 @@ public class TracingCanvas extends GraphCanvas {
 				tracing.setCaseDelivery(id, 0.0);
 			}
 
-			if (contaminationValue != null) {
-				tracing.setCrossContaminationDelivery(id, contaminationValue);
-			} else {
-				tracing.setCrossContaminationDelivery(id, false);
+			if (useCrossContamination) {
+				if (contaminationValue != null) {
+					tracing.setCrossContaminationDelivery(id,
+							contaminationValue);
+				} else {
+					tracing.setCrossContaminationDelivery(id, false);
+				}
 			}
 		}
 
