@@ -86,9 +86,9 @@
 				If checked, the delivery date is used for cross contamination. That means a
 				delivery can only contaminate deliveries with a later date.
 			</option>
-			<option name="Show Forward Deliveries">
+			<option name="Show Cross Contaminated Deliveries">
 				If checked, all invisible deliveries, that can be reached from the visible
-				deliveries via forward tracing, are made visible.
+				deliveries via the cross contamination specified by the user, are made visible.
 			</option>
 			<option name="Label">
 				Small Label, that is displayed in the upper right corner of the graph image.
