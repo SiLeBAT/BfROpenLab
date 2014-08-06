@@ -31,7 +31,6 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -58,9 +57,9 @@ public class GisGraphViewCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);
@@ -112,9 +111,9 @@ public class GisGraphViewCanvasCreator {
 	public LocationCanvas createLocationCanvas() {
 		List<RegionNode> regionNodes = TracingUtilities
 				.readRegionNodes(shapeTable);
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = TracingUtilities.readLocationNodes(
 				nodeTable, nodeProperties);

@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -52,7 +51,7 @@ public class GisViewCanvasCreator {
 
 	public LocationCanvas createCanvas() {
 		List<RegionNode> regions = TracingUtilities.readRegionNodes(shapeTable);
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(TracingUtilities
 				.readLocationNodes(nodeTable, nodeProperties).values());

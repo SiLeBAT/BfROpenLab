@@ -36,7 +36,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -90,9 +89,9 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		set.loadSettings(settings);
 
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);

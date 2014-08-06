@@ -59,7 +59,6 @@ import org.knime.core.node.NotConfigurableException;
 import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -96,9 +95,9 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable dataTable = inData[2];
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
 				nodeTable, nodeProperties);

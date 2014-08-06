@@ -32,9 +32,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -45,11 +43,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.BufferedDataContainer;
@@ -122,26 +116,6 @@ public class KnimeUtilities {
 		}
 
 		return file;
-	}
-
-	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
-		Map<String, Class<?>> tableColumns = new LinkedHashMap<>();
-
-		for (int i = 0; i < spec.getNumColumns(); i++) {
-			DataColumnSpec cSpec = spec.getColumnSpec(i);
-
-			if (cSpec.getType().equals(StringCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), String.class);
-			} else if (cSpec.getType().equals(IntCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Integer.class);
-			} else if (cSpec.getType().equals(DoubleCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Double.class);
-			} else if (cSpec.getType().equals(BooleanCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Boolean.class);
-			}
-		}
-
-		return tableColumns;
 	}
 
 	public static List<DataColumnSpec> getColumns(DataTableSpec spec,

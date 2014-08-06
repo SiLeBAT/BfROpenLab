@@ -42,7 +42,12 @@ import org.geotools.referencing.CRS;
 import org.knime.base.data.xml.SvgCell;
 import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.port.image.ImagePortObject;
@@ -78,6 +83,26 @@ public class TracingUtilities {
 	private static GeometryFactory factory = new GeometryFactory();
 
 	private TracingUtilities() {
+	}
+
+	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
+		Map<String, Class<?>> tableColumns = new LinkedHashMap<>();
+
+		for (int i = 0; i < spec.getNumColumns(); i++) {
+			DataColumnSpec cSpec = spec.getColumnSpec(i);
+
+			if (cSpec.getType().equals(IntCell.TYPE)) {
+				tableColumns.put(cSpec.getName(), Integer.class);
+			} else if (cSpec.getType().equals(DoubleCell.TYPE)) {
+				tableColumns.put(cSpec.getName(), Double.class);
+			} else if (cSpec.getType().equals(BooleanCell.TYPE)) {
+				tableColumns.put(cSpec.getName(), Boolean.class);
+			} else {
+				tableColumns.put(cSpec.getName(), String.class);
+			}
+		}
+
+		return tableColumns;
 	}
 
 	public static ImagePortObject getImage(Canvas<?> canvas, boolean asSvg)
@@ -286,7 +311,7 @@ public class TracingUtilities {
 		Object obj = null;
 
 		if (type == String.class) {
-			obj = IO.getCleanString(cell);
+			obj = IO.getToCleanString(cell);
 		} else if (type == Integer.class) {
 			obj = IO.getInt(cell);
 		} else if (type == Double.class) {

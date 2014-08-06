@@ -32,7 +32,6 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
@@ -56,9 +55,9 @@ public class TracingViewCanvasCreator {
 	}
 
 	public TracingCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtilities
 				.getTableColumns(edgeTable.getSpec());
 
 		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {

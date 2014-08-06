@@ -35,7 +35,6 @@ import org.knime.core.node.BufferedDataTable;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -69,9 +68,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), set
@@ -130,9 +129,9 @@ public class RegionToRegionVisualizerCanvasCreator {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
 				shapeTable, set.getGisSettings().getShapeColumn(), set
 						.getGisSettings().getShapeRegionColumn());
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtilities
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = KnimeUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtilities
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, RegionNode> nodes = ViewUtilities.readRegionNodes(
 				nodeTable, nodeProperties, polygonMap, idToRegionMap, set

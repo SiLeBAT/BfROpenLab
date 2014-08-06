@@ -34,7 +34,6 @@ import org.knime.core.node.BufferedDataTable;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.gis.views.ViewUtilities;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -60,7 +59,7 @@ public class RegionVisualizerCanvasCreator {
 		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
 				shapeTable, set.getGisSettings().getShapeColumn(), set
 						.getGisSettings().getShapeRegionColumn());
-		Map<String, Class<?>> nodeProperties = KnimeUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtilities
 				.getTableColumns(nodeTable.getSpec());
 		List<RegionNode> nodes = new ArrayList<>(ViewUtilities.readRegionNodes(
 				nodeTable, nodeProperties, polygonMap, null,
