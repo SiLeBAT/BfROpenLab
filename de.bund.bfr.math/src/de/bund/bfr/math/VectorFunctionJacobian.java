@@ -28,14 +28,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
+
+import com.google.common.collect.Sets;
 
 public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
@@ -53,8 +55,8 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
-				variableValues.keySet()));
+		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
+				parameters), variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 

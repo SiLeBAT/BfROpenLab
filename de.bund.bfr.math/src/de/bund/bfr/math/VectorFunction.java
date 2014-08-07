@@ -24,14 +24,16 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
+
+import com.google.common.collect.Sets;
 
 public class VectorFunction implements MultivariateVectorFunction {
 
@@ -46,8 +48,8 @@ public class VectorFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = MathUtilities.createParser(CollectionUtils.union(parameters,
-				variableValues.keySet()));
+		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
+				parameters), variableValues.keySet()));
 		function = parser.parse(formula);
 
 		for (List<Double> values : variableValues.values()) {

@@ -25,8 +25,8 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
 import org.lsmp.djep.djep.DJep;
@@ -196,7 +196,7 @@ public class MathUtilities {
 		return parser;
 	}
 
-	public static DJep createParser(Collection<String> variables) {
+	public static DJep createParser(Set<String> variables) {
 		DJep parser = createParser();
 
 		for (String var : variables) {

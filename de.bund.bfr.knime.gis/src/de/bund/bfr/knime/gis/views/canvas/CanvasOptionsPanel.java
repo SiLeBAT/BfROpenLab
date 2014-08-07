@@ -31,6 +31,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -47,7 +48,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
-import org.apache.commons.lang.ArrayUtils;
+import com.google.common.primitives.Ints;
 
 import de.bund.bfr.knime.UI;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -298,7 +299,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
 		skipEdgelessNodesBox.addItemListener(this);
-		fontSizeBox = new JComboBox<>(ArrayUtils.toObject(TEXT_SIZES));
+		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);
@@ -307,7 +308,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
 		fontBoldBox.addItemListener(this);
-		nodeSizeBox = new JComboBox<>(ArrayUtils.toObject(NODE_SIZES));
+		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
 				.setColumns(3);

@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
@@ -46,6 +45,8 @@ import org.apache.commons.math3.optim.nonlinear.vector.Target;
 import org.apache.commons.math3.optim.nonlinear.vector.Weight;
 import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.nfunk.jep.ParseException;
+
+import com.google.common.primitives.Doubles;
 
 public class ParameterOptimizer {
 
@@ -350,8 +351,8 @@ public class ParameterOptimizer {
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				ArrayUtils.toPrimitive(targetValues.toArray(new Double[0]))),
-				new Weight(weights), new InitialGuess(startValues));
+				Doubles.toArray(targetValues)), new Weight(weights),
+				new InitialGuess(startValues));
 	}
 
 	private void useCurrentResults() {
