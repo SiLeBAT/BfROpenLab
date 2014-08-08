@@ -24,10 +24,14 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.lsmp.djep.djep.DJep;
@@ -38,8 +42,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
 
-	private DJep parser;
-	private Node function;
+	private Map<String, DJep> parsers;
+	private Map<String, Node> functions;
 	private List<String> parameters;
 	private String valueVariable;
 	private String diffVariable;
@@ -56,43 +60,90 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		this.variableValues = variableValues;
 		this.initialValue = initialValue;
 
+		parsers = new LinkedHashMap<>();
+		functions = new LinkedHashMap<>();
+
 		Set<String> variables = new LinkedHashSet<>();
 
 		variables.add(valueVariable);
 		variables.addAll(variableValues.keySet());
 		variables.addAll(parameters);
 
-		parser = MathUtilities.createParser(variables);
-		function = parser.parse(formula);
+		for (String param : parameters) {
+			DJep parser = MathUtilities.createParser(variables);
+
+			parsers.put(param, parser);
+			functions.put(param, parser.parse(formula));
+		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		List<Double> diffValues = variableValues.get(diffVariable);
-		double[][] result = new double[diffValues.size()][parameters.size()];
+		int nParam = parameters.size();
+		int nValue = variableValues.get(diffVariable).size();
+		double[][] r = new double[nParam][nValue];
+		ExecutorService executor = Executors.newFixedThreadPool(parameters
+				.size());
 
-		for (int j = 0; j < parameters.size(); j++) {
-			double paramValue = point[j];
+		for (int i = 0; i < nParam; i++) {
+			executor.execute(new ParamDiffThread(point, i, r[i]));
+		}
 
-			point[j] = paramValue - EPSILON;
+		executor.shutdown();
+
+		try {
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		double[][] result = new double[nValue][nParam];
+
+		for (int i = 0; i < nParam; i++) {
+			for (int j = 0; j < nValue; j++) {
+				result[j][i] = r[i][j];
+			}
+		}
+
+		return result;
+	}
+
+	private class ParamDiffThread implements Runnable {
+
+		private double[] point;
+		private int index;
+		private double[] result;
+
+		public ParamDiffThread(double[] point, int index, double[] result) {
+			this.point = point;
+			this.index = index;
+			this.result = result;
+		}
+
+		@Override
+		public void run() {
+			DJep parser = parsers.get(parameters.get(index));
+			Node function = functions.get(parameters.get(index));
+			double[] point = new double[this.point.length];
+
+			System.arraycopy(this.point, 0, point, 0, this.point.length);
+
+			point[index] = this.point[index] - EPSILON;
 
 			double[] result1 = new VectorDiffFunction(parser, function,
 					parameters, valueVariable, diffVariable, variableValues,
 					initialValue).value(point);
 
-			point[j] = paramValue + EPSILON;
+			point[index] = this.point[index] + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
 					parameters, valueVariable, diffVariable, variableValues,
 					initialValue).value(point);
 
-			point[j] = paramValue;
-
-			for (int i = 0; i < diffValues.size(); i++) {
-				result[i][j] = (result2[i] - result1[i]) / (2 * EPSILON);
+			for (int i = 0; i < variableValues.get(diffVariable).size(); i++) {
+				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);
 			}
 		}
 
-		return result;
 	}
 }

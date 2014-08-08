@@ -81,9 +81,11 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		try {
 			Object number = parser.evaluate(function);
 
-			if (MathUtilities.isValidDouble(number)) {
-				yDot[0] = (Double) number;
+			if (!(number instanceof Double)) {
+				number = Double.NaN;
 			}
+
+			yDot[0] = (Double) number;
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
