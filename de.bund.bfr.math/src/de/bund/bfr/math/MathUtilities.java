@@ -24,7 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -87,8 +87,8 @@ public class MathUtilities {
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
 	}
 
-	public static List<String> getSymbols(String formula) {
-		List<String> symbols = new ArrayList<>();
+	public static Set<String> getSymbols(String formula) {
+		Set<String> symbols = new LinkedHashSet<>();
 		DJep parser = MathUtilities.createParser();
 
 		try {

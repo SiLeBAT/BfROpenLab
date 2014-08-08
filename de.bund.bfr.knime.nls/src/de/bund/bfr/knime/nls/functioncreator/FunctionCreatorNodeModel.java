@@ -26,6 +26,7 @@ package de.bund.bfr.knime.nls.functioncreator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -143,7 +144,8 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	private static Function createFunction(String term,
 			String dependentVariable, List<String> independentVariables,
 			String diffVariable) {
-		List<String> parameters = MathUtilities.getSymbols(term);
+		List<String> parameters = new ArrayList<>(
+				MathUtilities.getSymbols(term));
 
 		parameters.removeAll(independentVariables);
 

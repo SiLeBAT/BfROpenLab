@@ -24,10 +24,8 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
@@ -46,32 +44,11 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private int lastIndex;
 
-	public DiffFunction(String formula, Map<String, Double> paramValues,
-			String valueVariable, String diffVariable,
-			Map<String, List<Double>> variableValues) throws ParseException {
-		this.valueVariable = valueVariable;
-		this.diffVariable = diffVariable;
-		this.variableValues = variableValues;
-
-		Set<String> variables = new LinkedHashSet<>();
-
-		variables.add(valueVariable);
-		variables.addAll(variableValues.keySet());
-		variables.addAll(paramValues.keySet());
-
-		parser = MathUtilities.createParser(variables);
-		function = parser.parse(formula);
-
-		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue());
-		}
-	}
-
-	public DiffFunction(DJep parser, Node function, String dependentVariable,
+	public DiffFunction(DJep parser, Node function, String valueVariable,
 			String diffVariable, Map<String, List<Double>> variableValues) {
 		this.parser = parser;
 		this.function = function;
-		this.valueVariable = dependentVariable;
+		this.valueVariable = valueVariable;
 		this.diffVariable = diffVariable;
 		this.variableValues = variableValues;
 	}
@@ -93,12 +70,13 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		}
 
 		lastIndex = index;
-		parser.setVarValue(valueVariable, y[0]);
-		parser.setVarValue(diffVariable, t);
 
 		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
 			parser.setVarValue(entry.getKey(), entry.getValue().get(index));
 		}
+
+		parser.setVarValue(valueVariable, y[0]);
+		parser.setVarValue(diffVariable, t);
 
 		try {
 			Object number = parser.evaluate(function);

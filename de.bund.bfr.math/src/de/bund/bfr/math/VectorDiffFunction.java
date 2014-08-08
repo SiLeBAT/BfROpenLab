@@ -58,7 +58,6 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		Set<String> variables = new LinkedHashSet<>();
 
 		variables.add(valueVariable);
-		variables.add(diffVariable);
 		variables.addAll(variableValues.keySet());
 		variables.addAll(parameters);
 
@@ -93,7 +92,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 				0.01);
 		double[] value = { initialValue };
 
-		result[0] = initialValue;
+		result[0] = value[0];
 
 		for (int i = 1; i < diffValues.size(); i++) {
 			integrator.integrate(f, diffValues.get(i - 1), value,

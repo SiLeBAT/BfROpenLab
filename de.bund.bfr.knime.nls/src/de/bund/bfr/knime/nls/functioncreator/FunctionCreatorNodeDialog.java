@@ -32,6 +32,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -206,7 +207,8 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = MathUtilities.getSymbols(set.getTerm());
+		List<String> elements = new ArrayList<>(MathUtilities.getSymbols(set
+				.getTerm()));
 
 		Collections.sort(elements);
 
@@ -242,7 +244,8 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> params = MathUtilities.getSymbols(set.getTerm());
+		List<String> params = new ArrayList<>(MathUtilities.getSymbols(set
+				.getTerm()));
 		List<String> indeps = new ArrayList<>();
 
 		for (String indep : set.getIndependentVariables()) {
@@ -252,11 +255,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		for (int i = 0; i < params.size(); i++) {
-			if (usedIndeps.contains(params.get(i))) {
-				indeps.add(params.get(i));
-				params.remove(i);
-				i--;
+		for (Iterator<String> iterator = params.iterator(); iterator.hasNext();) {
+			String param = iterator.next();
+
+			if (usedIndeps.contains(param)) {
+				indeps.add(param);
+				iterator.remove();
 			}
 		}
 
