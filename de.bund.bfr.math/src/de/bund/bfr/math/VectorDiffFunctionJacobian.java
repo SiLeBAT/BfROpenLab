@@ -41,6 +41,7 @@ import org.nfunk.jep.ParseException;
 public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
+	private static final int MAX_THREADS = 8;
 
 	private Map<String, DJep> parsers;
 	private Map<String, Node> functions;
@@ -82,8 +83,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		int nParam = parameters.size();
 		int nValue = variableValues.get(diffVariable).size();
 		double[][] r = new double[nParam][nValue];
-		ExecutorService executor = Executors.newFixedThreadPool(parameters
-				.size());
+		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
 		for (int i = 0; i < nParam; i++) {
 			executor.execute(new ParamDiffThread(point, i, r[i]));
