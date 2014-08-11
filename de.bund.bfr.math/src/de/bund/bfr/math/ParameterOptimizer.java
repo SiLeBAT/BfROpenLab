@@ -128,11 +128,11 @@ public class ParameterOptimizer {
 			vv.put(entry.getKey(), Doubles.toArray(entry.getValue()));
 		}
 
-		optimizerFunction = new VectorMultiDiffFunction(
+		optimizerFunction = new VectorDiffFunction(
 				new String[] { formula }, new String[] { valueVariable },
 				new double[] { targetValues.get(0) },
 				parameters.toArray(new String[0]), vv, timeVariable);
-		optimizerFunctionJacobian = new VectorMultiDiffFunctionJacobian(
+		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(
 				new String[] { formula }, new String[] { valueVariable },
 				new double[] { targetValues.get(0) },
 				parameters.toArray(new String[0]), vv, timeVariable);

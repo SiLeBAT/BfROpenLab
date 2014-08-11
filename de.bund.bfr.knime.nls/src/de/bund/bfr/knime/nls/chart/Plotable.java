@@ -42,7 +42,7 @@ import org.nfunk.jep.ParseException;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.math.MathUtilities;
-import de.bund.bfr.math.MultiDiffFunction;
+import de.bund.bfr.math.DiffFunction;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -324,7 +324,7 @@ public class Plotable {
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		MultiDiffFunction f = new MultiDiffFunction(new DJep[] { parser },
+		DiffFunction f = new DiffFunction(new DJep[] { parser },
 				new Node[] { parser.parse(function) },
 				new String[] { dependentVariable }, vv, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(

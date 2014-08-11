@@ -33,7 +33,7 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class MultiDiffFunction implements FirstOrderDifferentialEquations {
+public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private DJep[] parsers;
 	private Node[] functions;
@@ -43,7 +43,7 @@ public class MultiDiffFunction implements FirstOrderDifferentialEquations {
 
 	private int lastIndex;
 
-	public MultiDiffFunction(DJep[] parsers, Node[] functions,
+	public DiffFunction(DJep[] parsers, Node[] functions,
 			String[] valueVariables, Map<String, double[]> variableValues,
 			String diffVariable) {
 		this.parsers = parsers;

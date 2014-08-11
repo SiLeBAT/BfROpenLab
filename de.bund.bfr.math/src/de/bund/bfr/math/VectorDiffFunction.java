@@ -35,7 +35,7 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorMultiDiffFunction implements MultivariateVectorFunction {
+public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	private DJep[] parsers;
 	private Node[] functions;
@@ -45,7 +45,7 @@ public class VectorMultiDiffFunction implements MultivariateVectorFunction {
 	private Map<String, double[]> variableValues;
 	private String diffVariable;
 
-	public VectorMultiDiffFunction(String[] formulas, String[] valueVariables,
+	public VectorDiffFunction(String[] formulas, String[] valueVariables,
 			double[] initialValues, String[] parameters,
 			Map<String, double[]> variableValues, String diffVariable)
 			throws ParseException {
@@ -70,7 +70,7 @@ public class VectorMultiDiffFunction implements MultivariateVectorFunction {
 		}
 	}
 
-	public VectorMultiDiffFunction(DJep[] parsers, Node[] functions,
+	public VectorDiffFunction(DJep[] parsers, Node[] functions,
 			String[] valueVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
 			String diffVariable) {
@@ -93,7 +93,7 @@ public class VectorMultiDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		MultiDiffFunction f = new MultiDiffFunction(parsers, functions,
+		DiffFunction f = new DiffFunction(parsers, functions,
 				valueVariables, variableValues, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);

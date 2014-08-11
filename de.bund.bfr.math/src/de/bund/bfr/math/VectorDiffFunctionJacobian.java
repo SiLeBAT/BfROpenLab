@@ -38,7 +38,7 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorMultiDiffFunctionJacobian implements
+public class VectorDiffFunctionJacobian implements
 		MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
@@ -52,7 +52,7 @@ public class VectorMultiDiffFunctionJacobian implements
 	private Map<String, double[]> variableValues;
 	private String diffVariable;
 
-	public VectorMultiDiffFunctionJacobian(String[] formulas,
+	public VectorDiffFunctionJacobian(String[] formulas,
 			String[] valueVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
 			String diffVariable) throws ParseException {
@@ -135,13 +135,13 @@ public class VectorMultiDiffFunctionJacobian implements
 
 			point[index] = this.point[index] - EPSILON;
 
-			double[] result1 = new VectorMultiDiffFunction(parser, function,
+			double[] result1 = new VectorDiffFunction(parser, function,
 					valueVariables, initialValues, parameters, variableValues,
 					diffVariable).value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
-			double[] result2 = new VectorMultiDiffFunction(parser, function,
+			double[] result2 = new VectorDiffFunction(parser, function,
 					valueVariables, initialValues, parameters, variableValues,
 					diffVariable).value(point);
 
