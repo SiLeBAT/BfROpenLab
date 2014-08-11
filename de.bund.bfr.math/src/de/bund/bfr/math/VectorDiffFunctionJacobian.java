@@ -124,9 +124,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		public void run() {
 			DJep parser = parsers.get(parameters.get(index));
 			Node function = functions.get(parameters.get(index));
-			double[] point = new double[this.point.length];
-
-			System.arraycopy(this.point, 0, point, 0, this.point.length);
+			double[] point = this.point.clone();			
 
 			point[index] = this.point[index] - EPSILON;
 
