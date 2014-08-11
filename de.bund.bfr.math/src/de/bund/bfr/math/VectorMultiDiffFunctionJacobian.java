@@ -25,9 +25,13 @@
 package de.bund.bfr.math;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.lsmp.djep.djep.DJep;
@@ -38,9 +42,10 @@ public class VectorMultiDiffFunctionJacobian implements
 		MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
+	private static final int MAX_THREADS = 8;
 
-	private DJep[] parsers;
-	private Node[] functions;
+	private Map<String, DJep[]> parsers;
+	private Map<String, Node[]> functions;
 	private String[] valueVariables;
 	private double[] initialValues;
 	private String[] parameters;
@@ -63,42 +68,87 @@ public class VectorMultiDiffFunctionJacobian implements
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
-		parsers = new DJep[formulas.length];
-		functions = new Node[formulas.length];
+		parsers = new LinkedHashMap<>();
+		functions = new LinkedHashMap<>();
 
-		for (int i = 0; i < formulas.length; i++) {
-			parsers[i] = MathUtilities.createParser(variables);
-			functions[i] = parsers[i].parse(formulas[i]);
+		for (String param : parameters) {
+			parsers.put(param, new DJep[formulas.length]);
+			functions.put(param, new Node[formulas.length]);
+
+			for (int i = 0; i < formulas.length; i++) {
+				DJep parser = MathUtilities.createParser(variables);
+
+				parsers.get(param)[i] = parser;
+				functions.get(param)[i] = parser.parse(formulas[i]);
+			}
 		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		int n = variableValues.get(diffVariable).length * functions.length;
-		double[][] result = new double[n][parameters.length];
+		int nParam = parameters.length;
+		int nValue = variableValues.get(diffVariable).length
+				* initialValues.length;
+		double[][] r = new double[nParam][nValue];
+		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
-		for (int j = 0; j < parameters.length; j++) {
-			double paramValue = point[j];
+		for (int i = 0; i < nParam; i++) {
+			executor.execute(new ParamDiffThread(point, i, r[i]));
+		}
 
-			point[j] = paramValue - EPSILON;
+		executor.shutdown();
 
-			double[] result1 = new VectorMultiDiffFunction(parsers, functions,
-					valueVariables, initialValues, parameters, variableValues,
-					diffVariable).value(point);
+		try {
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-			point[j] = paramValue + EPSILON;
+		double[][] result = new double[nValue][nParam];
 
-			double[] result2 = new VectorMultiDiffFunction(parsers, functions,
-					valueVariables, initialValues, parameters, variableValues,
-					diffVariable).value(point);
-
-			point[j] = paramValue;
-
-			for (int i = 0; i < n; i++) {
-				result[i][j] = (result2[i] - result1[i]) / (2 * EPSILON);
+		for (int i = 0; i < nParam; i++) {
+			for (int j = 0; j < nValue; j++) {
+				result[j][i] = r[i][j];
 			}
 		}
 
 		return result;
+	}
+
+	private class ParamDiffThread implements Runnable {
+
+		private double[] point;
+		private int index;
+		private double[] result;
+
+		public ParamDiffThread(double[] point, int index, double[] result) {
+			this.point = point;
+			this.index = index;
+			this.result = result;
+		}
+
+		@Override
+		public void run() {
+			DJep[] parser = parsers.get(parameters[index]);
+			Node[] function = functions.get(parameters[index]);
+			double[] point = this.point.clone();
+
+			point[index] = this.point[index] - EPSILON;
+
+			double[] result1 = new VectorMultiDiffFunction(parser, function,
+					valueVariables, initialValues, parameters, variableValues,
+					diffVariable).value(point);
+
+			point[index] = this.point[index] + EPSILON;
+
+			double[] result2 = new VectorMultiDiffFunction(parser, function,
+					valueVariables, initialValues, parameters, variableValues,
+					diffVariable).value(point);
+
+			for (int i = 0; i < result.length; i++) {
+				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);
+			}
+		}
+
 	}
 }

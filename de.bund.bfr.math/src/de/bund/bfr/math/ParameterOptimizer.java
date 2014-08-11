@@ -122,12 +122,20 @@ public class ParameterOptimizer {
 		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 
-		optimizerFunction = new VectorDiffFunction(formula, parameters,
-				valueVariable, timeVariable, variableValues,
-				targetValues.get(0));
-		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formula,
-				parameters, valueVariable, timeVariable, variableValues,
-				targetValues.get(0));
+		Map<String, double[]> vv = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
+			vv.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		optimizerFunction = new VectorMultiDiffFunction(
+				new String[] { formula }, new String[] { valueVariable },
+				new double[] { targetValues.get(0) },
+				parameters.toArray(new String[0]), vv, timeVariable);
+		optimizerFunctionJacobian = new VectorMultiDiffFunctionJacobian(
+				new String[] { formula }, new String[] { valueVariable },
+				new double[] { targetValues.get(0) },
+				parameters.toArray(new String[0]), vv, timeVariable);
 		successful = false;
 		resetResults();
 	}

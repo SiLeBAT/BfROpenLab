@@ -46,8 +46,9 @@ public class VectorMultiDiffFunction implements MultivariateVectorFunction {
 	private String diffVariable;
 
 	public VectorMultiDiffFunction(String[] formulas, String[] valueVariables,
-			double[] initialValues, String[] parameters, String diffVariable,
-			Map<String, double[]> variableValues) throws ParseException {
+			double[] initialValues, String[] parameters,
+			Map<String, double[]> variableValues, String diffVariable)
+			throws ParseException {
 		this.valueVariables = valueVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
@@ -93,7 +94,7 @@ public class VectorMultiDiffFunction implements MultivariateVectorFunction {
 		}
 
 		MultiDiffFunction f = new MultiDiffFunction(parsers, functions,
-				valueVariables, diffVariable, variableValues);
+				valueVariables, variableValues, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double[] values = initialValues.clone();

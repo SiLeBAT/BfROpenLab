@@ -44,8 +44,8 @@ public class MultiDiffFunction implements FirstOrderDifferentialEquations {
 	private int lastIndex;
 
 	public MultiDiffFunction(DJep[] parsers, Node[] functions,
-			String[] valueVariables, String diffVariable,
-			Map<String, double[]> variableValues) {
+			String[] valueVariables, Map<String, double[]> variableValues,
+			String diffVariable) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.valueVariables = valueVariables;

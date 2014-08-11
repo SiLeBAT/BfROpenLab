@@ -39,8 +39,10 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.math.DiffFunction;
+import com.google.common.primitives.Doubles;
+
 import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MultiDiffFunction;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -315,9 +317,16 @@ public class Plotable {
 			return null;
 		}
 
+		Map<String, double[]> vv = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : valueLists.entrySet()) {
+			vv.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
 		double[][] points = new double[2][FUNCTION_STEPS];
-		DiffFunction f = new DiffFunction(parser, parser.parse(function),
-				dependentVariable, diffVariable, valueLists);
+		MultiDiffFunction f = new MultiDiffFunction(new DJep[] { parser },
+				new Node[] { parser.parse(function) },
+				new String[] { dependentVariable }, vv, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double diffValue = valueLists.get(diffVariable).get(0);
