@@ -292,9 +292,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 			nLevenberg = FunctionFittingSettings.DEFAULT_N_LEVENBERG;
 			stopWhenSuccessful = FunctionFittingSettings.DEFAULT_STOP_WHEN_SUCCESSFUL;
 		}
-
-		String formula = function.getTerm();
-		List<String> parameters = new ArrayList<>();
+		
 		Map<String, Double> minParameterValues = new LinkedHashMap<>();
 		Map<String, Double> maxParameterValues = new LinkedHashMap<>();
 
@@ -314,7 +312,6 @@ public class FunctionFittingNodeModel extends NodeModel {
 				}
 			}
 
-			parameters.add(param);
 			minParameterValues.put(param, min);
 			maxParameterValues.put(param, max);
 		}
@@ -370,12 +367,14 @@ public class FunctionFittingNodeModel extends NodeModel {
 			}
 
 			if (function.getDiffVariable() != null) {
-				optimizer = new ParameterOptimizer(formula, parameters,
+				optimizer = new ParameterOptimizer(function.getTerm(), function
+						.getParameters().toArray(new String[0]),
 						minParameterValues, maxParameterValues, targetArray,
 						function.getDependentVariable(),
 						function.getDiffVariable(), argumentArrays);
 			} else {
-				optimizer = new ParameterOptimizer(formula, parameters,
+				optimizer = new ParameterOptimizer(function.getTerm(), function
+						.getParameters().toArray(new String[0]),
 						minParameterValues, maxParameterValues,
 						minParameterValues, maxParameterValues, targetArray,
 						argumentArrays, set.isEnforceLimits());

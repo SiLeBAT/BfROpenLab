@@ -46,18 +46,18 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 	private DJep parser;
 	private Node function;
-	private List<String> parameters;
+	private String[] parameters;
 	private Map<String, Node> derivatives;
 	private List<Map<String, double[]>> variableValues;
 	private int dimension;
 
-	public VectorFunctionJacobian(String formula, List<String> parameters,
+	public VectorFunctionJacobian(String formula, String[] parameters,
 			Map<String, double[]> variableValues) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
 		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
-				parameters), variableValues.keySet()));
+				Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 
@@ -73,19 +73,19 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		double[][] retValue = new double[dimension][parameters.size()];
+		double[][] retValue = new double[dimension][parameters.length];
 
 		try {
 			Map<String, Double> paramValues = new LinkedHashMap<>();
 
-			for (int i = 0; i < parameters.size(); i++) {
-				paramValues.put(parameters.get(i), point[i]);
+			for (int i = 0; i < parameters.length; i++) {
+				paramValues.put(parameters[i], point[i]);
 			}
 
 			for (int i = 0; i < dimension; i++) {
-				for (int j = 0; j < parameters.size(); j++) {
-					retValue[i][j] = evalWithSingularityCheck(
-							parameters.get(j), paramValues, i);
+				for (int j = 0; j < parameters.length; j++) {
+					retValue[i][j] = evalWithSingularityCheck(parameters[j],
+							paramValues, i);
 				}
 			}
 		} catch (ParseException e) {

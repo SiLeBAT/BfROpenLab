@@ -55,7 +55,7 @@ public class ParameterOptimizer {
 	private MultivariateVectorFunction optimizerFunction;
 	private MultivariateMatrixFunction optimizerFunctionJacobian;
 
-	private List<String> parameters;
+	private String[] parameters;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
 	private double[] targetValues;
@@ -75,7 +75,7 @@ public class ParameterOptimizer {
 	private Double r2;
 	private Double aic;
 
-	public ParameterOptimizer(String formula, List<String> parameters,
+	public ParameterOptimizer(String formula, String[] parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues,
 			Map<String, Double> minParameterValues,
@@ -110,7 +110,7 @@ public class ParameterOptimizer {
 		resetResults();
 	}
 
-	public ParameterOptimizer(String formula, List<String> parameters,
+	public ParameterOptimizer(String formula, String[] parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, double[] targetValues,
 			String valueVariable, String timeVariable,
@@ -122,12 +122,12 @@ public class ParameterOptimizer {
 
 		optimizerFunction = new VectorDiffFunction(new String[] { formula },
 				new String[] { valueVariable },
-				new double[] { targetValues[0] },
-				parameters.toArray(new String[0]), variableValues, timeVariable);
+				new double[] { targetValues[0] }, parameters, variableValues,
+				timeVariable);
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(
 				new String[] { formula }, new String[] { valueVariable },
-				new double[] { targetValues[0] },
-				parameters.toArray(new String[0]), variableValues, timeVariable);
+				new double[] { targetValues[0] }, parameters, variableValues,
+				timeVariable);
 		successful = false;
 		resetResults();
 	}
@@ -198,7 +198,7 @@ public class ParameterOptimizer {
 		List<Double> bestError = new ArrayList<>();
 
 		for (int i = 0; i < nLevenberg; i++) {
-			double[] v = new double[parameters.size()];
+			double[] v = new double[parameters.length];
 
 			Arrays.fill(v, i + 1.0);
 			bestValues.add(v);
@@ -206,13 +206,13 @@ public class ParameterOptimizer {
 		}
 
 		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(
-				parameters.size(), 0));
+				parameters.length, 0));
 		boolean done = false;
 
 		while (!done) {
-			double[] values = new double[parameters.size()];
+			double[] values = new double[parameters.length];
 
-			for (int i = 0; i < parameters.size(); i++) {
+			for (int i = 0; i < parameters.length; i++) {
 				values[i] = paramMin.get(i) + paramStepIndex.get(i)
 						* paramStepSize.get(i);
 			}
@@ -245,7 +245,7 @@ public class ParameterOptimizer {
 			}
 
 			for (int i = 0;; i++) {
-				if (i >= parameters.size()) {
+				if (i >= parameters.length) {
 					done = true;
 					break;
 				}
@@ -340,7 +340,7 @@ public class ParameterOptimizer {
 	}
 
 	public Integer getDOF() {
-		return targetValues.length - parameters.size();
+		return targetValues.length - parameters.length;
 	}
 
 	private void optimize(double[] startValues) throws Exception {
@@ -358,18 +358,17 @@ public class ParameterOptimizer {
 	private void useCurrentResults() {
 		parameterValues.clear();
 		sse = optimizer.getChiSquare();
-		mse = MathUtilities.getMSE(parameters.size(), targetValues.length, sse);
-		rmse = MathUtilities.getRMSE(parameters.size(), targetValues.length,
+		mse = MathUtilities.getMSE(parameters.length, targetValues.length, sse);
+		rmse = MathUtilities.getRMSE(parameters.length, targetValues.length,
 				sse);
 		r2 = MathUtilities.getR2(sse, targetValues);
-		aic = MathUtilities.getAic(parameters.size(), targetValues.length, sse);
+		aic = MathUtilities.getAic(parameters.length, targetValues.length, sse);
 
-		for (int i = 0; i < parameters.size(); i++) {
-			parameterValues.put(parameters.get(i),
-					optimizerValues.getPoint()[i]);
+		for (int i = 0; i < parameters.length; i++) {
+			parameterValues.put(parameters[i], optimizerValues.getPoint()[i]);
 		}
 
-		if (targetValues.length <= parameters.size()) {
+		if (targetValues.length <= parameters.length) {
 			throw new RuntimeException();
 		}
 
@@ -383,34 +382,34 @@ public class ParameterOptimizer {
 		}
 
 		double factor = optimizer.getChiSquare()
-				/ (targetValues.length - parameters.size());
+				/ (targetValues.length - parameters.length);
 
 		parameterStandardErrors = new LinkedHashMap<>();
 		parameterTValues = new LinkedHashMap<>();
 		parameterPValues = new LinkedHashMap<>();
 		covariances = new LinkedHashMap<>();
 
-		for (int i = 0; i < parameters.size(); i++) {
+		for (int i = 0; i < parameters.length; i++) {
 			double error = Math.sqrt(factor * covMatrix[i][i]);
 
-			parameterStandardErrors.put(parameters.get(i), error);
+			parameterStandardErrors.put(parameters[i], error);
 
 			double tValue = optimizerValues.getPoint()[i] / error;
-			int degreesOfFreedom = targetValues.length - parameters.size();
+			int degreesOfFreedom = targetValues.length - parameters.length;
 
-			parameterTValues.put(parameters.get(i), tValue);
-			parameterPValues.put(parameters.get(i),
+			parameterTValues.put(parameters[i], tValue);
+			parameterPValues.put(parameters[i],
 					MathUtilities.getPValue(tValue, degreesOfFreedom));
 		}
 
-		for (int i = 0; i < parameters.size(); i++) {
+		for (int i = 0; i < parameters.length; i++) {
 			Map<String, Double> cov = new LinkedHashMap<>();
 
-			for (int j = 0; j < parameters.size(); j++) {
-				cov.put(parameters.get(j), factor * covMatrix[i][j]);
+			for (int j = 0; j < parameters.length; j++) {
+				cov.put(parameters[j], factor * covMatrix[i][j]);
 			}
 
-			covariances.put(parameters.get(i), cov);
+			covariances.put(parameters[i], cov);
 		}
 	}
 

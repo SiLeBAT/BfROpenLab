@@ -24,8 +24,8 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
@@ -39,17 +39,17 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 	private DJep parser;
 	private Node function;
-	private List<String> parameters;
+	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private int dimension;
 
-	public VectorFunction(String formula, List<String> parameters,
+	public VectorFunction(String formula, String[] parameters,
 			Map<String, double[]> variableValues) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
 		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
-				parameters), variableValues.keySet()));
+				Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 
 		for (double[] values : variableValues.values()) {
@@ -62,8 +62,8 @@ public class VectorFunction implements MultivariateVectorFunction {
 	public double[] value(double[] point) throws IllegalArgumentException {
 		double[] retValue = new double[dimension];
 
-		for (int i = 0; i < parameters.size(); i++) {
-			parser.setVarValue(parameters.get(i), point[i]);
+		for (int i = 0; i < parameters.length; i++) {
+			parser.setVarValue(parameters[i], point[i]);
 		}
 
 		try {
