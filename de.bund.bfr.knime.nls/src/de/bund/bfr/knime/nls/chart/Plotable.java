@@ -39,10 +39,8 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import com.google.common.primitives.Doubles;
-
-import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.DiffFunction;
+import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -72,7 +70,7 @@ public class Plotable {
 	}
 
 	private Type type;
-	private Map<String, List<Double>> valueLists;
+	private Map<String, double[]> valueLists;
 	private String function;
 	private String dependentVariable;
 	private String diffVariable;
@@ -103,11 +101,11 @@ public class Plotable {
 		return type;
 	}
 
-	public Map<String, List<Double>> getValueLists() {
+	public Map<String, double[]> getValueLists() {
 		return valueLists;
 	}
 
-	public void setValueLists(Map<String, List<Double>> valueLists) {
+	public void setValueLists(Map<String, double[]> valueLists) {
 		this.valueLists = valueLists;
 	}
 
@@ -193,18 +191,18 @@ public class Plotable {
 
 	public double[][] getDataPoints(String paramX, String paramY,
 			Transform transformX, Transform transformY) {
-		List<Double> xList = valueLists.get(paramX);
-		List<Double> yList = valueLists.get(paramY);
+		double[] xList = valueLists.get(paramX);
+		double[] yList = valueLists.get(paramY);
 
 		if (xList == null || yList == null) {
 			return null;
 		}
 
-		List<Point2D.Double> points = new ArrayList<>(xList.size());
+		List<Point2D.Double> points = new ArrayList<>(xList.length);
 
-		for (int i = 0; i < xList.size(); i++) {
-			Double x = Transform.transform(xList.get(i), transformX);
-			Double y = Transform.transform(yList.get(i), transformY);
+		for (int i = 0; i < xList.length; i++) {
+			Double x = Transform.transform(xList[i], transformX);
+			Double y = Transform.transform(yList[i], transformY);
 
 			if (MathUtilities.isValidDouble(x)
 					&& MathUtilities.isValidDouble(y)) {
@@ -317,20 +315,14 @@ public class Plotable {
 			return null;
 		}
 
-		Map<String, double[]> vv = new LinkedHashMap<>();
-
-		for (Map.Entry<String, List<Double>> entry : valueLists.entrySet()) {
-			vv.put(entry.getKey(), Doubles.toArray(entry.getValue()));
-		}
-
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DiffFunction f = new DiffFunction(new DJep[] { parser },
 				new Node[] { parser.parse(function) },
-				new String[] { dependentVariable }, vv, diffVariable);
+				new String[] { dependentVariable }, valueLists, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
-		double diffValue = valueLists.get(diffVariable).get(0);
-		double[] value = { valueLists.get(dependentVariable).get(0) };
+		double diffValue = valueLists.get(diffVariable)[0];
+		double[] value = { valueLists.get(dependentVariable)[0] };
 
 		for (int j = 0; j < FUNCTION_STEPS; j++) {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
@@ -385,16 +377,14 @@ public class Plotable {
 				return false;
 			}
 
-			int n = valueLists.get(new ArrayList<>(valueLists.keySet()).get(0))
-					.size();
+			int n = valueLists.get(new ArrayList<>(valueLists.keySet()).get(0)).length;
 			boolean containsData = false;
 
 			for (int i = 0; i < n; i++) {
 				boolean containsNull = false;
 
 				for (String var : valueLists.keySet()) {
-					if (!MathUtilities
-							.isValidDouble(valueLists.get(var).get(i))) {
+					if (!MathUtilities.isValidDouble(valueLists.get(var)[i])) {
 						containsNull = true;
 						break;
 					}

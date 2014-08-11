@@ -37,12 +37,15 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 
+import com.google.common.primitives.Doubles;
+
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.chart.ChartUtilities;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.math.MathUtilities;
 
 public class FunctionViewReader {
 
@@ -107,6 +110,7 @@ public class FunctionViewReader {
 				plotable.setIndependentVariables(getVariables(f));
 				plotable.setMinVariables(new LinkedHashMap<String, Double>());
 				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
+				plotable.setValueLists(getVariableValues(varTable, id, f));
 
 				if (covarianceTable != null) {
 					plotable.setCovariances(getCovariances(covarianceTable, id,
@@ -116,13 +120,6 @@ public class FunctionViewReader {
 				if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
 					plotable.setDegreesOfFreedom(qualityValues.get(
 							NlsConstants.DOF_COLUMN).intValue());
-				}
-
-				Map<String, List<Double>> values = getVariableValues(varTable,
-						id, f);
-
-				for (String var : values.keySet()) {
-					plotable.getValueLists().put(var, values.get(var));
 				}
 
 				stringColumns.get(ChartUtilities.STATUS).add(
@@ -160,6 +157,8 @@ public class FunctionViewReader {
 					plotable.setIndependentVariables(getVariables(indep, fixed));
 					plotable.setMinVariables(new LinkedHashMap<String, Double>());
 					plotable.setMaxVariables(new LinkedHashMap<String, Double>());
+					plotable.setValueLists(getVariableValues(varTable, id, f,
+							fixed));
 
 					if (covarianceTable != null) {
 						plotable.setCovariances(getCovariances(covarianceTable,
@@ -169,13 +168,6 @@ public class FunctionViewReader {
 					if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
 						plotable.setDegreesOfFreedom(qualityValues.get(
 								NlsConstants.DOF_COLUMN).intValue());
-					}
-
-					Map<String, List<Double>> values = getVariableValues(
-							varTable, id, f, fixed);
-
-					for (String var : values.keySet()) {
-						plotable.getValueLists().put(var, values.get(var));
 					}
 
 					stringColumns.get(ChartUtilities.STATUS).add(
@@ -330,7 +322,7 @@ public class FunctionViewReader {
 		return vars;
 	}
 
-	private static Map<String, List<Double>> getVariableValues(
+	private static Map<String, double[]> getVariableValues(
 			BufferedDataTable table, String id, Function f,
 			Map<String, Double> fixed) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
@@ -340,7 +332,7 @@ public class FunctionViewReader {
 			values.put(var, new ArrayList<Double>());
 		}
 
-		for (DataRow row : table) {
+		loop: for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
@@ -350,27 +342,32 @@ public class FunctionViewReader {
 							.findColumnIndex(var))));
 				}
 
-				boolean skip = false;
-
 				for (String var : fixed.keySet()) {
 					if (!fixed.get(var).equals(v.get(var))) {
-						skip = true;
-						break;
+						continue loop;
 					}
 				}
 
-				if (!skip) {
-					for (String var : v.keySet()) {
-						values.get(var).add(v.get(var));
-					}
+				if (MathUtilities.containsInvalidDouble(v.values())) {
+					continue;
+				}
+
+				for (String var : v.keySet()) {
+					values.get(var).add(v.get(var));
 				}
 			}
 		}
 
-		return values;
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
 	}
 
-	private static Map<String, List<Double>> getVariableValues(
+	private static Map<String, double[]> getVariableValues(
 			BufferedDataTable table, String id, Function f) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
@@ -389,13 +386,23 @@ public class FunctionViewReader {
 							.findColumnIndex(var))));
 				}
 
-				for (String var : v.keySet()) {
-					values.get(var).add(v.get(var));
+				if (MathUtilities.containsInvalidDouble(v.values())) {
+					continue;
+				}
+
+				for (Map.Entry<String, Double> entry : v.entrySet()) {
+					values.get(entry.getKey()).add(entry.getValue());
 				}
 			}
 		}
 
-		return values;
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
 	}
 
 	private static List<Map<String, Double>> getFixVariables(

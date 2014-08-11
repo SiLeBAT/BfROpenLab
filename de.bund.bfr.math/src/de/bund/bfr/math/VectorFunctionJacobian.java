@@ -25,6 +25,7 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -47,11 +48,11 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 	private Node function;
 	private List<String> parameters;
 	private Map<String, Node> derivatives;
-	private List<Map<String, List<Double>>> variableValues;
+	private List<Map<String, double[]>> variableValues;
 	private int dimension;
 
 	public VectorFunctionJacobian(String formula, List<String> parameters,
-			Map<String, List<Double>> variableValues) throws ParseException {
+			Map<String, double[]> variableValues) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
@@ -64,8 +65,8 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			derivatives.put(param, parser.differentiate(function, param));
 		}
 
-		for (List<Double> values : variableValues.values()) {
-			dimension = values.size();
+		for (double[] values : variableValues.values()) {
+			dimension = values.length;
 			break;
 		}
 	}
@@ -100,9 +101,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			parser.setVarValue(entry.getKey(), entry.getValue());
 		}
 
-		for (Map<String, List<Double>> argValues : variableValues) {
-			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
+		for (Map<String, double[]> argValues : variableValues) {
+			for (Map.Entry<String, double[]> entry : argValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue()[index]);
 			}
 
 			Object number = parser.evaluate(derivatives.get(param));
@@ -112,9 +113,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		}
 
-		for (Map<String, List<Double>> argValues : variableValues) {
-			for (Map.Entry<String, List<Double>> entry : argValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue().get(index));
+		for (Map<String, double[]> argValues : variableValues) {
+			for (Map.Entry<String, double[]> entry : argValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue()[index]);
 			}
 
 			parser.setVarValue(param, paramValues.get(param) - EPSILON);
@@ -134,15 +135,17 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return Double.NaN;
 	}
 
-	private static List<Map<String, List<Double>>> createArgumentVariationList(
-			Map<String, List<Double>> argumentValues) {
+	private static List<Map<String, double[]>> createArgumentVariationList(
+			Map<String, double[]> argumentValues) {
 		int n = argumentValues.size();
 		boolean done = false;
-		List<List<Integer>> variationList = new ArrayList<>();
-		List<Integer> variation = new ArrayList<>(Collections.nCopies(n, -1));
+		List<int[]> variationList = new ArrayList<>();
+		int[] variation = new int[n];
+
+		Arrays.fill(variation, -1);
 
 		while (!done) {
-			variationList.add(new ArrayList<>(variation));
+			variationList.add(variation.clone());
 
 			for (int i = 0;; i++) {
 				if (i >= n) {
@@ -150,20 +153,20 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 					break;
 				}
 
-				variation.set(i, variation.get(i) + 1);
+				variation[i]++;
 
-				if (variation.get(i) > 1) {
-					variation.set(i, -1);
+				if (variation[i] > 1) {
+					variation[i] = -1;
 				} else {
 					break;
 				}
 			}
 		}
 
-		Collections.sort(variationList, new Comparator<List<Integer>>() {
+		Collections.sort(variationList, new Comparator<int[]>() {
 
 			@Override
-			public int compare(List<Integer> l1, List<Integer> l2) {
+			public int compare(int[] l1, int[] l2) {
 				int n1 = 0;
 				int n2 = 0;
 
@@ -189,22 +192,23 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		});
 
-		List<Map<String, List<Double>>> argumentVariationList = new ArrayList<>();
+		List<Map<String, double[]>> argumentVariationList = new ArrayList<>();
 
-		for (List<Integer> changeList : variationList) {
-			Map<String, List<Double>> newArgumentValues = new LinkedHashMap<>();
-			int i = 0;
+		for (int[] changeList : variationList) {
+			Map<String, double[]> newArgumentValues = new LinkedHashMap<>();
+			int index = 0;
 
 			for (String arg : argumentValues.keySet()) {
-				List<Double> newValues = new ArrayList<>();
-				double d = changeList.get(i) * EPSILON;
+				double[] oldValues = argumentValues.get(arg);
+				double[] newValues = new double[oldValues.length];
+				double d = changeList[index] * EPSILON;
 
-				for (double v : argumentValues.get(arg)) {
-					newValues.add(v + d);
+				for (int i = 0; i < oldValues.length; i++) {
+					newValues[i] = oldValues[i] + d;
 				}
 
 				newArgumentValues.put(arg, newValues);
-				i++;
+				index++;
 			}
 
 			argumentVariationList.add(newArgumentValues);

@@ -24,8 +24,8 @@
  ******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -46,6 +46,16 @@ public class MathUtilities {
 	public static boolean isValidDouble(Object o) {
 		return o instanceof Double && !((Double) o).isNaN()
 				&& !((Double) o).isInfinite();
+	}
+	
+	public static boolean containsInvalidDouble(Collection<Double> values) {
+		for (Double v : values) {
+			if (!isValidDouble(v)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	public static String replaceVariable(String formula, String var,
@@ -124,8 +134,8 @@ public class MathUtilities {
 		return Math.sqrt(sse / (numSample - numParam));
 	}
 
-	public static Double getR2(double sse, List<Double> targetValues) {
-		if (targetValues.size() < 2) {
+	public static Double getR2(double sse, double[] targetValues) {
+		if (targetValues.length < 2) {
 			return null;
 		}
 
@@ -135,12 +145,12 @@ public class MathUtilities {
 			targetSum += v;
 		}
 
-		double targetMean = targetSum / targetValues.size();
+		double targetMean = targetSum / targetValues.length;
 		double targetTotalSumOfSquares = 0.0;
 
-		for (int i = 0; i < targetValues.size(); i++) {
-			targetTotalSumOfSquares += Math.pow(targetValues.get(i)
-					- targetMean, 2.0);
+		for (int i = 0; i < targetValues.length; i++) {
+			targetTotalSumOfSquares += Math.pow(targetValues[i] - targetMean,
+					2.0);
 		}
 
 		double rSquared = 1 - sse / targetTotalSumOfSquares;

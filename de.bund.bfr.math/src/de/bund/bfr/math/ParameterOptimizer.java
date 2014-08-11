@@ -46,8 +46,6 @@ import org.apache.commons.math3.optim.nonlinear.vector.Weight;
 import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.nfunk.jep.ParseException;
 
-import com.google.common.primitives.Doubles;
-
 public class ParameterOptimizer {
 
 	private static final double EPSILON = 0.00001;
@@ -60,7 +58,7 @@ public class ParameterOptimizer {
 	private List<String> parameters;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
-	private List<Double> targetValues;
+	private double[] targetValues;
 
 	private LevenbergMarquardtOptimizer optimizer;
 	private PointVectorValuePair optimizerValues;
@@ -81,8 +79,8 @@ public class ParameterOptimizer {
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues,
 			Map<String, Double> minParameterValues,
-			Map<String, Double> maxParameterValues, List<Double> targetValues,
-			Map<String, List<Double>> variableValues, boolean enforceLimits)
+			Map<String, Double> maxParameterValues, double[] targetValues,
+			Map<String, double[]> variableValues, boolean enforceLimits)
 			throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
@@ -114,28 +112,22 @@ public class ParameterOptimizer {
 
 	public ParameterOptimizer(String formula, List<String> parameters,
 			Map<String, Double> minStartValues,
-			Map<String, Double> maxStartValues, List<Double> targetValues,
+			Map<String, Double> maxStartValues, double[] targetValues,
 			String valueVariable, String timeVariable,
-			Map<String, List<Double>> variableValues) throws ParseException {
+			Map<String, double[]> variableValues) throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 
-		Map<String, double[]> vv = new LinkedHashMap<>();
-
-		for (Map.Entry<String, List<Double>> entry : variableValues.entrySet()) {
-			vv.put(entry.getKey(), Doubles.toArray(entry.getValue()));
-		}
-
-		optimizerFunction = new VectorDiffFunction(
-				new String[] { formula }, new String[] { valueVariable },
-				new double[] { targetValues.get(0) },
-				parameters.toArray(new String[0]), vv, timeVariable);
+		optimizerFunction = new VectorDiffFunction(new String[] { formula },
+				new String[] { valueVariable },
+				new double[] { targetValues[0] },
+				parameters.toArray(new String[0]), variableValues, timeVariable);
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(
 				new String[] { formula }, new String[] { valueVariable },
-				new double[] { targetValues.get(0) },
-				parameters.toArray(new String[0]), vv, timeVariable);
+				new double[] { targetValues[0] },
+				parameters.toArray(new String[0]), variableValues, timeVariable);
 		successful = false;
 		resetResults();
 	}
@@ -228,13 +220,13 @@ public class ParameterOptimizer {
 			double[] p = optimizerFunction.value(values);
 			double error = 0.0;
 
-			for (int i = 0; i < targetValues.size(); i++) {
+			for (int i = 0; i < targetValues.length; i++) {
 				if (Double.isNaN(p[i])) {
 					error = Double.POSITIVE_INFINITY;
 					break;
 				}
 
-				double diff = targetValues.get(i) - p[i];
+				double diff = targetValues[i] - p[i];
 
 				error += diff * diff;
 			}
@@ -348,36 +340,36 @@ public class ParameterOptimizer {
 	}
 
 	public Integer getDOF() {
-		return targetValues.size() - parameters.size();
+		return targetValues.length - parameters.size();
 	}
 
 	private void optimize(double[] startValues) throws Exception {
-		double[] weights = new double[targetValues.size()];
+		double[] weights = new double[targetValues.length];
 
 		Arrays.fill(weights, 1.0);
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
 				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				Doubles.toArray(targetValues)), new Weight(weights),
-				new InitialGuess(startValues));
+				targetValues), new Weight(weights), new InitialGuess(
+				startValues));
 	}
 
 	private void useCurrentResults() {
 		parameterValues.clear();
 		sse = optimizer.getChiSquare();
-		mse = MathUtilities.getMSE(parameters.size(), targetValues.size(), sse);
-		rmse = MathUtilities.getRMSE(parameters.size(), targetValues.size(),
+		mse = MathUtilities.getMSE(parameters.size(), targetValues.length, sse);
+		rmse = MathUtilities.getRMSE(parameters.size(), targetValues.length,
 				sse);
 		r2 = MathUtilities.getR2(sse, targetValues);
-		aic = MathUtilities.getAic(parameters.size(), targetValues.size(), sse);
+		aic = MathUtilities.getAic(parameters.size(), targetValues.length, sse);
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.put(parameters.get(i),
 					optimizerValues.getPoint()[i]);
 		}
 
-		if (targetValues.size() <= parameters.size()) {
+		if (targetValues.length <= parameters.size()) {
 			throw new RuntimeException();
 		}
 
@@ -391,7 +383,7 @@ public class ParameterOptimizer {
 		}
 
 		double factor = optimizer.getChiSquare()
-				/ (targetValues.size() - parameters.size());
+				/ (targetValues.length - parameters.size());
 
 		parameterStandardErrors = new LinkedHashMap<>();
 		parameterTValues = new LinkedHashMap<>();
@@ -404,7 +396,7 @@ public class ParameterOptimizer {
 			parameterStandardErrors.put(parameters.get(i), error);
 
 			double tValue = optimizerValues.getPoint()[i] / error;
-			int degreesOfFreedom = targetValues.size() - parameters.size();
+			int degreesOfFreedom = targetValues.length - parameters.size();
 
 			parameterTValues.put(parameters.get(i), tValue);
 			parameterPValues.put(parameters.get(i),

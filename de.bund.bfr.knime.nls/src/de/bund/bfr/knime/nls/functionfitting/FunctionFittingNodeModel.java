@@ -55,12 +55,15 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.ParameterOptimizer;
 
 /**
@@ -330,7 +333,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 						IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 			}
 
-			if (id == null || values.values().contains(null)) {
+			if (id == null
+					|| MathUtilities.containsInvalidDouble(values.values())) {
 				continue;
 			}
 
@@ -356,18 +360,25 @@ public class FunctionFittingNodeModel extends NodeModel {
 
 		for (String id : targetValues.keySet()) {
 			ParameterOptimizer optimizer;
+			double[] targetArray = Doubles.toArray(targetValues.get(id));
+			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
+
+			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
+					.entrySet()) {
+				argumentArrays.put(entry.getKey(),
+						Doubles.toArray(entry.getValue()));
+			}
 
 			if (function.getDiffVariable() != null) {
 				optimizer = new ParameterOptimizer(formula, parameters,
-						minParameterValues, maxParameterValues,
-						targetValues.get(id), function.getDependentVariable(),
-						function.getDiffVariable(), argumentValues.get(id));
+						minParameterValues, maxParameterValues, targetArray,
+						function.getDependentVariable(),
+						function.getDiffVariable(), argumentArrays);
 			} else {
 				optimizer = new ParameterOptimizer(formula, parameters,
 						minParameterValues, maxParameterValues,
-						minParameterValues, maxParameterValues,
-						targetValues.get(id), argumentValues.get(id),
-						set.isEnforceLimits());
+						minParameterValues, maxParameterValues, targetArray,
+						argumentArrays, set.isEnforceLimits());
 			}
 
 			optimizer.optimize(nParameterSpace, nLevenberg, stopWhenSuccessful);
