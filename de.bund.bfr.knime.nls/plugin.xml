@@ -5,14 +5,10 @@
       <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.functioncreator.FunctionCreatorNodeFactory" id="de.bund.bfr.knime.nls.functioncreator.FunctionCreatorNodeFactory"/>
    <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.functionfitting.FunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.functionfitting.FunctionFittingNodeFactory"/>
 <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.functionview.FunctionViewNodeFactory" id="de.bund.bfr.knime.nls.functionview.FunctionViewNodeFactory"/>
+<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.diffcreator.DiffFunctionCreatorNodeFactory" id="de.bund.bfr.knime.nls.diffcreator.DiffFunctionCreatorNodeFactory"/>
 </extension>
-   <extension
-         point="org.knime.workbench.repository.categories">
-      <category
-            icon="icons/nls.png"
-            level-id="nls"
-            name="Nonlinear Regression"
-            path="/">
+   <extension point="org.knime.workbench.repository.categories">
+      <category icon="icons/nls.png" level-id="nls" name="Nonlinear Regression" path="/">
       </category>
    </extension>
    

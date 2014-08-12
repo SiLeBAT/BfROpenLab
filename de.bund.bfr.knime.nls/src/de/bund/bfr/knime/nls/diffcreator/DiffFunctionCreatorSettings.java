@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functioncreator;
+package de.bund.bfr.knime.nls.diffcreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,20 +34,23 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.KnimeUtilities;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
-public class FunctionCreatorSettings extends NlsNodeSettings {
+public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	private static final String CFG_DEPENDENT_VARIABLE = "DependentVariable";
 	private static final String CFG_TERM = "Term";
-	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";	
+	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";
+	private static final String CFG_DIFF_VARIABLE = "DiffVariable";
 
 	private String dependentVariable;
 	private String term;
-	private List<String> independentVariables;	
+	private List<String> independentVariables;
+	private String diffVariable;
 
-	public FunctionCreatorSettings() {
+	public DiffFunctionCreatorSettings() {
 		dependentVariable = null;
 		term = null;
-		independentVariables = new ArrayList<>();		
+		independentVariables = new ArrayList<>();
+		diffVariable = null;
 	}
 
 	@Override
@@ -67,6 +70,11 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 					.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			diffVariable = settings.getString(CFG_DIFF_VARIABLE);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -74,7 +82,8 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
 		settings.addString(CFG_TERM, term);
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtilities.listToString(independentVariables));		
+				KnimeUtilities.listToString(independentVariables));
+		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
 	}
 
 	public String getDependentVariable() {
@@ -99,5 +108,13 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 
 	public void setIndependentVariables(List<String> independentVariables) {
 		this.independentVariables = independentVariables;
+	}
+
+	public String getDiffVariable() {
+		return diffVariable;
+	}
+
+	public void setDiffVariable(String diffVariable) {
+		this.diffVariable = diffVariable;
 	}
 }

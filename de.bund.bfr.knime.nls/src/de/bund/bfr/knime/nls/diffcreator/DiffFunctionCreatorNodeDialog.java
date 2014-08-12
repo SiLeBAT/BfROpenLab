@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functioncreator;
+package de.bund.bfr.knime.nls.diffcreator;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -47,6 +47,7 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextArea;
@@ -55,14 +56,20 @@ import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.math.MathUtilities;
 
 /**
- * <code>NodeDialog</code> for the "FunctionCreator" Node.
+ * <code>NodeDialog</code> for the "DiffFunctionCreator" Node.
+ * 
+ * 
+ * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
+ * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeDialog extends NodeDialogPane implements
+public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		TextListener, ItemListener {
 
-	private FunctionCreatorSettings set;
+	private DiffFunctionCreatorSettings set;
 	private List<String> usedIndeps;
 
 	private JPanel mainPanel;
@@ -70,13 +77,14 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	private StringTextField depVarField;
 	private StringTextArea termField;
-	private List<JCheckBox> indepVarBoxes;	
+	private List<JCheckBox> indepVarBoxes;
+	private StringTextField diffVarField;
 
 	/**
-	 * New pane for configuring the FormulaCreator node.
+	 * New pane for configuring the DiffFunctionCreator node.
 	 */
-	protected FunctionCreatorNodeDialog() {
-		set = new FunctionCreatorSettings();
+	protected DiffFunctionCreatorNodeDialog() {
+		set = new DiffFunctionCreatorSettings();
 		usedIndeps = new ArrayList<>();
 
 		functionPanel = createFunctionPanel();
@@ -132,6 +140,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			mainPanel.add(functionPanel);
 			mainPanel.revalidate();
 			termField.requestFocus();
+		} else if (source == diffVarField) {
+			if (!diffVarField.getText().trim().isEmpty()) {
+				set.setDiffVariable(diffVarField.getText().trim());
+			} else {
+				set.setDiffVariable(null);
+			}
 		}
 	}
 
@@ -165,6 +179,8 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		editPanel.add(new JLabel("Independent Variable:"),
 				createConstraints(0, 1));
 		editPanel.add(createIndepBoxPanel(), createConstraints(1, 1));
+		editPanel.add(new JLabel("Diff Variable:"), createConstraints(0, 2));
+		editPanel.add(createDiffVarPanel(), createConstraints(1, 2));
 
 		JPanel panel = new JPanel();
 
@@ -223,6 +239,15 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		return panel;
+	}
+
+	private JPanel createDiffVarPanel() {
+		diffVarField = new StringTextField(true, 10);
+		diffVarField.setText(set.getDiffVariable() != null ? set
+				.getDiffVariable() : "");
+		diffVarField.addTextListener(this);
+
+		return UI.createWestPanel(diffVarField);
 	}
 
 	private void updateFunction() {

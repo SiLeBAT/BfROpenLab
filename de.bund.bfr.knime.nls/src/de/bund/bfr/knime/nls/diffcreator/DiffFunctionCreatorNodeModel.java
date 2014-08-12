@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functioncreator;
+package de.bund.bfr.knime.nls.diffcreator;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,21 +47,21 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.MathUtilities;
 
 /**
- * This is the model implementation of FunctionCreator.
+ * This is the model implementation of DiffFunctionCreator.
  * 
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeModel extends NodeModel {
+public class DiffFunctionCreatorNodeModel extends NodeModel {
 
-	private FunctionCreatorSettings set;
+	private DiffFunctionCreatorSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FunctionCreatorNodeModel() {
+	protected DiffFunctionCreatorNodeModel() {
 		super(new PortType[] {}, new PortType[] { FunctionPortObject.TYPE });
-		set = new FunctionCreatorSettings();
+		set = new DiffFunctionCreatorSettings();
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
 				set.getTerm(), set.getDependentVariable(),
-				set.getIndependentVariables())) };
+				set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
 				createFunction(set.getTerm(), set.getDependentVariable(),
-						set.getIndependentVariables())) };
+						set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -142,16 +142,23 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	}
 
 	private static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
+			String dependentVariable, List<String> independentVariables,
+			String diffVariable) {
 		List<String> parameters = new ArrayList<>(
 				MathUtilities.getSymbols(term));
 
 		parameters.removeAll(independentVariables);
+
+		if (diffVariable != null
+				&& !independentVariables.contains(diffVariable)) {
+			independentVariables.add(diffVariable);
+		}
+
 		Collections.sort(parameters);
 		Collections.sort(independentVariables);
 
 		return new Function(term, dependentVariable, independentVariables,
-				parameters);
+				parameters, diffVariable);
 	}
 
 }
