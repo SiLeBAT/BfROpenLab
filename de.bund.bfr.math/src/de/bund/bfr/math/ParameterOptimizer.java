@@ -110,23 +110,21 @@ public class ParameterOptimizer {
 		resetResults();
 	}
 
-	public ParameterOptimizer(String formula, String[] parameters,
+	public ParameterOptimizer(String[] formulas, String[] valueVariables,
+			double[] initialValues, String[] parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, double[] targetValues,
-			String valueVariable, String timeVariable,
-			Map<String, double[]> variableValues) throws ParseException {
+			String timeVariable, Map<String, double[]> variableValues)
+			throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 
-		optimizerFunction = new VectorDiffFunction(new String[] { formula },
-				new String[] { valueVariable },
-				new double[] { targetValues[0] }, parameters, variableValues,
-				timeVariable);
-		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(
-				new String[] { formula }, new String[] { valueVariable },
-				new double[] { targetValues[0] }, parameters, variableValues,
+		optimizerFunction = new VectorDiffFunction(formulas, valueVariables,
+				initialValues, parameters, variableValues, timeVariable);
+		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas,
+				valueVariables, initialValues, parameters, variableValues,
 				timeVariable);
 		successful = false;
 		resetResults();
