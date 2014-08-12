@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -143,6 +145,10 @@ public class FunctionCreatorNodeModel extends NodeModel {
 
 	private static Function createFunction(String term,
 			String dependentVariable, List<String> independentVariables) {
+		Map<String, String> terms = new LinkedHashMap<>();
+
+		terms.put(dependentVariable, term);
+
 		List<String> parameters = new ArrayList<>(
 				MathUtilities.getSymbols(term));
 
@@ -150,7 +156,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 		Collections.sort(parameters);
 		Collections.sort(independentVariables);
 
-		return new Function(term, dependentVariable, independentVariables,
+		return new Function(terms, dependentVariable, independentVariables,
 				parameters);
 	}
 

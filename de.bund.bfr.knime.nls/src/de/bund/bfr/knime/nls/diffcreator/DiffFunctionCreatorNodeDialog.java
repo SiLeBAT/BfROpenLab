@@ -31,6 +31,7 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -53,7 +54,6 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextArea;
 import de.bund.bfr.knime.ui.StringTextField;
 import de.bund.bfr.knime.ui.TextListener;
-import de.bund.bfr.math.MathUtilities;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionCreator" Node.
@@ -109,15 +109,16 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (set.getTerm() == null) {
+		if (set.getTerms().isEmpty()) {
 			throw new InvalidSettingsException("Formula Missing");
 		}
 
-		if (MathUtilities.getSymbols(set.getTerm()).isEmpty()) {
+		if (DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms())
+				.isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
 		}
 
-		if (set.getDependentVariable() == null) {
+		if (set.getDependentVariables().isEmpty()) {
 			throw new InvalidSettingsException("Dependent Variable Missing");
 		}
 
@@ -131,9 +132,9 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	public void textChanged(Object source) {
 		if (source == depVarField) {
-			set.setDependentVariable(depVarField.getValue());
+			set.setDependentVariables(Arrays.asList(depVarField.getValue()));
 		} else if (source == termField) {
-			set.setTerm(termField.getValue());
+			set.setTerms(Arrays.asList(termField.getValue()));
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel();
@@ -193,13 +194,16 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	private JPanel createFormulaPanel() {
 		depVarField = new StringTextField(false, 10);
-		depVarField.setValue(set.getDependentVariable());
+		depVarField.setValue(set.getDependentVariables().isEmpty() ? null : set
+				.getDependentVariables().get(0));
 		depVarField.addTextListener(this);
 
 		if (termField == null || termField.getValue() == null
-				|| !termField.getValue().equals(set.getTerm())) {
+				|| set.getTerms().isEmpty()
+				|| !termField.getValue().equals(set.getTerms().get(0))) {
 			termField = new StringTextArea(false, 3, 100);
-			termField.setValue(set.getTerm());
+			termField.setValue(set.getTerms().isEmpty() ? null : set.getTerms()
+					.get(0));
 			termField.addTextListener(this);
 		}
 
@@ -214,8 +218,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(MathUtilities.getSymbols(set
-				.getTerm()));
+		List<String> elements = new ArrayList<>(
+				DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms()));
 
 		Collections.sort(elements);
 
@@ -251,8 +255,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> params = new ArrayList<>(MathUtilities.getSymbols(set
-				.getTerm()));
+		List<String> params = new ArrayList<>(
+				DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms()));
 		List<String> indeps = new ArrayList<>();
 
 		for (String indep : set.getIndependentVariables()) {

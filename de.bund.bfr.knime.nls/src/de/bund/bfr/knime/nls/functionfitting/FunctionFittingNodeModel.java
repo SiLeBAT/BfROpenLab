@@ -367,15 +367,33 @@ public class FunctionFittingNodeModel extends NodeModel {
 			}
 
 			if (function.getDiffVariable() != null) {
-				optimizer = new ParameterOptimizer(
-						new String[] { function.getTerm() },
-						new String[] { function.getDependentVariable() },
-						new double[] { targetArray[0] }, function
-								.getParameters().toArray(new String[0]),
-						minParameterValues, maxParameterValues, targetArray,
+				int n = function.getTerms().size();
+				String[] terms = new String[n];
+				String[] valueVariables = new String[n];
+				double[] initialValues = new double[n];
+				int i = 0;
+
+				for (String var : function.getTerms().keySet()) {
+					terms[i] = function.getTerms().get(var);
+					valueVariables[i] = var;
+
+					if (var.equals(function.getDependentVariable())) {
+						initialValues[i] = targetArray[0];
+					} else {
+						initialValues[i] = function.getInitialValues().get(var);
+					}
+
+					i++;
+				}
+
+				optimizer = new ParameterOptimizer(terms, valueVariables,
+						initialValues, function.getParameters().toArray(
+								new String[0]), minParameterValues,
+						maxParameterValues, targetArray,
 						function.getDiffVariable(), argumentArrays);
 			} else {
-				optimizer = new ParameterOptimizer(function.getTerm(), function
+				optimizer = new ParameterOptimizer(function.getTerms().get(
+						function.getDependentVariable()), function
 						.getParameters().toArray(new String[0]),
 						minParameterValues, maxParameterValues,
 						minParameterValues, maxParameterValues, targetArray,

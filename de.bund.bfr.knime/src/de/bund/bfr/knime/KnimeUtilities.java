@@ -83,11 +83,11 @@ public class KnimeUtilities {
 		return null;
 	}
 
-	public static String listToString(List<String> list) {
+	public static String listToString(List<?> list) {
 		String result = "";
 
-		for (String s : list) {
-			result += s + ",";
+		for (Object o : list) {
+			result += o + ",";
 		}
 
 		if (!result.isEmpty()) {
@@ -99,6 +99,21 @@ public class KnimeUtilities {
 
 	public static List<String> stringToList(String s) {
 		return new ArrayList<>(Arrays.asList(s.split(",")));
+	}
+
+	public static List<Double> stringToDoubleList(String s) {
+		List<String> list = stringToList(s);
+		List<Double> doubleList = new ArrayList<>();
+
+		for (String value : list) {
+			try {
+				doubleList.add(Double.parseDouble(value));
+			} catch (NumberFormatException e) {
+				doubleList.add(null);
+			}
+		}
+
+		return doubleList;
 	}
 
 	public static File getFile(String fileName) throws FileNotFoundException {

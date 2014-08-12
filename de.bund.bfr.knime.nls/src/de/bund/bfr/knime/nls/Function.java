@@ -26,39 +26,45 @@ package de.bund.bfr.knime.nls;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Function implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String term;
+	private Map<String, String> terms;
 	private String dependentVariable;
 	private List<String> independentVariables;
 	private List<String> parameters;
 	private String diffVariable;
+	private Map<String, Double> initialValues;
 
 	public Function() {
-		this(null, null, new ArrayList<String>(), new ArrayList<String>());
+		this(new LinkedHashMap<String, String>(), null,
+				new ArrayList<String>(), new ArrayList<String>());
 	}
 
-	public Function(String term, String dependentVariable,
+	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters) {
-		this(term, dependentVariable, independentVariables, parameters, null);
+		this(terms, dependentVariable, independentVariables, parameters, null,
+				new LinkedHashMap<String, Double>());
 	}
 
-	public Function(String term, String dependentVariable,
+	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters,
-			String diffVariable) {
-		this.term = term;
+			String diffVariable, Map<String, Double> initialValues) {
+		this.terms = terms;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;
 		this.parameters = parameters;
 		this.diffVariable = diffVariable;
+		this.initialValues = initialValues;
 	}
 
-	public String getTerm() {
-		return term;
+	public Map<String, String> getTerms() {
+		return terms;
 	}
 
 	public String getDependentVariable() {
@@ -75,6 +81,10 @@ public class Function implements Serializable {
 
 	public String getDiffVariable() {
 		return diffVariable;
+	}
+
+	public Map<String, Double> getInitialValues() {
+		return initialValues;
 	}
 
 	public List<String> getVariables() {
@@ -101,8 +111,10 @@ public class Function implements Serializable {
 				+ ((independentVariables == null) ? 0 : independentVariables
 						.hashCode());
 		result = prime * result
+				+ ((initialValues == null) ? 0 : initialValues.hashCode());
+		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
-		result = prime * result + ((term == null) ? 0 : term.hashCode());
+		result = prime * result + ((terms == null) ? 0 : terms.hashCode());
 		return result;
 	}
 
@@ -130,24 +142,30 @@ public class Function implements Serializable {
 				return false;
 		} else if (!independentVariables.equals(other.independentVariables))
 			return false;
+		if (initialValues == null) {
+			if (other.initialValues != null)
+				return false;
+		} else if (!initialValues.equals(other.initialValues))
+			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
 				return false;
 		} else if (!parameters.equals(other.parameters))
 			return false;
-		if (term == null) {
-			if (other.term != null)
+		if (terms == null) {
+			if (other.terms != null)
 				return false;
-		} else if (!term.equals(other.term))
+		} else if (!terms.equals(other.terms))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Function [term=" + term + ", dependentVariable="
+		return "Function [terms=" + terms + ", dependentVariable="
 				+ dependentVariable + ", independentVariables="
 				+ independentVariables + ", parameters=" + parameters
-				+ ", diffVariable=" + diffVariable + "]";
+				+ ", diffVariable=" + diffVariable + ", initialValues="
+				+ initialValues + "]";
 	}
 }

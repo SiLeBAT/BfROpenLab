@@ -103,7 +103,8 @@ public class FunctionViewReader {
 
 				Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
 
-				plotable.setFunction(f.getTerm());
+				// TODO use getTerms() correctly
+				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
 				plotable.setDependentVariable(f.getDependentVariable());
 				plotable.setDiffVariable(f.getDiffVariable());
 				plotable.setParameters(getParameters(paramTable, id, f));
@@ -151,7 +152,8 @@ public class FunctionViewReader {
 					Plotable plotable = new Plotable(
 							Plotable.Type.DATA_FUNCTION);
 
-					plotable.setFunction(f.getTerm());
+					plotable.setFunction(f.getTerms().get(
+							f.getDependentVariable()));
 					plotable.setDependentVariable(f.getDependentVariable());
 					plotable.setParameters(getParameters(paramTable, id, f));
 					plotable.setIndependentVariables(getVariables(indep, fixed));

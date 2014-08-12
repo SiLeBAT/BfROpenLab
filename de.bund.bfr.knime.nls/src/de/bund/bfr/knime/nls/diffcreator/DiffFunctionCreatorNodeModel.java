@@ -28,7 +28,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -71,8 +75,9 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
-				set.getTerm(), set.getDependentVariable(),
-				set.getIndependentVariables(), set.getDiffVariable())) };
+				set.getTerms(), set.getDependentVariables(),
+				set.getIndependentVariables(), set.getDiffVariable(),
+				set.getInitialValues())) };
 	}
 
 	/**
@@ -88,14 +93,15 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (set.getTerm() == null || set.getDependentVariable() == null
+		if (set.getTerms().isEmpty() || set.getDependentVariables().isEmpty()
 				|| set.getIndependentVariables().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				createFunction(set.getTerm(), set.getDependentVariable(),
-						set.getIndependentVariables(), set.getDiffVariable())) };
+				createFunction(set.getTerms(), set.getDependentVariables(),
+						set.getIndependentVariables(), set.getDiffVariable(),
+						set.getInitialValues())) };
 	}
 
 	/**
@@ -141,11 +147,29 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables,
-			String diffVariable) {
-		List<String> parameters = new ArrayList<>(
-				MathUtilities.getSymbols(term));
+	protected static Set<String> getAllSymbols(List<String> terms) {
+		Set<String> symbols = new LinkedHashSet<>();
+
+		for (String term : terms) {
+			symbols.addAll(MathUtilities.getSymbols(term));
+		}
+
+		return symbols;
+	}
+
+	private static Function createFunction(List<String> terms,
+			List<String> dependentVariables, List<String> independentVariables,
+			String diffVariable, List<Double> initialValues) {
+		Map<String, String> termsMap = new LinkedHashMap<>();
+		Map<String, Double> initialValuesMap = new LinkedHashMap<>();
+
+		for (int i = 0; i < terms.size(); i++) {
+			termsMap.put(dependentVariables.get(i), terms.get(i));
+			initialValuesMap.put(dependentVariables.get(i),
+					initialValues.get(i));
+		}
+
+		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
 
 		parameters.removeAll(independentVariables);
 
@@ -157,8 +181,8 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		Collections.sort(parameters);
 		Collections.sort(independentVariables);
 
-		return new Function(term, dependentVariable, independentVariables,
-				parameters, diffVariable);
+		return new Function(termsMap, dependentVariables.get(0),
+				independentVariables, parameters, diffVariable,
+				initialValuesMap);
 	}
-
 }
