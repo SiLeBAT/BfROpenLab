@@ -67,7 +67,7 @@ public class MyNewTracingLoader {
 
 		allDeliveries = new HashMap<>();		
 		// Firstly: get all deliveries
-		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empf?nger") + "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") +
+		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") +
 				" FROM " + DBKernel.delimitL("Lieferungen") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
@@ -77,7 +77,7 @@ public class MyNewTracingLoader {
 			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
 			if (rs != null && rs.first()) {
 				do {
-					MyDelivery md = new MyDelivery(rs.getInt("ID"), rs.getInt("Station"), rs.getInt("Empf?nger"), (Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
+					MyDelivery md = new MyDelivery(rs.getInt("ID"), rs.getInt("Station"), rs.getInt("Empfänger"), (Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
 					allDeliveries.put(rs.getInt("ID"), md);
 				} while (rs.next());
 			}
