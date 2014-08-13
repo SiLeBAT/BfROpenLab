@@ -161,6 +161,22 @@ public class UI {
 
 		return buttonPanel;
 	}
+	
+	public static JPanel createVerticalPanel(JComponent... components) {
+		JPanel buttonPanel = new JPanel();
+
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));		
+
+		for (JComponent button : components) {
+			button.setAlignmentX(Component.LEFT_ALIGNMENT);
+			buttonPanel.add(Box.createVerticalStrut(5));
+			buttonPanel.add(button);
+		}
+
+		buttonPanel.remove(0);
+
+		return buttonPanel;
+	}
 
 	public static JPanel createOptionsPanel(String name,
 			List<? extends JComponent> leftComponents,
