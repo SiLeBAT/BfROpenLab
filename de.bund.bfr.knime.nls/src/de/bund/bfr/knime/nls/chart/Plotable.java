@@ -73,6 +73,8 @@ public class Plotable {
 	private Map<String, double[]> valueLists;
 	private String function;
 	private String dependentVariable;
+	private Map<String, String> functions;
+	private Map<String, Double> initialValues;
 	private String diffVariable;
 	private Map<String, Double> independentVariables;
 	private Map<String, Double> constants;
@@ -87,6 +89,8 @@ public class Plotable {
 		valueLists = new LinkedHashMap<>();
 		function = null;
 		dependentVariable = null;
+		functions = new LinkedHashMap<>();
+		initialValues = new LinkedHashMap<>();
 		diffVariable = null;
 		constants = new LinkedHashMap<>();
 		independentVariables = new LinkedHashMap<>();
@@ -123,6 +127,22 @@ public class Plotable {
 
 	public void setDependentVariable(String dependentVariable) {
 		this.dependentVariable = dependentVariable;
+	}
+
+	public Map<String, String> getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(Map<String, String> functions) {
+		this.functions = functions;
+	}
+
+	public Map<String, Double> getInitialValues() {
+		return initialValues;
+	}
+
+	public void setInitialValues(Map<String, Double> initialValues) {
+		this.initialValues = initialValues;
 	}
 
 	public String getDiffVariable() {
@@ -309,20 +329,38 @@ public class Plotable {
 	public double[][] getDiffPoints(String paramX, Transform transformX,
 			Transform transformY, double minX, double maxX, double minY,
 			double maxY) throws ParseException {
-		DJep parser = createParser(diffVariable);
-
-		if (function == null || parser == null || !paramX.equals(diffVariable)) {
+		if (functions.isEmpty() || !paramX.equals(diffVariable)) {
 			return null;
 		}
 
+		DJep[] parsers = new DJep[functions.size()];
+		Node[] fs = new Node[functions.size()];
+		String[] valueVariables = new String[functions.size()];
+		double[] value = new double[functions.size()];
+		int depIndex = -1;
+		int index = 0;
+
+		for (String var : functions.keySet()) {
+			parsers[index] = createParser(diffVariable);
+			fs[index] = parsers[index].parse(functions.get(var));
+			valueVariables[index] = var;
+
+			if (var.equals(dependentVariable)) {
+				depIndex = index;
+				value[index] = valueLists.get(dependentVariable)[0];
+			} else {
+				value[index] = initialValues.get(var);
+			}
+			
+			index++;
+		}
+
 		double[][] points = new double[2][FUNCTION_STEPS];
-		DiffFunction f = new DiffFunction(new DJep[] { parser },
-				new Node[] { parser.parse(function) },
-				new String[] { dependentVariable }, valueLists, diffVariable);
+		DiffFunction f = new DiffFunction(parsers, fs, valueVariables,
+				valueLists, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double diffValue = valueLists.get(diffVariable)[0];
-		double[] value = { valueLists.get(dependentVariable)[0] };
 
 		for (int j = 0; j < FUNCTION_STEPS; j++) {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
@@ -331,10 +369,10 @@ public class Plotable {
 			Double y;
 
 			if (transX == diffValue) {
-				y = Transform.transform(value[0], transformY);
+				y = Transform.transform(value[depIndex], transformY);
 			} else if (transX > diffValue) {
 				integrator.integrate(f, diffValue, value, transX, value);
-				y = Transform.transform(value[0], transformY);
+				y = Transform.transform(value[depIndex], transformY);
 				diffValue = transX;
 			} else {
 				y = Double.NaN;

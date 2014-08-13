@@ -95,6 +95,16 @@ public class Function implements Serializable {
 
 		return names;
 	}
+	
+	public List<String> getVariables2() {
+		List<String> names = new ArrayList<>();
+		
+		names.addAll(independentVariables);
+		names.removeAll(terms.keySet());
+		names.add(dependentVariable);
+
+		return names;
+	}
 
 	@Override
 	public int hashCode() {

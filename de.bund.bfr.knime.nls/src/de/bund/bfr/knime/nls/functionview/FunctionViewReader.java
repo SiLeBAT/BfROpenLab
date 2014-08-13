@@ -103,8 +103,8 @@ public class FunctionViewReader {
 
 				Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
 
-				// TODO use getTerms() correctly
-				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
+				plotable.setFunctions(f.getTerms());
+				plotable.setInitialValues(f.getInitialValues());
 				plotable.setDependentVariable(f.getDependentVariable());
 				plotable.setDiffVariable(f.getDiffVariable());
 				plotable.setParameters(getParameters(paramTable, id, f));
@@ -374,7 +374,7 @@ public class FunctionViewReader {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
-		for (String var : f.getVariables()) {
+		for (String var : f.getVariables2()) {
 			values.put(var, new ArrayList<Double>());
 		}
 
@@ -383,7 +383,7 @@ public class FunctionViewReader {
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
-				for (String var : f.getVariables()) {
+				for (String var : f.getVariables2()) {
 					v.put(var, IO.getDouble(row.getCell(spec
 							.findColumnIndex(var))));
 				}
