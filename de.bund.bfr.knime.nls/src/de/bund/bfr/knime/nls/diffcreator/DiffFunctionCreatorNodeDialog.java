@@ -31,7 +31,6 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -75,8 +74,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	private JPanel mainPanel;
 	private JPanel functionPanel;
 
-	private StringTextField depVarField;
-	private StringTextArea termField;
+	private List<StringTextField> depVarFields;
+	private List<StringTextArea> termFields;
 	private List<JCheckBox> indepVarBoxes;
 	private StringTextField diffVarField;
 
@@ -86,6 +85,10 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	protected DiffFunctionCreatorNodeDialog() {
 		set = new DiffFunctionCreatorSettings();
 		usedIndeps = new ArrayList<>();
+
+		depVarFields = new ArrayList<>();
+		termFields = new ArrayList<>();
+		indepVarBoxes = new ArrayList<>();
 
 		functionPanel = createFunctionPanel();
 		mainPanel = new JPanel();
@@ -131,10 +134,14 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void textChanged(Object source) {
-		if (source == depVarField) {
-			set.setDependentVariables(Arrays.asList(depVarField.getValue()));
-		} else if (source == termField) {
-			set.setTerms(Arrays.asList(termField.getValue()));
+		if (depVarFields.contains(source)) {
+			set.getDependentVariables().set(depVarFields.indexOf(source),
+					((StringTextField) source).getValue());
+		} else if (termFields.contains(source)) {
+			StringTextArea termField = (StringTextArea) source;
+
+			set.getTerms().set(termFields.indexOf(termField),
+					termField.getText());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel();
@@ -152,7 +159,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (indepVarBoxes != null && indepVarBoxes.contains(e.getSource())) {
+		if (indepVarBoxes.contains(e.getSource())) {
 			String name = ((JCheckBox) e.getSource()).getText();
 
 			if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -172,11 +179,13 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createFunctionPanel() {
+		updateNumberOfFunctions(1);
+
 		JPanel editPanel = new JPanel();
 
 		editPanel.setLayout(new GridBagLayout());
 		editPanel.add(new JLabel("Term:"), createConstraints(0, 0));
-		editPanel.add(createFormulaPanel(), createConstraints(1, 0));
+		editPanel.add(createFormulaPanel(0), createConstraints(1, 0));
 		editPanel.add(new JLabel("Independent Variable:"),
 				createConstraints(0, 1));
 		editPanel.add(createIndepBoxPanel(), createConstraints(1, 1));
@@ -192,18 +201,18 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		return editPanel;
 	}
 
-	private JPanel createFormulaPanel() {
-		depVarField = new StringTextField(false, 10);
-		depVarField.setValue(set.getDependentVariables().isEmpty() ? null : set
-				.getDependentVariables().get(0));
+	private JPanel createFormulaPanel(int i) {
+		StringTextField depVarField = new StringTextField(false, 10);
+
+		depVarField.setValue(set.getDependentVariables().get(i));
 		depVarField.addTextListener(this);
 
+		StringTextArea termField = termFields.get(i);
+
 		if (termField == null || termField.getValue() == null
-				|| set.getTerms().isEmpty()
-				|| !termField.getValue().equals(set.getTerms().get(0))) {
+				|| !termField.getValue().equals(set.getTerms().get(i))) {
 			termField = new StringTextArea(false, 3, 100);
-			termField.setValue(set.getTerms().isEmpty() ? null : set.getTerms()
-					.get(0));
+			termField.setValue(set.getTerms().get(i));
 			termField.addTextListener(this);
 		}
 
@@ -213,6 +222,9 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		formulaPanel.add(UI.createCenterPanel(depVarField));
 		formulaPanel.add(new JLabel("="));
 		formulaPanel.add(termField);
+
+		depVarFields.set(i, depVarField);
+		termFields.set(i, termField);
 
 		return formulaPanel;
 	}
@@ -226,7 +238,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		indepVarBoxes = new ArrayList<>();
+		indepVarBoxes.clear();
 
 		for (String el : elements) {
 			JCheckBox box = new JCheckBox(el);
@@ -280,9 +292,27 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		set.setIndependentVariables(indeps);
 	}
 
+	private void updateNumberOfFunctions(int n) {
+		setListSize(depVarFields, n);
+		setListSize(termFields, n);
+		setListSize(set.getDependentVariables(), n);
+		setListSize(set.getTerms(), n);
+		setListSize(set.getInitialValues(), n);
+	}
+
 	private static GridBagConstraints createConstraints(int x, int y) {
 		return new GridBagConstraints(x, y, 1, 1, 0, 0,
 				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
+	}
+
+	private static void setListSize(List<?> list, int n) {
+		while (list.size() > n) {
+			list.remove(list.size() - 1);
+		}
+
+		while (list.size() < n) {
+			list.add(null);
+		}
 	}
 }
