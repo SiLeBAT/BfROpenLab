@@ -50,6 +50,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -576,7 +577,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
 					Writer outsvg = new OutputStreamWriter(
 							new FileOutputStream(chooser.getImageFile()),
-							"UTF-8");
+							StandardCharsets.UTF_8);
 
 					svgGenerator.setSVGCanvasSize(new Dimension(viewer
 							.getWidth(), viewer.getHeight()));

@@ -29,6 +29,7 @@ import java.beans.XMLEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.xml.sax.InputSource;
 
@@ -49,7 +50,8 @@ public class XmlConverter {
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		XMLEncoder encoder = new XMLEncoder(out, "UTF-8", true, 0);
+		XMLEncoder encoder = new XMLEncoder(out, StandardCharsets.UTF_8.name(),
+				true, 0);
 
 		currentThread.setContextClassLoader(loader);
 		encoder.writeObject(obj);
@@ -57,7 +59,7 @@ public class XmlConverter {
 		currentThread.setContextClassLoader(currentLoader);
 
 		try {
-			return out.toString("UTF-8");
+			return out.toString(StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
