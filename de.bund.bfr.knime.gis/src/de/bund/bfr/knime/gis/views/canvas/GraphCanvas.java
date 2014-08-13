@@ -390,7 +390,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		applyChanges();
-		getViewer().getPickedVertexState().clear();
+		setSelectedNodeIds(collapsedNodes.keySet());
 	}
 
 	@Override
