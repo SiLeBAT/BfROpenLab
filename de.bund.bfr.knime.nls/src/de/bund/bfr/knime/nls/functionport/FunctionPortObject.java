@@ -62,7 +62,7 @@ public class FunctionPortObject implements PortObject, Serializable {
 
 	@Override
 	public JComponent[] getViews() {
-		return new JComponent[0];
+		return new JComponent[] { new FunctionPortObjectView(this) };
 	}
 
 	public static PortObjectSerializer<FunctionPortObject> getPortObjectSerializer() {
