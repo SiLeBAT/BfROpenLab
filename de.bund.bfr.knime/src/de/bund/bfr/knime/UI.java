@@ -27,6 +27,7 @@ package de.bund.bfr.knime;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -161,11 +162,11 @@ public class UI {
 
 		return buttonPanel;
 	}
-	
+
 	public static JPanel createVerticalPanel(JComponent... components) {
 		JPanel buttonPanel = new JPanel();
 
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));		
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
 		for (JComponent button : components) {
 			button.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -261,5 +262,10 @@ public class UI {
 		}
 
 		return -1;
+	}
+
+	public static void setFontSize(Component c, int fontSize) {
+		c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle(),
+				fontSize));
 	}
 }

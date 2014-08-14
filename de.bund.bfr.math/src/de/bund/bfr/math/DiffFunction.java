@@ -37,26 +37,26 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private DJep[] parsers;
 	private Node[] functions;
-	private String[] valueVariables;
-	private String diffVariable;
+	private String[] dependentVariables;
+	private String timeVariable;
 	private Map<String, double[]> variableValues;
 
 	private int lastIndex;
 
 	public DiffFunction(DJep[] parsers, Node[] functions,
-			String[] valueVariables, Map<String, double[]> variableValues,
-			String diffVariable) {
+			String[] dependentVariables, Map<String, double[]> variableValues,
+			String timeVariable) {
 		this.parsers = parsers;
 		this.functions = functions;
-		this.valueVariables = valueVariables;
-		this.diffVariable = diffVariable;
+		this.dependentVariables = dependentVariables;
+		this.timeVariable = timeVariable;
 		this.variableValues = variableValues;
 	}
 
 	@Override
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
-		double[] diffValues = variableValues.get(diffVariable);
+		double[] diffValues = variableValues.get(timeVariable);
 		int index = 0;
 
 		if (diffValues[lastIndex] <= t) {
@@ -77,10 +77,10 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 			}
 
 			for (int j = 0; j < y.length; j++) {
-				parsers[i].setVarValue(valueVariables[j], y[j]);
+				parsers[i].setVarValue(dependentVariables[j], y[j]);
 			}
 
-			parsers[i].setVarValue(diffVariable, t);
+			parsers[i].setVarValue(timeVariable, t);
 		}
 
 		try {

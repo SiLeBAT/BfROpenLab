@@ -45,28 +45,28 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	private Map<String, DJep[]> parsers;
 	private Map<String, Node[]> functions;
-	private String[] valueVariables;
+	private String[] dependentVariables;
 	private double[] initialValues;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private String dependentVariable;
-	private String diffVariable;
+	private String timeVariable;
 
 	public VectorDiffFunctionJacobian(String[] formulas,
-			String[] valueVariables, double[] initialValues,
+			String[] dependentVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
-			String dependentVariable, String diffVariable)
+			String dependentVariable, String timeVariable)
 			throws ParseException {
-		this.valueVariables = valueVariables;
+		this.dependentVariables = dependentVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
-		this.diffVariable = diffVariable;
+		this.timeVariable = timeVariable;
 
 		Set<String> variables = new LinkedHashSet<>();
 
-		variables.addAll(Arrays.asList(valueVariables));
+		variables.addAll(Arrays.asList(dependentVariables));
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
@@ -89,7 +89,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
 		int nParam = parameters.length;
-		int nValue = variableValues.get(diffVariable).length;
+		int nValue = variableValues.get(timeVariable).length;
 		double[][] r = new double[nParam][nValue];
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
@@ -137,14 +137,16 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			point[index] = this.point[index] - EPSILON;
 
 			double[] result1 = new VectorDiffFunction(parser, function,
-					valueVariables, initialValues, parameters, variableValues,
-					dependentVariable, diffVariable).value(point);
+					dependentVariables, initialValues, parameters,
+					variableValues, dependentVariable, timeVariable)
+					.value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
-					valueVariables, initialValues, parameters, variableValues,
-					dependentVariable, diffVariable).value(point);
+					dependentVariables, initialValues, parameters,
+					variableValues, dependentVariable, timeVariable)
+					.value(point);
 
 			for (int i = 0; i < result.length; i++) {
 				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);

@@ -98,6 +98,10 @@ public class KnimeUtilities {
 	}
 
 	public static List<String> stringToList(String s) {
+		if (s.isEmpty()) {
+			return new ArrayList<>();
+		}
+		
 		return new ArrayList<>(Arrays.asList(s.split(",")));
 	}
 

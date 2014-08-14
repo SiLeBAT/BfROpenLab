@@ -93,8 +93,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (set.getTerms().isEmpty() || set.getDependentVariables().isEmpty()
-				|| set.getIndependentVariables().isEmpty()) {
+		if (set.getTerms().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
@@ -172,12 +171,9 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
 		List<String> indeps = new ArrayList<>(independentVariables);
 
-		parameters.removeAll(independentVariables);
-		indeps.removeAll(dependentVariables);
-
-		if (!indeps.contains(diffVariable)) {
-			indeps.add(diffVariable);
-		}
+		indeps.add(diffVariable);
+		parameters.removeAll(indeps);
+		parameters.removeAll(dependentVariables);
 
 		Collections.sort(parameters);
 		Collections.sort(indeps);
