@@ -170,19 +170,19 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		}
 
 		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
+		List<String> indeps = new ArrayList<>(independentVariables);
 
 		parameters.removeAll(independentVariables);
+		indeps.removeAll(dependentVariables);
 
-		if (diffVariable != null
-				&& !independentVariables.contains(diffVariable)) {
-			independentVariables.add(diffVariable);
+		if (!indeps.contains(diffVariable)) {
+			indeps.add(diffVariable);
 		}
 
 		Collections.sort(parameters);
-		Collections.sort(independentVariables);
+		Collections.sort(indeps);
 
-		return new Function(termsMap, dependentVariables.get(0),
-				independentVariables, parameters, diffVariable,
-				initialValuesMap);
+		return new Function(termsMap, dependentVariables.get(0), indeps,
+				parameters, diffVariable, initialValuesMap);
 	}
 }

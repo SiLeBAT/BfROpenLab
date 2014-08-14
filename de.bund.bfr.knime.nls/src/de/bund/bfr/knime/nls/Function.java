@@ -90,17 +90,7 @@ public class Function implements Serializable {
 	public List<String> getVariables() {
 		List<String> names = new ArrayList<>();
 
-		names.add(dependentVariable);
-		names.addAll(independentVariables);
-
-		return names;
-	}
-	
-	public List<String> getVariables2() {
-		List<String> names = new ArrayList<>();
-		
-		names.addAll(independentVariables);
-		names.removeAll(terms.keySet());
+		names.addAll(independentVariables);		
 		names.add(dependentVariable);
 
 		return names;

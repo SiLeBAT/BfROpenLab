@@ -374,7 +374,7 @@ public class FunctionViewReader {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
-		for (String var : f.getVariables2()) {
+		for (String var : f.getVariables()) {
 			values.put(var, new ArrayList<Double>());
 		}
 
@@ -383,7 +383,7 @@ public class FunctionViewReader {
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
-				for (String var : f.getVariables2()) {
+				for (String var : f.getVariables()) {
 					v.put(var, IO.getDouble(row.getCell(spec
 							.findColumnIndex(var))));
 				}
