@@ -38,8 +38,7 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorDiffFunctionJacobian implements
-		MultivariateMatrixFunction {
+public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
 	private static final int MAX_THREADS = 8;
@@ -50,16 +49,19 @@ public class VectorDiffFunctionJacobian implements
 	private double[] initialValues;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
+	private String dependentVariable;
 	private String diffVariable;
 
 	public VectorDiffFunctionJacobian(String[] formulas,
 			String[] valueVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
-			String diffVariable) throws ParseException {
+			String dependentVariable, String diffVariable)
+			throws ParseException {
 		this.valueVariables = valueVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.dependentVariable = dependentVariable;
 		this.diffVariable = diffVariable;
 
 		Set<String> variables = new LinkedHashSet<>();
@@ -87,8 +89,7 @@ public class VectorDiffFunctionJacobian implements
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
 		int nParam = parameters.length;
-		int nValue = variableValues.get(diffVariable).length
-				* initialValues.length;
+		int nValue = variableValues.get(diffVariable).length;
 		double[][] r = new double[nParam][nValue];
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
@@ -137,13 +138,13 @@ public class VectorDiffFunctionJacobian implements
 
 			double[] result1 = new VectorDiffFunction(parser, function,
 					valueVariables, initialValues, parameters, variableValues,
-					diffVariable).value(point);
+					dependentVariable, diffVariable).value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
 					valueVariables, initialValues, parameters, variableValues,
-					diffVariable).value(point);
+					dependentVariable, diffVariable).value(point);
 
 			for (int i = 0; i < result.length; i++) {
 				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);

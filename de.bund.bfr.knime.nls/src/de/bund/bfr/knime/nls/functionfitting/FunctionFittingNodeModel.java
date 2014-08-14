@@ -390,6 +390,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 						initialValues, function.getParameters().toArray(
 								new String[0]), minParameterValues,
 						maxParameterValues, targetArray,
+						function.getDependentVariable(),
 						function.getDiffVariable(), argumentArrays);
 			} else {
 				optimizer = new ParameterOptimizer(function.getTerms().get(

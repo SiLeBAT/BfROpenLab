@@ -43,16 +43,18 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private double[] initialValues;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
+	private String dependentVariable;
 	private String diffVariable;
 
 	public VectorDiffFunction(String[] formulas, String[] valueVariables,
 			double[] initialValues, String[] parameters,
-			Map<String, double[]> variableValues, String diffVariable)
-			throws ParseException {
+			Map<String, double[]> variableValues, String dependentVariable,
+			String diffVariable) throws ParseException {
 		this.valueVariables = valueVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.dependentVariable = dependentVariable;
 		this.diffVariable = diffVariable;
 
 		Set<String> variables = new LinkedHashSet<>();
@@ -73,18 +75,20 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
 			String[] valueVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
-			String diffVariable) {
+			String dependentVariable, String diffVariable) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.valueVariables = valueVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.dependentVariable = dependentVariable;
 		this.diffVariable = diffVariable;
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
+		int depIndex = Arrays.asList(valueVariables).indexOf(dependentVariable);
 		double[] diffValues = variableValues.get(diffVariable);
 
 		for (int i = 0; i < parsers.length; i++) {
@@ -93,20 +97,19 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		DiffFunction f = new DiffFunction(parsers, functions,
-				valueVariables, variableValues, diffVariable);
+		DiffFunction f = new DiffFunction(parsers, functions, valueVariables,
+				variableValues, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double[] values = initialValues.clone();
-		double[] result = new double[diffValues.length * values.length];
+		double[] result = new double[diffValues.length];
 
-		System.arraycopy(values, 0, result, 0, values.length);
+		result[0] = values[depIndex];
 
 		for (int i = 1; i < diffValues.length; i++) {
 			integrator.integrate(f, diffValues[i - 1], values, diffValues[i],
 					values);
-			System.arraycopy(values, 0, result, i * values.length,
-					values.length);
+			result[i] = values[depIndex];
 		}
 
 		return result;
