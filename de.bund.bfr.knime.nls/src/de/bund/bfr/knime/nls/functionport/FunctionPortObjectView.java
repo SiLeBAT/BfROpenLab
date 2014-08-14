@@ -53,7 +53,14 @@ public class FunctionPortObjectView extends JComponent {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
 		for (Map.Entry<String, String> entry : f.getTerms().entrySet()) {
-			JLabel label = new JLabel(entry.getKey() + " = " + entry.getValue());
+			JLabel label;
+
+			if (f.getDiffVariable() != null) {
+				label = new JLabel("d" + entry.getKey() + "/d"
+						+ f.getDiffVariable() + " = " + entry.getValue());
+			} else {
+				label = new JLabel(entry.getKey() + " = " + entry.getValue());
+			}
 
 			label.setAlignmentX(Component.LEFT_ALIGNMENT);
 			panel.add(label);
@@ -86,22 +93,17 @@ public class FunctionPortObjectView extends JComponent {
 		JLabel indepVarLabel = new JLabel("Independent Variables: "
 				+ Joiner.on(", ").join(f.getIndependentVariables()));
 		JLabel paramVarLabel = new JLabel("Parameters: "
-				+ Joiner.on(", ").join(f.getParameters()));
-		JLabel diffVarLabel = new JLabel("Differential Variable: "
-				+ f.getDiffVariable());
+				+ Joiner.on(", ").join(f.getParameters()));		
 
 		depVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		indepVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		paramVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		diffVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		paramVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);		
 
 		panel.add(depVarLabel);
 		panel.add(Box.createVerticalStrut(5));
 		panel.add(indepVarLabel);
 		panel.add(Box.createVerticalStrut(5));
-		panel.add(paramVarLabel);
-		panel.add(Box.createVerticalStrut(5));
-		panel.add(diffVarLabel);
+		panel.add(paramVarLabel);		
 
 		setName("Function");
 		setLayout(new BorderLayout());

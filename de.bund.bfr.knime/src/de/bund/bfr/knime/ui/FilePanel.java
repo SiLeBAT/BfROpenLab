@@ -89,17 +89,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	}
 
 	public String getFileName() {
-		String fileName = field.getValue();
-
-		if (fileName != null) {
-			fileName = fileName.trim();
-
-			if (fileName.isEmpty()) {
-				fileName = null;
-			}
-		}
-
-		return fileName;
+		return field.getValue();
 	}
 
 	public boolean isAcceptAllFiles() {

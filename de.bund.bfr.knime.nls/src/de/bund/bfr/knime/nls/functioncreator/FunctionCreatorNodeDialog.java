@@ -32,7 +32,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -70,7 +69,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	private StringTextField depVarField;
 	private StringTextArea termField;
-	private List<JCheckBox> indepVarBoxes;	
+	private List<JCheckBox> indepVarBoxes;
 
 	/**
 	 * New pane for configuring the FormulaCreator node.
@@ -101,16 +100,18 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (set.getTerm() == null) {
+		updateFunction();
+
+		if (!depVarField.isValueValid()) {
+			throw new InvalidSettingsException("Dependent Variable Missing");
+		}
+
+		if (!termField.isValueValid()) {
 			throw new InvalidSettingsException("Formula Missing");
 		}
 
 		if (MathUtilities.getSymbols(set.getTerm()).isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
-		}
-
-		if (set.getDependentVariable() == null) {
-			throw new InvalidSettingsException("Dependent Variable Missing");
 		}
 
 		if (set.getIndependentVariables().isEmpty()) {
@@ -129,7 +130,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel();
-			mainPanel.add(functionPanel);
+			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
 			termField.requestFocus();
 		}
@@ -147,12 +148,6 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 				set.getIndependentVariables().remove(name);
 				usedIndeps.remove(name);
 			}
-
-			updateFunction();
-			mainPanel.remove(functionPanel);
-			functionPanel = createFunctionPanel();
-			mainPanel.add(functionPanel);
-			mainPanel.revalidate();
 		}
 	}
 
@@ -226,28 +221,19 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> params = new ArrayList<>(MathUtilities.getSymbols(set
+		List<String> symbols = new ArrayList<>(MathUtilities.getSymbols(set
 				.getTerm()));
+
 		List<String> indeps = new ArrayList<>();
 
-		for (String indep : set.getIndependentVariables()) {
-			if (params.contains(indep)) {
-				indeps.add(indep);
-				params.remove(indep);
-			}
-		}
-
-		for (Iterator<String> iterator = params.iterator(); iterator.hasNext();) {
-			String param = iterator.next();
-
-			if (usedIndeps.contains(param)) {
-				indeps.add(param);
-				iterator.remove();
+		for (String symbol : symbols) {
+			if (set.getIndependentVariables().contains(symbol)
+					|| usedIndeps.contains(symbol)) {
+				indeps.add(symbol);
 			}
 		}
 
 		Collections.sort(indeps);
-		Collections.sort(params);
 		set.setIndependentVariables(indeps);
 	}
 

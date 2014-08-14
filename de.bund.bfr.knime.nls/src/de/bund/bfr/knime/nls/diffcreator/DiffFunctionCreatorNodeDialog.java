@@ -129,7 +129,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		updateFunction();
-		
+
 		for (StringTextField depVarField : depVarFields) {
 			if (!depVarField.isValueValid()) {
 				throw new InvalidSettingsException("Dependent Variable Missing");
@@ -172,16 +172,16 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	public void textChanged(Object source) {
 		if (depVarFields.contains(source)) {
-			StringTextField depVarField = (StringTextField) source;
+			int index = depVarFields.indexOf(source);
 
-			set.getDependentVariables().set(depVarFields.indexOf(source),
-					depVarField.getValue());
+			set.getDependentVariables().set(index,
+					depVarFields.get(index).getValue());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel(set.getTerms().size());
 			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
-			depVarField.requestFocus();
+			depVarFields.get(index).requestFocus();
 		} else if (termFields.contains(source)) {
 			StringTextArea termField = (StringTextArea) source;
 
@@ -196,8 +196,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		} else if (initialFields.contains(source)) {
 			set.getInitialValues().set(initialFields.indexOf(source),
 					((DoubleTextField) source).getValue());
-		} else if (source == diffVarField && diffVarField.isValueValid()) {
-			set.setDiffVariable(diffVarField.getText().trim());
+		} else if (source == diffVarField) {
+			set.setDiffVariable(diffVarField.getValue());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel(set.getTerms().size());
@@ -218,7 +218,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 				set.getIndependentVariables().remove(name);
 				usedIndeps.remove(name);
-			}			
+			}
 		}
 	}
 
@@ -251,10 +251,16 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createFormulaPanel(int i) {
-		StringTextField depVarField = new StringTextField(false, 5);
+		StringTextField depVarField = depVarFields.get(i);
 
-		depVarField.setValue(set.getDependentVariables().get(i));
-		depVarField.addTextListener(this);
+		if (depVarField == null
+				|| depVarField.getValue() == null
+				|| !depVarField.getValue().equals(
+						set.getDependentVariables().get(i))) {
+			depVarField = new StringTextField(false, 5);
+			depVarField.setValue(set.getDependentVariables().get(i));
+			depVarField.addTextListener(this);
+		}
 
 		JPanel depVarPanel = new JPanel();
 		String diffVar = set.getDiffVariable() != null ? set.getDiffVariable()
@@ -346,9 +352,12 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createDiffVarPanel() {
-		diffVarField = new StringTextField(false, 5);
-		diffVarField.setValue(set.getDiffVariable());
-		diffVarField.addTextListener(this);
+		if (diffVarField == null || diffVarField.getValue() == null
+				|| !diffVarField.getValue().equals(set.getDiffVariable())) {
+			diffVarField = new StringTextField(false, 5);
+			diffVarField.setValue(set.getDiffVariable());
+			diffVarField.addTextListener(this);
+		}
 
 		return UI.createWestPanel(diffVarField);
 	}

@@ -115,9 +115,10 @@ public class StringTextField extends JTextField implements DocumentListener {
 	}
 
 	private void textChanged() {
-		value = getText();
+		value = getText().trim();
+		value = value.isEmpty() ? null : value;
 
-		if (value.trim().isEmpty() && !optional) {
+		if (value == null && !optional) {
 			isValueValid = false;
 		} else {
 			isValueValid = true;

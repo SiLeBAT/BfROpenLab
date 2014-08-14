@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -50,6 +49,10 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 public class KnimeUtilities {
 
@@ -84,25 +87,11 @@ public class KnimeUtilities {
 	}
 
 	public static String listToString(List<?> list) {
-		String result = "";
-
-		for (Object o : list) {
-			result += o + ",";
-		}
-
-		if (!result.isEmpty()) {
-			result = result.substring(0, result.length() - 1);
-		}
-
-		return result;
+		return Joiner.on(",").useForNull("null").join(list);
 	}
 
 	public static List<String> stringToList(String s) {
-		if (s.isEmpty()) {
-			return new ArrayList<>();
-		}
-		
-		return new ArrayList<>(Arrays.asList(s.split(",")));
+		return Lists.newArrayList(Splitter.on(",").omitEmptyStrings().split(s));
 	}
 
 	public static List<Double> stringToDoubleList(String s) {
