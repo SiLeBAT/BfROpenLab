@@ -140,7 +140,7 @@ public class IO {
 			return null;
 		}
 
-		return s.replace("\u00A0", " ").replace("\t", " ").replace("\n", " ")
-				.trim();
+		return s.replaceAll("\\p{C}", "").replace("\u00A0", "")
+				.replace("\t", " ").replace("\n", " ").trim();
 	}
 }
