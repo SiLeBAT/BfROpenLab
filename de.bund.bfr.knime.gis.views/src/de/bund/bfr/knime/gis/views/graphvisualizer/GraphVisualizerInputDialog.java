@@ -44,7 +44,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
@@ -70,15 +70,15 @@ public class GraphVisualizerInputDialog extends JDialog implements
 		this.set = set;
 		approved = false;
 
-		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
 				.getNodeIdColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeToColumn());

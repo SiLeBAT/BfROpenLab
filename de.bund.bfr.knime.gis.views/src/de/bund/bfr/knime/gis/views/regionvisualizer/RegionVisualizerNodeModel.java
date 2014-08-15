@@ -40,7 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 
 /**
@@ -80,8 +80,8 @@ public class RegionVisualizerNodeModel extends NodeModel {
 					+ "\" is not contained in the shapefile");
 		}
 
-		return new PortObject[] { ViewUtilities.getImage(gisCanvas,
-				set.isExportAsSvg()) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
+				gisCanvas) };
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ViewUtilities.getImageSpec(set
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set
 				.isExportAsSvg()) };
 	}
 

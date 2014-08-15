@@ -39,7 +39,7 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -117,11 +117,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		allNodes = nodes;
 		allEdges = edges;
-		nodeSaveMap = CanvasUtilities.getElementsById(this.nodes);
-		edgeSaveMap = CanvasUtilities.getElementsById(this.edges);
+		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
+		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
-		metaNodeProperty = KnimeUtilities.createNewValue(IS_META_NODE,
+		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE,
 				getNodeProperties().keySet());
 		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
@@ -131,7 +131,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(this.nodes, this.edges));
+				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
@@ -271,15 +271,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Map<String, Point2D> absPos = getNodePositions(CanvasUtilities
+		Map<String, Point2D> absPos = getNodePositions(CanvasUtils
 				.getElementsById(getViewer().getGraphLayout().getGraph()
 						.getVertices(), selectedIds));
 		Map<String, Point2D> relPos = new LinkedHashMap<>();
-		Point2D center = CanvasUtilities.getCenter(absPos.values());
+		Point2D center = CanvasUtils.getCenter(absPos.values());
 
 		for (String id : absPos.keySet()) {
 			relPos.put(id,
-					CanvasUtilities.substractPoints(absPos.get(id), center));
+					CanvasUtils.substractPoints(absPos.get(id), center));
 		}
 
 		collapsedNodes.put(newId, relPos);
@@ -312,7 +312,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			for (String newId : removed.keySet()) {
 				getViewer().getGraphLayout().setLocation(
 						nodeSaveMap.get(newId),
-						CanvasUtilities.addPoints(removed.get(newId), center));
+						CanvasUtils.addPoints(removed.get(newId), center));
 			}
 		}
 
@@ -334,7 +334,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<>();
 
-		for (String id : CanvasUtilities.getElementIds(allNodes)) {
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
 			GraphNode node = nodeSaveMap.get(id);
 			Object value = node.getProperties().get(result);
 
@@ -374,16 +374,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		collapsedNodes.clear();
 
 		for (String value : nodesByProperty.keySet()) {
-			String newId = KnimeUtilities.createNewValue(value,
+			String newId = KnimeUtils.createNewValue(value,
 					nodeSaveMap.keySet());
 			Map<String, Point2D> absPos = getNodePositions(nodesByProperty
 					.get(value));
 			Map<String, Point2D> relPos = new LinkedHashMap<>();
-			Point2D center = CanvasUtilities.getCenter(absPos.values());
+			Point2D center = CanvasUtils.getCenter(absPos.values());
 
 			for (String id : absPos.keySet()) {
 				relPos.put(id,
-						CanvasUtilities.substractPoints(absPos.get(id), center));
+						CanvasUtils.substractPoints(absPos.get(id), center));
 			}
 
 			collapsedNodes.put(newId, relPos);
@@ -403,7 +403,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			for (String newId : removed.keySet()) {
 				getViewer().getGraphLayout().setLocation(
 						nodeSaveMap.get(newId),
-						CanvasUtilities.addPoints(removed.get(newId), center));
+						CanvasUtils.addPoints(removed.get(newId), center));
 			}
 		}
 
@@ -482,7 +482,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
 
-		for (String id : CanvasUtilities.getElementIds(allNodes)) {
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
 			if (!collapseTo.keySet().contains(id)) {
 				GraphNode newNode = nodeSaveMap.get(id);
 
@@ -497,9 +497,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			GraphNode newNode = nodeSaveMap.get(newId);
 
 			if (newNode == null) {
-				Set<GraphNode> nodes = CanvasUtilities.getElementsById(
+				Set<GraphNode> nodes = CanvasUtils.getElementsById(
 						nodeSaveMap, collapsedNodes.get(newId).keySet());
-				Point2D pos = CanvasUtilities.getCenter(getNodePositions(nodes)
+				Point2D pos = CanvasUtils.getCenter(getNodePositions(nodes)
 						.values());
 
 				newNode = combineNodes(newId, nodes);
@@ -545,40 +545,40 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		removeInvisibleElements(nodes, edges);
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges));
+					CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			joinMap = new LinkedHashMap<>();
 		}
 
 		if (isSkipEdgelessNodes()) {
-			CanvasUtilities.removeEdgelessNodes(nodes, edges);
+			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
 
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(nodes, edges));
+				CanvasUtils.createGraph(nodes, edges));
 		getViewer().getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<>(metaNodes));
 		getViewer().getPickedVertexState().clear();
 	}
 
 	protected void applyHighlights() {
-		CanvasUtilities.applyNodeHighlights(getViewer(),
+		CanvasUtils.applyNodeHighlights(getViewer(),
 				getNodeHighlightConditions(), getNodeSize());
-		CanvasUtilities.applyEdgeHighlights(getViewer(),
+		CanvasUtils.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
 	}
 
 	protected void removeInvisibleElements(Set<GraphNode> nodes,
 			Set<Edge<GraphNode>> edges) {
-		CanvasUtilities.removeInvisibleElements(nodes,
+		CanvasUtils.removeInvisibleElements(nodes,
 				getNodeHighlightConditions());
-		CanvasUtilities.removeInvisibleElements(edges,
+		CanvasUtils.removeInvisibleElements(edges,
 				getEdgeHighlightConditions());
-		CanvasUtilities.removeNodelessEdges(edges, nodes);
+		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
 	@Override
@@ -637,7 +637,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtilities.addPoints(
+					layout.setLocation(node, CanvasUtils.addPoints(
 							getViewer().getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
@@ -649,7 +649,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtilities.addPoints(
+					layout.setLocation(node, CanvasUtils.addPoints(
 							getViewer().getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
@@ -684,7 +684,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
-			CanvasUtilities.addMapToMap(properties, getNodeProperties(),
+			CanvasUtils.addMapToMap(properties, getNodeProperties(),
 					node.getProperties());
 		}
 

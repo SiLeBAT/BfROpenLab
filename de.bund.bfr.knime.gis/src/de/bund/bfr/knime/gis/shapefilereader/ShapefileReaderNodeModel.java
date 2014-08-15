@@ -79,7 +79,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeCellFactory;
@@ -200,7 +200,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			File f = KnimeUtilities.getFile(shpFile.getStringValue());
+			File f = KnimeUtils.getFile(shpFile.getStringValue());
 			Map<String, URL> map = new HashMap<>();
 
 			map.put("url", f.toURI().toURL());
@@ -213,7 +213,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
-						KnimeUtilities.getFile(FilenameUtils.removeExtension(f
+						KnimeUtils.getFile(FilenameUtils.removeExtension(f
 								.getAbsolutePath()) + ".prj")));
 				String wkt = "";
 				String line;
@@ -313,11 +313,11 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			columnNames.add(name);
 		}
 
-		latitudeColumn = KnimeUtilities.createNewValue(LATITUDE_COLUMN,
+		latitudeColumn = KnimeUtils.createNewValue(LATITUDE_COLUMN,
 				columnNames);
-		longitudeColumn = KnimeUtilities.createNewValue(LONGITUDE_COLUMN,
+		longitudeColumn = KnimeUtils.createNewValue(LONGITUDE_COLUMN,
 				columnNames);
-		areaColumn = KnimeUtilities.createNewValue(AREA_COLUMN, columnNames);
+		areaColumn = KnimeUtils.createNewValue(AREA_COLUMN, columnNames);
 
 		columns.add(new DataColumnSpecCreator(latitudeColumn, DoubleCell.TYPE)
 				.createSpec());

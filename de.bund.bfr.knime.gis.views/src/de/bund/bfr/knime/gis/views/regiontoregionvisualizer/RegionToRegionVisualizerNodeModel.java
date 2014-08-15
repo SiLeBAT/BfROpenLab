@@ -40,7 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 
@@ -84,8 +84,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		}
 
 		return new PortObject[] {
-				ViewUtilities.getImage(graphCanvas, set.isExportAsSvg()),
-				ViewUtilities.getImage(gisCanvas, set.isExportAsSvg()) };
+				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
+				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas) };
 	}
 
 	/**
@@ -102,8 +102,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
-				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				ViewUtilities.getImageSpec(set.isExportAsSvg()) };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**

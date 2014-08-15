@@ -31,7 +31,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class DiffFunctionCreatorSettings extends NlsNodeSettings {
@@ -59,18 +59,18 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			dependentVariables = KnimeUtilities.stringToList(settings
+			dependentVariables = KnimeUtils.stringToList(settings
 					.getString(CFG_DEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			terms = KnimeUtilities.stringToList(settings.getString(CFG_TERMS));
+			terms = KnimeUtils.stringToList(settings.getString(CFG_TERMS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			independentVariables = KnimeUtilities.stringToList(settings
+			independentVariables = KnimeUtils.stringToList(settings
 					.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
@@ -81,7 +81,7 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			initialValues = KnimeUtilities.stringToDoubleList(settings
+			initialValues = KnimeUtils.stringToDoubleList(settings
 					.getString(CFG_INITIAL_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
@@ -90,13 +90,13 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_DEPENDENT_VARIABLES,
-				KnimeUtilities.listToString(dependentVariables));
-		settings.addString(CFG_TERMS, KnimeUtilities.listToString(terms));
+				KnimeUtils.listToString(dependentVariables));
+		settings.addString(CFG_TERMS, KnimeUtils.listToString(terms));
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtilities.listToString(independentVariables));
+				KnimeUtils.listToString(independentVariables));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
 		settings.addString(CFG_INITIAL_VALUES,
-				KnimeUtilities.listToString(initialValues));
+				KnimeUtils.listToString(initialValues));
 	}
 
 	public List<String> getDependentVariables() {

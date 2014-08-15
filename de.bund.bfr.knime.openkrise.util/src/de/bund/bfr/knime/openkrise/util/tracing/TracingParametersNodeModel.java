@@ -66,7 +66,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingConstants;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
  * This is the model implementation of TracingVisualizer.
@@ -95,13 +95,13 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable dataTable = inData[2];
-		Map<String, Class<?>> nodeProperties = TracingUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
 				nodeTable, nodeProperties);
-		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
@@ -202,13 +202,13 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filterNodes.add(id);
-				backwardNodes.addAll(TracingUtilities.toString(tracing
+				backwardNodes.addAll(TracingUtils.toString(tracing
 						.getBackwardStations(Integer.parseInt(id))));
-				forwardNodes.addAll(TracingUtilities.toString(tracing
+				forwardNodes.addAll(TracingUtils.toString(tracing
 						.getForwardStations(Integer.parseInt(id))));
-				backwardEdges.addAll(TracingUtilities.toString(tracing
+				backwardEdges.addAll(TracingUtils.toString(tracing
 						.getBackwardDeliveries(Integer.parseInt(id))));
-				forwardEdges.addAll(TracingUtilities.toString(tracing
+				forwardEdges.addAll(TracingUtils.toString(tracing
 						.getForwardDeliveries(Integer.parseInt(id))));
 			}
 		}
@@ -227,13 +227,13 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filterEdges.add(id);
-				backwardNodes.addAll(TracingUtilities.toString(tracing
+				backwardNodes.addAll(TracingUtils.toString(tracing
 						.getBackwardStations2(Integer.parseInt(id))));
-				forwardNodes.addAll(TracingUtilities.toString(tracing
+				forwardNodes.addAll(TracingUtils.toString(tracing
 						.getForwardStations2(Integer.parseInt(id))));
-				backwardEdges.addAll(TracingUtilities.toString(tracing
+				backwardEdges.addAll(TracingUtils.toString(tracing
 						.getBackwardDeliveries2(Integer.parseInt(id))));
-				forwardEdges.addAll(TracingUtilities.toString(tracing
+				forwardEdges.addAll(TracingUtils.toString(tracing
 						.getForwardDeliveries2(Integer.parseInt(id))));
 			}
 		}

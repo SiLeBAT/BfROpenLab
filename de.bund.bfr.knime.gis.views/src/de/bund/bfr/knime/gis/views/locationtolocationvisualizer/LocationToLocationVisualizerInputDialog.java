@@ -45,7 +45,7 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.ui.ColumnComboBox;
@@ -79,23 +79,23 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		nodeIdBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
 				.getNodeIdColumn());
-		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings()
 				.getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings()
 				.getNodeLongitudeColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeToColumn());

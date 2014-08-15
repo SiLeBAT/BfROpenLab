@@ -48,7 +48,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 
@@ -112,7 +112,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (input[3] != null) {
 			try {
-				set.loadFromXml(KnimeUtilities
+				set.loadFromXml(KnimeUtils
 						.tableToXml((BufferedDataTable) input[3]));
 			} catch (IOException e) {
 				e.printStackTrace();

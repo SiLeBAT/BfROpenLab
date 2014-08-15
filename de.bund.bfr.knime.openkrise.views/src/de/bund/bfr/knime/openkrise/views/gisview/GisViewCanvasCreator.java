@@ -34,7 +34,7 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.TracingConstants;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class GisViewCanvasCreator {
 
@@ -50,10 +50,10 @@ public class GisViewCanvasCreator {
 	}
 
 	public LocationCanvas createCanvas() {
-		List<RegionNode> regions = TracingUtilities.readRegionNodes(shapeTable);
-		Map<String, Class<?>> nodeProperties = TracingUtilities
+		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable);
+		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(TracingUtilities
+		List<LocationNode> nodes = new ArrayList<>(TracingUtils
 				.readLocationNodes(nodeTable, nodeProperties).values());
 
 		if (nodes.isEmpty()) {

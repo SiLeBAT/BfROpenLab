@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -57,22 +57,22 @@ public class LocationToLocationVisualizerCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), null);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeProperties, edgeProperties, set.getGraphSettings()
@@ -114,13 +114,13 @@ public class LocationToLocationVisualizerCanvasCreator {
 	}
 
 	public LocationCanvas createLocationCanvas() {
-		List<RegionNode> regionNodes = ViewUtilities.readRegionNodes(
+		List<RegionNode> regionNodes = ViewUtils.readRegionNodes(
 				shapeTable, set.getGisSettings().getShapeColumn());
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, LocationNode> nodes = ViewUtilities.readLocationNodes(
+		Map<String, LocationNode> nodes = ViewUtils.readLocationNodes(
 				nodeTable, nodeProperties, set.getGraphSettings()
 						.getNodeIdColumn(), set.getGisSettings()
 						.getNodeLatitudeColumn(), set.getGisSettings()
@@ -130,11 +130,11 @@ public class LocationToLocationVisualizerCanvasCreator {
 			return null;
 		}
 
-		List<Edge<LocationNode>> edges = ViewUtilities.readEdges(edgeTable,
+		List<Edge<LocationNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeProperties, edgeProperties, set

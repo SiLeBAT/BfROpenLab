@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -49,11 +49,11 @@ public class LocationVisualizerCanvasCreator {
 	}
 
 	public LocationCanvas createCanvas() {
-		List<RegionNode> regions = ViewUtilities.readRegionNodes(shapeTable,
+		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable,
 				set.getGisSettings().getShapeColumn());
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(ViewUtilities
+		List<LocationNode> nodes = new ArrayList<>(ViewUtils
 				.readLocationNodes(nodeTable, nodeProperties, null,
 						set.getGisSettings().getNodeLatitudeColumn(),
 						set.getGisSettings().getNodeLongitudeColumn()).values());
@@ -62,7 +62,7 @@ public class LocationVisualizerCanvasCreator {
 			return null;
 		}
 
-		String nodeIdProperty = ViewUtilities.createNewIdProperty(nodes,
+		String nodeIdProperty = ViewUtils.createNewIdProperty(nodes,
 				nodeProperties);
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
 				nodeIdProperty, regions);

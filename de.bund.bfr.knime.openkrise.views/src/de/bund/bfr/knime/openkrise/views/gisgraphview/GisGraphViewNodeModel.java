@@ -40,8 +40,10 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 
 /**
  * This is the model implementation of GisGraphView.
@@ -61,7 +63,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 				BufferedDataTable.TYPE,
 				new PortType(BufferedDataTable.class, true) }, new PortType[] {
 				ImagePortObject.TYPE, ImagePortObject.TYPE,
-				BufferedDataTable.TYPE });
+				ImagePortObject.TYPE, BufferedDataTable.TYPE });
 		set = new GisGraphViewSettings();
 	}
 
@@ -76,13 +78,15 @@ public class GisGraphViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
 		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
+		GraphCanvas graphCanvas = creator.createGraphCanvas();
+		LocationCanvas gisCanvas = creator.createGisCanvas();
 
 		return new PortObject[] {
-				TracingUtilities.getImage(creator.createGraphCanvas(),
-						set.isExportAsSvg()),
-				TracingUtilities.getImage(creator.createLocationCanvas(),
-						set.isExportAsSvg()),
-				KnimeUtilities.xmlToTable(set.toXml(), exec) };
+				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
+				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas),
+				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas,
+						gisCanvas),
+				KnimeUtils.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -99,9 +103,10 @@ public class GisGraphViewNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
-				TracingUtilities.getImageSpec(set.isExportAsSvg()),
-				TracingUtilities.getImageSpec(set.isExportAsSvg()),
-				KnimeUtilities.getXmlSpec() };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				KnimeUtils.getXmlSpec() };
 	}
 
 	/**

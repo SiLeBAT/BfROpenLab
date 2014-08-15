@@ -73,7 +73,7 @@ public class CanvasLegend<V extends Node> {
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
 					name += " ["
-							+ CanvasUtilities.toRangeString(condition
+							+ CanvasUtils.toRangeString(condition
 									.getValueRange(nodes)) + "]";
 					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
 							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
@@ -100,7 +100,7 @@ public class CanvasLegend<V extends Node> {
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
 					name += " ["
-							+ CanvasUtilities.toRangeString(condition
+							+ CanvasUtils.toRangeString(condition
 									.getValueRange(edges)) + "]";
 					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
 							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));

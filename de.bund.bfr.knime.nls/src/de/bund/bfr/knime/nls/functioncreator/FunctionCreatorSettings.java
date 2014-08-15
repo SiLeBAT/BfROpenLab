@@ -31,7 +31,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class FunctionCreatorSettings extends NlsNodeSettings {
@@ -63,7 +63,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			independentVariables = KnimeUtilities.stringToList(settings
+			independentVariables = KnimeUtils.stringToList(settings
 					.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
@@ -74,7 +74,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
 		settings.addString(CFG_TERM, term);
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtilities.listToString(independentVariables));		
+				KnimeUtils.listToString(independentVariables));		
 	}
 
 	public String getDependentVariable() {

@@ -110,7 +110,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		getViewer().getRenderer().getVertexLabelRenderer()
 				.setPosition(Position.CNTR);
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(this.nodes, this.edges));
+				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (RegionNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
@@ -142,14 +142,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		edges = new LinkedHashSet<>(allEdges);
-		CanvasUtilities.removeInvisibleElements(edges,
+		CanvasUtils.removeInvisibleElements(edges,
 				getEdgeHighlightConditions());
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges));
+					CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			edges = new LinkedHashSet<>(allEdges);
@@ -157,11 +157,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(nodes, edges));
+				CanvasUtils.createGraph(nodes, edges));
 
-		CanvasUtilities.applyNodeLabels(getViewer(),
+		CanvasUtils.applyNodeLabels(getViewer(),
 				getNodeHighlightConditions());
-		CanvasUtilities.applyEdgeHighlights(getViewer(),
+		CanvasUtils.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
 
 		setSelectedEdgeIds(selectedEdgeIds);
@@ -276,7 +276,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		for (RegionNode node : nodes) {
-			Paint color = CanvasUtilities.mixColors(Color.WHITE, nodeColors,
+			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors,
 					nodeAlphas.get(node));
 
 			if (!color.equals(Color.WHITE)

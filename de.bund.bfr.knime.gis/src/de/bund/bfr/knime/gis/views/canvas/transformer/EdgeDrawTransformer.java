@@ -32,7 +32,7 @@ import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class EdgeDrawTransformer<E> implements Transformer<E, Paint> {
@@ -49,7 +49,7 @@ public class EdgeDrawTransformer<E> implements Transformer<E, Paint> {
 			List<Double> alphas = alphaValues.get(edge);
 
 			edgeColors.put(edge,
-					CanvasUtilities.mixColors(Color.BLACK, colors, alphas));
+					CanvasUtils.mixColors(Color.BLACK, colors, alphas));
 		}
 	}
 

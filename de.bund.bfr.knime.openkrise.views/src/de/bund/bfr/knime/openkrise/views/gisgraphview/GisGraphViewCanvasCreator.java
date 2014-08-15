@@ -38,7 +38,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.TracingConstants;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class GisGraphViewCanvasCreator {
 
@@ -57,18 +57,18 @@ public class GisGraphViewCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = TracingUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
 				nodeTable, nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeProperties, edgeProperties,
@@ -108,21 +108,21 @@ public class GisGraphViewCanvasCreator {
 		return canvas;
 	}
 
-	public LocationCanvas createLocationCanvas() {
-		List<RegionNode> regionNodes = TracingUtilities
+	public LocationCanvas createGisCanvas() {
+		List<RegionNode> regionNodes = TracingUtils
 				.readRegionNodes(shapeTable);
-		Map<String, Class<?>> nodeProperties = TracingUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, LocationNode> nodes = TracingUtilities.readLocationNodes(
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
 				nodeTable, nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		List<Edge<LocationNode>> edges = TracingUtilities.readEdges(edgeTable,
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeProperties, edgeProperties,

@@ -97,7 +97,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(this.nodes, this.edges));
+				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (LocationNode node : this.nodes) {
 			getViewer().getGraphLayout().setLocation(node, node.getCenter());
@@ -121,32 +121,32 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		nodes = new LinkedHashSet<>(allNodes);
 		edges = new LinkedHashSet<>(allEdges);
 
-		CanvasUtilities.removeInvisibleElements(nodes,
+		CanvasUtils.removeInvisibleElements(nodes,
 				getNodeHighlightConditions());
-		CanvasUtilities.removeInvisibleElements(edges,
+		CanvasUtils.removeInvisibleElements(edges,
 				getEdgeHighlightConditions());
-		CanvasUtilities.removeNodelessEdges(edges, nodes);
+		CanvasUtils.removeNodelessEdges(edges, nodes);
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtilities.joinEdges(edges, getEdgeProperties(),
+			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(),
-					CanvasUtilities.getElementIds(allEdges));
+					CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			joinMap = new LinkedHashMap<>();
 		}
 
 		if (isSkipEdgelessNodes()) {
-			CanvasUtilities.removeEdgelessNodes(nodes, edges);
+			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
 
 		getViewer().getGraphLayout().setGraph(
-				CanvasUtilities.createGraph(nodes, edges));
+				CanvasUtils.createGraph(nodes, edges));
 
-		CanvasUtilities.applyNodeHighlights(getViewer(),
+		CanvasUtils.applyNodeHighlights(getViewer(),
 				getNodeHighlightConditions(), getNodeSize());
-		CanvasUtilities.applyEdgeHighlights(getViewer(),
+		CanvasUtils.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
 
 		setSelectedEdgeIds(selectedEdgeIds);

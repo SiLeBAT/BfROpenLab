@@ -44,7 +44,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.ui.ColumnComboBox;
@@ -76,11 +76,11 @@ public class RegionVisualizerInputDialog extends JDialog implements
 		shapeBox = new ColumnComboBox(false,
 				GisUtilities.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getGisSettings()
 				.getShapeRegionColumn());
-		nodeRegionBox = new ColumnComboBox(false, KnimeUtilities.getColumns(
+		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeRegionBox.setSelectedColumnName(set.getGisSettings()
 				.getNodeRegionColumn());

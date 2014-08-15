@@ -58,7 +58,7 @@ import org.nfunk.jep.ParseException;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -174,11 +174,11 @@ public class FunctionFittingNodeModel extends NodeModel {
 		DataTableSpec spec = (DataTableSpec) inSpecs[1];
 		List<String> variables = function.getVariables();
 		List<String> parameters = function.getParameters();
-		List<String> stringColumns = KnimeUtilities
-				.getColumnNames(KnimeUtilities
+		List<String> stringColumns = KnimeUtils
+				.getColumnNames(KnimeUtils
 						.getColumns(spec, StringCell.TYPE));
-		List<String> doubleColumns = KnimeUtilities
-				.getColumnNames(KnimeUtilities
+		List<String> doubleColumns = KnimeUtils
+				.getColumnNames(KnimeUtils
 						.getColumns(spec, DoubleCell.TYPE));
 
 		if (!stringColumns.contains(NlsConstants.ID_COLUMN)) {

@@ -62,7 +62,7 @@ import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 
 /**
  * This is the model implementation of SbmlReader.
@@ -103,7 +103,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		File path = KnimeUtilities.getFile(inPath.getStringValue());
+		File path = KnimeUtils.getFile(inPath.getStringValue());
 
 		if (!path.isDirectory()) {
 			throw new Exception(path + " is not a directory");
@@ -336,7 +336,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 			columns.put(INDEPENDENT_VARIABLES, StringCell.TYPE);
 		}
 
-		row.put(INDEPENDENT_VARIABLES, IO.createCell(KnimeUtilities
+		row.put(INDEPENDENT_VARIABLES, IO.createCell(KnimeUtils
 				.listToString(independentVariables)));
 
 		if (!columns.containsKey(PARAMETERS)) {
@@ -344,7 +344,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 		}
 
 		row.put(PARAMETERS,
-				IO.createCell(KnimeUtilities.listToString(paramters)));
+				IO.createCell(KnimeUtils.listToString(paramters)));
 
 		rows.add(row);
 	}

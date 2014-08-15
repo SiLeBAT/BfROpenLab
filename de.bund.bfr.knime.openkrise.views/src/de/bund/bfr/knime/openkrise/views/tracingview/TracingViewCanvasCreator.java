@@ -36,7 +36,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingConstants;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class TracingViewCanvasCreator {
 
@@ -55,9 +55,9 @@ public class TracingViewCanvasCreator {
 	}
 
 	public TracingCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = TracingUtilities
+		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtilities
+		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 
 		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
@@ -114,14 +114,14 @@ public class TracingViewCanvasCreator {
 			edgeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
-		Map<String, GraphNode> nodes = TracingUtilities.readGraphNodes(
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
 				nodeTable, nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = TracingUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		TracingCanvas canvas = new TracingCanvas(
 				new ArrayList<>(nodes.values()), edges, nodeProperties,

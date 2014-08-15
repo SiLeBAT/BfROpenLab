@@ -69,13 +69,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-import org.w3c.dom.svg.SVGDocument;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -319,22 +317,22 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public Set<String> getSelectedNodeIds() {
-		return CanvasUtilities.getElementIds(viewer.getPickedVertexState()
+		return CanvasUtils.getElementIds(viewer.getPickedVertexState()
 				.getPicked());
 	}
 
 	public void setSelectedNodeIds(Set<String> selectedNodeIds) {
-		setSelectedNodes(CanvasUtilities.getElementsById(viewer
+		setSelectedNodes(CanvasUtils.getElementsById(viewer
 				.getGraphLayout().getGraph().getVertices(), selectedNodeIds));
 	}
 
 	public Set<String> getSelectedEdgeIds() {
-		return CanvasUtilities.getElementIds(viewer.getPickedEdgeState()
+		return CanvasUtils.getElementIds(viewer.getPickedEdgeState()
 				.getPicked());
 	}
 
 	public void setSelectedEdgeIds(Set<String> selectedEdgeIds) {
-		setSelectedEdges(CanvasUtilities.getElementsById(viewer
+		setSelectedEdges(CanvasUtils.getElementsById(viewer
 				.getGraphLayout().getGraph().getEdges(), selectedEdgeIds));
 	}
 
@@ -391,37 +389,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
-	public BufferedImage getImage() {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
-		BufferedImage img = new BufferedImage(viewer.getSize().width,
-				viewer.getSize().height, BufferedImage.TYPE_INT_RGB);
-
-		server.paint(img.createGraphics());
-
-		return img;
-	}
-
-	public SVGDocument getSvgDocument() {
-		VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
-		SVGDOMImplementation domImpl = new SVGDOMImplementation();
-		Document document = domImpl.createDocument(null, "svg", null);
-		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-
-		svgGenerator.setSVGCanvasSize(viewer.getSize());
-		server.paint(svgGenerator);
-		svgGenerator.finalize();
-		document.replaceChild(svgGenerator.getRoot(),
-				document.getDocumentElement());
-
-		return (SVGDocument) document;
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals(COPY)) {
 			List<String> selected = new ArrayList<>(getSelectedNodeIds());
 			StringSelection stsel = new StringSelection(
-					KnimeUtilities.listToString(selected));
+					KnimeUtils.listToString(selected));
 
 			Toolkit.getDefaultToolkit().getSystemClipboard()
 					.setContents(stsel, stsel);
@@ -442,7 +415,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			setSelectedNodeIds(new LinkedHashSet<>(
-					KnimeUtilities.stringToList(selected)));
+					KnimeUtils.stringToList(selected)));
 			JOptionPane.showMessageDialog(this,
 					"Node selection has been pasted from clipboard",
 					"Clipboard", JOptionPane.INFORMATION_MESSAGE);
@@ -556,7 +529,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			if (chooser.getFileFormat() == ImageFileChooser.Format.PNG_FORMAT) {
 				try {
-					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(false);
+					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(false);
 					BufferedImage img = new BufferedImage(viewer.getWidth(),
 							viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -569,7 +542,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				}
 			} else if (chooser.getFileFormat() == ImageFileChooser.Format.SVG_FORMAT) {
 				try {
-					VisualizationImageServer<V, Edge<V>> server = createVisualizationServer(true);
+					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(true);
 					DOMImplementation domImpl = GenericDOMImplementation
 							.getDOMImplementation();
 					Document document = domImpl.createDocument(null, "svg",
@@ -725,7 +698,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(getNodes(),
+			setSelectedNodes(CanvasUtils.getHighlightedElements(getNodes(),
 					dialog.getHighlightConditions()));
 		}
 	}
@@ -738,7 +711,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(getEdges(),
+			setSelectedEdges(CanvasUtils.getHighlightedElements(getEdges(),
 					dialog.getHighlightConditions()));
 		}
 
@@ -752,7 +725,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtilities.getHighlightedElements(getNodes(),
+			setSelectedNodes(CanvasUtils.getHighlightedElements(getNodes(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -765,7 +738,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtilities.getHighlightedElements(getEdges(),
+			setSelectedEdges(CanvasUtils.getHighlightedElements(getEdges(),
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -856,8 +829,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyChanges();
 	}
 
-	protected VisualizationViewer<V, Edge<V>> getViewer() {
+	public VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
+	}
+
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
+			final boolean toSvg) {
+		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
+				viewer.getGraphLayout(), viewer.getSize());
+
+		server.setBackground(Color.WHITE);
+		server.setRenderContext(viewer.getRenderContext());
+		server.setRenderer(viewer.getRenderer());
+		server.addPostRenderPaintable(new PostPaintable(true));
+
+		return server;
 	}
 
 	protected CanvasOptionsPanel getOptionsPanel() {
@@ -893,19 +879,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected Point toWindowsCoordinates(double x, double y) {
 		return new Point((int) (x * scaleX + translationX),
 				(int) (y * scaleY + translationY));
-	}
-
-	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
-			final boolean toSvg) {
-		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
-				viewer.getGraphLayout(), viewer.getSize());
-
-		server.setBackground(Color.WHITE);
-		server.setRenderContext(viewer.getRenderContext());
-		server.setRenderer(viewer.getRenderer());
-		server.addPostRenderPaintable(new PostPaintable(true));
-
-		return server;
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {

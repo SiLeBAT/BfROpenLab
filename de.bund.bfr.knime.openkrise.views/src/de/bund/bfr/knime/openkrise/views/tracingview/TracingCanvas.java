@@ -47,8 +47,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
-import de.bund.bfr.knime.KnimeUtilities;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
+import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
@@ -414,10 +414,10 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected VisualizationImageServer<GraphNode, Edge<GraphNode>> createVisualizationServer(
+	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(
 			boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
-				.createVisualizationServer(toSvg);
+				.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new PostPaintable());
 
@@ -520,11 +520,11 @@ public class TracingCanvas extends GraphCanvas {
 		MyNewTracing tracingWithoutCC = createTracing(edges, false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
-		CanvasUtilities.removeInvisibleElements(nodes,
+		CanvasUtils.removeInvisibleElements(nodes,
 				getNodeHighlightConditions());
-		removedEdges.addAll(CanvasUtilities.removeInvisibleElements(edges,
+		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
 				getEdgeHighlightConditions()));
-		removedEdges.addAll(CanvasUtilities.removeNodelessEdges(edges, nodes));
+		removedEdges.addAll(CanvasUtils.removeNodelessEdges(edges, nodes));
 
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
@@ -717,7 +717,7 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	private static int createId(Collection<String> c) {
-		return KnimeUtilities.listToString(new ArrayList<>(c)).hashCode();
+		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
 	}
 
 	private class HighlightChecker implements HighlightConditionChecker {

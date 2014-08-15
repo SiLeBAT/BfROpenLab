@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -33,6 +34,8 @@ import java.awt.TexturePaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +47,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
+
+import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.knime.base.data.xml.SvgCell;
+import org.knime.base.data.xml.SvgImageContent;
+import org.knime.core.data.image.png.PNGImageContent;
+import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
+import org.w3c.dom.Document;
+import org.w3c.dom.svg.SVGDocument;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -58,13 +73,14 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-public class CanvasUtilities {
+public class CanvasUtils {
 
 	private static final int TEXTURE_SIZE = 3;
 
-	private CanvasUtilities() {
+	private CanvasUtils() {
 	}
 
 	public static Point2D addPoints(Point2D p1, Point2D p2) {
@@ -129,7 +145,7 @@ public class CanvasUtilities {
 				Map<String, Object> prop = new LinkedHashMap<>();
 
 				for (Edge<V> edge : edgeMap.get(from).get(to)) {
-					CanvasUtilities.addMapToMap(prop, properties,
+					CanvasUtils.addMapToMap(prop, properties,
 							edge.getProperties());
 				}
 
@@ -609,5 +625,87 @@ public class CanvasUtilities {
 		}
 
 		return graph;
+	}
+
+	public static BufferedImage getBufferedImage(Canvas<?>... canvas) {
+		int width = 0;
+		int height = 0;
+
+		for (Canvas<?> c : canvas) {
+			width += c.getCanvasSize().width;
+			height = Math.max(height, c.getCanvasSize().height);
+		}
+
+		BufferedImage img = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		int x = 0;
+
+		for (Canvas<?> c : canvas) {
+			VisualizationImageServer<?, ?> server = c
+					.getVisualizationServer(false);
+
+			g.translate(x, 0);
+			server.paint(g);
+			x += c.getCanvasSize().width;
+		}
+
+		return img;
+	}
+
+	public static SVGDocument getSvgDocument(Canvas<?>... canvas) {
+		int width = 0;
+		int height = 0;
+
+		for (Canvas<?> c : canvas) {
+			width += c.getCanvasSize().width;
+			height = Math.max(height, c.getCanvasSize().height);
+		}
+
+		SVGDOMImplementation domImpl = new SVGDOMImplementation();
+		Document document = domImpl.createDocument(null, "svg", null);
+		SVGGraphics2D g = new SVGGraphics2D(document);
+		int x = 0;
+
+		g.setSVGCanvasSize(new Dimension(width, height));
+
+		for (Canvas<?> c : canvas) {
+			VisualizationImageServer<?, ?> server = c
+					.getVisualizationServer(true);
+
+			g.translate(x, 0);
+			server.paint(g);
+			x += c.getCanvasSize().width;
+		}
+
+		g.finalize();
+		document.replaceChild(g.getRoot(), document.getDocumentElement());
+
+		return (SVGDocument) document;
+	}
+
+	public static ImagePortObject getImage(boolean asSvg, Canvas<?>... canvas)
+			throws IOException {
+		if (asSvg) {
+			return new ImagePortObject(new SvgImageContent(
+					CanvasUtils.getSvgDocument(canvas), true),
+					new ImagePortObjectSpec(SvgCell.TYPE));
+		} else {
+			BufferedImage img = CanvasUtils.getBufferedImage(canvas);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+			ImageIO.write(img, "png", out);
+
+			return new ImagePortObject(new PNGImageContent(out.toByteArray()),
+					new ImagePortObjectSpec(PNGImageContent.TYPE));
+		}
+	}
+
+	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
+		if (asSvg) {
+			return new ImagePortObjectSpec(SvgCell.TYPE);
+		} else {
+			return new ImagePortObjectSpec(PNGImageContent.TYPE);
+		}
 	}
 }

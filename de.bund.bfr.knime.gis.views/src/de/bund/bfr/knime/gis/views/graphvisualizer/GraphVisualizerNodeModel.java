@@ -40,7 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 
 /**
  * This is the model implementation of GraphVisualizer.
@@ -73,8 +73,8 @@ public class GraphVisualizerNodeModel extends NodeModel {
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
-		return new PortObject[] { ViewUtilities.getImage(
-				creator.createGraphCanvas(), set.isExportAsSvg()) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
+				creator.createGraphCanvas()) };
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ViewUtilities.getImageSpec(set
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set
 				.isExportAsSvg()) };
 	}
 

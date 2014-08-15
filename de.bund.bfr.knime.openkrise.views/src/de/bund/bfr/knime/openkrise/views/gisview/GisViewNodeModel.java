@@ -40,7 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.openkrise.TracingUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 
 /**
  * This is the model implementation of GisView.
@@ -73,8 +73,8 @@ public class GisViewNodeModel extends NodeModel {
 		GisViewCanvasCreator creator = new GisViewCanvasCreator(shapeTable,
 				nodeTable, set);
 
-		return new PortObject[] { TracingUtilities.getImage(
-				creator.createCanvas(), set.isExportAsSvg()) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
+				creator.createCanvas()) };
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class GisViewNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { TracingUtilities.getImageSpec(set
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set
 				.isExportAsSvg()) };
 	}
 

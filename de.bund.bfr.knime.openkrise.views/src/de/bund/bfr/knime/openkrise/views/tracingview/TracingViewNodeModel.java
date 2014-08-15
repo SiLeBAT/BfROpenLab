@@ -61,13 +61,13 @@ import org.knime.core.node.port.image.ImagePortObject;
 import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingConstants;
-import de.bund.bfr.knime.openkrise.TracingUtilities;
 
 /**
  * This is the model implementation of TracingVisualizer.
@@ -197,8 +197,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new PortObject[] { nodeContainer.getTable(),
 				edgeContainer.getTable(),
-				TracingUtilities.getImage(canvas, set.isExportAsSvg()),
-				KnimeUtilities.xmlToTable(set.toXml(), exec) };
+				CanvasUtils.getImage(set.isExportAsSvg(), canvas),
+				KnimeUtils.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
@@ -219,8 +219,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec),
 				createEdgeOutSpec(edgeSpec),
-				TracingUtilities.getImageSpec(set.isExportAsSvg()),
-				KnimeUtilities.getXmlSpec() };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				KnimeUtils.getXmlSpec() };
 	}
 
 	/**

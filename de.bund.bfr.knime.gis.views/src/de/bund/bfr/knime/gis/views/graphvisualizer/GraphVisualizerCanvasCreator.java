@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -50,22 +50,22 @@ public class GraphVisualizerCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), null);
 
 		if (nodes.isEmpty()) {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeProperties, edgeProperties, set.getGraphSettings()

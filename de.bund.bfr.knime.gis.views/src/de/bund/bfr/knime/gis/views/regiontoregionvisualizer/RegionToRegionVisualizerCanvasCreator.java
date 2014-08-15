@@ -35,8 +35,8 @@ import org.knime.core.node.BufferedDataTable;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
+import de.bund.bfr.knime.gis.views.ViewUtils;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -61,18 +61,18 @@ public class RegionToRegionVisualizerCanvasCreator {
 		this.edgeTable = edgeTable;
 		this.set = set;
 
-		idToRegionMap = ViewUtilities.getIdToRegionMap(nodeTable, set
+		idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable, set
 				.getGraphSettings().getNodeIdColumn(), set.getGisSettings()
 				.getNodeRegionColumn());
 		nonExistingRegions = new LinkedHashSet<>();
 	}
 
 	public GraphCanvas createGraphCanvas() {
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtilities.readGraphNodes(nodeTable,
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), set
 						.getGisSettings().getNodeRegionColumn());
 
@@ -80,11 +80,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 			return null;
 		}
 
-		List<Edge<GraphNode>> edges = ViewUtilities.readEdges(edgeTable,
+		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeProperties, edgeProperties, set.getGraphSettings()
@@ -126,14 +126,14 @@ public class RegionToRegionVisualizerCanvasCreator {
 	}
 
 	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) {
-		Map<String, MultiPolygon> polygonMap = ViewUtilities.readPolygons(
+		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(
 				shapeTable, set.getGisSettings().getShapeColumn(), set
 						.getGisSettings().getShapeRegionColumn());
-		Map<String, Class<?>> nodeProperties = ViewUtilities
+		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtilities
+		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, RegionNode> nodes = ViewUtilities.readRegionNodes(
+		Map<String, RegionNode> nodes = ViewUtils.readRegionNodes(
 				nodeTable, nodeProperties, polygonMap, idToRegionMap, set
 						.getGraphSettings().getNodeIdColumn(),
 				nonExistingRegions);
@@ -142,11 +142,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 			return null;
 		}
 
-		List<Edge<RegionNode>> edges = ViewUtilities.readEdges(edgeTable,
+		List<Edge<RegionNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, idToRegionMap, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtilities.createNewIdProperty(edges,
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
 		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeProperties, edgeProperties, set.getGraphSettings()
@@ -215,7 +215,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		Set<String> selectedGisEdgeIds = new LinkedHashSet<>();
 
 		if (!joinEdges) {
-			selectedGisEdgeIds.addAll(CanvasUtilities
+			selectedGisEdgeIds.addAll(CanvasUtils
 					.getElementIds(graphSelectedEdges));
 		} else {
 			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<>();

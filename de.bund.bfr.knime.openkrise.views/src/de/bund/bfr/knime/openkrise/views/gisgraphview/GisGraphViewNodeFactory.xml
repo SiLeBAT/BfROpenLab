@@ -239,7 +239,10 @@
 		<outPort index="1" name="Geographical Image">
 			Geographical Image of the Graph.
 		</outPort>
-		<outPort index="2" name="Settings">
+		<outPort index="2" name="Combined Image">
+			Combined Graph and Geographical Image.
+		</outPort>
+		<outPort index="3" name="Settings">
 			Settings Output.
 		</outPort>
 	</ports>

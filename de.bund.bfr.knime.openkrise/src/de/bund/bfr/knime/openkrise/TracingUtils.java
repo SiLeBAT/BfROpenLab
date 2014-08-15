@@ -25,9 +25,6 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -35,12 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
-import org.knime.base.data.xml.SvgCell;
-import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -48,10 +41,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
-import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.port.image.ImagePortObject;
-import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -65,24 +55,23 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.GisUtilities;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtilities;
-import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
-public class TracingUtilities {
+public class TracingUtils {
 
 	private static MathTransform transform = createTransform();
 	private static GeometryFactory factory = new GeometryFactory();
 
-	private TracingUtilities() {
+	private TracingUtils() {
 	}
 
 	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
@@ -103,31 +92,6 @@ public class TracingUtilities {
 		}
 
 		return tableColumns;
-	}
-
-	public static ImagePortObject getImage(Canvas<?> canvas, boolean asSvg)
-			throws IOException {
-		if (asSvg) {
-			return new ImagePortObject(new SvgImageContent(
-					canvas.getSvgDocument(), true), new ImagePortObjectSpec(
-					SvgCell.TYPE));
-		} else {
-			BufferedImage img = canvas.getImage();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-			ImageIO.write(img, "png", out);
-
-			return new ImagePortObject(new PNGImageContent(out.toByteArray()),
-					new ImagePortObjectSpec(PNGImageContent.TYPE));
-		}
-	}
-
-	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
-		if (asSvg) {
-			return new ImagePortObjectSpec(SvgCell.TYPE);
-		} else {
-			return new ImagePortObjectSpec(PNGImageContent.TYPE);
-		}
 	}
 
 	public static <V extends Node> List<Edge<V>> readEdges(
@@ -152,7 +116,7 @@ public class TracingUtilities {
 			if (node1 != null && node2 != null) {
 				Map<String, Object> properties = new LinkedHashMap<>();
 
-				TracingUtilities.addToProperties(properties, edgeProperties,
+				TracingUtils.addToProperties(properties, edgeProperties,
 						edgeTable, row);
 				properties.put(TracingConstants.ID_COLUMN, id);
 				properties.put(TracingConstants.FROM_COLUMN, from);
@@ -175,8 +139,8 @@ public class TracingUtilities {
 					.findColumnIndex(TracingConstants.ID_COLUMN)));
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtilities.addToProperties(properties, nodeProperties,
-					nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
+					row);
 			properties.put(TracingConstants.ID_COLUMN, id);
 			nodes.put(id, new GraphNode(id, properties, null));
 		}
@@ -234,8 +198,8 @@ public class TracingUtilities {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtilities.addToProperties(properties, nodeProperties,
-					nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
+					row);
 			properties.put(TracingConstants.ID_COLUMN, id);
 			nodes.put(
 					id,
@@ -248,8 +212,8 @@ public class TracingUtilities {
 
 	public static List<RegionNode> readRegionNodes(BufferedDataTable shapeTable) {
 		List<RegionNode> nodes = new ArrayList<>();
-		List<String> shapeColumns = KnimeUtilities
-				.getColumnNames(KnimeUtilities.getColumns(shapeTable.getSpec(),
+		List<String> shapeColumns = KnimeUtils
+				.getColumnNames(KnimeUtils.getColumns(shapeTable.getSpec(),
 						ShapeBlobCell.TYPE));
 
 		if (shapeColumns.isEmpty()) {
@@ -300,8 +264,8 @@ public class TracingUtilities {
 			if (column != -1) {
 				DataCell cell = row.getCell(column);
 
-				TracingUtilities.addCellContentToMap(properties, property,
-						type, cell);
+				TracingUtils.addCellContentToMap(properties, property, type,
+						cell);
 			}
 		}
 	}
@@ -320,7 +284,7 @@ public class TracingUtilities {
 			obj = IO.getBoolean(cell);
 		}
 
-		CanvasUtilities.addObjectToMap(map, property, type, obj);
+		CanvasUtils.addObjectToMap(map, property, type, obj);
 	}
 
 	private static MathTransform createTransform() {

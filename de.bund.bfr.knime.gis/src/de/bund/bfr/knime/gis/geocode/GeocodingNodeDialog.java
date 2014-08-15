@@ -43,7 +43,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
@@ -114,7 +114,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		countryBox.removeAllColumns();
 		postalCodeBox.removeAllColumns();
 
-		for (DataColumnSpec column : KnimeUtilities.getColumns(specs[0],
+		for (DataColumnSpec column : KnimeUtils.getColumns(specs[0],
 				StringCell.TYPE)) {
 			addressBox.addColumn(column);
 			countryCodeBox.addColumn(column);

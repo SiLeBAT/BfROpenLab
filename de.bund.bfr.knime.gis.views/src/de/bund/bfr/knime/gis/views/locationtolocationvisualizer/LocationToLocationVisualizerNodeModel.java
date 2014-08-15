@@ -40,7 +40,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.gis.views.ViewUtilities;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 
 /**
  * This is the model implementation of LocationToLocationVisualizer.
@@ -75,10 +75,10 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 				shapeTable, nodeTable, edgeTable, set);
 
 		return new PortObject[] {
-				ViewUtilities.getImage(creator.createGraphCanvas(),
-						set.isExportAsSvg()),
-				ViewUtilities.getImage(creator.createLocationCanvas(),
-						set.isExportAsSvg()) };
+				CanvasUtils.getImage(set.isExportAsSvg(),
+						creator.createGraphCanvas()),
+				CanvasUtils.getImage(set.isExportAsSvg(),
+						creator.createLocationCanvas()) };
 	}
 
 	/**
@@ -95,8 +95,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
 		return new PortObjectSpec[] {
-				ViewUtilities.getImageSpec(set.isExportAsSvg()),
-				ViewUtilities.getImageSpec(set.isExportAsSvg()) };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**

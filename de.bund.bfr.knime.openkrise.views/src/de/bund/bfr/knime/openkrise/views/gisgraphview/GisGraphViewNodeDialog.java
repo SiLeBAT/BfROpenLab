@@ -47,7 +47,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.KnimeUtilities;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -110,7 +110,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (input[3] != null) {
 			try {
-				set.loadFromXml(KnimeUtilities
+				set.loadFromXml(KnimeUtils
 						.tableToXml((BufferedDataTable) input[3]));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -125,7 +125,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		updateSettings();		
 		set.saveSettings(settings);
 	}
 
@@ -239,7 +239,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 				shapeTable, nodeTable, edgeTable, set);
 
 		graphCanvas = creator.createGraphCanvas();
-		gisCanvas = creator.createLocationCanvas();
+		gisCanvas = creator.createGisCanvas();
 
 		if (graphCanvas != null && gisCanvas != null) {
 			graphCanvas.addCanvasListener(this);

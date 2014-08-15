@@ -106,10 +106,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	protected VisualizationImageServer<V, Edge<V>> createVisualizationServer(
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
 			final boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = super
-				.createVisualizationServer(toSvg);
+				.getVisualizationServer(toSvg);
 
 		server.addPreRenderPaintable(new PrePaintable(toSvg));
 
@@ -145,7 +145,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				}
 			}
 
-			CanvasUtilities
+			CanvasUtils
 					.drawImageWithAlpha(g, borderImage, getBorderAlpha());
 		} else {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
