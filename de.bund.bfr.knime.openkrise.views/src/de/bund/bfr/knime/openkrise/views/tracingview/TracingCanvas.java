@@ -48,6 +48,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
@@ -520,8 +521,8 @@ public class TracingCanvas extends GraphCanvas {
 		MyNewTracing tracingWithoutCC = createTracing(edges, false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
-		CanvasUtils.removeInvisibleElements(nodes,
-				getNodeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(nodes, getNodeHighlightConditions());
 		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
 				getEdgeHighlightConditions()));
 		removedEdges.addAll(CanvasUtils.removeNodelessEdges(edges, nodes));
@@ -545,6 +546,29 @@ public class TracingCanvas extends GraphCanvas {
 				edges.add(edge);
 			}
 		}
+	}
+
+	@Override
+	protected GraphNode combineNodes(String id, Collection<GraphNode> nodes) {
+		GraphNode node = super.combineNodes(id, nodes);
+
+		if (node.getProperties()
+				.containsKey(GeocodingNodeModel.LATITUDE_COLUMN)) {
+			node.getProperties().put(
+					GeocodingNodeModel.LATITUDE_COLUMN,
+					CanvasUtils.getMeanValue(nodes,
+							GeocodingNodeModel.LATITUDE_COLUMN));
+		}
+
+		if (node.getProperties().containsKey(
+				GeocodingNodeModel.LONGITUDE_COLUMN)) {
+			node.getProperties().put(
+					GeocodingNodeModel.LONGITUDE_COLUMN,
+					CanvasUtils.getMeanValue(nodes,
+							GeocodingNodeModel.LONGITUDE_COLUMN));
+		}
+
+		return node;
 	}
 
 	private void applyTracing() {

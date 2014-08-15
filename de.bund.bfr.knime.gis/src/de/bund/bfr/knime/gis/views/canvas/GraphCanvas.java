@@ -585,6 +585,23 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	protected Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
 		return joinMap;
 	}
+	
+	protected GraphNode combineNodes(String id, Collection<GraphNode> nodes) {
+		Map<String, Object> properties = new LinkedHashMap<>();
+
+		for (GraphNode node : nodes) {
+			CanvasUtils.addMapToMap(properties, getNodeProperties(),
+					node.getProperties());
+		}
+
+		if (getNodeIdProperty() != null) {
+			properties.put(getNodeIdProperty(), id);
+		}
+
+		properties.put(metaNodeProperty, true);
+
+		return new GraphNode(id, properties, null);
+	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
@@ -678,22 +695,5 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		return map;
-	}
-
-	private GraphNode combineNodes(String id, Collection<GraphNode> nodes) {
-		Map<String, Object> properties = new LinkedHashMap<>();
-
-		for (GraphNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, getNodeProperties(),
-					node.getProperties());
-		}
-
-		if (getNodeIdProperty() != null) {
-			properties.put(getNodeIdProperty(), id);
-		}
-
-		properties.put(metaNodeProperty, true);
-
-		return new GraphNode(id, properties, null);
-	}
+	}	
 }

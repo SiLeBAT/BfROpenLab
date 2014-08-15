@@ -284,6 +284,27 @@ public class CanvasUtils {
 		return result;
 	}
 
+	public static Double getMeanValue(Collection<? extends Element> elements,
+			String property) {
+		double sum = 0.0;
+		int n = 0;
+
+		for (Element element : elements) {
+			Object o = element.getProperties().get(property);
+
+			if (o instanceof Double) {
+				sum += (Double) o;
+				n++;
+			}
+		}
+
+		if (n == 0) {
+			return null;
+		}
+
+		return sum / n;
+	}
+
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer,
 			HighlightConditionList nodeHighlightConditions, int nodeSize) {
