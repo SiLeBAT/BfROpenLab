@@ -78,6 +78,8 @@ public class TracingViewSettings extends ViewSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		super.loadSettings(settings);
+		
 		try {
 			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
 					.getString(CFG_NODE_WEIGHTS));
@@ -135,6 +137,8 @@ public class TracingViewSettings extends ViewSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		super.saveSettings(settings);
+		
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
 		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
