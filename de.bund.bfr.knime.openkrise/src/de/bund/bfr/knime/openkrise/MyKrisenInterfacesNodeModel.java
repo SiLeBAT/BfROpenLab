@@ -157,21 +157,21 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		 * DBKernel.delimitL("Station") + " WHERE " +
 		 * DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
 		 * "=" + lieferID; ResultSet rs = db.pushQuery(sql); while (rs.next()) {
-		 * String bl = getBL(rs.getString("Bundesland")); String country =
-		 * getBL(rs.getString("Land"), 3); int stationID =
+		 * String bl = getBL(clean(rs.getString("Bundesland")); String country =
+		 * getBL(clean(rs.getString("Land"), 3); int stationID =
 		 * rs.getInt("Station.ID"); String company = (rs.getObject("Name") ==
 		 * null || doAnonymize) ? bl + stationID + "(" + country + ")" :
-		 * rs.getString("Name"); HashSet<Integer> hi =
+		 * clean(rs.getString("Name"); HashSet<Integer> hi =
 		 * scoreDeliveries.get(lieferID); for (Integer caseID : hi) { if
 		 * (!caseKeywords.containsKey(caseID)) caseKeywords.put(caseID, "");
 		 * String chainKeywords = caseKeywords.get(caseID); if
 		 * (chainKeywords.indexOf(" " + company + " ") < 0) chainKeywords += " "
-		 * + company + " "; if (rs.getString("Bezeichnung") != null &&
-		 * chainKeywords.indexOf(" " + rs.getString("Bezeichnung") + " ") < 0)
-		 * chainKeywords += " " + rs.getString("Bezeichnung") + " "; if
-		 * (rs.getString("ChargenNr") != null && chainKeywords.indexOf(" " +
-		 * rs.getString("ChargenNr") + " ") < 0) chainKeywords += " " +
-		 * rs.getString("ChargenNr") + " "; caseKeywords.put(caseID,
+		 * + company + " "; if (clean(rs.getString("Bezeichnung") != null &&
+		 * chainKeywords.indexOf(" " + clean(rs.getString("Bezeichnung") + " ") < 0)
+		 * chainKeywords += " " + clean(rs.getString("Bezeichnung") + " "; if
+		 * (clean(rs.getString("ChargenNr") != null && chainKeywords.indexOf(" " +
+		 * clean(rs.getString("ChargenNr") + " ") < 0) chainKeywords += " " +
+		 * clean(rs.getString("ChargenNr") + " "; caseKeywords.put(caseID,
 		 * chainKeywords); } } } for (Integer caseID : caseKeywords.keySet()) {
 		 * DataCell[] cells = new DataCell[2]; cells[0] = new
 		 * StringCell(caseKeywords.get(caseID)); cells[1] = new IntCell(1);
@@ -190,11 +190,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			do {
 				int stationID = rs.getInt("ID");
 				//if (!antiArticle || !checkCompanyReceivedArticle(stationID, articleFilterList) || !checkCase(stationID)) {
-				String bl = getBL(rs.getString("Bundesland"));
+				String bl = getBL(clean(rs.getString("Bundesland")));
 				//Integer cp = rs.getObject("CasePriority") == null ? null : rs.getInt("CasePriority");
-				String country = rs.getString("Land");//getBL(rs.getString("Land"), 3);
-				String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : rs.getString("Name"); // bl + stationID + "(" + country + ")"
-				//if (rs.getObject("Land") != null && rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
+				String country = clean(rs.getString("Land"));//getBL(clean(rs.getString("Land"), 3);
+				String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
+				//if (rs.getObject("Land") != null && clean(rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 				//id2Code.put(stationID, company);
 				RowKey key = RowKey.createRowKey(rowNumber);
 				DataCell[] cells = new DataCell[19];
@@ -203,23 +203,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				//cells[2] = new StringCell("square"); // circle, square, triangle
 				//cells[3] = new DoubleCell(1.5);
 				//cells[4] = new StringCell("yellow"); // red, yellow
-				cells[2] = (doAnonymize || rs.getObject("Strasse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Strasse"));
-				cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Hausnummer"));
-				cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
-				cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
+				cells[2] = (doAnonymize || rs.getObject("Strasse") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Strasse")));
+				cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Hausnummer")));
+				cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("PLZ")));
+				cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Ort")));
 				cells[6] = DataType.getMissingCell();
-				cells[7] = (doAnonymize || rs.getObject("Bundesland") == null || rs.getString("Bundesland").equals("NULL")) ? DataType.getMissingCell() : new StringCell(
-						rs.getString("Bundesland"));
-				cells[8] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Land"));
-				cells[9] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("VATnumber"));
-				cells[10] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+				cells[7] = (doAnonymize || rs.getObject("Bundesland") == null || clean(rs.getString("Bundesland")).equals("NULL")) ? DataType.getMissingCell() : new StringCell(
+						clean(rs.getString("Bundesland")));
+				cells[8] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Land")));
+				cells[9] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("VATnumber")));
+				cells[10] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Betriebsart")));
 
 				cells[11] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
-				cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-				cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-				cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+				cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumBeginn")));
+				cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumHoehepunkt")));
+				cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumEnde")));
 
-				cells[15] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Serial"));
+				cells[15] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Serial")));
 				//if (cp != null) cells[14] = new StringCell(""+cp.intValue());
 				cells[16] = mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
 	            cells[17] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
@@ -263,31 +263,31 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				cells[1] = new IntCell(from);
 				cells[2] = new IntCell(to);
 				//cells[3] = new StringCell("black"); // black
-				cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
-				cells[4] = (rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
-				cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
-				cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
-				cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
-				String mhd = sdfFormat(rs.getString("MHD_day"), rs.getString("MHD_month"), rs.getString("MHD_year"));
+				cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Artikelnummer")));
+				cells[4] = (rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Bezeichnung")));
+				cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Prozessierung")));
+				cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("IntendedUse")));
+				cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("ChargenNr")));
+				String mhd = sdfFormat(clean(rs.getString("MHD_day")), clean(rs.getString("MHD_month")), clean(rs.getString("MHD_year")));
 				cells[8] = (mhd == null) ? DataType.getMissingCell() : new StringCell(mhd);
-				String pd = sdfFormat(rs.getString("pd_day"), rs.getString("pd_month"), rs.getString("pd_year"));
+				String pd = sdfFormat(clean(rs.getString("pd_day")), clean(rs.getString("pd_month")), clean(rs.getString("pd_year")));
 				cells[9] = (pd == null) ? DataType.getMissingCell() : new StringCell(pd);
-				String dd = sdfFormat(rs.getString("Lieferungen.dd_day"), rs.getString("Lieferungen.dd_month"), rs.getString("Lieferungen.dd_year"));
+				String dd = sdfFormat(clean(rs.getString("Lieferungen.dd_day")), clean(rs.getString("Lieferungen.dd_month")), clean(rs.getString("Lieferungen.dd_year")));
 				cells[10] = (dd == null) ? DataType.getMissingCell() : new StringCell(dd);
 				Double menge = calcMenge(rs.getObject("Unitmenge"), rs.getObject("UnitEinheit"));
 				cells[11] = menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0); // Menge [kg]
 				cells[12] = new StringCell("Row" + rowNumber);
 
-				cells[13] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Serial"));
-				cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.OriginCountry"));
+				cells[13] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.Serial")));
+				cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Chargen.OriginCountry")));
 
-				cells[15] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.EndChain"));
+				cells[15] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.EndChain")));
 				cells[16] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(
-						rs.getString("Lieferungen.Explanation_EndChain"));
+						clean(rs.getString("Lieferungen.Explanation_EndChain")));
 				cells[17] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(
-						rs.getString("Lieferungen.Contact_Questions_Remarks"));
-				cells[18] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Further_Traceback"));
-				cells[19] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Chargen.MicrobioSample"));
+						clean(rs.getString("Lieferungen.Contact_Questions_Remarks")));
+				cells[18] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.Further_Traceback")));
+				cells[19] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Chargen.MicrobioSample")));
 
 				DataRow outputRow = new DefaultRow(key, cells);
 
@@ -310,6 +310,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return new BufferedDataTable[] { output33Nodes.getTable(), output33Links.getTable(), buf.getTable() }; // outputWordle.getTable(), outputBurow.getTable(), outputBurowNew.getTable(),
 	}
 
+	private String clean(String s) {
+		if (s == null) {
+			return null;
+		}
+
+		return s.replaceAll("\\p{C}", "").replace("\u00A0", "")
+				.replace("\t", " ").replace("\n", " ").trim();
+	}
 	private String getISO3166_2(String country) {
 		Locale locale = Locale.ENGLISH;//Locale.GERMAN;
 		for (String code : Locale.getISOCountries()) {
@@ -443,8 +451,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		try {
 			if (rs != null && rs.first()) {
 				do {
-					String bl = getBL(rs.getString("Bundesland"));
-					String country = rs.getString("Land");//getBL(rs.getString("Land"), 3);
+					String bl = getBL(clean(rs.getString("Bundesland")));
+					String country = clean(rs.getString("Land"));//getBL(clean(rs.getString("Land"), 3);
 					int stationID = rs.getInt("ID");
 					String anonStr = getAnonymizedStation(bl, stationID, country);
 					sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Name") + "='" + anonStr + "', " + DBKernel.delimitL("Strasse") + "=NULL, "
