@@ -88,7 +88,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 			throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
-		set.getGisSettings().loadSettings(settings);
+		set.loadSettings(settings);
 		updateGisCanvas(false);
 		resized = false;
 	}
@@ -97,7 +97,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		updateSettings();
-		set.getGisSettings().saveSettings(settings);
+		set.saveSettings(settings);
 	}
 
 	@Override
