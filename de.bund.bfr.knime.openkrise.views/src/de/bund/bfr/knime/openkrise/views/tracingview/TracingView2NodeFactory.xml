@@ -4,57 +4,62 @@
 	<name>Tracing View</name>
 
 	<shortDescription>
-        Provides visualization of supply chains and allows forward and backward tracing. 
-    </shortDescription>
+		Provides visualization of supply chains and allows forward and backward tracing.
+	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			This node can visualize a supply chain. The three mandatory input ports expect a
-			node/station table, an edge/delivery table and a data table. These tables are provided by the
-			Supply Chain Analyzer. Tracing can be performed by setting the following three properties for
-			nodes/stations or edges/deliveries: "Case Weight", "Cross Contamination" and "Filter". Based on
-			the properties the following values are computed: "Score", "Forward", "Backward". The results of
-			the tracing or any other data from input tables can be visualized by using highlighting (as
-			explained below).
+			This station can visualize a supply chain. The three mandatory input ports expect a station
+			table, an delivery table and a data table. These tables are provided by the Supply Chain
+			Analyzer. Tracing can be performed by setting the following three properties for stations or
+			deliveries: "Case Weight", "Cross Contamination" and "Filter". Based on the properties the
+			following values are computed: "Score", "Forward", "Backward". The results of the tracing or any
+			other data from input tables can be visualized by using highlighting (as explained below).
 		</intro>
 
 		<tab name="Properties">
-			<option name="Node Weights">
-				Weights for nodes/stations. The computed scores are based on these weights.
+			<option name="Station Weights">
+				Weights for stations. The computed scores are based on these weights.
 			</option>
-			<option name="Edge Weights">
-				Weights for edges/deliveries. The computed scores are based on these weights.
+			<option name="Delivery Weights">
+				Weights for deliveries. The computed scores are based on these weights.
 			</option>
-			<option name="Node Cross Contamination">
-				Set cross contamination for nodes/stations. That means all incoming
-				deliveries can contaminate all outgoing deliveries (see "Enforce Temporal Order").
+			<option name="Station Cross Contamination">
+				Set cross contamination for stations. That means all incoming
+				deliveries can
+				contaminate all outgoing deliveries (see "Enforce Temporal Order").
 			</option>
-			<option name="Edge Cross Contamination">
-				Set cross contamination for edges/deliveries. Similar to "Node Cross
+			<option name="Delivery Cross Contamination">
+				Set cross contamination for deliveries. Similar to "Station Cross
 				Contamination", but unselected (no cross contamination) incoming deliveries and outgoing
 				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
 				cross contamination.
 			</option>
-			<option name="Node Filter">
-				For all nodes/edges that can reached by forward/backward tracing from nodes
+			<option name="Station Filter">
+				For all stations/deliveries that can reached by forward/backward tracing from
+				stations
 				selected here, the "Forward"/"Backward" is set to true.
 			</option>
-			<option name="Edge Filter">
-				For all nodes/edges that can reached by forward/backward tracing from edges
+			<option name="Delivery Filter">
+				For all stations/deliveries that can reached by forward/backward tracing from
+				deliveries
 				selected here, the "Forward"/"Backward" is set to true.
 			</option>
 		</tab>
 		<tab name="Upper Options Bar">
 			<option name="Reset Case Weights">
-				Resets the "Case Weight" property for all nodes and edges to the input
+				Resets the "Case Weight" property for all stations and deliveries to the
+				input
 				values.
 			</option>
 			<option name="Reset Cross Contamination">
-				Resets the "Cross Contamination" property for all nodes and edges to the
+				Resets the "Cross Contamination" property for all stations and deliveries to
+				the
 				input values.
 			</option>
 			<option name="Reset Filters">
-				Resets the "Filter" property for all nodes and edges to the input values.
+				Resets the "Filter" property for all stations and deliveries to the input
+				values.
 			</option>
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
@@ -63,7 +68,8 @@
 		<tab name="Options Bar">
 			<option name="Editing Mode">
 				Current editing mode. If "Transforming" is selected the user can move the
-				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+				graph by using the mouse. In "Picking" mode the user can select and unselect stations and
+				deliveries.
 			</option>
 			<option name="Show Legend">
 				If checked, a legend with all highlight conditions, which have "Show in
@@ -71,16 +77,16 @@
 			</option>
 			<option name="Font">
 				Font Size and type (plain or bold) can be specified here. This font is used
-				for node/edge labels and in the legend.
+				for station/delivery labels and in the legend.
 			</option>
-			<option name="Join Edges">
-				If checked, edges with the same source and target are joined.
+			<option name="Join Deliveries">
+				If checked, deliveries with the same source and target are joined.
 			</option>
-			<option name="Skip Edgeless Nodes">
-				If checked, nodes without any connected edges are not shown.
+			<option name="Skip Deliveryless Stations">
+				If checked, stations without any connected deliveries are not shown.
 			</option>
-			<option name="Node Size">
-				Diameter of the nodes.
+			<option name="Station Size">
+				Diameter of the stations.
 			</option>
 			<option name="Enforce Temporal Order">
 				If checked, the delivery date is used for cross contamination. That means a
@@ -103,89 +109,93 @@
 			</option>
 			<option name="Apply Layout">
 				Several graph layout algorithms (e.g. Fruchterman-Reingold) can be applied
-				here. The algorithms are applied to the selected nodes and to all nodes if no nodes are
+				here. The algorithms are applied to the selected stations and to all stations if no stations are
 				selected.
 			</option>
-			<option name="Node Selection -> Show Properties">
-				Shows the properties of all selected nodes.
+			<option name="Station Selection -> Show Properties">
+				Shows the properties of all selected stations.
 			</option>
-			<option name="Node Selection -> Clear">
-				Clears node selection.
+			<option name="Station Selection -> Clear">
+				Clears station selection.
 			</option>
-			<option name="Node Selection -> Highlight Selected">
-				Opens a dialog to help the user highlight all selected nodes.
+			<option name="Station Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected stations.
 			</option>
-			<option name="Node Selection -> Select Connections">
-				Selects all edges, whose source and target nodes
+			<option name="Station Selection -> Select Connections">
+				Selects all deliveries, whose source and target stations
 				are already selected.
 			</option>
-			<option name="Node Selection -> Select Incoming">
-				Selects all edges, whose target nodes are already selected.
+			<option name="Station Selection -> Select Incoming">
+				Selects all deliveries, whose target stations are already selected.
 			</option>
-			<option name="Node Selection -> Select Outgoing">
-				Selects all edges, whose source nodes are already selected.
+			<option name="Station Selection -> Select Outgoing">
+				Selects all deliveries, whose source stations are already selected.
 			</option>
-			<option name="Node Selection -> Collapse To Meta Node">
-				Collapses all selected nodes into one new Meta Node.
+			<option name="Station Selection -> Collapse To Meta Station">
+				Collapses all selected stations into one new Meta Station.
 			</option>
-			<option name="Node Selection -> Expand From Meta Node">
-				Expands each selected Meta Node to its original nodes.
+			<option name="Station Selection -> Expand From Meta Station">
+				Expands each selected Meta Station to its original stations.
 			</option>
-			<option name="Node Selection -> Show Uncollapsed Properties">
-				Shows the properties of all nodes that were collapsed to the selected meta
-				nodes and all selected nodes that are not meta nodes.
+			<option name="Station Selection -> Show Uncollapsed Properties">
+				Shows the properties of all stations that were collapsed to the selected meta
+				stations and all selected stations that are not meta stations.
 			</option>
-			<option name="Edge Selection -> Show Properties">
-				Shows the properties of all selected edges.
+			<option name="Delivery Selection -> Show Properties">
+				Shows the properties of all selected deliveries.
 			</option>
-			<option name="Edge Selection -> Show Unjoined Properties">
-				Shows the properties of all edges that were joined to the selected edges.
+			<option name="Delivery Selection -> Show Unjoined Properties">
+				Shows the properties of all deliveries that were joined to the selected
+				deliveries.
 			</option>
-			<option name="Edge Selection -> Clear">
-				Clears edge selection.
+			<option name="Delivery Selection -> Clear">
+				Clears delivery selection.
 			</option>
-			<option name="Edge Selection -> Highlight Selected">
-				Opens a dialog to help the user highlight all selected edges.
+			<option name="Delivery Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected deliveries.
 			</option>
-			<option name="Node Highlighting -> Edit">
-				Opens a dialog to add, remove and edit Highlight Conditions for nodes.
+			<option name="Station Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for stations.
 			</option>
-			<option name="Node Highlighting -> Clear">
-				Removes all Highlight Conditions for nodes.
+			<option name="Station Highlighting -> Clear">
+				Removes all Highlight Conditions for stations.
 			</option>
-			<option name="Node Highlighting -> Select Highlighted">
-				All nodes that have non zero values for the specified Highlight Condition
+			<option name="Station Highlighting -> Select Highlighted">
+				All stations that have non zero values for the specified Highlight Condition
 				will be selected.
 			</option>
-			<option name="Edge Highlighting -> Edit">
-				Opens a dialog to add, remove and edit Highlight Conditions for edges.
+			<option name="Delivery Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for deliveries.
 			</option>
-			<option name="Edge Highlighting -> Clear">
-				Removes all Highlight Conditions for edges.
+			<option name="Delivery Highlighting -> Clear">
+				Removes all Highlight Conditions for deliveries.
 			</option>
-			<option name="Edge Highlighting -> Select Highlighted">
-				All edge that have non zero values for the specified Highlight Condition will
+			<option name="Delivery Highlighting -> Select Highlighted">
+				All delivery that have non zero values for the specified Highlight Condition
+				will
 				be selected.
 			</option>
-			<option name="Select Nodes">
-				Opens a dialog to select nodes based on a logical condition.
+			<option name="Select Stations">
+				Opens a dialog to select stations based on a logical condition.
 			</option>
-			<option name="Select Edges">
-				Opens a dialog to select edges based on a logical condition.
+			<option name="Select Deliveries">
+				Opens a dialog to select deliveries based on a logical condition.
 			</option>
 			<option name="Collapse by Property">
-				Opens a dialog to collapse all nodes (visible and invisible) to meta nodes
-				based on a certain property. That means all nodes with the same property value will be collapsed
-				to the same meta node.
+				Opens a dialog to collapse all stations (visible and invisible) to meta
+				stations
+				based on a certain property. That means all stations with the same property value will
+				be collapsed
+				to the same meta station.
 			</option>
-			<option name="Clear Collapsed Nodes">
-				Expands all meta nodes.
+			<option name="Clear Collapsed Stations">
+				Expands all meta stations.
 			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">
 			<option name="">
-				This dialog lets you manage the Highlight Conditions, either for nodes or
-				edges. To edit a Condition double click on it.
+				This dialog lets you manage the Highlight Conditions, either for stations or
+				deliveries. To edit a Condition double click on it.
 			</option>
 			<option name="Add">
 				Adds a new Highlight Condition to the list.
@@ -226,8 +236,9 @@
 				invisible.
 			</option>
 			<option name="Adjust Thickness">
-				If selected the size/thickness of the node/edge will be adjusted based on the
-				value of the node/edge.
+				If selected the size/thickness of the station/delivery will be adjusted based
+				on the
+				value of the station/delivery.
 			</option>
 			<option name="Label">
 				Property, that should be used as a label for all true elements and elements
@@ -277,11 +288,11 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Nodes/Stations">
-			Table with Node/Station data.
+		<inPort index="0" name="Stations">
+			Table with Station data.
 		</inPort>
-		<inPort index="1" name="Edges/Deliveries">
-			Table with Edge/Delivery data.
+		<inPort index="1" name="Deliveries">
+			Table with Delivery data.
 		</inPort>
 		<inPort index="2" name="Tracing Data Model">
 			Model that contains the relations between deliveries. Is provided by
@@ -290,12 +301,13 @@
 		<inPort index="3" name="Settings">
 			Optional port with settings.
 		</inPort>
-		<outPort index="0" name="Nodes/Stations">
-			Table with Node/Station data. Contains meta nodes instead of nodes
-			contained in meta nodes.
+		<outPort index="0" name="Stations">
+			Table with Station data. Contains meta stations instead of
+			stations
+			contained in meta stations.
 		</outPort>
-		<outPort index="1" name="Edges/Deliveries">
-			Table with Edge/Delivery data. Does not contain joined edges.
+		<outPort index="1" name="Deliveries">
+			Table with Delivery data. Does not contain joined deliveries.
 		</outPort>
 		<outPort index="2" name="Graph Image">
 			Image of the Graph.

@@ -16,31 +16,31 @@
 			be set in the respective tab. Based on the properties the following values are computed: "Score",
 			"Forward", "Backward".
 		</intro>
-		
+
 		<tab name="Properties">
-			<option name="Node Weights">
-				Weights for nodes/stations. The computed scores are based on these weights.
+			<option name="Station Weights">
+				Weights for stations. The computed scores are based on these weights.
 			</option>
-			<option name="Edge Weights">
-				Weights for edges/deliveries. The computed scores are based on these weights.
+			<option name="Delivery Weights">
+				Weights for deliveries. The computed scores are based on these weights.
 			</option>
-			<option name="Node Cross Contamination">
-				Set cross contamination for nodes/stations. That means all incoming
-				deliveries can contaminate all outgoing deliveries (see "Enforce Temporal Order").
+			<option name="Station Cross Contamination">
+				Set cross contamination for stations. That means all incoming deliveries can
+				contaminate all outgoing deliveries (see "Enforce Temporal Order").
 			</option>
-			<option name="Edge Cross Contamination">
-				Set cross contamination for edges/deliveries. Similar to "Node Cross
+			<option name="Delivery Cross Contamination">
+				Set cross contamination for deliveries. Similar to "Station Cross
 				Contamination", but unselected (no cross contamination) incoming deliveries and outgoing
 				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
 				cross contamination.
 			</option>
-			<option name="Node Filter">
-				For all nodes/edges that can reached by forward/backward tracing from nodes
-				selected here, the "Forward"/"Backward" is set to true.
+			<option name="Station Filter">
+				For all stations/deliveries that can reached by forward/backward tracing from
+				stations selected here, the "Forward"/"Backward" property is set to true.
 			</option>
 			<option name="Edge Filter">
-				For all nodes/edges that can reached by forward/backward tracing from edges
-				selected here, the "Forward"/"Backward" is set to true.
+				For all stations/deliveries that can reached by forward/backward tracing from
+				deliveries selected here, the "Forward"/"Backward" is set to true.
 			</option>
 		</tab>
 		<tab name="Options">
@@ -49,35 +49,36 @@
 				delivery can only contaminate deliveries with a later date.
 			</option>
 			<option name="Filter">
-				Allows to apply a filter to all nodes/edges. Only filtered nodes/edges are
-				shown in the table.
+				Allows to apply a filter to all stations/deliveries. Only filtered
+				stations/deliveries are shown in the table.
 			</option>
 			<option name="Clear">
 				Clears the input in the table. True/false values are set to false and numbers
 				are set to zero.
 			</option>
 			<option name="Set All">
-				Sets all the values for all filtered nodes/edges to "true"/"specfied value".
+				Sets all the values for all filtered stations/deliveries to "true"/"specfied
+				value".
 			</option>
-		</tab>		
+		</tab>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Nodes/Stations">
-			Table with Node/Station data.
+		<inPort index="0" name="Stations">
+			Table with Station data.
 		</inPort>
-		<inPort index="1" name="Edges/Deliveries">
-			Table with Edge/Delivery data.
+		<inPort index="1" name="Deliveries">
+			Table with Delivery data.
 		</inPort>
 		<inPort index="2" name="Tracing Data Model">
 			Model that contains the relations between deliveries. Is provided by
 			third out port of Supply Chain Reader.
 		</inPort>
-		<outPort index="0" name="Nodes/Stations Tracing">
-			Table with Node/Station data and tracing results.
+		<outPort index="0" name="Stations Tracing">
+			Table with Station data and tracing results.
 		</outPort>
-		<outPort index="1" name="Edges/Deliveries Tracing">
-			Table with Edge/Delivery data and tracing results.
+		<outPort index="1" name="Deliveries Tracing">
+			Table with Delivery data and tracing results.
 		</outPort>
 	</ports>
 </knimeNode>

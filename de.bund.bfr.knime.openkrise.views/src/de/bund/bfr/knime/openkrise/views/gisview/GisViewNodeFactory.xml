@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./FoodChainLab.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>GIS View</name>
-    
-    <shortDescription>
+<knimeNode icon="./FoodChainLab.png" type="Visualizer" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>GIS View</name>
+
+	<shortDescription>
 		Provides visualization of locations with latitude and longitude.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			This node can visualize a geographical map with certain locations. The geographical map is
+			This station can visualize a geographical map with certain locations. The geographical map
+			is
 			read from the shape table in first port. The input table in the second port must contain the
 			locations coordinates (latitude and longitude). Any other data in the input table can be used for
 			highlighting (as explained below).
 		</intro>
 
-		<tab name="Upper Options Bar">			
+		<tab name="Upper Options Bar">
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
 			</option>
@@ -22,7 +24,7 @@
 		<tab name="Options Bar">
 			<option name="Editing Mode">
 				Current editing mode. If "Transforming" is selected the user can move the
-				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+				graph by using the mouse. In "Picking" mode the user can select and unselect stations.
 			</option>
 			<option name="Show Legend">
 				If checked, a legend with all highlight conditions, which have "Show in
@@ -30,10 +32,10 @@
 			</option>
 			<option name="Font">
 				Font Size and type (plain or bold) can be specified here. This font is used
-				for node/edge labels and in the legend.
+				for station labels and in the legend.
 			</option>
-			<option name="Node Size">
-				Diameter of the nodes.
+			<option name="Station Size">
+				Diameter of the stations.
 			</option>
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
@@ -46,33 +48,33 @@
 			<option name="Save As ...">
 				The image as can be saved as a PNG- or SVG-file.
 			</option>
-			<option name="Node Selection -> Show Properties">
-				Shows the properties of all selected nodes.
+			<option name="Station Selection -> Show Properties">
+				Shows the properties of all selected stations.
 			</option>
-			<option name="Node Selection -> Clear">
-				Clears node selection.
+			<option name="Station Selection -> Clear">
+				Clears station selection.
 			</option>
-			<option name="Node Selection -> Highlight Selected">
-				Opens a dialog to help the user highlight all selected nodes.
+			<option name="Station Selection -> Highlight Selected">
+				Opens a dialog to help the user highlight all selected stations.
 			</option>
-			<option name="Node Highlighting -> Edit">
-				Opens a dialog to add, remove and edit Highlight Conditions for nodes.
+			<option name="Station Highlighting -> Edit">
+				Opens a dialog to add, remove and edit Highlight Conditions for stations.
 			</option>
-			<option name="Node Highlighting -> Clear">
-				Removes all Highlight Conditions for nodes.
+			<option name="Station Highlighting -> Clear">
+				Removes all Highlight Conditions for stations.
 			</option>
-			<option name="Node Highlighting -> Select Highlighted">
-				All nodes that have non zero values for the specified Highlight Condition
+			<option name="Station Highlighting -> Select Highlighted">
+				All stations that have non zero values for the specified Highlight Condition
 				will be selected.
 			</option>
-			<option name="Select Nodes">
-				Opens a dialog to select nodes based on a logical condition.
+			<option name="Select Stations">
+				Opens a dialog to select stations based on a logical condition.
 			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">
 			<option name="">
-				This dialog lets you manage the Highlight Conditions, either for nodes or
-				edges. To edit a Condition double click on it.
+				This dialog lets you manage the Highlight Conditions, for stations. To edit a
+				Condition double click on it.
 			</option>
 			<option name="Add">
 				Adds a new Highlight Condition to the list.
@@ -113,8 +115,8 @@
 				invisible.
 			</option>
 			<option name="Adjust Thickness">
-				If selected the size/thickness of the node/edge will be adjusted based on the
-				value of the node/edge.
+				If selected the size of the station will be adjusted based on the value of
+				the station.
 			</option>
 			<option name="Label">
 				Property, that should be used as a label for all true elements and elements
@@ -167,11 +169,11 @@
 		<inPort index="0" name="Shape Table">
 			Table with shape column.
 		</inPort>
-		<inPort index="1" name="Location Table">
-			Table with location coordinates and data.
+		<inPort index="1" name="Station Table">
+			Table with station coordinates and data.
 		</inPort>
-		<outPort index="0" name="Location Image">
-			Image of the locations.
+		<outPort index="0" name="GIS Image">
+			GIS Image of the stations.
 		</outPort>
 	</ports>
 </knimeNode>

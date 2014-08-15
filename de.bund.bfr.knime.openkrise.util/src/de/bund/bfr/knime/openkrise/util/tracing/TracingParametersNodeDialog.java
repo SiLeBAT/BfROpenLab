@@ -39,6 +39,7 @@ import org.knime.core.node.NotConfigurableException;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
@@ -73,12 +74,14 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		addTab("Options",
 				UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab("Node Weights", nodeWeightPanel);
-		addTab("Edge Weights", edgeWeightPanel);
-		addTab("Node Cross Contaminations", nodeContaminationPanel);
-		addTab("Edge Cross Contaminations", edgeContaminationPanel);
-		addTab("Node Filter", nodeFilterPanel);
-		addTab("Edge Filter", edgeFilterPanel);
+		addTab(TracingConstants.NODE_NAME + " Weights", nodeWeightPanel);
+		addTab(TracingConstants.EDGE_NAME + " Weights", edgeWeightPanel);
+		addTab(TracingConstants.NODE_NAME + " Cross Contaminations",
+				nodeContaminationPanel);
+		addTab(TracingConstants.EDGE_NAME + " Cross Contaminations",
+				edgeContaminationPanel);
+		addTab(TracingConstants.NODE_NAME + " Filter", nodeFilterPanel);
+		addTab(TracingConstants.EDGE_NAME + " Filter", edgeFilterPanel);
 	}
 
 	@Override
@@ -93,8 +96,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
-				nodeTable, nodeProperties);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 
