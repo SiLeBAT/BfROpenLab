@@ -62,6 +62,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
 	private Map<Edge<RegionNode>, Set<Edge<RegionNode>>> joinMap;
+	
+	private boolean allowEdges;
 
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
@@ -98,8 +100,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
 
-		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
-		setOptionsPanel(new CanvasOptionsPanel(allowEdges, false, true));
+		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(2,
 						new LinkedHashMap<RegionNode, Double>()));
@@ -142,14 +143,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		edges = new LinkedHashSet<>(allEdges);
-		CanvasUtils.removeInvisibleElements(edges,
-				getEdgeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(edges, getEdgeHighlightConditions());
 
 		if (isJoinEdges()) {
 			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(),
-					CanvasUtils.getElementIds(allEdges));
+					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			edges = new LinkedHashSet<>(allEdges);
@@ -159,8 +159,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtils.createGraph(nodes, edges));
 
-		CanvasUtils.applyNodeLabels(getViewer(),
-				getNodeHighlightConditions());
+		CanvasUtils.applyNodeLabels(getViewer(), getNodeHighlightConditions());
 		CanvasUtils.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
 
@@ -306,6 +305,16 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		return dialog;
 	}
+	
+	@Override
+	protected void applyNameChanges() {
+		updatePopupMenuAndOptionsPanel();
+	}
+
+	private void updatePopupMenuAndOptionsPanel() {
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
+	}	
 
 	private RegionNode getContainingNode(int x, int y) {
 		Point2D p = toGraphCoordinates(x, y);

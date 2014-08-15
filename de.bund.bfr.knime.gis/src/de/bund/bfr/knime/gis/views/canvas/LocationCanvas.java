@@ -49,6 +49,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
+	
+	private boolean allowEdges;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -87,12 +89,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<>(nodes);
 		this.edges = new LinkedHashSet<>(edges);
+		this.allowEdges = allowEdges;
 		allNodes = nodes;
 		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
-
-		setPopupMenu(new CanvasPopupMenu(allowEdges, false, false));
-		setOptionsPanel(new CanvasOptionsPanel(allowEdges, true, true));
+		
+		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
@@ -121,17 +123,16 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		nodes = new LinkedHashSet<>(allNodes);
 		edges = new LinkedHashSet<>(allEdges);
 
-		CanvasUtils.removeInvisibleElements(nodes,
-				getNodeHighlightConditions());
-		CanvasUtils.removeInvisibleElements(edges,
-				getEdgeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(nodes, getNodeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(edges, getEdgeHighlightConditions());
 		CanvasUtils.removeNodelessEdges(edges, nodes);
 
 		if (isJoinEdges()) {
 			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(),
-					CanvasUtils.getElementIds(allEdges));
+					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			joinMap = new LinkedHashMap<>();
@@ -200,5 +201,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
 		return joinMap;
 	}
+	
+	@Override
+	protected void applyNameChanges() {
+		updatePopupMenuAndOptionsPanel();
+	}
 
+	private void updatePopupMenuAndOptionsPanel() {
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
+	}
 }

@@ -106,25 +106,8 @@ public class TracingCanvas extends GraphCanvas {
 		this.deliveries = deliveries;
 		performTracing = DEFAULT_PERFORM_TRACING;
 
-		enforceTemporalOrderBox = new JCheckBox("Activate");
-		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
-		enforceTemporalOrderBox.addItemListener(this);
-
-		showForwardBox = new JCheckBox("Activate");
-		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
-		showForwardBox.addItemListener(this);
-
-		label = new String();
-		labelField = new JTextField(label, 20);
-		labelButton = new JButton("Apply");
-		labelButton.addActionListener(this);
-
+		updatePopupMenuAndOptionsPanel();		
 		getViewer().prependPostRenderPaintable(new PostPaintable());
-		getOptionsPanel().addOption("Enforce Temporal Order",
-				enforceTemporalOrderBox);
-		getOptionsPanel().addOption("Show Cross Contaminated Deliveries",
-				showForwardBox);
-		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -569,6 +552,33 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		return node;
+	}
+	
+	@Override
+	protected void applyNameChanges() {
+		super.applyNameChanges();
+		updatePopupMenuAndOptionsPanel();
+	}
+
+	private void updatePopupMenuAndOptionsPanel() {
+		enforceTemporalOrderBox = new JCheckBox("Activate");
+		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
+		enforceTemporalOrderBox.addItemListener(this);
+
+		showForwardBox = new JCheckBox("Activate");
+		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
+		showForwardBox.addItemListener(this);
+
+		label = new String();
+		labelField = new JTextField(label, 20);
+		labelButton = new JButton("Apply");
+		labelButton.addActionListener(this);
+		
+		getOptionsPanel().addOption("Enforce Temporal Order",
+				enforceTemporalOrderBox);
+		getOptionsPanel().addOption(
+				"Show Cross Contaminated " + getEdgesName(), showForwardBox);
+		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
 	private void applyTracing() {

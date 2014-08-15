@@ -134,7 +134,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private List<JButton> logicalAddButtons;
 	private List<JButton> logicalRemoveButtons;
 
-	private Map<String, Class<?>> nodeProperties;
+	private Map<String, Class<?>> properties;
 	private boolean allowName;
 	private boolean allowColor;
 	private boolean allowInvisible;
@@ -146,14 +146,14 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private boolean approved;
 
 	public HighlightDialog(Component parent,
-			Map<String, Class<?>> nodeProperties, boolean allowName,
+			Map<String, Class<?>> properties, boolean allowName,
 			boolean allowColor, boolean allowInvisible, boolean allowThickness,
 			boolean allowLabel, boolean allowValueCondition,
 			HighlightCondition condition,
 			List<HighlightConditionChecker> checkers) {
 		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition",
 				DEFAULT_MODALITY_TYPE);
-		this.nodeProperties = nodeProperties;
+		this.properties = properties;
 		this.allowName = allowName;
 		this.allowColor = allowColor;
 		this.allowInvisible = allowInvisible;
@@ -166,7 +166,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(Arrays.asList(Arrays
-					.asList(new LogicalHighlightCondition(nodeProperties
+					.asList(new LogicalHighlightCondition(properties
 							.keySet().toArray(new String[0])[0],
 							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
 					true, lastColor, false, false, null);
@@ -207,7 +207,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		invisibleBox.addActionListener(this);
 		thicknessBox = new JCheckBox("Adjust Thickness");
 		thicknessBox.setSelected(condition.isUseThickness());
-		labelBox = new JComboBox<>(nodeProperties.keySet().toArray(
+		labelBox = new JComboBox<>(properties.keySet().toArray(
 				new String[0]));
 		labelBox.insertItemAt("", 0);
 		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition
@@ -432,7 +432,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(Arrays.asList(Arrays
-					.asList(new LogicalHighlightCondition(nodeProperties
+					.asList(new LogicalHighlightCondition(properties
 							.keySet().toArray(new String[0])[0],
 							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
 					false, null, false, false, null);
@@ -444,7 +444,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 						.get(i).get(j);
 
 				JComboBox<String> propertyBox = new JComboBox<>(new Vector<>(
-						nodeProperties.keySet()));
+						properties.keySet()));
 				JComboBox<String> typeBox = new JComboBox<>(
 						LogicalHighlightCondition.TYPES);
 				JTextField valueField = new JTextField(20);
@@ -501,8 +501,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private JComponent createValuePanel(ValueHighlightCondition condition) {
 		List<String> numberProperties = new ArrayList<>();
 
-		for (String property : nodeProperties.keySet()) {
-			Class<?> type = nodeProperties.get(property);
+		for (String property : properties.keySet()) {
+			Class<?> type = properties.get(property);
 
 			if (type == Integer.class || type == Double.class) {
 				numberProperties.add(property);
@@ -648,7 +648,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		List<List<LogicalHighlightCondition>> conditions = logicalCondition
 				.getConditions();
 		LogicalHighlightCondition newCond = new LogicalHighlightCondition(
-				nodeProperties.keySet().toArray(new String[0])[0],
+				properties.keySet().toArray(new String[0])[0],
 				LogicalHighlightCondition.EQUAL_TYPE, "");
 		boolean done = false;
 		int count = 0;

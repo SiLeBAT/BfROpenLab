@@ -72,7 +72,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	private JButton okButton;
 	private JButton cancelButton;
 
-	private Map<String, Class<?>> nodeProperties;
+	private Map<String, Class<?>> properties;
 	private boolean allowInvisible;
 	private boolean allowThickness;
 	private List<HighlightConditionChecker> checkers;
@@ -82,12 +82,12 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	private boolean approved;
 
 	public HighlightListDialog(Component parent,
-			Map<String, Class<?>> nodeProperties,
+			Map<String, Class<?>> properties,
 			HighlightConditionList highlightConditions) {
 		super(SwingUtilities.getWindowAncestor(parent),
 				"Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
-		this.nodeProperties = nodeProperties;
+		this.properties = properties;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
 				highlightConditions.getConditions()),
 				highlightConditions.isPrioritizeColors());
@@ -249,7 +249,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		int i = list.getSelectedIndex();
 
 		if (e.getClickCount() == 2 && i != -1) {
-			HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
+			HighlightDialog dialog = new HighlightDialog(this, properties,
 					true, true, allowInvisible, allowThickness, true, true,
 					highlightConditions.getConditions().get(i), checkers);
 
@@ -311,7 +311,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = new HighlightDialog(this, nodeProperties,
+		HighlightDialog dialog = new HighlightDialog(this, properties,
 				true, true, allowInvisible, allowThickness, true, true,
 				condition, checkers);
 

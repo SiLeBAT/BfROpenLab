@@ -114,8 +114,8 @@ public class TracingViewCanvasCreator {
 			edgeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
-				nodeTable, nodeProperties);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -127,6 +127,10 @@ public class TracingViewCanvasCreator {
 				new ArrayList<>(nodes.values()), edges, nodeProperties,
 				edgeProperties, deliveries);
 
+		canvas.setNodeName(TracingConstants.NODE_NAME);
+		canvas.setEdgeName(TracingConstants.EDGE_NAME);
+		canvas.setNodesName(TracingConstants.NODES_NAME);
+		canvas.setEdgesName(TracingConstants.EDGES_NAME);
 		canvas.setPerformTracing(false);
 		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
 		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());

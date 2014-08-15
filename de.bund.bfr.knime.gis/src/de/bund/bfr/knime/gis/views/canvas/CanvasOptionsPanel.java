@@ -87,8 +87,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	private List<ChangeListener> listeners;
 
-	public CanvasOptionsPanel(boolean allowEdges, boolean allowNodeResize,
-			boolean allowPolygons) {
+	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges,
+			boolean allowNodeResize, boolean allowPolygons) {
 		init();
 
 		panel = new JPanel();
@@ -102,18 +102,20 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 		if (allowEdges) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Join Edges", joinEdgesBox));
+			panel.add(getOptionPanel("Join " + owner.getEdgesName(),
+					joinEdgesBox));
 		}
 
 		if (allowEdges && allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Skip Edgeless Nodes",
+			panel.add(getOptionPanel(
+					"Skip Unconnected " + owner.getNodesName(),
 					skipEdgelessNodesBox));
 		}
 
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Node Size", nodeSizeBox));
+			panel.add(getOptionPanel(owner.getNodeName() + " Size", nodeSizeBox));
 		}
 
 		if (allowPolygons) {

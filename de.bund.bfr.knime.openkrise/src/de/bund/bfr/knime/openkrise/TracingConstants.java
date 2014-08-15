@@ -37,8 +37,13 @@ public interface TracingConstants {
 	public static final String FILTER_COLUMN = "Filter";
 	public static final String BACKWARD_COLUMN = "Backward";
 	public static final String FORWARD_COLUMN = "Forward";
-	
+
 	public static final String CLUSTERABLE_COLUMN = "Clusterable";
 	public static final String CLUSTER_ID_COLUMN = "ClusterID";
+
+	public static final String NODE_NAME = "Station";
+	public static final String EDGE_NAME = "Delivery";
+	public static final String NODES_NAME = "Stations";
+	public static final String EDGES_NAME = "Deliveries";
 
 }

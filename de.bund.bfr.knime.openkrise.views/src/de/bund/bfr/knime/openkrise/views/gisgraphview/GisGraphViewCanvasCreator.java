@@ -75,6 +75,10 @@ public class GisGraphViewCanvasCreator {
 				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
 				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, false);
 
+		canvas.setNodeName(TracingConstants.NODE_NAME);
+		canvas.setEdgeName(TracingConstants.EDGE_NAME);
+		canvas.setNodesName(TracingConstants.NODES_NAME);
+		canvas.setEdgesName(TracingConstants.EDGES_NAME);
 		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
 		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 		canvas.setEditingMode(set.getGraphSettings().getEditingMode());

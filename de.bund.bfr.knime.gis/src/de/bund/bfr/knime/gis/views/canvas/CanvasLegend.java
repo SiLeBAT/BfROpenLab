@@ -49,13 +49,16 @@ public class CanvasLegend<V extends Node> {
 	private static final int LEGEND_DX = 10;
 	private static final int LEGEND_DY = 3;
 
+	private Canvas<V> owner;
 	private Map<String, Image> nodeLegend;
 	private Map<String, Image> edgeLegend;
 
-	public CanvasLegend(HighlightConditionList nodeHighlightConditions,
+	public CanvasLegend(Canvas<V> owner,
+			HighlightConditionList nodeHighlightConditions,
 			Collection<V> nodes,
 			HighlightConditionList edgeHighlightConditions,
 			Collection<Edge<V>> edges) {
+		this.owner = owner;
 		nodeLegend = new LinkedHashMap<>();
 		edgeLegend = new LinkedHashMap<>();
 
@@ -166,12 +169,14 @@ public class CanvasLegend<V extends Node> {
 		g.setFont(legendHeadFont);
 
 		if (!nodeLegend.isEmpty()) {
-			g.drawString("Nodes", xNodeColor, yNode + headFontAcent);
+			g.drawString(owner.getNodesName(), xNodeColor, yNode
+					+ headFontAcent);
 			yNode += legendHeadHeight + LEGEND_DY;
 		}
 
 		if (!edgeLegend.isEmpty()) {
-			g.drawString("Edges", xEdgeColor, yEdge + headFontAcent);
+			g.drawString(owner.getEdgesName(), xEdgeColor, yEdge
+					+ headFontAcent);
 			yEdge += legendHeadHeight + LEGEND_DY;
 		}
 

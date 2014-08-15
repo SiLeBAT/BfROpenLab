@@ -65,8 +65,7 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 			Collection<? extends Element> elements,
 			Map<String, Class<?>> properties, Type type,
 			boolean allowViewSelection) {
-		super(SwingUtilities.getWindowAncestor(parent),
-				type == Type.NODE ? "Node Properties" : "Edge Properties",
+		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;

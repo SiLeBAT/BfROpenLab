@@ -77,9 +77,9 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 
 	private List<ClickListener> listeners;
 
-	public CanvasPopupMenu(boolean allowEdges, boolean allowLayout,
-			boolean allowCollapse) {
-		init();
+	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges,
+			boolean allowLayout, boolean allowCollapse) {
+		init(owner);
 
 		add(resetLayoutItem);
 		add(saveAsItem);
@@ -277,15 +277,15 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		}
 	}
 
-	private void init() {
+	private void init(Canvas<?> owner) {
 		listeners = new ArrayList<>();
 
-		nodeSelectionMenu = new JMenu("Node Selection");
+		nodeSelectionMenu = new JMenu(owner.getNodeName() + " Selection");
 		nodeSelectionMenu.setEnabled(false);
-		edgeSelectionMenu = new JMenu("Edge Selection");
+		edgeSelectionMenu = new JMenu(owner.getEdgeName() + " Selection");
 		edgeSelectionMenu.setEnabled(false);
-		nodeHighlightMenu = new JMenu("Node Highlighting");
-		edgeHighlightMenu = new JMenu("Edge Highlighting");
+		nodeHighlightMenu = new JMenu(owner.getNodeName() + " Highlighting");
+		edgeHighlightMenu = new JMenu(owner.getEdgeName() + " Highlighting");
 		layoutMenu = new JMenu("Apply Layout");
 
 		resetLayoutItem = new JMenuItem("Reset Layout");
@@ -331,18 +331,21 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
 
-		selectNodesItem = new JMenuItem("Select Nodes");
+		selectNodesItem = new JMenuItem("Select " + owner.getNodesName());
 		selectNodesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select Edges");
+		selectEdgesItem = new JMenuItem("Select " + owner.getEdgesName());
 		selectEdgesItem.addActionListener(this);
 
-		collapseToNodeItem = new JMenuItem("Collapse to Meta Node");
+		collapseToNodeItem = new JMenuItem("Collapse to Meta "
+				+ owner.getNodeName());
 		collapseToNodeItem.addActionListener(this);
-		expandFromNodeItem = new JMenuItem("Expand from Meta Node");
+		expandFromNodeItem = new JMenuItem("Expand from Meta "
+				+ owner.getNodeName());
 		expandFromNodeItem.addActionListener(this);
 		collapseByPropertyItem = new JMenuItem("Collapse by Property");
 		collapseByPropertyItem.addActionListener(this);
-		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed Nodes");
+		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed "
+				+ owner.getNodesName());
 		clearCollapsedNodesItem.addActionListener(this);
 
 		layoutItems = new LinkedHashMap<>();
