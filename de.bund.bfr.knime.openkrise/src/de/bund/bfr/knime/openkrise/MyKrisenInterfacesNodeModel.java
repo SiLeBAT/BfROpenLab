@@ -128,57 +128,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		System.err.println("Starting Tracing...");
 		MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi);
-		/*
-		 * System.err.println("Starting Wordle..."); BufferedDataContainer
-		 * outputWordle = exec.createDataContainer(getSpecWordle()); if (mnt !=
-		 * null) { int rowNumber = 0; LinkedHashMap<Integer, HashSet<Integer>>
-		 * scoreDeliveries = mnt.getScores(false); HashMap<Integer, String>
-		 * caseKeywords = new HashMap<Integer, String>(); for (Integer lieferID
-		 * : scoreDeliveries.keySet()) { sql = "SELECT " +
-		 * DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Name") + ","
-		 * + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + ","
-		 * + DBKernel.delimitL("Station") + "." +
-		 * DBKernel.delimitL("Bundesland") + "," + DBKernel.delimitL("Station")
-		 * + "." + DBKernel.delimitL("Land") + "," +
-		 * DBKernel.delimitL("Produktkatalog") + "." +
-		 * DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Chargen")
-		 * + "." + DBKernel.delimitL("ChargenNr") + " FROM " +
-		 * DBKernel.delimitL("Lieferungen") + " LEFT JOIN " +
-		 * DBKernel.delimitL("Chargen") + " ON " +
-		 * DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge")
-		 * + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID")
-		 * + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON " +
-		 * DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-		 * "=" + DBKernel.delimitL("Produktkatalog") + "." +
-		 * DBKernel.delimitL("ID") + " LEFT JOIN " +
-		 * DBKernel.delimitL("Station") + " ON " + DBKernel.delimitL("Station")
-		 * + "." + DBKernel.delimitL("ID") + "=" +
-		 * DBKernel.delimitL("Produktkatalog") + "." +
-		 * DBKernel.delimitL("Station") + " WHERE " +
-		 * DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
-		 * "=" + lieferID; ResultSet rs = db.pushQuery(sql); while (rs.next()) {
-		 * String bl = getBL(clean(rs.getString("Bundesland")); String country =
-		 * getBL(clean(rs.getString("Land"), 3); int stationID =
-		 * rs.getInt("Station.ID"); String company = (rs.getObject("Name") ==
-		 * null || doAnonymize) ? bl + stationID + "(" + country + ")" :
-		 * clean(rs.getString("Name"); HashSet<Integer> hi =
-		 * scoreDeliveries.get(lieferID); for (Integer caseID : hi) { if
-		 * (!caseKeywords.containsKey(caseID)) caseKeywords.put(caseID, "");
-		 * String chainKeywords = caseKeywords.get(caseID); if
-		 * (chainKeywords.indexOf(" " + company + " ") < 0) chainKeywords += " "
-		 * + company + " "; if (clean(rs.getString("Bezeichnung") != null &&
-		 * chainKeywords.indexOf(" " + clean(rs.getString("Bezeichnung") + " ") < 0)
-		 * chainKeywords += " " + clean(rs.getString("Bezeichnung") + " "; if
-		 * (clean(rs.getString("ChargenNr") != null && chainKeywords.indexOf(" " +
-		 * clean(rs.getString("ChargenNr") + " ") < 0) chainKeywords += " " +
-		 * clean(rs.getString("ChargenNr") + " "; caseKeywords.put(caseID,
-		 * chainKeywords); } } } for (Integer caseID : caseKeywords.keySet()) {
-		 * DataCell[] cells = new DataCell[2]; cells[0] = new
-		 * StringCell(caseKeywords.get(caseID)); cells[1] = new IntCell(1);
-		 * RowKey key = RowKey.createRowKey(++rowNumber); DataRow outputRow =
-		 * new DefaultRow(key, cells); outputWordle.addRowToTable(outputRow); }
-		 * } outputWordle.close();
-		 */
+
 		System.err.println("Starting Nodes33...");
 		//HashSet<Integer> toBeMerged = new HashSet<Integer>();
 		//LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>();
@@ -318,18 +268,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return s.replaceAll("\\p{C}", "").replace("\u00A0", "")
 				.replace("\t", " ").replace("\n", " ").trim();
 	}
-	private String getISO3166_2(String country) {
+	private String getISO3166_2(String country, String bl) {
 		Locale locale = Locale.ENGLISH;//Locale.GERMAN;
 		for (String code : Locale.getISOCountries()) {
 			if (new Locale("", code).getDisplayCountry(locale).equals(country)) {
 				return code;
 			}
 		}
+		if (bl != null && bl.length() > 1) return getBL(bl);
 		return "N.N";
 	}
 
 	private String getAnonymizedStation(String bl, int stationID, String country) {
-		return getISO3166_2(country) + "#" + stationID;//bl + stationID + "(" + country + ")";
+		return getISO3166_2(country, bl) + "#" + stationID;//bl + stationID + "(" + country + ")";
 	}
 
 	private String sdfFormat(String day, String month, String year) {
@@ -337,18 +288,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return day + "." + month + "." + year;
 	}
 
-	/*
-	 * private MyNewTracing getDataModel(BufferedDataTable table) { MyNewTracing
-	 * newMnt = null; for (DataRow row : table) { DataCell cell =
-	 * row.getCell(0); String xml = ((StringValue) cell).getStringValue();
-	 * XStream xstream = MyNewTracing.getXStream(); newMnt = (MyNewTracing)
-	 * xstream.fromXML(xml); // Attention: it is essential to call
-	 * fillDeliveries after importing from xml!!!!!! newMnt.fillDeliveries(); //
-	 * Examples for settings newMnt.setCase(1, 0.5);
-	 * newMnt.setCrossContamination(1, true); // Examples for score fetching
-	 * newMnt.getStationScore(1); newMnt.getDeliveryScore(1); break; } return
-	 * newMnt; }
-	 */
 	private String getDataModel(MyNewTracing mnt) {
 		XStream xstream = MyNewTracing.getXStream();
 		String xml = xstream.toXML(mnt);
