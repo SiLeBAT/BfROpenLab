@@ -79,6 +79,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 	private JCheckBox limitsBox;
 	private Map<String, DoubleTextField> minimumFields;
 	private Map<String, DoubleTextField> maximumFields;
+	private DoubleTextField stepSizeField;
 
 	/**
 	 * New pane for configuring the FunctionFitting node.
@@ -110,7 +111,8 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()
-				|| minimumFields == null || maximumFields == null) {
+				|| !stepSizeField.isValueValid() || minimumFields == null
+				|| maximumFields == null) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -137,6 +139,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		set.setExpertSettings(expertBox.isSelected());
 		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
 		set.setParameterGuesses(guesses);
+		set.setIntegratorStepSize(stepSizeField.getValue());
 		set.saveSettings(settings);
 	}
 
@@ -146,9 +149,10 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		}
 
 		expertPanel = new JPanel();
-		expertPanel.setLayout(new BorderLayout());
-		expertPanel.add(createRegressionPanel(), BorderLayout.NORTH);
-		expertPanel.add(createRangePanel(spec), BorderLayout.CENTER);
+		expertPanel.setLayout(new BoxLayout(expertPanel, BoxLayout.Y_AXIS));
+		expertPanel.add(createRegressionPanel());
+		expertPanel.add(createRangePanel(spec));
+		expertPanel.add(createIntegrationPanel());
 		mainPanel.add(expertPanel, BorderLayout.CENTER);
 		mainPanel.revalidate();
 		mainPanel.repaint();
@@ -282,6 +286,31 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton,
 				limitsBox)), BorderLayout.NORTH);
 		panel.add(new JScrollPane(rangePanel), BorderLayout.CENTER);
+
+		return panel;
+	}
+
+	private JComponent createIntegrationPanel() {
+		stepSizeField = new DoubleTextField(false, 8);
+		stepSizeField.setValue(set.getIntegratorStepSize());
+
+		JPanel leftPanel = new JPanel();
+		JPanel rightPanel = new JPanel();
+
+		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPanel.setLayout(new GridLayout(1, 1));
+		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightPanel.setLayout(new GridLayout(1, 1));
+
+		leftPanel.add(new JLabel("Step Size"));
+		rightPanel.add(stepSizeField);
+
+		JPanel panel = new JPanel();
+
+		panel.setBorder(BorderFactory.createTitledBorder("Integration"));
+		panel.setLayout(new BorderLayout());
+		panel.add(leftPanel, BorderLayout.WEST);
+		panel.add(rightPanel, BorderLayout.EAST);
 
 		return panel;
 	}

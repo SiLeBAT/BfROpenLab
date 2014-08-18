@@ -41,6 +41,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	public static final int DEFAULT_N_LEVENBERG = 10;
 	public static final boolean DEFAULT_STOP_WHEN_SUCCESSFUL = false;
 	public static final boolean DEFAULT_ENFORCE_LIMITS = false;
+	public static final double DEFAULT_INTEGRATOR_STEP_SIZE = 0.01;
 
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
@@ -48,6 +49,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	private static final String CFG_STOP_WHEN_SUCCESSFUL = "StopWhenSuccessful";
 	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
 	private static final String CFG_PARAMETER_GUESSES = "ParameterGuesses";
+	private static final String CFG_INTEGRATOR_STEP_SIZE = "IntegratorStepSize";
 
 	private boolean expertSettings;
 	private int nParameterSpace;
@@ -55,6 +57,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	private boolean stopWhenSuccessful;
 	private boolean enforceLimits;
 	private Map<String, Point2D.Double> parameterGuesses;
+	private double integratorStepSize;
 
 	public FunctionFittingSettings() {
 		expertSettings = DEFAULT_EXPERT_SETTINGS;
@@ -63,6 +66,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 		stopWhenSuccessful = DEFAULT_STOP_WHEN_SUCCESSFUL;
 		enforceLimits = DEFAULT_ENFORCE_LIMITS;
 		parameterGuesses = new LinkedHashMap<>();
+		integratorStepSize = DEFAULT_INTEGRATOR_STEP_SIZE;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -98,6 +102,11 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 					.fromXml(settings.getString(CFG_PARAMETER_GUESSES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			integratorStepSize = settings.getDouble(CFG_INTEGRATOR_STEP_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -109,6 +118,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 		settings.addBoolean(CFG_ENFORCE_LIMITS, enforceLimits);
 		settings.addString(CFG_PARAMETER_GUESSES,
 				SERIALIZER.toXml(parameterGuesses));
+		settings.addDouble(CFG_INTEGRATOR_STEP_SIZE, integratorStepSize);
 	}
 
 	public boolean isExpertSettings() {
@@ -157,5 +167,13 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 
 	public void setParameterGuesses(Map<String, Point2D.Double> parameterGuesses) {
 		this.parameterGuesses = parameterGuesses;
+	}
+
+	public double getIntegratorStepSize() {
+		return integratorStepSize;
+	}
+
+	public void setIntegratorStepSize(double integratorStepSize) {
+		this.integratorStepSize = integratorStepSize;
 	}
 }

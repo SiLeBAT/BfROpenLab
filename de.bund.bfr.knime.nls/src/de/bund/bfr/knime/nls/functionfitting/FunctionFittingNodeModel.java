@@ -174,12 +174,10 @@ public class FunctionFittingNodeModel extends NodeModel {
 		DataTableSpec spec = (DataTableSpec) inSpecs[1];
 		List<String> variables = function.getVariables();
 		List<String> parameters = function.getParameters();
-		List<String> stringColumns = KnimeUtils
-				.getColumnNames(KnimeUtils
-						.getColumns(spec, StringCell.TYPE));
-		List<String> doubleColumns = KnimeUtils
-				.getColumnNames(KnimeUtils
-						.getColumns(spec, DoubleCell.TYPE));
+		List<String> stringColumns = KnimeUtils.getColumnNames(KnimeUtils
+				.getColumns(spec, StringCell.TYPE));
+		List<String> doubleColumns = KnimeUtils.getColumnNames(KnimeUtils
+				.getColumns(spec, DoubleCell.TYPE));
 
 		if (!stringColumns.contains(NlsConstants.ID_COLUMN)) {
 			throw new InvalidSettingsException(
@@ -391,7 +389,8 @@ public class FunctionFittingNodeModel extends NodeModel {
 								new String[0]), minParameterValues,
 						maxParameterValues, targetArray,
 						function.getDependentVariable(),
-						function.getDiffVariable(), argumentArrays);
+						function.getDiffVariable(), argumentArrays,
+						set.getIntegratorStepSize());
 			} else {
 				optimizer = new ParameterOptimizer(function.getTerms().get(
 						function.getDependentVariable()), function

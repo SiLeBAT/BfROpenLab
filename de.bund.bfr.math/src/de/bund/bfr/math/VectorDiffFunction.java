@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
@@ -45,17 +46,19 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Map<String, double[]> variableValues;
 	private String dependentVariable;
 	private String timeVariable;
+	private double stepSize;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
 			double[] initialValues, String[] parameters,
 			Map<String, double[]> variableValues, String dependentVariable,
-			String timeVariable) throws ParseException {
+			String timeVariable, double stepSize) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
+		this.stepSize = stepSize;
 
 		Set<String> variables = new LinkedHashSet<>();
 
@@ -75,7 +78,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
 			String[] dependentVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
-			String dependentVariable, String timeVariable) {
+			String dependentVariable, String timeVariable, double stepSize) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -84,6 +87,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
+		this.stepSize = stepSize;
 	}
 
 	@Override
@@ -100,8 +104,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 		DiffFunction f = new DiffFunction(parsers, functions,
 				dependentVariables, variableValues, timeVariable);
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				0.01);
+		FirstOrderIntegrator integrator = new ClassicalRungeKuttaIntegrator(
+				stepSize);
 		double[] values = initialValues.clone();
 		double[] result = new double[timeValues.length];
 
