@@ -50,14 +50,16 @@ public class Integrator {
 	}
 
 	private Type type;
+	private double step;
 	private double minStep;
 	private double maxStep;
 	private double absTolerance;
 	private double relTolerance;
 
-	public Integrator(Type type, double minStep, double maxStep,
+	public Integrator(Type type, double step, double minStep, double maxStep,
 			double absTolerance, double relTolerance) {
 		this.type = type;
+		this.step = step;
 		this.minStep = minStep;
 		this.maxStep = maxStep;
 		this.absTolerance = absTolerance;
@@ -67,7 +69,7 @@ public class Integrator {
 	public FirstOrderIntegrator createIntegrator() {
 		switch (type) {
 		case RUNGE_KUTTA:
-			return new ClassicalRungeKuttaIntegrator(minStep);
+			return new ClassicalRungeKuttaIntegrator(step);
 		case DORMAND_PRINCE_54:
 			return new DormandPrince54Integrator(minStep, maxStep,
 					absTolerance, relTolerance);
@@ -77,12 +79,5 @@ public class Integrator {
 		}
 
 		return null;
-	}
-
-	@Override
-	public String toString() {
-		return "Integrator [type=" + type + ", minStep=" + minStep
-				+ ", maxStep=" + maxStep + ", absTolerance=" + absTolerance
-				+ ", relTolerance=" + relTolerance + "]";
 	}
 }

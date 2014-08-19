@@ -44,7 +44,8 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	public static final boolean DEFAULT_ENFORCE_LIMITS = false;
 
 	public static final Integrator.Type DEFAULT_INTEGRATOR_TYPE = Integrator.Type.RUNGE_KUTTA;
-	public static final double DEFAULT_MIN_STEP_SIZE = 0.01;
+	public static final double DEFAULT_STEP_SIZE = 0.01;
+	public static final double DEFAULT_MIN_STEP_SIZE = 0.0;
 	public static final double DEFAULT_MAX_STEP_SIZE = 0.1;
 	public static final double DEFAULT_ABS_TOLERANCE = 1e-6;
 	public static final double DEFAULT_REL_TOLERANCE = 0.0;
@@ -57,6 +58,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	private static final String CFG_PARAMETER_GUESSES = "ParameterGuesses";
 
 	private static final String CFG_INTEGRATOR_TYPE = "IntegratorType";
+	private static final String CFG_STEP_SIZE = "StepSize";
 	private static final String CFG_MIN_STEP_SIZE = "MinStepSize";
 	private static final String CFG_MAX_STEP_SIZE = "MaxStepSize";
 	private static final String CFG_ABS_TOLERANCE = "AbsTolerance";
@@ -70,6 +72,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 	private Map<String, Point2D.Double> parameterGuesses;
 
 	private Integrator.Type integratorType;
+	private double stepSize;
 	private double minStepSize;
 	private double maxStepSize;
 	private double absTolerance;
@@ -83,6 +86,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 		enforceLimits = DEFAULT_ENFORCE_LIMITS;
 		parameterGuesses = new LinkedHashMap<>();
 		integratorType = DEFAULT_INTEGRATOR_TYPE;
+		stepSize = DEFAULT_STEP_SIZE;
 		minStepSize = DEFAULT_MIN_STEP_SIZE;
 		maxStepSize = DEFAULT_MAX_STEP_SIZE;
 		absTolerance = DEFAULT_ABS_TOLERANCE;
@@ -130,6 +134,11 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 		}
 
 		try {
+			stepSize = settings.getDouble(CFG_STEP_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			minStepSize = settings.getDouble(CFG_MIN_STEP_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
@@ -161,6 +170,7 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 				SERIALIZER.toXml(parameterGuesses));
 
 		settings.addString(CFG_INTEGRATOR_TYPE, integratorType.name());
+		settings.addDouble(CFG_STEP_SIZE, stepSize);
 		settings.addDouble(CFG_MIN_STEP_SIZE, minStepSize);
 		settings.addDouble(CFG_MAX_STEP_SIZE, maxStepSize);
 		settings.addDouble(CFG_ABS_TOLERANCE, absTolerance);
@@ -221,6 +231,14 @@ public class FunctionFittingSettings extends NlsNodeSettings {
 
 	public void setIntegratorType(Integrator.Type integratorType) {
 		this.integratorType = integratorType;
+	}
+
+	public double getStepSize() {
+		return stepSize;
+	}
+
+	public void setStepSize(double stepSize) {
+		this.stepSize = stepSize;
 	}
 
 	public double getMinStepSize() {

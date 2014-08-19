@@ -392,8 +392,9 @@ public class FunctionFittingNodeModel extends NodeModel {
 						function.getDependentVariable(),
 						function.getDiffVariable(), argumentArrays,
 						new Integrator(set.getIntegratorType(), set
-								.getMinStepSize(), set.getMaxStepSize(), set
-								.getAbsTolerance(), set.getRelTolerance()));
+								.getStepSize(), set.getMinStepSize(), set
+								.getMaxStepSize(), set.getAbsTolerance(), set
+								.getRelTolerance()));
 			} else {
 				optimizer = new ParameterOptimizer(function.getTerms().get(
 						function.getDependentVariable()), function

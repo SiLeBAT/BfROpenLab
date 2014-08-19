@@ -85,6 +85,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 	private Map<String, DoubleTextField> maximumFields;
 
 	private JComboBox<Integrator.Type> typeBox;
+	private DoubleTextField stepSizeField;
 	private DoubleTextField minStepSizeField;
 	private DoubleTextField maxStepSizeField;
 	private DoubleTextField absToleranceField;
@@ -148,6 +149,7 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
 		set.setParameterGuesses(guesses);
 		set.setIntegratorType((Integrator.Type) typeBox.getSelectedItem());
+		set.setStepSize(stepSizeField.getValue());
 		set.setMinStepSize(minStepSizeField.getValue());
 		set.setMaxStepSize(maxStepSizeField.getValue());
 		set.setAbsTolerance(absToleranceField.getValue());
@@ -310,6 +312,8 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		typeBox = new JComboBox<>(Integrator.Type.values());
 		typeBox.setSelectedItem(set.getIntegratorType());
 		typeBox.addItemListener(this);
+		stepSizeField = new DoubleTextField(false, 8);
+		stepSizeField.setValue(set.getStepSize());
 		minStepSizeField = new DoubleTextField(false, 8);
 		minStepSizeField.setValue(set.getMinStepSize());
 		maxStepSizeField = new DoubleTextField(false, 8);
@@ -328,10 +332,12 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightPanel.setLayout(new GridLayout(0, 1, 5, 5));
 
+		leftPanel.add(new JLabel("Step Size"));
 		leftPanel.add(new JLabel("Min Step Size"));
 		leftPanel.add(new JLabel("Max Step Size"));
 		leftPanel.add(new JLabel("Absolute Tolerance"));
 		leftPanel.add(new JLabel("Relative Tolerance"));
+		rightPanel.add(stepSizeField);
 		rightPanel.add(minStepSizeField);
 		rightPanel.add(maxStepSizeField);
 		rightPanel.add(absToleranceField);
@@ -352,6 +358,8 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 	private void updateIntegrationPanel() {
 		boolean isAdaptiveStepSize = typeBox.getSelectedItem() != Integrator.Type.RUNGE_KUTTA;
 
+		stepSizeField.setEnabled(!isAdaptiveStepSize);
+		minStepSizeField.setEnabled(isAdaptiveStepSize);
 		maxStepSizeField.setEnabled(isAdaptiveStepSize);
 		absToleranceField.setEnabled(isAdaptiveStepSize);
 		relToleranceField.setEnabled(isAdaptiveStepSize);
