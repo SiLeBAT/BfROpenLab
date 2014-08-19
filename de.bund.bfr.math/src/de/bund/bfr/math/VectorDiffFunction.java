@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -46,19 +45,19 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Map<String, double[]> variableValues;
 	private String dependentVariable;
 	private String timeVariable;
-	private double stepSize;
+	private Integrator integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
 			double[] initialValues, String[] parameters,
 			Map<String, double[]> variableValues, String dependentVariable,
-			String timeVariable, double stepSize) throws ParseException {
+			String timeVariable, Integrator integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initialValues = initialValues;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
-		this.stepSize = stepSize;
+		this.integrator = integrator;
 
 		Set<String> variables = new LinkedHashSet<>();
 
@@ -78,7 +77,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
 			String[] dependentVariables, double[] initialValues,
 			String[] parameters, Map<String, double[]> variableValues,
-			String dependentVariable, String timeVariable, double stepSize) {
+			String dependentVariable, String timeVariable, Integrator integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -87,7 +86,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
-		this.stepSize = stepSize;
+		this.integrator = integrator;
 	}
 
 	@Override
@@ -104,16 +103,15 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 		DiffFunction f = new DiffFunction(parsers, functions,
 				dependentVariables, variableValues, timeVariable);
-		FirstOrderIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				stepSize);
+		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		double[] values = initialValues.clone();
 		double[] result = new double[timeValues.length];
 
 		result[0] = values[depIndex];
 
 		for (int i = 1; i < timeValues.length; i++) {
-			integrator.integrate(f, timeValues[i - 1], values, timeValues[i],
-					values);
+			integratorInstance.integrate(f, timeValues[i - 1], values,
+					timeValues[i], values);
 			result[i] = values[depIndex];
 		}
 

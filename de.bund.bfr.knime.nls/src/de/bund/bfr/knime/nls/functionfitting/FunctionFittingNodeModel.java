@@ -63,6 +63,7 @@ import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.Integrator;
 import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.ParameterOptimizer;
 
@@ -390,7 +391,9 @@ public class FunctionFittingNodeModel extends NodeModel {
 						maxParameterValues, targetArray,
 						function.getDependentVariable(),
 						function.getDiffVariable(), argumentArrays,
-						set.getIntegratorStepSize());
+						new Integrator(set.getIntegratorType(), set
+								.getMinStepSize(), set.getMaxStepSize(), set
+								.getAbsTolerance(), set.getRelTolerance()));
 			} else {
 				optimizer = new ParameterOptimizer(function.getTerms().get(
 						function.getDependentVariable()), function
