@@ -12,9 +12,9 @@
 			This station can visualize a supply chain. The three mandatory input ports expect a station
 			table, an delivery table and a data table. These tables are provided by the Supply Chain
 			Analyzer. Tracing can be performed by setting the following three properties for stations or
-			deliveries: "Case Weight", "Cross Contamination" and "Filter". Based on the properties the
-			following values are computed: "Score", "Forward", "Backward". The results of the tracing or any
-			other data from input tables can be visualized by using highlighting (as explained below).
+			deliveries: "Weight", "Cross Contamination" and "Observed". Based on the properties the following
+			values are computed: "Score", "Forward", "Backward". The results of the tracing or any other data
+			from input tables can be visualized by using highlighting (as explained below).
 		</intro>
 
 		<tab name="Properties">
@@ -25,8 +25,7 @@
 				Weights for deliveries. The computed scores are based on these weights.
 			</option>
 			<option name="Station Cross Contamination">
-				Set cross contamination for stations. That means all incoming
-				deliveries can
+				Set cross contamination for stations. That means all incoming deliveries can
 				contaminate all outgoing deliveries (see "Enforce Temporal Order").
 			</option>
 			<option name="Delivery Cross Contamination">
@@ -35,30 +34,26 @@
 				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
 				cross contamination.
 			</option>
-			<option name="Station Filter">
+			<option name="Observed Stations">
 				For all stations/deliveries that can reached by forward/backward tracing from
-				stations
-				selected here, the "Forward"/"Backward" is set to true.
+				stations selected here, the "Forward"/"Backward" is set to true.
 			</option>
-			<option name="Delivery Filter">
+			<option name="Observed Deliveries">
 				For all stations/deliveries that can reached by forward/backward tracing from
-				deliveries
-				selected here, the "Forward"/"Backward" is set to true.
+				deliveries selected here, the "Forward"/"Backward" is set to true.
 			</option>
 		</tab>
 		<tab name="Upper Options Bar">
-			<option name="Reset Case Weights">
-				Resets the "Case Weight" property for all stations and deliveries to the
-				input
+			<option name="Reset Weights">
+				Resets the "Weight" property for all stations and deliveries to the input
 				values.
 			</option>
 			<option name="Reset Cross Contamination">
 				Resets the "Cross Contamination" property for all stations and deliveries to
-				the
-				input values.
+				the input values.
 			</option>
-			<option name="Reset Filters">
-				Resets the "Filter" property for all stations and deliveries to the input
+			<option name="Reset Observed">
+				Resets the "Observed" property for all stations and deliveries to the input
 				values.
 			</option>
 			<option name="Export As Svg">

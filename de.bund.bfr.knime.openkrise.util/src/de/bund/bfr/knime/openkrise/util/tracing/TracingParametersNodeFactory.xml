@@ -34,11 +34,11 @@
 				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
 				cross contamination.
 			</option>
-			<option name="Station Filter">
+			<option name="Observed Stations">
 				For all stations/deliveries that can reached by forward/backward tracing from
 				stations selected here, the "Forward"/"Backward" property is set to true.
 			</option>
-			<option name="Edge Filter">
+			<option name="Observed Deliveries">
 				For all stations/deliveries that can reached by forward/backward tracing from
 				deliveries selected here, the "Forward"/"Backward" is set to true.
 			</option>

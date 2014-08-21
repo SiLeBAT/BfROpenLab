@@ -82,11 +82,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
 
-		resetWeightsButton = new JButton("Reset Case Weights");
+		resetWeightsButton = new JButton("Reset Weights");
 		resetWeightsButton.addActionListener(this);
 		resetCrossButton = new JButton("Reset Cross Contamination");
 		resetCrossButton.addActionListener(this);
-		resetFilterButton = new JButton("Reset Filters");
+		resetFilterButton = new JButton("Reset Observed");
 		resetFilterButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 
