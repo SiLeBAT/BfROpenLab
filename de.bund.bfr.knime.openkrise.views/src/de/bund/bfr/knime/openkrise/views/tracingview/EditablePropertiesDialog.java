@@ -89,12 +89,12 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
 		weightButton = new JButton("Set All "
-				+ TracingConstants.CASE_WEIGHT_COLUMN);
+				+ TracingConstants.WEIGHT_COLUMN);
 		weightButton.addActionListener(this);
 		contaminationButton = new JButton("Set All "
 				+ TracingConstants.CROSS_CONTAMINATION_COLUMN);
 		contaminationButton.addActionListener(this);
-		filterButton = new JButton("Set All " + TracingConstants.FILTER_COLUMN);
+		filterButton = new JButton("Set All " + TracingConstants.OBSERVED_COLUMN);
 		filterButton.addActionListener(this);
 
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -117,7 +117,7 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			buttons.add(selectButton);
 		}
 
-		if (properties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
+		if (properties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
 			buttons.add(weightButton);
 		}
 
@@ -125,7 +125,7 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			buttons.add(contaminationButton);
 		}
 
-		if (properties.containsKey(TracingConstants.FILTER_COLUMN)) {
+		if (properties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
 			buttons.add(filterButton);
 		}
 
@@ -190,7 +190,7 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			}
 		} else if (e.getSource() == weightButton) {
 			Object result = JOptionPane.showInputDialog(this,
-					"Set All Values to?", TracingConstants.CASE_WEIGHT_COLUMN,
+					"Set All Values to?", TracingConstants.WEIGHT_COLUMN,
 					JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
 			Double value = null;
 
@@ -201,7 +201,7 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			}
 
 			if (value != null) {
-				setAllValuesTo(TracingConstants.CASE_WEIGHT_COLUMN, value);
+				setAllValuesTo(TracingConstants.WEIGHT_COLUMN, value);
 			}
 		} else if (e.getSource() == contaminationButton) {
 			Object result = JOptionPane.showInputDialog(this,
@@ -216,12 +216,12 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			}
 		} else if (e.getSource() == filterButton) {
 			Object result = JOptionPane.showInputDialog(this,
-					"Set All Values to?", TracingConstants.FILTER_COLUMN,
+					"Set All Values to?", TracingConstants.OBSERVED_COLUMN,
 					JOptionPane.QUESTION_MESSAGE, null, new Boolean[] {
 							Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
-				setAllValuesTo(TracingConstants.FILTER_COLUMN, result);
+				setAllValuesTo(TracingConstants.OBSERVED_COLUMN, result);
 			}
 		}
 	}

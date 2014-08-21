@@ -48,6 +48,10 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 		this(new ValueHighlightCondition(), new AndOrHighlightCondition());
 	}
 
+	public LogicalValueHighlightCondition(LogicalValueHighlightCondition c) {
+		this(c.valueCondition, c.logicalCondition);
+	}
+
 	public LogicalValueHighlightCondition(
 			ValueHighlightCondition valueCondition,
 			AndOrHighlightCondition logicalCondition) {

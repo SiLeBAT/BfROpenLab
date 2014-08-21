@@ -30,11 +30,13 @@ public interface TracingConstants {
 	public static final String FROM_COLUMN = "from";
 	public static final String TO_COLUMN = "to";
 
-	public static final String CASE_WEIGHT_COLUMN = "CaseWeight";
+	public static final String OLD_WEIGHT_COLUMN = "CaseWeight";
+	public static final String WEIGHT_COLUMN = "Weight";
 	public static final String CROSS_CONTAMINATION_COLUMN = "CrossContamination";
 	public static final String SCORE_COLUMN = "Score";
 
-	public static final String FILTER_COLUMN = "Filter";
+	public static final String OLD_OBSERVED_COLUMN = "Filter";
+	public static final String OBSERVED_COLUMN = "Observed";
 	public static final String BACKWARD_COLUMN = "Backward";
 	public static final String FORWARD_COLUMN = "Forward";
 

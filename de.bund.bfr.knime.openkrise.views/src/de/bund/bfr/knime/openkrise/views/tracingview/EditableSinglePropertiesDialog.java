@@ -81,7 +81,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 
 			leftCenterPanel.add(new JLabel(property + ":"));
 
-			if (property.equals(TracingConstants.CASE_WEIGHT_COLUMN)) {
+			if (property.equals(TracingConstants.WEIGHT_COLUMN)) {
 				caseField = new JTextField();
 
 				if (value != null) {
@@ -100,7 +100,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 				}
 
 				rightCenterPanel.add(contaminationBox);
-			} else if (property.equals(TracingConstants.FILTER_COLUMN)) {
+			} else if (property.equals(TracingConstants.OBSERVED_COLUMN)) {
 				filterBox = new JCheckBox();
 
 				if (value != null) {
@@ -155,16 +155,16 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 			if (caseField != null) {
 				if (caseField.getText().isEmpty()) {
 					element.getProperties().put(
-							TracingConstants.CASE_WEIGHT_COLUMN, null);
+							TracingConstants.WEIGHT_COLUMN, null);
 				} else {
 					try {
 						element.getProperties().put(
-								TracingConstants.CASE_WEIGHT_COLUMN,
+								TracingConstants.WEIGHT_COLUMN,
 								Double.parseDouble(caseField.getText()));
 					} catch (NumberFormatException ex) {
 						JOptionPane.showMessageDialog(this,
 								"Please enter valid number for "
-										+ TracingConstants.CASE_WEIGHT_COLUMN,
+										+ TracingConstants.WEIGHT_COLUMN,
 								"Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -177,7 +177,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 			}
 
 			if (filterBox != null) {
-				element.getProperties().put(TracingConstants.FILTER_COLUMN,
+				element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
 						filterBox.isSelected());
 			}
 

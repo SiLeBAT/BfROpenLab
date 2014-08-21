@@ -74,8 +74,8 @@ public class GisViewCanvasCreator {
 		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
 		canvas.setEditingMode(set.getGisSettings().getEditingMode());
 		canvas.setNodeSize(set.getGisSettings().getNodeSize());
-		canvas.setNodeHighlightConditions(set.getGisSettings()
-				.getNodeHighlightConditions());
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(set
+				.getGisSettings().getNodeHighlightConditions(), nodeProperties));
 
 		if (!Double.isNaN(set.getGisSettings().getScaleX())
 				&& !Double.isNaN(set.getGisSettings().getScaleY())

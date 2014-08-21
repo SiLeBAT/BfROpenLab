@@ -88,8 +88,8 @@ public class EditablePropertiesTable extends JTable {
 							new JTable().getDefaultRenderer(Boolean.class));
 		}
 
-		if (properties.containsKey(TracingConstants.FILTER_COLUMN)) {
-			getColumn(TracingConstants.FILTER_COLUMN).setCellRenderer(
+		if (properties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
+			getColumn(TracingConstants.OBSERVED_COLUMN).setCellRenderer(
 					new JTable().getDefaultRenderer(Boolean.class));
 		}
 
@@ -119,10 +119,10 @@ public class EditablePropertiesTable extends JTable {
 
 		int idColumn = UI.findColumn(this, TracingConstants.ID_COLUMN);
 		int caseColumn = UI.findColumn(this,
-				TracingConstants.CASE_WEIGHT_COLUMN);
+				TracingConstants.WEIGHT_COLUMN);
 		int contaminationColumm = UI.findColumn(this,
 				TracingConstants.CROSS_CONTAMINATION_COLUMN);
-		int filterColumn = UI.findColumn(this, TracingConstants.FILTER_COLUMN);
+		int filterColumn = UI.findColumn(this, TracingConstants.OBSERVED_COLUMN);
 
 		for (int row = 0; row < getRowCount(); row++) {
 			String id = (String) getValueAt(row, idColumn);
@@ -130,7 +130,7 @@ public class EditablePropertiesTable extends JTable {
 
 			if (caseColumn != -1) {
 				element.getProperties().put(
-						TracingConstants.CASE_WEIGHT_COLUMN,
+						TracingConstants.WEIGHT_COLUMN,
 						getValueAt(row, caseColumn));
 			}
 
@@ -141,7 +141,7 @@ public class EditablePropertiesTable extends JTable {
 			}
 
 			if (filterColumn != -1) {
-				element.getProperties().put(TracingConstants.FILTER_COLUMN,
+				element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
 						getValueAt(row, filterColumn));
 			}
 		}
@@ -203,10 +203,10 @@ public class EditablePropertiesTable extends JTable {
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			String column = columnNames.get(columnIndex);
 
-			return column.equals(TracingConstants.CASE_WEIGHT_COLUMN)
+			return column.equals(TracingConstants.WEIGHT_COLUMN)
 					|| column
 							.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)
-					|| column.equals(TracingConstants.FILTER_COLUMN);
+					|| column.equals(TracingConstants.OBSERVED_COLUMN);
 		}
 
 		@Override

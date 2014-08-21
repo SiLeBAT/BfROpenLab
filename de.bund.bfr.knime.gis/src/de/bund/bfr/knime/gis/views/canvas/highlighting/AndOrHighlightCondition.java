@@ -52,6 +52,11 @@ public class AndOrHighlightCondition implements HighlightCondition,
 		this(null, null, true, null, false, false, null);
 	}
 
+	public AndOrHighlightCondition(AndOrHighlightCondition c) {
+		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible,
+				c.useThickness, c.labelProperty);
+	}
+
 	public AndOrHighlightCondition(
 			List<List<LogicalHighlightCondition>> conditions, String name,
 			boolean showInLegend, Color color, boolean invisible,

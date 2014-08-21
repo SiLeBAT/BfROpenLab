@@ -58,6 +58,11 @@ public class ValueHighlightCondition implements HighlightCondition,
 		this(null, null, null, true, null, false, false, null);
 	}
 
+	public ValueHighlightCondition(ValueHighlightCondition c) {
+		this(c.property, c.type, c.name, c.showInLegend, c.color, c.invisible,
+				c.useThickness, c.labelProperty);
+	}
+
 	public ValueHighlightCondition(String property, String type, String name,
 			boolean showInLegend, Color color, boolean invisible,
 			boolean useThickness, String labelProperty) {

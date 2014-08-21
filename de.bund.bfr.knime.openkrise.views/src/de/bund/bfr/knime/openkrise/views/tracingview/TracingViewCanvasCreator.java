@@ -60,9 +60,8 @@ public class TracingViewCanvasCreator {
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 
-		if (!nodeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
-			nodeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
-					Double.class);
+		if (!nodeProperties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
+			nodeProperties.put(TracingConstants.WEIGHT_COLUMN, Double.class);
 		}
 
 		if (!nodeProperties
@@ -75,8 +74,8 @@ public class TracingViewCanvasCreator {
 			nodeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
 		}
 
-		if (!nodeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
-			nodeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
+		if (!nodeProperties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
+			nodeProperties.put(TracingConstants.OBSERVED_COLUMN, Boolean.class);
 		}
 
 		if (!nodeProperties.containsKey(TracingConstants.BACKWARD_COLUMN)) {
@@ -87,9 +86,8 @@ public class TracingViewCanvasCreator {
 			nodeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.CASE_WEIGHT_COLUMN)) {
-			edgeProperties.put(TracingConstants.CASE_WEIGHT_COLUMN,
-					Double.class);
+		if (!edgeProperties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
+			edgeProperties.put(TracingConstants.WEIGHT_COLUMN, Double.class);
 		}
 
 		if (!edgeProperties
@@ -98,8 +96,8 @@ public class TracingViewCanvasCreator {
 					Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.FILTER_COLUMN)) {
-			edgeProperties.put(TracingConstants.FILTER_COLUMN, Boolean.class);
+		if (!edgeProperties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
+			edgeProperties.put(TracingConstants.OBSERVED_COLUMN, Boolean.class);
 		}
 
 		if (!edgeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
@@ -144,15 +142,17 @@ public class TracingViewCanvasCreator {
 		canvas.setEdgeWeights(set.getEdgeWeights());
 		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
 		canvas.setEdgeCrossContaminations(set.getEdgeCrossContaminations());
-		canvas.setNodeFilter(set.getNodeFilter());
-		canvas.setEdgeFilter(set.getEdgeFilter());
+		canvas.setObservedNodes(set.getObservedNodes());
+		canvas.setObservedEdges(set.getObservedEdges());
 		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
 		canvas.setShowForward(set.isShowForward());
 		canvas.setLabel(set.getLabel());
-		canvas.setNodeHighlightConditions(set.getGraphSettings()
-				.getNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphSettings()
-				.getEdgeHighlightConditions());
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(set
+				.getGraphSettings().getNodeHighlightConditions(),
+				nodeProperties));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(set
+				.getGraphSettings().getEdgeHighlightConditions(),
+				edgeProperties));
 		canvas.setSkipEdgelessNodes(set.getGraphSettings()
 				.isSkipEdgelessNodes());
 		canvas.setPerformTracing(true);

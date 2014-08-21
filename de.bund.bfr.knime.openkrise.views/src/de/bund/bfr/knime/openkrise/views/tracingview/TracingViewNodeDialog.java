@@ -164,8 +164,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			updateGraphCanvas();
 		} else if (e.getSource() == resetFilterButton) {
 			updateSettings();
-			set.getNodeFilter().clear();
-			set.getEdgeFilter().clear();
+			set.getObservedNodes().clear();
+			set.getObservedEdges().clear();
 			updateGraphCanvas();
 		}
 	}
@@ -224,8 +224,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setEdgeWeights(canvas.getEdgeWeights());
 		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
 		set.setEdgeCrossContaminations(canvas.getEdgeCrossContaminations());
-		set.setNodeFilter(canvas.getNodeFilter());
-		set.setEdgeFilter(canvas.getEdgeFilter());
+		set.setObservedNodes(canvas.getObservedNodes());
+		set.setObservedEdges(canvas.getObservedEdges());
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
 		set.setShowForward(canvas.isShowForward());
 		set.setLabel(canvas.getLabel());

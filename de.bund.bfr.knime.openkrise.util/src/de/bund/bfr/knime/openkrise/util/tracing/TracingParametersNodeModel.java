@@ -192,12 +192,12 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = node.getId();
 			Boolean filter = null;
 
-			if (set.getNodeFilterConditionValue() != null) {
-				if (isInCondition(node, set.getNodeFilterCondition())) {
-					filter = set.getNodeFilterConditionValue();
+			if (set.getObservedNodesConditionValue() != null) {
+				if (isInCondition(node, set.getObservedNodesCondition())) {
+					filter = set.getObservedNodesConditionValue();
 				}
 			} else {
-				filter = set.getNodeFilter().get(id);
+				filter = set.getObservedNodes().get(id);
 			}
 
 			if (filter != null && filter) {
@@ -217,12 +217,12 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = edge.getId();
 			Boolean filter = null;
 
-			if (set.getEdgeFilterConditionValue() != null) {
-				if (isInCondition(edge, set.getEdgeFilterCondition())) {
-					filter = set.getEdgeFilterConditionValue();
+			if (set.getObservedEdgesConditionValue() != null) {
+				if (isInCondition(edge, set.getObservedEdgesCondition())) {
+					filter = set.getObservedEdgesConditionValue();
 				}
 			} else {
-				filter = set.getEdgeFilter().get(id);
+				filter = set.getObservedEdges().get(id);
 			}
 
 			if (filter != null && filter) {
@@ -255,14 +255,14 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 
 			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
+					.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
 					.createCell(nodeWeights.get(id));
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
 					.createCell(crossNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
 					.createCell(tracing.getStationScore(Integer.parseInt(id)));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingConstants.OBSERVED_COLUMN)] = IO
 					.createCell(filterNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
 					.createCell(backwardNodes.contains(id));
@@ -295,12 +295,12 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 
 			cells[edgeOutSpec
-					.findColumnIndex(TracingConstants.CASE_WEIGHT_COLUMN)] = IO
+					.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
 					.createCell(edgeWeights.get(id));
 			cells[edgeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
 					.createCell(crossEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.FILTER_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingConstants.OBSERVED_COLUMN)] = IO
 					.createCell(filterEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
 					.createCell(tracing.getDeliveryScore(Integer.parseInt(id)));
@@ -411,11 +411,11 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
 				BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
 
@@ -441,10 +441,10 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.CASE_WEIGHT_COLUMN, DoubleCell.TYPE);
+		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
 				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FILTER_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
 		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
 		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);

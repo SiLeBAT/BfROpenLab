@@ -40,8 +40,8 @@ public class TracingViewSettings extends ViewSettings {
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
 	private static final String CFG_NODE_CROSS_CONTAMINATIONS = "CrossContaminations";
 	private static final String CFG_EDGE_CROSS_CONTAMINATIONS = "EdgeCrossContaminations";
-	private static final String CFG_NODE_FILTER = "Filter";
-	private static final String CFG_EDGE_FILTER = "EdgeFilter";
+	private static final String CFG_OBSERVED_NODES = "Filter";
+	private static final String CFG_OBSERVED_EDGES = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 	private static final String CFG_LABEL = "Label";
@@ -53,8 +53,8 @@ public class TracingViewSettings extends ViewSettings {
 	private Map<String, Double> edgeWeights;
 	private Map<String, Boolean> nodeCrossContaminations;
 	private Map<String, Boolean> edgeCrossContaminations;
-	private Map<String, Boolean> nodeFilter;
-	private Map<String, Boolean> edgeFilter;
+	private Map<String, Boolean> observedNodes;
+	private Map<String, Boolean> observedEdges;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
 	private String label;
@@ -66,8 +66,8 @@ public class TracingViewSettings extends ViewSettings {
 		edgeWeights = new LinkedHashMap<>();
 		nodeCrossContaminations = new LinkedHashMap<>();
 		edgeCrossContaminations = new LinkedHashMap<>();
-		nodeFilter = new LinkedHashMap<>();
-		edgeFilter = new LinkedHashMap<>();
+		observedNodes = new LinkedHashMap<>();
+		observedEdges = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 		showForward = DEFAULT_SHOW_FORWARD;
 		label = null;
@@ -79,7 +79,7 @@ public class TracingViewSettings extends ViewSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-		
+
 		try {
 			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
 					.getString(CFG_NODE_WEIGHTS));
@@ -105,14 +105,14 @@ public class TracingViewSettings extends ViewSettings {
 		}
 
 		try {
-			nodeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_FILTER));
+			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_OBSERVED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeFilter = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_FILTER));
+			observedEdges = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_OBSERVED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -138,15 +138,15 @@ public class TracingViewSettings extends ViewSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		
+
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
 		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
 				SERIALIZER.toXml(nodeCrossContaminations));
 		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS,
 				SERIALIZER.toXml(edgeCrossContaminations));
-		settings.addString(CFG_NODE_FILTER, SERIALIZER.toXml(nodeFilter));
-		settings.addString(CFG_EDGE_FILTER, SERIALIZER.toXml(edgeFilter));
+		settings.addString(CFG_OBSERVED_NODES, SERIALIZER.toXml(observedNodes));
+		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 		settings.addBoolean(CFG_SHOW_FORWARD, showForward);
 		settings.addString(CFG_LABEL, label);
@@ -188,20 +188,20 @@ public class TracingViewSettings extends ViewSettings {
 		this.edgeCrossContaminations = edgeCrossContaminations;
 	}
 
-	public Map<String, Boolean> getNodeFilter() {
-		return nodeFilter;
+	public Map<String, Boolean> getObservedNodes() {
+		return observedNodes;
 	}
 
-	public void setNodeFilter(Map<String, Boolean> nodeFilter) {
-		this.nodeFilter = nodeFilter;
+	public void setObservedNodes(Map<String, Boolean> observedNodes) {
+		this.observedNodes = observedNodes;
 	}
 
-	public Map<String, Boolean> getEdgeFilter() {
-		return edgeFilter;
+	public Map<String, Boolean> getObservedEdges() {
+		return observedEdges;
 	}
 
-	public void setEdgeFilter(Map<String, Boolean> edgeFilter) {
-		this.edgeFilter = edgeFilter;
+	public void setObservedEdges(Map<String, Boolean> observedEdges) {
+		this.observedEdges = observedEdges;
 	}
 
 	public boolean isEnforeTemporalOrder() {

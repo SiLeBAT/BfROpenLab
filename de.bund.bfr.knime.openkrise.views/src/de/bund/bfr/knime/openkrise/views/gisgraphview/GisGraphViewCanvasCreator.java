@@ -61,8 +61,8 @@ public class GisGraphViewCanvasCreator {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
-				nodeTable, nodeProperties);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeProperties);
 
 		if (nodes.isEmpty()) {
 			return null;
@@ -86,10 +86,12 @@ public class GisGraphViewCanvasCreator {
 		canvas.setFontSize(set.getGraphSettings().getFontSize());
 		canvas.setFontBold(set.getGraphSettings().isFontBold());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
-		canvas.setNodeHighlightConditions(set.getGraphSettings()
-				.getNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphSettings()
-				.getEdgeHighlightConditions());
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(set
+				.getGraphSettings().getNodeHighlightConditions(),
+				nodeProperties));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(set
+				.getGraphSettings().getEdgeHighlightConditions(),
+				edgeProperties));
 		canvas.setSkipEdgelessNodes(set.getGraphSettings()
 				.isSkipEdgelessNodes());
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
@@ -113,8 +115,7 @@ public class GisGraphViewCanvasCreator {
 	}
 
 	public LocationCanvas createGisCanvas() {
-		List<RegionNode> regionNodes = TracingUtils
-				.readRegionNodes(shapeTable);
+		List<RegionNode> regionNodes = TracingUtils.readRegionNodes(shapeTable);
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils

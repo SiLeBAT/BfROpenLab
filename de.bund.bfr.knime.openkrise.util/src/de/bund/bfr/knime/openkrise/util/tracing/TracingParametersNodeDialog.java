@@ -80,8 +80,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				nodeContaminationPanel);
 		addTab(TracingConstants.EDGE_NAME + " Cross Contaminations",
 				edgeContaminationPanel);
-		addTab(TracingConstants.NODE_NAME + " Filter", nodeFilterPanel);
-		addTab(TracingConstants.EDGE_NAME + " Filter", edgeFilterPanel);
+		addTab("Observed " + TracingConstants.NODES_NAME, nodeFilterPanel);
+		addTab("Observed " + TracingConstants.EDGES_NAME, edgeFilterPanel);
 	}
 
 	@Override
@@ -117,12 +117,11 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				set.getEdgeContaminationCondition(),
 				set.getEdgeContaminationConditionValue());
 		nodeFilterPanel.update(nodes.values(), nodeProperties,
-				set.getNodeFilter(), set.getNodeFilterCondition(),
-				set.getNodeFilterConditionValue());
-		edgeFilterPanel
-				.update(edges, edgeProperties, set.getEdgeFilter(),
-						set.getEdgeFilterCondition(),
-						set.getEdgeFilterConditionValue());
+				set.getObservedNodes(), set.getObservedNodesCondition(),
+				set.getObservedNodesConditionValue());
+		edgeFilterPanel.update(edges, edgeProperties, set.getObservedEdges(),
+				set.getObservedEdgesCondition(),
+				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 	}
 
@@ -147,13 +146,13 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		set.setEdgeContaminationConditionValue(edgeContaminationPanel
 				.getValueForAll());
 
-		set.setNodeFilter(nodeFilterPanel.getValues());
-		set.setNodeFilterCondition(nodeFilterPanel.getCondition());
-		set.setNodeFilterConditionValue(nodeFilterPanel.getValueForAll());
+		set.setObservedNodes(nodeFilterPanel.getValues());
+		set.setObservedNodesCondition(nodeFilterPanel.getCondition());
+		set.setObservedNodesConditionValue(nodeFilterPanel.getValueForAll());
 
-		set.setEdgeFilter(edgeFilterPanel.getValues());
-		set.setEdgeFilterCondition(edgeFilterPanel.getCondition());
-		set.setEdgeFilterConditionValue(edgeFilterPanel.getValueForAll());
+		set.setObservedEdges(edgeFilterPanel.getValues());
+		set.setObservedEdgesCondition(edgeFilterPanel.getCondition());
+		set.setObservedEdgesConditionValue(edgeFilterPanel.getValueForAll());
 
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 

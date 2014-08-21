@@ -60,6 +60,10 @@ public class LogicalHighlightCondition implements Serializable {
 		this(null, null, null);
 	}
 
+	public LogicalHighlightCondition(LogicalHighlightCondition c) {
+		this(c.property, c.type, c.value);
+	}
+
 	public LogicalHighlightCondition(String property, String type, String value) {
 		setProperty(property);
 		setType(type);
