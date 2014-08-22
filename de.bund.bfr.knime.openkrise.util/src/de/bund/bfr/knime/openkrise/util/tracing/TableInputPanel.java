@@ -52,6 +52,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 
+import org.knime.core.node.InvalidSettingsException;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
@@ -133,11 +135,16 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	}
 
 	@SuppressWarnings("unchecked")
-	public T getValueForAll() {
+	public T getValueForAll() throws InvalidSettingsException {
 		if (type == Boolean.class && setAllBox.isSelected()) {
 			return (T) Boolean.TRUE;
 		} else if (type == Double.class && setAllBox.isSelected()) {
-			return (T) new Double(Double.parseDouble(setAllField.getText()));
+			try {
+				return (T) new Double(Double.parseDouble(setAllField.getText()));
+			} catch (NumberFormatException e) {
+				throw new InvalidSettingsException("\"" + setAllField.getText()
+						+ "\" is not a valid number");
+			}
 		}
 
 		return null;
