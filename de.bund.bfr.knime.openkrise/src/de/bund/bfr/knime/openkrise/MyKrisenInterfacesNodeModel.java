@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import org.hsh.bfr.db.DBKernel;
@@ -285,6 +287,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private String sdfFormat(String day, String month, String year) {
 		if ((day == null || day.trim().isEmpty()) && (month == null || month.trim().isEmpty()) && (year == null || year.trim().isEmpty())) return null;
+		String thisYear = new SimpleDateFormat("yyyy").format(new Date());
+		if (year != null) year = year.trim();
+		if (month != null) month = month.trim();
+		if (day != null) day = day.trim();
+		if (year != null && year.length() == 2) year = Integer.parseInt(year) > Integer.parseInt(thisYear.substring(2)) ? "19" : "20" + year;
+		if (month != null && month.length() == 1) month = "0" + month;
+		if (day != null && day.length() == 1) day = "0" + day;
 		return year + "-" + month + "-" + day; // day + "." + month + "." + 
 	}
 
