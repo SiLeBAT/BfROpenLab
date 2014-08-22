@@ -35,6 +35,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
+      <import plugin="org.knime.ext.jep"/>
       <import plugin="org.knime.workbench.core"/>
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
@@ -42,7 +43,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.commons.math3" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="com.google.guava"/>
       <import plugin="org.knime.core"/>
-      <import plugin="org.knime.ext.jep"/>
    </requires>
 
    <plugin
@@ -128,6 +128,18 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="net.sf.jabref"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="quick.dbtable"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.freixas.jcalendar"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
