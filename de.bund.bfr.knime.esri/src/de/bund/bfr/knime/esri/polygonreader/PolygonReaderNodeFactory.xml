@@ -4,14 +4,14 @@
 	<name>Shapefile Polygon Reader</name>
 
 	<shortDescription>
-        Reads in Polygons from ESRI Shapefiles.
+        Reads in Polygons and Polylines from ESRI Shapefiles.
     </shortDescription>
 
 	<fullDescription>
 		<intro>
-			Reads polygons from ESRI shapefiles. The first out port contains the polygons plus
-			metadata. The second out port contains the geographical coordinates, which are referenced by the
-			polygons via Row ID. The polygons may be visualized via the "Open Street Map" nodes.
+			Reads polygons and polylines from ESRI shapefiles. The first out port contains the polygons
+			plus metadata. The second out port contains the geographical coordinates, which are referenced by
+			the polygons via Row ID. The polygons may be visualized via the "Open Street Map" nodes.
 		</intro>
 
 		<option name="SHP File">
