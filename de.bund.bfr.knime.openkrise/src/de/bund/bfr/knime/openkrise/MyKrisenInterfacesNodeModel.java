@@ -285,7 +285,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private String sdfFormat(String day, String month, String year) {
 		if ((day == null || day.trim().isEmpty()) && (month == null || month.trim().isEmpty()) && (year == null || year.trim().isEmpty())) return null;
-		return day + "." + month + "." + year;
+		return year + "-" + month + "-" + day; // day + "." + month + "." + 
 	}
 
 	private String getDataModel(MyNewTracing mnt) {
