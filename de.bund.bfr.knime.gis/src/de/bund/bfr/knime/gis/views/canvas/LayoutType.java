@@ -26,7 +26,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 public enum LayoutType {
 
-	GRID_LAYOUT, CIRCLE_LAYOUT, FR_LAYOUT, FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2;
+	GRID_LAYOUT, CIRCLE_LAYOUT, FR_LAYOUT, ISOM_LAYOUT, KK_LAYOUT;
 
 	@Override
 	public String toString() {
@@ -36,17 +36,11 @@ public enum LayoutType {
 		case CIRCLE_LAYOUT:
 			return "Circle Layout";
 		case FR_LAYOUT:
-			return "FR Layout";
-		case FR_LAYOUT_2:
-			return "FR Layout 2";
+			return "Fruchterman–Reingold";
 		case ISOM_LAYOUT:
-			return "ISOM Layout";
+			return "Self-Organizing Map";
 		case KK_LAYOUT:
-			return "KK Layout";
-		case SPRING_LAYOUT:
-			return "Spring Layout";
-		case SPRING_LAYOUT_2:
-			return "Spring Layout 2";
+			return "Kamada-Kawai";
 		}
 
 		return super.toString();

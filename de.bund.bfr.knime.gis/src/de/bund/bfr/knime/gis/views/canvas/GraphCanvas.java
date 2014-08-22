@@ -50,12 +50,9 @@ import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
-import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -643,22 +640,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			break;
 		case FR_LAYOUT:
 			layout = new FRLayout<>(graph);
-			break;
-		case FR_LAYOUT_2:
-			layout = new FRLayout2<>(graph);
-			break;
+			break;		
 		case ISOM_LAYOUT:
 			layout = new ISOMLayout<>(graph);
 			break;
 		case KK_LAYOUT:
 			layout = new KKLayout<>(graph);
-			break;
-		case SPRING_LAYOUT:
-			layout = new SpringLayout<>(graph);
-			break;
-		case SPRING_LAYOUT_2:
-			layout = new SpringLayout2<>(graph);
-			break;
+			break;		
 		}
 
 		if (nodesSelected) {
