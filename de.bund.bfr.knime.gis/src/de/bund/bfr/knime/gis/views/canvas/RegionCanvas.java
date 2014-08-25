@@ -97,6 +97,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.nodes = new LinkedHashSet<>(nodes);
 		this.edges = new LinkedHashSet<>(edges);
+		this.allowEdges = allowEdges;
 		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
 
