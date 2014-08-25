@@ -271,7 +271,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			break;
 		}
 
-		table = new PropertiesTable(nodes, nodeProperties, idColumns);
+		table = new PropertiesTable(new ArrayList<>(nodes), nodeProperties,
+				idColumns);
 		inputTable = new InputTable(classType, table.getRowCount());
 
 		table.getRowSorter().addRowSorterListener(this);

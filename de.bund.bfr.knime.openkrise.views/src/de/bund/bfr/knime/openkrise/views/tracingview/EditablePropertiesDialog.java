@@ -25,32 +25,49 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingConstants;
 
-public class EditablePropertiesDialog extends JDialog implements ActionListener {
+public class EditablePropertiesDialog extends JDialog implements
+		ActionListener, CellEditorListener, RowSorterListener,
+		ListSelectionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,7 +78,11 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 	private TracingCanvas parent;
 	private Type type;
 
-	private EditablePropertiesTable table;
+	private List<Element> elementList;
+
+	private JScrollPane scrollPane;
+	private PropertiesTable table;
+	private InputTable inputTable;
 	private JButton okButton;
 	private JButton cancelButton;
 
@@ -71,6 +92,8 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 	private JButton filterButton;
 
 	private boolean approved;
+
+	private Map<String, InputTable.Input> values;
 
 	private EditablePropertiesDialog(TracingCanvas parent,
 			Collection<? extends Element> elements,
@@ -93,7 +116,26 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 			break;
 		}
 
-		table = new EditablePropertiesTable(elements, properties, idColumns);
+		Map<String, Class<?>> uneditableProperties = new LinkedHashMap<>(
+				properties);
+
+		uneditableProperties.remove(TracingConstants.WEIGHT_COLUMN);
+		uneditableProperties
+				.remove(TracingConstants.CROSS_CONTAMINATION_COLUMN);
+		uneditableProperties.remove(TracingConstants.OBSERVED_COLUMN);
+
+		elementList = new ArrayList<>(elements);
+		table = new PropertiesTable(elementList, uneditableProperties,
+				idColumns);
+		table.getRowSorter().addRowSorterListener(this);
+		inputTable = new InputTable(elementList);
+		inputTable.getColumn(InputTable.INPUT).getCellEditor()
+				.addCellEditorListener(this);
+		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		inputTable.getSelectionModel().addListSelectionListener(this);
+		values = new LinkedHashMap<>();
+		updateValues();
+
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
@@ -110,10 +152,28 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 				+ TracingConstants.OBSERVED_COLUMN);
 		filterButton.addActionListener(this);
 
-		JScrollPane scrollPane = new JScrollPane(table);
+		JPanel cornerPanel = new JPanel();
 
+		cornerPanel.setLayout(new GridLayout(1, 3, 5, 5));
+		cornerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		cornerPanel.add(new JLabel(TracingConstants.WEIGHT_COLUMN));
+		cornerPanel
+				.add(new JLabel(TracingConstants.CROSS_CONTAMINATION_COLUMN));
+		cornerPanel.add(new JLabel(TracingConstants.OBSERVED_COLUMN));
+
+		scrollPane = new JScrollPane();
+		scrollPane
+				.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, cornerPanel);
+		scrollPane.setRowHeaderView(inputTable);
+		scrollPane.setViewportView(table);
 		scrollPane.setPreferredSize(UI.getMaxDimension(
 				scrollPane.getPreferredSize(), table.getPreferredSize()));
+
+		JViewport rowHeader = scrollPane.getRowHeader();
+
+		rowHeader.setPreferredSize(new Dimension(
+				cornerPanel.getMinimumSize().width, rowHeader
+						.getPreferredSize().height));
 
 		JPanel southPanel = new JPanel();
 
@@ -175,7 +235,24 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			approved = true;
-			table.updateElements();
+
+			if (inputTable.isEditing()) {
+				inputTable.getColumn(InputTable.INPUT).getCellEditor()
+						.stopCellEditing();
+			}
+
+			for (Element element : elementList) {
+				InputTable.Input input = values.get(element.getId());
+
+				element.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+						input.getWeight());
+				element.getProperties().put(
+						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+						input.isCrossContamination());
+				element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+						input.isObserved());
+			}
+
 			dispose();
 		} else if (e.getSource() == cancelButton) {
 			approved = false;
@@ -239,13 +316,64 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		}
 	}
 
-	private void setAllValuesTo(String column, Object value) {
-		int columnIndex = UI.findColumn(table, column);
+	@Override
+	public void editingStopped(ChangeEvent e) {
+		updateValues();
+	}
+
+	@Override
+	public void editingCanceled(ChangeEvent e) {
+	}
+
+	@Override
+	public void sorterChanged(RowSorterEvent e) {
+		applyValues();
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
+		int hScroll = scrollPane.getHorizontalScrollBar().getValue();
+
+		table.getSelectionModel().setSelectionInterval(i, i);
+		table.setVisible(false);
+		table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
+		scrollPane.getHorizontalScrollBar().setValue(hScroll);
+		table.setVisible(true);
+	}
+
+	private void updateValues() {
+		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
-			if (table.isCellEditable(row, columnIndex)) {
-				table.setValueAt(value, row, columnIndex);
+			String id = (String) table.getValueAt(row, idColumn);
+
+			values.put(id, (InputTable.Input) inputTable.getValueAt(row, 0));
+		}
+	}
+
+	private void applyValues() {
+		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+
+		for (int row = 0; row < table.getRowCount(); row++) {
+			String id = (String) table.getValueAt(row, idColumn);
+
+			inputTable.setValueAt(values.get(id), row, 0);
+		}
+	}
+
+	private void setAllValuesTo(String column, Object value) {
+		for (InputTable.Input input : values.values()) {
+			if (column.equals(TracingConstants.WEIGHT_COLUMN)) {
+				input.setWeight((Double) value);
+			} else if (column
+					.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+				input.setCrossContamination((Boolean) value);
+			} else if (column.equals(TracingConstants.OBSERVED_COLUMN)) {
+				input.setObserved((Boolean) value);
 			}
 		}
+
+		applyValues();
 	}
 }

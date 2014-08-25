@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +43,12 @@ public class PropertiesTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<? extends Element> elementList;
+	private List<? extends Element> elements;
 
-	public PropertiesTable(Collection<? extends Element> elements,
+	public PropertiesTable(List<? extends Element> elements,
 			Map<String, Class<?>> properties, Set<String> idColumns) {
+		this.elements = elements;
+
 		List<String> columnNames = new ArrayList<>();
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
@@ -57,9 +58,7 @@ public class PropertiesTable extends JTable {
 			columnTypes.add(entry.getValue());
 		}
 
-		elementList = new ArrayList<>(elements);
-
-		for (Element element : elementList) {
+		for (Element element : elements) {
 			List<Object> tuple = new ArrayList<>();
 
 			for (String property : columnNames) {
@@ -83,7 +82,7 @@ public class PropertiesTable extends JTable {
 		Set<Element> selected = new LinkedHashSet<>();
 
 		for (int index : getSelectedRows()) {
-			selected.add(elementList.get(convertRowIndexToModel(index)));
+			selected.add(elements.get(convertRowIndexToModel(index)));
 		}
 
 		return selected;

@@ -27,6 +27,7 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -70,7 +71,8 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 		this.parent = parent;
 		this.type = type;
 
-		table = new PropertiesTable(elements, properties, idColumns);
+		table = new PropertiesTable(new ArrayList<>(elements), properties,
+				idColumns);
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
 		okButton = new JButton("OK");
