@@ -145,11 +145,10 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private HighlightCondition condition;
 	private boolean approved;
 
-	public HighlightDialog(Component parent,
-			Map<String, Class<?>> properties, boolean allowName,
-			boolean allowColor, boolean allowInvisible, boolean allowThickness,
-			boolean allowLabel, boolean allowValueCondition,
-			HighlightCondition condition,
+	public HighlightDialog(Component parent, Map<String, Class<?>> properties,
+			boolean allowName, boolean allowColor, boolean allowInvisible,
+			boolean allowThickness, boolean allowLabel,
+			boolean allowValueCondition, HighlightCondition condition,
 			List<HighlightConditionChecker> checkers) {
 		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition",
 				DEFAULT_MODALITY_TYPE);
@@ -166,8 +165,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(Arrays.asList(Arrays
-					.asList(new LogicalHighlightCondition(properties
-							.keySet().toArray(new String[0])[0],
+					.asList(new LogicalHighlightCondition(properties.keySet()
+							.toArray(new String[0])[0],
 							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
 					true, lastColor, false, false, null);
 		}
@@ -207,8 +206,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		invisibleBox.addActionListener(this);
 		thicknessBox = new JCheckBox("Adjust Thickness");
 		thicknessBox.setSelected(condition.isUseThickness());
-		labelBox = new JComboBox<>(properties.keySet().toArray(
-				new String[0]));
+		labelBox = new JComboBox<>(properties.keySet().toArray(new String[0]));
 		labelBox.insertItemAt("", 0);
 		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition
 				.getLabelProperty() : "");
@@ -432,8 +430,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(Arrays.asList(Arrays
-					.asList(new LogicalHighlightCondition(properties
-							.keySet().toArray(new String[0])[0],
+					.asList(new LogicalHighlightCondition(properties.keySet()
+							.toArray(new String[0])[0],
 							LogicalHighlightCondition.EQUAL_TYPE, ""))), null,
 					false, null, false, false, null);
 		}
@@ -650,14 +648,26 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		LogicalHighlightCondition newCond = new LogicalHighlightCondition(
 				properties.keySet().toArray(new String[0])[0],
 				LogicalHighlightCondition.EQUAL_TYPE, "");
+		LogicalHighlightCondition lastCond = null;
 		boolean done = false;
 		int count = 0;
 
-		for (int i = 0; i < conditions.size(); i++) {
+		loop: for (int i = 0; i < conditions.size(); i++) {
 			for (int j = 0; j < conditions.get(i).size(); j++) {
 				if (index == count) {
 					if (addPressed) {
-						conditions.get(i).add(j, newCond);
+						if (lastCond != null) {
+							newCond.setProperty(lastCond.getProperty());
+							newCond.setType(lastCond.getType());
+						}
+
+						if (lastCond != null && j == 0 && i != 0) {
+							conditions.add(i,
+									new ArrayList<LogicalHighlightCondition>());
+							conditions.get(i).add(newCond);
+						} else {
+							conditions.get(i).add(j, newCond);
+						}
 					} else {
 						conditions.get(i).remove(j);
 
@@ -667,19 +677,27 @@ public class HighlightDialog extends JDialog implements ActionListener,
 					}
 
 					done = true;
-					break;
+					break loop;
 				}
 
+				lastCond = conditions.get(i).get(j);
 				count++;
-			}
-
-			if (done) {
-				break;
 			}
 		}
 
 		if (addPressed && !done) {
-			conditions.get(conditions.size() - 1).add(newCond);
+			if (lastCond != null) {
+				newCond.setProperty(lastCond.getProperty());
+				newCond.setType(lastCond.getType());
+			}
+
+			if (lastCond != null && conditions.size() != 1
+					&& conditions.get(conditions.size() - 1).size() == 1) {
+				conditions.add(new ArrayList<LogicalHighlightCondition>());
+				conditions.get(conditions.size() - 1).add(newCond);
+			} else {
+				conditions.get(conditions.size() - 1).add(newCond);
+			}
 		}
 
 		remove(conditionPanel);
