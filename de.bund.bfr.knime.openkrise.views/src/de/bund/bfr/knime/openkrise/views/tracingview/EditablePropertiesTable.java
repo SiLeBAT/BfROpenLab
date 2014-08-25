@@ -40,6 +40,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.text.JTextComponent;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.IdSorter;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.ui.BooleanCellRenderer;
@@ -52,7 +53,7 @@ public class EditablePropertiesTable extends JTable {
 	private List<? extends Element> elementList;
 
 	public EditablePropertiesTable(Collection<? extends Element> elements,
-			Map<String, Class<?>> properties) {
+			Map<String, Class<?>> properties, Set<String> idColumns) {
 		List<String> columnNames = new ArrayList<>();
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
@@ -76,7 +77,7 @@ public class EditablePropertiesTable extends JTable {
 
 		setModel(new PropertiesTableModel(columnNames, columnTypes,
 				columnValueTuples));
-		setAutoCreateRowSorter(true);
+		setRowSorter(new IdSorter(getModel(), idColumns));
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setDefaultRenderer(Boolean.class, new BooleanCellRenderer());
@@ -118,19 +119,18 @@ public class EditablePropertiesTable extends JTable {
 		}
 
 		int idColumn = UI.findColumn(this, TracingConstants.ID_COLUMN);
-		int caseColumn = UI.findColumn(this,
-				TracingConstants.WEIGHT_COLUMN);
+		int caseColumn = UI.findColumn(this, TracingConstants.WEIGHT_COLUMN);
 		int contaminationColumm = UI.findColumn(this,
 				TracingConstants.CROSS_CONTAMINATION_COLUMN);
-		int filterColumn = UI.findColumn(this, TracingConstants.OBSERVED_COLUMN);
+		int filterColumn = UI
+				.findColumn(this, TracingConstants.OBSERVED_COLUMN);
 
 		for (int row = 0; row < getRowCount(); row++) {
 			String id = (String) getValueAt(row, idColumn);
 			Element element = elementsById.get(id);
 
 			if (caseColumn != -1) {
-				element.getProperties().put(
-						TracingConstants.WEIGHT_COLUMN,
+				element.getProperties().put(TracingConstants.WEIGHT_COLUMN,
 						getValueAt(row, caseColumn));
 			}
 

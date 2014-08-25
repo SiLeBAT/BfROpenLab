@@ -64,13 +64,13 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 	private PropertiesDialog(Canvas<V> parent,
 			Collection<? extends Element> elements,
 			Map<String, Class<?>> properties, Type type,
-			boolean allowViewSelection) {
+			boolean allowViewSelection, Set<String> idColumns) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 
-		table = new PropertiesTable(elements, properties);
+		table = new PropertiesTable(elements, properties, idColumns);
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
 		okButton = new JButton("OK");
@@ -104,16 +104,18 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
 			Canvas<V> parent, Collection<V> nodes,
-			Map<String, Class<?>> properties, boolean allowViewSelection) {
+			Map<String, Class<?>> properties, boolean allowViewSelection,
+			Set<String> idColumns) {
 		return new PropertiesDialog<>(parent, nodes, properties, Type.NODE,
-				allowViewSelection);
+				allowViewSelection, idColumns);
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
 			Canvas<V> parent, Collection<Edge<V>> edges,
-			Map<String, Class<?>> properties, boolean allowViewSelection) {
+			Map<String, Class<?>> properties, boolean allowViewSelection,
+			Set<String> idColumns) {
 		return new PropertiesDialog<>(parent, edges, properties, Type.EDGE,
-				allowViewSelection);
+				allowViewSelection, idColumns);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,7 +81,19 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 		this.parent = parent;
 		this.type = type;
 
-		table = new EditablePropertiesTable(elements, properties);
+		Set<String> idColumns = new LinkedHashSet<>();
+
+		switch (type) {
+		case NODE:
+			idColumns.add(TracingConstants.ID_COLUMN);
+			break;
+		case EDGE:
+			idColumns.addAll(Arrays.asList(TracingConstants.ID_COLUMN,
+					TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN));
+			break;
+		}
+
+		table = new EditablePropertiesTable(elements, properties, idColumns);
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
@@ -88,13 +101,13 @@ public class EditablePropertiesDialog extends JDialog implements ActionListener 
 
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
-		weightButton = new JButton("Set All "
-				+ TracingConstants.WEIGHT_COLUMN);
+		weightButton = new JButton("Set All " + TracingConstants.WEIGHT_COLUMN);
 		weightButton.addActionListener(this);
 		contaminationButton = new JButton("Set All "
 				+ TracingConstants.CROSS_CONTAMINATION_COLUMN);
 		contaminationButton.addActionListener(this);
-		filterButton = new JButton("Set All " + TracingConstants.OBSERVED_COLUMN);
+		filterButton = new JButton("Set All "
+				+ TracingConstants.OBSERVED_COLUMN);
 		filterButton.addActionListener(this);
 
 		JScrollPane scrollPane = new JScrollPane(table);

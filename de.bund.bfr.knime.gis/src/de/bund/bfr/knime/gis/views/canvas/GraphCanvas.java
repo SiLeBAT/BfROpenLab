@@ -234,7 +234,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		PropertiesDialog<GraphNode> dialog = PropertiesDialog.createNodeDialog(
-				this, pickedAll, getNodeProperties(), false);
+				this, pickedAll, getNodeProperties(), false,
+				new LinkedHashSet<>(Arrays.asList(getNodeIdProperty())));
 
 		dialog.setVisible(true);
 	}
@@ -640,13 +641,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			break;
 		case FR_LAYOUT:
 			layout = new FRLayout<>(graph);
-			break;		
+			break;
 		case ISOM_LAYOUT:
 			layout = new ISOMLayout<>(graph);
 			break;
 		case KK_LAYOUT:
 			layout = new KKLayout<>(graph);
-			break;		
+			break;
 		}
 
 		if (nodesSelected) {

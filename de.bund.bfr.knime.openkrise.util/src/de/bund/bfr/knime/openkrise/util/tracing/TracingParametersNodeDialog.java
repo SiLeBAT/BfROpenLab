@@ -64,12 +64,18 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	 */
 	protected TracingParametersNodeDialog() {
 		set = new TracingParametersSettings();
-		nodeWeightPanel = new TableInputPanel<>(Double.class);
-		edgeWeightPanel = new TableInputPanel<>(Double.class);
-		nodeContaminationPanel = new TableInputPanel<>(Boolean.class);
-		edgeContaminationPanel = new TableInputPanel<>(Boolean.class);
-		nodeFilterPanel = new TableInputPanel<>(Boolean.class);
-		edgeFilterPanel = new TableInputPanel<>(Boolean.class);
+		nodeWeightPanel = new TableInputPanel<>(Double.class,
+				TableInputPanel.Type.NODE);
+		edgeWeightPanel = new TableInputPanel<>(Double.class,
+				TableInputPanel.Type.EDGE);
+		nodeContaminationPanel = new TableInputPanel<>(Boolean.class,
+				TableInputPanel.Type.NODE);
+		edgeContaminationPanel = new TableInputPanel<>(Boolean.class,
+				TableInputPanel.Type.EDGE);
+		nodeFilterPanel = new TableInputPanel<>(Boolean.class,
+				TableInputPanel.Type.NODE);
+		edgeFilterPanel = new TableInputPanel<>(Boolean.class,
+				TableInputPanel.Type.EDGE);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
 		addTab("Options",

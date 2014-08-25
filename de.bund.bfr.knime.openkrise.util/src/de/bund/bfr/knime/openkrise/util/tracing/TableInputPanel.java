@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -64,9 +65,14 @@ import de.bund.bfr.knime.openkrise.TracingConstants;
 public class TableInputPanel<T> extends JPanel implements ActionListener,
 		RowSorterListener, CellEditorListener, ListSelectionListener {
 
+	public static enum Type {
+		NODE, EDGE
+	}
+
 	private static final long serialVersionUID = 1L;
 
-	private Class<?> type;
+	private Class<?> classType;
+	private Type type;
 
 	private Map<String, T> values;
 	private AndOrHighlightCondition condition;
@@ -84,7 +90,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JTable inputTable;
 	private JScrollPane scrollPane;
 
-	public TableInputPanel(Class<?> type) {
+	public TableInputPanel(Class<?> classType, Type type) {
+		this.classType = classType;
 		this.type = type;
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout());
@@ -108,14 +115,14 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 						properties), BorderLayout.CENTER);
 		updateSetAll(valueForAll != null);
 
-		if (valueForAll != null && type == Double.class) {
+		if (valueForAll != null && classType == Double.class) {
 			setAllField.setText(valueForAll.toString());
 		}
 	}
 
 	public Map<String, T> getValues() {
 		if (inputTable.isEditing()) {
-			inputTable.getDefaultEditor(type).stopCellEditing();
+			inputTable.getDefaultEditor(classType).stopCellEditing();
 		}
 
 		Set<String> filteredIds = new LinkedHashSet<>();
@@ -136,9 +143,9 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	@SuppressWarnings("unchecked")
 	public T getValueForAll() throws InvalidSettingsException {
-		if (type == Boolean.class && setAllBox.isSelected()) {
+		if (classType == Boolean.class && setAllBox.isSelected()) {
 			return (T) Boolean.TRUE;
-		} else if (type == Double.class && setAllBox.isSelected()) {
+		} else if (classType == Double.class && setAllBox.isSelected()) {
 			try {
 				return (T) new Double(Double.parseDouble(setAllField.getText()));
 			} catch (NumberFormatException e) {
@@ -239,10 +246,10 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		setAllField = new JTextField(10);
 		setAllField.setEnabled(false);
 
-		if (type == Boolean.class) {
+		if (classType == Boolean.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
 					clearButton, setAllBox));
-		} else if (type == Double.class) {
+		} else if (classType == Double.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
 					clearButton, setAllBox, setAllField));
 		}
@@ -252,12 +259,24 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	private JComponent createInputPanel(Collection<? extends Element> nodes,
 			Map<String, Class<?>> nodeProperties) {
-		table = new PropertiesTable(nodes, nodeProperties);
-		inputTable = new InputTable(type, table.getRowCount());
+		Set<String> idColumns = new LinkedHashSet<>();
+
+		switch (type) {
+		case NODE:
+			idColumns.add(TracingConstants.ID_COLUMN);
+			break;
+		case EDGE:
+			idColumns.addAll(Arrays.asList(TracingConstants.ID_COLUMN,
+					TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN));
+			break;
+		}
+
+		table = new PropertiesTable(nodes, nodeProperties, idColumns);
+		inputTable = new InputTable(classType, table.getRowCount());
 
 		table.getRowSorter().addRowSorterListener(this);
 		table.getRowSorter().toggleSortOrder(0);
-		inputTable.getDefaultEditor(type).addCellEditorListener(this);
+		inputTable.getDefaultEditor(classType).addCellEditorListener(this);
 		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		inputTable.getSelectionModel().addListSelectionListener(this);
 		scrollPane = new JScrollPane();

@@ -47,7 +47,7 @@ public class PropertiesTable extends JTable {
 	private List<? extends Element> elementList;
 
 	public PropertiesTable(Collection<? extends Element> elements,
-			Map<String, Class<?>> properties) {
+			Map<String, Class<?>> properties, Set<String> idColumns) {
 		List<String> columnNames = new ArrayList<>();
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
@@ -71,7 +71,7 @@ public class PropertiesTable extends JTable {
 
 		setModel(new PropertiesTableModel(columnNames, columnTypes,
 				columnValueTuples));
-		setAutoCreateRowSorter(true);
+		setRowSorter(new IdSorter(getModel(), idColumns));
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setDefaultRenderer(Boolean.class, new BooleanCellRenderer());
