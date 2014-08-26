@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -333,7 +334,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			return;
 		}
 
-		Map<String, Set<GraphNode>> nodesByProperty = new LinkedHashMap<>();
+		Map<Object, Set<GraphNode>> nodesByProperty = new LinkedHashMap<>();
 
 		for (String id : CanvasUtils.getElementIds(allNodes)) {
 			GraphNode node = nodeSaveMap.get(id);
@@ -343,21 +344,34 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				continue;
 			}
 
-			String stringValue = value.toString();
-
-			if (!nodesByProperty.containsKey(stringValue)) {
-				nodesByProperty
-						.put(stringValue, new LinkedHashSet<GraphNode>());
+			if (!nodesByProperty.containsKey(value)) {
+				nodesByProperty.put(value, new LinkedHashSet<GraphNode>());
 			}
 
-			nodesByProperty.get(stringValue).add(node);
+			nodesByProperty.get(value).add(node);
 		}
 
-		List<String> propertyList = new ArrayList<>(nodesByProperty.keySet());
+		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
 
-		Collections.sort(propertyList);
+		Collections.sort(propertyList, new Comparator<Object>() {
 
-		ListFilterDialog<String> dialog = new ListFilterDialog<>(this,
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof String && o2 instanceof String) {
+					return ((String) o1).compareTo((String) o2);
+				} else if (o1 instanceof Integer && o2 instanceof Integer) {
+					return ((Integer) o1).compareTo((Integer) o2);
+				} else if (o1 instanceof Double && o2 instanceof Double) {
+					return ((Double) o1).compareTo((Double) o2);
+				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+					return ((Boolean) o1).compareTo((Boolean) o2);
+				}
+
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(this,
 				propertyList);
 
 		dialog.setVisible(true);
@@ -374,8 +388,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		collapsedNodes.clear();
 
-		for (String value : nodesByProperty.keySet()) {
-			String newId = KnimeUtils.createNewValue(value,
+		for (Object value : nodesByProperty.keySet()) {
+			String newId = KnimeUtils.createNewValue(value.toString(),
 					nodeSaveMap.keySet());
 			Map<String, Point2D> absPos = getNodePositions(nodesByProperty
 					.get(value));
