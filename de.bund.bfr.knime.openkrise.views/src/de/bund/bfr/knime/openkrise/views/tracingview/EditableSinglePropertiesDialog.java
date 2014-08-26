@@ -59,7 +59,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 
 	private JTextField caseField;
 	private JCheckBox contaminationBox;
-	private JCheckBox filterBox;
+	private JCheckBox observedBox;
 
 	private boolean approved;
 
@@ -69,48 +69,66 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 				DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
-		JPanel centerPanel = new JPanel();
+		JPanel leftNorthPanel = new JPanel();
+		JPanel rightNorthPanel = new JPanel();
+
+		leftNorthPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightNorthPanel.setLayout(new GridLayout(3, 1, 5, 5));
+
+		double weight = 0.0;
+		boolean crossContamination = false;
+		boolean observed = false;
+
+		if (element.getProperties().get(TracingConstants.WEIGHT_COLUMN) != null) {
+			weight = (Double) element.getProperties().get(
+					TracingConstants.WEIGHT_COLUMN);
+		}
+
+		if (element.getProperties().get(
+				TracingConstants.CROSS_CONTAMINATION_COLUMN) != null) {
+			crossContamination = (Boolean) element.getProperties().get(
+					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+		}
+
+		if (element.getProperties().get(TracingConstants.OBSERVED_COLUMN) != null) {
+			observed = (Boolean) element.getProperties().get(
+					TracingConstants.OBSERVED_COLUMN);
+		}
+
+		caseField = new JTextField("" + weight);
+		contaminationBox = new JCheckBox("", crossContamination);
+		observedBox = new JCheckBox("", observed);
+
+		leftNorthPanel.add(new JLabel(TracingConstants.WEIGHT_COLUMN + ":"));
+		leftNorthPanel.add(new JLabel(
+				TracingConstants.CROSS_CONTAMINATION_COLUMN + ":"));
+		leftNorthPanel.add(new JLabel(TracingConstants.OBSERVED_COLUMN + ":"));
+		rightNorthPanel.add(caseField);
+		rightNorthPanel.add(contaminationBox);
+		rightNorthPanel.add(observedBox);
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setBorder(BorderFactory.createTitledBorder("Input"));
+		northPanel.setLayout(new BorderLayout(5, 5));
+		northPanel.add(leftNorthPanel, BorderLayout.WEST);
+		northPanel.add(rightNorthPanel, BorderLayout.CENTER);
+
 		JPanel leftCenterPanel = new JPanel();
 		JPanel rightCenterPanel = new JPanel();
 
-		leftCenterPanel.setLayout(new GridLayout(properties.size(), 1, 5, 5));
-		rightCenterPanel.setLayout(new GridLayout(properties.size(), 1, 5, 5));
+		leftCenterPanel
+				.setLayout(new GridLayout(properties.size() - 3, 1, 5, 5));
+		rightCenterPanel.setLayout(new GridLayout(properties.size() - 3, 1, 5,
+				5));
 
 		for (String property : properties.keySet()) {
 			Object value = element.getProperties().get(property);
 
-			leftCenterPanel.add(new JLabel(property + ":"));
-
-			if (property.equals(TracingConstants.WEIGHT_COLUMN)) {
-				caseField = new JTextField();
-
-				if (value != null) {
-					caseField.setText(value.toString());
-				}
-
-				rightCenterPanel.add(caseField);
-			} else if (property
-					.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
-				contaminationBox = new JCheckBox();
-
-				if (value != null) {
-					contaminationBox.setSelected((Boolean) value);
-				} else {
-					contaminationBox.setSelected(false);
-				}
-
-				rightCenterPanel.add(contaminationBox);
-			} else if (property.equals(TracingConstants.OBSERVED_COLUMN)) {
-				filterBox = new JCheckBox();
-
-				if (value != null) {
-					filterBox.setSelected((Boolean) value);
-				} else {
-					filterBox.setSelected(false);
-				}
-
-				rightCenterPanel.add(filterBox);
-			} else {
+			if (!property.equals(TracingConstants.WEIGHT_COLUMN)
+					&& !property
+							.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)
+					&& !property.equals(TracingConstants.OBSERVED_COLUMN)) {
 				JTextField field = new JTextField();
 
 				if (value != null) {
@@ -121,9 +139,12 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 				}
 
 				field.setEditable(false);
+				leftCenterPanel.add(new JLabel(property + ":"));
 				rightCenterPanel.add(field);
 			}
 		}
+
+		JPanel centerPanel = new JPanel();
 
 		centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		centerPanel.setLayout(new BorderLayout(5, 5));
@@ -136,6 +157,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 		cancelButton.addActionListener(this);
 
 		setLayout(new BorderLayout());
+		add(northPanel, BorderLayout.NORTH);
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)),
 				BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
@@ -152,35 +174,26 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
-			if (caseField != null) {
-				if (caseField.getText().isEmpty()) {
-					element.getProperties().put(
-							TracingConstants.WEIGHT_COLUMN, null);
-				} else {
-					try {
-						element.getProperties().put(
-								TracingConstants.WEIGHT_COLUMN,
-								Double.parseDouble(caseField.getText()));
-					} catch (NumberFormatException ex) {
-						JOptionPane.showMessageDialog(this,
-								"Please enter valid number for "
-										+ TracingConstants.WEIGHT_COLUMN,
-								"Error", JOptionPane.ERROR_MESSAGE);
-					}
+			if (caseField.getText().isEmpty()) {
+				element.getProperties()
+						.put(TracingConstants.WEIGHT_COLUMN, 0.0);
+			} else {
+				try {
+					element.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+							Double.parseDouble(caseField.getText()));
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(this,
+							"Please enter valid number for "
+									+ TracingConstants.WEIGHT_COLUMN, "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 
-			if (contaminationBox != null) {
-				element.getProperties().put(
-						TracingConstants.CROSS_CONTAMINATION_COLUMN,
-						contaminationBox.isSelected());
-			}
-
-			if (filterBox != null) {
-				element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
-						filterBox.isSelected());
-			}
-
+			element.getProperties().put(
+					TracingConstants.CROSS_CONTAMINATION_COLUMN,
+					contaminationBox.isSelected());
+			element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+					observedBox.isSelected());
 			approved = true;
 			dispose();
 		} else if (e.getSource() == cancelButton) {
