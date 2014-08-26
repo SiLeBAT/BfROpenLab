@@ -95,7 +95,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 					TracingConstants.OBSERVED_COLUMN);
 		}
 
-		caseField = new JTextField("" + weight);
+		caseField = new JTextField(String.valueOf(weight));
 		contaminationBox = new JCheckBox("", crossContamination);
 		observedBox = new JCheckBox("", observed);
 

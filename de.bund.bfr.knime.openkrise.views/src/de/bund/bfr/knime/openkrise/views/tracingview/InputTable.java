@@ -177,7 +177,8 @@ public class InputTable extends JTable {
 				int column) {
 			Input input = (Input) value;
 			JPanel panel = new JPanel();
-			JTextField weightField = new JTextField("" + input.getWeight());
+			JTextField weightField = new JTextField(String.valueOf(input
+					.getWeight()));
 			JCheckBox ccBox = new JCheckBox();
 			JCheckBox observedBox = new JCheckBox();
 
@@ -237,7 +238,7 @@ public class InputTable extends JTable {
 				Object value, boolean isSelected, int row, int column) {
 			Input input = (Input) value;
 
-			weightField.setText("" + input.getWeight());
+			weightField.setText(String.valueOf(input.getWeight()));
 			ccBox.setSelected(input.isCrossContamination());
 			observedBox.setSelected(input.isObserved());
 
