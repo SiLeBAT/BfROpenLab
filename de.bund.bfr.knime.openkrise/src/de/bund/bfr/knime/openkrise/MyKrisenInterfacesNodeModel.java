@@ -27,6 +27,7 @@ package de.bund.bfr.knime.openkrise;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -70,16 +71,16 @@ import de.bund.bfr.knime.openkrise.MyNewTracing;
  */
 public class MyKrisenInterfacesNodeModel extends NodeModel {
 
-	/*
-	 * static final String PARAM_FILENAME = "filename"; static final String
-	 * PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
-	 * static final String PARAM_OVERRIDE = "override";
-	 */
+	
+	static final String PARAM_FILENAME = "filename"; static final String
+	PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_OVERRIDE = "override";
+	 
 	static final String PARAM_ANONYMIZE = "anonymize";
-	/*
-	 * private String filename; private String login; private String passwd;
-	 * private boolean override;
-	 */
+	
+	private String filename; private String login; private String passwd;
+	private boolean override;
+	
 	private boolean doAnonymize;
 
 	private boolean isDE = false;
@@ -96,17 +97,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
-		/*
-		 * Hsqldbiface db = null; if (override) { db = new Hsqldbiface(filename,
-		 * login, passwd); } else { db = new
-		 * Hsqldbiface(DBKernel.getLocalConn(true)); } //if (doAnonymize)
-		 * doAnonymizeHard(db.getConnection());
-		 */
+	
+		Connection conn = override ? getNewLocalConnection(login, passwd, filename) : null;
+		//if (doAnonymize) doAnonymizeHard(conn);
+	
 
 		System.err.println("Starting Plausibility Checks...");
 		// Date_In <= Date_Out???
 		String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"ID\" AS \"ID_In\", \"L2\".\"ID\" AS \"ID_Out\", \"L1\".\"dd_day\" AS \"Day_In\",\"L2\".\"dd_day\" AS \"Day_Out\", \"L1\".\"dd_month\" AS \"Month_In\",\"L2\".\"dd_month\" AS \"Month_Out\", \"L1\".\"dd_year\" AS \"Year_In\",\"L2\".\"dd_year\" AS \"Year_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND (\"L2\".\"dd_year\" < \"L1\".\"dd_year\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" < \"L1\".\"dd_month\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" = \"L1\".\"dd_month\" AND \"L2\".\"dd_day\" < \"L1\".\"dd_day\")";
-		ResultSet rsp = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+		ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
 		if (rsp != null && rsp.first()) {
 			do {
 				System.err.println("Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In")
@@ -115,7 +114,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 		// Sum(In) <=> Sum(Out)???
 		sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"ID\") AS \"id1\",GROUP_CONCAT(\"L2\".\"ID\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
-		rsp = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+		rsp = DBKernel.getResultSet(conn, sql, false);
 		if (rsp != null && rsp.first()) {
 			do {
 				if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
@@ -129,14 +128,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		System.err.println("Starting Tracing...");
-		MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi);
+		MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
 		System.err.println("Starting Nodes33...");
 		//HashSet<Integer> toBeMerged = new HashSet<Integer>();
 		//LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>();
 		// Alle Stationen -> Nodes33
 		BufferedDataContainer output33Nodes = exec.createDataContainer(getSpec33Nodes());
-		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Station"), false);//db.pushQuery(sql);
+		ResultSet rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Station"), false);
 		if (rs != null && rs.first()) {
 			int rowNumber = 0;
 			do {
@@ -196,10 +195,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		System.err.println("Starting Links33...");
 		// Alle Lieferungen -> Links33
 		BufferedDataContainer output33Links = exec.createDataContainer(getSpec33Links());
-		rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen")
+		rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen")
 				+ "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog")
 				+ " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID")
-				+ " ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"), false);//db.pushQuery(sql);
+				+ " ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"), false);
 		if (rs != null && rs.first()) {
 			int rowNumber = 0;
 			do {
@@ -415,6 +414,18 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			e.printStackTrace();
 		}
 	}
+	private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
+		Connection result = null;
+		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+		String connStr = "jdbc:hsqldb:file:" + dbFile;
+		try {
+			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
+			result.setReadOnly(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -439,12 +450,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		/*
-		 * settings.addString(PARAM_FILENAME, filename);
-		 * settings.addString(PARAM_LOGIN, login);
-		 * settings.addString(PARAM_PASSWD, passwd);
-		 * settings.addBoolean(PARAM_OVERRIDE, override);
-		 */
+	
+		settings.addString(PARAM_FILENAME, filename);
+		settings.addString(PARAM_LOGIN, login);
+		settings.addString(PARAM_PASSWD, passwd);
+		settings.addBoolean(PARAM_OVERRIDE, override);
+		
 		settings.addBoolean(PARAM_ANONYMIZE, doAnonymize);
 	}
 
@@ -453,12 +464,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		/*
-		 * filename = settings.getString(PARAM_FILENAME); login =
-		 * settings.getString(PARAM_LOGIN); passwd =
-		 * settings.getString(PARAM_PASSWD); override =
-		 * settings.getBoolean(PARAM_OVERRIDE);
-		 */
+	
+		filename = settings.getString(PARAM_FILENAME); login =
+		settings.getString(PARAM_LOGIN); passwd =
+		settings.getString(PARAM_PASSWD); override =
+		settings.getBoolean(PARAM_OVERRIDE);
+		
 		doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
 	}
 
