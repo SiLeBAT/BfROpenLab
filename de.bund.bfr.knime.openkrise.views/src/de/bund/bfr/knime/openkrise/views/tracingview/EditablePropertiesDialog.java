@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -39,13 +40,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -154,12 +155,13 @@ public class EditablePropertiesDialog extends JDialog implements
 
 		JPanel cornerPanel = new JPanel();
 
-		cornerPanel.setLayout(new GridLayout(1, 3, 5, 5));
-		cornerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		cornerPanel.add(new JLabel(TracingConstants.WEIGHT_COLUMN));
+		cornerPanel.setLayout(new GridLayout(1, 3));
 		cornerPanel
-				.add(new JLabel(TracingConstants.CROSS_CONTAMINATION_COLUMN));
-		cornerPanel.add(new JLabel(TracingConstants.OBSERVED_COLUMN));
+				.add(getTableHeaderComponent(TracingConstants.WEIGHT_COLUMN));
+		cornerPanel
+				.add(getTableHeaderComponent(TracingConstants.CROSS_CONTAMINATION_COLUMN));
+		cornerPanel
+				.add(getTableHeaderComponent(TracingConstants.OBSERVED_COLUMN));
 
 		scrollPane = new JScrollPane();
 		scrollPane
@@ -375,5 +377,12 @@ public class EditablePropertiesDialog extends JDialog implements
 		}
 
 		applyValues();
+	}
+
+	private static Component getTableHeaderComponent(String name) {
+		JTable table = new JTable(new Object[1][1], new Object[] { name });
+
+		return table.getTableHeader().getDefaultRenderer()
+				.getTableCellRendererComponent(table, name, false, false, 0, 0);
 	}
 }
