@@ -329,6 +329,11 @@ public class EditablePropertiesDialog extends JDialog implements
 
 	@Override
 	public void sorterChanged(RowSorterEvent e) {
+		if (inputTable.isEditing()) {
+			inputTable.getColumn(InputTable.INPUT).getCellEditor()
+					.stopCellEditing();
+		}
+		
 		applyValues();
 	}
 

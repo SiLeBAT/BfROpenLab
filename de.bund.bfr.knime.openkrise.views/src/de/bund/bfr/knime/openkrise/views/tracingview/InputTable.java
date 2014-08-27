@@ -26,8 +26,6 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
@@ -37,8 +35,8 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -120,6 +118,12 @@ public class InputTable extends JTable {
 		public void setObserved(boolean observed) {
 			this.observed = observed;
 		}
+
+		@Override
+		public String toString() {
+			return "Input [weight=" + weight + ", crossContamination="
+					+ crossContamination + ", observed=" + observed + "]";
+		}
 	}
 
 	private static class InputTableModel extends AbstractTableModel {
@@ -175,86 +179,116 @@ public class InputTable extends JTable {
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			Input input = (Input) value;
+			Input input = (Input) value;			
 			JPanel panel = new JPanel();
-			JTextField weightField = new JTextField(String.valueOf(input
-					.getWeight()));
-			JCheckBox ccBox = new JCheckBox();
-			JCheckBox observedBox = new JCheckBox();
 
-			weightField.setBorder(null);
-			weightField.setHorizontalAlignment(JTextField.RIGHT);
-			ccBox.setSelected(input.isCrossContamination());
-			ccBox.setHorizontalAlignment(SwingConstants.CENTER);
-			observedBox.setSelected(input.isObserved());
-			observedBox.setHorizontalAlignment(SwingConstants.CENTER);
-
-			panel.setLayout(new GridLayout(1, 3, 5, 5));
-			panel.add(weightField);
-			panel.add(ccBox);
-			panel.add(observedBox);
+			panel.setLayout(new GridLayout(1, 3));
+			panel.add(getTableRendererComponent(input.getWeight(),
+					Double.class, isSelected, hasFocus));
+			panel.add(getTableRendererComponent(input.isCrossContamination(),
+					Boolean.class, isSelected, hasFocus));
+			panel.add(getTableRendererComponent(input.isObserved(),
+					Boolean.class, isSelected, hasFocus));
 
 			return panel;
+		}
+
+		private static Component getTableRendererComponent(Object value,
+				Class<?> columnClass, boolean isSelected, boolean hasFocus) {
+			JTable table = new JTable(new Object[][] { { value } },
+					new Object[] { "" });
+
+			return table.getDefaultRenderer(columnClass)
+					.getTableCellRendererComponent(table, value, isSelected,
+							hasFocus, 0, 0);
 		}
 	}
 
 	private static class InputEditor extends AbstractCellEditor implements
-			ActionListener, TableCellEditor, FocusListener {
+			TableCellEditor, CellEditorListener, FocusListener {
 
 		private static final long serialVersionUID = 1L;
 
-		private JTextField weightField;
-		private JCheckBox ccBox;
-		private JCheckBox observedBox;
+		private TableCellEditor weightEditor;
+		private TableCellEditor ccEditor;
+		private TableCellEditor observedEditor;
 
 		public InputEditor() {
-			weightField = new JTextField();
-			weightField.setBorder(null);
-			weightField.setHorizontalAlignment(JTextField.RIGHT);
-			weightField.addFocusListener(this);
-			ccBox = new JCheckBox();
-			ccBox.addActionListener(this);
-			ccBox.setHorizontalAlignment(SwingConstants.CENTER);
-			observedBox = new JCheckBox();
-			observedBox.setHorizontalAlignment(SwingConstants.CENTER);
-			observedBox.addActionListener(this);
+			weightEditor = null;
+			ccEditor = null;
+			observedEditor = null;
 		}
 
 		@Override
 		public Object getCellEditorValue() {
 			double weight = 0.0;
+			boolean cc = false;
+			boolean observed = false;
 
 			try {
-				weight = Double.parseDouble(weightField.getText());
+				weight = Double.parseDouble(weightEditor.getCellEditorValue()
+						.toString());
 			} catch (NumberFormatException e) {
+			} catch (NullPointerException e) {
 			}
 
-			return new Input(weight, ccBox.isSelected(),
-					observedBox.isSelected());
+			try {
+				cc = (Boolean) ccEditor.getCellEditorValue();
+			} catch (ClassCastException e) {
+			} catch (NullPointerException e) {
+			}
+
+			try {
+				observed = (Boolean) observedEditor.getCellEditorValue();
+			} catch (ClassCastException e) {
+			} catch (NullPointerException e) {
+			}
+
+			return new Input(weight, cc, observed);
 		}
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table,
 				Object value, boolean isSelected, int row, int column) {
 			Input input = (Input) value;
+			JTable weightTable = new JTable(
+					new Object[][] { { input.getWeight() } },
+					new Object[] { "" });
+			JTable ccTable = new JTable(
+					new Object[][] { { input.isCrossContamination() } },
+					new Object[] { "" });
+			JTable observedTable = new JTable(
+					new Object[][] { { input.isObserved() } },
+					new Object[] { "" });
 
-			weightField.setText(String.valueOf(input.getWeight()));
-			ccBox.setSelected(input.isCrossContamination());
-			observedBox.setSelected(input.isObserved());
+			weightEditor = weightTable.getDefaultEditor(Double.class);
+			weightEditor.addCellEditorListener(this);
+			ccEditor = ccTable.getDefaultEditor(Boolean.class);
+			ccEditor.addCellEditorListener(this);
+			observedEditor = observedTable.getDefaultEditor(Boolean.class);
+			observedEditor.addCellEditorListener(this);
 
 			JPanel panel = new JPanel();
 
-			panel.setLayout(new GridLayout(1, 3, 5, 5));
-			panel.add(weightField);
-			panel.add(ccBox);
-			panel.add(observedBox);
+			panel.setLayout(new GridLayout(1, 3));
+			panel.add(weightEditor.getTableCellEditorComponent(weightTable,
+					input.getWeight(), isSelected, 0, 0));
+			panel.add(ccEditor.getTableCellEditorComponent(ccTable,
+					input.isCrossContamination(), isSelected, 0, 0));
+			panel.add(observedEditor.getTableCellEditorComponent(observedTable,
+					input.isObserved(), isSelected, 0, 0));
 
 			return panel;
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void editingStopped(ChangeEvent e) {
 			stopCellEditing();
+		}
+
+		@Override
+		public void editingCanceled(ChangeEvent e) {
+			cancelCellEditing();
 		}
 
 		@Override
@@ -263,7 +297,7 @@ public class InputTable extends JTable {
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			weightField.selectAll();
+			// weightField.selectAll();
 		}
 	}
 }
