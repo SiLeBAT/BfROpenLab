@@ -33,6 +33,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.AbstractTableModel;
@@ -41,6 +42,7 @@ import javax.swing.table.TableCellRenderer;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class InputTable extends JTable {
 
@@ -196,6 +198,8 @@ public class InputTable extends JTable {
 			JTable table = new JTable(new Object[][] { { value } },
 					new Object[] { "" });
 
+			table.setDefaultRenderer(Double.class, new DoubleCellRenderer());
+
 			return table.getDefaultRenderer(columnClass)
 					.getTableCellRendererComponent(table, value, isSelected,
 							hasFocus, 0, 0);
@@ -211,6 +215,8 @@ public class InputTable extends JTable {
 		private JTable ccTable;
 		private JTable observedTable;
 
+		private JTextField weightField;
+
 		public InputEditor() {
 			weightTable = new JTable(new SimpleModel(Double.class));
 			ccTable = new JTable(new SimpleModel(Boolean.class));
@@ -219,6 +225,12 @@ public class InputTable extends JTable {
 
 		@Override
 		public Object getCellEditorValue() {
+			try {
+				weightTable.setValueAt(
+						Double.parseDouble(weightField.getText()), 0, 0);
+			} catch (NumberFormatException ex) {
+			}
+
 			double weight = 0.0;
 			boolean cc = false;
 			boolean observed = false;
@@ -248,11 +260,6 @@ public class InputTable extends JTable {
 		public Component getTableCellEditorComponent(JTable table,
 				Object value, boolean isSelected, int row, int column) {
 			Input input = (Input) value;
-
-			weightTable.setValueAt(input.getWeight(), 0, 0);
-			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
-			observedTable.setValueAt(input.isObserved(), 0, 0);
-
 			TableCellEditor weightEditor = weightTable
 					.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
@@ -263,11 +270,17 @@ public class InputTable extends JTable {
 			ccEditor.addCellEditorListener(this);
 			observedEditor.addCellEditorListener(this);
 
+			weightTable.setValueAt(input.getWeight(), 0, 0);
+			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
+			observedTable.setValueAt(input.isObserved(), 0, 0);
+			weightField = (JTextField) weightEditor
+					.getTableCellEditorComponent(weightTable,
+							input.getWeight(), isSelected, 0, 0);
+
 			JPanel panel = new JPanel();
 
 			panel.setLayout(new GridLayout(1, 3));
-			panel.add(weightEditor.getTableCellEditorComponent(weightTable,
-					input.getWeight(), isSelected, 0, 0));
+			panel.add(weightField);
 			panel.add(ccEditor.getTableCellEditorComponent(ccTable,
 					input.isCrossContamination(), isSelected, 0, 0));
 			panel.add(observedEditor.getTableCellEditorComponent(observedTable,
@@ -301,7 +314,7 @@ public class InputTable extends JTable {
 		}
 
 		@Override
-		public void editingCanceled(ChangeEvent e) {			
+		public void editingCanceled(ChangeEvent e) {
 		}
 	}
 

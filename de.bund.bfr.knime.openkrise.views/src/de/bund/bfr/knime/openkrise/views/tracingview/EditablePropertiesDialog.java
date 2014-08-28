@@ -129,6 +129,8 @@ public class EditablePropertiesDialog extends JDialog implements
 		table = new PropertiesTable(elementList, uneditableProperties,
 				idColumns);
 		table.getRowSorter().addRowSorterListener(this);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.getSelectionModel().addListSelectionListener(this);
 		inputTable = new InputTable(elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor()
 				.addCellEditorListener(this);
@@ -333,20 +335,29 @@ public class EditablePropertiesDialog extends JDialog implements
 			inputTable.getColumn(InputTable.INPUT).getCellEditor()
 					.stopCellEditing();
 		}
-		
+
 		applyValues();
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
-		int hScroll = scrollPane.getHorizontalScrollBar().getValue();
+		if (e.getSource() == inputTable.getSelectionModel()) {
+			int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
+			int hScroll = scrollPane.getHorizontalScrollBar().getValue();
 
-		table.getSelectionModel().setSelectionInterval(i, i);
-		table.setVisible(false);
-		table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
-		scrollPane.getHorizontalScrollBar().setValue(hScroll);
-		table.setVisible(true);
+			table.getSelectionModel().setSelectionInterval(i, i);
+			table.setVisible(false);
+			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0,
+					true)));
+			scrollPane.getHorizontalScrollBar().setValue(hScroll);
+			table.setVisible(true);
+		} else if (e.getSource() == table.getSelectionModel()) {
+			int i = table.getSelectionModel().getAnchorSelectionIndex();
+
+			inputTable.getSelectionModel().removeListSelectionListener(this);
+			inputTable.getSelectionModel().setSelectionInterval(i, i);
+			inputTable.getSelectionModel().addListSelectionListener(this);
+		}
 	}
 
 	private void updateValues() {

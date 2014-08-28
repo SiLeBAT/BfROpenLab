@@ -210,13 +210,6 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 				inputTable.setValueAt(values.get(id), row, 0);
 			}
 		}
-
-		// int i = table.getSelectionModel().getAnchorSelectionIndex();
-		//
-		// System.out.println(i);
-		// inputTable.getSelectionModel().removeListSelectionListener(this);
-		// inputTable.getSelectionModel().setSelectionInterval(i, i);
-		// inputTable.getSelectionModel().addListSelectionListener(this);
 	}
 
 	@SuppressWarnings("unchecked")
