@@ -24,6 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -42,14 +43,14 @@ public class MyNewTracingLoader {
 	private static HashSet<Integer> ccStations = null;
 	private static double caseSum = 0;
 
-	public static MyNewTracing getNewTracingModel(MyDBI myDBi) {
+	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
 		// Zeroly: get all cases
 		caseStations = new HashMap<>();
 		ccStations = new HashSet<>();
 		//ccDeliveries = new HashSet<Integer>();
 		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CasePriority") + " FROM " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("CasePriority") + " > 0";
 		try {
-			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			caseSum = 0;
 			if (rs != null && rs.first()) {
 				do {
@@ -74,7 +75,7 @@ public class MyNewTracingLoader {
     			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
 		try {
-			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
 					MyDelivery md = new MyDelivery(rs.getInt("ID"), rs.getInt("Station"), rs.getInt("Empfänger"), (Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
@@ -94,7 +95,7 @@ public class MyNewTracingLoader {
 				" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ProduktLieferungen") +
 				" ON " + DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt");
 		try {
-			ResultSet rs = DBKernel.getResultSet(sql, false);//db.pushQuery(sql);
+			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
 					MyDelivery mdZ = allDeliveries.get(rs.getInt(1));

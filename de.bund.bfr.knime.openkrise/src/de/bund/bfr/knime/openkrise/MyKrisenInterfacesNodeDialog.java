@@ -41,30 +41,30 @@ import org.knime.core.node.port.PortObjectSpec;
  */
 public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
-	//private DbConfigurationUi dbui;
+	private DbConfigurationUi dbui;
 	private JCheckBox doAnonymize;
 
 	protected MyKrisenInterfacesNodeDialog() {
 		JPanel panel = new JPanel();
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));   	
     	
-    	//dbui = new DbConfigurationUi();
+    	dbui = new DbConfigurationUi();
 
     	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymize Data"); panel.add(doAnonymize);
     	
     	addTab("Tracing/Filtering", panel);
-    	//addTab("Database connection", dbui);
+    	addTab("Database connection", dbui);
     }
 	
 	@Override
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {
-		/*
+		
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, dbui.getFilename());
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_LOGIN, dbui.getLogin());
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_PASSWD, dbui.getPasswd());
 		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride());
-*/
+
 		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected());
 		
 	}
@@ -72,12 +72,12 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	@Override
 	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {		
 		try {
-			/*
+			
 			dbui.setFilename(settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILENAME));
 			dbui.setLogin( settings.getString( MyKrisenInterfacesNodeModel.PARAM_LOGIN));
 			dbui.setPasswd(settings.getString( MyKrisenInterfacesNodeModel.PARAM_PASSWD));
 			dbui.setOverride(settings.getBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
-*/
+
 			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
 
 		}
