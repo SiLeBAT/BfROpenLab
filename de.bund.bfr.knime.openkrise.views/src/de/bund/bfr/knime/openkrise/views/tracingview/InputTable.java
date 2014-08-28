@@ -26,8 +26,6 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -179,7 +177,7 @@ public class InputTable extends JTable {
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			Input input = (Input) value;			
+			Input input = (Input) value;
 			JPanel panel = new JPanel();
 
 			panel.setLayout(new GridLayout(1, 3));
@@ -205,18 +203,18 @@ public class InputTable extends JTable {
 	}
 
 	private static class InputEditor extends AbstractCellEditor implements
-			TableCellEditor, CellEditorListener, FocusListener {
+			TableCellEditor, CellEditorListener {
 
 		private static final long serialVersionUID = 1L;
 
-		private TableCellEditor weightEditor;
-		private TableCellEditor ccEditor;
-		private TableCellEditor observedEditor;
+		private JTable weightTable;
+		private JTable ccTable;
+		private JTable observedTable;
 
 		public InputEditor() {
-			weightEditor = null;
-			ccEditor = null;
-			observedEditor = null;
+			weightTable = new JTable(new SimpleModel(Double.class));
+			ccTable = new JTable(new SimpleModel(Boolean.class));
+			observedTable = new JTable(new SimpleModel(Boolean.class));
 		}
 
 		@Override
@@ -226,20 +224,19 @@ public class InputTable extends JTable {
 			boolean observed = false;
 
 			try {
-				weight = Double.parseDouble(weightEditor.getCellEditorValue()
-						.toString());
-			} catch (NumberFormatException e) {
-			} catch (NullPointerException e) {
-			}
-
-			try {
-				cc = (Boolean) ccEditor.getCellEditorValue();
+				weight = (Double) weightTable.getValueAt(0, 0);
 			} catch (ClassCastException e) {
 			} catch (NullPointerException e) {
 			}
 
 			try {
-				observed = (Boolean) observedEditor.getCellEditorValue();
+				cc = (Boolean) ccTable.getValueAt(0, 0);
+			} catch (ClassCastException e) {
+			} catch (NullPointerException e) {
+			}
+
+			try {
+				observed = (Boolean) observedTable.getValueAt(0, 0);
 			} catch (ClassCastException e) {
 			} catch (NullPointerException e) {
 			}
@@ -251,21 +248,19 @@ public class InputTable extends JTable {
 		public Component getTableCellEditorComponent(JTable table,
 				Object value, boolean isSelected, int row, int column) {
 			Input input = (Input) value;
-			JTable weightTable = new JTable(
-					new Object[][] { { input.getWeight() } },
-					new Object[] { "" });
-			JTable ccTable = new JTable(
-					new Object[][] { { input.isCrossContamination() } },
-					new Object[] { "" });
-			JTable observedTable = new JTable(
-					new Object[][] { { input.isObserved() } },
-					new Object[] { "" });
 
-			weightEditor = weightTable.getDefaultEditor(Double.class);
+			weightTable.setValueAt(input.getWeight(), 0, 0);
+			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
+			observedTable.setValueAt(input.isObserved(), 0, 0);
+
+			TableCellEditor weightEditor = weightTable
+					.getDefaultEditor(Double.class);
+			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
+			TableCellEditor observedEditor = observedTable
+					.getDefaultEditor(Boolean.class);
+
 			weightEditor.addCellEditorListener(this);
-			ccEditor = ccTable.getDefaultEditor(Boolean.class);
 			ccEditor.addCellEditorListener(this);
-			observedEditor = observedTable.getDefaultEditor(Boolean.class);
 			observedEditor.addCellEditorListener(this);
 
 			JPanel panel = new JPanel();
@@ -283,21 +278,73 @@ public class InputTable extends JTable {
 
 		@Override
 		public void editingStopped(ChangeEvent e) {
+			TableCellEditor weightEditor = weightTable
+					.getDefaultEditor(Double.class);
+			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
+			TableCellEditor observedEditor = observedTable
+					.getDefaultEditor(Boolean.class);
+
+			if (e.getSource() == weightEditor) {
+				weightTable.setValueAt(weightEditor.getCellEditorValue(), 0, 0);
+			}
+
+			if (e.getSource() == ccEditor) {
+				ccTable.setValueAt(ccEditor.getCellEditorValue(), 0, 0);
+			}
+
+			if (e.getSource() == observedEditor) {
+				observedTable.setValueAt(observedEditor.getCellEditorValue(),
+						0, 0);
+			}
+
 			stopCellEditing();
 		}
 
 		@Override
-		public void editingCanceled(ChangeEvent e) {
-			cancelCellEditing();
+		public void editingCanceled(ChangeEvent e) {			
+		}
+	}
+
+	private static class SimpleModel extends AbstractTableModel {
+
+		private static final long serialVersionUID = 1L;
+
+		private Class<?> valueClass;
+		private Object value;
+
+		public SimpleModel(Class<?> valueClass) {
+			this.valueClass = valueClass;
 		}
 
 		@Override
-		public void focusGained(FocusEvent e) {
+		public int getRowCount() {
+			return 1;
 		}
 
 		@Override
-		public void focusLost(FocusEvent e) {
-			// weightField.selectAll();
+		public int getColumnCount() {
+			return 1;
 		}
+
+		@Override
+		public Class<?> getColumnClass(int columnIndex) {
+			return valueClass;
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return true;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			return value;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			value = aValue;
+		}
+
 	}
 }
