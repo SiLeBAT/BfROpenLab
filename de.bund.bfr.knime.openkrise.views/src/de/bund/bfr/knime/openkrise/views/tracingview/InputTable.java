@@ -182,7 +182,8 @@ public class InputTable extends JTable {
 			Input input = (Input) value;
 			JPanel panel = new JPanel();
 
-			panel.setLayout(new GridLayout(1, 3));
+			panel.setBackground(new JTable().getGridColor());
+			panel.setLayout(new GridLayout(1, 3, 1, 0));			
 			panel.add(getTableRendererComponent(input.getWeight(),
 					Double.class, isSelected, hasFocus));
 			panel.add(getTableRendererComponent(input.isCrossContamination(),
