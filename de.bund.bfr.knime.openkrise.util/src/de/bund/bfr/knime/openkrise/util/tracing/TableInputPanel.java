@@ -197,6 +197,10 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	@Override
 	public void sorterChanged(RowSorterEvent e) {
+		if (inputTable.isEditing()) {
+			inputTable.getDefaultEditor(classType).stopCellEditing();
+		}
+
 		if (e.getSource() == table.getRowSorter()) {
 			int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
 
@@ -206,6 +210,13 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 				inputTable.setValueAt(values.get(id), row, 0);
 			}
 		}
+
+		// int i = table.getSelectionModel().getAnchorSelectionIndex();
+		//
+		// System.out.println(i);
+		// inputTable.getSelectionModel().removeListSelectionListener(this);
+		// inputTable.getSelectionModel().setSelectionInterval(i, i);
+		// inputTable.getSelectionModel().addListSelectionListener(this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -226,14 +237,23 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
-		int hScroll = scrollPane.getHorizontalScrollBar().getValue();
+		if (e.getSource() == inputTable.getSelectionModel()) {
+			int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
+			int hScroll = scrollPane.getHorizontalScrollBar().getValue();
 
-		table.getSelectionModel().setSelectionInterval(i, i);
-		table.setVisible(false);
-		table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
-		scrollPane.getHorizontalScrollBar().setValue(hScroll);
-		table.setVisible(true);
+			table.getSelectionModel().setSelectionInterval(i, i);
+			table.setVisible(false);
+			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0,
+					true)));
+			scrollPane.getHorizontalScrollBar().setValue(hScroll);
+			table.setVisible(true);
+		} else if (e.getSource() == table.getSelectionModel()) {
+			int i = table.getSelectionModel().getAnchorSelectionIndex();
+
+			inputTable.getSelectionModel().removeListSelectionListener(this);
+			inputTable.getSelectionModel().setSelectionInterval(i, i);
+			inputTable.getSelectionModel().addListSelectionListener(this);
+		}
 	}
 
 	private JComponent createOptionsPanel() {
@@ -277,6 +297,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		table.getRowSorter().addRowSorterListener(this);
 		table.getRowSorter().toggleSortOrder(0);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.getSelectionModel().addListSelectionListener(this);
 		inputTable.getDefaultEditor(classType).addCellEditorListener(this);
 		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		inputTable.getSelectionModel().addListSelectionListener(this);
