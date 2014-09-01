@@ -31,17 +31,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -70,25 +64,17 @@ public class EsriUtils {
 		return list;
 	}
 
-	public static FeatureCollection<?, ?> getFeatures(String shpFile)
+	public static ShapefileDataStore getDataStore(String shpFile)
 			throws IOException {
-		Map<String, URL> map = new HashMap<>();
-
-		map.put("url", EsriUtils.getFile(shpFile).toURI().toURL());
-
-		DataStore dataStore = DataStoreFinder.getDataStore(map);
-		String typeName = dataStore.getTypeNames()[0];
-		FeatureSource<?, ?> source = dataStore.getFeatureSource(typeName);
-
-		return source.getFeatures();
+		return new ShapefileDataStore(EsriUtils.getFile(shpFile).toURI()
+				.toURL());
 	}
 
 	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile)
 			throws IOException, FactoryException {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(
-					EsriUtils.getFile(FilenameUtils.removeExtension(shpFile)
-							+ ".prj")));
+		try (BufferedReader reader = new BufferedReader(new FileReader(
+				EsriUtils.getFile(FilenameUtils.removeExtension(shpFile)
+						+ ".prj")))) {
 			StringBuilder wkt = new StringBuilder();
 			String line;
 

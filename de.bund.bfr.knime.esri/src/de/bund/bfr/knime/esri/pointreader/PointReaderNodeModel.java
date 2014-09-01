@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.store.ContentFeatureCollection;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
@@ -58,11 +59,10 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -87,9 +87,6 @@ public class PointReaderNodeModel extends NodeModel {
 
 	private SettingsModelString shpFile;
 
-	private FeatureCollection<?, ?> collection;
-	private CoordinateReferenceSystem system;
-
 	/**
 	 * Constructor for the node model.
 	 */
@@ -104,10 +101,17 @@ public class PointReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		Map<String, String> renaming = getRenaming(collection);
-		DataTableSpec spec = createSpec(collection, renaming)[0];
+		ShapefileDataStore dataStore = EsriUtils.getDataStore(shpFile
+				.getStringValue());
+		ContentFeatureCollection collection = dataStore.getFeatureSource()
+				.getFeatures();
+		CoordinateReferenceSystem system = EsriUtils
+				.getCoordinateSystem(shpFile.getStringValue());
+
+		Map<String, String> renaming = getRenaming(collection.getSchema());
+		DataTableSpec spec = createSpec(collection.getSchema(), renaming)[0];
 		BufferedDataContainer container = exec.createDataContainer(spec);
-		FeatureIterator<?> iterator = collection.features();
+		SimpleFeatureIterator iterator = collection.features();
 		MathTransform transform = null;
 		int index = 0;
 		int count = 0;
@@ -120,7 +124,7 @@ public class PointReaderNodeModel extends NodeModel {
 		DataCell[] cells = new DataCell[spec.getNumColumns()];
 
 		while (iterator.hasNext()) {
-			Feature feature = iterator.next();
+			SimpleFeature feature = iterator.next();
 			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
@@ -187,6 +191,8 @@ public class PointReaderNodeModel extends NodeModel {
 			count++;
 		}
 
+		iterator.close();
+		dataStore.dispose();
 		container.close();
 
 		return new BufferedDataTable[] { container.getTable() };
@@ -209,16 +215,20 @@ public class PointReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("No file name specified");
 		}
 
+		DataTableSpec[] result = null;
+
 		try {
-			collection = EsriUtils.getFeatures(shpFile.getStringValue());
-			system = EsriUtils.getCoordinateSystem(shpFile.getStringValue());
+			ShapefileDataStore dataStore = EsriUtils.getDataStore(shpFile
+					.getStringValue());
+			SimpleFeatureType type = dataStore.getSchema();
+
+			result = createSpec(type, getRenaming(type));
+			dataStore.dispose();
 		} catch (IOException e) {
-			throw new InvalidSettingsException(e.getMessage());
-		} catch (FactoryException e) {
 			throw new InvalidSettingsException(e.getMessage());
 		}
 
-		return createSpec(collection, getRenaming(collection));
+		return result;
 	}
 
 	/**
@@ -265,9 +275,8 @@ public class PointReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static DataTableSpec[] createSpec(
-			FeatureCollection<?, ?> collection, Map<String, String> renaming) {
-		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
+	private static DataTableSpec[] createSpec(SimpleFeatureType type,
+			Map<String, String> renaming) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (AttributeType t : type.getTypes()) {
@@ -301,9 +310,7 @@ public class PointReaderNodeModel extends NodeModel {
 				columns.toArray(new DataColumnSpec[0])) };
 	}
 
-	private static Map<String, String> getRenaming(
-			FeatureCollection<?, ?> collection) {
-		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
+	private static Map<String, String> getRenaming(SimpleFeatureType type) {
 		Map<String, String> renaming = new LinkedHashMap<>();
 		Set<String> columnNames = new LinkedHashSet<>();
 

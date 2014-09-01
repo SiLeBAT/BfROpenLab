@@ -29,8 +29,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.store.ContentFeatureCollection;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
@@ -57,11 +58,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -91,9 +91,6 @@ public class PolygonReaderNodeModel extends NodeModel {
 	private SettingsModelOptionalString rowIdPredix;
 	private SettingsModelBoolean getExteriorPolygon;
 
-	private FeatureCollection<?, ?> collection;
-	private CoordinateReferenceSystem system;
-
 	/**
 	 * Constructor for the node model.
 	 */
@@ -112,12 +109,19 @@ public class PolygonReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		DataTableSpec[] spec = createSpec(collection);
+		ShapefileDataStore dataStore = EsriUtils.getDataStore(shpFile
+				.getStringValue());
+		ContentFeatureCollection collection = dataStore.getFeatureSource()
+				.getFeatures();
+		CoordinateReferenceSystem system = EsriUtils
+				.getCoordinateSystem(shpFile.getStringValue());
+
+		DataTableSpec[] spec = createSpec(collection.getSchema());
 		DataTableSpec spec1 = spec[0];
 		DataTableSpec spec2 = spec[1];
 		BufferedDataContainer container1 = exec.createDataContainer(spec1);
 		BufferedDataContainer container2 = exec.createDataContainer(spec2);
-		FeatureIterator<?> iterator = collection.features();
+		SimpleFeatureIterator iterator = collection.features();
 		MathTransform transform = null;
 		int index1 = 0;
 		int index2 = 0;
@@ -132,7 +136,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 		DataCell[] cells2 = new DataCell[spec2.getNumColumns()];
 
 		while (iterator.hasNext()) {
-			Feature feature = iterator.next();
+			SimpleFeature feature = iterator.next();
 			Property geoProperty = null;
 
 			for (Property p : feature.getProperties()) {
@@ -217,6 +221,8 @@ public class PolygonReaderNodeModel extends NodeModel {
 			count++;
 		}
 
+		iterator.close();
+		dataStore.dispose();
 		container1.close();
 		container2.close();
 
@@ -241,16 +247,19 @@ public class PolygonReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("No file name specified");
 		}
 
+		DataTableSpec[] result = null;
+
 		try {
-			collection = EsriUtils.getFeatures(shpFile.getStringValue());
-			system = EsriUtils.getCoordinateSystem(shpFile.getStringValue());
+			ShapefileDataStore dataStore = EsriUtils.getDataStore(shpFile
+					.getStringValue());
+
+			result = createSpec(dataStore.getFeatureSource().getSchema());
+			dataStore.dispose();
 		} catch (IOException e) {
-			throw new InvalidSettingsException(e.getMessage());
-		} catch (FactoryException e) {
 			throw new InvalidSettingsException(e.getMessage());
 		}
 
-		return createSpec(collection);
+		return result;
 	}
 
 	/**
@@ -303,8 +312,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static DataTableSpec[] createSpec(FeatureCollection<?, ?> collection) {
-		SimpleFeatureType type = (SimpleFeatureType) collection.getSchema();
+	private static DataTableSpec[] createSpec(SimpleFeatureType type) {
 		List<DataColumnSpec> columns1 = new ArrayList<>();
 
 		for (AttributeType t : type.getTypes()) {
