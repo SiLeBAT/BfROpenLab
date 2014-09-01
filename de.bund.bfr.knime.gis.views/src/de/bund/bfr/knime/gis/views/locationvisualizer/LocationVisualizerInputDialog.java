@@ -45,7 +45,7 @@ import org.knime.core.data.def.DoubleCell;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class LocationVisualizerInputDialog extends JDialog implements
@@ -73,7 +73,7 @@ public class LocationVisualizerInputDialog extends JDialog implements
 		approved = false;
 
 		shapeBox = new ColumnComboBox(false,
-				GisUtilities.getShapeColumns(shapeSpec));
+				GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, DoubleCell.TYPE));

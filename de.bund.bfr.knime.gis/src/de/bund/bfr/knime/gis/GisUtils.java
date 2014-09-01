@@ -26,27 +26,61 @@ package de.bund.bfr.knime.gis;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.shapecell.ShapeValue;
 
 /**
  * @author Christian Thoens
  */
-public class GisUtilities {
+public class GisUtils {
 
-	private GisUtilities() {
+	private GisUtils() {
+	}
+
+	public static ShapefileDataStore getDataStore(String shpFile)
+			throws IOException {
+		return new ShapefileDataStore(KnimeUtils.getFile(shpFile).toURI()
+				.toURL());
+	}
+
+	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile)
+			throws IOException, FactoryException {
+		try (BufferedReader reader = new BufferedReader(new FileReader(
+				KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile)
+						+ ".prj")))) {
+			StringBuilder wkt = new StringBuilder();
+			String line;
+
+			while ((line = reader.readLine()) != null) {
+				wkt.append(line);
+			}
+
+			return CRS.parseWKT(wkt.toString());
+		} catch (FileNotFoundException e) {
+			return null;
+		}
 	}
 
 	public static Geometry getShape(DataCell cell) {

@@ -56,7 +56,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
@@ -230,7 +230,7 @@ public class TracingUtils {
 		int index = 0;
 
 		for (DataRow row : shapeTable) {
-			Geometry shape = GisUtilities.getShape(row.getCell(shapeColumn));
+			Geometry shape = GisUtils.getShape(row.getCell(shapeColumn));
 
 			if (shape instanceof MultiPolygon) {
 				try {

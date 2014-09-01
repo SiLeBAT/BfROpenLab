@@ -47,7 +47,7 @@ import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class LocationToLocationVisualizerInputDialog extends JDialog implements
@@ -77,7 +77,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements
 		approved = false;
 
 		shapeBox = new ColumnComboBox(false,
-				GisUtilities.getShapeColumns(shapeSpec));
+				GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(
 				nodeSpec, StringCell.TYPE, IntCell.TYPE));

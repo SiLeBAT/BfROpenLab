@@ -35,7 +35,7 @@ import java.util.Map;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.GisUtils;
 
 public class RegionNode extends Node {
 
@@ -50,8 +50,8 @@ public class RegionNode extends Node {
 			MultiPolygon polygon) {
 		super(id, properties);
 		this.polygon = polygon;
-		center = GisUtilities.getCenter(polygon);
-		boundingBox = GisUtilities.getBoundingBox(polygon);
+		center = GisUtils.getCenter(polygon);
+		boundingBox = GisUtils.getBoundingBox(polygon);
 	}
 
 	public MultiPolygon getPolygon() {
@@ -103,6 +103,6 @@ public class RegionNode extends Node {
 
 	public boolean containsPoint(Point2D point) {
 		return boundingBox.contains(point)
-				&& GisUtilities.containsPoint(polygon, point);
+				&& GisUtils.containsPoint(polygon, point);
 	}
 }

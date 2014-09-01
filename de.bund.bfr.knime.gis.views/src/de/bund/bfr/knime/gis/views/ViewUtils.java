@@ -55,7 +55,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.gis.GisUtilities;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -126,7 +126,7 @@ public class ViewUtils {
 		}
 
 		for (DataRow row : shapeTable) {
-			Geometry shape = GisUtilities.getShape(row.getCell(shapeIndex));
+			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 			String region = IO.getToCleanString(row.getCell(shapeRegionIndex));
 
 			if (region != null && shape instanceof MultiPolygon) {
@@ -192,7 +192,7 @@ public class ViewUtils {
 		}
 
 		for (DataRow row : shapeTable) {
-			Geometry shape = GisUtilities.getShape(row.getCell(shapeIndex));
+			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
 				try {
