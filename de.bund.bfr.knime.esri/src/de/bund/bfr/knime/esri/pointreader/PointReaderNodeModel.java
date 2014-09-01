@@ -177,7 +177,8 @@ public class PointReaderNodeModel extends NodeModel {
 							.getMissingCell();
 				}
 
-				container.addRowToTable(new DefaultRow(index + "", cells));
+				container.addRowToTable(new DefaultRow(String.valueOf(index),
+						cells));
 				index++;
 			}
 

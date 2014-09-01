@@ -18,6 +18,10 @@
 			Enter a valid *.shp file here. The related *.dbf, *.shx and all optional files
 			have to be in the same folder.
 		</option>
+		<option name="Row ID Prefix">
+			Prefix of Row IDs in Geo-Coordinates table. Must be used if data from multiple
+			"Shapefile Polygon Readers" is concatenated to ensure unique IDs.
+		</option>
 		<option name="Get Exterior Ring of Polygons">
 			Select if only the exterior ring of the polygon should be imported. That means
 			interior rings are skipped.

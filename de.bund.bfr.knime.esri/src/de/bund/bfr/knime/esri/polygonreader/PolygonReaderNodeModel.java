@@ -55,6 +55,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
@@ -80,12 +81,14 @@ import de.bund.bfr.knime.esri.EsriUtils;
 public class PolygonReaderNodeModel extends NodeModel {
 
 	protected static final String SHP_FILE = "ShpFile";
+	protected static final String ROW_ID_PREFIX = "RowIdPredix";
 	protected static final String GET_EXTERIOR_POLYGON = "GetExteriorPolygon";
 
 	private static final String LATITUDE_COLUMN = "Latitude";
 	private static final String LONGITUDE_COLUMN = "Longitude";
 
 	private SettingsModelString shpFile;
+	private SettingsModelOptionalString rowIdPredix;
 	private SettingsModelBoolean getExteriorPolygon;
 
 	private FeatureCollection<?, ?> collection;
@@ -97,6 +100,8 @@ public class PolygonReaderNodeModel extends NodeModel {
 	protected PolygonReaderNodeModel() {
 		super(0, 2);
 		shpFile = new SettingsModelString(SHP_FILE, null);
+		rowIdPredix = new SettingsModelOptionalString(ROW_ID_PREFIX, null,
+				false);
 		getExteriorPolygon = new SettingsModelBoolean(GET_EXTERIOR_POLYGON,
 				false);
 	}
@@ -187,15 +192,23 @@ public class PolygonReaderNodeModel extends NodeModel {
 					cells2[spec2.findColumnIndex(LONGITUDE_COLUMN)] = new DoubleCell(
 							lon);
 
-					container2
-							.addRowToTable(new DefaultRow(index2 + "", cells2));
-					rowIdCells.add(new StringCell(index2 + ""));
+					String rowId;
+
+					if (rowIdPredix.isActive()) {
+						rowId = rowIdPredix.getStringValue() + "_" + index2;
+					} else {
+						rowId = String.valueOf(index2);
+					}
+
+					container2.addRowToTable(new DefaultRow(rowId, cells2));
+					rowIdCells.add(new StringCell(rowId));
 					index2++;
 				}
 
 				cells1[spec1.findColumnIndex(geoProperty.getName().toString())] = CollectionCellFactory
 						.createListCell(rowIdCells);
-				container1.addRowToTable(new DefaultRow(index1 + "", cells1));
+				container1.addRowToTable(new DefaultRow(String.valueOf(index1),
+						cells1));
 				index1++;
 			}
 
@@ -246,6 +259,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		shpFile.saveSettingsTo(settings);
+		rowIdPredix.saveSettingsTo(settings);
 		getExteriorPolygon.saveSettingsTo(settings);
 	}
 
@@ -256,6 +270,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.loadSettingsFrom(settings);
+		rowIdPredix.loadSettingsFrom(settings);
 		getExteriorPolygon.loadSettingsFrom(settings);
 	}
 
@@ -266,6 +281,7 @@ public class PolygonReaderNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		shpFile.validateSettings(settings);
+		rowIdPredix.validateSettings(settings);
 		getExteriorPolygon.validateSettings(settings);
 	}
 

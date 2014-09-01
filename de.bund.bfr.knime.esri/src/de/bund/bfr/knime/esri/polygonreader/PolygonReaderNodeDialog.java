@@ -27,7 +27,9 @@ package de.bund.bfr.knime.esri.polygonreader;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -44,6 +46,10 @@ public class PolygonReaderNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
 				new SettingsModelString(PolygonReaderNodeModel.SHP_FILE, null),
 				"ShpFileHistory", ".shp");
+		DialogComponentOptionalString rowIdDialog = new DialogComponentOptionalString(
+				new SettingsModelOptionalString(
+						PolygonReaderNodeModel.ROW_ID_PREFIX, null, false),
+				"Row ID Prefix");
 		DialogComponentBoolean exteriorDialog = new DialogComponentBoolean(
 				new SettingsModelBoolean(
 						PolygonReaderNodeModel.GET_EXTERIOR_POLYGON, false),
@@ -51,6 +57,7 @@ public class PolygonReaderNodeDialog extends DefaultNodeSettingsPane {
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);
+		addDialogComponent(rowIdDialog);
 		addDialogComponent(exteriorDialog);
 	}
 }
