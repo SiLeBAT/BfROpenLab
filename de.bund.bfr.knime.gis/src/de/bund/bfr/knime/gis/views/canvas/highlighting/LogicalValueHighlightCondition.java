@@ -138,6 +138,10 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 			return values;
 		}
 
+		if (valueCondition.isZeroAsMinimum()) {
+			min = 0.0;
+		}
+
 		if (min != 0.0) {
 			for (T element : nonZeroElements) {
 				values.put(element, values.get(element) - min);
@@ -188,8 +192,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 			}
 		}
 
-		return new Point2D.Double(Collections.min(values),
-				Collections.max(values));
+		return new Point2D.Double(valueCondition.isZeroAsMinimum() ? 0.0
+				: Collections.min(values), Collections.max(values));
 	}
 
 	@Override

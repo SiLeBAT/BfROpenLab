@@ -47,6 +47,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	private String property;
 	private String type;
+	private boolean zeroAsMinimum;
 	private String name;
 	private boolean showInLegend;
 	private Color color;
@@ -55,19 +56,21 @@ public class ValueHighlightCondition implements HighlightCondition,
 	private String labelProperty;
 
 	public ValueHighlightCondition() {
-		this(null, null, null, true, null, false, false, null);
+		this(null, null, false, null, true, null, false, false, null);
 	}
 
 	public ValueHighlightCondition(ValueHighlightCondition c) {
-		this(c.property, c.type, c.name, c.showInLegend, c.color, c.invisible,
-				c.useThickness, c.labelProperty);
+		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend,
+				c.color, c.invisible, c.useThickness, c.labelProperty);
 	}
 
-	public ValueHighlightCondition(String property, String type, String name,
-			boolean showInLegend, Color color, boolean invisible,
-			boolean useThickness, String labelProperty) {
+	public ValueHighlightCondition(String property, String type,
+			boolean zeroAsMinimum, String name, boolean showInLegend,
+			Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		setProperty(property);
 		setType(type);
+		setZeroAsMinimum(zeroAsMinimum);
 		setName(name);
 		setShowInLegend(showInLegend);
 		setColor(color);
@@ -90,6 +93,14 @@ public class ValueHighlightCondition implements HighlightCondition,
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public boolean isZeroAsMinimum() {
+		return zeroAsMinimum;
+	}
+
+	public void setZeroAsMinimum(boolean zeroAsMinimum) {
+		this.zeroAsMinimum = zeroAsMinimum;
 	}
 
 	@Override
@@ -168,11 +179,13 @@ public class ValueHighlightCondition implements HighlightCondition,
 			}
 		}
 
-		double min = Collections.min(values.values());
+		if (!zeroAsMinimum) {
+			double min = Collections.min(values.values());
 
-		if (min != 0.0) {
-			for (T element : elements) {
-				values.put(element, values.get(element) - min);
+			if (min != 0.0) {
+				for (T element : elements) {
+					values.put(element, values.get(element) - min);
+				}
 			}
 		}
 
@@ -221,7 +234,8 @@ public class ValueHighlightCondition implements HighlightCondition,
 			}
 		}
 
-		return new Point2D.Double(Collections.min(values),
+		return new Point2D.Double(
+				zeroAsMinimum ? 0.0 : Collections.min(values),
 				Collections.max(values));
 	}
 

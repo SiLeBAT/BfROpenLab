@@ -126,6 +126,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 	private JComboBox<String> valuePropertyBox;
 	private JComboBox<String> valueTypeBox;
+	private JCheckBox zeroAsMinimumBox;
 
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
 	private List<JComboBox<String>> logicalPropertyBoxes;
@@ -509,10 +510,12 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		valuePropertyBox = new JComboBox<>(new Vector<>(numberProperties));
 		valueTypeBox = new JComboBox<>(ValueHighlightCondition.TYPES);
+		zeroAsMinimumBox = new JCheckBox("Zero As Minimum");
 
 		if (condition != null) {
 			valuePropertyBox.setSelectedItem(condition.getProperty());
 			valueTypeBox.setSelectedItem(condition.getType());
+			zeroAsMinimumBox.setSelected(condition.isZeroAsMinimum());
 		}
 
 		JPanel valuePanel = new JPanel();
@@ -524,6 +527,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		valuePanel.add(Box.createHorizontalStrut(5));
 		valuePanel.add(new JLabel("Value Type:"));
 		valuePanel.add(valueTypeBox);
+		valuePanel.add(Box.createHorizontalStrut(5));
+		valuePanel.add(zeroAsMinimumBox);
 
 		return UI.createNorthPanel(UI.createWestPanel(valuePanel));
 	}
@@ -617,8 +622,9 @@ public class HighlightDialog extends JDialog implements ActionListener,
 			boolean useThickness, String labelProperty) {
 		return new ValueHighlightCondition(
 				(String) valuePropertyBox.getSelectedItem(),
-				(String) valueTypeBox.getSelectedItem(), name, showInLegend,
-				color, invisible, useThickness, labelProperty);
+				(String) valueTypeBox.getSelectedItem(),
+				zeroAsMinimumBox.isSelected(), name, showInLegend, color,
+				invisible, useThickness, labelProperty);
 	}
 
 	private void addRemoveButtonPressed(JButton button) {
