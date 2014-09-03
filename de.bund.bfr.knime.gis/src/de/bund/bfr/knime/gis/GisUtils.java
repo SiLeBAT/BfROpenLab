@@ -45,6 +45,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.KnimeUtils;
@@ -105,69 +106,24 @@ public class GisUtils {
 
 	public static Point2D.Double getCenter(MultiPolygon poly) {
 		double largestArea = 0.0;
-		Point2D.Double center = null;
+		Point center = null;
 
 		for (int index = 0; index < poly.getNumGeometries(); index++) {
 			Polygon part = (Polygon) poly.getGeometryN(index);
-			Coordinate[] points = part.getExteriorRing().getCoordinates();
-			int n = points.length;
-
-			if (!points[0].equals2D(points[n - 1])) {
-				n = n + 1;
-				points = addFirstElement(points);
-			}
-
-			double area = 0.0;
-			double cx = 0.0;
-			double cy = 0.0;
-
-			for (int i = 0; i < n - 1; i++) {
-				double mem = points[i].x * points[i + 1].y - points[i + 1].x
-						* points[i].y;
-
-				area += mem;
-				cx += (points[i].x + points[i + 1].x) * mem;
-				cy += (points[i].y + points[i + 1].y) * mem;
-			}
-
-			area /= 2.0;
-			cx /= 6 * area;
-			cy /= 6 * area;
-			area = Math.abs(area);
+			double area = part.getArea();
 
 			if (area > largestArea) {
 				largestArea = area;
-				center = new Point2D.Double(cx, cy);
+				center = part.getCentroid();
 			}
 		}
 
-		return center;
+		return center != null ? new Point2D.Double(center.getX(), center.getY())
+				: null;
 	}
 
 	public static double getArea(MultiPolygon poly) {
-		double wholeArea = 0.0;
-
-		for (int index = 0; index < poly.getNumGeometries(); index++) {
-			Polygon part = (Polygon) poly.getGeometryN(index);
-			Coordinate[] points = part.getExteriorRing().getCoordinates();
-			int n = points.length;
-
-			if (!points[0].equals2D(points[n - 1])) {
-				n = n + 1;
-				points = addFirstElement(points);
-			}
-
-			double area = 0.0;
-
-			for (int i = 0; i < n - 1; i++) {
-				area += points[i].x * points[i + 1].y - points[i + 1].x
-						* points[i].y;
-			}
-
-			wholeArea += Math.abs(area / 2.0);
-		}
-
-		return wholeArea;
+		return poly.getArea();
 	}
 
 	public static Rectangle2D.Double getBoundingBox(MultiPolygon poly) {
