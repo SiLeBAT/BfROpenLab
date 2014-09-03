@@ -40,10 +40,17 @@ import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 public class EsriUtils {
+
+	private static final GeometryFactory GEO_FACTORY = new GeometryFactory();
 
 	private EsriUtils() {
 	}
@@ -62,6 +69,36 @@ public class EsriUtils {
 		}
 
 		return list;
+	}
+
+	public static Polygon createPolygon(List<Coordinate> coordinates) {
+		List<LinearRing> rings = new ArrayList<>();
+		int index = 0;
+
+		while (index < coordinates.size()) {
+			List<Coordinate> ring = new ArrayList<>();
+			Coordinate firstCoordinate = coordinates.get(index);
+
+			ring.add(firstCoordinate);
+			index++;
+
+			for (; index < coordinates.size(); index++) {
+				ring.add(coordinates.get(index));
+
+				if (coordinates.get(index).equals2D(firstCoordinate)) {
+					index++;
+					break;
+				}
+			}
+
+			rings.add(new LinearRing(new CoordinateArraySequence(ring
+					.toArray(new Coordinate[0])), GEO_FACTORY));
+		}
+
+		LinearRing shell = rings.remove(0);
+		LinearRing[] holes = rings.toArray(new LinearRing[0]);
+
+		return new Polygon(shell, holes, GEO_FACTORY);
 	}
 
 	public static ShapefileDataStore getDataStore(String shpFile)
