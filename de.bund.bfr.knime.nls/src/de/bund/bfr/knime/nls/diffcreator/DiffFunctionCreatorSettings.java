@@ -40,22 +40,19 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	private static final String CFG_TERMS = "Terms";
 	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";
 	private static final String CFG_DIFF_VARIABLE = "DiffVariable";
-	private static final String CFG_INITIAL_VALUES = "InitialValues";
 
 	private List<String> dependentVariables;
 	private List<String> terms;
 	private List<String> independentVariables;
 	private String diffVariable;
-	private List<Double> initialValues;
 
 	public DiffFunctionCreatorSettings() {
 		dependentVariables = new ArrayList<>();
 		terms = new ArrayList<>();
 		independentVariables = new ArrayList<>();
 		diffVariable = null;
-		initialValues = new ArrayList<>();
 	}
-	
+
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
@@ -79,12 +76,6 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 			diffVariable = settings.getString(CFG_DIFF_VARIABLE);
 		} catch (InvalidSettingsException e) {
 		}
-
-		try {
-			initialValues = KnimeUtils.stringToDoubleList(settings
-					.getString(CFG_INITIAL_VALUES));
-		} catch (InvalidSettingsException e) {
-		}
 	}
 
 	@Override
@@ -95,8 +86,6 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
 				KnimeUtils.listToString(independentVariables));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
-		settings.addString(CFG_INITIAL_VALUES,
-				KnimeUtils.listToString(initialValues));
 	}
 
 	public List<String> getDependentVariables() {
@@ -129,13 +118,5 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	public void setDiffVariable(String diffVariable) {
 		this.diffVariable = diffVariable;
-	}
-
-	public List<Double> getInitialValues() {
-		return initialValues;
-	}
-
-	public void setInitialValues(List<Double> initialValues) {
-		this.initialValues = initialValues;
 	}
 }

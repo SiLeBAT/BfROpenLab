@@ -104,7 +104,7 @@ public class FunctionViewReader {
 				Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
 
 				plotable.setFunctions(f.getTerms());
-				plotable.setInitialValues(f.getInitialValues());
+				plotable.setInitParameters(f.getInitParameters());
 				plotable.setDependentVariable(f.getDependentVariable());
 				plotable.setDiffVariable(f.getDiffVariable());
 				plotable.setParameters(getParameters(paramTable, id, f));

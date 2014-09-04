@@ -39,7 +39,7 @@ public class Function implements Serializable {
 	private List<String> independentVariables;
 	private List<String> parameters;
 	private String diffVariable;
-	private Map<String, Double> initialValues;
+	private Map<String, String> initParameters;
 
 	public Function() {
 		this(new LinkedHashMap<String, String>(), null,
@@ -49,18 +49,18 @@ public class Function implements Serializable {
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters) {
 		this(terms, dependentVariable, independentVariables, parameters, null,
-				new LinkedHashMap<String, Double>());
+				new LinkedHashMap<String, String>());
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters,
-			String diffVariable, Map<String, Double> initialValues) {
+			String diffVariable, Map<String, String> initParameters) {
 		this.terms = terms;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;
 		this.parameters = parameters;
 		this.diffVariable = diffVariable;
-		this.initialValues = initialValues;
+		this.initParameters = initParameters;
 	}
 
 	public Map<String, String> getTerms() {
@@ -83,14 +83,14 @@ public class Function implements Serializable {
 		return diffVariable;
 	}
 
-	public Map<String, Double> getInitialValues() {
-		return initialValues;
+	public Map<String, String> getInitParameters() {
+		return initParameters;
 	}
 
 	public List<String> getVariables() {
 		List<String> names = new ArrayList<>();
 
-		names.addAll(independentVariables);		
+		names.addAll(independentVariables);
 		names.add(dependentVariable);
 
 		return names;
@@ -111,7 +111,7 @@ public class Function implements Serializable {
 				+ ((independentVariables == null) ? 0 : independentVariables
 						.hashCode());
 		result = prime * result
-				+ ((initialValues == null) ? 0 : initialValues.hashCode());
+				+ ((initParameters == null) ? 0 : initParameters.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		result = prime * result + ((terms == null) ? 0 : terms.hashCode());
@@ -142,10 +142,10 @@ public class Function implements Serializable {
 				return false;
 		} else if (!independentVariables.equals(other.independentVariables))
 			return false;
-		if (initialValues == null) {
-			if (other.initialValues != null)
+		if (initParameters == null) {
+			if (other.initParameters != null)
 				return false;
-		} else if (!initialValues.equals(other.initialValues))
+		} else if (!initParameters.equals(other.initParameters))
 			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
@@ -165,7 +165,7 @@ public class Function implements Serializable {
 		return "Function [terms=" + terms + ", dependentVariable="
 				+ dependentVariable + ", independentVariables="
 				+ independentVariables + ", parameters=" + parameters
-				+ ", diffVariable=" + diffVariable + ", initialValues="
-				+ initialValues + "]";
+				+ ", diffVariable=" + diffVariable + ", initParameters="
+				+ initParameters + "]";
 	}
 }

@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.nls.diffcreator;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,7 +52,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.StringTextArea;
 import de.bund.bfr.knime.ui.StringTextField;
 import de.bund.bfr.knime.ui.TextListener;
@@ -79,8 +77,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	private JPanel functionPanel;
 
 	private List<StringTextField> depVarFields;
-	private List<StringTextArea> termFields;
-	private List<DoubleTextField> initialFields;
+	private List<StringTextArea> termFields;	
 	private List<JCheckBox> indepVarBoxes;
 	private StringTextField diffVarField;
 
@@ -95,8 +92,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		usedIndeps = new ArrayList<>();
 
 		depVarFields = new ArrayList<>();
-		termFields = new ArrayList<>();
-		initialFields = new ArrayList<>();
+		termFields = new ArrayList<>();		
 		indepVarBoxes = new ArrayList<>();
 
 		addButton = new JButton("Add Equation");
@@ -192,10 +188,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 			functionPanel = createFunctionPanel(set.getTerms().size());
 			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
-			termField.requestFocus();
-		} else if (initialFields.contains(source)) {
-			set.getInitialValues().set(initialFields.indexOf(source),
-					((DoubleTextField) source).getValue());
+			termField.requestFocus();		
 		} else if (source == diffVarField) {
 			set.setDiffVariable(diffVarField.getValue());
 			mainPanel.remove(functionPanel);
@@ -294,31 +287,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 		depVarFields.set(i, depVarField);
 		termFields.set(i, termField);
-
-		if (i != 0) {
-			DoubleTextField initialField = new DoubleTextField(false, 5);
-
-			initialField.setValue(set.getInitialValues().get(i));
-			initialField.addTextListener(this);
-
-			JPanel initialPanel = new JPanel();
-			JLabel initialLabel = new JLabel("Initial Value");
-
-			initialLabel.setPreferredSize(new Dimension(depVarPanel
-					.getPreferredSize().width,
-					initialLabel.getPreferredSize().height));
-			initialPanel
-					.setLayout(new BoxLayout(initialPanel, BoxLayout.X_AXIS));
-			initialPanel.add(initialLabel);
-			initialPanel.add(new JLabel("="));
-			initialPanel.add(initialField);
-
-			initialFields.set(i, initialField);
-
-			return UI.createVerticalPanel(formulaPanel, initialPanel);
-		} else {
-			return formulaPanel;
-		}
+		
+		return formulaPanel;		
 	}
 
 	private JPanel createIndepBoxPanel() {
@@ -384,11 +354,9 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 	private void updateNumberOfFunctions(int n) {
 		setListSize(depVarFields, n);
-		setListSize(termFields, n);
-		setListSize(initialFields, n);
+		setListSize(termFields, n);		
 		setListSize(set.getDependentVariables(), n);
-		setListSize(set.getTerms(), n);
-		setListSize(set.getInitialValues(), n);
+		setListSize(set.getTerms(), n);		
 
 		removeButton.setEnabled(n > 1);
 	}

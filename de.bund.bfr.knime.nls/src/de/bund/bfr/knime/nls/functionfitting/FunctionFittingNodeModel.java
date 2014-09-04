@@ -369,24 +369,18 @@ public class FunctionFittingNodeModel extends NodeModel {
 				int n = function.getTerms().size();
 				String[] terms = new String[n];
 				String[] valueVariables = new String[n];
-				double[] initialValues = new double[n];
+				String[] initParameters = new String[n];
 				int i = 0;
 
 				for (String var : function.getTerms().keySet()) {
 					terms[i] = function.getTerms().get(var);
 					valueVariables[i] = var;
-
-					if (var.equals(function.getDependentVariable())) {
-						initialValues[i] = targetArray[0];
-					} else {
-						initialValues[i] = function.getInitialValues().get(var);
-					}
-
+					initParameters[i] = function.getInitParameters().get(var);
 					i++;
 				}
 
 				optimizer = new ParameterOptimizer(terms, valueVariables,
-						initialValues, function.getParameters().toArray(
+						initParameters, function.getParameters().toArray(
 								new String[0]), minParameterValues,
 						maxParameterValues, targetArray,
 						function.getDependentVariable(),

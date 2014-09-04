@@ -40,7 +40,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private DJep[] parsers;
 	private Node[] functions;
 	private String[] dependentVariables;
-	private double[] initialValues;
+	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private String dependentVariable;
@@ -48,11 +48,11 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Integrator integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
-			double[] initialValues, String[] parameters,
+			String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, String dependentVariable,
 			String timeVariable, Integrator integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
-		this.initialValues = initialValues;
+		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
@@ -75,13 +75,13 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	}
 
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
-			String[] dependentVariables, double[] initialValues,
+			String[] dependentVariables, String[] initParameters,
 			String[] parameters, Map<String, double[]> variableValues,
 			String dependentVariable, String timeVariable, Integrator integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
-		this.initialValues = initialValues;
+		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.dependentVariable = dependentVariable;
@@ -91,21 +91,29 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		int depIndex = Arrays.asList(dependentVariables).indexOf(
-				dependentVariable);
 		double[] timeValues = variableValues.get(timeVariable);
 
 		for (int i = 0; i < parsers.length; i++) {
 			for (int j = 0; j < parameters.length; j++) {
-				parsers[i].setVarValue(parameters[j], point[j]);
+				if (!Arrays.asList(initParameters).contains(parameters[j])) {
+					parsers[i].setVarValue(parameters[j], point[j]);
+				}
 			}
+		}
+
+		double[] values = new double[dependentVariables.length];
+
+		for (int i = 0; i < dependentVariables.length; i++) {
+			values[i] = point[Arrays.asList(parameters).indexOf(
+					initParameters[i])];
 		}
 
 		DiffFunction f = new DiffFunction(parsers, functions,
 				dependentVariables, variableValues, timeVariable);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
-		double[] values = initialValues.clone();
 		double[] result = new double[timeValues.length];
+		int depIndex = Arrays.asList(dependentVariables).indexOf(
+				dependentVariable);
 
 		result[0] = values[depIndex];
 

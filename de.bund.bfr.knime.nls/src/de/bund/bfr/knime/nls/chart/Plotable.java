@@ -74,7 +74,7 @@ public class Plotable {
 	private String function;
 	private String dependentVariable;
 	private Map<String, String> functions;
-	private Map<String, Double> initialValues;
+	private Map<String, String> initParameters;
 	private String diffVariable;
 	private Map<String, Double> independentVariables;
 	private Map<String, Double> constants;
@@ -90,7 +90,7 @@ public class Plotable {
 		function = null;
 		dependentVariable = null;
 		functions = new LinkedHashMap<>();
-		initialValues = new LinkedHashMap<>();
+		initParameters = new LinkedHashMap<>();
 		diffVariable = null;
 		constants = new LinkedHashMap<>();
 		independentVariables = new LinkedHashMap<>();
@@ -137,12 +137,12 @@ public class Plotable {
 		this.functions = functions;
 	}
 
-	public Map<String, Double> getInitialValues() {
-		return initialValues;
+	public Map<String, String> getInitParameters() {
+		return initParameters;
 	}
 
-	public void setInitialValues(Map<String, Double> initialValues) {
-		this.initialValues = initialValues;
+	public void setInitParameters(Map<String, String> initParameters) {
+		this.initParameters = initParameters;
 	}
 
 	public String getDiffVariable() {
@@ -344,14 +344,12 @@ public class Plotable {
 			parsers[index] = createParser(diffVariable);
 			fs[index] = parsers[index].parse(functions.get(var));
 			valueVariables[index] = var;
+			value[index] = parameters.get(initParameters.get(var));
 
 			if (var.equals(dependentVariable)) {
 				depIndex = index;
-				value[index] = valueLists.get(dependentVariable)[0];
-			} else {
-				value[index] = initialValues.get(var);
 			}
-			
+
 			index++;
 		}
 

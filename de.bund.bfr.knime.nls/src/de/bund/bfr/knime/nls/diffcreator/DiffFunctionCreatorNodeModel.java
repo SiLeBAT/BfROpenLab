@@ -76,8 +76,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
 				set.getTerms(), set.getDependentVariables(),
-				set.getIndependentVariables(), set.getDiffVariable(),
-				set.getInitialValues())) };
+				set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -99,8 +98,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
 				createFunction(set.getTerms(), set.getDependentVariables(),
-						set.getIndependentVariables(), set.getDiffVariable(),
-						set.getInitialValues())) };
+						set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -158,14 +156,14 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 
 	private static Function createFunction(List<String> terms,
 			List<String> dependentVariables, List<String> independentVariables,
-			String diffVariable, List<Double> initialValues) {
+			String diffVariable) {
 		Map<String, String> termsMap = new LinkedHashMap<>();
-		Map<String, Double> initialValuesMap = new LinkedHashMap<>();
+		Map<String, String> initParameters = new LinkedHashMap<>();
 
 		for (int i = 0; i < terms.size(); i++) {
 			termsMap.put(dependentVariables.get(i), terms.get(i));
-			initialValuesMap.put(dependentVariables.get(i),
-					initialValues.get(i));
+			initParameters.put(dependentVariables.get(i),
+					dependentVariables.get(i) + "_0");
 		}
 
 		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
@@ -174,11 +172,12 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		indeps.add(diffVariable);
 		parameters.removeAll(indeps);
 		parameters.removeAll(dependentVariables);
+		parameters.addAll(initParameters.values());
 
 		Collections.sort(parameters);
 		Collections.sort(indeps);
 
 		return new Function(termsMap, dependentVariables.get(0), indeps,
-				parameters, diffVariable, initialValuesMap);
+				parameters, diffVariable, initParameters);
 	}
 }
