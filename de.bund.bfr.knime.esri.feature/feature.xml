@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="de.bund.bfr.knime.esri.feature"
-      label="ESRI Nodes"
+      label="KNIME Shapefile Support"
       version="1.0.0.qualifier"
-      provider-name="Christian Thoens">
+      provider-name="Federal Institute for Risk Assessment (BfR)">
 
    <description url="http://www.example.com/description">
       KNIME Nodes for reading ESRI Shapefiles.

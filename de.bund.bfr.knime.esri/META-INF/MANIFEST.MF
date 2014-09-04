@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ESRI Nodes
+Bundle-Name: KNIME Shapefile Support
 Bundle-SymbolicName: de.bund.bfr.knime.esri;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
