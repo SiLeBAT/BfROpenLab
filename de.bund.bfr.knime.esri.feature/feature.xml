@@ -6,7 +6,7 @@
       provider-name="Federal Institute for Risk Assessment (BfR)">
 
    <description url="http://www.example.com/description">
-      KNIME Nodes for reading ESRI Shapefiles.
+      This feature contains shapefile functionality for KNIME. It uses the GeoTools library (http://www.geotools.org).
    </description>
 
    <copyright url="http://www.example.com/copyright">
