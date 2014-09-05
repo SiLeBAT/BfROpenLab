@@ -75,6 +75,8 @@ public class ParameterOptimizer {
 	private Double r2;
 	private Double aic;
 
+	private List<ProgressListener> progressListeners;
+
 	public ParameterOptimizer(String formula, String[] parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues,
@@ -108,6 +110,8 @@ public class ParameterOptimizer {
 				parameters, variableValues);
 		successful = false;
 		resetResults();
+
+		progressListeners = new ArrayList<>();
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
@@ -130,6 +134,16 @@ public class ParameterOptimizer {
 				dependentVariable, timeVariable, integrator);
 		successful = false;
 		resetResults();
+
+		progressListeners = new ArrayList<>();
+	}
+
+	public void addProgressListener(ProgressListener listener) {
+		progressListeners.add(listener);
+	}
+
+	public void removeProgressListener(ProgressListener listener) {
+		progressListeners.remove(listener);
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
@@ -138,7 +152,7 @@ public class ParameterOptimizer {
 		List<Integer> paramStepCount = new ArrayList<>();
 		List<Double> paramStepSize = new ArrayList<>();
 		int paramsWithRange = 0;
-		int maxStepCount = 10;
+		int maxStepCount = nParameterSpace;
 
 		for (String param : parameters) {
 			Double min = minStartValues.get(param);
@@ -152,8 +166,6 @@ public class ParameterOptimizer {
 		if (paramsWithRange != 0) {
 			maxStepCount = (int) Math.pow(nParameterSpace,
 					1.0 / paramsWithRange);
-			maxStepCount = Math.max(maxStepCount, 2);
-			maxStepCount = Math.min(maxStepCount, 10);
 		}
 
 		for (String param : parameters) {
@@ -208,8 +220,20 @@ public class ParameterOptimizer {
 		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(
 				parameters.length, 0));
 		boolean done = false;
+		int allStepSize = 1;
+		int count = 0;
+
+		for (int s : paramStepCount) {
+			allStepSize *= s;
+		}
 
 		while (!done) {
+			for (ProgressListener listener : progressListeners) {
+				listener.progressChanged((double) count / (double) allStepSize);
+			}
+			
+			count++;
+
 			double[] values = new double[parameters.length];
 
 			for (int i = 0; i < parameters.length; i++) {
@@ -430,4 +454,8 @@ public class ParameterOptimizer {
 		}
 	}
 
+	public static interface ProgressListener {
+
+		public void progressChanged(double progress);
+	}
 }

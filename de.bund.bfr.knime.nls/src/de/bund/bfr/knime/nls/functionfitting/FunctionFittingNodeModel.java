@@ -74,9 +74,12 @@ import de.bund.bfr.math.ParameterOptimizer;
  * 
  * @author Christian Thoens
  */
-public class FunctionFittingNodeModel extends NodeModel {
+public class FunctionFittingNodeModel extends NodeModel implements
+		ParameterOptimizer.ProgressListener {
 
 	private FunctionFittingSettings set;
+
+	private ExecutionContext currentExec;
 
 	/**
 	 * Constructor for the node model.
@@ -87,6 +90,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 						BufferedDataTable.TYPE }, new PortType[] {
 						BufferedDataTable.TYPE, BufferedDataTable.TYPE });
 		set = new FunctionFittingSettings();
+		currentExec = null;
 	}
 
 	/**
@@ -95,10 +99,12 @@ public class FunctionFittingNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
+		currentExec = exec;
+
 		FunctionPortObject functionObject = (FunctionPortObject) inObjects[0];
 		BufferedDataTable table = (BufferedDataTable) inObjects[1];
 		Map<String, ParameterOptimizer> values = doEstimation(
-				functionObject.getFunction(), table, exec);
+				functionObject.getFunction(), table);
 		PortObjectSpec[] outSpec = configure(new PortObjectSpec[] {
 				functionObject.getSpec(), table.getSpec() });
 		DataTableSpec outSpec1 = (DataTableSpec) outSpec[0];
@@ -275,8 +281,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 	}
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
-			BufferedDataTable table, ExecutionContext exec)
-			throws ParseException {
+			BufferedDataTable table) throws ParseException {
 		Map<String, Point2D.Double> parameterGuesses;
 		int nParameterSpace;
 		int nLevenberg;
@@ -391,6 +396,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 								.getStepSize(), set.getMinStepSize(), set
 								.getMaxStepSize(), set.getAbsTolerance(), set
 								.getRelTolerance()));
+				optimizer.addProgressListener(this);
 			} else {
 				optimizer = new ParameterOptimizer(function.getTerms().get(
 						function.getDependentVariable()), function
@@ -405,5 +411,12 @@ public class FunctionFittingNodeModel extends NodeModel {
 		}
 
 		return results;
+	}
+
+	@Override
+	public void progressChanged(double progress) {
+		if (currentExec != null) {
+			currentExec.setProgress(progress);
+		}
 	}
 }
