@@ -46,6 +46,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private Map<String, DJep[]> parsers;
 	private Map<String, Node[]> functions;
 	private String[] dependentVariables;
+	private Double[] initValues;
 	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
@@ -54,11 +55,12 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private Integrator integrator;
 
 	public VectorDiffFunctionJacobian(String[] formulas,
-			String[] dependentVariables, String[] initParameters,
-			String[] parameters, Map<String, double[]> variableValues,
-			String dependentVariable, String timeVariable, Integrator integrator)
-			throws ParseException {
+			String[] dependentVariables, Double[] initValues,
+			String[] initParameters, String[] parameters,
+			Map<String, double[]> variableValues, String dependentVariable,
+			String timeVariable, Integrator integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
+		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
@@ -139,14 +141,14 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			point[index] = this.point[index] - EPSILON;
 
 			double[] result1 = new VectorDiffFunction(parser, function,
-					dependentVariables, initParameters, parameters,
+					dependentVariables, initValues, initParameters, parameters,
 					variableValues, dependentVariable, timeVariable, integrator)
 					.value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
-					dependentVariables, initParameters, parameters,
+					dependentVariables, initValues, initParameters, parameters,
 					variableValues, dependentVariable, timeVariable, integrator)
 					.value(point);
 

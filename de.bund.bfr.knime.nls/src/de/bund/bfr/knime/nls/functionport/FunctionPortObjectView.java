@@ -65,14 +65,34 @@ public class FunctionPortObjectView extends JComponent {
 			label.setAlignmentX(Component.LEFT_ALIGNMENT);
 			panel.add(label);
 			panel.add(Box.createVerticalStrut(5));
-		}		
+		}
+
+		if (!f.getInitValues().isEmpty()) {
+			String s = "Initial Values: ";
+			boolean hasInitialValues = false;
+
+			for (Map.Entry<String, Double> entry : f.getInitValues().entrySet()) {
+				if (entry.getValue() != null) {
+					s += entry.getKey() + "_0=" + entry.getValue() + ", ";
+					hasInitialValues = true;
+				}
+			}
+
+			if (hasInitialValues) {
+				JLabel label = new JLabel(s.substring(0, s.length() - 2));
+
+				label.setAlignmentX(Component.LEFT_ALIGNMENT);
+				panel.add(label);
+				panel.add(Box.createVerticalStrut(5));
+			}
+		}
 
 		JLabel depVarLabel = new JLabel("Dependent Variable: "
 				+ f.getDependentVariable());
 		JLabel indepVarLabel = new JLabel("Independent Variables: "
 				+ Joiner.on(", ").join(f.getIndependentVariables()));
 		JLabel paramVarLabel = new JLabel("Parameters: "
-				+ Joiner.on(", ").join(f.getParameters()));		
+				+ Joiner.on(", ").join(f.getParameters()));
 
 		depVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		indepVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -82,7 +102,7 @@ public class FunctionPortObjectView extends JComponent {
 		panel.add(Box.createVerticalStrut(5));
 		panel.add(indepVarLabel);
 		panel.add(Box.createVerticalStrut(5));
-		panel.add(paramVarLabel);		
+		panel.add(paramVarLabel);
 
 		setName("Function");
 		setLayout(new BorderLayout());

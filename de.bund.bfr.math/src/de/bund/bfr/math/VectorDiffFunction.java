@@ -40,6 +40,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private DJep[] parsers;
 	private Node[] functions;
 	private String[] dependentVariables;
+	private Double[] initValues;
 	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
@@ -48,10 +49,11 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private Integrator integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
-			String[] initParameters, String[] parameters,
+			Double[] initValues, String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, String dependentVariable,
 			String timeVariable, Integrator integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
+		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
@@ -75,12 +77,14 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	}
 
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
-			String[] dependentVariables, String[] initParameters,
-			String[] parameters, Map<String, double[]> variableValues,
-			String dependentVariable, String timeVariable, Integrator integrator) {
+			String[] dependentVariables, Double[] initValues,
+			String[] initParameters, String[] parameters,
+			Map<String, double[]> variableValues, String dependentVariable,
+			String timeVariable, Integrator integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
+		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
@@ -104,8 +108,12 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		double[] values = new double[dependentVariables.length];
 
 		for (int i = 0; i < dependentVariables.length; i++) {
-			values[i] = point[Arrays.asList(parameters).indexOf(
-					initParameters[i])];
+			if (initValues[i] != null) {
+				values[i] = initValues[i];
+			} else {
+				values[i] = point[Arrays.asList(parameters).indexOf(
+						initParameters[i])];
+			}
 		}
 
 		DiffFunction f = new DiffFunction(parsers, functions,

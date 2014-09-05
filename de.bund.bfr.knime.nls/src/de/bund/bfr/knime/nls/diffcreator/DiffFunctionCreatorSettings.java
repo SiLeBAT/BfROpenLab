@@ -38,17 +38,20 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	private static final String CFG_DEPENDENT_VARIABLES = "DependentVariables";
 	private static final String CFG_TERMS = "Terms";
+	private static final String CFG_INIT_VALUES = "InitValues";
 	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";
 	private static final String CFG_DIFF_VARIABLE = "DiffVariable";
 
 	private List<String> dependentVariables;
 	private List<String> terms;
+	private List<Double> initValues;
 	private List<String> independentVariables;
 	private String diffVariable;
 
 	public DiffFunctionCreatorSettings() {
 		dependentVariables = new ArrayList<>();
 		terms = new ArrayList<>();
+		initValues = new ArrayList<>();
 		independentVariables = new ArrayList<>();
 		diffVariable = null;
 	}
@@ -63,6 +66,12 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 		try {
 			terms = KnimeUtils.stringToList(settings.getString(CFG_TERMS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			initValues = KnimeUtils.stringToDoubleList(settings
+					.getString(CFG_INIT_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -83,6 +92,7 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 		settings.addString(CFG_DEPENDENT_VARIABLES,
 				KnimeUtils.listToString(dependentVariables));
 		settings.addString(CFG_TERMS, KnimeUtils.listToString(terms));
+		settings.addString(CFG_INIT_VALUES, KnimeUtils.listToString(initValues));
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
 				KnimeUtils.listToString(independentVariables));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
@@ -102,6 +112,14 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	public void setTerms(List<String> terms) {
 		this.terms = terms;
+	}
+
+	public List<Double> getInitValues() {
+		return initValues;
+	}
+
+	public void setInitValues(List<Double> initValues) {
+		this.initValues = initValues;
 	}
 
 	public List<String> getIndependentVariables() {

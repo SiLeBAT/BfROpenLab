@@ -115,7 +115,7 @@ public class ParameterOptimizer {
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
-			String[] initParameters, String[] parameters,
+			Double[] initValues, String[] initParameters, String[] parameters,
 			Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues, double[] targetValues,
 			String dependentVariable, String timeVariable,
@@ -127,11 +127,11 @@ public class ParameterOptimizer {
 		this.targetValues = targetValues;
 
 		optimizerFunction = new VectorDiffFunction(formulas,
-				dependentVariables, initParameters, parameters, variableValues,
-				dependentVariable, timeVariable, integrator);
+				dependentVariables, initValues, initParameters, parameters,
+				variableValues, dependentVariable, timeVariable, integrator);
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas,
-				dependentVariables, initParameters, parameters, variableValues,
-				dependentVariable, timeVariable, integrator);
+				dependentVariables, initValues, initParameters, parameters,
+				variableValues, dependentVariable, timeVariable, integrator);
 		successful = false;
 		resetResults();
 
@@ -231,7 +231,7 @@ public class ParameterOptimizer {
 			for (ProgressListener listener : progressListeners) {
 				listener.progressChanged((double) count / (double) allStepSize);
 			}
-			
+
 			count++;
 
 			double[] values = new double[parameters.length];

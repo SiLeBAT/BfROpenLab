@@ -76,7 +76,8 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
 				set.getTerms(), set.getDependentVariables(),
-				set.getIndependentVariables(), set.getDiffVariable())) };
+				set.getInitValues(), set.getIndependentVariables(),
+				set.getDiffVariable())) };
 	}
 
 	/**
@@ -98,7 +99,8 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
 				createFunction(set.getTerms(), set.getDependentVariables(),
-						set.getIndependentVariables(), set.getDiffVariable())) };
+						set.getInitValues(), set.getIndependentVariables(),
+						set.getDiffVariable())) };
 	}
 
 	/**
@@ -155,15 +157,21 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	}
 
 	private static Function createFunction(List<String> terms,
-			List<String> dependentVariables, List<String> independentVariables,
-			String diffVariable) {
+			List<String> dependentVariables, List<Double> initValues,
+			List<String> independentVariables, String diffVariable) {
 		Map<String, String> termsMap = new LinkedHashMap<>();
-		Map<String, String> initParameters = new LinkedHashMap<>();
+		Map<String, String> initParameterMap = new LinkedHashMap<>();
+		Map<String, Double> initValueMap = new LinkedHashMap<>();
 
 		for (int i = 0; i < terms.size(); i++) {
 			termsMap.put(dependentVariables.get(i), terms.get(i));
-			initParameters.put(dependentVariables.get(i),
-					dependentVariables.get(i) + "_0");
+
+			if (initValues.get(i) != null) {
+				initValueMap.put(dependentVariables.get(i), initValues.get(i));
+			} else {
+				initParameterMap.put(dependentVariables.get(i),
+						dependentVariables.get(i) + "_0");
+			}
 		}
 
 		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
@@ -172,12 +180,12 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		indeps.add(diffVariable);
 		parameters.removeAll(indeps);
 		parameters.removeAll(dependentVariables);
-		parameters.addAll(initParameters.values());
+		parameters.addAll(initParameterMap.values());
 
 		Collections.sort(parameters);
 		Collections.sort(indeps);
 
 		return new Function(termsMap, dependentVariables.get(0), indeps,
-				parameters, diffVariable, initParameters);
+				parameters, diffVariable, initParameterMap, initValueMap);
 	}
 }

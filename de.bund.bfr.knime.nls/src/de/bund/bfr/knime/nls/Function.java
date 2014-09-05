@@ -40,6 +40,7 @@ public class Function implements Serializable {
 	private List<String> parameters;
 	private String diffVariable;
 	private Map<String, String> initParameters;
+	private Map<String, Double> initValues;
 
 	public Function() {
 		this(new LinkedHashMap<String, String>(), null,
@@ -49,18 +50,21 @@ public class Function implements Serializable {
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters) {
 		this(terms, dependentVariable, independentVariables, parameters, null,
-				new LinkedHashMap<String, String>());
+				new LinkedHashMap<String, String>(),
+				new LinkedHashMap<String, Double>());
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters,
-			String diffVariable, Map<String, String> initParameters) {
+			String diffVariable, Map<String, String> initParameters,
+			Map<String, Double> initValues) {
 		this.terms = terms;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;
 		this.parameters = parameters;
 		this.diffVariable = diffVariable;
 		this.initParameters = initParameters;
+		this.initValues = initValues;
 	}
 
 	public Map<String, String> getTerms() {
@@ -85,6 +89,10 @@ public class Function implements Serializable {
 
 	public Map<String, String> getInitParameters() {
 		return initParameters;
+	}
+
+	public Map<String, Double> getInitValues() {
+		return initValues;
 	}
 
 	public List<String> getVariables() {
@@ -112,6 +120,8 @@ public class Function implements Serializable {
 						.hashCode());
 		result = prime * result
 				+ ((initParameters == null) ? 0 : initParameters.hashCode());
+		result = prime * result
+				+ ((initValues == null) ? 0 : initValues.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		result = prime * result + ((terms == null) ? 0 : terms.hashCode());
@@ -147,6 +157,11 @@ public class Function implements Serializable {
 				return false;
 		} else if (!initParameters.equals(other.initParameters))
 			return false;
+		if (initValues == null) {
+			if (other.initValues != null)
+				return false;
+		} else if (!initValues.equals(other.initValues))
+			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
 				return false;
@@ -166,6 +181,6 @@ public class Function implements Serializable {
 				+ dependentVariable + ", independentVariables="
 				+ independentVariables + ", parameters=" + parameters
 				+ ", diffVariable=" + diffVariable + ", initParameters="
-				+ initParameters + "]";
+				+ initParameters + ", initValues=" + initValues + "]";
 	}
 }
