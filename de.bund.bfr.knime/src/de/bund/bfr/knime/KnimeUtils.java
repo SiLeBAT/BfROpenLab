@@ -41,6 +41,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.xml.XMLCell;
@@ -133,6 +134,23 @@ public class KnimeUtils {
 		for (DataColumnSpec column : spec) {
 			for (DataType type : types) {
 				if (column.getType().equals(type)) {
+					columns.add(column);
+					break;
+				}
+			}
+		}
+
+		return columns;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
+			Class<? extends DataValue>... types) {
+		List<DataColumnSpec> columns = new ArrayList<>();
+
+		for (DataColumnSpec column : spec) {
+			for (Class<? extends DataValue> type : types) {
+				if (column.getType().isCompatible(type)) {
 					columns.add(column);
 					break;
 				}

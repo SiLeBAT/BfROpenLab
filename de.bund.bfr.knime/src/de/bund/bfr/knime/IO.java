@@ -24,8 +24,12 @@
  ******************************************************************************/
 package de.bund.bfr.knime;
 
+import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
+import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -81,8 +85,8 @@ public class IO {
 	}
 
 	public static String getString(DataCell cell) {
-		if (cell instanceof StringCell) {
-			return ((StringCell) cell).getStringValue();
+		if (cell instanceof StringValue) {
+			return ((StringValue) cell).getStringValue();
 		}
 
 		return null;
@@ -93,43 +97,24 @@ public class IO {
 	}
 
 	public static Integer getInt(DataCell cell) {
-		if (cell instanceof IntCell) {
-			return ((IntCell) cell).getIntValue();
+		if (cell instanceof IntValue) {
+			return ((IntValue) cell).getIntValue();
 		}
 
 		return null;
 	}
 
 	public static Double getDouble(DataCell cell) {
-		if (cell instanceof DoubleCell) {
-			return ((DoubleCell) cell).getDoubleValue();
+		if (cell instanceof DoubleValue) {
+			return ((DoubleValue) cell).getDoubleValue();
 		}
 
 		return null;
 	}
 
 	public static Boolean getBoolean(DataCell cell) {
-		if (cell instanceof BooleanCell) {
-			return ((BooleanCell) cell).getBooleanValue();
-		}
-
-		return null;
-	}
-
-	public static Object getObject(DataCell cell) {
-		String s = getString(cell);
-		Integer i = getInt(cell);
-		Double d = getDouble(cell);
-		Boolean b = getBoolean(cell);
-
-		if (s != null) {
-			return s;
-		} else if (i != null) {
-			return i;
-		} else if (d != null) {
-			return d;
-		} else if (b != null) {
-			return b;
+		if (cell instanceof BooleanValue) {
+			return ((BooleanValue) cell).getBooleanValue();
 		}
 
 		return null;

@@ -37,6 +37,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -168,6 +169,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
@@ -178,7 +180,7 @@ public class FunctionFittingNodeModel extends NodeModel {
 		List<String> stringColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(spec, StringCell.TYPE));
 		List<String> doubleColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(spec, DoubleCell.TYPE));
+				.getColumns(spec, DoubleValue.class));
 
 		if (!stringColumns.contains(NlsConstants.ID_COLUMN)) {
 			throw new InvalidSettingsException(
