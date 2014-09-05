@@ -4,26 +4,35 @@
 	<name>Polygon Properties</name>
 
 	<shortDescription>
-
+		Computes various properties for polygons.
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Insert long description here...</intro>
+		<intro>
+			Computes various properties for polygons. The first table must contain the polygons. The
+			second table must contains the coordinates, which are referenced by the polygons via Row ID.
+		</intro>
 
-
-		<option name="short name of first option (like in the dialog)">description of first option</option>
-		<option name="short name of second option (like in the dialog)">description of second option</option>
-		<!-- possibly more options that can also be grouped by tabs -->
-		<!-- <tab name="Standard Options"> <option name="short name of first option (like in the dialog)">description 
-			of first option</option> <option name="short name of second option (like in the dialog)">description 
-			of second option</option> </tab> <tab name="Advanced Options"> <option name="short name of first advanced 
-			option (like in the dialog)">description of first advanced option</option> </tab> -->
+		<option name="Polygon Column">
+			Column with polygons from the first input table.
+		</option>
+		<option name="Latitude Column">
+			Column with latitudes from the second input table.
+		</option>
+		<option name="Longitude Column">
+			Column with longitudes from the second input table.
+		</option>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="In-Port name">Description of first input port...</inPort>
-		<!-- possibly more input ports here -->
-		<outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-		<!-- possibly more output ports here -->
+		<inPort index="0" name="Polygons">
+			Polygons. Reference the coordinates in the second table.
+		</inPort>
+		<inPort index="1" name="Coordinates">
+			All coordinates of the polygons.
+		</inPort>
+		<outPort index="0" name="Polygon Properties">
+			Polygons with computed properties.
+		</outPort>
 	</ports>
 </knimeNode>
