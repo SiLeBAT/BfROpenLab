@@ -138,12 +138,22 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		ResultSet rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Station"), false);
 		if (rs != null && rs.first()) {
 			int rowNumber = 0;
+			boolean isBVLFormat = false;
 			do {
 				int stationID = rs.getInt("ID");
+				String district = null;
+				String bll = clean(rs.getString("Bundesland"));
+				if (rowNumber == 0 && bll != null && (bll.equals("Altenburger Land") || bll.equals("Wesel"))) isBVLFormat = true;
 				//if (!antiArticle || !checkCompanyReceivedArticle(stationID, articleFilterList) || !checkCase(stationID)) {
-				String bl = getBL(clean(rs.getString("Bundesland")));
-				//Integer cp = rs.getObject("CasePriority") == null ? null : rs.getInt("CasePriority");
 				String country = clean(rs.getString("Land"));//getBL(clean(rs.getString("Land"), 3);
+				String zip = clean(rs.getString("PLZ"));
+				//Integer cp = rs.getObject("CasePriority") == null ? null : rs.getInt("CasePriority");
+				if (isBVLFormat) {
+					district = bll;
+					bll = country;
+					if (zip != null && zip.length() == 4) country = "BE"; else country = "DE";
+				}
+				String bl = getBL(bll);
 				String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
 				//if (rs.getObject("Land") != null && clean(rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 				//id2Code.put(stationID, company);
@@ -156,12 +166,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				//cells[4] = new StringCell("yellow"); // red, yellow
 				cells[2] = (doAnonymize || rs.getObject("Strasse") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Strasse")));
 				cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Hausnummer")));
-				cells[4] = (rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("PLZ")));
+				cells[4] = (zip == null) ? DataType.getMissingCell() : new StringCell(zip);
 				cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Ort")));
-				cells[6] = DataType.getMissingCell();
-				cells[7] = (doAnonymize || rs.getObject("Bundesland") == null || clean(rs.getString("Bundesland")).equals("NULL")) ? DataType.getMissingCell() : new StringCell(
-						clean(rs.getString("Bundesland")));
-				cells[8] = (doAnonymize || rs.getObject("Land") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Land")));
+				cells[6] = (doAnonymize || district == null) ? DataType.getMissingCell() : new StringCell(district);
+				cells[7] = (doAnonymize || bll == null) ? DataType.getMissingCell() : new StringCell(bll);
+				cells[8] = (doAnonymize || country == null) ? DataType.getMissingCell() : new StringCell(country);
 				cells[9] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("VATnumber")));
 				cells[10] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Betriebsart")));
 
@@ -262,7 +271,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private String clean(String s) {
-		if (s == null) {
+		if (s == null || s.equalsIgnoreCase("null")) {
 			return null;
 		}
 
