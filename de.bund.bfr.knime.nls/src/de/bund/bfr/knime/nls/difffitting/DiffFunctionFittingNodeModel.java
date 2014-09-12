@@ -38,6 +38,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -185,12 +186,12 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 		DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
 
 		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(dataSpec, StringCell.TYPE));
+				.getColumns(dataSpec, StringValue.class));
 		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(dataSpec, DoubleValue.class));
 		List<String> conditionStringColumns = KnimeUtils
 				.getColumnNames(KnimeUtils.getColumns(conditionSpec,
-						StringCell.TYPE));
+						StringValue.class));
 		List<String> conditionDoubleColumns = KnimeUtils
 				.getColumnNames(KnimeUtils.getColumns(conditionSpec,
 						DoubleValue.class));

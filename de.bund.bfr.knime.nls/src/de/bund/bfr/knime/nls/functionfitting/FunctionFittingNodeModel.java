@@ -38,6 +38,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -184,7 +185,7 @@ public class FunctionFittingNodeModel extends NodeModel implements
 		List<String> variables = function.getVariables();
 		List<String> parameters = function.getParameters();
 		List<String> stringColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(spec, StringCell.TYPE));
+				.getColumns(spec, StringValue.class));
 		List<String> doubleColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(spec, DoubleValue.class));
 
@@ -319,8 +320,7 @@ public class FunctionFittingNodeModel extends NodeModel implements
 						IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 			}
 
-			if (id == null
-					|| MathUtils.containsInvalidDouble(values.values())) {
+			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
 				continue;
 			}
 
