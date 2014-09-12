@@ -95,12 +95,10 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		int nParam = parameters.length;
-		int nValue = variableValues.get(timeVariable).length;
-		double[][] r = new double[nParam][nValue];
+		double[][] r = new double[parameters.length][timeValues.length];
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
-		for (int i = 0; i < nParam; i++) {
+		for (int i = 0; i < parameters.length; i++) {
 			executor.execute(new ParamDiffThread(point, i, r[i]));
 		}
 
@@ -112,10 +110,10 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			e.printStackTrace();
 		}
 
-		double[][] result = new double[nValue][nParam];
+		double[][] result = new double[timeValues.length][parameters.length];
 
-		for (int i = 0; i < nParam; i++) {
-			for (int j = 0; j < nValue; j++) {
+		for (int i = 0; i < parameters.length; i++) {
+			for (int j = 0; j < timeValues.length; j++) {
 				result[j][i] = r[i][j];
 			}
 		}
