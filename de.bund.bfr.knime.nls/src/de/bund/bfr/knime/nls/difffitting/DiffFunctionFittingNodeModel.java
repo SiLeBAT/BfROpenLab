@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionfitting;
+package de.bund.bfr.knime.nls.difffitting;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -60,36 +60,36 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.nls.FittingSettings;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.Integrator;
 import de.bund.bfr.math.MathUtilities;
 import de.bund.bfr.math.ParameterOptimizer;
 
 /**
- * This is the model implementation of FunctionFitting.
+ * This is the model implementation of DiffFunctionFitting.
  * 
  * 
  * @author Christian Thoens
  */
-public class FunctionFittingNodeModel extends NodeModel implements
+public class DiffFunctionFittingNodeModel extends NodeModel implements
 		ParameterOptimizer.ProgressListener {
 
-	private FittingSettings set;
+	private DiffFunctionFittingSettings set;
 
 	private ExecutionContext currentExec;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FunctionFittingNodeModel() {
+	protected DiffFunctionFittingNodeModel() {
 		super(
 				new PortType[] { FunctionPortObject.TYPE,
 						BufferedDataTable.TYPE }, new PortType[] {
 						BufferedDataTable.TYPE, BufferedDataTable.TYPE });
-		set = new FittingSettings();
+		set = new DiffFunctionFittingSettings();
 		currentExec = null;
 	}
 
@@ -355,15 +355,35 @@ public class FunctionFittingNodeModel extends NodeModel implements
 						Doubles.toArray(entry.getValue()));
 			}
 
-			if (function.getDiffVariable() != null) {
+			if (function.getDiffVariable() == null) {
 				continue;
 			}
 
-			optimizer = new ParameterOptimizer(function.getTerms().get(
-					function.getDependentVariable()), function.getParameters()
-					.toArray(new String[0]), minParameterValues,
-					maxParameterValues, minParameterValues, maxParameterValues,
-					targetArray, argumentArrays, set.isEnforceLimits());
+			int n = function.getTerms().size();
+			String[] terms = new String[n];
+			String[] valueVariables = new String[n];
+			Double[] initValues = new Double[n];
+			String[] initParameters = new String[n];
+			int i = 0;
+
+			for (String var : function.getTerms().keySet()) {
+				terms[i] = function.getTerms().get(var);
+				valueVariables[i] = var;
+				initValues[i] = function.getInitValues().get(var);
+				initParameters[i] = function.getInitParameters().get(var);
+				i++;
+			}
+
+			optimizer = new ParameterOptimizer(terms, valueVariables,
+					initValues, initParameters, function.getParameters()
+							.toArray(new String[0]), minParameterValues,
+					maxParameterValues, targetArray,
+					function.getDependentVariable(),
+					function.getDiffVariable(), argumentArrays, new Integrator(
+							set.getIntegratorType(), set.getStepSize(),
+							set.getMinStepSize(), set.getMaxStepSize(),
+							set.getAbsTolerance(), set.getRelTolerance()));
+			optimizer.addProgressListener(this);
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 					set.isStopWhenSuccessful());
 			results.put(id, optimizer);
@@ -378,4 +398,5 @@ public class FunctionFittingNodeModel extends NodeModel implements
 			currentExec.setProgress(progress);
 		}
 	}
+
 }
