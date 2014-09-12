@@ -117,10 +117,10 @@ public class ParameterOptimizer {
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
 			Double[] initValues, String[] initParameters, String[] parameters,
 			Map<String, Double> minStartValues,
-			Map<String, Double> maxStartValues, double[] targetValues,
-			String dependentVariable, String timeVariable,
-			Map<String, double[]> variableValues, Integrator integrator)
-			throws ParseException {
+			Map<String, Double> maxStartValues, double[] timeValues,
+			double[] targetValues, String dependentVariable,
+			String timeVariable, Map<String, double[]> variableValues,
+			Integrator integrator) throws ParseException {
 		this.parameters = parameters;
 		this.minStartValues = minStartValues;
 		this.maxStartValues = maxStartValues;
@@ -128,10 +128,12 @@ public class ParameterOptimizer {
 
 		optimizerFunction = new VectorDiffFunction(formulas,
 				dependentVariables, initValues, initParameters, parameters,
-				variableValues, dependentVariable, timeVariable, integrator);
+				variableValues, timeValues, dependentVariable, timeVariable,
+				integrator);
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas,
 				dependentVariables, initValues, initParameters, parameters,
-				variableValues, dependentVariable, timeVariable, integrator);
+				variableValues, timeValues, dependentVariable, timeVariable,
+				integrator);
 		successful = false;
 		resetResults();
 
@@ -382,11 +384,11 @@ public class ParameterOptimizer {
 	private void useCurrentResults() {
 		parameterValues.clear();
 		sse = optimizer.getChiSquare();
-		mse = MathUtilities.getMSE(parameters.length, targetValues.length, sse);
-		rmse = MathUtilities.getRMSE(parameters.length, targetValues.length,
+		mse = MathUtils.getMSE(parameters.length, targetValues.length, sse);
+		rmse = MathUtils.getRMSE(parameters.length, targetValues.length,
 				sse);
-		r2 = MathUtilities.getR2(sse, targetValues);
-		aic = MathUtilities.getAic(parameters.length, targetValues.length, sse);
+		r2 = MathUtils.getR2(sse, targetValues);
+		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
 		for (int i = 0; i < parameters.length; i++) {
 			parameterValues.put(parameters[i], optimizerValues.getPoint()[i]);
@@ -423,7 +425,7 @@ public class ParameterOptimizer {
 
 			parameterTValues.put(parameters[i], tValue);
 			parameterPValues.put(parameters[i],
-					MathUtilities.getPValue(tValue, degreesOfFreedom));
+					MathUtils.getPValue(tValue, degreesOfFreedom));
 		}
 
 		for (int i = 0; i < parameters.length; i++) {

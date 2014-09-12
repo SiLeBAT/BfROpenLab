@@ -174,7 +174,7 @@ public class DiffFunctionFittingNodeDialog extends NodeDialogPane implements
 		expertPanel.add(createRegressionPanel());
 		expertPanel.add(createRangePanel(spec));
 
-		if (spec.getFunction().getDiffVariable() != null) {
+		if (spec.getFunction().getTimeVariable() != null) {
 			expertPanel.add(createIntegrationPanel());
 		}
 

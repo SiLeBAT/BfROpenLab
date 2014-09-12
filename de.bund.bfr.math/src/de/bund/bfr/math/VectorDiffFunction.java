@@ -44,19 +44,22 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
+	private double[] timeValues;
 	private String dependentVariable;
 	private String timeVariable;
 	private Integrator integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
 			Double[] initValues, String[] initParameters, String[] parameters,
-			Map<String, double[]> variableValues, String dependentVariable,
-			String timeVariable, Integrator integrator) throws ParseException {
+			Map<String, double[]> variableValues, double[] timeValues,
+			String dependentVariable, String timeVariable, Integrator integrator)
+			throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.timeValues = timeValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
@@ -71,7 +74,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		functions = new Node[formulas.length];
 
 		for (int i = 0; i < formulas.length; i++) {
-			parsers[i] = MathUtilities.createParser(variables);
+			parsers[i] = MathUtils.createParser(variables);
 			functions[i] = parsers[i].parse(formulas[i]);
 		}
 	}
@@ -79,8 +82,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	public VectorDiffFunction(DJep[] parsers, Node[] functions,
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
-			Map<String, double[]> variableValues, String dependentVariable,
-			String timeVariable, Integrator integrator) {
+			Map<String, double[]> variableValues, double[] timeValues,
+			String dependentVariable, String timeVariable, Integrator integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -88,6 +91,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.timeValues = timeValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
@@ -95,8 +99,6 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		double[] timeValues = variableValues.get(timeVariable);
-
 		for (int i = 0; i < parsers.length; i++) {
 			for (int j = 0; j < parameters.length; j++) {
 				if (!Arrays.asList(initParameters).contains(parameters[j])) {

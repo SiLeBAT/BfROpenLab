@@ -56,7 +56,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
+		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(
 				Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
@@ -108,7 +108,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 			Object number = parser.evaluate(derivatives.get(param));
 
-			if (MathUtilities.isValidDouble(number)) {
+			if (MathUtils.isValidDouble(number)) {
 				return (Double) number;
 			}
 		}
@@ -126,8 +126,8 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 			Object number2 = parser.evaluate(function);
 
-			if (MathUtilities.isValidDouble(number1)
-					&& MathUtilities.isValidDouble(number2)) {
+			if (MathUtils.isValidDouble(number1)
+					&& MathUtils.isValidDouble(number2)) {
 				return ((Double) number2 - (Double) number1) / (2 * EPSILON);
 			}
 		}

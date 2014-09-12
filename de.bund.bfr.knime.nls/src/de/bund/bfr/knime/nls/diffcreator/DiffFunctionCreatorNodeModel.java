@@ -48,7 +48,7 @@ import org.knime.core.node.port.PortType;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 
 /**
  * This is the model implementation of DiffFunctionCreator.
@@ -150,7 +150,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		Set<String> symbols = new LinkedHashSet<>();
 
 		for (String term : terms) {
-			symbols.addAll(MathUtilities.getSymbols(term));
+			symbols.addAll(MathUtils.getSymbols(term));
 		}
 
 		return symbols;

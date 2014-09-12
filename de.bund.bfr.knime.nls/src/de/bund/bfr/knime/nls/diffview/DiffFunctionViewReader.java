@@ -45,7 +45,7 @@ import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.chart.ChartUtilities;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 
 public class DiffFunctionViewReader {
 
@@ -58,6 +58,7 @@ public class DiffFunctionViewReader {
 
 	public DiffFunctionViewReader(FunctionPortObject functionObject,
 			BufferedDataTable paramTable, BufferedDataTable varTable,
+			BufferedDataTable conditionTable,
 			BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns = getQualityColumns(paramTable, f);
@@ -76,7 +77,7 @@ public class DiffFunctionViewReader {
 		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<>();
 
-		if (f.getDiffVariable() == null) {
+		if (f.getTimeVariable() == null) {
 			for (String i : f.getIndependentVariables()) {
 				if (!i.equals(indep)) {
 					doubleColumns.put(i, new ArrayList<Double>());
@@ -89,7 +90,7 @@ public class DiffFunctionViewReader {
 		}
 
 		for (String id : getIds(paramTable)) {
-			if (f.getDiffVariable() == null) {
+			if (f.getTimeVariable() == null) {
 				continue;
 			}
 
@@ -110,12 +111,13 @@ public class DiffFunctionViewReader {
 			plotable.setInitValues(f.getInitValues());
 			plotable.setInitParameters(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
-			plotable.setDiffVariable(f.getDiffVariable());
+			plotable.setDiffVariable(f.getTimeVariable());
 			plotable.setParameters(getParameters(paramTable, id, f));
 			plotable.setIndependentVariables(getVariables(f));
 			plotable.setMinVariables(new LinkedHashMap<String, Double>());
 			plotable.setMaxVariables(new LinkedHashMap<String, Double>());
 			plotable.setValueLists(getVariableValues(varTable, id, f));
+			plotable.setConditionLists(getConditionValues(conditionTable, id, f));
 
 			if (covarianceTable != null) {
 				plotable.setCovariances(getCovariances(covarianceTable, id, f));
@@ -259,9 +261,7 @@ public class DiffFunctionViewReader {
 	private static Map<String, Double> getVariables(Function f) {
 		Map<String, Double> vars = new LinkedHashMap<>();
 
-		for (String var : f.getIndependentVariables()) {
-			vars.put(var, 0.0);
-		}
+		vars.put(f.getTimeVariable(), 0.0);
 
 		return vars;
 	}
@@ -271,7 +271,42 @@ public class DiffFunctionViewReader {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
-		for (String var : f.getVariables()) {
+		values.put(f.getTimeVariable(), new ArrayList<Double>());
+		values.put(f.getDependentVariable(), new ArrayList<Double>());
+
+		for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+				Double time = IO.getDouble(row.getCell(spec.findColumnIndex(f
+						.getTimeVariable())));
+				Double target = IO.getDouble(row.getCell(spec.findColumnIndex(f
+						.getDependentVariable())));
+
+				if (!MathUtils.isValidDouble(time)
+						|| !MathUtils.isValidDouble(target)) {
+					continue;
+				}
+
+				values.get(f.getTimeVariable()).add(time);
+				values.get(f.getDependentVariable()).add(target);
+			}
+		}
+
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
+	}
+
+	private static Map<String, double[]> getConditionValues(
+			BufferedDataTable table, String id, Function f) {
+		Map<String, List<Double>> values = new LinkedHashMap<>();
+		DataTableSpec spec = table.getSpec();
+
+		for (String var : f.getIndependentVariables()) {
 			values.put(var, new ArrayList<Double>());
 		}
 
@@ -280,12 +315,12 @@ public class DiffFunctionViewReader {
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
-				for (String var : f.getVariables()) {
+				for (String var : f.getIndependentVariables()) {
 					v.put(var, IO.getDouble(row.getCell(spec
 							.findColumnIndex(var))));
 				}
 
-				if (MathUtilities.containsInvalidDouble(v.values())) {
+				if (MathUtils.containsInvalidDouble(v.values())) {
 					continue;
 				}
 

@@ -50,6 +50,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
+	private double[] timeValues;
 	private String dependentVariable;
 	private String timeVariable;
 	private Integrator integrator;
@@ -57,13 +58,15 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	public VectorDiffFunctionJacobian(String[] formulas,
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
-			Map<String, double[]> variableValues, String dependentVariable,
-			String timeVariable, Integrator integrator) throws ParseException {
+			Map<String, double[]> variableValues, double[] timeValues,
+			String dependentVariable, String timeVariable, Integrator integrator)
+			throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.timeValues = timeValues;
 		this.dependentVariable = dependentVariable;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
@@ -82,7 +85,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			functions.put(param, new Node[formulas.length]);
 
 			for (int i = 0; i < formulas.length; i++) {
-				DJep parser = MathUtilities.createParser(variables);
+				DJep parser = MathUtils.createParser(variables);
 
 				parsers.get(param)[i] = parser;
 				functions.get(param)[i] = parser.parse(formulas[i]);
@@ -142,15 +145,15 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 			double[] result1 = new VectorDiffFunction(parser, function,
 					dependentVariables, initValues, initParameters, parameters,
-					variableValues, dependentVariable, timeVariable, integrator)
-					.value(point);
+					variableValues, timeValues, dependentVariable,
+					timeVariable, integrator).value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
 			double[] result2 = new VectorDiffFunction(parser, function,
 					dependentVariables, initValues, initParameters, parameters,
-					variableValues, dependentVariable, timeVariable, integrator)
-					.value(point);
+					variableValues, timeValues, dependentVariable,
+					timeVariable, integrator).value(point);
 
 			for (int i = 0; i < result.length; i++) {
 				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);

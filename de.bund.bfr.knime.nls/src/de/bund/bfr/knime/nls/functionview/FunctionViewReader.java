@@ -45,7 +45,7 @@ import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.chart.ChartUtilities;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 
 public class FunctionViewReader {
 
@@ -76,7 +76,7 @@ public class FunctionViewReader {
 		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<>();
 
-		if (f.getDiffVariable() == null) {
+		if (f.getTimeVariable() == null) {
 			for (String i : f.getIndependentVariables()) {
 				if (!i.equals(indep)) {
 					doubleColumns.put(i, new ArrayList<Double>());
@@ -89,7 +89,7 @@ public class FunctionViewReader {
 		}
 
 		for (String id : getIds(paramTable)) {
-			if (f.getDiffVariable() != null) {
+			if (f.getTimeVariable() != null) {
 				continue;
 			}
 
@@ -302,7 +302,7 @@ public class FunctionViewReader {
 					}
 				}
 
-				if (MathUtilities.containsInvalidDouble(v.values())) {
+				if (MathUtils.containsInvalidDouble(v.values())) {
 					continue;
 				}
 

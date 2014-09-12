@@ -66,8 +66,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private FunctionPortObject functionObject;
 	private BufferedDataTable paramTable;
-	private BufferedDataTable covarianceTable;
 	private BufferedDataTable varTable;
+	private BufferedDataTable covarianceTable;
 
 	/**
 	 * New pane for configuring the FunctionView node.
@@ -87,10 +87,10 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
 		paramTable = (BufferedDataTable) input[1];
-		covarianceTable = (BufferedDataTable) input[2];
-		varTable = (BufferedDataTable) input[3];
-		reader = new FunctionViewReader(functionObject, paramTable,
-				covarianceTable, varTable, set.getCurrentParamX());
+		varTable = (BufferedDataTable) input[2];
+		covarianceTable = (BufferedDataTable) input[3];
+		reader = new FunctionViewReader(functionObject, paramTable, varTable,
+				covarianceTable, set.getCurrentParamX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -201,7 +201,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
 			reader = new FunctionViewReader(functionObject, paramTable,
-					covarianceTable, varTable, set.getCurrentParamX());
+					varTable, covarianceTable, set.getCurrentParamX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

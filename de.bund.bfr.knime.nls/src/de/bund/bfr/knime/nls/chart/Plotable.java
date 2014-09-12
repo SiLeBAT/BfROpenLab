@@ -40,7 +40,7 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.DiffFunction;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -71,6 +71,7 @@ public class Plotable {
 
 	private Type type;
 	private Map<String, double[]> valueLists;
+	private Map<String, double[]> conditionLists;
 	private String function;
 	private String dependentVariable;
 	private Map<String, String> functions;
@@ -88,6 +89,7 @@ public class Plotable {
 	public Plotable(Type type) {
 		this.type = type;
 		valueLists = new LinkedHashMap<>();
+		conditionLists = new LinkedHashMap<>();
 		function = null;
 		dependentVariable = null;
 		functions = new LinkedHashMap<>();
@@ -113,6 +115,14 @@ public class Plotable {
 
 	public void setValueLists(Map<String, double[]> valueLists) {
 		this.valueLists = valueLists;
+	}
+
+	public Map<String, double[]> getConditionLists() {
+		return conditionLists;
+	}
+
+	public void setConditionLists(Map<String, double[]> conditionLists) {
+		this.conditionLists = conditionLists;
 	}
 
 	public String getFunction() {
@@ -234,8 +244,7 @@ public class Plotable {
 			Double x = Transform.transform(xList[i], transformX);
 			Double y = Transform.transform(yList[i], transformY);
 
-			if (MathUtilities.isValidDouble(x)
-					&& MathUtilities.isValidDouble(y)) {
+			if (MathUtils.isValidDouble(x) && MathUtils.isValidDouble(y)) {
 				points.add(new Point2D.Double(x, y));
 			}
 		}
@@ -283,7 +292,7 @@ public class Plotable {
 			if (number instanceof Double) {
 				y = Transform.transform((Double) number, transformY);
 
-				if (!MathUtilities.isValidDouble(y) || y < minY || y > maxY) {
+				if (!MathUtils.isValidDouble(y) || y < minY || y > maxY) {
 					y = Double.NaN;
 				}
 			} else {
@@ -325,7 +334,7 @@ public class Plotable {
 			Double y = Transform.transform(
 					getError(parser, derivatives, tDist), transformY);
 
-			if (!MathUtilities.isValidDouble(y)) {
+			if (!MathUtils.isValidDouble(y)) {
 				y = Double.NaN;
 			}
 
@@ -370,10 +379,10 @@ public class Plotable {
 
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DiffFunction f = new DiffFunction(parsers, fs, valueVariables,
-				valueLists, diffVariable);
+				conditionLists, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
-		double diffValue = valueLists.get(diffVariable)[0];
+		double diffValue = conditionLists.get(diffVariable)[0];
 
 		for (int j = 0; j < FUNCTION_STEPS; j++) {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
@@ -391,7 +400,7 @@ public class Plotable {
 				y = Double.NaN;
 			}
 
-			if (!MathUtilities.isValidDouble(y)) {
+			if (!MathUtils.isValidDouble(y)) {
 				y = Double.NaN;
 			}
 
@@ -435,7 +444,7 @@ public class Plotable {
 				boolean containsNull = false;
 
 				for (String var : valueLists.keySet()) {
-					if (!MathUtilities.isValidDouble(valueLists.get(var)[i])) {
+					if (!MathUtils.isValidDouble(valueLists.get(var)[i])) {
 						containsNull = true;
 						break;
 					}
@@ -472,7 +481,7 @@ public class Plotable {
 	}
 
 	private DJep createParser(String varX) {
-		DJep parser = MathUtilities.createParser();
+		DJep parser = MathUtils.createParser();
 
 		for (String constant : constants.keySet()) {
 			if (constants.get(constant) == null) {
@@ -517,7 +526,7 @@ public class Plotable {
 		for (String param : paramList) {
 			Object obj = parser.evaluate(derivatives.get(param));
 
-			if (!MathUtilities.isValidDouble(obj)) {
+			if (!MathUtils.isValidDouble(obj)) {
 				return null;
 			}
 
@@ -532,8 +541,8 @@ public class Plotable {
 				Object obj2 = parser
 						.evaluate(derivatives.get(paramList.get(j)));
 
-				if (!MathUtilities.isValidDouble(obj1)
-						|| !MathUtilities.isValidDouble(obj2)) {
+				if (!MathUtils.isValidDouble(obj1)
+						|| !MathUtils.isValidDouble(obj2)) {
 					return null;
 				}
 

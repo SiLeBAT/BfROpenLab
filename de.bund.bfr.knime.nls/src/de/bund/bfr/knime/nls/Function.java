@@ -38,7 +38,7 @@ public class Function implements Serializable {
 	private String dependentVariable;
 	private List<String> independentVariables;
 	private List<String> parameters;
-	private String diffVariable;
+	private String timeVariable;
 	private Map<String, String> initParameters;
 	private Map<String, Double> initValues;
 
@@ -56,13 +56,13 @@ public class Function implements Serializable {
 
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters,
-			String diffVariable, Map<String, String> initParameters,
+			String timeVariable, Map<String, String> initParameters,
 			Map<String, Double> initValues) {
 		this.terms = terms;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;
 		this.parameters = parameters;
-		this.diffVariable = diffVariable;
+		this.timeVariable = timeVariable;
 		this.initParameters = initParameters;
 		this.initValues = initValues;
 	}
@@ -83,8 +83,8 @@ public class Function implements Serializable {
 		return parameters;
 	}
 
-	public String getDiffVariable() {
-		return diffVariable;
+	public String getTimeVariable() {
+		return timeVariable;
 	}
 
 	public Map<String, String> getInitParameters() {
@@ -113,7 +113,7 @@ public class Function implements Serializable {
 				+ ((dependentVariable == null) ? 0 : dependentVariable
 						.hashCode());
 		result = prime * result
-				+ ((diffVariable == null) ? 0 : diffVariable.hashCode());
+				+ ((timeVariable == null) ? 0 : timeVariable.hashCode());
 		result = prime
 				* result
 				+ ((independentVariables == null) ? 0 : independentVariables
@@ -142,10 +142,10 @@ public class Function implements Serializable {
 				return false;
 		} else if (!dependentVariable.equals(other.dependentVariable))
 			return false;
-		if (diffVariable == null) {
-			if (other.diffVariable != null)
+		if (timeVariable == null) {
+			if (other.timeVariable != null)
 				return false;
-		} else if (!diffVariable.equals(other.diffVariable))
+		} else if (!timeVariable.equals(other.timeVariable))
 			return false;
 		if (independentVariables == null) {
 			if (other.independentVariables != null)
@@ -180,7 +180,7 @@ public class Function implements Serializable {
 		return "Function [terms=" + terms + ", dependentVariable="
 				+ dependentVariable + ", independentVariables="
 				+ independentVariables + ", parameters=" + parameters
-				+ ", diffVariable=" + diffVariable + ", initParameters="
+				+ ", timeVariable=" + timeVariable + ", initParameters="
 				+ initParameters + ", initValues=" + initValues + "]";
 	}
 }

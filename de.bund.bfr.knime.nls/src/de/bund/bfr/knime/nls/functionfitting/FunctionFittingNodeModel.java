@@ -65,7 +65,7 @@ import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.ParameterOptimizer;
 
 /**
@@ -320,7 +320,7 @@ public class FunctionFittingNodeModel extends NodeModel implements
 			}
 
 			if (id == null
-					|| MathUtilities.containsInvalidDouble(values.values())) {
+					|| MathUtils.containsInvalidDouble(values.values())) {
 				continue;
 			}
 
@@ -355,7 +355,7 @@ public class FunctionFittingNodeModel extends NodeModel implements
 						Doubles.toArray(entry.getValue()));
 			}
 
-			if (function.getDiffVariable() != null) {
+			if (function.getTimeVariable() != null) {
 				continue;
 			}
 

@@ -38,9 +38,9 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
-public class MathUtilities {
+public class MathUtils {
 
-	private MathUtilities() {
+	private MathUtils() {
 	}
 
 	public static boolean isValidDouble(Object o) {
@@ -99,7 +99,7 @@ public class MathUtilities {
 
 	public static Set<String> getSymbols(String formula) {
 		Set<String> symbols = new LinkedHashSet<>();
-		DJep parser = MathUtilities.createParser();
+		DJep parser = MathUtils.createParser();
 
 		try {
 			parser.parse(formula);

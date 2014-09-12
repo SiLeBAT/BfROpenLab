@@ -60,7 +60,7 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 */
 	protected DiffFunctionViewNodeModel() {
 		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				new PortType(BufferedDataTable.class, true) },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new ViewSettings();
@@ -76,7 +76,8 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 				(FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3], set.getCurrentParamX());
+				(BufferedDataTable) inObjects[3],
+				(BufferedDataTable) inObjects[4], set.getCurrentParamX());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 

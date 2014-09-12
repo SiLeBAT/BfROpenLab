@@ -48,7 +48,7 @@ public class VectorFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = MathUtilities.createParser(Sets.union(new LinkedHashSet<>(
+		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(
 				Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 
@@ -75,7 +75,7 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 				Object number = parser.evaluate(function);
 
-				if (MathUtilities.isValidDouble(number)) {
+				if (MathUtils.isValidDouble(number)) {
 					retValue[i] = (Double) number;
 				} else {
 					retValue[i] = Double.NaN;

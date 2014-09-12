@@ -46,7 +46,7 @@ import org.knime.core.node.port.PortType;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 
 /**
  * This is the model implementation of FunctionCreator.
@@ -150,7 +150,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 		terms.put(dependentVariable, term);
 
 		List<String> parameters = new ArrayList<>(
-				MathUtilities.getSymbols(term));
+				MathUtils.getSymbols(term));
 
 		parameters.removeAll(independentVariables);
 		Collections.sort(parameters);

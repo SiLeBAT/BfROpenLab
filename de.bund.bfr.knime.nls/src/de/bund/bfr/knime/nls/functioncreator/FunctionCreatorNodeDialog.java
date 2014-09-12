@@ -51,7 +51,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextArea;
 import de.bund.bfr.knime.ui.StringTextField;
 import de.bund.bfr.knime.ui.TextListener;
-import de.bund.bfr.math.MathUtilities;
+import de.bund.bfr.math.MathUtils;
 
 /**
  * <code>NodeDialog</code> for the "FunctionCreator" Node.
@@ -110,7 +110,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Formula Missing");
 		}
 
-		if (MathUtilities.getSymbols(set.getTerm()).isEmpty()) {
+		if (MathUtils.getSymbols(set.getTerm()).isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
 		}
 
@@ -193,7 +193,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(MathUtilities.getSymbols(set
+		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set
 				.getTerm()));
 
 		Collections.sort(elements);
@@ -221,7 +221,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> symbols = new ArrayList<>(MathUtilities.getSymbols(set
+		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set
 				.getTerm()));
 
 		List<String> indeps = new ArrayList<>();

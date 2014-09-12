@@ -55,9 +55,9 @@ public class FunctionPortObjectView extends JComponent {
 		for (Map.Entry<String, String> entry : f.getTerms().entrySet()) {
 			JLabel label;
 
-			if (f.getDiffVariable() != null) {
+			if (f.getTimeVariable() != null) {
 				label = new JLabel("d" + entry.getKey() + "/d"
-						+ f.getDiffVariable() + " = " + entry.getValue());
+						+ f.getTimeVariable() + " = " + entry.getValue());
 			} else {
 				label = new JLabel(entry.getKey() + " = " + entry.getValue());
 			}
