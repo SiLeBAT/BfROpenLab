@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionview;
+package de.bund.bfr.knime.nls.diffview;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -47,7 +47,7 @@ import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.math.MathUtilities;
 
-public class FunctionViewReader {
+public class DiffFunctionViewReader {
 
 	private List<String> ids;
 	private String depVar;
@@ -56,7 +56,7 @@ public class FunctionViewReader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionViewReader(FunctionPortObject functionObject,
+	public DiffFunctionViewReader(FunctionPortObject functionObject,
 			BufferedDataTable paramTable, BufferedDataTable varTable,
 			BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
@@ -89,56 +89,46 @@ public class FunctionViewReader {
 		}
 
 		for (String id : getIds(paramTable)) {
-			if (f.getDiffVariable() != null) {
+			if (f.getDiffVariable() == null) {
 				continue;
 			}
 
-			for (Map<String, Double> fixed : getFixVariables(varTable, id, f,
-					indep)) {
-				Map<String, Double> qualityValues = getQualityValues(
-						paramTable, id, qualityColumns);
-				String newId = id;
+			Map<String, Double> qualityValues = getQualityValues(paramTable,
+					id, qualityColumns);
 
-				if (!fixed.isEmpty()) {
-					newId += fixed.toString();
-				}
+			ids.add(id);
+			legend.put(id, id);
+			stringColumns.get(NlsConstants.ID_COLUMN).add(id);
 
-				ids.add(newId);
-				legend.put(newId, newId);
-				stringColumns.get(NlsConstants.ID_COLUMN).add(id);
-
-				for (String i : fixed.keySet()) {
-					doubleColumns.get(i).add(fixed.get(i));
-				}
-
-				for (String q : qualityColumns) {
-					doubleColumns.get(q).add(qualityValues.get(q));
-				}
-
-				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
-
-				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
-				plotable.setDependentVariable(f.getDependentVariable());
-				plotable.setParameters(getParameters(paramTable, id, f));
-				plotable.setIndependentVariables(getVariables(indep, fixed));
-				plotable.setMinVariables(new LinkedHashMap<String, Double>());
-				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-				plotable.setValueLists(getVariableValues(varTable, id, f, fixed));
-
-				if (covarianceTable != null) {
-					plotable.setCovariances(getCovariances(covarianceTable, id,
-							f));
-				}
-
-				if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
-					plotable.setDegreesOfFreedom(qualityValues.get(
-							NlsConstants.DOF_COLUMN).intValue());
-				}
-
-				stringColumns.get(ChartUtilities.STATUS).add(
-						plotable.getStatus().toString());
-				plotables.put(newId, plotable);
+			for (String q : qualityColumns) {
+				doubleColumns.get(q).add(qualityValues.get(q));
 			}
+
+			Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
+
+			plotable.setFunctions(f.getTerms());
+			plotable.setInitValues(f.getInitValues());
+			plotable.setInitParameters(f.getInitParameters());
+			plotable.setDependentVariable(f.getDependentVariable());
+			plotable.setDiffVariable(f.getDiffVariable());
+			plotable.setParameters(getParameters(paramTable, id, f));
+			plotable.setIndependentVariables(getVariables(f));
+			plotable.setMinVariables(new LinkedHashMap<String, Double>());
+			plotable.setMaxVariables(new LinkedHashMap<String, Double>());
+			plotable.setValueLists(getVariableValues(varTable, id, f));
+
+			if (covarianceTable != null) {
+				plotable.setCovariances(getCovariances(covarianceTable, id, f));
+			}
+
+			if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
+				plotable.setDegreesOfFreedom(qualityValues.get(
+						NlsConstants.DOF_COLUMN).intValue());
+			}
+
+			stringColumns.get(ChartUtilities.STATUS).add(
+					plotable.getStatus().toString());
+			plotables.put(id, plotable);
 		}
 	}
 
@@ -266,19 +256,18 @@ public class FunctionViewReader {
 		return covariances;
 	}
 
-	private static Map<String, Double> getVariables(String indep,
-			Map<String, Double> fixed) {
+	private static Map<String, Double> getVariables(Function f) {
 		Map<String, Double> vars = new LinkedHashMap<>();
 
-		vars.put(indep, 0.0);
-		vars.putAll(fixed);
+		for (String var : f.getIndependentVariables()) {
+			vars.put(var, 0.0);
+		}
 
 		return vars;
 	}
 
 	private static Map<String, double[]> getVariableValues(
-			BufferedDataTable table, String id, Function f,
-			Map<String, Double> fixed) {
+			BufferedDataTable table, String id, Function f) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
@@ -286,7 +275,7 @@ public class FunctionViewReader {
 			values.put(var, new ArrayList<Double>());
 		}
 
-		loop: for (DataRow row : table) {
+		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
 					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
@@ -296,18 +285,12 @@ public class FunctionViewReader {
 							.findColumnIndex(var))));
 				}
 
-				for (String var : fixed.keySet()) {
-					if (!fixed.get(var).equals(v.get(var))) {
-						continue loop;
-					}
-				}
-
 				if (MathUtilities.containsInvalidDouble(v.values())) {
 					continue;
 				}
 
-				for (String var : v.keySet()) {
-					values.get(var).add(v.get(var));
+				for (Map.Entry<String, Double> entry : v.entrySet()) {
+					values.get(entry.getKey()).add(entry.getValue());
 				}
 			}
 		}
@@ -319,31 +302,5 @@ public class FunctionViewReader {
 		}
 
 		return result;
-	}
-
-	private static List<Map<String, Double>> getFixVariables(
-			BufferedDataTable table, String id, Function f, String indep) {
-		List<Map<String, Double>> values = new ArrayList<>();
-		DataTableSpec spec = table.getSpec();
-
-		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
-				Map<String, Double> v = new LinkedHashMap<>();
-
-				for (String var : f.getIndependentVariables()) {
-					if (!var.equals(indep)) {
-						v.put(var, IO.getDouble(row.getCell(spec
-								.findColumnIndex(var))));
-					}
-				}
-
-				if (!values.contains(v)) {
-					values.add(v);
-				}
-			}
-		}
-
-		return values;
 	}
 }

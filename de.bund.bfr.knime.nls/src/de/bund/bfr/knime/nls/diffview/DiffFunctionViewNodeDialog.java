@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionview;
+package de.bund.bfr.knime.nls.diffview;
 
 import java.awt.BorderLayout;
 import java.util.LinkedHashMap;
@@ -37,6 +37,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
@@ -49,15 +50,21 @@ import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
- * <code>NodeDialog</code> for the "FunctionView" Node.
+ * <code>NodeDialog</code> for the "DiffFunctionView" Node.
+ * 
+ * 
+ * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
+ * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
-		ChartCreator.ZoomListener {
+public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
+		implements ChartSelectionPanel.SelectionListener,
+		ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private FunctionViewReader reader;
+	private DiffFunctionViewReader reader;
 	private ViewSettings set;
 
 	private ChartCreator chartCreator;
@@ -70,9 +77,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	private BufferedDataTable varTable;
 
 	/**
-	 * New pane for configuring the FunctionView node.
+	 * New pane for configuring the DiffFunctionView node.
 	 */
-	protected FunctionViewNodeDialog() {
+	protected DiffFunctionViewNodeDialog() {
 		set = new ViewSettings();
 
 		JPanel panel = new JPanel();
@@ -89,7 +96,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		paramTable = (BufferedDataTable) input[1];
 		covarianceTable = (BufferedDataTable) input[2];
 		varTable = (BufferedDataTable) input[3];
-		reader = new FunctionViewReader(functionObject, paramTable,
+		reader = new DiffFunctionViewReader(functionObject, paramTable,
 				covarianceTable, varTable, set.getCurrentParamX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
@@ -200,7 +207,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (!configPanel.getParamX().equals(set.getCurrentParamX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionViewReader(functionObject, paramTable,
+			reader = new DiffFunctionViewReader(functionObject, paramTable,
 					covarianceTable, varTable, set.getCurrentParamX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());

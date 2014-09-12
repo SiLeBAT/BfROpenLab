@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionview;
+package de.bund.bfr.knime.nls;
 
 import java.awt.Color;
 import java.awt.Shape;
@@ -41,7 +41,7 @@ import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.math.Transform;
 
-public class FunctionViewSettings extends NlsNodeSettings {
+public class ViewSettings extends NlsNodeSettings {
 
 	public static final boolean DEFAULT_MIN_TO_ZERO = false;
 	public static final boolean DEFAULT_MANUAL_RANGE = false;
@@ -92,7 +92,7 @@ public class FunctionViewSettings extends NlsNodeSettings {
 	private Map<String, Color> colors;
 	private Map<String, Shape> shapes;
 
-	public FunctionViewSettings() {
+	public ViewSettings() {
 		minToZero = DEFAULT_MIN_TO_ZERO;
 		manualRange = DEFAULT_MANUAL_RANGE;
 		minX = DEFAULT_MIN_X;
