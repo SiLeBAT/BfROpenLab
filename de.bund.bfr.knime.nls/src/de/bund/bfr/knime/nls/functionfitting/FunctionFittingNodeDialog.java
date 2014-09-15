@@ -29,7 +29,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,21 +114,12 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("");
 		}
 
-		Map<String, Point2D.Double> guesses = new LinkedHashMap<>();
+		Map<String, Double> minStartValues = new LinkedHashMap<>();
+		Map<String, Double> maxStartValues = new LinkedHashMap<>();
 
 		for (String param : minimumFields.keySet()) {
-			Double min = minimumFields.get(param).getValue();
-			Double max = maximumFields.get(param).getValue();
-
-			if (min == null) {
-				min = Double.NaN;
-			}
-
-			if (max == null) {
-				max = Double.NaN;
-			}
-
-			guesses.put(param, new Point2D.Double(min, max));
+			minStartValues.put(param, minimumFields.get(param).getValue());
+			maxStartValues.put(param, maximumFields.get(param).getValue());
 		}
 
 		set.setnParameterSpace(nParamSpaceField.getValue());
@@ -137,7 +127,8 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		set.setEnforceLimits(limitsBox.isSelected());
 		set.setExpertSettings(expertBox.isSelected());
 		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
-		set.setParameterGuesses(guesses);
+		set.setMinStartValues(minStartValues);
+		set.setMaxStartValues(maxStartValues);
 		set.saveSettings(settings);
 	}
 
@@ -225,30 +216,21 @@ public class FunctionFittingNodeDialog extends NodeDialogPane implements
 		JPanel modelPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		Map<String, Point2D.Double> guesses = set.getParameterGuesses();
 		List<String> params = spec.getFunction().getParameters();
 
 		leftPanel.setLayout(new GridLayout(params.size(), 1));
 		rightPanel.setLayout(new GridLayout(params.size(), 1));
 
-		if (guesses == null) {
-			guesses = new LinkedHashMap<>();
-		}
-
 		for (String param : params) {
 			DoubleTextField minField = new DoubleTextField(true, 8);
 			DoubleTextField maxField = new DoubleTextField(true, 8);
 
-			if (guesses.containsKey(param)) {
-				Point2D.Double range = guesses.get(param);
+			if (set.getMinStartValues().get(param) != null) {
+				minField.setValue(set.getMinStartValues().get(param));
+			}
 
-				if (!Double.isNaN(range.x)) {
-					minField.setValue(range.x);
-				}
-
-				if (!Double.isNaN(range.y)) {
-					maxField.setValue(range.y);
-				}
+			if (set.getMaxStartValues().get(param) != null) {
+				maxField.setValue(set.getMaxStartValues().get(param));
 			}
 
 			JPanel minMaxPanel = new JPanel();

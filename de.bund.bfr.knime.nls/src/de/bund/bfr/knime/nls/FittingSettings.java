@@ -24,7 +24,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls;
 
-import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,14 +44,16 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
 	private static final String CFG_STOP_WHEN_SUCCESSFUL = "StopWhenSuccessful";
 	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
-	private static final String CFG_PARAMETER_GUESSES = "ParameterGuesses";
+	private static final String CFG_MIN_START_VALUES = "MinStartValues";
+	private static final String CFG_MAX_START_VALUES = "MinStartValues";
 
 	private boolean expertSettings;
 	private int nParameterSpace;
 	private int nLevenberg;
 	private boolean stopWhenSuccessful;
 	private boolean enforceLimits;
-	private Map<String, Point2D.Double> parameterGuesses;
+	private Map<String, Double> minStartValues;
+	private Map<String, Double> maxStartValues;
 
 	public FittingSettings() {
 		expertSettings = DEFAULT_EXPERT_SETTINGS;
@@ -88,8 +89,14 @@ public class FittingSettings extends NlsNodeSettings {
 		}
 
 		try {
-			parameterGuesses = (Map<String, Point2D.Double>) SERIALIZER
-					.fromXml(settings.getString(CFG_PARAMETER_GUESSES));
+			minStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_MIN_START_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			maxStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_MAX_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -105,8 +112,10 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
 		settings.addBoolean(CFG_STOP_WHEN_SUCCESSFUL, stopWhenSuccessful);
 		settings.addBoolean(CFG_ENFORCE_LIMITS, enforceLimits);
-		settings.addString(CFG_PARAMETER_GUESSES,
-				SERIALIZER.toXml(parameterGuesses));
+		settings.addString(CFG_MIN_START_VALUES,
+				SERIALIZER.toXml(minStartValues));
+		settings.addString(CFG_MAX_START_VALUES,
+				SERIALIZER.toXml(maxStartValues));
 	}
 
 	public boolean isExpertSettings() {
@@ -149,12 +158,20 @@ public class FittingSettings extends NlsNodeSettings {
 		this.enforceLimits = enforceLimits;
 	}
 
-	public Map<String, Point2D.Double> getParameterGuesses() {
-		return parameterGuesses;
+	public Map<String, Double> getMinStartValues() {
+		return minStartValues;
 	}
 
-	public void setParameterGuesses(Map<String, Point2D.Double> parameterGuesses) {
-		this.parameterGuesses = parameterGuesses;
+	public void setMinStartValues(Map<String, Double> minStartValues) {
+		this.minStartValues = minStartValues;
+	}
+
+	public Map<String, Double> getMaxStartValues() {
+		return maxStartValues;
+	}
+
+	public void setMaxStartValues(Map<String, Double> maxStartValues) {
+		this.maxStartValues = maxStartValues;
 	}
 
 	private void setExpertParametersToDefault() {
@@ -162,6 +179,7 @@ public class FittingSettings extends NlsNodeSettings {
 		nLevenberg = DEFAULT_N_LEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOP_WHEN_SUCCESSFUL;
 		enforceLimits = DEFAULT_ENFORCE_LIMITS;
-		parameterGuesses = new LinkedHashMap<>();
+		minStartValues = new LinkedHashMap<>();
+		maxStartValues = new LinkedHashMap<>();
 	}
 }

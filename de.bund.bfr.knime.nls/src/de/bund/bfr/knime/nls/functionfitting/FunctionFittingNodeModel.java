@@ -24,7 +24,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls.functionfitting;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -283,29 +282,6 @@ public class FunctionFittingNodeModel extends NodeModel implements
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
 			BufferedDataTable table) throws ParseException {
-		Map<String, Double> minParameterValues = new LinkedHashMap<>();
-		Map<String, Double> maxParameterValues = new LinkedHashMap<>();
-
-		for (String param : function.getParameters()) {
-			Double min = null;
-			Double max = null;
-
-			if (set.getParameterGuesses().containsKey(param)) {
-				Point2D.Double range = set.getParameterGuesses().get(param);
-
-				if (!Double.isNaN(range.x)) {
-					min = range.x;
-				}
-
-				if (!Double.isNaN(range.y)) {
-					max = range.y;
-				}
-			}
-
-			minParameterValues.put(param, min);
-			maxParameterValues.put(param, max);
-		}
-
 		DataTableSpec spec = table.getSpec();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
@@ -361,9 +337,10 @@ public class FunctionFittingNodeModel extends NodeModel implements
 
 			optimizer = new ParameterOptimizer(function.getTerms().get(
 					function.getDependentVariable()), function.getParameters()
-					.toArray(new String[0]), minParameterValues,
-					maxParameterValues, minParameterValues, maxParameterValues,
-					targetArray, argumentArrays, set.isEnforceLimits());
+					.toArray(new String[0]), set.getMinStartValues(),
+					set.getMaxStartValues(), set.getMinStartValues(),
+					set.getMaxStartValues(), targetArray, argumentArrays,
+					set.isEnforceLimits());
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 					set.isStopWhenSuccessful());
 			results.put(id, optimizer);

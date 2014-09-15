@@ -24,7 +24,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.nls.difffitting;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -312,30 +311,6 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 			throws ParseException {
 		DataTableSpec dataSpec = dataTable.getSpec();
 		DataTableSpec conditionSpec = conditionTable.getSpec();
-
-		Map<String, Double> minParameterValues = new LinkedHashMap<>();
-		Map<String, Double> maxParameterValues = new LinkedHashMap<>();
-
-		for (String param : function.getParameters()) {
-			Double min = null;
-			Double max = null;
-
-			if (set.getParameterGuesses().containsKey(param)) {
-				Point2D.Double range = set.getParameterGuesses().get(param);
-
-				if (!Double.isNaN(range.x)) {
-					min = range.x;
-				}
-
-				if (!Double.isNaN(range.y)) {
-					max = range.y;
-				}
-			}
-
-			minParameterValues.put(param, min);
-			maxParameterValues.put(param, max);
-		}
-
 		Map<String, List<Double>> timeValues = new LinkedHashMap<>();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 
@@ -426,8 +401,8 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 
 			optimizer = new ParameterOptimizer(terms, valueVariables,
 					initValues, initParameters, function.getParameters()
-							.toArray(new String[0]), minParameterValues,
-					maxParameterValues, timeArray, targetArray,
+							.toArray(new String[0]), set.getMinStartValues(),
+					set.getMaxStartValues(), timeArray, targetArray,
 					function.getDependentVariable(),
 					function.getTimeVariable(), argumentArrays, new Integrator(
 							set.getIntegratorType(), set.getStepSize(),
