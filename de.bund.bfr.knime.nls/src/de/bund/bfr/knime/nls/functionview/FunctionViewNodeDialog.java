@@ -45,7 +45,7 @@ import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.Plotable;
+import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -105,38 +105,13 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private JComponent createMainComponent() {
 		Map<String, Double> paramsX = new LinkedHashMap<>();
-		Map<String, Double> minValues = new LinkedHashMap<>();
-		Map<String, Double> maxValues = new LinkedHashMap<>();
+		Map<String, Double> minValues = ChartUtils.getMinValues(reader
+				.getPlotables().values());
+		Map<String, Double> maxValues = ChartUtils.getMaxValues(reader
+				.getPlotables().values());
 
-		for (Plotable plotable : reader.getPlotables().values()) {
-			paramsX.putAll(plotable.getIndependentVariables());
-
-			for (Map.Entry<String, Double> min : plotable.getMinVariables()
-					.entrySet()) {
-				Double oldMin = minValues.get(min.getKey());
-
-				if (oldMin == null) {
-					minValues.put(min.getKey(), min.getValue());
-				} else if (min.getValue() != null) {
-					minValues.put(min.getKey(),
-							Math.min(min.getValue(), oldMin));
-				}
-			}
-
-			for (Map.Entry<String, Double> max : plotable.getMaxVariables()
-					.entrySet()) {
-				Double oldMax = minValues.get(max.getKey());
-
-				if (oldMax == null) {
-					maxValues.put(max.getKey(), max.getValue());
-				} else if (max.getValue() != null) {
-					maxValues.put(max.getKey(),
-							Math.max(max.getValue(), oldMax));
-				}
-			}
-		}
-
-		for (String var : paramsX.keySet()) {
+		for (String var : ChartUtils.getVariables(reader.getPlotables()
+				.values())) {
 			if (minValues.get(var) != null) {
 				paramsX.put(var, minValues.get(var));
 			} else if (maxValues.get(var) != null) {

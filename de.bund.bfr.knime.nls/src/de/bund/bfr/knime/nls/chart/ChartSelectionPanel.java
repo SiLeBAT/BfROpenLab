@@ -98,25 +98,25 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(
 				(SelectTableModel) selectTable.getModel()));
-		selectTable.getColumn(ChartUtilities.ID).setMinWidth(0);
-		selectTable.getColumn(ChartUtilities.ID).setMaxWidth(0);
-		selectTable.getColumn(ChartUtilities.ID).setPreferredWidth(0);
-		selectTable.getColumn(ChartUtilities.SELECTED).setCellEditor(
+		selectTable.getColumn(ChartUtils.ID).setMinWidth(0);
+		selectTable.getColumn(ChartUtils.ID).setMaxWidth(0);
+		selectTable.getColumn(ChartUtils.ID).setPreferredWidth(0);
+		selectTable.getColumn(ChartUtils.SELECTED).setCellEditor(
 				new CheckBoxEditor());
-		selectTable.getColumn(ChartUtilities.SELECTED).setCellRenderer(
+		selectTable.getColumn(ChartUtils.SELECTED).setCellRenderer(
 				new CheckBoxRenderer());
-		selectTable.getColumn(ChartUtilities.SELECTED).getCellEditor()
+		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor()
 				.addCellEditorListener(this);
-		selectTable.getColumn(ChartUtilities.COLOR).setCellEditor(
+		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(
 				new ColorEditor());
-		selectTable.getColumn(ChartUtilities.COLOR).setCellRenderer(
+		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(
 				new ColorRenderer());
-		selectTable.getColumn(ChartUtilities.SHAPE).setCellEditor(
+		selectTable.getColumn(ChartUtils.SHAPE).setCellEditor(
 				new DefaultCellEditor(new JComboBox<>(
 						ColorAndShapeCreator.SHAPE_NAMES)));
-		selectTable.getColumn(ChartUtilities.COLOR).getCellEditor()
+		selectTable.getColumn(ChartUtils.COLOR).getCellEditor()
 				.addCellEditorListener(this);
-		selectTable.getColumn(ChartUtilities.SHAPE).getCellEditor()
+		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor()
 				.addCellEditorListener(this);
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -145,7 +145,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			col.setPreferredWidth(width += 10);
 		}
 
-		selectColumnWidth = selectTable.getColumn(ChartUtilities.SELECTED)
+		selectColumnWidth = selectTable.getColumn(ChartUtils.SELECTED)
 				.getPreferredWidth();
 
 		setLayout(new BorderLayout());
@@ -254,15 +254,15 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (selectAllBox.isSelected()) {
-			selectTable.getColumn(ChartUtilities.SELECTED).setMinWidth(0);
-			selectTable.getColumn(ChartUtilities.SELECTED).setMaxWidth(0);
-			selectTable.getColumn(ChartUtilities.SELECTED).setPreferredWidth(0);
+			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(0);
+			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(0);
+			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(0);
 		} else {
-			selectTable.getColumn(ChartUtilities.SELECTED).setMinWidth(
+			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(
 					selectColumnWidth);
-			selectTable.getColumn(ChartUtilities.SELECTED).setMaxWidth(
+			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(
 					selectColumnWidth);
-			selectTable.getColumn(ChartUtilities.SELECTED).setPreferredWidth(
+			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(
 					selectColumnWidth);
 		}
 
@@ -342,13 +342,13 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return ChartUtilities.ID;
+				return ChartUtils.ID;
 			case 1:
-				return ChartUtilities.SELECTED;
+				return ChartUtils.SELECTED;
 			case 2:
-				return ChartUtilities.COLOR;
+				return ChartUtils.COLOR;
 			case 3:
-				return ChartUtilities.SHAPE;
+				return ChartUtils.SHAPE;
 			default:
 				if (stringByIndex.containsKey(column)) {
 					return stringByIndex.get(column);
@@ -510,7 +510,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			int statusColumn = -1;
 
 			for (int i = 0; i < table.getColumnCount(); i++) {
-				if (table.getColumnName(i).equals(ChartUtilities.STATUS)) {
+				if (table.getColumnName(i).equals(ChartUtils.STATUS)) {
 					statusColumn = i;
 					break;
 				}

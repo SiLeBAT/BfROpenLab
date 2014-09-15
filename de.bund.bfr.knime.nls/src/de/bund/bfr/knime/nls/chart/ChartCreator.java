@@ -361,7 +361,7 @@ public class ChartCreator extends ChartPanel {
 				defaultShape);
 
 		if (dataSet != null && renderer != null) {
-			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 
@@ -373,7 +373,7 @@ public class ChartCreator extends ChartPanel {
 				defaultColor, defaultShape, dataSet);
 
 		if (dataSet != null && renderer != null) {
-			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 
@@ -393,12 +393,12 @@ public class ChartCreator extends ChartPanel {
 				functionRenderer.setBaseSeriesVisibleInLegend(false);
 			}
 
-			ChartUtilities.addDataSetToPlot(plot, functionDataSet,
+			ChartUtils.addDataSetToPlot(plot, functionDataSet,
 					functionRenderer);
 		}
 
 		if (dataSet != null && renderer != null) {
-			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 
@@ -417,11 +417,11 @@ public class ChartCreator extends ChartPanel {
 				diffRenderer.setBaseSeriesVisibleInLegend(false);
 			}
 
-			ChartUtilities.addDataSetToPlot(plot, diffDataSet, diffRenderer);
+			ChartUtils.addDataSetToPlot(plot, diffDataSet, diffRenderer);
 		}
 
 		if (dataSet != null && renderer != null) {
-			ChartUtilities.addDataSetToPlot(plot, dataSet, renderer);
+			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 

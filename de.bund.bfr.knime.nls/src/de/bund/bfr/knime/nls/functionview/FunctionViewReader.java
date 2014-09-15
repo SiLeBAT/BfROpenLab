@@ -42,7 +42,7 @@ import com.google.common.primitives.Doubles;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsConstants;
-import de.bund.bfr.knime.nls.chart.ChartUtilities;
+import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.math.MathUtils;
@@ -73,7 +73,7 @@ public class FunctionViewReader {
 		doubleColumns = new LinkedHashMap<>();
 		stringColumns = new LinkedHashMap<>();
 		stringColumns.put(NlsConstants.ID_COLUMN, new ArrayList<String>());
-		stringColumns.put(ChartUtilities.STATUS, new ArrayList<String>());
+		stringColumns.put(ChartUtils.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<>();
 
 		if (f.getTimeVariable() == null) {
@@ -135,7 +135,7 @@ public class FunctionViewReader {
 							NlsConstants.DOF_COLUMN).intValue());
 				}
 
-				stringColumns.get(ChartUtilities.STATUS).add(
+				stringColumns.get(ChartUtils.STATUS).add(
 						plotable.getStatus().toString());
 				plotables.put(newId, plotable);
 			}

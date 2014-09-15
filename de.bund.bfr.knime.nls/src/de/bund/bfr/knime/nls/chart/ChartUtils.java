@@ -34,6 +34,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -50,7 +55,7 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
-public class ChartUtilities {
+public class ChartUtils {
 
 	public static final String ID = "ID";
 	public static final String SELECTED = "Selected";
@@ -58,7 +63,7 @@ public class ChartUtilities {
 	public static final String SHAPE = "Shape";
 	public static final String STATUS = "Status";
 
-	private ChartUtilities() {
+	private ChartUtils() {
 	}
 
 	public static void saveChartAs(JFreeChart chart, String fileName,
@@ -146,10 +151,10 @@ public class ChartUtilities {
 
 	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg) {
 		if (asSvg) {
-			return new ImagePortObject(ChartUtilities.convertToSVGImageContent(
+			return new ImagePortObject(ChartUtils.convertToSVGImageContent(
 					chart, 640, 480), new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
-			return new ImagePortObject(ChartUtilities.convertToPNGImageContent(
+			return new ImagePortObject(ChartUtils.convertToPNGImageContent(
 					chart, 640, 480), new ImagePortObjectSpec(
 					PNGImageContent.TYPE));
 		}
@@ -169,4 +174,55 @@ public class ChartUtilities {
 		plot.setRenderer(i, renderer);
 	}
 
+	public static Set<String> getVariables(Collection<Plotable> plotables) {
+		Set<String> variables = new LinkedHashSet<>();
+
+		for (Plotable plotable : plotables) {
+			variables.addAll(plotable.getIndependentVariables().keySet());
+		}
+
+		return variables;
+	}
+
+	public static Map<String, Double> getMinValues(
+			Collection<Plotable> plotables) {
+		Map<String, Double> minValues = new LinkedHashMap<>();
+
+		for (Plotable plotable : plotables) {
+			for (Map.Entry<String, Double> min : plotable.getMinVariables()
+					.entrySet()) {
+				Double oldMin = minValues.get(min.getKey());
+
+				if (oldMin == null) {
+					minValues.put(min.getKey(), min.getValue());
+				} else if (min.getValue() != null) {
+					minValues.put(min.getKey(),
+							Math.min(min.getValue(), oldMin));
+				}
+			}
+		}
+
+		return minValues;
+	}
+
+	public static Map<String, Double> getMaxValues(
+			Collection<Plotable> plotables) {
+		Map<String, Double> maxValues = new LinkedHashMap<>();
+
+		for (Plotable plotable : plotables) {
+			for (Map.Entry<String, Double> max : plotable.getMaxVariables()
+					.entrySet()) {
+				Double oldMax = maxValues.get(max.getKey());
+
+				if (oldMax == null) {
+					maxValues.put(max.getKey(), max.getValue());
+				} else if (max.getValue() != null) {
+					maxValues.put(max.getKey(),
+							Math.max(max.getValue(), oldMax));
+				}
+			}
+		}
+
+		return maxValues;
+	}
 }

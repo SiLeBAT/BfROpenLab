@@ -42,7 +42,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.nls.ViewSettings;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.chart.ChartUtilities;
+import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -84,7 +84,7 @@ public class FunctionViewNodeModel extends NodeModel {
 				.getDependentVariable());
 		set.setToChartCreator(creator);
 
-		return new PortObject[] { ChartUtilities.getImage(
+		return new PortObject[] { ChartUtils.getImage(
 				creator.createChart(), set.isExportAsSvg()) };
 	}
 
@@ -101,7 +101,7 @@ public class FunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ChartUtilities.getImageSpec(set
+		return new PortObjectSpec[] { ChartUtils.getImageSpec(set
 				.isExportAsSvg()) };
 	}
 
