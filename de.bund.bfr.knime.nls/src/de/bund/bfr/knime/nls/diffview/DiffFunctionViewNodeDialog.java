@@ -163,6 +163,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 				reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
+		chartCreator.setParamY(reader.getDepVar());
 
 		set.setToConfigPanel(configPanel);
 		set.setToSelectionPanel(selectionPanel);
@@ -175,23 +176,9 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void createChart() {
-		chartCreator.setParamX(configPanel.getParamX());
-		chartCreator.setParamY(configPanel.getParamY());
-		chartCreator.setTransformX(configPanel.getTransformX());
-		chartCreator.setTransformY(configPanel.getTransformY());
-		chartCreator.setMinToZero(configPanel.isMinToZero());
-		chartCreator.setManualRange(configPanel.isManualRange());
-		chartCreator.setMinX(configPanel.getMinX());
-		chartCreator.setMinY(configPanel.getMinY());
-		chartCreator.setMaxX(configPanel.getMaxX());
-		chartCreator.setMaxY(configPanel.getMaxY());
-		chartCreator.setDrawLines(configPanel.isDrawLines());
-		chartCreator.setShowLegend(configPanel.isShowLegend());
-		chartCreator.setShowConfidence(configPanel.isShowConfidence());
-		chartCreator.setSelectAll(selectionPanel.isSelectAll());
-		chartCreator.setSelectedIds(selectionPanel.getSelectedIds());
-		chartCreator.setColors(selectionPanel.getColors());
-		chartCreator.setShapes(selectionPanel.getShapes());
+		set.setFromConfigPanel(configPanel);
+		set.setFromSelectionPanel(selectionPanel);
+		set.setToChartCreator(chartCreator);
 
 		try {
 			chartCreator.setChart(chartCreator.createChart());
