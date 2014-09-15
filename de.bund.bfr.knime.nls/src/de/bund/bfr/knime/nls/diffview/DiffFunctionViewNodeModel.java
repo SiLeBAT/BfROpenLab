@@ -77,16 +77,15 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],
 				(BufferedDataTable) inObjects[3],
-				(BufferedDataTable) inObjects[4], set.getCurrentParamX());
+				(BufferedDataTable) inObjects[4]);
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 
-		creator.setParamY(((FunctionPortObject) inObjects[0]).getFunction()
-				.getDependentVariable());
+		creator.setParamY(reader.getDepVar());
 		set.setToChartCreator(creator);
 
-		return new PortObject[] { ChartUtils.getImage(
-				creator.createChart(), set.isExportAsSvg()) };
+		return new PortObject[] { ChartUtils.getImage(creator.createChart(),
+				set.isExportAsSvg()) };
 	}
 
 	/**

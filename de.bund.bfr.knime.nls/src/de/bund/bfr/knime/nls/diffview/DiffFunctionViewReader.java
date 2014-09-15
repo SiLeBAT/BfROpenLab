@@ -58,14 +58,9 @@ public class DiffFunctionViewReader {
 
 	public DiffFunctionViewReader(FunctionPortObject functionObject,
 			BufferedDataTable paramTable, BufferedDataTable varTable,
-			BufferedDataTable conditionTable,
-			BufferedDataTable covarianceTable, String indep) {
+			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns = getQualityColumns(paramTable, f);
-
-		if (indep == null) {
-			indep = f.getIndependentVariables().get(0);
-		}
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -76,14 +71,6 @@ public class DiffFunctionViewReader {
 		stringColumns.put(NlsConstants.ID_COLUMN, new ArrayList<String>());
 		stringColumns.put(ChartUtils.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<>();
-
-		if (f.getTimeVariable() == null) {
-			for (String i : f.getIndependentVariables()) {
-				if (!i.equals(indep)) {
-					doubleColumns.put(i, new ArrayList<Double>());
-				}
-			}
-		}
 
 		for (String column : qualityColumns) {
 			doubleColumns.put(column, new ArrayList<Double>());

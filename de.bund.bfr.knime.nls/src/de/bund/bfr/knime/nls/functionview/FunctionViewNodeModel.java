@@ -80,12 +80,11 @@ public class FunctionViewNodeModel extends NodeModel {
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 
-		creator.setParamY(((FunctionPortObject) inObjects[0]).getFunction()
-				.getDependentVariable());
+		creator.setParamY(reader.getDepVar());
 		set.setToChartCreator(creator);
 
-		return new PortObject[] { ChartUtils.getImage(
-				creator.createChart(), set.isExportAsSvg()) };
+		return new PortObject[] { ChartUtils.getImage(creator.createChart(),
+				set.isExportAsSvg()) };
 	}
 
 	/**

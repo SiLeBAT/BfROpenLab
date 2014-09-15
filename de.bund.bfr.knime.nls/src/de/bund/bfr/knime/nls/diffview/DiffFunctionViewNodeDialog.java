@@ -92,8 +92,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 		conditionTable = (BufferedDataTable) input[3];
 		covarianceTable = (BufferedDataTable) input[4];
 		reader = new DiffFunctionViewReader(functionObject, paramTable,
-				varTable, conditionTable, covarianceTable,
-				set.getCurrentParamX());
+				varTable, conditionTable, covarianceTable);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -166,8 +165,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
 			reader = new DiffFunctionViewReader(functionObject, paramTable,
-					varTable, conditionTable, covarianceTable,
-					set.getCurrentParamX());
+					varTable, conditionTable, covarianceTable);
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {
