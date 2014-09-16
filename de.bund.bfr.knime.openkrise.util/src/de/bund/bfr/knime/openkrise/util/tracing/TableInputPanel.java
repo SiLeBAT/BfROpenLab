@@ -122,7 +122,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 	public Map<String, T> getValues() {
 		if (inputTable.isEditing()) {
-			inputTable.getDefaultEditor(classType).stopCellEditing();
+			inputTable.getCellEditor().stopCellEditing();
 		}
 
 		Set<String> filteredIds = new LinkedHashSet<>();
@@ -198,7 +198,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	@Override
 	public void sorterChanged(RowSorterEvent e) {
 		if (inputTable.isEditing()) {
-			inputTable.getDefaultEditor(classType).stopCellEditing();
+			inputTable.getCellEditor().stopCellEditing();
 		}
 
 		if (e.getSource() == table.getRowSorter()) {

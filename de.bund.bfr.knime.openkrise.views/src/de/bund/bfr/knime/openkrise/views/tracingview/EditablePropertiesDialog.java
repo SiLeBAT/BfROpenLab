@@ -241,8 +241,7 @@ public class EditablePropertiesDialog extends JDialog implements
 			approved = true;
 
 			if (inputTable.isEditing()) {
-				inputTable.getColumn(InputTable.INPUT).getCellEditor()
-						.stopCellEditing();
+				inputTable.getCellEditor().stopCellEditing();
 			}
 
 			for (Element element : elementList) {
@@ -332,8 +331,7 @@ public class EditablePropertiesDialog extends JDialog implements
 	@Override
 	public void sorterChanged(RowSorterEvent e) {
 		if (inputTable.isEditing()) {
-			inputTable.getColumn(InputTable.INPUT).getCellEditor()
-					.stopCellEditing();
+			inputTable.getCellEditor().stopCellEditing();
 		}
 
 		applyValues();
