@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,16 +39,19 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.NotConfigurableException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.thoughtworks.xstream.XStream;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -372,7 +376,7 @@ public class TracingUtils {
 		if (column == null) {
 			return null;
 		}
-		
+
 		if (column.equals(TracingConstants.OLD_WEIGHT_COLUMN)
 				&& !properties.containsKey(TracingConstants.OLD_WEIGHT_COLUMN)) {
 			return TracingConstants.WEIGHT_COLUMN;
@@ -385,5 +389,25 @@ public class TracingUtils {
 		}
 
 		return column;
+	}
+
+	public static HashMap<Integer, MyDelivery> getDeliveries(
+			BufferedDataTable dataTable) throws NotConfigurableException {
+		if (dataTable.getRowCount() == 0) {
+			throw new NotConfigurableException("Tracing Table is empty");
+		}
+
+		DataRow row = null;
+
+		for (DataRow r : dataTable) {
+			row = r;
+			break;
+		}
+
+		DataCell cell = row.getCell(0);
+		String xml = ((StringValue) cell).getStringValue();
+		XStream xstream = MyNewTracing.getXStream();
+
+		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 }

@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,7 +40,6 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -54,16 +52,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
-
-import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.openkrise.TracingUtils;
@@ -99,11 +93,12 @@ public class TracingParametersNodeModel extends NodeModel {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(
-				nodeTable, nodeProperties);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
-		MyNewTracing tracing = new MyNewTracing(getDeliveries(dataTable),
+		MyNewTracing tracing = new MyNewTracing(
+				TracingUtils.getDeliveries(dataTable),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0);
@@ -254,8 +249,7 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(nodeInSpec.findColumnIndex(column.getName()));
 			}
 
-			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
 					.createCell(nodeWeights.get(id));
 			cells[nodeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
@@ -294,8 +288,7 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(edgeInSpec.findColumnIndex(column.getName()));
 			}
 
-			cells[edgeOutSpec
-					.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
 					.createCell(edgeWeights.get(id));
 			cells[edgeOutSpec
 					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
@@ -384,26 +377,6 @@ public class TracingParametersNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static HashMap<Integer, MyDelivery> getDeliveries(
-			BufferedDataTable dataTable) throws NotConfigurableException {
-		if (dataTable.getRowCount() == 0) {
-			throw new NotConfigurableException("Tracing Table is empty");
-		}
-
-		DataRow row = null;
-
-		for (DataRow r : dataTable) {
-			row = r;
-			break;
-		}
-
-		DataCell cell = row.getCell(0);
-		String xml = ((StringValue) cell).getStringValue();
-		XStream xstream = MyNewTracing.getXStream();
-
-		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)

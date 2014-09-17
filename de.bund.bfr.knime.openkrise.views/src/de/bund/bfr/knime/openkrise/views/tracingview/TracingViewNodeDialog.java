@@ -51,6 +51,7 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -105,8 +106,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
-		deliveries = TracingViewNodeModel
-				.getDeliveries((BufferedDataTable) input[2]);
+		deliveries = TracingUtils.getDeliveries((BufferedDataTable) input[2]);
 
 		set.loadSettings(settings);
 

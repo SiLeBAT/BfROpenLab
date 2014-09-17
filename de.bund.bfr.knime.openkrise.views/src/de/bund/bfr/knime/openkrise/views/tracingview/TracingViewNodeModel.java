@@ -35,10 +35,8 @@ import java.util.Map;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -52,13 +50,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
-
-import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
@@ -66,8 +61,8 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
  * This is the model implementation of TracingVisualizer.
@@ -99,7 +94,8 @@ public class TracingViewNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		HashMap<Integer, MyDelivery> tracing = getDeliveries((BufferedDataTable) inObjects[2]);
+		HashMap<Integer, MyDelivery> tracing = TracingUtils
+				.getDeliveries((BufferedDataTable) inObjects[2]);
 		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
@@ -264,26 +260,6 @@ public class TracingViewNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static HashMap<Integer, MyDelivery> getDeliveries(
-			BufferedDataTable dataTable) throws NotConfigurableException {
-		if (dataTable.getRowCount() == 0) {
-			throw new NotConfigurableException("Tracing Table is empty");
-		}
-
-		DataRow row = null;
-
-		for (DataRow r : dataTable) {
-			row = r;
-			break;
-		}
-
-		DataCell cell = row.getCell(0);
-		String xml = ((StringValue) cell).getStringValue();
-		XStream xstream = MyNewTracing.getXStream();
-
-		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
 	}
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)

@@ -125,7 +125,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();		
+		updateSettings();
 		set.saveSettings(settings);
 	}
 

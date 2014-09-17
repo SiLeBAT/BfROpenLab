@@ -85,8 +85,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
 				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas),
 				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas,
-						gisCanvas),
-				KnimeUtils.xmlToTable(set.toXml(), exec) };
+						gisCanvas), KnimeUtils.xmlToTable(set.toXml(), exec) };
 	}
 
 	/**
