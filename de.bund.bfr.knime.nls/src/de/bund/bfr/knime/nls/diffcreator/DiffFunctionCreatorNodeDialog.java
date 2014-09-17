@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.nls.diffcreator;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -313,7 +315,16 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 		initFields.set(i, initialField);
 
-		return UI.createVerticalPanel(formulaPanel, initialPanel);
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(formulaPanel);
+		panel.add(Box.createVerticalStrut(5));
+		panel.add(initialPanel);
+		formulaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		initialPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		return panel;
 	}
 
 	private JPanel createIndepBoxPanel() {
