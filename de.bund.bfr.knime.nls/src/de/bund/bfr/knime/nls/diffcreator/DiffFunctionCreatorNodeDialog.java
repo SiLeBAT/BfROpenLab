@@ -27,9 +27,7 @@ package de.bund.bfr.knime.nls.diffcreator;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -233,15 +231,15 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 
 		for (int i = 0; i < n; i++) {
 			editPanel.add(new JLabel("Equation " + (i + 1) + ":"),
-					createConstraints(0, i));
-			editPanel.add(createFormulaPanel(i), createConstraints(1, i));
+					UI.westConstraints(0, i));
+			editPanel.add(createFormulaPanel(i), UI.westConstraints(1, i));
 		}
 
-		editPanel.add(new JLabel("Diff Variable:"), createConstraints(0, n));
-		editPanel.add(createDiffVarPanel(), createConstraints(1, n));
+		editPanel.add(new JLabel("Diff Variable:"), UI.westConstraints(0, n));
+		editPanel.add(createDiffVarPanel(), UI.westConstraints(1, n));
 		editPanel.add(new JLabel("Independent Variables:"),
-				createConstraints(0, n + 1));
-		editPanel.add(createIndepBoxPanel(), createConstraints(1, n + 1));
+				UI.westConstraints(0, n + 1));
+		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, n + 1));
 
 		JPanel panel = new JPanel();
 
@@ -397,12 +395,6 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		setListSize(set.getInitValues(), n);
 
 		removeButton.setEnabled(n > 1);
-	}
-
-	private static GridBagConstraints createConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
-				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	private static void setListSize(List<?> list, int n) {

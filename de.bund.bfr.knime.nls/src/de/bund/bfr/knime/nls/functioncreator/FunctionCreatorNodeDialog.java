@@ -25,9 +25,7 @@
 package de.bund.bfr.knime.nls.functioncreator;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -155,11 +153,11 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		JPanel editPanel = new JPanel();
 
 		editPanel.setLayout(new GridBagLayout());
-		editPanel.add(new JLabel("Term:"), createConstraints(0, 0));
-		editPanel.add(createFormulaPanel(), createConstraints(1, 0));
+		editPanel.add(new JLabel("Term:"), UI.westConstraints(0, 0));
+		editPanel.add(createFormulaPanel(), UI.westConstraints(1, 0));
 		editPanel.add(new JLabel("Independent Variable:"),
-				createConstraints(0, 1));
-		editPanel.add(createIndepBoxPanel(), createConstraints(1, 1));
+				UI.westConstraints(0, 1));
+		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, 1));
 
 		JPanel panel = new JPanel();
 
@@ -235,11 +233,5 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 
 		Collections.sort(indeps);
 		set.setIndependentVariables(indeps);
-	}
-
-	private static GridBagConstraints createConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
-				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0);
 	}
 }

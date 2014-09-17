@@ -27,9 +27,7 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -424,9 +422,9 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		int row = 0;
 
 		logicalPanel.setLayout(new GridBagLayout());
-		logicalPanel.add(new JLabel("Property"), createConstraints(1, row));
-		logicalPanel.add(new JLabel("Operation"), createConstraints(2, row));
-		logicalPanel.add(new JLabel("Value"), createConstraints(3, row));
+		logicalPanel.add(new JLabel("Property"), UI.centerConstraints(1, row));
+		logicalPanel.add(new JLabel("Operation"), UI.centerConstraints(2, row));
+		logicalPanel.add(new JLabel("Value"), UI.centerConstraints(3, row));
 		row++;
 
 		if (condition == null) {
@@ -467,7 +465,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 					}
 
 					logicalAndOrBoxes.add(andOrBox);
-					logicalPanel.add(andOrBox, createConstraints(0, row));
+					logicalPanel.add(andOrBox, UI.centerConstraints(0, row));
 				}
 
 				logicalPropertyBoxes.add(propertyBox);
@@ -476,11 +474,11 @@ public class HighlightDialog extends JDialog implements ActionListener,
 				logicalAddButtons.add(addButton);
 				logicalRemoveButtons.add(removeButton);
 
-				logicalPanel.add(propertyBox, createConstraints(1, row));
-				logicalPanel.add(typeBox, createConstraints(2, row));
-				logicalPanel.add(valueField, createFillConstraints(3, row));
-				logicalPanel.add(addButton, createConstraints(4, row));
-				logicalPanel.add(removeButton, createConstraints(5, row));
+				logicalPanel.add(propertyBox, UI.centerConstraints(1, row));
+				logicalPanel.add(typeBox, UI.centerConstraints(2, row));
+				logicalPanel.add(valueField, UI.fillConstraints(3, row));
+				logicalPanel.add(addButton, UI.centerConstraints(4, row));
+				logicalPanel.add(removeButton, UI.centerConstraints(5, row));
 
 				row++;
 			}
@@ -490,7 +488,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		addButton.addActionListener(this);
 		logicalAddButtons.add(addButton);
-		logicalPanel.add(addButton, createConstraints(4, row));
+		logicalPanel.add(addButton, UI.centerConstraints(4, row));
 
 		return new JScrollPane(UI.createNorthPanel(logicalPanel),
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -721,17 +719,5 @@ public class HighlightDialog extends JDialog implements ActionListener,
 
 		add(conditionPanel, BorderLayout.CENTER);
 		pack();
-	}
-
-	private static GridBagConstraints createConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						2, 2, 2, 2), 0, 0);
-	}
-
-	private static GridBagConstraints createFillConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 1, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0);
 	}
 }

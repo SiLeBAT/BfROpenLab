@@ -252,4 +252,22 @@ public class UI {
 		c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle(),
 				fontSize));
 	}
+
+	public static GridBagConstraints centerConstraints(int x, int y) {
+		return new GridBagConstraints(x, y, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
+						2, 2, 2, 2), 0, 0);
+	}
+
+	public static GridBagConstraints westConstraints(int x, int y) {
+		return new GridBagConstraints(x, y, 1, 1, 0, 0,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2,
+						2, 2, 2), 0, 0);
+	}
+
+	public static GridBagConstraints fillConstraints(int x, int y) {
+		return new GridBagConstraints(x, y, 1, 1, 1, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(2, 2, 2, 2), 0, 0);
+	}
 }
