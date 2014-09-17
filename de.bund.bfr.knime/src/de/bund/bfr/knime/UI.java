@@ -270,4 +270,15 @@ public class UI {
 				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 2, 2, 2), 0, 0);
 	}
+
+	public static JPanel createTablePanel(JTable table) {
+		JPanel panel = new JPanel();
+
+		panel.setBorder(BorderFactory.createLoweredBevelBorder());
+		panel.setLayout(new BorderLayout());
+		panel.add(table.getTableHeader(), BorderLayout.NORTH);
+		panel.add(table, BorderLayout.CENTER);
+
+		return panel;
+	}
 }
