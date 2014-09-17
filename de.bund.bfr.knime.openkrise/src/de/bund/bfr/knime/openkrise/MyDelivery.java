@@ -97,6 +97,18 @@ public class MyDelivery {
 		return deliveryYear;
 	}
 
+	public void setDeliveryDay(Integer deliveryDay) {
+		this.deliveryDay = deliveryDay;
+	}
+
+	public void setDeliveryMonth(Integer deliveryMonth) {
+		this.deliveryMonth = deliveryMonth;
+	}
+
+	public void setDeliveryYear(Integer deliveryYear) {
+		this.deliveryYear = deliveryYear;
+	}
+
 	public void removeNext(Integer nextID) {
 		if (nextID == null) System.err.println("next = null...");
 		else {

@@ -392,22 +392,120 @@ public class TracingUtils {
 	}
 
 	public static HashMap<Integer, MyDelivery> getDeliveries(
-			BufferedDataTable dataTable) throws NotConfigurableException {
+			BufferedDataTable dataTable, BufferedDataTable edgeTable)
+			throws NotConfigurableException {
 		if (dataTable.getRowCount() == 0) {
 			throw new NotConfigurableException("Tracing Table is empty");
 		}
 
-		DataRow row = null;
+		DataRow firstRow = null;
 
-		for (DataRow r : dataTable) {
-			row = r;
+		for (DataRow row : dataTable) {
+			firstRow = row;
 			break;
 		}
 
-		DataCell cell = row.getCell(0);
+		DataCell cell = firstRow.getCell(0);
 		String xml = ((StringValue) cell).getStringValue();
 		XStream xstream = MyNewTracing.getXStream();
+		HashMap<Integer, MyDelivery> deliveries = ((MyNewTracing) xstream
+				.fromXML(xml)).getAllDeliveries();
+		DataTableSpec spec = edgeTable.getSpec();
 
-		return ((MyNewTracing) xstream.fromXML(xml)).getAllDeliveries();
+		for (DataRow row : edgeTable) {
+			int id = Integer.parseInt(IO.getToString(row.getCell(spec
+					.findColumnIndex(TracingConstants.ID_COLUMN))));
+			int from = Integer.parseInt(IO.getToString(row.getCell(spec
+					.findColumnIndex(TracingConstants.FROM_COLUMN))));
+			int to = Integer.parseInt(IO.getToString(row.getCell(spec
+					.findColumnIndex(TracingConstants.TO_COLUMN))));
+			String date = IO.getString(row.getCell(spec
+					.findColumnIndex(TracingConstants.DELIVERY_DATE)));
+			MyDelivery delivery = deliveries.get(id);
+			
+			delivery.setSupplierID(from);
+			delivery.setRecipientID(to);
+			delivery.setDeliveryDay(getDay(date));
+			delivery.setDeliveryMonth(getMonth(date));
+			delivery.setDeliveryYear(getYear(date));			
+		}
+
+		return deliveries;
+	}
+
+	private static Integer getYear(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String year = null;
+
+		if (date.contains(".")) {
+			year = date.substring(date.lastIndexOf('.') + 1);
+		} else if (date.contains("-")) {
+			year = date.substring(0, date.indexOf('-'));
+		} else {
+			year = date;
+		}
+
+		try {
+			return Integer.parseInt(year);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	private static Integer getMonth(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String month = null;
+
+		if (date.contains(".")) {
+			int i1 = date.indexOf('.');
+			int i2 = date.lastIndexOf('.');
+
+			if (i1 == i2) {
+				month = date.substring(0, i1);
+			} else {
+				month = date.substring(i1 + 1, i2);
+			}
+		} else if (date.contains("-")) {
+			int i1 = date.indexOf('-');
+			int i2 = date.lastIndexOf('-');
+
+			if (i1 == i2) {
+				month = date.substring(i1 + 1);
+			} else {
+				month = date.substring(i1 + 1, i2);
+			}
+		}
+
+		try {
+			return Integer.parseInt(month);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	private static Integer getDay(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String day = null;
+
+		if (date.contains(".")) {
+			day = date.substring(0, date.indexOf('.'));
+		} else if (date.contains("-")) {
+			day = date.substring(date.lastIndexOf('-') + 1);
+		}
+
+		try {
+			return Integer.parseInt(day);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
 	}
 }

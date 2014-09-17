@@ -311,6 +311,11 @@ public class MyNewTracing {
 		
 		xstream.omitField(MyDelivery.class, "forwardDeliveries");
 		xstream.omitField(MyDelivery.class, "backwardDeliveries");
+		xstream.omitField(MyDelivery.class, "supplierID");
+		xstream.omitField(MyDelivery.class, "recipientID");
+		xstream.omitField(MyDelivery.class, "deliveryDay");
+		xstream.omitField(MyDelivery.class, "deliveryMonth");
+		xstream.omitField(MyDelivery.class, "deliveryYear");
 
 		return xstream;
 	}

@@ -43,6 +43,8 @@ public interface TracingConstants {
 	public static final String CLUSTERABLE_COLUMN = "Clusterable";
 	public static final String CLUSTER_ID_COLUMN = "ClusterID";
 
+	public static final String DELIVERY_DATE = "Date Delivery";
+
 	public static final String NODE_NAME = "Station";
 	public static final String EDGE_NAME = "Delivery";
 	public static final String NODES_NAME = "Stations";

@@ -88,7 +88,6 @@ public class TracingParametersNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
-		BufferedDataTable dataTable = inData[2];
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
@@ -97,9 +96,8 @@ public class TracingParametersNodeModel extends NodeModel {
 				nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
-		MyNewTracing tracing = new MyNewTracing(
-				TracingUtils.getDeliveries(dataTable),
-				new LinkedHashMap<Integer, Double>(),
+		MyNewTracing tracing = new MyNewTracing(TracingUtils.getDeliveries(
+				inData[2], edgeTable), new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0);
 

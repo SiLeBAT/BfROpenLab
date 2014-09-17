@@ -94,8 +94,8 @@ public class TracingViewNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		HashMap<Integer, MyDelivery> tracing = TracingUtils
-				.getDeliveries((BufferedDataTable) inObjects[2]);
+		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
+				(BufferedDataTable) inObjects[2], edgeTable);
 		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
 		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,

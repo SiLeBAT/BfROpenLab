@@ -302,6 +302,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (year != null && year.length() == 2) year = Integer.parseInt(year) > Integer.parseInt(thisYear.substring(2)) ? "19" : "20" + year;
 		if (month != null && month.length() == 1) month = "0" + month;
 		if (day != null && day.length() == 1) day = "0" + day;
+		if (year == null) {
+			return null;
+		} else if (month == null) {
+			return year;
+		} else if (day == null) {
+			return year + "-" + month;
+		}
 		return year + "-" + month + "-" + day; // day + "." + month + "." + 
 	}
 
@@ -374,7 +381,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[7] = new DataColumnSpecCreator(isDE ? "ChargenNr" : "Charge Number", StringCell.TYPE).createSpec();
 		spec[8] = new DataColumnSpecCreator(isDE ? "MHD" : "Date Expiration", StringCell.TYPE).createSpec();
 		spec[9] = new DataColumnSpecCreator(isDE ? "Herstellungsdatum" : "Date Manufactoring", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(isDE ? "Lieferdatum" : "Date Delivery", StringCell.TYPE).createSpec();
+		spec[10] = new DataColumnSpecCreator(TracingConstants.DELIVERY_DATE, StringCell.TYPE).createSpec();
 		spec[11] = new DataColumnSpecCreator(isDE ? "Menge [kg]" : "Amount [kg]", DoubleCell.TYPE).createSpec();
 		spec[12] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
