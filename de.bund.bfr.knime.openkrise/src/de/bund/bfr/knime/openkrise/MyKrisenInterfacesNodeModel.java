@@ -79,8 +79,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	
 	private boolean doAnonymize;
 
-	private boolean isDE = false;
-
 	/**
 	 * Constructor for the node model.
 	 */
@@ -348,17 +346,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
 		spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
 		spec[3] = new DataColumnSpecCreator("HouseNumber", StringCell.TYPE).createSpec();
-		spec[4] = new DataColumnSpecCreator(isDE ? "PLZ" : "ZIP", StringCell.TYPE).createSpec();
-		spec[5] = new DataColumnSpecCreator(isDE ? "Ort" : "City", StringCell.TYPE).createSpec();
-		spec[6] = new DataColumnSpecCreator(isDE ? "Landkreis" : "District", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator(isDE ? "Bundesland" : "County", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator(isDE ? "Land" : "Country", StringCell.TYPE).createSpec();
+		spec[4] = new DataColumnSpecCreator("ZIP", StringCell.TYPE).createSpec();
+		spec[5] = new DataColumnSpecCreator("City", StringCell.TYPE).createSpec();
+		spec[6] = new DataColumnSpecCreator("District", StringCell.TYPE).createSpec();
+		spec[7] = new DataColumnSpecCreator("County", StringCell.TYPE).createSpec();
+		spec[8] = new DataColumnSpecCreator("Country", StringCell.TYPE).createSpec();
 		spec[9] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(isDE ? "Betriebsart" : "type of business", StringCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator(isDE ? "NumFaelle" : "Number Cases", IntCell.TYPE).createSpec();
-		spec[12] = new DataColumnSpecCreator(isDE ? "DatumBeginn" : "Date start", StringCell.TYPE).createSpec();
-		spec[13] = new DataColumnSpecCreator(isDE ? "DatumHoehepunkt" : "Date peak", StringCell.TYPE).createSpec();
-		spec[14] = new DataColumnSpecCreator(isDE ? "DatumEnde" : "Date end", StringCell.TYPE).createSpec();
+		spec[10] = new DataColumnSpecCreator("type of business", StringCell.TYPE).createSpec();
+		spec[11] = new DataColumnSpecCreator("Number Cases", IntCell.TYPE).createSpec();
+		spec[12] = new DataColumnSpecCreator("Date start", StringCell.TYPE).createSpec();
+		spec[13] = new DataColumnSpecCreator("Date peak", StringCell.TYPE).createSpec();
+		spec[14] = new DataColumnSpecCreator("Date end", StringCell.TYPE).createSpec();
 		spec[15] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
 	    spec[16] = new DataColumnSpecCreator("SimpleSupplier", BooleanCell.TYPE).createSpec();
 	    spec[17] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
@@ -371,15 +369,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[0] = new DataColumnSpecCreator(TracingConstants.ID_COLUMN, IntCell.TYPE).createSpec();
 		spec[1] = new DataColumnSpecCreator(TracingConstants.FROM_COLUMN, IntCell.TYPE).createSpec();
 		spec[2] = new DataColumnSpecCreator(TracingConstants.TO_COLUMN, IntCell.TYPE).createSpec();
-		spec[3] = new DataColumnSpecCreator(isDE ? "Artikelnummer" : "Item Number", StringCell.TYPE).createSpec();
-		spec[4] = new DataColumnSpecCreator(isDE ? "Bezeichnung" : "Name", StringCell.TYPE).createSpec();
-		spec[5] = new DataColumnSpecCreator(isDE ? "Prozessierung" : "Processing", StringCell.TYPE).createSpec();
+		spec[3] = new DataColumnSpecCreator("Item Number", StringCell.TYPE).createSpec();
+		spec[4] = new DataColumnSpecCreator("Name", StringCell.TYPE).createSpec();
+		spec[5] = new DataColumnSpecCreator("Processing", StringCell.TYPE).createSpec();
 		spec[6] = new DataColumnSpecCreator("IntendedUse", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator(isDE ? "ChargenNr" : "Charge Number", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator(isDE ? "MHD" : "Date Expiration", StringCell.TYPE).createSpec();
-		spec[9] = new DataColumnSpecCreator(isDE ? "Herstellungsdatum" : "Date Manufactoring", StringCell.TYPE).createSpec();
+		spec[7] = new DataColumnSpecCreator("Charge Number", StringCell.TYPE).createSpec();
+		spec[8] = new DataColumnSpecCreator("Date Expiration", StringCell.TYPE).createSpec();
+		spec[9] = new DataColumnSpecCreator("Date Manufactoring", StringCell.TYPE).createSpec();
 		spec[10] = new DataColumnSpecCreator(TracingConstants.DELIVERY_DATE, StringCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator(isDE ? "Menge [kg]" : "Amount [kg]", DoubleCell.TYPE).createSpec();
+		spec[11] = new DataColumnSpecCreator("Amount [kg]", DoubleCell.TYPE).createSpec();
 		spec[12] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
 		spec[14] = new DataColumnSpecCreator("OriginCountry", StringCell.TYPE).createSpec();
