@@ -427,8 +427,10 @@ public class TracingUtils {
 			int next = IO.getInt(row.getCell(dataSpec
 					.findColumnIndex(TracingConstants.NEXT_COLUMN)));
 
-			deliveries.get(id).getAllNextIDs().add(next);
-			deliveries.get(next).getAllPreviousIDs().add(id);
+			if (deliveries.containsKey(id) && deliveries.containsKey(next)) {
+				deliveries.get(id).getAllNextIDs().add(next);
+				deliveries.get(next).getAllPreviousIDs().add(id);
+			}
 		}
 
 		return deliveries;
