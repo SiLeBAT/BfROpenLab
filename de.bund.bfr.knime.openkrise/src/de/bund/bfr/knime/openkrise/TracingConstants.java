@@ -29,6 +29,7 @@ public interface TracingConstants {
 	public static final String ID_COLUMN = "ID";
 	public static final String FROM_COLUMN = "from";
 	public static final String TO_COLUMN = "to";
+	public static final String NEXT_COLUMN = "Next";
 
 	public static final String OLD_WEIGHT_COLUMN = "CaseWeight";
 	public static final String WEIGHT_COLUMN = "Weight";

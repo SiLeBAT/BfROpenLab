@@ -47,8 +47,6 @@ import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.data.xml.XMLCell;
-import org.knime.core.data.xml.XMLCellFactory;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -59,9 +57,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import com.thoughtworks.xstream.XStream;
-
-import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.IO;
 
 /**
  * This is the model implementation of MyKrisenInterfaces.
@@ -260,9 +256,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 		output33Links.close();
 		rs.close();
-
+		
 		BufferedDataContainer buf = exec.createDataContainer(getDataModelSpec());
-		buf.addRowToTable(new DefaultRow("0", XMLCellFactory.create(getDataModel(mnt))));
+		int i = 0;
+
+		for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
+			for (int next : delivery.getAllNextIDs()) {
+				buf.addRowToTable(new DefaultRow(i+"", IO.createCell(delivery.getId()), IO.createCell(next)));
+				i++;
+			}
+		}
+				
 		buf.close();
 		//getDataModel(buf.getTable());
 
@@ -310,15 +314,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			return year + "-" + month;
 		}
 		return year + "-" + month + "-" + day; // day + "." + month + "." + 
-	}
-
-	private String getDataModel(MyNewTracing mnt) {
-		XStream xstream = MyNewTracing.getXStream();
-		String xml = xstream.toXML(mnt);
-		//System.err.println(xml);
-		System.err.println(xml.length());
-		return xml;
-	}
+	}	
 
 	private Double calcMenge(Object u3, Object bu3) {
 		Double result = null;
@@ -333,8 +329,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private DataTableSpec getDataModelSpec() {
-		DataColumnSpec[] spec = new DataColumnSpec[1];
-		spec[0] = new DataColumnSpecCreator("DataModel", XMLCell.TYPE).createSpec();
+		DataColumnSpec[] spec = new DataColumnSpec[2];
+		spec[0] = new DataColumnSpecCreator(TracingConstants.ID_COLUMN, IntCell.TYPE).createSpec();
+		spec[1] = new DataColumnSpecCreator(TracingConstants.NEXT_COLUMN, IntCell.TYPE).createSpec();		
 		return new DataTableSpec(spec);
 	}
 

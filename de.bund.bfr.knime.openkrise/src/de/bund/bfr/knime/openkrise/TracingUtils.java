@@ -39,7 +39,6 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -51,7 +50,6 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.thoughtworks.xstream.XStream;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -394,40 +392,43 @@ public class TracingUtils {
 	public static HashMap<Integer, MyDelivery> getDeliveries(
 			BufferedDataTable dataTable, BufferedDataTable edgeTable)
 			throws NotConfigurableException {
-		if (dataTable.getRowCount() == 0) {
-			throw new NotConfigurableException("Tracing Table is empty");
+		DataTableSpec dataSpec = dataTable.getSpec();
+		DataTableSpec edgeSpec = edgeTable.getSpec();
+
+		if (dataTable.getSpec().findColumnIndex(TracingConstants.ID_COLUMN) == -1
+				|| dataTable.getSpec().findColumnIndex(
+						TracingConstants.NEXT_COLUMN) == -1) {
+			throw new NotConfigurableException(
+					"Tracing Data Model cannot be read."
+							+ " Try reexecuting the Supply Chain Reader or"
+							+ " downloading an up-to-date workflow.");
 		}
 
-		DataRow firstRow = null;
-
-		for (DataRow row : dataTable) {
-			firstRow = row;
-			break;
-		}
-
-		DataCell cell = firstRow.getCell(0);
-		String xml = ((StringValue) cell).getStringValue();
-		XStream xstream = MyNewTracing.getXStream();
-		HashMap<Integer, MyDelivery> deliveries = ((MyNewTracing) xstream
-				.fromXML(xml)).getAllDeliveries();
-		DataTableSpec spec = edgeTable.getSpec();
+		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
 
 		for (DataRow row : edgeTable) {
-			int id = Integer.parseInt(IO.getToString(row.getCell(spec
+			int id = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
 					.findColumnIndex(TracingConstants.ID_COLUMN))));
-			int from = Integer.parseInt(IO.getToString(row.getCell(spec
+			int from = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
 					.findColumnIndex(TracingConstants.FROM_COLUMN))));
-			int to = Integer.parseInt(IO.getToString(row.getCell(spec
+			int to = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
 					.findColumnIndex(TracingConstants.TO_COLUMN))));
-			String date = IO.getString(row.getCell(spec
+			String date = IO.getString(row.getCell(edgeSpec
 					.findColumnIndex(TracingConstants.DELIVERY_DATE)));
-			MyDelivery delivery = deliveries.get(id);
-			
-			delivery.setSupplierID(from);
-			delivery.setRecipientID(to);
-			delivery.setDeliveryDay(getDay(date));
-			delivery.setDeliveryMonth(getMonth(date));
-			delivery.setDeliveryYear(getYear(date));			
+			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
+					getMonth(date), getYear(date));
+
+			deliveries.put(id, delivery);
+		}
+
+		for (DataRow row : dataTable) {
+			int id = IO.getInt(row.getCell(dataSpec
+					.findColumnIndex(TracingConstants.ID_COLUMN)));
+			int next = IO.getInt(row.getCell(dataSpec
+					.findColumnIndex(TracingConstants.NEXT_COLUMN)));
+
+			deliveries.get(id).getAllNextIDs().add(next);
+			deliveries.get(next).getAllPreviousIDs().add(id);
 		}
 
 		return deliveries;

@@ -36,10 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.core.ClassLoaderReference;
-import com.thoughtworks.xstream.io.xml.XppDriver;
-
 public class MyNewTracing {
 
 	private HashMap<Integer, MyDelivery> allDeliveries;
@@ -294,31 +290,31 @@ public class MyNewTracing {
 		return b;
 	}
 
-	public static XStream getXStream() {
-		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyNewTracing.class.getClassLoader()));
-//		xstream.setClassLoader(Activator.class.getClassLoader());
-		//xstream.alias("mynewtracing", MyNewTracing.class);
-		xstream.omitField(MyNewTracing.class, "caseStations");
-		xstream.omitField(MyNewTracing.class, "caseDeliveries");
-		xstream.omitField(MyNewTracing.class, "caseSum");
-		xstream.omitField(MyNewTracing.class, "ccStations");
-		xstream.omitField(MyNewTracing.class, "ccDeliveries");
-		xstream.omitField(MyNewTracing.class, "enforceTemporalOrder");
-		xstream.omitField(MyNewTracing.class, "sortedStations");
-		xstream.omitField(MyNewTracing.class, "sortedDeliveries");
-		xstream.omitField(MyNewTracing.class, "allIncoming");
-		xstream.omitField(MyNewTracing.class, "allOutgoing");
-		
-		xstream.omitField(MyDelivery.class, "forwardDeliveries");
-		xstream.omitField(MyDelivery.class, "backwardDeliveries");
-		xstream.omitField(MyDelivery.class, "supplierID");
-		xstream.omitField(MyDelivery.class, "recipientID");
-		xstream.omitField(MyDelivery.class, "deliveryDay");
-		xstream.omitField(MyDelivery.class, "deliveryMonth");
-		xstream.omitField(MyDelivery.class, "deliveryYear");
-
-		return xstream;
-	}
+//	public static XStream getXStream() {
+//		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyNewTracing.class.getClassLoader()));
+////		xstream.setClassLoader(Activator.class.getClassLoader());
+//		//xstream.alias("mynewtracing", MyNewTracing.class);
+//		xstream.omitField(MyNewTracing.class, "caseStations");
+//		xstream.omitField(MyNewTracing.class, "caseDeliveries");
+//		xstream.omitField(MyNewTracing.class, "caseSum");
+//		xstream.omitField(MyNewTracing.class, "ccStations");
+//		xstream.omitField(MyNewTracing.class, "ccDeliveries");
+//		xstream.omitField(MyNewTracing.class, "enforceTemporalOrder");
+//		xstream.omitField(MyNewTracing.class, "sortedStations");
+//		xstream.omitField(MyNewTracing.class, "sortedDeliveries");
+//		xstream.omitField(MyNewTracing.class, "allIncoming");
+//		xstream.omitField(MyNewTracing.class, "allOutgoing");
+//		
+//		xstream.omitField(MyDelivery.class, "forwardDeliveries");
+//		xstream.omitField(MyDelivery.class, "backwardDeliveries");
+//		xstream.omitField(MyDelivery.class, "supplierID");
+//		xstream.omitField(MyDelivery.class, "recipientID");
+//		xstream.omitField(MyDelivery.class, "deliveryDay");
+//		xstream.omitField(MyDelivery.class, "deliveryMonth");
+//		xstream.omitField(MyDelivery.class, "deliveryYear");
+//
+//		return xstream;
+//	}
 	public void fillDeliveries(boolean enforceTemporalOrder) {
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		allIncoming = null; allOutgoing = null;
