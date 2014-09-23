@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionview;
+package de.bund.bfr.knime.nls.view;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,21 +46,21 @@ import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
- * This is the model implementation of FunctionView.
+ * This is the model implementation of DiffFunctionView.
  * 
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeModel extends NodeModel {
+public class DiffFunctionViewNodeModel extends NodeModel {
 
 	ViewSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FunctionViewNodeModel() {
+	protected DiffFunctionViewNodeModel() {
 		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				new PortType(BufferedDataTable.class, true) },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new ViewSettings();
@@ -72,11 +72,12 @@ public class FunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		FunctionViewReader reader = new FunctionViewReader(
+		DiffFunctionViewReader reader = new DiffFunctionViewReader(
 				(FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3], set.getCurrentParamX());
+				(BufferedDataTable) inObjects[3],
+				(BufferedDataTable) inObjects[4]);
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 

@@ -22,12 +22,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.diffview;
+package de.bund.bfr.knime.nls.creator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -38,32 +42,28 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
-import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.nls.ViewSettings;
-import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.chart.ChartUtils;
+import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
+import de.bund.bfr.math.MathUtils;
 
 /**
- * This is the model implementation of DiffFunctionView.
+ * This is the model implementation of FunctionCreator.
  * 
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionViewNodeModel extends NodeModel {
+public class FunctionCreatorNodeModel extends NodeModel {
 
-	ViewSettings set;
+	private FunctionCreatorSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected DiffFunctionViewNodeModel() {
-		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) },
-				new PortType[] { ImagePortObject.TYPE });
-		set = new ViewSettings();
+	protected FunctionCreatorNodeModel() {
+		super(new PortType[] {}, new PortType[] { FunctionPortObject.TYPE });
+		set = new FunctionCreatorSettings();
 	}
 
 	/**
@@ -72,20 +72,9 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		DiffFunctionViewReader reader = new DiffFunctionViewReader(
-				(FunctionPortObject) inObjects[0],
-				(BufferedDataTable) inObjects[1],
-				(BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3],
-				(BufferedDataTable) inObjects[4]);
-		ChartCreator creator = new ChartCreator(reader.getPlotables(),
-				reader.getLegend());
-
-		creator.setParamY(reader.getDepVar());
-		set.setToChartCreator(creator);
-
-		return new PortObject[] { ChartUtils.getImage(creator.createChart(),
-				set.isExportAsSvg()) };
+		return new PortObject[] { new FunctionPortObject(createFunction(
+				set.getTerm(), set.getDependentVariable(),
+				set.getIndependentVariables())) };
 	}
 
 	/**
@@ -101,8 +90,14 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ChartUtils.getImageSpec(set
-				.isExportAsSvg()) };
+		if (set.getTerm() == null || set.getDependentVariable() == null
+				|| set.getIndependentVariables().isEmpty()) {
+			throw new InvalidSettingsException("Function not specified");
+		}
+
+		return new PortObjectSpec[] { new FunctionPortObjectSpec(
+				createFunction(set.getTerm(), set.getDependentVariable(),
+						set.getIndependentVariables())) };
 	}
 
 	/**
@@ -146,6 +141,22 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private static Function createFunction(String term,
+			String dependentVariable, List<String> independentVariables) {
+		Map<String, String> terms = new LinkedHashMap<>();
+
+		terms.put(dependentVariable, term);
+
+		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(term));
+
+		parameters.removeAll(independentVariables);
+		Collections.sort(parameters);
+		Collections.sort(independentVariables);
+
+		return new Function(terms, dependentVariable, independentVariables,
+				parameters);
 	}
 
 }

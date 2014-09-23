@@ -22,15 +22,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functioncreator;
+package de.bund.bfr.knime.nls.creator;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -49,21 +51,21 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.MathUtils;
 
 /**
- * This is the model implementation of FunctionCreator.
+ * This is the model implementation of DiffFunctionCreator.
  * 
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeModel extends NodeModel {
+public class DiffFunctionCreatorNodeModel extends NodeModel {
 
-	private FunctionCreatorSettings set;
+	private DiffFunctionCreatorSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FunctionCreatorNodeModel() {
+	protected DiffFunctionCreatorNodeModel() {
 		super(new PortType[] {}, new PortType[] { FunctionPortObject.TYPE });
-		set = new FunctionCreatorSettings();
+		set = new DiffFunctionCreatorSettings();
 	}
 
 	/**
@@ -73,8 +75,9 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		return new PortObject[] { new FunctionPortObject(createFunction(
-				set.getTerm(), set.getDependentVariable(),
-				set.getIndependentVariables())) };
+				set.getTerms(), set.getDependentVariables(),
+				set.getInitValues(), set.getIndependentVariables(),
+				set.getDiffVariable())) };
 	}
 
 	/**
@@ -90,14 +93,14 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (set.getTerm() == null || set.getDependentVariable() == null
-				|| set.getIndependentVariables().isEmpty()) {
+		if (set.getTerms().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
 		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				createFunction(set.getTerm(), set.getDependentVariable(),
-						set.getIndependentVariables())) };
+				createFunction(set.getTerms(), set.getDependentVariables(),
+						set.getInitValues(), set.getIndependentVariables(),
+						set.getDiffVariable())) };
 	}
 
 	/**
@@ -143,20 +146,46 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
-		Map<String, String> terms = new LinkedHashMap<>();
+	protected static Set<String> getAllSymbols(List<String> terms) {
+		Set<String> symbols = new LinkedHashSet<>();
 
-		terms.put(dependentVariable, term);
+		for (String term : terms) {
+			symbols.addAll(MathUtils.getSymbols(term));
+		}
 
-		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(term));
-
-		parameters.removeAll(independentVariables);
-		Collections.sort(parameters);
-		Collections.sort(independentVariables);
-
-		return new Function(terms, dependentVariable, independentVariables,
-				parameters);
+		return symbols;
 	}
 
+	private static Function createFunction(List<String> terms,
+			List<String> dependentVariables, List<Double> initValues,
+			List<String> independentVariables, String diffVariable) {
+		Map<String, String> termsMap = new LinkedHashMap<>();
+		Map<String, String> initParameterMap = new LinkedHashMap<>();
+		Map<String, Double> initValueMap = new LinkedHashMap<>();
+
+		for (int i = 0; i < terms.size(); i++) {
+			termsMap.put(dependentVariables.get(i), terms.get(i));
+
+			if (initValues.get(i) != null) {
+				initValueMap.put(dependentVariables.get(i), initValues.get(i));
+			} else {
+				initParameterMap.put(dependentVariables.get(i),
+						dependentVariables.get(i) + "_0");
+			}
+		}
+
+		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
+		List<String> indeps = new ArrayList<>(independentVariables);
+
+		indeps.add(diffVariable);
+		parameters.removeAll(indeps);
+		parameters.removeAll(dependentVariables);
+		parameters.addAll(initParameterMap.values());
+
+		Collections.sort(parameters);
+		Collections.sort(indeps);
+
+		return new Function(termsMap, dependentVariables.get(0), indeps,
+				parameters, diffVariable, initParameterMap, initValueMap);
+	}
 }

@@ -22,27 +22,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.diffcreator;
+package de.bund.bfr.knime.nls.view;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "DiffFunctionCreator" Node.
+ * <code>NodeFactory</code> for the "FunctionView" Node.
  * 
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionCreatorNodeFactory extends
-		NodeFactory<DiffFunctionCreatorNodeModel> {
+public class FunctionViewNodeFactory extends NodeFactory<FunctionViewNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DiffFunctionCreatorNodeModel createNodeModel() {
-		return new DiffFunctionCreatorNodeModel();
+	public FunctionViewNodeModel createNodeModel() {
+		return new FunctionViewNodeModel();
 	}
 
 	/**
@@ -57,8 +56,8 @@ public class DiffFunctionCreatorNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<DiffFunctionCreatorNodeModel> createNodeView(
-			final int viewIndex, final DiffFunctionCreatorNodeModel nodeModel) {
+	public NodeView<FunctionViewNodeModel> createNodeView(final int viewIndex,
+			final FunctionViewNodeModel nodeModel) {
 		return null;
 	}
 
@@ -75,7 +74,7 @@ public class DiffFunctionCreatorNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new DiffFunctionCreatorNodeDialog();
+		return new FunctionViewNodeDialog();
 	}
 
 }
