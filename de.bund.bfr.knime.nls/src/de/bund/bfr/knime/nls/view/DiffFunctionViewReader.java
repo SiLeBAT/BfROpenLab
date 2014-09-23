@@ -29,12 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 
 import com.google.common.primitives.Doubles;
@@ -60,7 +56,8 @@ public class DiffFunctionViewReader {
 			BufferedDataTable paramTable, BufferedDataTable varTable,
 			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
-		List<String> qualityColumns = getQualityColumns(paramTable, f);
+		List<String> qualityColumns = ViewUtils
+				.getQualityColumns(paramTable, f);
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -76,13 +73,13 @@ public class DiffFunctionViewReader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : getIds(paramTable)) {
+		for (String id : ViewUtils.getIds(paramTable)) {
 			if (f.getTimeVariable() == null) {
 				continue;
 			}
 
-			Map<String, Double> qualityValues = getQualityValues(paramTable,
-					id, qualityColumns);
+			Map<String, Double> qualityValues = ViewUtils.getQualityValues(
+					paramTable, id, qualityColumns);
 
 			ids.add(id);
 			legend.put(id, id);
@@ -99,7 +96,7 @@ public class DiffFunctionViewReader {
 			plotable.setInitParameters(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
-			plotable.setParameters(getParameters(paramTable, id, f));
+			plotable.setParameters(ViewUtils.getParameters(paramTable, id, f));
 			plotable.setIndependentVariables(getVariables(f));
 			plotable.setMinVariables(new LinkedHashMap<String, Double>());
 			plotable.setMaxVariables(new LinkedHashMap<String, Double>());
@@ -107,7 +104,8 @@ public class DiffFunctionViewReader {
 			plotable.setConditionLists(getConditionValues(conditionTable, id, f));
 
 			if (covarianceTable != null) {
-				plotable.setCovariances(getCovariances(covarianceTable, id, f));
+				plotable.setCovariances(ViewUtils.getCovariances(
+						covarianceTable, id, f));
 			}
 
 			if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
@@ -143,106 +141,6 @@ public class DiffFunctionViewReader {
 
 	public Map<String, String> getLegend() {
 		return legend;
-	}
-
-	private static List<String> getIds(BufferedDataTable table) {
-		List<String> ids = new ArrayList<>();
-
-		for (DataRow row : table) {
-			String id = IO.getString(row.getCell(table.getSpec()
-					.findColumnIndex(NlsUtils.ID_COLUMN)));
-
-			if (id != null) {
-				ids.add(id);
-			}
-		}
-
-		return ids;
-	}
-
-	private static List<String> getQualityColumns(BufferedDataTable table,
-			Function f) {
-		List<String> columns = new ArrayList<>();
-
-		for (DataColumnSpec spec : table.getSpec()) {
-			if ((spec.getType() == DoubleCell.TYPE || spec.getType() == IntCell.TYPE)
-					&& !f.getParameters().contains(spec.getName())) {
-				columns.add(spec.getName());
-			}
-		}
-
-		return columns;
-	}
-
-	private static Map<String, Double> getQualityValues(
-			BufferedDataTable table, String id, List<String> columns) {
-		Map<String, Double> values = new LinkedHashMap<>();
-		DataTableSpec spec = table.getSpec();
-
-		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
-				for (String column : columns) {
-					DataCell cell = row.getCell(spec.findColumnIndex(column));
-
-					if (IO.getDouble(cell) != null) {
-						values.put(column, IO.getDouble(cell));
-					} else if (IO.getInt(cell) != null) {
-						values.put(column, IO.getInt(cell).doubleValue());
-					} else {
-						values.put(column, null);
-					}
-				}
-
-				break;
-			}
-		}
-
-		return values;
-	}
-
-	private static Map<String, Double> getParameters(BufferedDataTable table,
-			String id, Function f) {
-		Map<String, Double> params = new LinkedHashMap<>();
-		DataTableSpec spec = table.getSpec();
-
-		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
-				for (String param : f.getParameters()) {
-					params.put(param, IO.getDouble(row.getCell(spec
-							.findColumnIndex(param))));
-				}
-
-				break;
-			}
-		}
-
-		return params;
-	}
-
-	private static Map<String, Map<String, Double>> getCovariances(
-			BufferedDataTable table, String id, Function f) {
-		Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
-		DataTableSpec spec = table.getSpec();
-
-		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
-				Map<String, Double> cov = new LinkedHashMap<>();
-				String param1 = IO.getString(row.getCell(spec
-						.findColumnIndex(NlsUtils.PARAM_COLUMN)));
-
-				for (String param2 : f.getParameters()) {
-					cov.put(param2, IO.getDouble(row.getCell(spec
-							.findColumnIndex(param2))));
-				}
-
-				covariances.put(param1, cov);
-			}
-		}
-
-		return covariances;
 	}
 
 	private static Map<String, Double> getVariables(Function f) {
