@@ -41,7 +41,7 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
-import de.bund.bfr.knime.nls.NlsConstants;
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -72,7 +72,7 @@ public class FunctionViewReader {
 		legend = new LinkedHashMap<>();
 		doubleColumns = new LinkedHashMap<>();
 		stringColumns = new LinkedHashMap<>();
-		stringColumns.put(NlsConstants.ID_COLUMN, new ArrayList<String>());
+		stringColumns.put(NlsUtils.ID_COLUMN, new ArrayList<String>());
 		stringColumns.put(ChartUtils.STATUS, new ArrayList<String>());
 		doubleColumns = new LinkedHashMap<>();
 
@@ -105,7 +105,7 @@ public class FunctionViewReader {
 
 				ids.add(newId);
 				legend.put(newId, newId);
-				stringColumns.get(NlsConstants.ID_COLUMN).add(id);
+				stringColumns.get(NlsUtils.ID_COLUMN).add(id);
 
 				for (String i : fixed.keySet()) {
 					doubleColumns.get(i).add(fixed.get(i));
@@ -130,9 +130,9 @@ public class FunctionViewReader {
 							f));
 				}
 
-				if (qualityValues.get(NlsConstants.DOF_COLUMN) != null) {
+				if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
 					plotable.setDegreesOfFreedom(qualityValues.get(
-							NlsConstants.DOF_COLUMN).intValue());
+							NlsUtils.DOF_COLUMN).intValue());
 				}
 
 				stringColumns.get(ChartUtils.STATUS).add(
@@ -171,7 +171,7 @@ public class FunctionViewReader {
 
 		for (DataRow row : table) {
 			String id = IO.getString(row.getCell(table.getSpec()
-					.findColumnIndex(NlsConstants.ID_COLUMN)));
+					.findColumnIndex(NlsUtils.ID_COLUMN)));
 
 			if (id != null) {
 				ids.add(id);
@@ -202,7 +202,7 @@ public class FunctionViewReader {
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				for (String column : columns) {
 					DataCell cell = row.getCell(spec.findColumnIndex(column));
 
@@ -229,7 +229,7 @@ public class FunctionViewReader {
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				for (String param : f.getParameters()) {
 					params.put(param, IO.getDouble(row.getCell(spec
 							.findColumnIndex(param))));
@@ -249,10 +249,10 @@ public class FunctionViewReader {
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> cov = new LinkedHashMap<>();
 				String param1 = IO.getString(row.getCell(spec
-						.findColumnIndex(NlsConstants.PARAM_COLUMN)));
+						.findColumnIndex(NlsUtils.PARAM_COLUMN)));
 
 				for (String param2 : f.getParameters()) {
 					cov.put(param2, IO.getDouble(row.getCell(spec
@@ -288,7 +288,7 @@ public class FunctionViewReader {
 
 		loop: for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getVariables()) {
@@ -328,7 +328,7 @@ public class FunctionViewReader {
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsConstants.ID_COLUMN))))) {
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getIndependentVariables()) {

@@ -31,14 +31,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -61,7 +59,7 @@ import com.google.common.primitives.Doubles;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.Function;
-import de.bund.bfr.knime.nls.NlsConstants;
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.Integrator;
@@ -103,67 +101,21 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 		FunctionPortObject functionObject = (FunctionPortObject) inObjects[0];
 		BufferedDataTable dataTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable conditionTable = (BufferedDataTable) inObjects[2];
-		Map<String, ParameterOptimizer> values = doEstimation(
+		Map<String, ParameterOptimizer> results = doEstimation(
 				functionObject.getFunction(), dataTable, conditionTable);
 		PortObjectSpec[] outSpec = configure(new PortObjectSpec[] {
 				functionObject.getSpec(), dataTable.getSpec(),
 				conditionTable.getSpec() });
-		DataTableSpec outSpec1 = (DataTableSpec) outSpec[0];
-		DataTableSpec outSpec2 = (DataTableSpec) outSpec[1];
-		BufferedDataContainer container1 = exec.createDataContainer(outSpec1);
-		BufferedDataContainer container2 = exec.createDataContainer(outSpec2);
-		int i1 = 0;
-		int i2 = 0;
+		BufferedDataContainer paramContainer = exec
+				.createDataContainer((DataTableSpec) outSpec[0]);
+		BufferedDataContainer covContainer = exec
+				.createDataContainer((DataTableSpec) outSpec[1]);
 
-		for (String id : values.keySet()) {
-			ParameterOptimizer result = values.get(id);
-			DataCell[] cells1 = new DataCell[outSpec1.getNumColumns()];
+		NlsUtils.createFittingResultTable(paramContainer, covContainer,
+				results, functionObject.getFunction());
 
-			for (String param1 : functionObject.getFunction().getParameters()) {
-				cells1[outSpec1.findColumnIndex(param1)] = IO.createCell(result
-						.getParameterValues().get(param1));
-
-				DataCell[] cells2 = new DataCell[outSpec2.getNumColumns()];
-
-				cells2[outSpec2.findColumnIndex(NlsConstants.ID_COLUMN)] = IO
-						.createCell(id);
-				cells2[outSpec2.findColumnIndex(NlsConstants.PARAM_COLUMN)] = IO
-						.createCell(param1);
-
-				for (String param2 : functionObject.getFunction()
-						.getParameters()) {
-					cells2[outSpec2.findColumnIndex(param2)] = IO
-							.createCell(result.getCovariances().get(param1)
-									.get(param2));
-				}
-
-				container2.addRowToTable(new DefaultRow(i2 + "", cells2));
-				i2++;
-			}
-
-			cells1[outSpec1.findColumnIndex(NlsConstants.ID_COLUMN)] = IO
-					.createCell(id);
-			cells1[outSpec1.findColumnIndex(NlsConstants.SSE_COLUMN)] = IO
-					.createCell(result.getSSE());
-			cells1[outSpec1.findColumnIndex(NlsConstants.MSE_COLUMN)] = IO
-					.createCell(result.getMSE());
-			cells1[outSpec1.findColumnIndex(NlsConstants.RMSE_COLUMN)] = IO
-					.createCell(result.getRMSE());
-			cells1[outSpec1.findColumnIndex(NlsConstants.R2_COLUMN)] = IO
-					.createCell(result.getR2());
-			cells1[outSpec1.findColumnIndex(NlsConstants.AIC_COLUMN)] = IO
-					.createCell(result.getAIC());
-			cells1[outSpec1.findColumnIndex(NlsConstants.DOF_COLUMN)] = IO
-					.createCell(result.getDOF());
-
-			container1.addRowToTable(new DefaultRow(i1 + "", cells1));
-			i1++;
-		}
-
-		container1.close();
-		container2.close();
-
-		return new PortObject[] { container1.getTable(), container2.getTable() };
+		return new PortObject[] { paramContainer.getTable(),
+				covContainer.getTable() };
 	}
 
 	/**
@@ -195,10 +147,10 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 				.getColumnNames(KnimeUtils.getColumns(conditionSpec,
 						DoubleValue.class));
 
-		if (!dataStringColumns.contains(NlsConstants.ID_COLUMN)) {
+		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
 			throw new InvalidSettingsException(
 					"Data Table must contain String Column named \""
-							+ NlsConstants.ID_COLUMN + "\"");
+							+ NlsUtils.ID_COLUMN + "\"");
 		}
 
 		if (!dataDoubleColumns.contains(function.getTimeVariable())) {
@@ -213,10 +165,10 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 							+ function.getDependentVariable() + "\"");
 		}
 
-		if (!conditionStringColumns.contains(NlsConstants.ID_COLUMN)) {
+		if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
 			throw new InvalidSettingsException(
 					"Condition Table must contain String Column named \""
-							+ NlsConstants.ID_COLUMN + "\"");
+							+ NlsUtils.ID_COLUMN + "\"");
 		}
 
 		for (String var : function.getVariables()) {
@@ -231,11 +183,11 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 		List<DataColumnSpec> specs1 = new ArrayList<>();
 		List<DataColumnSpec> specs2 = new ArrayList<>();
 
-		specs1.add(new DataColumnSpecCreator(NlsConstants.ID_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN,
 				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(NlsConstants.ID_COLUMN,
+		specs2.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN,
 				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(NlsConstants.PARAM_COLUMN,
+		specs2.add(new DataColumnSpecCreator(NlsUtils.PARAM_COLUMN,
 				StringCell.TYPE).createSpec());
 
 		for (String param : function.getParameters()) {
@@ -245,18 +197,18 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 					.createSpec());
 		}
 
-		specs1.add(new DataColumnSpecCreator(NlsConstants.SSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.SSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.MSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.MSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.RMSE_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.RMSE_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.R2_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.R2_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.AIC_COLUMN,
+		specs1.add(new DataColumnSpecCreator(NlsUtils.AIC_COLUMN,
 				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsConstants.DOF_COLUMN,
-				IntCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.DOF_COLUMN, IntCell.TYPE)
+				.createSpec());
 
 		return new PortObjectSpec[] {
 				new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
@@ -316,7 +268,7 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 
 		for (DataRow row : dataTable) {
 			String id = IO.getString(row.getCell(dataSpec
-					.findColumnIndex(NlsConstants.ID_COLUMN)));
+					.findColumnIndex(NlsUtils.ID_COLUMN)));
 			Double time = IO.getDouble(row.getCell(dataSpec
 					.findColumnIndex(function.getTimeVariable())));
 			Double target = IO.getDouble(row.getCell(dataSpec
@@ -340,7 +292,7 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 
 		for (DataRow row : conditionTable) {
 			String id = IO.getString(row.getCell(conditionSpec
-					.findColumnIndex(NlsConstants.ID_COLUMN)));
+					.findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getIndependentVariables()) {
