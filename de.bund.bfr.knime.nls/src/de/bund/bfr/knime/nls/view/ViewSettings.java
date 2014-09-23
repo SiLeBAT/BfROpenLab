@@ -54,7 +54,7 @@ public class ViewSettings extends NlsNodeSettings {
 	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
 	public static final boolean DEFAULT_SHOW_CONFIDENCE = false;
 	public static final Transform DEFAULT_TRANSFORM = Transform.NO_TRANSFORM;
-	public static final boolean DEFAULT_SELECT_ALL = false;
+	public static final boolean DEFAULT_SELECT_ALL = true;
 
 	private static final String CFG_MIN_TO_ZERO = "MinToZero";
 	private static final String CFG_MANUAL_RANGE = "ManualRange";

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -64,6 +65,8 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private static final double DEFAULT_MAXY = 1.0;
 
 	private static final int SLIDER_MAX = 100;
+
+	private Set<String> changeableParameters;
 
 	private List<ConfigListener> configListeners;
 
@@ -94,7 +97,12 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private List<DoubleTextField> parameterFields;
 	private List<JSlider> parameterSliders;
 
-	public ChartConfigPanel(boolean showParamFields) {
+	public ChartConfigPanel() {
+		this(null);
+	}
+
+	public ChartConfigPanel(Set<String> changeableParameters) {
+		this.changeableParameters = changeableParameters;
 		configListeners = new ArrayList<>();
 		lastParamX = null;
 
@@ -221,7 +229,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		outerParameterValuesPanel.setLayout(new BorderLayout());
 		outerParameterValuesPanel.add(parameterValuesPanel, BorderLayout.WEST);
 
-		if (showParamFields) {
+		if (changeableParameters != null) {
 			mainPanel.add(outerParameterValuesPanel, createConstraints(3));
 		}
 
@@ -391,7 +399,10 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			xBox.removeAllItems();
 
 			for (String param : parametersX.keySet()) {
-				xBox.addItem(param);
+				if (changeableParameters == null
+						|| !changeableParameters.contains(param)) {
+					xBox.addItem(param);
+				}
 			}
 
 			if (!parametersX.isEmpty()) {
@@ -431,8 +442,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 				valueLists.put(parameters.get(i), 0.0);
 			}
 		}
-
-		valueLists.put((String) xBox.getSelectedItem(), 0.0);
 
 		return valueLists;
 	}
@@ -547,7 +556,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		}
 
 		for (String param : parametersX.keySet()) {
-			if (param.equals(xBox.getSelectedItem())) {
+			if (!changeableParameters.contains(param)) {
 				continue;
 			}
 

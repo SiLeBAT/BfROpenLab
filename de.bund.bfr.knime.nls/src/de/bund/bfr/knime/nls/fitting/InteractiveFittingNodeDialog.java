@@ -22,11 +22,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.view;
+package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -37,42 +39,44 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.ChartUtils;
+import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
- * <code>NodeDialog</code> for the "FunctionView" Node.
+ * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
+ * 
+ * 
+ * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
+ * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
-		ChartCreator.ZoomListener {
+public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
+		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private FunctionViewReader reader;
-	private ViewSettings set;
+	private PlotableReader reader;
+	private InteractiveFittingSettings set;
 
 	private ChartCreator chartCreator;
-	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
 
 	private FunctionPortObject functionObject;
-	private BufferedDataTable paramTable;
 	private BufferedDataTable varTable;
-	private BufferedDataTable covarianceTable;
 
 	/**
-	 * New pane for configuring the FunctionView node.
+	 * New pane for configuring the DiffFunctionFitting node.
 	 */
-	protected FunctionViewNodeDialog() {
-		set = new ViewSettings();
+	protected InteractiveFittingNodeDialog() {
+		set = new InteractiveFittingSettings();
 
 		JPanel panel = new JPanel();
 
@@ -85,11 +89,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
-		paramTable = (BufferedDataTable) input[1];
-		varTable = (BufferedDataTable) input[2];
-		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionViewReader(functionObject, paramTable, varTable,
-				covarianceTable, set.getCurrentParamX());
+		varTable = (BufferedDataTable) input[1];
+		reader = new PlotableReader(functionObject, varTable, set
+				.getViewSettings().getCurrentParamX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -97,52 +99,45 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
+		// TODO
 		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
 		Map<String, Double> paramsX = new LinkedHashMap<>();
-		Map<String, Double> minValues = ChartUtils.getMinValues(reader
-				.getPlotables().values());
-		Map<String, Double> maxValues = ChartUtils.getMaxValues(reader
-				.getPlotables().values());
+		Set<String> changeableParameters = new LinkedHashSet<>();
 
-		for (String var : ChartUtils.getVariables(reader.getPlotables()
-				.values())) {
-			if (minValues.get(var) != null) {
-				paramsX.put(var, minValues.get(var));
-			} else if (maxValues.get(var) != null) {
-				paramsX.put(var, maxValues.get(var));
-			} else {
-				paramsX.put(var, 0.0);
-			}
+		for (String var : functionObject.getFunction()
+				.getIndependentVariables()) {
+			paramsX.put(var, 0.0);
 		}
 
-		configPanel = new ChartConfigPanel();
-		configPanel.setParameters(reader.getDepVar(), paramsX, minValues,
-				maxValues);
-		selectionPanel = new ChartSelectionPanel(reader.getIds(),
-				reader.getStringColumns(), reader.getDoubleColumns());
+		for (String var : functionObject.getFunction().getParameters()) {
+			paramsX.put(var, 0.0);
+			changeableParameters.add(var);
+		}
+
+		configPanel = new ChartConfigPanel(changeableParameters);
+		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 		chartCreator.setParamY(reader.getDepVar());
 
-		set.setToConfigPanel(configPanel);
-		set.setToSelectionPanel(selectionPanel);
+		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.addConfigListener(this);
-		selectionPanel.addSelectionListener(this);
 		chartCreator.addZoomListener(this);
 		createChart();
 
-		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
+		return new ChartAllPanel(chartCreator, configPanel);
 	}
 
 	private void createChart() {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
-		set.setToChartCreator(chartCreator);
+		set.getViewSettings().setFromConfigPanel(configPanel);
+		set.getViewSettings().setToChartCreator(chartCreator);
+
+		for (Plotable plotable : reader.getPlotables().values()) {
+			plotable.setParameters(configPanel.getParamsX());
+		}
 
 		try {
 			chartCreator.setChart(chartCreator.createChart());
@@ -152,17 +147,12 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	public void selectionChanged() {
-		createChart();
-	}
-
-	@Override
 	public void configChanged() {
-		if (!configPanel.getParamX().equals(set.getCurrentParamX())) {
-			set.setFromConfigPanel(configPanel);
-			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionViewReader(functionObject, paramTable,
-					varTable, covarianceTable, set.getCurrentParamX());
+		if (!configPanel.getParamX().equals(
+				set.getViewSettings().getCurrentParamX())) {
+			set.getViewSettings().setFromConfigPanel(configPanel);
+			reader = new PlotableReader(functionObject, varTable, set
+					.getViewSettings().getCurrentParamX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

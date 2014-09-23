@@ -122,7 +122,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		configPanel = new ChartConfigPanel(false);
+		configPanel = new ChartConfigPanel();
 		configPanel.setParameters(reader.getDepVar(), paramsX, minValues,
 				maxValues);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(),
