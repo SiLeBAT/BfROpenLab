@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.functionfitting;
+package de.bund.bfr.knime.nls.fitting;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -34,15 +34,14 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class FunctionFittingNodeFactory extends
-		NodeFactory<FunctionFittingNodeModel> {
+public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FunctionFittingNodeModel createNodeModel() {
-		return new FunctionFittingNodeModel();
+	public FittingNodeModel createNodeModel() {
+		return new FittingNodeModel(false);
 	}
 
 	/**
@@ -57,8 +56,8 @@ public class FunctionFittingNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FunctionFittingNodeModel> createNodeView(
-			final int viewIndex, final FunctionFittingNodeModel nodeModel) {
+	public NodeView<FittingNodeModel> createNodeView(final int viewIndex,
+			final FittingNodeModel nodeModel) {
 		return null;
 	}
 
@@ -75,7 +74,7 @@ public class FunctionFittingNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new FunctionFittingNodeDialog();
+		return new FittingNodeDialog(false);
 	}
 
 }

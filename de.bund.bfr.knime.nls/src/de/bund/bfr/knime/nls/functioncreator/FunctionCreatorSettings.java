@@ -38,16 +38,16 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 
 	private static final String CFG_DEPENDENT_VARIABLE = "DependentVariable";
 	private static final String CFG_TERM = "Term";
-	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";	
+	private static final String CFG_INDEPENDENT_VARIABLES = "IndependentVariables";
 
 	private String dependentVariable;
 	private String term;
-	private List<String> independentVariables;	
+	private List<String> independentVariables;
 
 	public FunctionCreatorSettings() {
 		dependentVariable = null;
 		term = null;
-		independentVariables = new ArrayList<>();		
+		independentVariables = new ArrayList<>();
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
 		settings.addString(CFG_TERM, term);
 		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtils.listToString(independentVariables));		
+				KnimeUtils.listToString(independentVariables));
 	}
 
 	public String getDependentVariable() {

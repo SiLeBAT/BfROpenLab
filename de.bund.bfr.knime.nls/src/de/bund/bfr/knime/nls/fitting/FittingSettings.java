@@ -22,16 +22,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.difffitting;
+package de.bund.bfr.knime.nls.fitting;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.nls.FittingSettings;
+import de.bund.bfr.knime.nls.NlsNodeSettings;
 import de.bund.bfr.math.Integrator;
 
-public class DiffFunctionFittingSettings extends FittingSettings {
+public class FittingSettings extends NlsNodeSettings {
+
+	private static final boolean DEFAULT_EXPERT_SETTINGS = false;
+	private static final int DEFAULT_N_PARAMETER_SPACE = 10000;
+	private static final int DEFAULT_N_LEVENBERG = 10;
+	private static final boolean DEFAULT_STOP_WHEN_SUCCESSFUL = false;
+	private static final boolean DEFAULT_ENFORCE_LIMITS = false;
 
 	private static final Integrator.Type DEFAULT_INTEGRATOR_TYPE = Integrator.Type.RUNGE_KUTTA;
 	private static final double DEFAULT_STEP_SIZE = 0.01;
@@ -40,12 +49,28 @@ public class DiffFunctionFittingSettings extends FittingSettings {
 	private static final double DEFAULT_ABS_TOLERANCE = 1e-6;
 	private static final double DEFAULT_REL_TOLERANCE = 0.0;
 
+	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
+	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
+	private static final String CFG_N_LEVENBERG = "NLevenberg";
+	private static final String CFG_STOP_WHEN_SUCCESSFUL = "StopWhenSuccessful";
+	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
+	private static final String CFG_MIN_START_VALUES = "MinStartValues";
+	private static final String CFG_MAX_START_VALUES = "MinStartValues";
+
 	private static final String CFG_INTEGRATOR_TYPE = "IntegratorType";
 	private static final String CFG_STEP_SIZE = "StepSize";
 	private static final String CFG_MIN_STEP_SIZE = "MinStepSize";
 	private static final String CFG_MAX_STEP_SIZE = "MaxStepSize";
 	private static final String CFG_ABS_TOLERANCE = "AbsTolerance";
 	private static final String CFG_REL_TOLERANCE = "RelTolerance";
+
+	private boolean expertSettings;
+	private int nParameterSpace;
+	private int nLevenberg;
+	private boolean stopWhenSuccessful;
+	private boolean enforceLimits;
+	private Map<String, Double> minStartValues;
+	private Map<String, Double> maxStartValues;
 
 	private Integrator.Type integratorType;
 	private double stepSize;
@@ -54,13 +79,50 @@ public class DiffFunctionFittingSettings extends FittingSettings {
 	private double absTolerance;
 	private double relTolerance;
 
-	public DiffFunctionFittingSettings() {
+	public FittingSettings() {
+		expertSettings = DEFAULT_EXPERT_SETTINGS;
 		setExpertParametersToDefault();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		super.loadSettings(settings);
+		try {
+			expertSettings = settings.getBoolean(CFG_EXPERT_SETTINGS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nParameterSpace = settings.getInt(CFG_N_PARAMETER_SPACE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nLevenberg = settings.getInt(CFG_N_LEVENBERG);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			stopWhenSuccessful = settings.getBoolean(CFG_STOP_WHEN_SUCCESSFUL);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			enforceLimits = settings.getBoolean(CFG_ENFORCE_LIMITS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			minStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_MIN_START_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			maxStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_MAX_START_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
 
 		try {
 			integratorType = Integrator.Type.valueOf(settings
@@ -96,11 +158,19 @@ public class DiffFunctionFittingSettings extends FittingSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		super.saveSettings(settings);
-		
-		if (!isExpertSettings()) {
+		if (!expertSettings) {
 			setExpertParametersToDefault();
 		}
+
+		settings.addBoolean(CFG_EXPERT_SETTINGS, expertSettings);
+		settings.addInt(CFG_N_PARAMETER_SPACE, nParameterSpace);
+		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
+		settings.addBoolean(CFG_STOP_WHEN_SUCCESSFUL, stopWhenSuccessful);
+		settings.addBoolean(CFG_ENFORCE_LIMITS, enforceLimits);
+		settings.addString(CFG_MIN_START_VALUES,
+				SERIALIZER.toXml(minStartValues));
+		settings.addString(CFG_MAX_START_VALUES,
+				SERIALIZER.toXml(maxStartValues));
 
 		settings.addString(CFG_INTEGRATOR_TYPE, integratorType.name());
 		settings.addDouble(CFG_STEP_SIZE, stepSize);
@@ -108,6 +178,62 @@ public class DiffFunctionFittingSettings extends FittingSettings {
 		settings.addDouble(CFG_MAX_STEP_SIZE, maxStepSize);
 		settings.addDouble(CFG_ABS_TOLERANCE, absTolerance);
 		settings.addDouble(CFG_REL_TOLERANCE, relTolerance);
+	}
+
+	public boolean isExpertSettings() {
+		return expertSettings;
+	}
+
+	public void setExpertSettings(boolean expertSettings) {
+		this.expertSettings = expertSettings;
+	}
+
+	public int getnParameterSpace() {
+		return nParameterSpace;
+	}
+
+	public void setnParameterSpace(int nParameterSpace) {
+		this.nParameterSpace = nParameterSpace;
+	}
+
+	public int getnLevenberg() {
+		return nLevenberg;
+	}
+
+	public void setnLevenberg(int nLevenberg) {
+		this.nLevenberg = nLevenberg;
+	}
+
+	public boolean isStopWhenSuccessful() {
+		return stopWhenSuccessful;
+	}
+
+	public void setStopWhenSuccessful(boolean stopWhenSuccessful) {
+		this.stopWhenSuccessful = stopWhenSuccessful;
+	}
+
+	public boolean isEnforceLimits() {
+		return enforceLimits;
+	}
+
+	public void setEnforceLimits(boolean enforceLimits) {
+		this.enforceLimits = enforceLimits;
+	}
+
+	public Map<String, Double> getMinStartValues() {
+		return minStartValues;
+	}
+
+	public void setMinStartValues(Map<String, Double> minStartValues) {
+		this.minStartValues = minStartValues;
+	}
+
+	public Map<String, Double> getMaxStartValues() {
+		return maxStartValues;
+	}
+
+	public void setMaxStartValues(Map<String, Double> maxStartValues) {
+		this.maxStartValues = maxStartValues;
 	}
 
 	public Integrator.Type getIntegratorType() {
@@ -157,8 +283,15 @@ public class DiffFunctionFittingSettings extends FittingSettings {
 	public void setRelTolerance(double relTolerance) {
 		this.relTolerance = relTolerance;
 	}
-	
+
 	private void setExpertParametersToDefault() {
+		nParameterSpace = DEFAULT_N_PARAMETER_SPACE;
+		nLevenberg = DEFAULT_N_LEVENBERG;
+		stopWhenSuccessful = DEFAULT_STOP_WHEN_SUCCESSFUL;
+		enforceLimits = DEFAULT_ENFORCE_LIMITS;
+		minStartValues = new LinkedHashMap<>();
+		maxStartValues = new LinkedHashMap<>();
+
 		integratorType = DEFAULT_INTEGRATOR_TYPE;
 		stepSize = DEFAULT_STEP_SIZE;
 		minStepSize = DEFAULT_MIN_STEP_SIZE;

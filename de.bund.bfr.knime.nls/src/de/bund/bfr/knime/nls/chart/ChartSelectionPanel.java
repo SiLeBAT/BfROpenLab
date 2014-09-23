@@ -107,8 +107,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 				new CheckBoxRenderer());
 		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor()
 				.addCellEditorListener(this);
-		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(
-				new ColorEditor());
+		selectTable.getColumn(ChartUtils.COLOR)
+				.setCellEditor(new ColorEditor());
 		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(
 				new ColorRenderer());
 		selectTable.getColumn(ChartUtils.SHAPE).setCellEditor(

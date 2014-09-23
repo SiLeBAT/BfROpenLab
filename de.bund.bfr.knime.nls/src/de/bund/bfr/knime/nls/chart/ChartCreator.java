@@ -393,8 +393,8 @@ public class ChartCreator extends ChartPanel {
 				functionRenderer.setBaseSeriesVisibleInLegend(false);
 			}
 
-			ChartUtils.addDataSetToPlot(plot, functionDataSet,
-					functionRenderer);
+			ChartUtils
+					.addDataSetToPlot(plot, functionDataSet, functionRenderer);
 		}
 
 		if (dataSet != null && renderer != null) {

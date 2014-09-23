@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.difffitting;
+package de.bund.bfr.knime.nls.fitting;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,12 +31,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -72,21 +74,27 @@ import de.bund.bfr.math.ParameterOptimizer;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionFittingNodeModel extends NodeModel implements
+public class FittingNodeModel extends NodeModel implements
 		ParameterOptimizer.ProgressListener {
 
-	private DiffFunctionFittingSettings set;
+	private static final PortType[] INPUT_TYPE = new PortType[] {
+			FunctionPortObject.TYPE, BufferedDataTable.TYPE };
+	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] {
+			FunctionPortObject.TYPE, BufferedDataTable.TYPE,
+			BufferedDataTable.TYPE };
 
+	private boolean isDiff;
+	private FittingSettings set;
 	private ExecutionContext currentExec;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected DiffFunctionFittingNodeModel() {
-		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] {
+	protected FittingNodeModel(boolean isDiff) {
+		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] {
 				BufferedDataTable.TYPE, BufferedDataTable.TYPE });
-		set = new DiffFunctionFittingSettings();
+		this.isDiff = isDiff;
+		set = new FittingSettings();
 		currentExec = null;
 	}
 
@@ -98,21 +106,77 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 			throws Exception {
 		currentExec = exec;
 
-		FunctionPortObject functionObject = (FunctionPortObject) inObjects[0];
-		BufferedDataTable dataTable = (BufferedDataTable) inObjects[1];
-		BufferedDataTable conditionTable = (BufferedDataTable) inObjects[2];
-		Map<String, ParameterOptimizer> results = doEstimation(
-				functionObject.getFunction(), dataTable, conditionTable);
-		PortObjectSpec[] outSpec = configure(new PortObjectSpec[] {
-				functionObject.getSpec(), dataTable.getSpec(),
-				conditionTable.getSpec() });
-		BufferedDataContainer paramContainer = exec
-				.createDataContainer((DataTableSpec) outSpec[0]);
-		BufferedDataContainer covContainer = exec
-				.createDataContainer((DataTableSpec) outSpec[1]);
+		Function function = ((FunctionPortObject) inObjects[0]).getFunction();
+		Map<String, ParameterOptimizer> results;
+		PortObjectSpec[] outSpec;
 
-		NlsUtils.createFittingResultTable(paramContainer, covContainer,
-				results, functionObject.getFunction());
+		if (isDiff) {
+			results = doEstimation(function, (BufferedDataTable) inObjects[1],
+					(BufferedDataTable) inObjects[2]);
+			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(),
+					inObjects[1].getSpec(), inObjects[2].getSpec() });
+		} else {
+			results = doEstimation(function, (BufferedDataTable) inObjects[1]);
+			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(),
+					inObjects[1].getSpec() });
+		}
+
+		DataTableSpec paramSpec = (DataTableSpec) outSpec[0];
+		DataTableSpec covSpec = (DataTableSpec) outSpec[1];
+		BufferedDataContainer paramContainer = exec
+				.createDataContainer(paramSpec);
+		BufferedDataContainer covContainer = exec.createDataContainer(covSpec);
+		int iParam = 0;
+		int iCov = 0;
+
+		for (String id : results.keySet()) {
+			ParameterOptimizer result = results.get(id);
+			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
+
+			for (String param1 : function.getParameters()) {
+				paramCells[paramSpec.findColumnIndex(param1)] = IO
+						.createCell(result.getParameterValues().get(param1));
+
+				DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
+
+				covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO
+						.createCell(id);
+				covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO
+						.createCell(param1);
+
+				for (String param2 : function.getParameters()) {
+					covCells[covSpec.findColumnIndex(param2)] = IO
+							.createCell(result.getCovariances().get(param1)
+									.get(param2));
+				}
+
+				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov),
+						covCells));
+				iCov++;
+			}
+
+			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO
+					.createCell(id);
+			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO
+					.createCell(result.getSSE());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO
+					.createCell(result.getMSE());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO
+					.createCell(result.getRMSE());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO
+					.createCell(result.getR2());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO
+					.createCell(result.getAIC());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
+					.createCell(result.getDOF());
+
+			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam)
+					+ "", paramCells));
+			iParam++;
+		}
+
+		paramContainer.close();
+		covContainer.close();
 
 		return new PortObject[] { paramContainer.getTable(),
 				covContainer.getTable() };
@@ -134,18 +198,10 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 			throws InvalidSettingsException {
 		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
 		DataTableSpec dataSpec = (DataTableSpec) inSpecs[1];
-		DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
-
 		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(dataSpec, StringValue.class));
 		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(dataSpec, DoubleValue.class));
-		List<String> conditionStringColumns = KnimeUtils
-				.getColumnNames(KnimeUtils.getColumns(conditionSpec,
-						StringValue.class));
-		List<String> conditionDoubleColumns = KnimeUtils
-				.getColumnNames(KnimeUtils.getColumns(conditionSpec,
-						DoubleValue.class));
 
 		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
 			throw new InvalidSettingsException(
@@ -153,30 +209,48 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 							+ NlsUtils.ID_COLUMN + "\"");
 		}
 
-		if (!dataDoubleColumns.contains(function.getTimeVariable())) {
-			throw new InvalidSettingsException(
-					"Data Table must contain Double Column named \""
-							+ function.getTimeVariable() + "\"");
-		}
+		if (isDiff) {
+			DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
+			List<String> conditionStringColumns = KnimeUtils
+					.getColumnNames(KnimeUtils.getColumns(conditionSpec,
+							StringValue.class));
+			List<String> conditionDoubleColumns = KnimeUtils
+					.getColumnNames(KnimeUtils.getColumns(conditionSpec,
+							DoubleValue.class));
 
-		if (!dataDoubleColumns.contains(function.getDependentVariable())) {
-			throw new InvalidSettingsException(
-					"Data Table must contain Double Column named \""
-							+ function.getDependentVariable() + "\"");
-		}
-
-		if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
-			throw new InvalidSettingsException(
-					"Condition Table must contain String Column named \""
-							+ NlsUtils.ID_COLUMN + "\"");
-		}
-
-		for (String var : function.getVariables()) {
-			if (!var.equals(function.getDependentVariable())
-					&& !conditionDoubleColumns.contains(var)) {
+			if (!dataDoubleColumns.contains(function.getTimeVariable())) {
 				throw new InvalidSettingsException(
-						"Condition Table must contain Double Column named \""
-								+ var + "\"");
+						"Data Table must contain Double Column named \""
+								+ function.getTimeVariable() + "\"");
+			}
+
+			if (!dataDoubleColumns.contains(function.getDependentVariable())) {
+				throw new InvalidSettingsException(
+						"Data Table must contain Double Column named \""
+								+ function.getDependentVariable() + "\"");
+			}
+
+			if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
+				throw new InvalidSettingsException(
+						"Condition Table must contain String Column named \""
+								+ NlsUtils.ID_COLUMN + "\"");
+			}
+
+			for (String var : function.getVariables()) {
+				if (!var.equals(function.getDependentVariable())
+						&& !conditionDoubleColumns.contains(var)) {
+					throw new InvalidSettingsException(
+							"Condition Table must contain Double Column named \""
+									+ var + "\"");
+				}
+			}
+		} else {
+			for (String var : function.getVariables()) {
+				if (!dataDoubleColumns.contains(var)) {
+					throw new InvalidSettingsException(
+							"Data Table must contain Double Column named \""
+									+ var + "\"");
+				}
 			}
 		}
 
@@ -256,6 +330,75 @@ public class DiffFunctionFittingNodeModel extends NodeModel implements
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private Map<String, ParameterOptimizer> doEstimation(Function function,
+			BufferedDataTable table) throws ParseException {
+		DataTableSpec spec = table.getSpec();
+		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
+
+		for (DataRow row : table) {
+			String id = IO.getString(row.getCell(spec
+					.findColumnIndex(NlsUtils.ID_COLUMN)));
+			Map<String, Double> values = new LinkedHashMap<>();
+
+			for (String var : function.getVariables()) {
+				values.put(var,
+						IO.getDouble(row.getCell(spec.findColumnIndex(var))));
+			}
+
+			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
+				continue;
+			}
+
+			if (!targetValues.containsKey(id)) {
+				targetValues.put(id, new ArrayList<Double>());
+				argumentValues.put(id,
+						new LinkedHashMap<String, List<Double>>());
+
+				for (String indep : function.getIndependentVariables()) {
+					argumentValues.get(id).put(indep, new ArrayList<Double>());
+				}
+			}
+
+			targetValues.get(id).add(
+					values.get(function.getDependentVariable()));
+
+			for (String indep : function.getIndependentVariables()) {
+				argumentValues.get(id).get(indep).add(values.get(indep));
+			}
+		}
+
+		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
+
+		for (String id : targetValues.keySet()) {
+			ParameterOptimizer optimizer;
+			double[] targetArray = Doubles.toArray(targetValues.get(id));
+			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
+
+			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
+					.entrySet()) {
+				argumentArrays.put(entry.getKey(),
+						Doubles.toArray(entry.getValue()));
+			}
+
+			if (function.getTimeVariable() != null) {
+				continue;
+			}
+
+			optimizer = new ParameterOptimizer(function.getTerms().get(
+					function.getDependentVariable()), function.getParameters()
+					.toArray(new String[0]), set.getMinStartValues(),
+					set.getMaxStartValues(), set.getMinStartValues(),
+					set.getMaxStartValues(), targetArray, argumentArrays,
+					set.isEnforceLimits());
+			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+					set.isStopWhenSuccessful());
+			results.put(id, optimizer);
+		}
+
+		return results;
 	}
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,

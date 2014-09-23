@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.difffitting;
+package de.bund.bfr.knime.nls.fitting;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -35,14 +35,14 @@ import org.knime.core.node.NodeView;
  * @author Christian Thoens
  */
 public class DiffFunctionFittingNodeFactory extends
-		NodeFactory<DiffFunctionFittingNodeModel> {
+		NodeFactory<FittingNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DiffFunctionFittingNodeModel createNodeModel() {
-		return new DiffFunctionFittingNodeModel();
+	public FittingNodeModel createNodeModel() {
+		return new FittingNodeModel(true);
 	}
 
 	/**
@@ -57,8 +57,8 @@ public class DiffFunctionFittingNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<DiffFunctionFittingNodeModel> createNodeView(
-			final int viewIndex, final DiffFunctionFittingNodeModel nodeModel) {
+	public NodeView<FittingNodeModel> createNodeView(final int viewIndex,
+			final FittingNodeModel nodeModel) {
 		return null;
 	}
 
@@ -75,7 +75,7 @@ public class DiffFunctionFittingNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new DiffFunctionFittingNodeDialog();
+		return new FittingNodeDialog(true);
 	}
 
 }

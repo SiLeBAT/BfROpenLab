@@ -149,8 +149,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 
 		terms.put(dependentVariable, term);
 
-		List<String> parameters = new ArrayList<>(
-				MathUtils.getSymbols(term));
+		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(term));
 
 		parameters.removeAll(independentVariables);
 		Collections.sort(parameters);
