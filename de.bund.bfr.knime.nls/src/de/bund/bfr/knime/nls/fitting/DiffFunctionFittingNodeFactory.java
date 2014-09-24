@@ -42,7 +42,7 @@ public class DiffFunctionFittingNodeFactory extends
 	 */
 	@Override
 	public FittingNodeModel createNodeModel() {
-		return new FittingNodeModel(true);
+		return new FittingNodeModel(true, new FittingSettings());
 	}
 
 	/**

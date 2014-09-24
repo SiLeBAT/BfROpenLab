@@ -55,7 +55,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_STOP_WHEN_SUCCESSFUL = "StopWhenSuccessful";
 	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
 	private static final String CFG_MIN_START_VALUES = "MinStartValues";
-	private static final String CFG_MAX_START_VALUES = "MinStartValues";
+	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
 
 	private static final String CFG_INTEGRATOR_TYPE = "IntegratorType";
 	private static final String CFG_STEP_SIZE = "StepSize";

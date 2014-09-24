@@ -99,7 +99,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		// TODO
+		set.setMinStartValues(configPanel.getParamsX());
 		set.saveSettings(settings);
 	}
 
@@ -119,6 +119,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel = new ChartConfigPanel(changeableParameters);
 		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
+		configPanel.setParamXValues(set.getMinStartValues());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 		chartCreator.setParamY(reader.getDepVar());

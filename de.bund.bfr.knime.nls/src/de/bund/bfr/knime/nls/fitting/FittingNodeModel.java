@@ -90,11 +90,11 @@ public class FittingNodeModel extends NodeModel implements
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FittingNodeModel(boolean isDiff) {
+	protected FittingNodeModel(boolean isDiff, FittingSettings set) {
 		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] {
 				BufferedDataTable.TYPE, BufferedDataTable.TYPE });
 		this.isDiff = isDiff;
-		set = new FittingSettings();
+		this.set = set;
 		currentExec = null;
 	}
 

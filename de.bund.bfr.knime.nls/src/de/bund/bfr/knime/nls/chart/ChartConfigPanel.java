@@ -450,7 +450,9 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		for (int i = 0; i < parameterFields.size(); i++) {
 			DoubleTextField field = parameterFields.get(i);
 
-			field.setValue(paramXValues.get(parameters.get(i)));
+			if (paramXValues.containsKey(parameters.get(i))) {
+				field.setValue(paramXValues.get(parameters.get(i)));
+			}
 		}
 	}
 
@@ -556,7 +558,8 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		}
 
 		for (String param : parametersX.keySet()) {
-			if (!changeableParameters.contains(param)) {
+			if (changeableParameters == null
+					|| !changeableParameters.contains(param)) {
 				continue;
 			}
 
