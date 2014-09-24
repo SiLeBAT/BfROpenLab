@@ -127,12 +127,12 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel = new ChartConfigPanel(changeableParameters);
 		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
+		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamXValues(set.getMinStartValues());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 		chartCreator.setParamY(reader.getDepVar());
 
-		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.addConfigListener(this);
 		chartCreator.addZoomListener(this);
 		createChart();
