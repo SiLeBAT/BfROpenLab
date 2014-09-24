@@ -9,6 +9,7 @@
 <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.DiffFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.difffitting.DiffFunctionFittingNodeFactory"/>
 <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.view.DiffFunctionViewNodeFactory" id="de.bund.bfr.knime.nls.diffview.DiffFunctionViewNodeFactory"/>
 <node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory"/>
+<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory"/>
 </extension>
    <extension point="org.knime.workbench.repository.categories">
       <category icon="icons/nls.png" level-id="nls" name="Nonlinear Regression" path="/">

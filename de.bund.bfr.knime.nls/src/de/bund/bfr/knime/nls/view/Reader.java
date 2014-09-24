@@ -22,59 +22,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.nls.fitting;
+package de.bund.bfr.knime.nls.view;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
+import java.util.List;
+import java.util.Map;
 
-/**
- * <code>NodeFactory</code> for the "FunctionFitting" Node.
- * 
- * 
- * @author Christian Thoens
- */
-public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
+import de.bund.bfr.knime.nls.chart.Plotable;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public FittingNodeModel createNodeModel() {
-		return new FittingNodeModel(false, new FittingSettings());
-	}
+public interface Reader {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNrNodeViews() {
-		return 0;
-	}
+	public List<String> getIds();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeView<FittingNodeModel> createNodeView(final int viewIndex,
-			final FittingNodeModel nodeModel) {
-		return null;
-	}
+	public String getDepVar();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasDialog() {
-		return true;
-	}
+	public Map<String, List<String>> getStringColumns();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public NodeDialogPane createNodeDialogPane() {
-		return new FittingNodeDialog();
-	}
+	public Map<String, List<Double>> getDoubleColumns();
 
+	public Map<String, Plotable> getPlotables();
+
+	public Map<String, String> getLegend();
 }

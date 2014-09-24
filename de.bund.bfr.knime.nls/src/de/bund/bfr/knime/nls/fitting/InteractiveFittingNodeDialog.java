@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,9 +44,12 @@ import org.nfunk.jep.ParseException;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
+import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.knime.nls.view.DiffFunctionReader;
 import de.bund.bfr.knime.nls.view.FunctionReader;
+import de.bund.bfr.knime.nls.view.Reader;
 import de.bund.bfr.knime.nls.view.ViewUtils;
 
 /**
@@ -64,7 +66,8 @@ import de.bund.bfr.knime.nls.view.ViewUtils;
 public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private FunctionReader reader;
+	private boolean isDiff;
+	private Reader reader;
 	private InteractiveFittingSettings set;
 
 	private ChartCreator chartCreator;
@@ -72,11 +75,13 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	private FunctionPortObject functionObject;
 	private BufferedDataTable varTable;
+	private BufferedDataTable conditionTable;
 
 	/**
 	 * New pane for configuring the DiffFunctionFitting node.
 	 */
-	protected InteractiveFittingNodeDialog() {
+	protected InteractiveFittingNodeDialog(boolean isDiff) {
+		this.isDiff = isDiff;
 		set = new InteractiveFittingSettings();
 
 		JPanel panel = new JPanel();
@@ -91,8 +96,16 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
 		varTable = (BufferedDataTable) input[1];
-		reader = new FunctionReader(functionObject, varTable, set
-				.getViewSettings().getCurrentParamX());
+
+		if (isDiff) {
+			conditionTable = (BufferedDataTable) input[2];
+			reader = new DiffFunctionReader(functionObject, varTable,
+					conditionTable);
+		} else {
+			reader = new FunctionReader(functionObject, varTable, set
+					.getViewSettings().getCurrentParamX());
+		}
+
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -105,13 +118,12 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = ViewUtils.createZeroMap(functionObject
-				.getFunction().getIndependentVariables());
-		Set<String> changeableParameters = new LinkedHashSet<>(functionObject
-				.getFunction().getParameters());
+		Map<String, Double> paramsX = ViewUtils.createZeroMap(ChartUtils
+				.getVariables(reader.getPlotables().values()));
+		Set<String> changeableParameters = ChartUtils.getParameters(reader
+				.getPlotables().values());
 
-		paramsX.putAll(ViewUtils.createZeroMap(functionObject.getFunction()
-				.getParameters()));
+		paramsX.putAll(ViewUtils.createZeroMap(changeableParameters));
 
 		configPanel = new ChartConfigPanel(changeableParameters);
 		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
@@ -148,8 +160,15 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		if (!configPanel.getParamX().equals(
 				set.getViewSettings().getCurrentParamX())) {
 			set.getViewSettings().setFromConfigPanel(configPanel);
-			reader = new FunctionReader(functionObject, varTable, set
-					.getViewSettings().getCurrentParamX());
+
+			if (isDiff) {
+				reader = new DiffFunctionReader(functionObject, varTable,
+						conditionTable);
+			} else {
+				reader = new FunctionReader(functionObject, varTable, set
+						.getViewSettings().getCurrentParamX());
+			}
+
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

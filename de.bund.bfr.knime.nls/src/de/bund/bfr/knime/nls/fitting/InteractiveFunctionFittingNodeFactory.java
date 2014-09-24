@@ -75,7 +75,7 @@ public class InteractiveFunctionFittingNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new InteractiveFittingNodeDialog();
+		return new InteractiveFittingNodeDialog(false);
 	}
 
 }

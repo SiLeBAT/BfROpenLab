@@ -37,7 +37,7 @@ import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class FunctionReader {
+public class FunctionReader implements Reader {
 
 	private List<String> ids;
 	private String depVar;
@@ -156,26 +156,32 @@ public class FunctionReader {
 		}
 	}
 
+	@Override
 	public List<String> getIds() {
 		return ids;
 	}
 
+	@Override
 	public String getDepVar() {
 		return depVar;
 	}
 
+	@Override
 	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
 	}
 
+	@Override
 	public Map<String, List<Double>> getDoubleColumns() {
 		return doubleColumns;
 	}
 
+	@Override
 	public Map<String, Plotable> getPlotables() {
 		return plotables;
 	}
 
+	@Override
 	public Map<String, String> getLegend() {
 		return legend;
 	}

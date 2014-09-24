@@ -500,9 +500,7 @@ public class FittingNodeModel extends NodeModel implements
 					set.getMaxStartValues(), timeArray, targetArray,
 					function.getDependentVariable(),
 					function.getTimeVariable(), argumentArrays, new Integrator(
-							set.getIntegratorType(), set.getStepSize(),
-							set.getMinStepSize(), set.getMaxStepSize(),
-							set.getAbsTolerance(), set.getRelTolerance()));
+							Integrator.Type.RUNGE_KUTTA, 0.01, 0, 0, 0, 0));
 			optimizer.addProgressListener(this);
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 					set.isStopWhenSuccessful());

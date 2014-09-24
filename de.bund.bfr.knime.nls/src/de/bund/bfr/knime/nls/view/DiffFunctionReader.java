@@ -38,7 +38,7 @@ import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class DiffFunctionReader {
+public class DiffFunctionReader implements Reader {
 
 	private List<String> ids;
 	private String depVar;
@@ -48,11 +48,21 @@ public class DiffFunctionReader {
 	private Map<String, String> legend;
 
 	public DiffFunctionReader(FunctionPortObject functionObject,
+			BufferedDataTable varTable, BufferedDataTable conditionTable) {
+		this(functionObject, null, varTable, conditionTable, null);
+	}
+
+	public DiffFunctionReader(FunctionPortObject functionObject,
 			BufferedDataTable paramTable, BufferedDataTable varTable,
 			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
-		List<String> qualityColumns = ViewUtils
-				.getQualityColumns(paramTable, f);
+		List<String> qualityColumns;
+
+		if (paramTable != null) {
+			qualityColumns = ViewUtils.getQualityColumns(paramTable, f);
+		} else {
+			qualityColumns = new ArrayList<>();
+		}
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -68,9 +78,16 @@ public class DiffFunctionReader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : ViewUtils.getIds(paramTable)) {
-			Map<String, Double> qualityValues = ViewUtils.getQualityValues(
-					paramTable, id, qualityColumns);
+		for (String id : ViewUtils.getIds(paramTable != null ? paramTable
+				: varTable)) {
+			Map<String, Double> qualityValues;
+
+			if (paramTable != null) {
+				qualityValues = ViewUtils.getQualityValues(paramTable, id,
+						qualityColumns);
+			} else {
+				qualityValues = new LinkedHashMap<>();
+			}
 
 			ids.add(id);
 			legend.put(id, id);
@@ -87,7 +104,6 @@ public class DiffFunctionReader {
 			plotable.setInitParameters(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
-			plotable.setParameters(ViewUtils.getParameters(paramTable, id, f));
 			plotable.setIndependentVariables(ViewUtils.createZeroMap(Arrays
 					.asList(f.getTimeVariable())));
 			plotable.setMinVariables(new LinkedHashMap<String, Double>());
@@ -96,6 +112,14 @@ public class DiffFunctionReader {
 					id, f));
 			plotable.setConditionLists(ViewUtils.getConditionValues(
 					conditionTable, id, f));
+
+			if (paramTable != null) {
+				plotable.setParameters(ViewUtils.getParameters(paramTable, id,
+						f));
+			} else {
+				plotable.setParameters(ViewUtils.createZeroMap(f
+						.getParameters()));
+			}
 
 			if (covarianceTable != null) {
 				plotable.setCovariances(ViewUtils.getCovariances(
@@ -113,26 +137,32 @@ public class DiffFunctionReader {
 		}
 	}
 
+	@Override
 	public List<String> getIds() {
 		return ids;
 	}
 
+	@Override
 	public String getDepVar() {
 		return depVar;
 	}
 
+	@Override
 	public Map<String, List<String>> getStringColumns() {
 		return stringColumns;
 	}
 
+	@Override
 	public Map<String, List<Double>> getDoubleColumns() {
 		return doubleColumns;
 	}
 
+	@Override
 	public Map<String, Plotable> getPlotables() {
 		return plotables;
 	}
 
+	@Override
 	public Map<String, String> getLegend() {
 		return legend;
 	}

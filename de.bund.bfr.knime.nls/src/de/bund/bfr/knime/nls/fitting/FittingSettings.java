@@ -32,7 +32,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.nls.NlsNodeSettings;
-import de.bund.bfr.math.Integrator;
 
 public class FittingSettings extends NlsNodeSettings {
 
@@ -42,13 +41,6 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final boolean DEFAULT_STOP_WHEN_SUCCESSFUL = false;
 	private static final boolean DEFAULT_ENFORCE_LIMITS = false;
 
-	private static final Integrator.Type DEFAULT_INTEGRATOR_TYPE = Integrator.Type.RUNGE_KUTTA;
-	private static final double DEFAULT_STEP_SIZE = 0.01;
-	private static final double DEFAULT_MIN_STEP_SIZE = 0.0;
-	private static final double DEFAULT_MAX_STEP_SIZE = 0.1;
-	private static final double DEFAULT_ABS_TOLERANCE = 1e-6;
-	private static final double DEFAULT_REL_TOLERANCE = 0.0;
-
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
@@ -57,13 +49,6 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_MIN_START_VALUES = "MinStartValues";
 	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
 
-	private static final String CFG_INTEGRATOR_TYPE = "IntegratorType";
-	private static final String CFG_STEP_SIZE = "StepSize";
-	private static final String CFG_MIN_STEP_SIZE = "MinStepSize";
-	private static final String CFG_MAX_STEP_SIZE = "MaxStepSize";
-	private static final String CFG_ABS_TOLERANCE = "AbsTolerance";
-	private static final String CFG_REL_TOLERANCE = "RelTolerance";
-
 	private boolean expertSettings;
 	private int nParameterSpace;
 	private int nLevenberg;
@@ -71,13 +56,6 @@ public class FittingSettings extends NlsNodeSettings {
 	private boolean enforceLimits;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
-
-	private Integrator.Type integratorType;
-	private double stepSize;
-	private double minStepSize;
-	private double maxStepSize;
-	private double absTolerance;
-	private double relTolerance;
 
 	public FittingSettings() {
 		expertSettings = DEFAULT_EXPERT_SETTINGS;
@@ -123,37 +101,6 @@ public class FittingSettings extends NlsNodeSettings {
 					.getString(CFG_MAX_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
-
-		try {
-			integratorType = Integrator.Type.valueOf(settings
-					.getString(CFG_INTEGRATOR_TYPE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			stepSize = settings.getDouble(CFG_STEP_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			minStepSize = settings.getDouble(CFG_MIN_STEP_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			maxStepSize = settings.getDouble(CFG_MAX_STEP_SIZE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			absTolerance = settings.getDouble(CFG_ABS_TOLERANCE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			relTolerance = settings.getDouble(CFG_REL_TOLERANCE);
-		} catch (InvalidSettingsException e) {
-		}
 	}
 
 	@Override
@@ -171,13 +118,6 @@ public class FittingSettings extends NlsNodeSettings {
 				SERIALIZER.toXml(minStartValues));
 		settings.addString(CFG_MAX_START_VALUES,
 				SERIALIZER.toXml(maxStartValues));
-
-		settings.addString(CFG_INTEGRATOR_TYPE, integratorType.name());
-		settings.addDouble(CFG_STEP_SIZE, stepSize);
-		settings.addDouble(CFG_MIN_STEP_SIZE, minStepSize);
-		settings.addDouble(CFG_MAX_STEP_SIZE, maxStepSize);
-		settings.addDouble(CFG_ABS_TOLERANCE, absTolerance);
-		settings.addDouble(CFG_REL_TOLERANCE, relTolerance);
 	}
 
 	public boolean isExpertSettings() {
@@ -236,54 +176,6 @@ public class FittingSettings extends NlsNodeSettings {
 		this.maxStartValues = maxStartValues;
 	}
 
-	public Integrator.Type getIntegratorType() {
-		return integratorType;
-	}
-
-	public void setIntegratorType(Integrator.Type integratorType) {
-		this.integratorType = integratorType;
-	}
-
-	public double getStepSize() {
-		return stepSize;
-	}
-
-	public void setStepSize(double stepSize) {
-		this.stepSize = stepSize;
-	}
-
-	public double getMinStepSize() {
-		return minStepSize;
-	}
-
-	public void setMinStepSize(double minStepSize) {
-		this.minStepSize = minStepSize;
-	}
-
-	public double getMaxStepSize() {
-		return maxStepSize;
-	}
-
-	public void setMaxStepSize(double maxStepSize) {
-		this.maxStepSize = maxStepSize;
-	}
-
-	public double getAbsTolerance() {
-		return absTolerance;
-	}
-
-	public void setAbsTolerance(double absTolerance) {
-		this.absTolerance = absTolerance;
-	}
-
-	public double getRelTolerance() {
-		return relTolerance;
-	}
-
-	public void setRelTolerance(double relTolerance) {
-		this.relTolerance = relTolerance;
-	}
-
 	private void setExpertParametersToDefault() {
 		nParameterSpace = DEFAULT_N_PARAMETER_SPACE;
 		nLevenberg = DEFAULT_N_LEVENBERG;
@@ -291,12 +183,5 @@ public class FittingSettings extends NlsNodeSettings {
 		enforceLimits = DEFAULT_ENFORCE_LIMITS;
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();
-
-		integratorType = DEFAULT_INTEGRATOR_TYPE;
-		stepSize = DEFAULT_STEP_SIZE;
-		minStepSize = DEFAULT_MIN_STEP_SIZE;
-		maxStepSize = DEFAULT_MAX_STEP_SIZE;
-		absTolerance = DEFAULT_ABS_TOLERANCE;
-		relTolerance = DEFAULT_REL_TOLERANCE;
 	}
 }

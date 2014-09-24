@@ -29,8 +29,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -59,7 +56,6 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
-import de.bund.bfr.math.Integrator;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
@@ -72,10 +68,8 @@ import de.bund.bfr.math.Integrator;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeDialog extends NodeDialogPane implements
-		ActionListener, ItemListener {
+public class FittingNodeDialog extends NodeDialogPane implements ActionListener {
 
-	private boolean isDiff;
 	private FittingSettings set;
 
 	private JPanel mainPanel;
@@ -91,18 +85,10 @@ public class FittingNodeDialog extends NodeDialogPane implements
 	private Map<String, DoubleTextField> minimumFields;
 	private Map<String, DoubleTextField> maximumFields;
 
-	private JComboBox<Integrator.Type> typeBox;
-	private DoubleTextField stepSizeField;
-	private DoubleTextField minStepSizeField;
-	private DoubleTextField maxStepSizeField;
-	private DoubleTextField absToleranceField;
-	private DoubleTextField relToleranceField;
-
 	/**
 	 * New pane for configuring the DiffFunctionFitting node.
 	 */
-	protected FittingNodeDialog(boolean isDiff) {
-		this.isDiff = isDiff;
+	protected FittingNodeDialog() {
 		set = new FittingSettings();
 		expertBox = new JCheckBox("Expert Settings");
 		expertBox.addActionListener(this);
@@ -149,15 +135,6 @@ public class FittingNodeDialog extends NodeDialogPane implements
 		set.setMinStartValues(minStartValues);
 		set.setMaxStartValues(maxStartValues);
 
-		if (isDiff) {
-			set.setIntegratorType((Integrator.Type) typeBox.getSelectedItem());
-			set.setStepSize(stepSizeField.getValue());
-			set.setMinStepSize(minStepSizeField.getValue());
-			set.setMaxStepSize(maxStepSizeField.getValue());
-			set.setAbsTolerance(absToleranceField.getValue());
-			set.setRelTolerance(relToleranceField.getValue());
-		}
-
 		set.saveSettings(settings);
 	}
 
@@ -170,10 +147,6 @@ public class FittingNodeDialog extends NodeDialogPane implements
 		expertPanel.setLayout(new BoxLayout(expertPanel, BoxLayout.Y_AXIS));
 		expertPanel.add(createRegressionPanel());
 		expertPanel.add(createRangePanel(spec));
-
-		if (isDiff) {
-			expertPanel.add(createIntegrationPanel());
-		}
 
 		mainPanel.add(expertPanel, BorderLayout.CENTER);
 		mainPanel.revalidate();
@@ -303,63 +276,6 @@ public class FittingNodeDialog extends NodeDialogPane implements
 		return panel;
 	}
 
-	private JComponent createIntegrationPanel() {
-		typeBox = new JComboBox<>(Integrator.Type.values());
-		typeBox.setSelectedItem(set.getIntegratorType());
-		typeBox.addItemListener(this);
-		stepSizeField = new DoubleTextField(false, 8);
-		stepSizeField.setValue(set.getStepSize());
-		minStepSizeField = new DoubleTextField(false, 8);
-		minStepSizeField.setValue(set.getMinStepSize());
-		maxStepSizeField = new DoubleTextField(false, 8);
-		maxStepSizeField.setValue(set.getMaxStepSize());
-		absToleranceField = new DoubleTextField(false, 8);
-		absToleranceField.setValue(set.getAbsTolerance());
-		relToleranceField = new DoubleTextField(false, 8);
-		relToleranceField.setValue(set.getRelTolerance());
-		updateIntegrationPanel();
-
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
-
-		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftPanel.setLayout(new GridLayout(0, 1, 5, 5));
-		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightPanel.setLayout(new GridLayout(0, 1, 5, 5));
-
-		leftPanel.add(new JLabel("Step Size"));
-		leftPanel.add(new JLabel("Min Step Size"));
-		leftPanel.add(new JLabel("Max Step Size"));
-		leftPanel.add(new JLabel("Absolute Tolerance"));
-		leftPanel.add(new JLabel("Relative Tolerance"));
-		rightPanel.add(stepSizeField);
-		rightPanel.add(minStepSizeField);
-		rightPanel.add(maxStepSizeField);
-		rightPanel.add(absToleranceField);
-		rightPanel.add(relToleranceField);
-
-		JPanel panel = new JPanel();
-
-		panel.setBorder(BorderFactory.createTitledBorder("Integration"));
-		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(typeBox)),
-				BorderLayout.NORTH);
-		panel.add(leftPanel, BorderLayout.WEST);
-		panel.add(rightPanel, BorderLayout.EAST);
-
-		return panel;
-	}
-
-	private void updateIntegrationPanel() {
-		boolean isAdaptiveStepSize = typeBox.getSelectedItem() != Integrator.Type.RUNGE_KUTTA;
-
-		stepSizeField.setEnabled(!isAdaptiveStepSize);
-		minStepSizeField.setEnabled(isAdaptiveStepSize);
-		maxStepSizeField.setEnabled(isAdaptiveStepSize);
-		absToleranceField.setEnabled(isAdaptiveStepSize);
-		relToleranceField.setEnabled(isAdaptiveStepSize);
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == expertBox) {
@@ -373,14 +289,6 @@ public class FittingNodeDialog extends NodeDialogPane implements
 				minimumFields.get(param).setValue(null);
 				maximumFields.get(param).setValue(null);
 			}
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == typeBox
-				&& e.getStateChange() == ItemEvent.SELECTED) {
-			updateIntegrationPanel();
 		}
 	}
 }

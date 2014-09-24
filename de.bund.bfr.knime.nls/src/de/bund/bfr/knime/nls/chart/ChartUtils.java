@@ -184,6 +184,16 @@ public class ChartUtils {
 		return variables;
 	}
 
+	public static Set<String> getParameters(Collection<Plotable> plotables) {
+		Set<String> parameters = new LinkedHashSet<>();
+
+		for (Plotable plotable : plotables) {
+			parameters.addAll(plotable.getParameters().keySet());
+		}
+
+		return parameters;
+	}
+
 	public static Map<String, Double> getMinValues(
 			Collection<Plotable> plotables) {
 		Map<String, Double> minValues = new LinkedHashMap<>();

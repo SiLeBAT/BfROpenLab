@@ -29,19 +29,20 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * <code>NodeFactory</code> for the "FunctionFitting" Node.
+ * <code>NodeFactory</code> for the "InteractiveDiffFunctionFitting" Node.
  * 
  * 
  * @author Christian Thoens
  */
-public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
+public class InteractiveDiffFunctionFittingNodeFactory extends
+		NodeFactory<FittingNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public FittingNodeModel createNodeModel() {
-		return new FittingNodeModel(false, new FittingSettings());
+		return new FittingNodeModel(true, new InteractiveFittingSettings());
 	}
 
 	/**
@@ -74,7 +75,7 @@ public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new FittingNodeDialog();
+		return new InteractiveFittingNodeDialog(true);
 	}
 
 }
