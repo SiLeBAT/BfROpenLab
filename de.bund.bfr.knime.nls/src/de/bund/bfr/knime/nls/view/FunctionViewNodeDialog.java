@@ -56,7 +56,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
 		ChartCreator.ZoomListener {
 
-	private FunctionViewReader reader;
+	private FunctionReader reader;
 	private ViewSettings set;
 
 	private ChartCreator chartCreator;
@@ -88,7 +88,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		paramTable = (BufferedDataTable) input[1];
 		varTable = (BufferedDataTable) input[2];
 		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionViewReader(functionObject, paramTable, varTable,
+		reader = new FunctionReader(functionObject, paramTable, varTable,
 				covarianceTable, set.getCurrentParamX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
@@ -161,8 +161,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (!configPanel.getParamX().equals(set.getCurrentParamX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionViewReader(functionObject, paramTable,
-					varTable, covarianceTable, set.getCurrentParamX());
+			reader = new FunctionReader(functionObject, paramTable, varTable,
+					covarianceTable, set.getCurrentParamX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

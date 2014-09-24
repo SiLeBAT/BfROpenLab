@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,13 +38,26 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 
+import com.google.common.primitives.Doubles;
+
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
+import de.bund.bfr.math.MathUtils;
 
 public class ViewUtils {
 
 	private ViewUtils() {
+	}
+
+	public static Map<String, Double> createZeroMap(Collection<String> keys) {
+		Map<String, Double> map = new LinkedHashMap<>();
+
+		for (String key : keys) {
+			map.put(key, 0.0);
+		}
+
+		return map;
 	}
 
 	public static List<String> getIds(BufferedDataTable table) {
@@ -144,5 +158,149 @@ public class ViewUtils {
 		}
 
 		return covariances;
+	}
+
+	public static Map<String, double[]> getConditionValues(
+			BufferedDataTable table, String id, Function f) {
+		Map<String, List<Double>> values = new LinkedHashMap<>();
+		DataTableSpec spec = table.getSpec();
+
+		for (String var : f.getIndependentVariables()) {
+			values.put(var, new ArrayList<Double>());
+		}
+
+		for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+				Map<String, Double> v = new LinkedHashMap<>();
+
+				for (String var : f.getIndependentVariables()) {
+					v.put(var, IO.getDouble(row.getCell(spec
+							.findColumnIndex(var))));
+				}
+
+				if (MathUtils.containsInvalidDouble(v.values())) {
+					continue;
+				}
+
+				for (Map.Entry<String, Double> entry : v.entrySet()) {
+					values.get(entry.getKey()).add(entry.getValue());
+				}
+			}
+		}
+
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
+	}
+
+	public static List<Map<String, Double>> getFixedVariables(
+			BufferedDataTable table, String id, Function f, String indep) {
+		List<Map<String, Double>> values = new ArrayList<>();
+		DataTableSpec spec = table.getSpec();
+
+		for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+				Map<String, Double> v = new LinkedHashMap<>();
+
+				for (String var : f.getIndependentVariables()) {
+					if (!var.equals(indep)) {
+						v.put(var, IO.getDouble(row.getCell(spec
+								.findColumnIndex(var))));
+					}
+				}
+
+				if (!values.contains(v)) {
+					values.add(v);
+				}
+			}
+		}
+
+		return values;
+	}
+
+	public static Map<String, double[]> getVariableValues(
+			BufferedDataTable table, String id, Function f,
+			Map<String, Double> fixed) {
+		Map<String, List<Double>> values = new LinkedHashMap<>();
+		DataTableSpec spec = table.getSpec();
+
+		for (String var : f.getVariables()) {
+			values.put(var, new ArrayList<Double>());
+		}
+
+		loop: for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+				Map<String, Double> v = new LinkedHashMap<>();
+
+				for (String var : f.getVariables()) {
+					v.put(var, IO.getDouble(row.getCell(spec
+							.findColumnIndex(var))));
+				}
+
+				for (String var : fixed.keySet()) {
+					if (!fixed.get(var).equals(v.get(var))) {
+						continue loop;
+					}
+				}
+
+				if (MathUtils.containsInvalidDouble(v.values())) {
+					continue;
+				}
+
+				for (String var : v.keySet()) {
+					values.get(var).add(v.get(var));
+				}
+			}
+		}
+
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
+	}
+
+	public static Map<String, double[]> getDiffVariableValues(
+			BufferedDataTable table, String id, Function f) {
+		Map<String, List<Double>> values = new LinkedHashMap<>();
+		DataTableSpec spec = table.getSpec();
+
+		values.put(f.getTimeVariable(), new ArrayList<Double>());
+		values.put(f.getDependentVariable(), new ArrayList<Double>());
+
+		for (DataRow row : table) {
+			if (id.equals(IO.getString(row.getCell(spec
+					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+				Double time = IO.getDouble(row.getCell(spec.findColumnIndex(f
+						.getTimeVariable())));
+				Double target = IO.getDouble(row.getCell(spec.findColumnIndex(f
+						.getDependentVariable())));
+
+				if (!MathUtils.isValidDouble(time)
+						|| !MathUtils.isValidDouble(target)) {
+					continue;
+				}
+
+				values.get(f.getTimeVariable()).add(time);
+				values.get(f.getDependentVariable()).add(target);
+			}
+		}
+
+		Map<String, double[]> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, List<Double>> entry : values.entrySet()) {
+			result.put(entry.getKey(), Doubles.toArray(entry.getValue()));
+		}
+
+		return result;
 	}
 }

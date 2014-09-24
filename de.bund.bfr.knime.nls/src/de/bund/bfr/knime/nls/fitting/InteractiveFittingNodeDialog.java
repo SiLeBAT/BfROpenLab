@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +47,8 @@ import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.knime.nls.view.FunctionReader;
+import de.bund.bfr.knime.nls.view.ViewUtils;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
@@ -63,7 +64,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private PlotableReader reader;
+	private FunctionReader reader;
 	private InteractiveFittingSettings set;
 
 	private ChartCreator chartCreator;
@@ -90,7 +91,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
 		varTable = (BufferedDataTable) input[1];
-		reader = new PlotableReader(functionObject, varTable, set
+		reader = new FunctionReader(functionObject, varTable, set
 				.getViewSettings().getCurrentParamX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
@@ -104,18 +105,13 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = new LinkedHashMap<>();
-		Set<String> changeableParameters = new LinkedHashSet<>();
+		Map<String, Double> paramsX = ViewUtils.createZeroMap(functionObject
+				.getFunction().getIndependentVariables());
+		Set<String> changeableParameters = new LinkedHashSet<>(functionObject
+				.getFunction().getParameters());
 
-		for (String var : functionObject.getFunction()
-				.getIndependentVariables()) {
-			paramsX.put(var, 0.0);
-		}
-
-		for (String var : functionObject.getFunction().getParameters()) {
-			paramsX.put(var, 0.0);
-			changeableParameters.add(var);
-		}
+		paramsX.putAll(ViewUtils.createZeroMap(functionObject.getFunction()
+				.getParameters()));
 
 		configPanel = new ChartConfigPanel(changeableParameters);
 		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
@@ -152,7 +148,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		if (!configPanel.getParamX().equals(
 				set.getViewSettings().getCurrentParamX())) {
 			set.getViewSettings().setFromConfigPanel(configPanel);
-			reader = new PlotableReader(functionObject, varTable, set
+			reader = new FunctionReader(functionObject, varTable, set
 					.getViewSettings().getCurrentParamX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());

@@ -71,7 +71,7 @@ public class FunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		FunctionViewReader reader = new FunctionViewReader(
+		FunctionReader reader = new FunctionReader(
 				(FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],

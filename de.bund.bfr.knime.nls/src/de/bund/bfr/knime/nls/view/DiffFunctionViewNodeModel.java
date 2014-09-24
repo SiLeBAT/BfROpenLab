@@ -71,7 +71,7 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
-		DiffFunctionViewReader reader = new DiffFunctionViewReader(
+		DiffFunctionReader reader = new DiffFunctionReader(
 				(FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],
