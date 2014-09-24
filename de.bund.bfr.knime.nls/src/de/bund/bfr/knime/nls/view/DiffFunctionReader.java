@@ -59,7 +59,7 @@ public class DiffFunctionReader implements Reader {
 		List<String> qualityColumns;
 
 		if (paramTable != null) {
-			qualityColumns = ViewUtils.getQualityColumns(paramTable, f);
+			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 		} else {
 			qualityColumns = new ArrayList<>();
 		}
@@ -78,12 +78,12 @@ public class DiffFunctionReader implements Reader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : ViewUtils.getIds(paramTable != null ? paramTable
+		for (String id : NlsUtils.getIds(paramTable != null ? paramTable
 				: varTable)) {
 			Map<String, Double> qualityValues;
 
 			if (paramTable != null) {
-				qualityValues = ViewUtils.getQualityValues(paramTable, id,
+				qualityValues = NlsUtils.getQualityValues(paramTable, id,
 						qualityColumns);
 			} else {
 				qualityValues = new LinkedHashMap<>();
@@ -104,25 +104,24 @@ public class DiffFunctionReader implements Reader {
 			plotable.setInitParameters(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
-			plotable.setIndependentVariables(ViewUtils.createZeroMap(Arrays
+			plotable.setIndependentVariables(NlsUtils.createZeroMap(Arrays
 					.asList(f.getTimeVariable())));
 			plotable.setMinVariables(new LinkedHashMap<String, Double>());
 			plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-			plotable.setValueLists(ViewUtils.getDiffVariableValues(varTable,
-					id, f));
-			plotable.setConditionLists(ViewUtils.getConditionValues(
+			plotable.setValueLists(NlsUtils.getDiffVariableValues(varTable, id,
+					f));
+			plotable.setConditionLists(NlsUtils.getConditionValues(
 					conditionTable, id, f));
 
 			if (paramTable != null) {
-				plotable.setParameters(ViewUtils.getParameters(paramTable, id,
-						f));
+				plotable.setParameters(NlsUtils
+						.getParameters(paramTable, id, f));
 			} else {
-				plotable.setParameters(ViewUtils.createZeroMap(f
-						.getParameters()));
+				plotable.setParameters(NlsUtils.createZeroMap(f.getParameters()));
 			}
 
 			if (covarianceTable != null) {
-				plotable.setCovariances(ViewUtils.getCovariances(
+				plotable.setCovariances(NlsUtils.getCovariances(
 						covarianceTable, id, f));
 			}
 

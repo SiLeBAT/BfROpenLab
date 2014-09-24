@@ -41,6 +41,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
@@ -50,7 +51,6 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.view.DiffFunctionReader;
 import de.bund.bfr.knime.nls.view.FunctionReader;
 import de.bund.bfr.knime.nls.view.Reader;
-import de.bund.bfr.knime.nls.view.ViewUtils;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
@@ -118,12 +118,12 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = ViewUtils.createZeroMap(ChartUtils
+		Map<String, Double> paramsX = NlsUtils.createZeroMap(ChartUtils
 				.getVariables(reader.getPlotables().values()));
 		Set<String> changeableParameters = ChartUtils.getParameters(reader
 				.getPlotables().values());
 
-		paramsX.putAll(ViewUtils.createZeroMap(changeableParameters));
+		paramsX.putAll(NlsUtils.createZeroMap(changeableParameters));
 
 		configPanel = new ChartConfigPanel(changeableParameters);
 		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);

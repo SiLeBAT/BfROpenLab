@@ -58,7 +58,7 @@ public class FunctionReader implements Reader {
 		List<String> qualityColumns;
 
 		if (paramTable != null) {
-			qualityColumns = ViewUtils.getQualityColumns(paramTable, f);
+			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 		} else {
 			qualityColumns = new ArrayList<>();
 		}
@@ -87,9 +87,9 @@ public class FunctionReader implements Reader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : ViewUtils.getIds(paramTable != null ? paramTable
+		for (String id : NlsUtils.getIds(paramTable != null ? paramTable
 				: varTable)) {
-			for (Map<String, Double> fixed : ViewUtils.getFixedVariables(
+			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(
 					varTable, id, f, indep)) {
 				String newId = id;
 
@@ -100,7 +100,7 @@ public class FunctionReader implements Reader {
 				Map<String, Double> qualityValues;
 
 				if (paramTable != null) {
-					qualityValues = ViewUtils.getQualityValues(paramTable, id,
+					qualityValues = NlsUtils.getQualityValues(paramTable, id,
 							qualityColumns);
 				} else {
 					qualityValues = new LinkedHashMap<>();
@@ -128,19 +128,19 @@ public class FunctionReader implements Reader {
 				plotable.setIndependentVariables(variables);
 				plotable.setMinVariables(new LinkedHashMap<String, Double>());
 				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-				plotable.setValueLists(ViewUtils.getVariableValues(varTable,
-						id, f, fixed));
+				plotable.setValueLists(NlsUtils.getVariableValues(varTable, id,
+						f, fixed));
 
 				if (paramTable != null) {
-					plotable.setParameters(ViewUtils.getParameters(paramTable,
+					plotable.setParameters(NlsUtils.getParameters(paramTable,
 							id, f));
 				} else {
-					plotable.setParameters(ViewUtils.createZeroMap(f
+					plotable.setParameters(NlsUtils.createZeroMap(f
 							.getParameters()));
 				}
 
 				if (covarianceTable != null) {
-					plotable.setCovariances(ViewUtils.getCovariances(
+					plotable.setCovariances(NlsUtils.getCovariances(
 							covarianceTable, id, f));
 				}
 
