@@ -35,9 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
@@ -192,47 +190,5 @@ public class ChartUtils {
 		}
 
 		return parameters;
-	}
-
-	public static Map<String, Double> getMinValues(
-			Collection<Plotable> plotables) {
-		Map<String, Double> minValues = new LinkedHashMap<>();
-
-		for (Plotable plotable : plotables) {
-			for (Map.Entry<String, Double> min : plotable.getMinVariables()
-					.entrySet()) {
-				Double oldMin = minValues.get(min.getKey());
-
-				if (oldMin == null) {
-					minValues.put(min.getKey(), min.getValue());
-				} else if (min.getValue() != null) {
-					minValues.put(min.getKey(),
-							Math.min(min.getValue(), oldMin));
-				}
-			}
-		}
-
-		return minValues;
-	}
-
-	public static Map<String, Double> getMaxValues(
-			Collection<Plotable> plotables) {
-		Map<String, Double> maxValues = new LinkedHashMap<>();
-
-		for (Plotable plotable : plotables) {
-			for (Map.Entry<String, Double> max : plotable.getMaxVariables()
-					.entrySet()) {
-				Double oldMax = maxValues.get(max.getKey());
-
-				if (oldMax == null) {
-					maxValues.put(max.getKey(), max.getValue());
-				} else if (max.getValue() != null) {
-					maxValues.put(max.getKey(),
-							Math.max(max.getValue(), oldMax));
-				}
-			}
-		}
-
-		return maxValues;
 	}
 }

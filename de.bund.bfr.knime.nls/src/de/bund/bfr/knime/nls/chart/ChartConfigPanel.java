@@ -26,19 +26,15 @@ package de.bund.bfr.knime.nls.chart;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,15 +43,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.math.Transform;
 
 public class ChartConfigPanel extends JPanel implements ItemListener,
-		TextListener, ChangeListener, MouseListener {
+		TextListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -63,10 +57,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private static final double DEFAULT_MAXX = 1.0;
 	private static final double DEFAULT_MINY = 0.0;
 	private static final double DEFAULT_MAXY = 1.0;
-
-	private static final int SLIDER_MAX = 100;
-
-	private Set<String> changeableParameters;
 
 	private List<ConfigListener> configListeners;
 
@@ -87,9 +77,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private JComboBox<Transform> xTransBox;
 	private JComboBox<Transform> yTransBox;
 	private String lastParamX;
-	private Map<String, Double> parametersX;
-	private Map<String, Double> minParamValuesX;
-	private Map<String, Double> maxParamValuesX;
+	private List<String> paramsX;
 
 	private JPanel parameterValuesPanel;
 	private List<String> parameters;
@@ -98,11 +86,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private List<JSlider> parameterSliders;
 
 	public ChartConfigPanel() {
-		this(null);
-	}
-
-	public ChartConfigPanel(Set<String> changeableParameters) {
-		this.changeableParameters = changeableParameters;
 		configListeners = new ArrayList<>();
 		lastParamX = null;
 
@@ -217,7 +200,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setLayout(new GridBagLayout());
-		parameters = new ArrayList<>();
 		parameterFields = new ArrayList<>();
 		parameterLabels = new ArrayList<>();
 		parameterSliders = new ArrayList<>();
@@ -228,10 +210,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 				.createTitledBorder("Other Variables"));
 		outerParameterValuesPanel.setLayout(new BorderLayout());
 		outerParameterValuesPanel.add(parameterValuesPanel, BorderLayout.WEST);
-
-		if (changeableParameters != null) {
-			mainPanel.add(outerParameterValuesPanel, createConstraints(3));
-		}
+		mainPanel.add(outerParameterValuesPanel, createConstraints(3));
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
@@ -373,40 +352,36 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public void setParameters(String paramY, Map<String, Double> parametersX,
-			Map<String, Double> minParamValuesX,
-			Map<String, Double> maxParamValuesX) {
-		if (parametersX == null) {
-			parametersX = new LinkedHashMap<>();
+	public void setParameters(String paramY, List<String> paramsX,
+			List<String> parameters) {
+		if (paramsX == null) {
+			paramsX = new ArrayList<>();
 		}
 
-		if (minParamValuesX == null) {
-			minParamValuesX = new LinkedHashMap<>();
+		if (parameters == null) {
+			parameters = new ArrayList<>();
 		}
 
-		if (maxParamValuesX == null) {
-			maxParamValuesX = new LinkedHashMap<>();
+		if (paramY == null) {
+			yBox.removeAllItems();
+		} else if (!paramY.equals(yBox.getSelectedItem())) {
+			yBox.removeAllItems();
+			yBox.addItem(paramY);
+			yBox.setSelectedIndex(0);
 		}
 
-		if (!parametersX.equals(this.parametersX)
-				|| !minParamValuesX.equals(this.minParamValuesX)
-				|| !maxParamValuesX.equals(this.maxParamValuesX)) {
-			this.parametersX = parametersX;
-			this.minParamValuesX = minParamValuesX;
-			this.maxParamValuesX = maxParamValuesX;
+		if (!paramsX.equals(this.paramsX)) {
+			this.paramsX = paramsX;
 
 			xBox.removeItemListener(this);
 			xBox.removeAllItems();
 
-			for (String param : parametersX.keySet()) {
-				if (changeableParameters == null
-						|| !changeableParameters.contains(param)) {
-					xBox.addItem(param);
-				}
+			for (String param : paramsX) {
+				xBox.addItem(param);
 			}
 
-			if (!parametersX.isEmpty()) {
-				if (parametersX.containsKey(lastParamX)) {
+			if (!paramsX.isEmpty()) {
+				if (paramsX.contains(lastParamX)) {
 					xBox.setSelectedItem(lastParamX);
 				} else {
 					xBox.setSelectedIndex(0);
@@ -418,19 +393,48 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			}
 
 			xBox.addItemListener(this);
-			updateParametersPanel();
 		}
 
-		if (paramY == null) {
-			yBox.removeAllItems();
-		} else if (!paramY.equals(yBox.getSelectedItem())) {
-			yBox.removeAllItems();
-			yBox.addItem(paramY);
-			yBox.setSelectedIndex(0);
+		if (!parameters.equals(this.parameters)) {
+			this.parameters = parameters;
+			parameterValuesPanel.removeAll();
+			parameterFields.clear();
+			parameterLabels.clear();
+			parameterSliders.clear();
+
+			int row = 0;
+
+			for (String param : parameters) {
+				JLabel label = new JLabel(param + ":");
+				DoubleTextField input = new DoubleTextField(false, 8);
+
+				input.setValue(0.0);
+				input.addTextListener(this);
+
+				parameterFields.add(input);
+				parameterLabels.add(label);
+				parameterValuesPanel
+						.add(label, createConstraints(0, row, 1, 1));
+				parameterValuesPanel
+						.add(input, createConstraints(2, row, 1, 1));
+
+				row++;
+			}
+
+			Container container = getParent();
+
+			while (container != null) {
+				if (container instanceof JPanel) {
+					((JPanel) container).revalidate();
+					break;
+				}
+
+				container = container.getParent();
+			}
 		}
 	}
 
-	public Map<String, Double> getParamsX() {
+	public Map<String, Double> getParamValues() {
 		Map<String, Double> valueLists = new LinkedHashMap<>();
 
 		for (int i = 0; i < parameterFields.size(); i++) {
@@ -446,12 +450,12 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		return valueLists;
 	}
 
-	public void setParamXValues(Map<String, Double> paramXValues) {
+	public void setParamValues(Map<String, Double> paramValues) {
 		for (int i = 0; i < parameterFields.size(); i++) {
 			DoubleTextField field = parameterFields.get(i);
 
-			if (paramXValues.containsKey(parameters.get(i))) {
-				field.setValue(paramXValues.get(parameters.get(i)));
+			if (paramValues.containsKey(parameters.get(i))) {
+				field.setValue(paramValues.get(parameters.get(i)));
 			}
 		}
 	}
@@ -474,7 +478,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			}
 		} else if (e.getSource() == xBox) {
 			lastParamX = (String) xBox.getSelectedItem();
-			updateParametersPanel();
 		}
 
 		if (e.getSource() instanceof JCheckBox
@@ -484,151 +487,14 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());
-		JSlider slider = parameterSliders.get(i);
-		DoubleTextField field = parameterFields.get(i);
-
-		field.removeTextListener(this);
-		field.setValue(intToDouble(slider.getValue(),
-				minParamValuesX.get(parameters.get(i)),
-				maxParamValuesX.get(parameters.get(i))));
-		field.addTextListener(this);
-	}
-
-	@Override
 	public void textChanged(Object source) {
-		if (parameterFields.contains(source)) {
-			int i = parameterFields.indexOf(source);
-			DoubleTextField field = parameterFields.get(i);
-			JSlider slider = parameterSliders.get(i);
-
-			if (field.getValue() != null && slider != null) {
-				int value = doubleToInt(field.getValue(),
-						minParamValuesX.get(parameters.get(i)),
-						maxParamValuesX.get(parameters.get(i)));
-
-				slider.removeChangeListener(this);
-				slider.setValue(Math.min(Math.max(value, 0), SLIDER_MAX));
-				slider.addChangeListener(this);
-			}
-		}
-
 		fireConfigChanged();
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());
-		JSlider slider = parameterSliders.get(i);
-		DoubleTextField field = parameterFields.get(i);
-
-		field.setValue(intToDouble(slider.getValue(),
-				minParamValuesX.get(parameters.get(i)),
-				maxParamValuesX.get(parameters.get(i))));
-	}
-
-	private void updateParametersPanel() {
-		parameterValuesPanel.removeAll();
-		parameters.clear();
-		parameterFields.clear();
-		parameterLabels.clear();
-		parameterSliders.clear();
-
-		int row = 0;
-
-		if (parametersX == null) {
-			return;
-		}
-
-		for (String param : parametersX.keySet()) {
-			if (changeableParameters == null
-					|| !changeableParameters.contains(param)) {
-				continue;
-			}
-
-			JLabel label = new JLabel(param + ":");
-			DoubleTextField input = new DoubleTextField(false, 8);
-			JSlider slider = null;
-			Double value = parametersX.get(param);
-			Double min = minParamValuesX.get(param);
-			Double max = maxParamValuesX.get(param);
-
-			if (min != null && max != null) {
-				if (value == null) {
-					value = min;
-				}
-
-				slider = new JSlider(0, SLIDER_MAX, doubleToInt(
-						Math.min(Math.max(value, min), max), min, max));
-				slider.setPreferredSize(new Dimension(50, slider
-						.getPreferredSize().height));
-				slider.addChangeListener(this);
-				slider.addMouseListener(this);
-			}
-
-			if (value == null) {
-				value = 0.0;
-			}
-
-			input.setValue(value);
-			input.addTextListener(this);
-
-			parameters.add(param);
-			parameterFields.add(input);
-			parameterLabels.add(label);
-			parameterSliders.add(slider);
-			parameterValuesPanel.add(label, createConstraints(0, row, 1, 1));
-			parameterValuesPanel.add(input, createConstraints(2, row, 1, 1));
-
-			if (slider != null) {
-				parameterValuesPanel.add(slider,
-						createConstraints(1, row, 1, 1));
-			}
-
-			row++;
-		}
-
-		Container container = getParent();
-
-		while (container != null) {
-			if (container instanceof JPanel) {
-				((JPanel) container).revalidate();
-				break;
-			}
-
-			container = container.getParent();
-		}
 	}
 
 	private void fireConfigChanged() {
 		for (ConfigListener listener : configListeners) {
 			listener.configChanged();
 		}
-	}
-
-	private static int doubleToInt(double d, double min, double max) {
-		return (int) ((d - min) / (max - min) * SLIDER_MAX);
-	}
-
-	private static double intToDouble(int i, double min, double max) {
-		return (double) i / (double) SLIDER_MAX * (max - min) + min;
 	}
 
 	private static GridBagConstraints createConstraints(int x, int y, int w,

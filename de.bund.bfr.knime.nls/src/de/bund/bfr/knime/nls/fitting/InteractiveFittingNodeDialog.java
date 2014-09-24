@@ -25,8 +25,7 @@
 package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -41,7 +40,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
@@ -113,22 +111,20 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		set.setMinStartValues(configPanel.getParamsX());
+		set.setMinStartValues(configPanel.getParamValues());
 		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = NlsUtils.createZeroMap(ChartUtils
-				.getVariables(reader.getPlotables().values()));
-		Set<String> changeableParameters = ChartUtils.getParameters(reader
-				.getPlotables().values());
-
-		paramsX.putAll(NlsUtils.createZeroMap(changeableParameters));
-
-		configPanel = new ChartConfigPanel(changeableParameters);
-		configPanel.setParameters(reader.getDepVar(), paramsX, null, null);
+		configPanel = new ChartConfigPanel();
+		configPanel.setParameters(
+				reader.getDepVar(),
+				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
+						.values())),
+				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables()
+						.values())));
 		set.getViewSettings().setToConfigPanel(configPanel);
-		configPanel.setParamXValues(set.getMinStartValues());
+		configPanel.setParamValues(set.getMinStartValues());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 		chartCreator.setParamY(reader.getDepVar());
@@ -145,7 +141,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.getViewSettings().setToChartCreator(chartCreator);
 
 		for (Plotable plotable : reader.getPlotables().values()) {
-			plotable.setParameters(configPanel.getParamsX());
+			plotable.setParameters(configPanel.getParamValues());
 		}
 
 		try {

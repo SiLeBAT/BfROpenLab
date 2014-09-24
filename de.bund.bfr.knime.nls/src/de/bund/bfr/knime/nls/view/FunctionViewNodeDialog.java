@@ -25,8 +25,7 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.awt.BorderLayout;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -103,26 +102,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, Double> paramsX = new LinkedHashMap<>();
-		Map<String, Double> minValues = ChartUtils.getMinValues(reader
-				.getPlotables().values());
-		Map<String, Double> maxValues = ChartUtils.getMaxValues(reader
-				.getPlotables().values());
-
-		for (String var : ChartUtils.getVariables(reader.getPlotables()
-				.values())) {
-			if (minValues.get(var) != null) {
-				paramsX.put(var, minValues.get(var));
-			} else if (maxValues.get(var) != null) {
-				paramsX.put(var, maxValues.get(var));
-			} else {
-				paramsX.put(var, 0.0);
-			}
-		}
-
 		configPanel = new ChartConfigPanel();
-		configPanel.setParameters(reader.getDepVar(), paramsX, minValues,
-				maxValues);
+		configPanel.setParameters(reader.getDepVar(), new ArrayList<>(
+				ChartUtils.getVariables(reader.getPlotables().values())), null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(),
 				reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(),
