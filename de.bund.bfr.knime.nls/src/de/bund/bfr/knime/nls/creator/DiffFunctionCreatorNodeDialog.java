@@ -57,6 +57,7 @@ import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.StringTextArea;
 import de.bund.bfr.knime.ui.StringTextField;
 import de.bund.bfr.knime.ui.TextListener;
+import de.bund.bfr.math.MathUtils;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionCreator" Node.
@@ -146,8 +147,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Diff Variable Missing");
 		}
 
-		if (DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms())
-				.isEmpty()) {
+		if (MathUtils.getSymbols(set.getTerms()).isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
 		}
 
@@ -326,8 +326,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(
-				DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms()));
+		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set
+				.getTerms()));
 
 		elements.removeAll(set.getDependentVariables());
 		elements.remove(set.getDiffVariable());
@@ -367,8 +367,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> symbols = new ArrayList<>(
-				DiffFunctionCreatorNodeModel.getAllSymbols(set.getTerms()));
+		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set
+				.getTerms()));
 
 		symbols.removeAll(set.getDependentVariables());
 		symbols.remove(set.getDiffVariable());

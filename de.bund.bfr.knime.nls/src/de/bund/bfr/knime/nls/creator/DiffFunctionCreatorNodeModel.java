@@ -29,10 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -146,16 +144,6 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static Set<String> getAllSymbols(List<String> terms) {
-		Set<String> symbols = new LinkedHashSet<>();
-
-		for (String term : terms) {
-			symbols.addAll(MathUtils.getSymbols(term));
-		}
-
-		return symbols;
-	}
-
 	private static Function createFunction(List<String> terms,
 			List<String> dependentVariables, List<Double> initValues,
 			List<String> independentVariables, String diffVariable) {
@@ -174,7 +162,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			}
 		}
 
-		List<String> parameters = new ArrayList<>(getAllSymbols(terms));
+		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(terms));
 		List<String> indeps = new ArrayList<>(independentVariables);
 
 		indeps.add(diffVariable);

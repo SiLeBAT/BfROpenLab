@@ -385,8 +385,7 @@ public class ParameterOptimizer {
 		parameterValues.clear();
 		sse = optimizer.getChiSquare();
 		mse = MathUtils.getMSE(parameters.length, targetValues.length, sse);
-		rmse = MathUtils.getRMSE(parameters.length, targetValues.length,
-				sse);
+		rmse = MathUtils.getRMSE(parameters.length, targetValues.length, sse);
 		r2 = MathUtils.getR2(sse, targetValues);
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 

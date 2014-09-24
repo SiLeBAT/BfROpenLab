@@ -26,6 +26,7 @@ package de.bund.bfr.math;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -47,14 +48,14 @@ public class MathUtils {
 		return o instanceof Double && !((Double) o).isNaN()
 				&& !((Double) o).isInfinite();
 	}
-	
+
 	public static boolean containsInvalidDouble(Collection<Double> values) {
 		for (Double v : values) {
 			if (!isValidDouble(v)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -95,6 +96,16 @@ public class MathUtils {
 
 	public static boolean isVariableCharacter(char ch) {
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
+	}
+
+	public static Set<String> getSymbols(List<String> terms) {
+		Set<String> symbols = new LinkedHashSet<>();
+
+		for (String term : terms) {
+			symbols.addAll(MathUtils.getSymbols(term));
+		}
+
+		return symbols;
 	}
 
 	public static Set<String> getSymbols(String formula) {

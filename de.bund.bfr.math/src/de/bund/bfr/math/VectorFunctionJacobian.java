@@ -56,8 +56,9 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(
-				Arrays.asList(parameters)), variableValues.keySet()));
+		parser = MathUtils.createParser(Sets.union(
+				new LinkedHashSet<>(Arrays.asList(parameters)),
+				variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 
