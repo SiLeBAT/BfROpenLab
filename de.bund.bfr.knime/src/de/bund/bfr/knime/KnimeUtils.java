@@ -142,7 +142,7 @@ public class KnimeUtils {
 
 		return columns;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
 			Class<? extends DataValue>... types) {

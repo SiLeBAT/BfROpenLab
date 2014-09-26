@@ -26,6 +26,7 @@ package de.bund.bfr.knime;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -260,7 +261,11 @@ public class UI {
 	}
 
 	public static GridBagConstraints westConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
+		return westConstraints(x, y, 1, 1);
+	}
+
+	public static GridBagConstraints westConstraints(int x, int y, int w, int h) {
+		return new GridBagConstraints(x, y, w, h, 0, 0,
 				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2,
 						2, 2, 2), 0, 0);
 	}
@@ -280,5 +285,16 @@ public class UI {
 		panel.add(table, BorderLayout.CENTER);
 
 		return panel;
+	}
+
+	public static void revalidatePanel(Container container) {
+		while (container != null) {
+			if (container instanceof JPanel) {
+				container.revalidate();
+				break;
+			}
+
+			container = container.getParent();
+		}
 	}
 }

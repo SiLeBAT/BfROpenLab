@@ -472,6 +472,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 					if (newColor != null) {
 						colorButton.setBackground(newColor);
 						stopCellEditing();
+					} else {
+						cancelCellEditing();
 					}
 				}
 			});

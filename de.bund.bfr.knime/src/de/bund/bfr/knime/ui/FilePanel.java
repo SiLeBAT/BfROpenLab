@@ -102,7 +102,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 
 	public void addFileFilter(StandardFileFilter filter) {
 		fileFilters.add(filter);
-	}	
+	}
 
 	private void fireFileChanged() {
 		for (FileListener listener : listeners) {
