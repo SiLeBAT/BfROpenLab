@@ -289,8 +289,7 @@ public class EditablePropertiesDialog extends JDialog implements
 
 			try {
 				value = Double.parseDouble(result.toString());
-			} catch (NumberFormatException ex) {
-			} catch (NullPointerException ex) {
+			} catch (NumberFormatException | NullPointerException ex) {
 			}
 
 			if (value != null) {

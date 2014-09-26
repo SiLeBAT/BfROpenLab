@@ -172,14 +172,12 @@ public class ViewSettings extends NlsNodeSettings {
 
 		try {
 			transformX = Transform.valueOf(settings.getString(CFG_TRANSFORM_X));
-		} catch (InvalidSettingsException e) {
-		} catch (IllegalArgumentException e) {
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
 		}
 
 		try {
 			transformY = Transform.valueOf(settings.getString(CFG_TRANSFORM_Y));
-		} catch (InvalidSettingsException e) {
-		} catch (IllegalArgumentException e) {
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
 		}
 
 		try {

@@ -238,20 +238,17 @@ public class InputTable extends JTable {
 
 			try {
 				weight = (Double) weightTable.getValueAt(0, 0);
-			} catch (ClassCastException e) {
-			} catch (NullPointerException e) {
+			} catch (ClassCastException | NullPointerException e) {
 			}
 
 			try {
 				cc = (Boolean) ccTable.getValueAt(0, 0);
-			} catch (ClassCastException e) {
-			} catch (NullPointerException e) {
+			} catch (ClassCastException | NullPointerException e) {
 			}
 
 			try {
 				observed = (Boolean) observedTable.getValueAt(0, 0);
-			} catch (ClassCastException e) {
-			} catch (NullPointerException e) {
+			} catch (ClassCastException | NullPointerException e) {
 			}
 
 			return new Input(weight, cc, observed);

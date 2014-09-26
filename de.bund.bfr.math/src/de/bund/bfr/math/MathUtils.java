@@ -114,11 +114,7 @@ public class MathUtils {
 
 		try {
 			parser.parse(formula);
-		} catch (ParseException e) {
-			return symbols;
-		} catch (NullPointerException e) {
-			return symbols;
-		} catch (TokenMgrError e) {
+		} catch (ParseException | NullPointerException | TokenMgrError e) {
 			return symbols;
 		}
 
