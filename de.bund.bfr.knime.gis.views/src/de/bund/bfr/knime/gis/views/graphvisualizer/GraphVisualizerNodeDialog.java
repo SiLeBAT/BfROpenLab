@@ -142,15 +142,14 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
-		graphCanvas = creator.createGraphCanvas();
-
-		if (graphCanvas == null) {
+		try {
+			graphCanvas = creator.createGraphCanvas();
+		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(true);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}

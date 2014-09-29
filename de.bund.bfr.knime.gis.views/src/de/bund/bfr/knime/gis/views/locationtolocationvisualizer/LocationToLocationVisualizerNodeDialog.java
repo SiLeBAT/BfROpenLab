@@ -234,21 +234,19 @@ public class LocationToLocationVisualizerNodeDialog extends
 		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 
-		graphCanvas = creator.createGraphCanvas();
-		gisCanvas = creator.createLocationCanvas();
-
-		if (graphCanvas != null && gisCanvas != null) {
+		try {
+			graphCanvas = creator.createGraphCanvas();
+			gisCanvas = creator.createLocationCanvas();
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
-		} else {
+		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 			gisCanvas = new LocationCanvas(true);
 			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}

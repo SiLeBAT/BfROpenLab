@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -55,18 +56,13 @@ public class LocationToLocationVisualizerCanvasCreator {
 		this.set = set;
 	}
 
-	public GraphCanvas createGraphCanvas() {
+	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), null);
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
@@ -84,7 +80,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public LocationCanvas createLocationCanvas() {
+	public LocationCanvas createLocationCanvas()
+			throws InvalidSettingsException {
 		List<RegionNode> regionNodes = ViewUtils.readRegionNodes(shapeTable,
 				set.getGisSettings().getShapeColumn());
 		Map<String, Class<?>> nodeProperties = ViewUtils
@@ -96,11 +93,6 @@ public class LocationToLocationVisualizerCanvasCreator {
 						.getNodeIdColumn(), set.getGisSettings()
 						.getNodeLatitudeColumn(), set.getGisSettings()
 						.getNodeLongitudeColumn());
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<LocationNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()

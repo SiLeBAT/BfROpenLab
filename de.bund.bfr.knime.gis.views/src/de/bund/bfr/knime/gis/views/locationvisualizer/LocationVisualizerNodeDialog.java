@@ -141,15 +141,14 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, set);
 
-		canvas = creator.createCanvas();
-
-		if (canvas == null) {
+		try {
+			canvas = creator.createCanvas();
+		} catch (InvalidSettingsException e) {
 			canvas = new LocationCanvas(false);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}

@@ -309,10 +309,9 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 
-		graphCanvas = creator.createGraphCanvas();
-		gisCanvas = creator.createGISCanvas(graphCanvas);
-
-		if (graphCanvas != null && gisCanvas != null) {
+		try {
+			graphCanvas = creator.createGraphCanvas();
+			gisCanvas = creator.createGISCanvas(graphCanvas);
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 
@@ -322,7 +321,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 								+ " in the shapefile", "Warning",
 						JOptionPane.WARNING_MESSAGE);
 			}
-		} else {
+		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 			gisCanvas = new RegionCanvas(true);

@@ -141,22 +141,21 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, set);
 
-		canvas = creator.createCanvas();
+		try {
+			canvas = creator.createCanvas();
 
-		if (canvas != null) {
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
 						"Some regions from the table are not contained"
 								+ " in the shapefile", "Warning",
 						JOptionPane.WARNING_MESSAGE);
 			}
-		} else {
+		} catch (InvalidSettingsException e) {
 			canvas = new RegionCanvas(false);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}

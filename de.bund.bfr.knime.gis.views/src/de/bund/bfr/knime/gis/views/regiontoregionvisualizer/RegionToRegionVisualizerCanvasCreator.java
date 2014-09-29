@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
@@ -50,7 +51,6 @@ public class RegionToRegionVisualizerCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private RegionToRegionVisualizerSettings set;
 
-	private Map<String, String> idToRegionMap;
 	private Set<String> nonExistingRegions;
 
 	public RegionToRegionVisualizerCanvasCreator(BufferedDataTable shapeTable,
@@ -61,13 +61,10 @@ public class RegionToRegionVisualizerCanvasCreator {
 		this.edgeTable = edgeTable;
 		this.set = set;
 
-		idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable, set
-				.getGraphSettings().getNodeIdColumn(), set.getGisSettings()
-				.getNodeRegionColumn());
 		nonExistingRegions = new LinkedHashSet<>();
 	}
 
-	public GraphCanvas createGraphCanvas() {
+	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils
@@ -75,11 +72,6 @@ public class RegionToRegionVisualizerCanvasCreator {
 		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
 				nodeProperties, set.getGraphSettings().getNodeIdColumn(), set
 						.getGisSettings().getNodeRegionColumn());
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, null, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
@@ -97,7 +89,11 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) {
+	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas)
+			throws InvalidSettingsException {
+		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(
+				nodeTable, set.getGraphSettings().getNodeIdColumn(), set
+						.getGisSettings().getNodeRegionColumn());
 		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(
 				shapeTable, set.getGisSettings().getShapeColumn(), set
 						.getGisSettings().getShapeRegionColumn());
@@ -109,11 +105,6 @@ public class RegionToRegionVisualizerCanvasCreator {
 				nodeProperties, polygonMap, idToRegionMap, set
 						.getGraphSettings().getNodeIdColumn(),
 				nonExistingRegions);
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<RegionNode>> edges = ViewUtils.readEdges(edgeTable,
 				edgeProperties, nodes, idToRegionMap, set.getGraphSettings()
 						.getEdgeFromColumn(), set.getGraphSettings()
