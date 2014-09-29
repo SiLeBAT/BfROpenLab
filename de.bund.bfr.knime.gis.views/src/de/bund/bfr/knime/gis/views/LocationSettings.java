@@ -28,6 +28,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+
 public class LocationSettings extends GisSettings {
 
 	public static final int DEFAULT_NODE_SIZE = 4;
@@ -72,6 +74,18 @@ public class LocationSettings extends GisSettings {
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+	}
+
+	@Override
+	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+		super.setFromCanvas(canvas, resized);
+		nodeSize = canvas.getNodeSize();
+	}
+
+	@Override
+	public void setToCanvas(Canvas<?> canvas) {
+		super.setToCanvas(canvas);
+		canvas.setNodeSize(nodeSize);
 	}
 
 	public String getNodeLatitudeColumn() {

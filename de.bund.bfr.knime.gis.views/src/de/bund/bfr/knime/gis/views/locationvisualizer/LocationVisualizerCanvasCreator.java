@@ -67,24 +67,7 @@ public class LocationVisualizerCanvasCreator {
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
 				nodeIdProperty, regions);
 
-		canvas.setShowLegend(set.getGisSettings().isShowLegend());
-		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
-		canvas.setFontSize(set.getGisSettings().getFontSize());
-		canvas.setFontBold(set.getGisSettings().isFontBold());
-		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
-		canvas.setEditingMode(set.getGisSettings().getEditingMode());
-		canvas.setNodeSize(set.getGisSettings().getNodeSize());
-		canvas.setNodeHighlightConditions(set.getGisSettings()
-				.getNodeHighlightConditions());
-
-		if (!Double.isNaN(set.getGisSettings().getScaleX())
-				&& !Double.isNaN(set.getGisSettings().getScaleY())
-				&& !Double.isNaN(set.getGisSettings().getTranslationX())
-				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
-			canvas.setTransform(set.getGisSettings().getScaleX(), set
-					.getGisSettings().getScaleY(), set.getGisSettings()
-					.getTranslationX(), set.getGisSettings().getTranslationY());
-		}
+		set.getGisSettings().setToCanvas(canvas);
 
 		return canvas;
 	}

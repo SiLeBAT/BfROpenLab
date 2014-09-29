@@ -96,7 +96,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		set.getGisSettings().setFromCanvas(canvas, resized);
 		set.saveSettings(settings);
 	}
 
@@ -109,7 +109,7 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			updateSettings();
+			set.getGisSettings().setFromCanvas(canvas, resized);
 			updateGisCanvas(true);
 		}
 	}
@@ -164,23 +164,4 @@ public class RegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
 	}
-
-	private void updateSettings() {
-		set.getGisSettings().setShowLegend(canvas.isShowLegend());
-		set.getGisSettings().setScaleX(canvas.getScaleX());
-		set.getGisSettings().setScaleY(canvas.getScaleY());
-		set.getGisSettings().setTranslationX(canvas.getTranslationX());
-		set.getGisSettings().setTranslationY(canvas.getTranslationY());
-		set.getGisSettings().setFontSize(canvas.getFontSize());
-		set.getGisSettings().setFontBold(canvas.isFontBold());
-		set.getGisSettings().setBorderAlpha(canvas.getBorderAlpha());
-		set.getGisSettings().setEditingMode(canvas.getEditingMode());
-		set.getGisSettings().setNodeHighlightConditions(
-				canvas.getNodeHighlightConditions());
-
-		if (resized) {
-			set.getGisSettings().setCanvasSize(canvas.getCanvasSize());
-		}
-	}
-
 }

@@ -32,6 +32,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
@@ -176,6 +177,38 @@ public class GisSettings extends Settings {
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
+	}
+
+	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+		showLegend = canvas.isShowLegend();
+		scaleX = canvas.getScaleX();
+		scaleY = canvas.getScaleY();
+		translationX = canvas.getTranslationX();
+		translationY = canvas.getTranslationY();
+		fontSize = canvas.getFontSize();
+		fontBold = canvas.isFontBold();
+		borderAlpha = canvas.getBorderAlpha();
+		editingMode = canvas.getEditingMode();
+		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+
+		if (resized) {
+			canvasSize = canvas.getCanvasSize();
+		}
+	}
+
+	public void setToCanvas(Canvas<?> canvas) {
+		canvas.setShowLegend(showLegend);
+		canvas.setCanvasSize(canvasSize);
+		canvas.setFontSize(fontSize);
+		canvas.setFontBold(fontBold);
+		canvas.setBorderAlpha(borderAlpha);
+		canvas.setEditingMode(editingMode);
+		canvas.setNodeHighlightConditions(nodeHighlightConditions);
+
+		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
+				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
+			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		}
 	}
 
 	public String getShapeColumn() {
