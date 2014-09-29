@@ -26,6 +26,8 @@ package de.bund.bfr.knime.gis.views;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -180,6 +182,10 @@ public class GisSettings extends Settings {
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
+
+		Collections.sort(selectedNodes);
+
 		showLegend = canvas.isShowLegend();
 		scaleX = canvas.getScaleX();
 		scaleY = canvas.getScaleY();
@@ -204,6 +210,7 @@ public class GisSettings extends Settings {
 		canvas.setBorderAlpha(borderAlpha);
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 
 		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
 				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {

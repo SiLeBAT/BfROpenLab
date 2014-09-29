@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -73,37 +72,7 @@ public class GraphVisualizerCanvasCreator {
 						.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn(), true);
 
-		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
-		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
-		canvas.setEditingMode(set.getGraphSettings().getEditingMode());
-		canvas.setNodeSize(set.getGraphSettings().getNodeSize());
-		canvas.setFontSize(set.getGraphSettings().getFontSize());
-		canvas.setFontBold(set.getGraphSettings().isFontBold());
-		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
-		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
-		canvas.setCollapsedNodes(set.getGraphSettings().getCollapsedNodes());
-		canvas.setNodeHighlightConditions(set.getGraphSettings()
-				.getNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphSettings()
-				.getEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.getGraphSettings()
-				.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedEdges()));
-
-		if (!Double.isNaN(set.getGraphSettings().getScaleX())
-				&& !Double.isNaN(set.getGraphSettings().getScaleY())
-				&& !Double.isNaN(set.getGraphSettings().getTranslationX())
-				&& !Double.isNaN(set.getGraphSettings().getTranslationY())) {
-			canvas.setTransform(set.getGraphSettings().getScaleX(), set
-					.getGraphSettings().getScaleY(), set.getGraphSettings()
-					.getTranslationX(), set.getGraphSettings()
-					.getTranslationY());
-		}
-
-		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
+		set.getGraphSettings().setToCanvas(canvas);
 
 		return canvas;
 	}

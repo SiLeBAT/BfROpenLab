@@ -29,9 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -100,7 +97,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
 		set.getGraphSettings().saveSettings(settings);
 	}
 
@@ -132,7 +129,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			updateSettings();
+			set.getGraphSettings().setFromCanvas(graphCanvas, resized);
 			updateGraphCanvas(true);
 		}
 	}
@@ -160,42 +157,5 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 
 		panel.add(graphCanvas, BorderLayout.CENTER);
 		panel.revalidate();
-	}
-
-	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<>(
-				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<>(
-				graphCanvas.getSelectedEdgeIds());
-
-		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);
-
-		set.getGraphSettings().setShowLegend(graphCanvas.isShowLegend());
-		set.getGraphSettings().setScaleX(graphCanvas.getScaleX());
-		set.getGraphSettings().setScaleY(graphCanvas.getScaleY());
-		set.getGraphSettings().setTranslationX(graphCanvas.getTranslationX());
-		set.getGraphSettings().setTranslationY(graphCanvas.getTranslationY());
-		set.getGraphSettings().setNodePositions(graphCanvas.getNodePositions());
-		set.getGraphSettings().setNodeSize(graphCanvas.getNodeSize());
-		set.getGraphSettings().setFontSize(graphCanvas.getFontSize());
-		set.getGraphSettings().setFontBold(graphCanvas.isFontBold());
-		set.getGraphSettings().setJoinEdges(graphCanvas.isJoinEdges());
-		set.getGraphSettings().setArrowInMiddle(graphCanvas.isArrowInMiddle());
-		set.getGraphSettings().setSkipEdgelessNodes(
-				graphCanvas.isSkipEdgelessNodes());
-		set.getGraphSettings().setCollapsedNodes(
-				graphCanvas.getCollapsedNodes());
-		set.getGraphSettings().setSelectedNodes(selectedGraphNodes);
-		set.getGraphSettings().setSelectedEdges(selectedGraphEdges);
-		set.getGraphSettings().setNodeHighlightConditions(
-				graphCanvas.getNodeHighlightConditions());
-		set.getGraphSettings().setEdgeHighlightConditions(
-				graphCanvas.getEdgeHighlightConditions());
-		set.getGraphSettings().setEditingMode(graphCanvas.getEditingMode());
-
-		if (resized) {
-			set.getGraphSettings().setCanvasSize(graphCanvas.getCanvasSize());
-		}
 	}
 }

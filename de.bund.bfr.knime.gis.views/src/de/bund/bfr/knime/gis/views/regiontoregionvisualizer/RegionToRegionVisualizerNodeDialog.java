@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -344,52 +343,7 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<>(
-				graphCanvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<>(
-				graphCanvas.getSelectedEdgeIds());
-
-		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);
-
-		set.getGraphSettings().setShowLegend(graphCanvas.isShowLegend());
-		set.getGraphSettings().setScaleX(graphCanvas.getScaleX());
-		set.getGraphSettings().setScaleY(graphCanvas.getScaleY());
-		set.getGraphSettings().setTranslationX(graphCanvas.getTranslationX());
-		set.getGraphSettings().setTranslationY(graphCanvas.getTranslationY());
-		set.getGraphSettings().setNodePositions(graphCanvas.getNodePositions());
-		set.getGraphSettings().setNodeSize(graphCanvas.getNodeSize());
-		set.getGraphSettings().setFontSize(graphCanvas.getFontSize());
-		set.getGraphSettings().setFontBold(graphCanvas.isFontBold());
-		set.getGraphSettings().setJoinEdges(graphCanvas.isJoinEdges());
-		set.getGraphSettings().setArrowInMiddle(graphCanvas.isArrowInMiddle());
-		set.getGraphSettings().setSkipEdgelessNodes(
-				graphCanvas.isSkipEdgelessNodes());
-		set.getGraphSettings().setSelectedNodes(selectedGraphNodes);
-		set.getGraphSettings().setSelectedEdges(selectedGraphEdges);
-		set.getGraphSettings().setNodeHighlightConditions(
-				graphCanvas.getNodeHighlightConditions());
-		set.getGraphSettings().setEdgeHighlightConditions(
-				graphCanvas.getEdgeHighlightConditions());
-		set.getGraphSettings().setEditingMode(graphCanvas.getEditingMode());
-
-		set.getGisSettings().setShowLegend(gisCanvas.isShowLegend());
-		set.getGisSettings().setScaleX(gisCanvas.getScaleX());
-		set.getGisSettings().setScaleY(gisCanvas.getScaleY());
-		set.getGisSettings().setTranslationX(gisCanvas.getTranslationX());
-		set.getGisSettings().setTranslationY(gisCanvas.getTranslationY());
-		set.getGisSettings().setFontSize(gisCanvas.getFontSize());
-		set.getGisSettings().setFontBold(gisCanvas.isFontBold());
-		set.getGisSettings().setBorderAlpha(gisCanvas.getBorderAlpha());
-		set.getGisSettings().setNodeHighlightConditions(
-				gisCanvas.getNodeHighlightConditions());
-		set.getGraphSettings().setEdgeHighlightConditions(
-				gisCanvas.getEdgeHighlightConditions());
-		set.getGisSettings().setEditingMode(gisCanvas.getEditingMode());
-
-		if (resized) {
-			set.getGraphSettings().setCanvasSize(graphCanvas.getCanvasSize());
-			set.getGisSettings().setCanvasSize(gisCanvas.getCanvasSize());
-		}
+		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 	}
 }

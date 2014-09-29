@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -80,36 +79,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 						.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn(), false);
 
-		canvas.setShowLegend(set.getGraphSettings().isShowLegend());
-		canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
-		canvas.setEditingMode(set.getGraphSettings().getEditingMode());
-		canvas.setNodeSize(set.getGraphSettings().getNodeSize());
-		canvas.setFontSize(set.getGraphSettings().getFontSize());
-		canvas.setFontBold(set.getGraphSettings().isFontBold());
-		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
-		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
-		canvas.setNodeHighlightConditions(set.getGraphSettings()
-				.getNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphSettings()
-				.getEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.getGraphSettings()
-				.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedEdges()));
-
-		if (!Double.isNaN(set.getGraphSettings().getScaleX())
-				&& !Double.isNaN(set.getGraphSettings().getScaleY())
-				&& !Double.isNaN(set.getGraphSettings().getTranslationX())
-				&& !Double.isNaN(set.getGraphSettings().getTranslationY())) {
-			canvas.setTransform(set.getGraphSettings().getScaleX(), set
-					.getGraphSettings().getScaleY(), set.getGraphSettings()
-					.getTranslationX(), set.getGraphSettings()
-					.getTranslationY());
-		}
-
-		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
+		set.getGraphSettings().setToCanvas(canvas);
 
 		return canvas;
 	}
@@ -143,34 +113,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
 				.getEdgeToColumn(), regionNodes);
 
-		canvas.setShowLegend(set.getGisSettings().isShowLegend());
-		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
-		canvas.setEditingMode(set.getGisSettings().getEditingMode());
-		canvas.setFontSize(set.getGisSettings().getFontSize());
-		canvas.setFontBold(set.getGisSettings().isFontBold());
-		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
-		canvas.setNodeSize(set.getGisSettings().getNodeSize());
-		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
-		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
-		canvas.setNodeHighlightConditions(set.getGraphSettings()
-				.getNodeHighlightConditions());
-		canvas.setEdgeHighlightConditions(set.getGraphSettings()
-				.getEdgeHighlightConditions());
-		canvas.setSkipEdgelessNodes(set.getGraphSettings()
-				.isSkipEdgelessNodes());
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedNodes()));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(set.getGraphSettings()
-				.getSelectedEdges()));
-
-		if (!Double.isNaN(set.getGisSettings().getScaleX())
-				&& !Double.isNaN(set.getGisSettings().getScaleY())
-				&& !Double.isNaN(set.getGisSettings().getTranslationX())
-				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
-			canvas.setTransform(set.getGisSettings().getScaleX(), set
-					.getGisSettings().getScaleY(), set.getGisSettings()
-					.getTranslationX(), set.getGisSettings().getTranslationY());
-		}
+		set.getGraphSettings().setToCanvas(canvas);
+		set.getGisSettings().setToCanvas(canvas);
 
 		return canvas;
 	}
