@@ -311,9 +311,9 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = new HighlightDialog(this, properties,
-				true, true, allowInvisible, allowThickness, true, true,
-				condition, checkers);
+		HighlightDialog dialog = new HighlightDialog(this, properties, true,
+				true, allowInvisible, allowThickness, true, true, condition,
+				checkers);
 
 		dialog.setVisible(true);
 

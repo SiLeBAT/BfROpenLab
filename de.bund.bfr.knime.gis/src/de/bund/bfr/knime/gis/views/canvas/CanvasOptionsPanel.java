@@ -65,6 +65,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	private static final int DEFAULT_FONT_SIZE = 12;
 	private static final boolean DEFAULT_FONT_BOLD = false;
 	private static final int DEFAULT_NODE_SIZE = 10;
+	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	private static final int DEFAULT_BORDER_ALPHA = 255;
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
@@ -81,6 +82,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	private JCheckBox fontBoldBox;
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
+	private JCheckBox arrowInMiddleBox;
 	private int borderAlpha;
 	private JSlider borderAlphaSlider;
 	private JButton borderAlphaButton;
@@ -116,6 +118,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel(owner.getNodeName() + " Size", nodeSizeBox));
+		}
+
+		if (allowEdges) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Arrow in Middle", arrowInMiddleBox));
 		}
 
 		if (allowPolygons) {
@@ -202,6 +209,14 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		nodeSizeBox.setSelectedItem(nodeSize);
 	}
 
+	public boolean isArrowInMiddle() {
+		return arrowInMiddleBox.isSelected();
+	}
+
+	public void setArrowInMiddle(boolean arrowInMiddle) {
+		arrowInMiddleBox.setSelected(arrowInMiddle);
+	}
+
 	public int getBorderAlpha() {
 		return borderAlpha;
 	}
@@ -278,6 +293,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 						JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
+		} else if (e.getSource() == arrowInMiddleBox) {
+			for (ChangeListener l : listeners) {
+				l.arrowInMiddleChanged();
+			}
 		}
 	}
 
@@ -316,6 +335,9 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 				.setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
 		nodeSizeBox.addItemListener(this);
+		arrowInMiddleBox = new JCheckBox("Activate");
+		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
+		arrowInMiddleBox.addItemListener(this);
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
 		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
 				.getPreferredSize().height));
@@ -358,6 +380,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		public void fontChanged();
 
 		public void nodeSizeChanged();
+
+		public void arrowInMiddleChanged();
 
 		public void borderAlphaChanged();
 	}

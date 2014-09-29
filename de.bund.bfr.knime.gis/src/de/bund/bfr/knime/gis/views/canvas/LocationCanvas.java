@@ -49,7 +49,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private Set<LocationNode> nodes;
 	private Set<Edge<LocationNode>> edges;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
-	
+
 	private boolean allowEdges;
 
 	public LocationCanvas(boolean allowEdges) {
@@ -93,7 +93,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		allNodes = nodes;
 		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
-		
+
 		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
@@ -201,7 +201,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
 		return joinMap;
 	}
-	
+
 	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();

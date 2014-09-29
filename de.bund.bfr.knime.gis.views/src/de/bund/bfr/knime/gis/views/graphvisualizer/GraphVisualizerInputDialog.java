@@ -70,16 +70,16 @@ public class GraphVisualizerInputDialog extends JDialog implements
 		this.set = set;
 		approved = false;
 
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				nodeSpec, StringCell.TYPE, IntCell.TYPE));
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec,
+				StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
 				.getNodeIdColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
+				StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				edgeSpec, StringCell.TYPE, IntCell.TYPE));
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
+				StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings()
 				.getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");

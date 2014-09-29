@@ -86,6 +86,7 @@ public class GisGraphViewCanvasCreator {
 		canvas.setFontSize(set.getGraphSettings().getFontSize());
 		canvas.setFontBold(set.getGraphSettings().isFontBold());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(set
 				.getGraphSettings().getNodeHighlightConditions(),
 				nodeProperties));
@@ -143,6 +144,7 @@ public class GisGraphViewCanvasCreator {
 		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
 		canvas.setNodeSize(set.getGisSettings().getNodeSize());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(set.getGraphSettings()
 				.getNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphSettings()

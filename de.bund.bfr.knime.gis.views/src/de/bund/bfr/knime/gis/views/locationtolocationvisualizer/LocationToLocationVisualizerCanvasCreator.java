@@ -87,6 +87,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setFontSize(set.getGraphSettings().getFontSize());
 		canvas.setFontBold(set.getGraphSettings().isFontBold());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(set.getGraphSettings()
 				.getNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphSettings()
@@ -114,8 +115,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 	}
 
 	public LocationCanvas createLocationCanvas() {
-		List<RegionNode> regionNodes = ViewUtils.readRegionNodes(
-				shapeTable, set.getGisSettings().getShapeColumn());
+		List<RegionNode> regionNodes = ViewUtils.readRegionNodes(shapeTable,
+				set.getGisSettings().getShapeColumn());
 		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils
@@ -150,6 +151,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
 		canvas.setNodeSize(set.getGisSettings().getNodeSize());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(set.getGraphSettings()
 				.getNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphSettings()

@@ -49,14 +49,14 @@ public class LocationVisualizerCanvasCreator {
 	}
 
 	public LocationCanvas createCanvas() {
-		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable,
-				set.getGisSettings().getShapeColumn());
+		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set
+				.getGisSettings().getShapeColumn());
 		Map<String, Class<?>> nodeProperties = ViewUtils
 				.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(ViewUtils
-				.readLocationNodes(nodeTable, nodeProperties, null,
-						set.getGisSettings().getNodeLatitudeColumn(),
-						set.getGisSettings().getNodeLongitudeColumn()).values());
+		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(
+				nodeTable, nodeProperties, null,
+				set.getGisSettings().getNodeLatitudeColumn(),
+				set.getGisSettings().getNodeLongitudeColumn()).values());
 
 		if (nodes.isEmpty()) {
 			return null;

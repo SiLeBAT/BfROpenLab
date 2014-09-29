@@ -145,8 +145,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				}
 			}
 
-			CanvasUtils
-					.drawImageWithAlpha(g, borderImage, getBorderAlpha());
+			CanvasUtils.drawImageWithAlpha(g, borderImage, getBorderAlpha());
 		} else {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 

@@ -99,6 +99,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setFontSize(set.getGraphSettings().getFontSize());
 		canvas.setFontBold(set.getGraphSettings().isFontBold());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(set.getGraphSettings()
 				.getNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphSettings()
@@ -133,8 +134,8 @@ public class RegionToRegionVisualizerCanvasCreator {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, RegionNode> nodes = ViewUtils.readRegionNodes(
-				nodeTable, nodeProperties, polygonMap, idToRegionMap, set
+		Map<String, RegionNode> nodes = ViewUtils.readRegionNodes(nodeTable,
+				nodeProperties, polygonMap, idToRegionMap, set
 						.getGraphSettings().getNodeIdColumn(),
 				nonExistingRegions);
 
@@ -161,6 +162,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setFontBold(set.getGisSettings().isFontBold());
 		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setNodeHighlightConditions(set.getGisSettings()
 				.getNodeHighlightConditions());
 		canvas.setEdgeHighlightConditions(set.getGraphSettings()

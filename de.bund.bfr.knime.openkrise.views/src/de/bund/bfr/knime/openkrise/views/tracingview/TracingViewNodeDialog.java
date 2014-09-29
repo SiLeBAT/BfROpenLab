@@ -211,6 +211,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.getGraphSettings().setFontSize(canvas.getFontSize());
 		set.getGraphSettings().setFontBold(canvas.isFontBold());
 		set.getGraphSettings().setJoinEdges(canvas.isJoinEdges());
+		set.getGraphSettings().setArrowInMiddle(canvas.isArrowInMiddle());
 		set.getGraphSettings().setSkipEdgelessNodes(
 				canvas.isSkipEdgelessNodes());
 		set.getGraphSettings().setCollapsedNodes(canvas.getCollapsedNodes());

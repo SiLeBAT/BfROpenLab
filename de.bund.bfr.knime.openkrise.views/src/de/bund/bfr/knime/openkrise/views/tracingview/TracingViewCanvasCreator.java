@@ -137,6 +137,7 @@ public class TracingViewCanvasCreator {
 		canvas.setFontSize(set.getGraphSettings().getFontSize());
 		canvas.setFontBold(set.getGraphSettings().isFontBold());
 		canvas.setJoinEdges(set.getGraphSettings().isJoinEdges());
+		canvas.setArrowInMiddle(set.getGraphSettings().isArrowInMiddle());
 		canvas.setCollapsedNodes(set.getGraphSettings().getCollapsedNodes());
 		canvas.setNodeWeights(set.getNodeWeights());
 		canvas.setEdgeWeights(set.getEdgeWeights());

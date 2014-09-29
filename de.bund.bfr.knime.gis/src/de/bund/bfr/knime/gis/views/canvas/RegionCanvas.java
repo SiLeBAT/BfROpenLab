@@ -62,7 +62,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private Set<RegionNode> nodes;
 	private Set<Edge<RegionNode>> edges;
 	private Map<Edge<RegionNode>, Set<Edge<RegionNode>>> joinMap;
-	
+
 	private boolean allowEdges;
 
 	public RegionCanvas(boolean allowEdges) {
@@ -306,7 +306,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		return dialog;
 	}
-	
+
 	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();
@@ -315,7 +315,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	private void updatePopupMenuAndOptionsPanel() {
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
-	}	
+	}
 
 	private RegionNode getContainingNode(int x, int y) {
 		Point2D p = toGraphCoordinates(x, y);

@@ -45,6 +45,7 @@ public class GraphSettings extends Settings {
 	private static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
+	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_SCALE_X = "GraphScaleX";
 	private static final String CFG_SCALE_Y = "GraphScaleY";
@@ -64,6 +65,7 @@ public class GraphSettings extends Settings {
 
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	private static final boolean DEFAULT_JOIN_EDGES = true;
+	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final int DEFAULT_NODE_SIZE = 10;
 	private static final int DEFAULT_FONT_SIZE = 12;
@@ -76,6 +78,7 @@ public class GraphSettings extends Settings {
 	private String edgeToColumn;
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
+	private boolean arrowInMiddle;
 	private boolean showLegend;
 	private double scaleX;
 	private double scaleY;
@@ -99,6 +102,7 @@ public class GraphSettings extends Settings {
 		edgeToColumn = null;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
+		arrowInMiddle = DEFAULT_ARROW_IN_MIDDLE;
 		showLegend = DEFAULT_SHOW_LEGEND;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
@@ -142,6 +146,11 @@ public class GraphSettings extends Settings {
 
 		try {
 			joinEdges = settings.getBoolean(CFG_JOIN_EDGES);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			arrowInMiddle = settings.getBoolean(CFG_ARROW_IN_MIDDLE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -240,6 +249,7 @@ public class GraphSettings extends Settings {
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
+		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, scaleX);
 		settings.addDouble(CFG_SCALE_Y, scaleY);
@@ -299,6 +309,14 @@ public class GraphSettings extends Settings {
 
 	public void setJoinEdges(boolean joinEdges) {
 		this.joinEdges = joinEdges;
+	}
+
+	public boolean isArrowInMiddle() {
+		return arrowInMiddle;
+	}
+
+	public void setArrowInMiddle(boolean arrowInMiddle) {
+		this.arrowInMiddle = arrowInMiddle;
 	}
 
 	public boolean isShowLegend() {

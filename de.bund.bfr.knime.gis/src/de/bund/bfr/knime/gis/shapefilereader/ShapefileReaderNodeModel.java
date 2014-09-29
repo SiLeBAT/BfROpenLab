@@ -142,8 +142,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 						continue loop;
 					}
 
-					shape = (Geometry) JTS.transform((Geometry) value,
-							transform);
+					shape = JTS.transform((Geometry) value, transform);
 					cells[i] = ShapeCellFactory.create(shape);
 				} else if (value instanceof Integer) {
 					cells[i] = new IntCell((Integer) p.getValue());

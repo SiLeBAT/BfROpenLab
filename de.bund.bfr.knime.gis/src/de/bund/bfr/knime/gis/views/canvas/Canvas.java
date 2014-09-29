@@ -90,6 +90,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCond
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
+import de.bund.bfr.knime.gis.views.canvas.transformer.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -98,6 +99,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
@@ -300,6 +302,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public void setNodeSize(int nodeSize) {
 		optionsPanel.setNodeSize(nodeSize);
+	}
+
+	public boolean isArrowInMiddle() {
+		return optionsPanel.isArrowInMiddle();
+	}
+
+	public void setArrowInMiddle(boolean arrowInMiddle) {
+		optionsPanel.setArrowInMiddle(arrowInMiddle);
 	}
 
 	public int getBorderAlpha() {
@@ -890,6 +900,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void nodeSizeChanged() {
 		applyChanges();
+	}
+
+	@Override
+	public void arrowInMiddleChanged() {
+		if (optionsPanel.isArrowInMiddle()) {
+			viewer.getRenderer()
+					.getEdgeRenderer()
+					.setEdgeArrowRenderingSupport(
+							new MiddleEdgeArrowRenderingSupport<>());
+		} else {
+			viewer.getRenderer()
+					.getEdgeRenderer()
+					.setEdgeArrowRenderingSupport(
+							new BasicEdgeArrowRenderingSupport<>());
+		}
+
+		viewer.repaint();
 	}
 
 	public VisualizationViewer<V, Edge<V>> getViewer() {
