@@ -105,7 +105,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 		set.saveSettings(settings);
 	}
 
@@ -137,7 +138,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			updateSettings();
+			set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+			set.getGisSettings().setFromCanvas(gisCanvas, resized);
 			updateSplitPane(true);
 		}
 	}
@@ -258,10 +260,5 @@ public class LocationToLocationVisualizerNodeDialog extends
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();
-	}
-
-	private void updateSettings() {
-		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
-		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 	}
 }

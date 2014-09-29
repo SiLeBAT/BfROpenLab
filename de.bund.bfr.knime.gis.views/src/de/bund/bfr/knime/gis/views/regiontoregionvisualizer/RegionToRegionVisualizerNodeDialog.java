@@ -113,7 +113,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 		set.saveSettings(settings);
 	}
 
@@ -126,7 +127,8 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			updateSettings();
+			set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+			set.getGisSettings().setFromCanvas(gisCanvas, resized);
 			updateSplitPane(true);
 		}
 	}
@@ -340,10 +342,5 @@ public class RegionToRegionVisualizerNodeDialog extends DataAwareNodeDialogPane
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();
-	}
-
-	private void updateSettings() {
-		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
-		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 	}
 }
