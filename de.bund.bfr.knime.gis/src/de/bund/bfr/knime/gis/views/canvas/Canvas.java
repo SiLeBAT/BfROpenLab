@@ -1100,6 +1100,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 
 			if (toImage) {
+				g.setColor(Color.BLACK);
 				g.drawRect(0, 0, getCanvasSize().width - 1,
 						getCanvasSize().height - 1);
 			}
