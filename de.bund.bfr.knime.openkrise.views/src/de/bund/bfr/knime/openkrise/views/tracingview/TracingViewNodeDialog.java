@@ -176,9 +176,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, deliveries, set);
 
-		canvas = creator.createGraphCanvas();
-
-		if (canvas == null) {
+		try {
+			canvas = creator.createGraphCanvas();
+		} catch (InvalidSettingsException e) {
 			canvas = new TracingCanvas();
 			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 		}

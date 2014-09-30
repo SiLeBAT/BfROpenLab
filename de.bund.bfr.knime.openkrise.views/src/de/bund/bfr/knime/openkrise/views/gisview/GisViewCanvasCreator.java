@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -49,17 +50,12 @@ public class GisViewCanvasCreator {
 		this.set = set;
 	}
 
-	public LocationCanvas createCanvas() {
+	public LocationCanvas createCanvas() throws InvalidSettingsException {
 		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable);
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(TracingUtils
 				.readLocationNodes(nodeTable, nodeProperties).values());
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
 				TracingConstants.ID_COLUMN, regions);
 

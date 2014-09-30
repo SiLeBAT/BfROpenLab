@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -55,18 +56,13 @@ public class GisGraphViewCanvasCreator {
 		this.set = set;
 	}
 
-	public GraphCanvas createGraphCanvas() {
+	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
 				nodeProperties);
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
@@ -84,7 +80,7 @@ public class GisGraphViewCanvasCreator {
 		return canvas;
 	}
 
-	public LocationCanvas createGisCanvas() {
+	public LocationCanvas createGisCanvas() throws InvalidSettingsException {
 		List<RegionNode> regionNodes = TracingUtils.readRegionNodes(shapeTable);
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
@@ -92,11 +88,6 @@ public class GisGraphViewCanvasCreator {
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
 				nodeTable, nodeProperties);
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(

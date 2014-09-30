@@ -102,10 +102,15 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeProperties);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes);
+		Map<String, GraphNode> nodes;
+		List<Edge<GraphNode>> edges;
+
+		try {
+			nodes = TracingUtils.readGraphNodes(nodeTable, nodeProperties);
+			edges = TracingUtils.readEdges(edgeTable, edgeProperties, nodes);
+		} catch (InvalidSettingsException e) {
+			throw new NotConfigurableException(e.getMessage());
+		}
 
 		nodeWeightPanel.update(nodes.values(), nodeProperties,
 				set.getNodeWeights(), set.getNodeWeightCondition(),

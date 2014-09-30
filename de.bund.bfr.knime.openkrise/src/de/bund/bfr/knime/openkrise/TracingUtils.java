@@ -43,6 +43,7 @@ import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
@@ -104,20 +105,38 @@ public class TracingUtils {
 
 	public static <V extends Node> List<Edge<V>> readEdges(
 			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
-			Map<String, V> nodes) {
+			Map<String, V> nodes) throws InvalidSettingsException {
 		List<Edge<V>> edges = new ArrayList<>();
+		int idIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
+		int fromIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.FROM_COLUMN);
+		int toIndex = edgeTable.getSpec().findColumnIndex(
+				TracingConstants.TO_COLUMN);
+
+		if (idIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ TracingConstants.ID_COLUMN + "\" is missing");
+		}
+
+		if (fromIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ TracingConstants.FROM_COLUMN + "\" is missing");
+		}
+
+		if (toIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ TracingConstants.TO_COLUMN + "\" is missing");
+		}
 
 		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
 		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
 		edgeProperties.put(TracingConstants.TO_COLUMN, String.class);
 
 		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
-			String from = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.FROM_COLUMN)));
-			String to = IO.getToCleanString(row.getCell(edgeTable.getSpec()
-					.findColumnIndex(TracingConstants.TO_COLUMN)));
+			String id = IO.getToCleanString(row.getCell(idIndex));
+			String from = IO.getToCleanString(row.getCell(fromIndex));
+			String to = IO.getToCleanString(row.getCell(toIndex));
 			V node1 = nodes.get(from);
 			V node2 = nodes.get(to);
 
@@ -137,14 +156,21 @@ public class TracingUtils {
 	}
 
 	public static Map<String, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
+			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties)
+			throws InvalidSettingsException {
+		int idIndex = nodeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
+
+		if (idIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ TracingConstants.ID_COLUMN + "\" is missing");
+		}
 
 		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
 
 		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec()
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+			String id = IO.getToCleanString(row.getCell(idIndex));
 			Map<String, Object> properties = new LinkedHashMap<>();
 
 			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
@@ -157,32 +183,35 @@ public class TracingUtils {
 	}
 
 	public static Map<String, LocationNode> readLocationNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties) {
+			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties)
+			throws InvalidSettingsException {
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
+		int idIndex = nodeTable.getSpec().findColumnIndex(
+				TracingConstants.ID_COLUMN);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LONGITUDE_COLUMN);
-		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
-		int locationIndex = 0;
 
-		if (latIndex == -1 || lonIndex == -1) {
-			return nodes;
+		if (idIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ TracingConstants.ID_COLUMN + "\" is missing");
+		}
+
+		if (latIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ GeocodingNodeModel.LATITUDE_COLUMN + "\" is missing");
+		}
+
+		if (lonIndex == -1) {
+			throw new InvalidSettingsException("Column \""
+					+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
 		}
 
 		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
 
 		for (DataRow row : nodeTable) {
-			String id;
-
-			if (nodeIdIndex != -1) {
-				id = IO.getToCleanString(row.getCell(nodeIdIndex));
-			} else {
-				id = locationIndex + "";
-				locationIndex++;
-			}
-
+			String id = IO.getToCleanString(row.getCell(idIndex));
 			Double lat = IO.getDouble(row.getCell(latIndex));
 			Double lon = IO.getDouble(row.getCell(lonIndex));
 
@@ -218,21 +247,22 @@ public class TracingUtils {
 		return nodes;
 	}
 
-	public static List<RegionNode> readRegionNodes(BufferedDataTable shapeTable) {
+	public static List<RegionNode> readRegionNodes(BufferedDataTable shapeTable)
+			throws InvalidSettingsException {
 		List<RegionNode> nodes = new ArrayList<>();
 		List<String> shapeColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE));
 
 		if (shapeColumns.isEmpty()) {
-			return nodes;
+			throw new InvalidSettingsException("No Shape Column in table");
 		}
 
-		int shapeColumn = shapeTable.getSpec().findColumnIndex(
+		int shapeIndex = shapeTable.getSpec().findColumnIndex(
 				shapeColumns.get(0));
 		int index = 0;
 
 		for (DataRow row : shapeTable) {
-			Geometry shape = GisUtils.getShape(row.getCell(shapeColumn));
+			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
 				try {

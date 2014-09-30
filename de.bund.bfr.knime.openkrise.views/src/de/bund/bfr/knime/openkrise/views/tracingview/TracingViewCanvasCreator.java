@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -53,7 +54,7 @@ public class TracingViewCanvasCreator {
 		this.set = set;
 	}
 
-	public TracingCanvas createGraphCanvas() {
+	public TracingCanvas createGraphCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
@@ -113,11 +114,6 @@ public class TracingViewCanvasCreator {
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
 				nodeProperties);
-
-		if (nodes.isEmpty()) {
-			return null;
-		}
-
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		TracingCanvas canvas = new TracingCanvas(
