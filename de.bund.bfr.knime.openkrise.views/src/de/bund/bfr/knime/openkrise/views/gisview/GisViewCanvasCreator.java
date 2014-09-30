@@ -67,24 +67,7 @@ public class GisViewCanvasCreator {
 		canvas.setEdgeName(TracingConstants.EDGE_NAME);
 		canvas.setNodesName(TracingConstants.NODES_NAME);
 		canvas.setEdgesName(TracingConstants.EDGES_NAME);
-		canvas.setShowLegend(set.getGisSettings().isShowLegend());
-		canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
-		canvas.setFontSize(set.getGisSettings().getFontSize());
-		canvas.setFontBold(set.getGisSettings().isFontBold());
-		canvas.setBorderAlpha(set.getGisSettings().getBorderAlpha());
-		canvas.setEditingMode(set.getGisSettings().getEditingMode());
-		canvas.setNodeSize(set.getGisSettings().getNodeSize());
-		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(set
-				.getGisSettings().getNodeHighlightConditions(), nodeProperties));
-
-		if (!Double.isNaN(set.getGisSettings().getScaleX())
-				&& !Double.isNaN(set.getGisSettings().getScaleY())
-				&& !Double.isNaN(set.getGisSettings().getTranslationX())
-				&& !Double.isNaN(set.getGisSettings().getTranslationY())) {
-			canvas.setTransform(set.getGisSettings().getScaleX(), set
-					.getGisSettings().getScaleY(), set.getGisSettings()
-					.getTranslationX(), set.getGisSettings().getTranslationY());
-		}
+		set.getGisSettings().setToCanvas(canvas, nodeProperties, true);
 
 		return canvas;
 	}

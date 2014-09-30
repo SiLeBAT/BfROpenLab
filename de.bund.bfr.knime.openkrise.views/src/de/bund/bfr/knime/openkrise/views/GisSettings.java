@@ -26,18 +26,22 @@ package de.bund.bfr.knime.openkrise.views;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisSettings extends Settings {
 
-	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
 	private static final String CFG_SCALE_X = "ScaleX";
 	private static final String CFG_SCALE_Y = "ScaleY";
@@ -60,7 +64,6 @@ public class GisSettings extends Settings {
 	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
 	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
-	private String shapeColumn;
 	private boolean showLegend;
 	private double scaleX;
 	private double scaleY;
@@ -76,7 +79,6 @@ public class GisSettings extends Settings {
 	private HighlightConditionList nodeHighlightConditions;
 
 	public GisSettings() {
-		shapeColumn = null;
 		showLegend = DEFAULT_SHOW_LEGEND;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
@@ -95,11 +97,6 @@ public class GisSettings extends Settings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		try {
-			shapeColumn = settings.getString(CFG_SHAPE_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
 		try {
 			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
 		} catch (InvalidSettingsException e) {
@@ -171,7 +168,6 @@ public class GisSettings extends Settings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, scaleX);
 		settings.addDouble(CFG_SCALE_Y, scaleY);
@@ -188,12 +184,49 @@ public class GisSettings extends Settings {
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 	}
 
-	public String getShapeColumn() {
-		return shapeColumn;
+	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
+
+		Collections.sort(selectedNodes);
+
+		showLegend = canvas.isShowLegend();
+		scaleX = canvas.getScaleX();
+		scaleY = canvas.getScaleY();
+		translationX = canvas.getTranslationX();
+		translationY = canvas.getTranslationY();
+		nodeSize = canvas.getNodeSize();
+		fontSize = canvas.getFontSize();
+		fontBold = canvas.isFontBold();
+		borderAlpha = canvas.getBorderAlpha();
+		editingMode = canvas.getEditingMode();
+		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+
+		if (resized) {
+			canvasSize = canvas.getCanvasSize();
+		}
 	}
 
-	public void setShapeColumn(String shapeColumn) {
-		this.shapeColumn = shapeColumn;
+	public void setToCanvas(Canvas<?> canvas,
+			Map<String, Class<?>> nodeProperties,
+			boolean applySelectionAndHighlighting) {
+		canvas.setShowLegend(showLegend);
+		canvas.setCanvasSize(canvasSize);
+		canvas.setNodeSize(nodeSize);
+		canvas.setFontSize(fontSize);
+		canvas.setFontBold(fontBold);
+		canvas.setBorderAlpha(borderAlpha);
+		canvas.setEditingMode(editingMode);
+
+		if (applySelectionAndHighlighting) {
+			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
+					nodeHighlightConditions, nodeProperties));
+			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
+		}
+
+		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
+				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
+			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		}
 	}
 
 	public boolean isShowLegend() {

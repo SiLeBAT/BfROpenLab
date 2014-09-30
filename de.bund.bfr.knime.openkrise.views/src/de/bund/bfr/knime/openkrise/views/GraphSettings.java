@@ -27,7 +27,9 @@ package de.bund.bfr.knime.openkrise.views;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +37,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphSettings extends Settings {
@@ -242,6 +247,73 @@ public class GraphSettings extends Settings {
 				SERIALIZER.toXml(edgeHighlightConditions));
 		settings.addString(CFG_COLLAPSED_NODES,
 				SERIALIZER.toXml(collapsedNodes));
+	}
+
+	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
+		selectedEdges = new ArrayList<>(canvas.getSelectedEdgeIds());
+
+		Collections.sort(selectedNodes);
+		Collections.sort(selectedEdges);
+
+		showLegend = canvas.isShowLegend();
+		scaleX = canvas.getScaleX();
+		scaleY = canvas.getScaleY();
+		translationX = canvas.getTranslationX();
+		translationY = canvas.getTranslationY();
+		nodeSize = canvas.getNodeSize();
+		fontSize = canvas.getFontSize();
+		fontBold = canvas.isFontBold();
+		joinEdges = canvas.isJoinEdges();
+		arrowInMiddle = canvas.isArrowInMiddle();
+		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+
+		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
+		editingMode = canvas.getEditingMode();
+
+		if (resized) {
+			canvasSize = canvas.getCanvasSize();
+		}
+
+		if (canvas instanceof GraphCanvas) {
+			nodePositions = ((GraphCanvas) canvas).getNodePositions();
+			collapsedNodes = ((GraphCanvas) canvas).getCollapsedNodes();
+		}
+	}
+
+	public void setToCanvas(Canvas<?> canvas,
+			Map<String, Class<?>> nodeProperties,
+			Map<String, Class<?>> edgeProperties, boolean applyNodePosition) {
+		canvas.setShowLegend(showLegend);
+		canvas.setCanvasSize(canvasSize);
+		canvas.setEditingMode(editingMode);
+		canvas.setNodeSize(nodeSize);
+		canvas.setFontSize(fontSize);
+		canvas.setFontBold(fontBold);
+		canvas.setJoinEdges(joinEdges);
+		canvas.setArrowInMiddle(arrowInMiddle);
+
+		if (canvas instanceof GraphCanvas) {
+			((GraphCanvas) canvas).setCollapsedNodes(collapsedNodes);
+		}
+
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
+				nodeHighlightConditions, nodeProperties));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
+				edgeHighlightConditions, edgeProperties));
+		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+
+		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
+				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
+			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		}
+
+		if (applyNodePosition && canvas instanceof GraphCanvas) {
+			((GraphCanvas) canvas).setNodePositions(nodePositions);
+		}
 	}
 
 	public boolean isSkipEdgelessNodes() {

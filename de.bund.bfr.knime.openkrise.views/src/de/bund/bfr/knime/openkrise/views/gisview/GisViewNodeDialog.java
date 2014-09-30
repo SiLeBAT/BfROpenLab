@@ -101,7 +101,8 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		updateSettings();
+		set.setExportAsSvg(exportAsSvgBox.isSelected());
+		set.getGisSettings().setFromCanvas(canvas, resized);
 		set.saveSettings(settings);
 	}
 
@@ -147,26 +148,5 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
-	}
-
-	private void updateSettings() {
-		set.setExportAsSvg(exportAsSvgBox.isSelected());
-
-		set.getGisSettings().setShowLegend(canvas.isShowLegend());
-		set.getGisSettings().setScaleX(canvas.getScaleX());
-		set.getGisSettings().setScaleY(canvas.getScaleY());
-		set.getGisSettings().setTranslationX(canvas.getTranslationX());
-		set.getGisSettings().setTranslationY(canvas.getTranslationY());
-		set.getGisSettings().setFontSize(canvas.getFontSize());
-		set.getGisSettings().setFontBold(canvas.isFontBold());
-		set.getGisSettings().setBorderAlpha(canvas.getBorderAlpha());
-		set.getGisSettings().setEditingMode(canvas.getEditingMode());
-		set.getGisSettings().setNodeSize(canvas.getNodeSize());
-		set.getGisSettings().setNodeHighlightConditions(
-				canvas.getNodeHighlightConditions());
-
-		if (resized) {
-			set.getGisSettings().setCanvasSize(canvas.getCanvasSize());
-		}
 	}
 }

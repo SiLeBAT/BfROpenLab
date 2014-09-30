@@ -30,10 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -191,37 +188,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private void updateSettings() {
-		List<String> selectedGraphNodes = new ArrayList<>(
-				canvas.getSelectedNodeIds());
-		List<String> selectedGraphEdges = new ArrayList<>(
-				canvas.getSelectedEdgeIds());
-
-		Collections.sort(selectedGraphNodes);
-		Collections.sort(selectedGraphEdges);
-
-		set.setExportAsSvg(exportAsSvgBox.isSelected());
-
-		set.getGraphSettings().setShowLegend(canvas.isShowLegend());
-		set.getGraphSettings().setScaleX(canvas.getScaleX());
-		set.getGraphSettings().setScaleY(canvas.getScaleY());
-		set.getGraphSettings().setTranslationX(canvas.getTranslationX());
-		set.getGraphSettings().setTranslationY(canvas.getTranslationY());
-		set.getGraphSettings().setNodePositions(canvas.getNodePositions());
-		set.getGraphSettings().setNodeSize(canvas.getNodeSize());
-		set.getGraphSettings().setFontSize(canvas.getFontSize());
-		set.getGraphSettings().setFontBold(canvas.isFontBold());
-		set.getGraphSettings().setJoinEdges(canvas.isJoinEdges());
-		set.getGraphSettings().setArrowInMiddle(canvas.isArrowInMiddle());
-		set.getGraphSettings().setSkipEdgelessNodes(
-				canvas.isSkipEdgelessNodes());
-		set.getGraphSettings().setCollapsedNodes(canvas.getCollapsedNodes());
-		set.getGraphSettings().setSelectedNodes(selectedGraphNodes);
-		set.getGraphSettings().setSelectedEdges(selectedGraphEdges);
-		set.getGraphSettings().setNodeHighlightConditions(
-				canvas.getNodeHighlightConditions());
-		set.getGraphSettings().setEdgeHighlightConditions(
-				canvas.getEdgeHighlightConditions());
-		set.getGraphSettings().setEditingMode(canvas.getEditingMode());
+		set.getGraphSettings().setFromCanvas(canvas, resized);
 		set.setNodeWeights(canvas.getNodeWeights());
 		set.setEdgeWeights(canvas.getEdgeWeights());
 		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
@@ -231,9 +198,5 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
 		set.setShowForward(canvas.isShowForward());
 		set.setLabel(canvas.getLabel());
-
-		if (resized) {
-			set.getGraphSettings().setCanvasSize(canvas.getCanvasSize());
-		}
 	}
 }
