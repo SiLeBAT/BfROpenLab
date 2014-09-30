@@ -308,130 +308,13 @@ public class CanvasUtils {
 	public static <V extends Node> void applyNodeHighlights(
 			VisualizationViewer<V, Edge<V>> viewer,
 			HighlightConditionList nodeHighlightConditions, int nodeSize) {
-		List<Color> colors = new ArrayList<>();
-		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
-		Map<V, Double> thicknessValues = new LinkedHashMap<>();
-		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
-		Collection<V> nodes = viewer.getGraphLayout().getGraph().getVertices();
-		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		for (V node : nodes) {
-			alphaValues.put(node, new ArrayList<Double>());
-			thicknessValues.put(node, 0.0);
-		}
-
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
-			if (condition.isInvisible()) {
-				continue;
-			}
-
-			Map<V, Double> values = condition.getValues(nodes);
-
-			if (condition.isUseThickness()) {
-				for (V node : nodes) {
-					thicknessValues.put(node, thicknessValues.get(node)
-							+ values.get(node));
-				}
-			}
-
-			if (condition.getColor() != null) {
-				colors.add(condition.getColor());
-
-				for (V node : nodes) {
-					List<Double> alphas = alphaValues.get(node);
-
-					if (!prioritize || alphas.isEmpty()
-							|| Collections.max(alphas) == 0.0) {
-						alphas.add(values.get(node));
-					} else {
-						alphas.add(0.0);
-					}
-				}
-			}
-
-			if (condition.getLabelProperty() != null) {
-				String property = condition.getLabelProperty();
-
-				for (V node : nodes) {
-					if (values.get(node) != 0.0
-							&& node.getProperties().get(property) != null) {
-						if (!labelLists.containsKey(node)) {
-							labelLists.put(node, new LinkedHashSet<String>());
-						}
-
-						labelLists.get(node).add(
-								node.getProperties().get(property).toString());
-					}
-				}
-			}
-		}
-
-		Map<V, String> labels = new LinkedHashMap<>();
-
-		for (V node : labelLists.keySet()) {
-			if (!labelLists.get(node).isEmpty()) {
-				String label = "";
-
-				for (String s : labelLists.get(node)) {
-					label += s + "/";
-				}
-
-				labels.put(node, label.substring(0, label.length() - 1));
-			}
-		}
-
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<>(nodeSize, thicknessValues));
-		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new NodeFillTransformer<>(viewer, alphaValues, colors));
-		viewer.getRenderContext().setVertexLabelTransformer(
-				new LabelTransformer<>(labels));
+		applyNodeHighlights(viewer, nodeHighlightConditions, nodeSize, false);
 	}
 
 	public static <V extends Node> void applyNodeLabels(
 			VisualizationViewer<V, Edge<V>> viewer,
 			HighlightConditionList nodeHighlightConditions) {
-		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
-		Collection<V> nodes = viewer.getGraphLayout().getGraph().getVertices();
-
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
-			Map<V, Double> values = condition.getValues(nodes);
-
-			if (condition.getLabelProperty() != null) {
-				String property = condition.getLabelProperty();
-
-				for (V node : nodes) {
-					if (values.get(node) != 0.0
-							&& node.getProperties().get(property) != null) {
-						if (!labelLists.containsKey(node)) {
-							labelLists.put(node, new LinkedHashSet<String>());
-						}
-
-						labelLists.get(node).add(
-								node.getProperties().get(property).toString());
-					}
-				}
-			}
-		}
-
-		Map<V, String> labels = new LinkedHashMap<>();
-
-		for (V node : labelLists.keySet()) {
-			if (!labelLists.get(node).isEmpty()) {
-				String label = "";
-
-				for (String s : labelLists.get(node)) {
-					label += s + "/";
-				}
-
-				labels.put(node, label.substring(0, label.length() - 1));
-			}
-		}
-
-		viewer.getRenderContext().setVertexLabelTransformer(
-				new LabelTransformer<>(labels));
+		applyNodeHighlights(viewer, nodeHighlightConditions, 0, true);
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
@@ -728,5 +611,95 @@ public class CanvasUtils {
 		} else {
 			return new ImagePortObjectSpec(PNGImageContent.TYPE);
 		}
+	}
+
+	private static <V extends Node> void applyNodeHighlights(
+			VisualizationViewer<V, Edge<V>> viewer,
+			HighlightConditionList nodeHighlightConditions, int nodeSize,
+			boolean labelsOnly) {
+		List<Color> colors = new ArrayList<>();
+		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
+		Map<V, Double> thicknessValues = new LinkedHashMap<>();
+		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
+		Collection<V> nodes = viewer.getGraphLayout().getGraph().getVertices();
+		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
+
+		if (!labelsOnly) {
+			for (V node : nodes) {
+				alphaValues.put(node, new ArrayList<Double>());
+				thicknessValues.put(node, 0.0);
+			}
+		}
+
+		for (HighlightCondition condition : nodeHighlightConditions
+				.getConditions()) {
+			if (condition.isInvisible()) {
+				continue;
+			}
+
+			Map<V, Double> values = condition.getValues(nodes);
+
+			if (!labelsOnly && condition.isUseThickness()) {
+				for (V node : nodes) {
+					thicknessValues.put(node, thicknessValues.get(node)
+							+ values.get(node));
+				}
+			}
+
+			if (!labelsOnly && condition.getColor() != null) {
+				colors.add(condition.getColor());
+
+				for (V node : nodes) {
+					List<Double> alphas = alphaValues.get(node);
+
+					if (!prioritize || alphas.isEmpty()
+							|| Collections.max(alphas) == 0.0) {
+						alphas.add(values.get(node));
+					} else {
+						alphas.add(0.0);
+					}
+				}
+			}
+
+			if (condition.getLabelProperty() != null) {
+				String property = condition.getLabelProperty();
+
+				for (V node : nodes) {
+					if (values.get(node) != 0.0
+							&& node.getProperties().get(property) != null) {
+						if (!labelLists.containsKey(node)) {
+							labelLists.put(node, new LinkedHashSet<String>());
+						}
+
+						labelLists.get(node).add(
+								node.getProperties().get(property).toString());
+					}
+				}
+			}
+		}
+
+		Map<V, String> labels = new LinkedHashMap<>();
+
+		for (V node : labelLists.keySet()) {
+			if (!labelLists.get(node).isEmpty()) {
+				StringBuilder label = new StringBuilder();
+
+				for (String s : labelLists.get(node)) {
+					label.append("/" + s);
+				}
+
+				labels.put(node, label.substring(1));
+			}
+		}
+
+		if (!labelsOnly) {
+			viewer.getRenderContext().setVertexShapeTransformer(
+					new NodeShapeTransformer<>(nodeSize, thicknessValues));
+			viewer.getRenderContext().setVertexFillPaintTransformer(
+					new NodeFillTransformer<>(viewer, alphaValues, colors));
+		}
+
+		viewer.getRenderContext().setVertexLabelTransformer(
+				new LabelTransformer<>(labels));
 	}
 }
