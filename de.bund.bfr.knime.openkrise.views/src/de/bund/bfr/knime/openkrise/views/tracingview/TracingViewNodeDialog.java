@@ -27,15 +27,12 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -49,6 +46,7 @@ import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.ResizeListener;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -56,12 +54,12 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener, ComponentListener {
+		ActionListener {
 
 	private JPanel panel;
 	private TracingCanvas canvas;
 
-	private boolean resized;
+	private ResizeListener listener;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
@@ -93,7 +91,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
 				resetWeightsButton, resetCrossButton, resetFilterButton,
 				exportAsSvgBox)), BorderLayout.NORTH);
-		panel.addComponentListener(this);
 
 		addTab("Options", panel, false);
 	}
@@ -118,8 +115,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
+		listener = new ResizeListener();
+		panel.addComponentListener(listener);
 		updateGraphCanvas();
-		resized = false;
 	}
 
 	@Override
@@ -127,25 +125,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws InvalidSettingsException {
 		updateSettings();
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	@Override
@@ -188,7 +167,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private void updateSettings() {
-		set.getGraphSettings().setFromCanvas(canvas, resized);
+		set.getGraphSettings().setFromCanvas(canvas, listener.isResized());
 		set.setNodeWeights(canvas.getNodeWeights());
 		set.setEdgeWeights(canvas.getEdgeWeights());
 		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());

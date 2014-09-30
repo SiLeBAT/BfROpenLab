@@ -25,13 +25,10 @@
 package de.bund.bfr.knime.openkrise.views.gisview;
 
 import java.awt.BorderLayout;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -44,6 +41,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.openkrise.views.ResizeListener;
 
 /**
  * <code>NodeDialog</code> for the "GisView" Node.
@@ -56,13 +54,12 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
  * 
  * @author Christian Thoens
  */
-public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
-		ComponentListener {
+public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 
 	private JPanel panel;
 	private LocationCanvas canvas;
 
-	private boolean resized;
+	private ResizeListener listener;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;
@@ -82,7 +79,6 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)),
 				BorderLayout.NORTH);
-		panel.addComponentListener(this);
 
 		addTab("Options", panel, false);
 	}
@@ -94,35 +90,17 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane implements
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
+		listener = new ResizeListener();
+		panel.addComponentListener(listener);
 		updateGisCanvas(false);
-		resized = false;
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
-		set.getGisSettings().setFromCanvas(canvas, resized);
+		set.getGisSettings().setFromCanvas(canvas, listener.isResized());
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	private void updateGisCanvas(boolean showWarning) {

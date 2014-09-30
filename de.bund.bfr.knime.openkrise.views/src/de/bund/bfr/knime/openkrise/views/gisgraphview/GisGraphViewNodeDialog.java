@@ -25,15 +25,12 @@
 package de.bund.bfr.knime.openkrise.views.gisgraphview;
 
 import java.awt.BorderLayout;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.IOException;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -50,6 +47,7 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.openkrise.views.ResizeListener;
 
 /**
  * <code>NodeDialog</code> for the "GisGraphView" Node.
@@ -63,14 +61,14 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
  * @author Christian Thoens
  */
 public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
-		ComponentListener, CanvasListener {
+		CanvasListener {
 
 	private JPanel panel;
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
 	private LocationCanvas gisCanvas;
 
-	private boolean resized;
+	private ResizeListener listener;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;
@@ -91,7 +89,6 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)),
 				BorderLayout.NORTH);
-		panel.addComponentListener(this);
 
 		addTab("Options", panel, false);
 	}
@@ -115,35 +112,17 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
+		listener = new ResizeListener();
+		panel.addComponentListener(listener);
 		updateSplitPane(false);
-		resized = false;
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
-		set.getGisSettings().setFromCanvas(gisCanvas, resized);
+		set.getGraphSettings().setFromCanvas(graphCanvas, listener.isResized());
+		set.getGisSettings().setFromCanvas(gisCanvas, listener.isResized());
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	@Override
@@ -253,8 +232,8 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		graphCanvas.addComponentListener(this);
-		gisCanvas.addComponentListener(this);
+		graphCanvas.addComponentListener(listener);
+		gisCanvas.addComponentListener(listener);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas,
 				gisCanvas);
 		splitPane.setResizeWeight(0.5);
