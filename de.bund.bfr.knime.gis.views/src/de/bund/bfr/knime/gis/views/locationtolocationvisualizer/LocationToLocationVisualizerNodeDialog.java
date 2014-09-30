@@ -26,25 +26,19 @@ package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -56,15 +50,11 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
  * @author Christian Thoens
  */
 public class LocationToLocationVisualizerNodeDialog extends
-		DataAwareNodeDialogPane implements ActionListener, ComponentListener,
-		CanvasListener {
+		VisualizerNodeDialog implements CanvasListener {
 
-	private JPanel panel;
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
 	private LocationCanvas gisCanvas;
-
-	private boolean resized;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;
@@ -77,17 +67,6 @@ public class LocationToLocationVisualizerNodeDialog extends
 	 */
 	protected LocationToLocationVisualizerNodeDialog() {
 		set = new LocationToLocationVisualizerSettings();
-
-		JButton inputButton = new JButton("Input");
-
-		inputButton.addActionListener(this);
-
-		panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);
-
-		addTab("Options", panel, false);
 	}
 
 	@Override
@@ -108,25 +87,6 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
 		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	@Override

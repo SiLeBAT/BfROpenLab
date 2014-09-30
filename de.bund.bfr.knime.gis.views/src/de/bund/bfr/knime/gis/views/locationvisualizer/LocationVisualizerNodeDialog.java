@@ -26,24 +26,18 @@ package de.bund.bfr.knime.gis.views.locationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 
 /**
@@ -51,13 +45,9 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
  * 
  * @author Christian Thoens
  */
-public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ComponentListener {
+public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 
-	private JPanel panel;
 	private LocationCanvas canvas;
-
-	private boolean resized;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;
@@ -69,18 +59,6 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 	 */
 	protected LocationVisualizerNodeDialog() {
 		set = new LocationVisualizerSettings();
-
-		JButton inputButton = new JButton("Input");
-
-		inputButton.addActionListener(this);
-
-		panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);
-		panel.addComponentListener(this);
-
-		addTab("Options", panel, false);
 	}
 
 	@Override
@@ -112,25 +90,6 @@ public class LocationVisualizerNodeDialog extends DataAwareNodeDialogPane
 			set.getGisSettings().setFromCanvas(canvas, resized);
 			updateGisCanvas(true);
 		}
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	private void updateGisCanvas(boolean showWarning) {

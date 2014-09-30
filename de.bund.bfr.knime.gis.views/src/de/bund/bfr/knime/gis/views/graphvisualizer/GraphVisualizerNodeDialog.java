@@ -26,24 +26,18 @@ package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 
 /**
@@ -51,13 +45,9 @@ import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
  * 
  * @author Christian Thoens
  */
-public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ComponentListener {
+public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 
-	private JPanel panel;
-	private GraphCanvas graphCanvas;
-
-	private boolean resized;
+	private GraphCanvas canvas;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
@@ -69,18 +59,6 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 	 */
 	protected GraphVisualizerNodeDialog() {
 		set = new GraphVisualizerSettings();
-
-		JButton inputButton = new JButton("Input");
-
-		inputButton.addActionListener(this);
-
-		panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createEmptyBorderPanel(inputButton)),
-				BorderLayout.NORTH);
-		panel.addComponentListener(this);
-
-		addTab("Options", panel, false);
 	}
 
 	@Override
@@ -90,34 +68,15 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		edgeTable = (BufferedDataTable) input[1];
 		set.getGraphSettings().loadSettings(settings);
 
-		updateGraphCanvas(false);
+		updateCanvas(false);
 		resized = false;
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
+		set.getGraphSettings().setFromCanvas(canvas, resized);
 		set.getGraphSettings().saveSettings(settings);
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(panel).isActive()) {
-			resized = true;
-		}
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
 	}
 
 	@Override
@@ -129,24 +88,24 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			set.getGraphSettings().setFromCanvas(graphCanvas, resized);
-			updateGraphCanvas(true);
+			set.getGraphSettings().setFromCanvas(canvas, resized);
+			updateCanvas(true);
 		}
 	}
 
-	private void updateGraphCanvas(boolean showWarning) {
-		if (graphCanvas != null) {
-			panel.remove(graphCanvas);
+	private void updateCanvas(boolean showWarning) {
+		if (canvas != null) {
+			panel.remove(canvas);
 		}
 
 		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
 				nodeTable, edgeTable, set);
 
 		try {
-			graphCanvas = creator.createGraphCanvas();
+			canvas = creator.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
-			graphCanvas = new GraphCanvas(true);
-			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			canvas = new GraphCanvas(true);
+			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
@@ -154,7 +113,7 @@ public class GraphVisualizerNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		panel.add(graphCanvas, BorderLayout.CENTER);
+		panel.add(canvas, BorderLayout.CENTER);
 		panel.revalidate();
 	}
 }
