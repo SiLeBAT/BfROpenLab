@@ -32,10 +32,10 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
+import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport;
 
-public class MiddleEdgeArrowRenderingSupport<V, E> extends
-		BasicEdgeArrowRenderingSupport<V, E> {
+public class MiddleEdgeArrowRenderingSupport<V, E> implements
+		EdgeArrowRenderingSupport<V, E> {
 
 	@Override
 	public AffineTransform getArrowTransform(RenderContext<V, E> rc,
@@ -99,6 +99,18 @@ public class MiddleEdgeArrowRenderingSupport<V, E> extends
 		return at;
 	}
 
+	@Override
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc,
+			Shape edgeShape, Shape vertexShape) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc,
+			Shape edgeShape, Shape vertexShape, boolean passedGo) {
+		throw new UnsupportedOperationException();
+	}
+
 	private Point2D getIntersection(Line2D l1, Line2D l2) {
 		float x1 = (float) l1.getX1();
 		float x2 = (float) l1.getX2();
@@ -108,14 +120,12 @@ public class MiddleEdgeArrowRenderingSupport<V, E> extends
 		float y2 = (float) l1.getY2();
 		float y3 = (float) l2.getY1();
 		float y4 = (float) l2.getY2();
+		float factor1 = x1 * y2 - y1 * x2;
+		float factor2 = x3 * y4 - y3 * x4;
 		float denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
-		float x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2)
-				* (x3 * y4 - y3 * x4))
-				/ denom;
-		float y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2)
-				* (x3 * y4 - y3 * x4))
-				/ denom;
+		float x = (factor1 * (x3 - x4) - (x1 - x2) * factor2) / denom;
+		float y = (factor1 * (y3 - y4) - (y1 - y2) * factor2) / denom;
 
 		return new Point2D.Float(x, y);
 	}
