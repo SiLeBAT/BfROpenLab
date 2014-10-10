@@ -179,6 +179,10 @@ public class ValueHighlightCondition implements HighlightCondition,
 			}
 		}
 
+		if (values.isEmpty()) {
+			return values;
+		}
+
 		if (!zeroAsMinimum) {
 			double min = Collections.min(values.values());
 
