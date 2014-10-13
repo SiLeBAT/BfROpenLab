@@ -192,8 +192,18 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 			}
 		}
 
-		return new Point2D.Double(valueCondition.isZeroAsMinimum() ? 0.0
-				: Collections.min(values), Collections.max(values));
+		double min = 0.0;
+		double max = 1.0;
+
+		if (!valueCondition.isZeroAsMinimum() && !values.isEmpty()) {
+			min = Collections.min(values);
+		}
+
+		if (!values.isEmpty()) {
+			max = Collections.max(values);
+		}
+
+		return new Point2D.Double(min, max);
 	}
 
 	@Override
