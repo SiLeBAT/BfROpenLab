@@ -241,8 +241,8 @@ public class Plotable {
 		List<Point2D.Double> points = new ArrayList<>(xList.length);
 
 		for (int i = 0; i < xList.length; i++) {
-			Double x = Transform.transform(xList[i], transformX);
-			Double y = Transform.transform(yList[i], transformY);
+			Double x = transformX.to(xList[i]);
+			Double y = transformY.to(yList[i]);
 
 			if (MathUtils.isValidDouble(x) && MathUtils.isValidDouble(y)) {
 				points.add(new Point2D.Double(x, y));
@@ -283,14 +283,13 @@ public class Plotable {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX,
-					Transform.inverseTransform(x, transformX));
+			parser.setVarValue(paramX, transformX.from(x));
 
 			Object number = parser.evaluate(f);
 			Double y;
 
 			if (number instanceof Double) {
-				y = Transform.transform((Double) number, transformY);
+				y = transformY.to((Double) number);
 
 				if (!MathUtils.isValidDouble(y) || y < minY || y > maxY) {
 					y = Double.NaN;
@@ -328,11 +327,9 @@ public class Plotable {
 			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX,
-					Transform.inverseTransform(x, transformX));
+			parser.setVarValue(paramX, transformX.from(x));
 
-			Double y = Transform.transform(
-					getError(parser, derivatives, tDist), transformY);
+			Double y = transformY.to(getError(parser, derivatives, tDist));
 
 			if (!MathUtils.isValidDouble(y)) {
 				y = Double.NaN;
@@ -387,14 +384,14 @@ public class Plotable {
 		for (int j = 0; j < FUNCTION_STEPS; j++) {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
-			double transX = Transform.inverseTransform(x, transformX);
+			double transX = transformX.from(x);
 			Double y;
 
 			if (transX == diffValue) {
-				y = Transform.transform(value[depIndex], transformY);
+				y = transformY.to(value[depIndex]);
 			} else if (transX > diffValue) {
 				integrator.integrate(f, diffValue, value, transX, value);
-				y = Transform.transform(value[depIndex], transformY);
+				y = transformY.to(value[depIndex]);
 				diffValue = transX;
 			} else {
 				y = Double.NaN;

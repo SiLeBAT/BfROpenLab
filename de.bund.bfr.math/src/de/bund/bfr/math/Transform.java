@@ -52,12 +52,12 @@ public enum Transform {
 		return super.toString();
 	}
 
-	public static Double transform(Double value, Transform transform) {
+	public Double to(Double value) {
 		if (value == null) {
 			return null;
 		}
 
-		switch (transform) {
+		switch (this) {
 		case NO_TRANSFORM:
 			return value;
 		case SQRT_TRANSFORM:
@@ -79,12 +79,12 @@ public enum Transform {
 		return null;
 	}
 
-	public static Double inverseTransform(Double value, Transform transform) {
+	public Double from(Double value) {
 		if (value == null) {
 			return null;
 		}
 
-		switch (transform) {
+		switch (this) {
 		case NO_TRANSFORM:
 			return value;
 		case SQRT_TRANSFORM:
