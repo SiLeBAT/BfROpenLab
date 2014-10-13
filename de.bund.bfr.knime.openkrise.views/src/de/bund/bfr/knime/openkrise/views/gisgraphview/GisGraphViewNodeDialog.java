@@ -120,6 +120,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.getGraphSettings().setFromCanvas(graphCanvas, listener.isResized());
 		set.getGisSettings().setFromCanvas(gisCanvas, listener.isResized());
 		set.saveSettings(settings);

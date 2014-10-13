@@ -167,6 +167,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private void updateSettings() {
+		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.getGraphSettings().setFromCanvas(canvas, listener.isResized());
 		set.setNodeWeights(canvas.getNodeWeights());
 		set.setEdgeWeights(canvas.getEdgeWeights());
