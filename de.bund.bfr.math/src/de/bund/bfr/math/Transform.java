@@ -26,7 +26,7 @@ package de.bund.bfr.math;
 
 public enum Transform {
 
-	NO_TRANSFORM, SQRT_TRANSFORM, LOG_TRANSFORM, LOG10_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM, DIVX_TRANSFORM, DIVX2_TRANSFORM;
+	NO_TRANSFORM, SQRT_TRANSFORM, LOG_TRANSFORM, LOG10_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM, DIVX_TRANSFORM, DIVX2_TRANSFORM, KELVIN_TO_CELSIUS;
 
 	@Override
 	public String toString() {
@@ -47,6 +47,8 @@ public enum Transform {
 			return "1/x";
 		case DIVX2_TRANSFORM:
 			return "1/x^2";
+		case KELVIN_TO_CELSIUS:
+			return "K->C°";
 		}
 
 		return super.toString();
@@ -74,6 +76,8 @@ public enum Transform {
 			return 1 / value;
 		case DIVX2_TRANSFORM:
 			return 1 / value / value;
+		case KELVIN_TO_CELSIUS:
+			return value - 273.15;
 		}
 
 		return null;
@@ -101,6 +105,8 @@ public enum Transform {
 			return 1 / value;
 		case DIVX2_TRANSFORM:
 			return 1 / Math.sqrt(value);
+		case KELVIN_TO_CELSIUS:
+			return value + 273.15;
 		}
 
 		return null;
