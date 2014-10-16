@@ -278,7 +278,8 @@ public class SbmlReaderNodeModel extends NodeModel {
 				String name = param.getId();
 				UnitDefinition unit = param.getUnitsInstance();
 				AlgebraicRule minMax = minMaxRules.get(name);
-				String annotation = param.getAnnotation().getNonRDFannotation();
+				String annotation = param.getAnnotation()
+						.getNonRDFannotationAsString();
 
 				if (annotation != null && annotation.trim().equals("<start>")) {
 					row.put(START_PARAMETER, IO.createCell(name));
@@ -336,15 +337,14 @@ public class SbmlReaderNodeModel extends NodeModel {
 			columns.put(INDEPENDENT_VARIABLES, StringCell.TYPE);
 		}
 
-		row.put(INDEPENDENT_VARIABLES, IO.createCell(KnimeUtils
-				.listToString(independentVariables)));
+		row.put(INDEPENDENT_VARIABLES,
+				IO.createCell(KnimeUtils.listToString(independentVariables)));
 
 		if (!columns.containsKey(PARAMETERS)) {
 			columns.put(PARAMETERS, StringCell.TYPE);
 		}
 
-		row.put(PARAMETERS,
-				IO.createCell(KnimeUtils.listToString(paramters)));
+		row.put(PARAMETERS, IO.createCell(KnimeUtils.listToString(paramters)));
 
 		rows.add(row);
 	}
