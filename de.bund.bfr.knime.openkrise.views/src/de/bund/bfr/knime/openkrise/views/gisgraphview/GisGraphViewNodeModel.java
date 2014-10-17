@@ -60,10 +60,9 @@ public class GisGraphViewNodeModel extends NodeModel {
 	 */
 	protected GisGraphViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE,
-				ImagePortObject.TYPE, BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
+				new PortType[] { ImagePortObject.TYPE, ImagePortObject.TYPE,
+						ImagePortObject.TYPE, BufferedDataTable.TYPE });
 		set = new GisGraphViewSettings();
 	}
 

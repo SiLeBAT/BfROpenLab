@@ -79,10 +79,10 @@ public class TracingViewNodeModel extends NodeModel {
 	 */
 	protected TracingViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				ImagePortObject.TYPE, BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
+				new PortType[] { BufferedDataTable.TYPE,
+						BufferedDataTable.TYPE, ImagePortObject.TYPE,
+						BufferedDataTable.TYPE });
 		set = new TracingViewSettings();
 	}
 
