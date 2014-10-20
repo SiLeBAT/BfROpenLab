@@ -377,12 +377,13 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
 		for (String id : targetValues.keySet()) {
-			Map<String, Double> minValues = null;
-			Map<String, Double> maxValues = null;
+			String formula = function.getTerms().get(
+					function.getDependentVariable());
 
 			if (set.isEnforceLimits()) {
-				minValues = set.getMinStartValues();
-				maxValues = set.getMaxStartValues();
+				formula = MathUtils.addPenaltyTerms(formula,
+						function.getParameters(), set.getMinStartValues(),
+						set.getMaxStartValues());
 			}
 
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
@@ -393,11 +394,9 @@ public class FittingNodeModel extends NodeModel implements
 						Doubles.toArray(entry.getValue()));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(function
-					.getTerms().get(function.getDependentVariable()), function
-					.getParameters().toArray(new String[0]), minValues,
-					maxValues, Doubles.toArray(targetValues.get(id)),
-					argumentArrays);
+			ParameterOptimizer optimizer = new ParameterOptimizer(formula,
+					function.getParameters().toArray(new String[0]),
+					Doubles.toArray(targetValues.get(id)), argumentArrays);
 
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 					set.isStopWhenSuccessful(), set.getMinStartValues(),

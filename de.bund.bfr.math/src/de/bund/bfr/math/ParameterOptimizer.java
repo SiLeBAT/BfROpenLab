@@ -76,32 +76,10 @@ public class ParameterOptimizer {
 	private List<ProgressListener> progressListeners;
 
 	public ParameterOptimizer(String formula, String[] parameters,
-			Map<String, Double> minParameterValues,
-			Map<String, Double> maxParameterValues, double[] targetValues,
-			Map<String, double[]> variableValues) throws ParseException {
+			double[] targetValues, Map<String, double[]> variableValues)
+			throws ParseException {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
-
-		if (minParameterValues == null) {
-			minParameterValues = new LinkedHashMap<>();
-		}
-
-		if (maxParameterValues == null) {
-			maxParameterValues = new LinkedHashMap<>();
-		}
-
-		for (String param : parameters) {
-			Double min = minParameterValues.get(param);
-			Double max = maxParameterValues.get(param);
-
-			if (min != null) {
-				formula += "+1000000*(" + param + "<" + min + ")";
-			}
-
-			if (max != null) {
-				formula += "+1000000*(" + param + ">" + max + ")";
-			}
-		}
 
 		optimizerFunction = new VectorFunction(formula, parameters,
 				variableValues);

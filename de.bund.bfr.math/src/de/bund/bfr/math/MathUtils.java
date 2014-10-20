@@ -27,6 +27,7 @@ package de.bund.bfr.math;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -40,6 +41,8 @@ import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
 public class MathUtils {
+
+	private static final double PENALTY = 1e6;
 
 	private MathUtils() {
 	}
@@ -57,6 +60,25 @@ public class MathUtils {
 		}
 
 		return false;
+	}
+
+	public static String addPenaltyTerms(String formula,
+			Collection<String> parameters, Map<String, Double> minValues,
+			Map<String, Double> maxValues) {
+		for (String param : parameters) {
+			Double min = minValues.get(param);
+			Double max = maxValues.get(param);
+
+			if (isValidDouble(min)) {
+				formula += "+" + PENALTY + "*(" + param + "<" + min + ")";
+			}
+
+			if (isValidDouble(max)) {
+				formula += "+" + PENALTY + "*(" + param + ">" + max + ")";
+			}
+		}
+
+		return formula;
 	}
 
 	public static String replaceVariable(String formula, String var,
