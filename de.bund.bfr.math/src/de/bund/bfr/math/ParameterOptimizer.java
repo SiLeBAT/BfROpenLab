@@ -56,8 +56,6 @@ public class ParameterOptimizer {
 	private MultivariateMatrixFunction optimizerFunctionJacobian;
 
 	private String[] parameters;
-	private Map<String, Double> minStartValues;
-	private Map<String, Double> maxStartValues;
 	private double[] targetValues;
 
 	private LevenbergMarquardtOptimizer optimizer;
@@ -78,29 +76,30 @@ public class ParameterOptimizer {
 	private List<ProgressListener> progressListeners;
 
 	public ParameterOptimizer(String formula, String[] parameters,
-			Map<String, Double> minStartValues,
-			Map<String, Double> maxStartValues,
 			Map<String, Double> minParameterValues,
 			Map<String, Double> maxParameterValues, double[] targetValues,
-			Map<String, double[]> variableValues, boolean enforceLimits)
-			throws ParseException {
+			Map<String, double[]> variableValues) throws ParseException {
 		this.parameters = parameters;
-		this.minStartValues = minStartValues;
-		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 
-		if (enforceLimits) {
-			for (String param : parameters) {
-				Double min = minParameterValues.get(param);
-				Double max = maxParameterValues.get(param);
+		if (minParameterValues == null) {
+			minParameterValues = new LinkedHashMap<>();
+		}
 
-				if (min != null) {
-					formula += "+1000000*(" + param + "<" + min + ")";
-				}
+		if (maxParameterValues == null) {
+			maxParameterValues = new LinkedHashMap<>();
+		}
 
-				if (max != null) {
-					formula += "+1000000*(" + param + ">" + max + ")";
-				}
+		for (String param : parameters) {
+			Double min = minParameterValues.get(param);
+			Double max = maxParameterValues.get(param);
+
+			if (min != null) {
+				formula += "+1000000*(" + param + "<" + min + ")";
+			}
+
+			if (max != null) {
+				formula += "+1000000*(" + param + ">" + max + ")";
 			}
 		}
 
@@ -116,14 +115,11 @@ public class ParameterOptimizer {
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
 			Double[] initValues, String[] initParameters, String[] parameters,
-			Map<String, Double> minStartValues,
-			Map<String, Double> maxStartValues, double[] timeValues,
-			double[] targetValues, String dependentVariable,
-			String timeVariable, Map<String, double[]> variableValues,
-			Integrator integrator) throws ParseException {
+			double[] timeValues, double[] targetValues,
+			String dependentVariable, String timeVariable,
+			Map<String, double[]> variableValues, Integrator integrator)
+			throws ParseException {
 		this.parameters = parameters;
-		this.minStartValues = minStartValues;
-		this.maxStartValues = maxStartValues;
 		this.targetValues = targetValues;
 
 		optimizerFunction = new VectorDiffFunction(formulas,
@@ -149,7 +145,8 @@ public class ParameterOptimizer {
 	}
 
 	public void optimize(int nParameterSpace, int nLevenberg,
-			boolean stopWhenSuccessful) {
+			boolean stopWhenSuccessful, Map<String, Double> minStartValues,
+			Map<String, Double> maxStartValues) {
 		List<Double> paramMin = new ArrayList<>();
 		List<Integer> paramStepCount = new ArrayList<>();
 		List<Double> paramStepSize = new ArrayList<>();

@@ -334,6 +334,10 @@ public class FittingNodeModel extends NodeModel implements
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
 			BufferedDataTable table) throws ParseException {
+		if (function.getTimeVariable() != null) {
+			return new LinkedHashMap<>();
+		}
+
 		DataTableSpec spec = table.getSpec();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
@@ -373,8 +377,14 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
 		for (String id : targetValues.keySet()) {
-			ParameterOptimizer optimizer;
-			double[] targetArray = Doubles.toArray(targetValues.get(id));
+			Map<String, Double> minValues = null;
+			Map<String, Double> maxValues = null;
+
+			if (set.isEnforceLimits()) {
+				minValues = set.getMinStartValues();
+				maxValues = set.getMaxStartValues();
+			}
+
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
@@ -383,18 +393,15 @@ public class FittingNodeModel extends NodeModel implements
 						Doubles.toArray(entry.getValue()));
 			}
 
-			if (function.getTimeVariable() != null) {
-				continue;
-			}
+			ParameterOptimizer optimizer = new ParameterOptimizer(function
+					.getTerms().get(function.getDependentVariable()), function
+					.getParameters().toArray(new String[0]), minValues,
+					maxValues, Doubles.toArray(targetValues.get(id)),
+					argumentArrays);
 
-			optimizer = new ParameterOptimizer(function.getTerms().get(
-					function.getDependentVariable()), function.getParameters()
-					.toArray(new String[0]), set.getMinStartValues(),
-					set.getMaxStartValues(), set.getMinStartValues(),
-					set.getMaxStartValues(), targetArray, argumentArrays,
-					set.isEnforceLimits());
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-					set.isStopWhenSuccessful());
+					set.isStopWhenSuccessful(), set.getMinStartValues(),
+					set.getMaxStartValues());
 			results.put(id, optimizer);
 		}
 
@@ -404,6 +411,10 @@ public class FittingNodeModel extends NodeModel implements
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
 			BufferedDataTable dataTable, BufferedDataTable conditionTable)
 			throws ParseException {
+		if (function.getTimeVariable() == null) {
+			return new LinkedHashMap<>();
+		}
+
 		DataTableSpec dataSpec = dataTable.getSpec();
 		DataTableSpec conditionSpec = conditionTable.getSpec();
 		Map<String, List<Double>> timeValues = new LinkedHashMap<>();
@@ -464,13 +475,6 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
 		for (String id : targetValues.keySet()) {
-			if (function.getTimeVariable() == null) {
-				continue;
-			}
-
-			ParameterOptimizer optimizer;
-			double[] timeArray = Doubles.toArray(timeValues.get(id));
-			double[] targetArray = Doubles.toArray(targetValues.get(id));
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
@@ -494,16 +498,19 @@ public class FittingNodeModel extends NodeModel implements
 				i++;
 			}
 
-			optimizer = new ParameterOptimizer(terms, valueVariables,
-					initValues, initParameters, function.getParameters()
-							.toArray(new String[0]), set.getMinStartValues(),
-					set.getMaxStartValues(), timeArray, targetArray,
+			ParameterOptimizer optimizer = new ParameterOptimizer(terms,
+					valueVariables, initValues, initParameters, function
+							.getParameters().toArray(new String[0]),
+					Doubles.toArray(timeValues.get(id)),
+					Doubles.toArray(targetValues.get(id)),
 					function.getDependentVariable(),
 					function.getTimeVariable(), argumentArrays, new Integrator(
 							Integrator.Type.RUNGE_KUTTA, 0.01, 0, 0, 0, 0));
+
 			optimizer.addProgressListener(this);
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-					set.isStopWhenSuccessful());
+					set.isStopWhenSuccessful(), set.getMinStartValues(),
+					set.getMaxStartValues());
 			results.put(id, optimizer);
 		}
 
