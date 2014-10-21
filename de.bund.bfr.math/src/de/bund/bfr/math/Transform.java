@@ -26,7 +26,7 @@ package de.bund.bfr.math;
 
 public enum Transform {
 
-	NO_TRANSFORM, SQRT_TRANSFORM, LOG_TRANSFORM, LOG10_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM, DIVX_TRANSFORM, DIVX2_TRANSFORM, KELVIN_TO_CELSIUS;
+	NO_TRANSFORM, SQRT_TRANSFORM, LOG_TRANSFORM, LOG10_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM, KELVIN_TO_CELSIUS;
 
 	@Override
 	public String toString() {
@@ -43,10 +43,6 @@ public enum Transform {
 			return "exp";
 		case EXP10_TRANSFORM:
 			return "10^x";
-		case DIVX_TRANSFORM:
-			return "1/x";
-		case DIVX2_TRANSFORM:
-			return "1/x^2";
 		case KELVIN_TO_CELSIUS:
 			return "K->C°";
 		}
@@ -72,10 +68,6 @@ public enum Transform {
 			return Math.exp(value);
 		case EXP10_TRANSFORM:
 			return Math.pow(10.0, value);
-		case DIVX_TRANSFORM:
-			return 1 / value;
-		case DIVX2_TRANSFORM:
-			return 1 / value / value;
 		case KELVIN_TO_CELSIUS:
 			return value - 273.15;
 		}
@@ -101,12 +93,58 @@ public enum Transform {
 			return Math.log(value);
 		case EXP10_TRANSFORM:
 			return Math.log10(value);
-		case DIVX_TRANSFORM:
-			return 1 / value;
-		case DIVX2_TRANSFORM:
-			return 1 / Math.sqrt(value);
 		case KELVIN_TO_CELSIUS:
 			return value + 273.15;
+		}
+
+		return null;
+	}
+
+	public String to(String term) {
+		if (term == null) {
+			return null;
+		}
+
+		switch (this) {
+		case NO_TRANSFORM:
+			return "(" + term + ")";
+		case SQRT_TRANSFORM:
+			return "sqrt(" + term + ")";
+		case LOG_TRANSFORM:
+			return "log(" + term + ")";
+		case LOG10_TRANSFORM:
+			return "log10(" + term + ")";
+		case EXP_TRANSFORM:
+			return "exp(" + term + ")";
+		case EXP10_TRANSFORM:
+			return "10^(" + term + ")";
+		case KELVIN_TO_CELSIUS:
+			return "(" + term + "-273.15)";
+		}
+
+		return null;
+	}
+
+	public String from(String term) {
+		if (term == null) {
+			return null;
+		}
+
+		switch (this) {
+		case NO_TRANSFORM:
+			return "(" + term + ")";
+		case SQRT_TRANSFORM:
+			return "(" + term + ")^2";
+		case LOG_TRANSFORM:
+			return "exp(" + term + ")";
+		case LOG10_TRANSFORM:
+			return "10^(" + term + ")";
+		case EXP_TRANSFORM:
+			return "log(" + term + ")";
+		case EXP10_TRANSFORM:
+			return "log10(" + term + ")";
+		case KELVIN_TO_CELSIUS:
+			return "(" + term + "+273.15)";
 		}
 
 		return null;
