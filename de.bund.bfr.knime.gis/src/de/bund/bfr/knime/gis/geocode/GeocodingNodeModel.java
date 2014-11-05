@@ -61,6 +61,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.IO;
 
@@ -166,19 +167,11 @@ public class GeocodingNodeModel extends NodeModel {
 
 			if (set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_MAPQUEST)) {
-				try {
-					result = performMapQuestGeocoding(street, city, county,
-							state, country, postalCode);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				result = performMapQuestGeocoding(street, city, county, state,
+						country, postalCode);
 			} else if (set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_GISGRAPHY)) {
-				try {
-					result = performGisgraphyGeocoding(address, countryCode);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				result = performGisgraphyGeocoding(address, countryCode);
 			}
 
 			switch (result.getStatus()) {
@@ -203,8 +196,6 @@ public class GeocodingNodeModel extends NodeModel {
 				cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO
 						.createCell(result.getLongitude());
 				break;
-			case GeocodingResult.STATUS_OVER_LIMIT:
-				throw new Exception("OVER_QUERY_LIMIT");
 			}
 
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -377,7 +368,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
-		} catch (Exception e) {
+		} catch (SAXException | IOException e) {
 			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
 		}
 
@@ -494,7 +485,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
-		} catch (Exception e) {
+		} catch (SAXException | IOException e) {
 			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
 		}
 
@@ -609,7 +600,6 @@ public class GeocodingNodeModel extends NodeModel {
 
 		public static final int STATUS_OK = 1;
 		public static final int STATUS_FAILED = 2;
-		public static final int STATUS_OVER_LIMIT = 3;
 
 		private String url;
 		private String street;

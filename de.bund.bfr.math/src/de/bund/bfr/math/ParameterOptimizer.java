@@ -286,8 +286,6 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 
@@ -344,7 +342,7 @@ public class ParameterOptimizer {
 		return targetValues.length - parameters.length;
 	}
 
-	private void optimize(double[] startValues) throws Exception {
+	private void optimize(double[] startValues) {
 		double[] weights = new double[targetValues.length];
 
 		Arrays.fill(weights, 1.0);

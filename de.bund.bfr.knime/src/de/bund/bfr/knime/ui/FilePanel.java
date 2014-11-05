@@ -114,9 +114,9 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fileChooser;
 
-		try {
+		if (field.isValueValid()) {
 			fileChooser = new JFileChooser(new File(field.getValue()));
-		} catch (Exception ex) {
+		} else {
 			fileChooser = new JFileChooser();
 		}
 

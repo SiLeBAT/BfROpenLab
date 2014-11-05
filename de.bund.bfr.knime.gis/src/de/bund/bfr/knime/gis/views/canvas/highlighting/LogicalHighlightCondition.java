@@ -99,7 +99,7 @@ public class LogicalHighlightCondition implements Serializable {
 
 		try {
 			doubleValue = Double.parseDouble(value);
-		} catch (Exception e) {
+		} catch (NullPointerException | NumberFormatException e) {
 			doubleValue = null;
 		}
 

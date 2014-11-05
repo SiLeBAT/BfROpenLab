@@ -31,6 +31,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -106,7 +108,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 		File path = KnimeUtils.getFile(inPath.getStringValue());
 
 		if (!path.isDirectory()) {
-			throw new Exception(path + " is not a directory");
+			throw new IOException(path + " is not a directory");
 		}
 
 		Map<String, DataType> columns = new LinkedHashMap<>();
@@ -115,18 +117,14 @@ public class SbmlReaderNodeModel extends NodeModel {
 		int index1 = 0;
 
 		for (File file : files) {
-			SBMLDocument doc = null;
-
 			try {
-				doc = SBMLReader.read(file);
-			} catch (Exception e) {
-			}
+				SBMLDocument doc = SBMLReader.read(file);
 
-			if (doc != null) {
 				readSBML(doc, columns, rows);
 				exec.checkCanceled();
 				exec.setProgress((double) index1 / (double) files.length);
 				index1++;
+			} catch (IOException | XMLStreamException e) {
 			}
 		}
 

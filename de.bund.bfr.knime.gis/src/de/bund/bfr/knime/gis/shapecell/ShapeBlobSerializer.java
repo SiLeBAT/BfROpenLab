@@ -30,6 +30,7 @@ import org.knime.core.data.DataCellDataInput;
 import org.knime.core.data.DataCellDataOutput;
 import org.knime.core.data.DataCellSerializer;
 
+import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
@@ -38,31 +39,26 @@ public class ShapeBlobSerializer implements DataCellSerializer<ShapeBlobCell> {
 	@Override
 	public void serialize(ShapeBlobCell cell, DataCellDataOutput output)
 			throws IOException {
-		try {
-			WKBWriter writer = new WKBWriter();
-			byte[] bytes = writer.write(cell.getShape());
+		WKBWriter writer = new WKBWriter();
+		byte[] bytes = writer.write(cell.getShape());
 
-			output.writeInt(bytes.length);
-			output.write(bytes);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		output.writeInt(bytes.length);
+		output.write(bytes);
 	}
 
 	@Override
 	public ShapeBlobCell deserialize(DataCellDataInput input)
 			throws IOException {
+		byte[] bytes = new byte[input.readInt()];
+
+		input.readFully(bytes);
+
+		WKBReader reader = new WKBReader();
+
 		try {
-			byte[] bytes = new byte[input.readInt()];
-
-			input.readFully(bytes);
-
-			WKBReader reader = new WKBReader();
-
 			return new ShapeBlobCell(reader.read(bytes));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		} catch (ParseException e) {
+			throw new IOException(e.getMessage());
 		}
 	}
 
