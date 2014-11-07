@@ -25,29 +25,19 @@
 package de.bund.bfr.math;
 
 public enum Transform {
+	NO_TRANSFORM(""), SQRT_TRANSFORM("sqrt"), LOG_TRANSFORM("log"), LOG10_TRANSFORM(
+			"log10"), EXP_TRANSFORM("exp"), EXP10_TRANSFORM("10^x"), KELVIN_TO_CELSIUS(
+			"K->C°");
 
-	NO_TRANSFORM, SQRT_TRANSFORM, LOG_TRANSFORM, LOG10_TRANSFORM, EXP_TRANSFORM, EXP10_TRANSFORM, KELVIN_TO_CELSIUS;
+	private String name;
+
+	private Transform(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String toString() {
-		switch (this) {
-		case NO_TRANSFORM:
-			return "";
-		case SQRT_TRANSFORM:
-			return "sqrt";
-		case LOG_TRANSFORM:
-			return "log";
-		case LOG10_TRANSFORM:
-			return "log10";
-		case EXP_TRANSFORM:
-			return "exp";
-		case EXP10_TRANSFORM:
-			return "10^x";
-		case KELVIN_TO_CELSIUS:
-			return "K->C°";
-		}
-
-		return super.toString();
+		return name;
 	}
 
 	public Double to(Double value) {

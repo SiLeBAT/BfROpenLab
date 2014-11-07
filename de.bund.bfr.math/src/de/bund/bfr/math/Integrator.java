@@ -32,20 +32,18 @@ import org.apache.commons.math3.ode.nonstiff.DormandPrince853Integrator;
 public class Integrator {
 
 	public static enum Type {
-		RUNGE_KUTTA, DORMAND_PRINCE_54, DORMAND_PRINCE_853;
+		RUNGE_KUTTA("Classical Runge Kutta"), DORMAND_PRINCE_54(
+				"Dormand Prince 54"), DORMAND_PRINCE_853("Dormand Prince 853");
+
+		private String name;
+
+		private Type(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public String toString() {
-			switch (this) {
-			case RUNGE_KUTTA:
-				return "Classical Runge Kutta";
-			case DORMAND_PRINCE_54:
-				return "Dormand Prince 54";
-			case DORMAND_PRINCE_853:
-				return "Dormand Prince 853";
-			}
-
-			return super.toString();
+			return name;
 		}
 	}
 

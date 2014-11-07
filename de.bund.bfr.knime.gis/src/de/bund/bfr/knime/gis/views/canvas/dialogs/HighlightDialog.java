@@ -74,36 +74,34 @@ public class HighlightDialog extends JDialog implements ActionListener,
 			"Button.background");
 
 	private static enum Type {
-		LOGICAL_CONDITION, VALUE_CONDITION, LOGICAL_VALUE_CONDITION;
+		LOGICAL_CONDITION("Logical Condition"), VALUE_CONDITION(
+				"Value Condition"), LOGICAL_VALUE_CONDITION(
+				"Logical Value Condition");
+
+		private String name;
+
+		private Type(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public String toString() {
-			switch (this) {
-			case LOGICAL_CONDITION:
-				return "Logical Condition";
-			case VALUE_CONDITION:
-				return "Value Condition";
-			case LOGICAL_VALUE_CONDITION:
-				return "Logical Value Condition";
-			}
-
-			return super.toString();
+			return name;
 		}
 	}
 
 	private static enum AndOr {
-		AND, OR;
+		AND("And"), OR("Or");
+
+		private String name;
+
+		private AndOr(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public String toString() {
-			switch (this) {
-			case AND:
-				return "And";
-			case OR:
-				return "Or";
-			}
-
-			return super.toString();
+			return name;
 		}
 	}
 

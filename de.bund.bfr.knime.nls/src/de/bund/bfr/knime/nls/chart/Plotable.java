@@ -52,20 +52,17 @@ public class Plotable {
 	}
 
 	public static enum Status {
-		OK, FAILED, NO_COVARIANCE;
+		OK("Ok"), FAILED("Failed"), NO_COVARIANCE("No Cov. Matrix");
+
+		private String name;
+
+		private Status(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public String toString() {
-			switch (this) {
-			case OK:
-				return "Ok";
-			case FAILED:
-				return "Failed";
-			case NO_COVARIANCE:
-				return "No Cov. Matrix";
-			}
-
-			return super.toString();
+			return name;
 		}
 	}
 
