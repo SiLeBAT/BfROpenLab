@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -50,6 +51,20 @@ public class MathUtils {
 	public static boolean isValidDouble(Object o) {
 		return o instanceof Double && !((Double) o).isNaN()
 				&& !((Double) o).isInfinite();
+	}
+
+	public static double getMean(Collection<Double> values) {
+		if (values.isEmpty()) {
+			throw new NoSuchElementException("Collection is empty");
+		}
+
+		double sum = 0.0;
+
+		for (double v : values) {
+			sum += v;
+		}
+
+		return sum / values.size();
 	}
 
 	public static boolean containsInvalidDouble(Collection<Double> values) {
