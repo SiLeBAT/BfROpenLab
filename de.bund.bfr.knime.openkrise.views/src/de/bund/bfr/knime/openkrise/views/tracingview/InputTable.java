@@ -24,6 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public class InputTable extends JTable {
 	public static final String INPUT = "Input";
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Color GRID_COLOR = new JTable().getGridColor();
 
 	public InputTable(List<? extends Element> elements) {
 		List<Input> inputs = new ArrayList<>();
@@ -182,7 +185,7 @@ public class InputTable extends JTable {
 			Input input = (Input) value;
 			JPanel panel = new JPanel();
 
-			panel.setBackground(new JTable().getGridColor());
+			panel.setBackground(GRID_COLOR);
 			panel.setLayout(new GridLayout(1, 3, 1, 0));
 			panel.add(getTableRendererComponent(input.getWeight(),
 					Double.class, isSelected, hasFocus));
@@ -277,7 +280,8 @@ public class InputTable extends JTable {
 
 			JPanel panel = new JPanel();
 
-			panel.setLayout(new GridLayout(1, 3));
+			panel.setBackground(GRID_COLOR);
+			panel.setLayout(new GridLayout(1, 3, 1, 0));
 			panel.add(weightField);
 			panel.add(ccEditor.getTableCellEditorComponent(ccTable,
 					input.isCrossContamination(), isSelected, 0, 0));
