@@ -24,12 +24,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.update.p2.deploy
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import groovyx.net.http.HttpResponseDecorator;
+import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
+
+import java.text.SimpleDateFormat
 
 import org.apache.http.HttpRequest
 import org.apache.http.HttpRequestInterceptor
@@ -54,10 +52,10 @@ class DeployToBintray {
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
 
 	static main(args) {
-		File artifactsFile = new File("${UPDATE_SITE}/${ARTIFACTS_JAR}")
-		File contentFile = new File("${UPDATE_SITE}/${CONTENT_JAR}")
-		File featuresDir = new File("${UPDATE_SITE}/${FEATURES}")
-		File pluginsDir = new File("${UPDATE_SITE}/${PLUGINS}")
+		def artifactsFile = new File("${UPDATE_SITE}/${ARTIFACTS_JAR}")
+		def contentFile = new File("${UPDATE_SITE}/${CONTENT_JAR}")
+		def featuresDir = new File("${UPDATE_SITE}/${FEATURES}")
+		def pluginsDir = new File("${UPDATE_SITE}/${PLUGINS}")
 
 		if (!artifactsFile.exists() || !contentFile.exists() || !featuresDir.exists() || !pluginsDir.exists()) {
 			println "p2 files cannot be found"
@@ -65,13 +63,12 @@ class DeployToBintray {
 		}
 
 		println "user:"
-		String user = new Scanner(System.in).nextLine()
+		def user = new Scanner(System.in).nextLine()
 		println "password:"
-		String password = new Scanner(System.in).nextLine()
+		def password = new Scanner(System.in).nextLine()
 		println ""
 
-		String version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
-
+		def version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
 		createVersion(user, password, version)
 		uploadFile(user, password, null, "", artifactsFile)
 		uploadFile(user, password, null, "", contentFile)
@@ -86,8 +83,9 @@ class DeployToBintray {
 	}
 
 	static void createVersion(String user, String password, String version) {
-		RESTClient client = getClient(user, password)
-		String url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions"
+		def client = getClient(user, password)
+		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions"
+
 		println "Create version"
 		println "Name:\t${version}"
 		println "URL:\t${url}"
@@ -102,8 +100,9 @@ class DeployToBintray {
 	}
 
 	static void uploadFile(String user, String password, String version, String path, File file) {
-		RESTClient client = getClient(user, password)
-		String url = "content/${SUBJECT}/${REPO}/${path}/${file.name}"
+		def client = getClient(user, password)
+		client.encoder.putAt("application/file", { f -> new FileEntity(f, "application/file") })
+		def url = "content/${SUBJECT}/${REPO}/${path}/${file.name}"
 
 		if (version != null) {
 			url += ";bt_package=${PACKAGE};bt_version=${version};publish=1"
@@ -112,18 +111,20 @@ class DeployToBintray {
 		println "Upload file"
 		println "Name:\t${file.name}"
 		println "URL:\t${url}"
-		client.encoder.putAt("application/file", { f -> new FileEntity(f, "application/file") })
 		HttpResponseDecorator response = client.put(
-				path: url, body: file, contentType: "application/json", requestContentType: "application/file")
+				path: url,
+				contentType: "application/json",
+				requestContentType: "application/file",
+				body: file)
 		println "Status:\t${response.status}"
 		println ""
 		assert 201 == response.status
 	}
 
 	static RESTClient getClient(String user, String password) {
-		RESTClient bintrayClient = new RESTClient("https://api.bintray.com/")
+		def bintrayClient = new RESTClient("https://api.bintray.com")
 		AbstractHttpClient http = bintrayClient.client
-		String basic = (user + ":" + password).bytes.encodeBase64().toString()
+		def basic = (user + ":" + password).bytes.encodeBase64().toString()
 
 		http.addRequestInterceptor(
 				new HttpRequestInterceptor() {
