@@ -95,7 +95,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(UI.createEmptyBorderPanel(expertBox), BorderLayout.NORTH);
+		mainPanel.add(UI.createHorizontalPanel(expertBox), BorderLayout.NORTH);
 		addTab("Options", UI.createNorthPanel(mainPanel));
 	}
 
@@ -251,7 +251,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 			minimumFields.put(param, minField);
 			maximumFields.put(param, maxField);
-			leftPanel.add(UI.createEmptyBorderPanel(new JLabel(param)));
+			leftPanel.add(UI.createHorizontalPanel(new JLabel(param)));
 			rightPanel.add(minMaxPanel);
 		}
 

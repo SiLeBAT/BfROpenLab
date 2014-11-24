@@ -143,16 +143,6 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createEmptyBorderPanel(JComponent component) {
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		panel.add(component, BorderLayout.CENTER);
-
-		return panel;
-	}
-
 	public static JPanel createHorizontalPanel(JComponent... components) {
 		JPanel buttonPanel = new JPanel();
 

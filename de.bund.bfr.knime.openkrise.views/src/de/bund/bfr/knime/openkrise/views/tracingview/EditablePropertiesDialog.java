@@ -183,7 +183,7 @@ public class EditablePropertiesDialog extends JDialog implements
 
 		southPanel.setLayout(new BorderLayout());
 		southPanel.add(
-				UI.createEmptyBorderPanel(new JLabel("Number of Elements: "
+				UI.createHorizontalPanel(new JLabel("Number of Elements: "
 						+ elements.size())), BorderLayout.WEST);
 		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton),
 				BorderLayout.EAST);

@@ -87,7 +87,7 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 
 		bottomPanel.setLayout(new BorderLayout());
 		bottomPanel.add(
-				UI.createEmptyBorderPanel(new JLabel("Number of Elements: "
+				UI.createHorizontalPanel(new JLabel("Number of Elements: "
 						+ elements.size())), BorderLayout.WEST);
 		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
 
