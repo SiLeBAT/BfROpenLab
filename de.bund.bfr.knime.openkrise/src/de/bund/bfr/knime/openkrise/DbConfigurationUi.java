@@ -128,6 +128,16 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 			
 		}
 	}
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		overrideBox.setEnabled(enabled);
+		connField.setEnabled(enabled);
+		loginField.setEnabled(enabled);
+		passwdField.setEnabled(enabled);
+		chooseButton.setEnabled(enabled);
+		if (applyButton != null) applyButton.setEnabled(enabled);
+	}
 	
 	public boolean getOverride() {
 		return overrideBox.isSelected();

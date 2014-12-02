@@ -24,9 +24,16 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -43,6 +50,9 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private DbConfigurationUi dbui;
 	private JCheckBox doAnonymize;
+	private JCheckBox randomGenerator;
+	private JSpinner randomNodes;
+	private JSpinner randomLinking;	
 
 	protected MyKrisenInterfacesNodeDialog() {
 		JPanel panel = new JPanel();
@@ -51,6 +61,21 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	dbui = new DbConfigurationUi();
 
     	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymize Data"); panel.add(doAnonymize);
+    	
+    	randomGenerator = new JCheckBox(); randomGenerator.setText("Generate Random Data"); panel.add(randomGenerator);
+    	randomGenerator.addItemListener(new ItemListener() {
+    	      public void itemStateChanged(ItemEvent e) {
+    	        randomNodes.setEnabled(randomGenerator.isSelected());
+    	        randomLinking.setEnabled(randomGenerator.isSelected());
+	        	doAnonymize.setEnabled(!randomGenerator.isSelected());
+	        	dbui.setEnabled(!randomGenerator.isSelected());
+    	      }
+    	    });
+    	JPanel panelR = new JPanel();
+    	panelR.setLayout(new FlowLayout());   	
+    	randomNodes = new JSpinner(new SpinnerNumberModel(150, 0, 5000, 50)); randomNodes.setPreferredSize(new Dimension(150, 20)); panelR.add(randomNodes);
+    	randomLinking = new JSpinner(new SpinnerNumberModel(3, 0, 50, 1)); randomLinking.setPreferredSize(new Dimension(150, 20)); panelR.add(randomLinking);
+    	panel.add(panelR);
     	
     	addTab("Tracing/Filtering", panel);
     	addTab("Database connection", dbui);
@@ -67,6 +92,10 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected());
 		
+		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_RANDOM, randomGenerator.isSelected());
+		settings.addInt(MyKrisenInterfacesNodeModel.PARAM_RANDOMNODES, (Integer) randomNodes.getValue());
+		settings.addInt(MyKrisenInterfacesNodeModel.PARAM_RANDOMLINKING, (Integer) randomLinking.getValue());
+		
 	}
 
 	@Override
@@ -79,6 +108,10 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 			dbui.setOverride(settings.getBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
 
 			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
+			
+			if (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_RANDOM)) randomGenerator.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_RANDOM));
+			if (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_RANDOMNODES)) randomNodes.setValue(settings.getInt(MyKrisenInterfacesNodeModel.PARAM_RANDOMNODES));
+			if (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_RANDOMLINKING)) randomLinking.setValue(settings.getInt(MyKrisenInterfacesNodeModel.PARAM_RANDOMLINKING));
 
 		}
 		catch( InvalidSettingsException ex ) {
