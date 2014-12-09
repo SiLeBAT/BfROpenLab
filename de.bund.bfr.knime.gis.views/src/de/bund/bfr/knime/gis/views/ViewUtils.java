@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -43,9 +42,6 @@ import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -66,9 +62,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 public class ViewUtils {
-
-	private static MathTransform transform = createTransform();
-	private static GeometryFactory factory = new GeometryFactory();
 
 	private ViewUtils() {
 	}
@@ -146,8 +139,8 @@ public class ViewUtils {
 
 			if (region != null && shape instanceof MultiPolygon) {
 				try {
-					polygonMap.put(region,
-							(MultiPolygon) JTS.transform(shape, transform));
+					polygonMap.put(region, (MultiPolygon) JTS.transform(shape,
+							GisUtils.LATLON_TO_VIZ));
 				} catch (MismatchedDimensionException e) {
 					e.printStackTrace();
 				} catch (TransformException e) {
@@ -222,7 +215,8 @@ public class ViewUtils {
 				try {
 					nodes.add(new RegionNode(index + "",
 							new LinkedHashMap<String, Object>(),
-							(MultiPolygon) JTS.transform(shape, transform)));
+							(MultiPolygon) JTS.transform(shape,
+									GisUtils.LATLON_TO_VIZ)));
 					index++;
 				} catch (MismatchedDimensionException e) {
 					e.printStackTrace();
@@ -304,6 +298,7 @@ public class ViewUtils {
 		int lonIndex = nodeTable.getSpec().findColumnIndex(longitudeColumn);
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int locationIndex = 0;
+		GeometryFactory factory = new GeometryFactory();
 
 		if (latIndex == -1) {
 			throw new InvalidSettingsException("Column \"" + latitudeColumn
@@ -346,7 +341,7 @@ public class ViewUtils {
 			try {
 				p = (Point) JTS.transform(
 						factory.createPoint(new Coordinate(lat, lon)),
-						transform);
+						GisUtils.LATLON_TO_VIZ);
 			} catch (MismatchedDimensionException e) {
 				e.printStackTrace();
 				continue;
@@ -460,20 +455,5 @@ public class ViewUtils {
 		}
 
 		CanvasUtils.addObjectToMap(map, property, type, obj);
-	}
-
-	private static MathTransform createTransform() {
-		MathTransform transform = null;
-
-		try {
-			transform = CRS.findMathTransform(CRS.decode("EPSG:4326"),
-					CRS.decode("EPSG:3857"), true);
-		} catch (NoSuchAuthorityCodeException e) {
-			e.printStackTrace();
-		} catch (FactoryException e) {
-			e.printStackTrace();
-		}
-
-		return transform;
 	}
 }

@@ -30,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -56,6 +58,8 @@ import de.bund.bfr.knime.gis.shapecell.ShapeValue;
  * @author Christian Thoens
  */
 public class GisUtils {
+
+	public static final MathTransform LATLON_TO_VIZ = readTransformFromFile();
 
 	private GisUtils() {
 	}
@@ -209,4 +213,29 @@ public class GisUtils {
 		return result;
 	}
 
+	/*
+	 * Is used instead of createTransform, since using createTransform during
+	 * load of node settings resulted in an error on OS X.
+	 */
+	private static MathTransform readTransformFromFile() {
+		try (ObjectInputStream in = new ObjectInputStream(
+				Activator.class
+						.getResourceAsStream("/de/bund/bfr/knime/gis/transform.bin"))) {
+			return (MathTransform) in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static MathTransform createTransform() {
+		try {
+			return CRS.findMathTransform(CRS.decode("EPSG:4326"),
+					CRS.decode("EPSG:3857"), true);
+		} catch (FactoryException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
