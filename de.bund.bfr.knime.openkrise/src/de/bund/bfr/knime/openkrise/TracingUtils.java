@@ -25,6 +25,8 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -47,7 +49,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -77,7 +78,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class TracingUtils {
 
-	private static MathTransform transform = null;
+	private static final MathTransform TRANSFORM = readTransformFromFile();
 
 	private TracingUtils() {
 	}
@@ -224,7 +225,7 @@ public class TracingUtils {
 			try {
 				p = (Point) JTS.transform(
 						factory.createPoint(new Coordinate(lat, lon)),
-						getTransform());
+						TRANSFORM);
 			} catch (MismatchedDimensionException e) {
 				e.printStackTrace();
 				continue;
@@ -268,7 +269,7 @@ public class TracingUtils {
 				try {
 					nodes.add(new RegionNode(index + "",
 							new LinkedHashMap<String, Object>(),
-							(MultiPolygon) JTS.transform(shape, getTransform())));
+							(MultiPolygon) JTS.transform(shape, TRANSFORM)));
 					index++;
 				} catch (MismatchedDimensionException e) {
 					e.printStackTrace();
@@ -324,19 +325,30 @@ public class TracingUtils {
 		CanvasUtils.addObjectToMap(map, property, type, obj);
 	}
 
-	private static MathTransform getTransform() {
-		if (transform == null) {
-			try {
-				transform = CRS.findMathTransform(CRS.decode("EPSG:4326"),
-						CRS.decode("EPSG:3857"), true);
-			} catch (NoSuchAuthorityCodeException e) {
-				e.printStackTrace();
-			} catch (FactoryException e) {
-				e.printStackTrace();
-			}
+	/*
+	 * Is used instead of createTransform, since using createTransform during
+	 * load of node settings resulted in an error on OS X.
+	 */
+	private static MathTransform readTransformFromFile() {
+		try (ObjectInputStream in = new ObjectInputStream(
+				Activator.class
+						.getResourceAsStream("/de/bund/bfr/knime/openkrise/transform.bin"))) {
+			return (MathTransform) in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
 		}
+	}
 
-		return transform;
+	@SuppressWarnings("unused")
+	private static MathTransform createTransform() {
+		try {
+			return CRS.findMathTransform(CRS.decode("EPSG:4326"),
+					CRS.decode("EPSG:3857"), true);
+		} catch (FactoryException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static HighlightConditionList renameColumns(
