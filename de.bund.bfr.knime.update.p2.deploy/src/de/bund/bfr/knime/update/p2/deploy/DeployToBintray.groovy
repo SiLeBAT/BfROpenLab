@@ -24,6 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.update.p2.deploy
 
+import groovyx.net.http.ContentType;
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
 
@@ -91,8 +92,8 @@ class DeployToBintray {
 		println "URL:\t${url}"
 		HttpResponseDecorator response = client.post(
 				path: url,
-				contentType: "application/json",
-				requestContentType: "application/json",
+				contentType: ContentType.JSON,
+				requestContentType: ContentType.JSON,
 				body: [name: version, desc: version])
 		println "Status:\t${response.status}"
 		println ""
@@ -101,7 +102,6 @@ class DeployToBintray {
 
 	static void uploadFile(String user, String password, String version, String path, File file) {
 		def client = getClient(user, password)
-		client.encoder.putAt("application/file", { f -> new FileEntity(f, "application/file") })
 		def url = "content/${SUBJECT}/${REPO}/${path}/${file.name}"
 
 		if (version != null) {
@@ -113,16 +113,16 @@ class DeployToBintray {
 		println "URL:\t${url}"
 		HttpResponseDecorator response = client.put(
 				path: url,
-				contentType: "application/json",
-				requestContentType: "application/file",
-				body: file)
+				contentType: ContentType.JSON,
+				requestContentType: ContentType.BINARY,
+				body: new FileInputStream(file))
 		println "Status:\t${response.status}"
 		println ""
 		assert 201 == response.status
 	}
 
 	static RESTClient getClient(String user, String password) {
-		def bintrayClient = new RESTClient("https://api.bintray.com")
+		def bintrayClient = new RESTClient("https://api.bintray.com/")
 		AbstractHttpClient http = bintrayClient.client
 		def basic = (user + ":" + password).bytes.encodeBase64().toString()
 
