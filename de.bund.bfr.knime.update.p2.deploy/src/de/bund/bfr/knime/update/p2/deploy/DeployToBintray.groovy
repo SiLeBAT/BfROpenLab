@@ -58,7 +58,7 @@ class DeployToBintray {
 		def featuresDir = new File("${UPDATE_SITE}/${FEATURES}")
 		def pluginsDir = new File("${UPDATE_SITE}/${PLUGINS}")
 
-		if (!artifactsFile.exists() || !contentFile.exists() || !featuresDir.exists() || !pluginsDir.exists()) {
+		if (!artifactsFile.exists() || !contentFile.exists()) {
 			println "p2 files cannot be found"
 			return
 		}
@@ -69,18 +69,21 @@ class DeployToBintray {
 		def password = new Scanner(System.in).nextLine()
 		println ""
 
-		def version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
-		createVersion(user, password, version)
+		if (featuresDir.exists() && pluginsDir.exists()) {
+			def version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
+			createVersion(user, password, version)
+
+			for (File f : featuresDir.listFiles()) {
+				uploadFile(user, password, version, FEATURES, f)
+			}
+
+			for (File f : pluginsDir.listFiles()) {
+				uploadFile(user, password, version, PLUGINS, f)
+			}
+		}
+
 		uploadFile(user, password, null, "", artifactsFile)
 		uploadFile(user, password, null, "", contentFile)
-
-		for (File f : featuresDir.listFiles()) {
-			uploadFile(user, password, version, FEATURES, f)
-		}
-
-		for (File f : pluginsDir.listFiles()) {
-			uploadFile(user, password, version, PLUGINS, f)
-		}
 	}
 
 	static void createVersion(String user, String password, String version) {
