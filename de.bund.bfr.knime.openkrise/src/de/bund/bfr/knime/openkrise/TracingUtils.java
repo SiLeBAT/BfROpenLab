@@ -77,8 +77,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class TracingUtils {
 
-	private static MathTransform transform = createTransform();
-	private static GeometryFactory factory = new GeometryFactory();
+	private static MathTransform transform = null;
 
 	private TracingUtils() {
 	}
@@ -192,6 +191,7 @@ public class TracingUtils {
 				GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LONGITUDE_COLUMN);
+		GeometryFactory factory = new GeometryFactory();
 
 		if (idIndex == -1) {
 			throw new InvalidSettingsException("Column \""
@@ -224,7 +224,7 @@ public class TracingUtils {
 			try {
 				p = (Point) JTS.transform(
 						factory.createPoint(new Coordinate(lat, lon)),
-						transform);
+						getTransform());
 			} catch (MismatchedDimensionException e) {
 				e.printStackTrace();
 				continue;
@@ -268,7 +268,7 @@ public class TracingUtils {
 				try {
 					nodes.add(new RegionNode(index + "",
 							new LinkedHashMap<String, Object>(),
-							(MultiPolygon) JTS.transform(shape, transform)));
+							(MultiPolygon) JTS.transform(shape, getTransform())));
 					index++;
 				} catch (MismatchedDimensionException e) {
 					e.printStackTrace();
@@ -324,16 +324,16 @@ public class TracingUtils {
 		CanvasUtils.addObjectToMap(map, property, type, obj);
 	}
 
-	private static MathTransform createTransform() {
-		MathTransform transform = null;
-
-		try {
-			transform = CRS.findMathTransform(CRS.decode("EPSG:4326"),
-					CRS.decode("EPSG:3857"), true);
-		} catch (NoSuchAuthorityCodeException e) {
-			e.printStackTrace();
-		} catch (FactoryException e) {
-			e.printStackTrace();
+	private static MathTransform getTransform() {
+		if (transform == null) {
+			try {
+				transform = CRS.findMathTransform(CRS.decode("EPSG:4326"),
+						CRS.decode("EPSG:3857"), true);
+			} catch (NoSuchAuthorityCodeException e) {
+				e.printStackTrace();
+			} catch (FactoryException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return transform;
