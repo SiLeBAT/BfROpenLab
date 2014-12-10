@@ -219,10 +219,7 @@ public class TracingUtils {
 				p = (Point) JTS.transform(
 						factory.createPoint(new Coordinate(lat, lon)),
 						GisUtils.LATLON_TO_VIZ);
-			} catch (MismatchedDimensionException e) {
-				e.printStackTrace();
-				continue;
-			} catch (TransformException e) {
+			} catch (MismatchedDimensionException | TransformException e) {
 				e.printStackTrace();
 				continue;
 			}
