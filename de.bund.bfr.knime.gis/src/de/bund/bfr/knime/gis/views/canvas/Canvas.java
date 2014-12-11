@@ -561,6 +561,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				viewer.setCursor(Cursor
 						.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				break;
+			default:
+				break;
 			}
 		}
 	}
