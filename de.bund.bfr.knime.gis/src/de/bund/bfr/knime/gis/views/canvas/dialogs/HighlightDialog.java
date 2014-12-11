@@ -643,6 +643,8 @@ public class HighlightDialog extends JDialog implements ActionListener,
 		} else if (condition instanceof LogicalValueHighlightCondition) {
 			logicalCondition = ((LogicalValueHighlightCondition) condition)
 					.getLogicalCondition();
+		} else {
+			return;
 		}
 
 		List<List<LogicalHighlightCondition>> conditions = logicalCondition

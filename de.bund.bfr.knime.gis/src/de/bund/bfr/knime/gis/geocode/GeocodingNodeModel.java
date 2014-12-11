@@ -174,9 +174,7 @@ public class GeocodingNodeModel extends NodeModel {
 				result = performGisgraphyGeocoding(address, countryCode);
 			}
 
-			switch (result.getStatus()) {
-			case GeocodingResult.STATUS_OK:
-			case GeocodingResult.STATUS_FAILED:
+			if (result != null) {
 				cells[outSpec.findColumnIndex(URL_COLUMN)] = IO
 						.createCell(result.getUrl());
 				cells[outSpec.findColumnIndex(STREET_COLUMN)] = IO
@@ -195,7 +193,6 @@ public class GeocodingNodeModel extends NodeModel {
 						.createCell(result.getLatitude());
 				cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO
 						.createCell(result.getLongitude());
-				break;
 			}
 
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -317,7 +314,7 @@ public class GeocodingNodeModel extends NodeModel {
 			ParserConfigurationException, XPathExpressionException {
 		if (street == null && city == null && county == null && state == null
 				&& country == null && postalCode == null) {
-			return new GeocodingResult("", GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult();
 		}
 
 		StringBuilder json = new StringBuilder("{\"location\":{");
@@ -355,8 +352,8 @@ public class GeocodingNodeModel extends NodeModel {
 			uri = new URI("http", "open.mapquestapi.com",
 					"/geocoding/v1/address", "json=" + json.toString(), null);
 		} catch (URISyntaxException e) {
-			uri = null;
 			e.printStackTrace();
+			return new GeocodingResult();
 		}
 
 		String url = uri.toASCIIString() + "&key=" + set.getMapQuestKey()
@@ -369,7 +366,7 @@ public class GeocodingNodeModel extends NodeModel {
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
 		} catch (SAXException | IOException e) {
-			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult(url);
 		}
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
@@ -426,13 +423,13 @@ public class GeocodingNodeModel extends NodeModel {
 		int index = -1;
 
 		if (n == 0) {
-			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult(url);
 		} else if (n == 1) {
 			index = 0;
 		} else if (n > 1) {
 			if (set.getMultipleResults().equals(
 					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-				return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+				return new GeocodingResult(url);
 			} else if (set.getMultipleResults().equals(
 					GeocodingSettings.MULTIPLE_USE_FIRST)) {
 				index = 0;
@@ -445,8 +442,7 @@ public class GeocodingNodeModel extends NodeModel {
 				if (selection != null) {
 					index = addresses.indexOf(selection);
 				} else {
-					return new GeocodingResult(url,
-							GeocodingResult.STATUS_FAILED);
+					return new GeocodingResult(url);
 				}
 			}
 		}
@@ -454,14 +450,14 @@ public class GeocodingNodeModel extends NodeModel {
 		return new GeocodingResult(url, streets.get(index), cities.get(index),
 				counties.get(index), states.get(index), countries.get(index),
 				postalCodes.get(index), latitudes.get(index),
-				longitudes.get(index), GeocodingResult.STATUS_OK);
+				longitudes.get(index));
 	}
 
 	private GeocodingResult performGisgraphyGeocoding(String address,
 			String countryCode) throws IOException,
 			ParserConfigurationException, XPathExpressionException {
 		if (address == null || countryCode == null) {
-			return new GeocodingResult(null, GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult();
 		}
 
 		String server = set.getGisgraphyServer().replace("http://", "");
@@ -473,8 +469,8 @@ public class GeocodingNodeModel extends NodeModel {
 			uri = new URI("http", authority, path, "address=" + address
 					+ "&country=" + countryCode + "&postal=true", null);
 		} catch (URISyntaxException e) {
-			uri = null;
 			e.printStackTrace();
+			return new GeocodingResult();
 		}
 
 		String url = uri.toASCIIString();
@@ -486,7 +482,7 @@ public class GeocodingNodeModel extends NodeModel {
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
 		} catch (SAXException | IOException e) {
-			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult(url);
 		}
 
 		XPath xPath = XPathFactory.newInstance().newXPath();
@@ -525,13 +521,13 @@ public class GeocodingNodeModel extends NodeModel {
 		int index = -1;
 
 		if (n == 0) {
-			return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+			return new GeocodingResult(url);
 		} else if (n == 1) {
 			index = 0;
 		} else if (n > 1) {
 			if (set.getMultipleResults().equals(
 					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-				return new GeocodingResult(url, GeocodingResult.STATUS_FAILED);
+				return new GeocodingResult(url);
 			} else if (set.getMultipleResults().equals(
 					GeocodingSettings.MULTIPLE_USE_FIRST)) {
 				index = 0;
@@ -545,16 +541,14 @@ public class GeocodingNodeModel extends NodeModel {
 				if (selection != null) {
 					index = addresses.indexOf(selection);
 				} else {
-					return new GeocodingResult(url,
-							GeocodingResult.STATUS_FAILED);
+					return new GeocodingResult(url);
 				}
 			}
 		}
 
 		return new GeocodingResult(url, null, cities.get(index), null,
 				states.get(index), countryCodes.get(index), null,
-				latitudes.get(index), longitudes.get(index),
-				GeocodingResult.STATUS_OK);
+				latitudes.get(index), longitudes.get(index));
 	}
 
 	private static String getAddress(String street, String city, String county,
@@ -598,9 +592,6 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private static class GeocodingResult {
 
-		public static final int STATUS_OK = 1;
-		public static final int STATUS_FAILED = 2;
-
 		private String url;
 		private String street;
 		private String city;
@@ -610,15 +601,18 @@ public class GeocodingNodeModel extends NodeModel {
 		private String postalCode;
 		private Double latitude;
 		private Double longitude;
-		private int status;
 
-		public GeocodingResult(String url, int status) {
-			this(url, null, null, null, null, null, null, null, null, status);
+		public GeocodingResult() {
+			this(null);
+		}
+
+		public GeocodingResult(String url) {
+			this(url, null, null, null, null, null, null, null, null);
 		}
 
 		public GeocodingResult(String url, String street, String city,
 				String county, String state, String country, String postalCode,
-				Double latitude, Double longitude, int status) {
+				Double latitude, Double longitude) {
 			this.url = url;
 			this.street = street;
 			this.city = city;
@@ -628,7 +622,6 @@ public class GeocodingNodeModel extends NodeModel {
 			this.postalCode = postalCode;
 			this.latitude = latitude;
 			this.longitude = longitude;
-			this.status = status;
 		}
 
 		public String getUrl() {
@@ -665,10 +658,6 @@ public class GeocodingNodeModel extends NodeModel {
 
 		public Double getLongitude() {
 			return longitude;
-		}
-
-		public int getStatus() {
-			return status;
 		}
 	}
 

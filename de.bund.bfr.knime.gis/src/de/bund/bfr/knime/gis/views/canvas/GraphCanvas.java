@@ -628,19 +628,21 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
+		if (selectedNodes == null) {
+			selectedNodes = new LinkedHashSet<>();
+		}
+
 		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
-		boolean nodesSelected = selectedNodes != null
-				&& !selectedNodes.isEmpty();
 
-		if (nodesSelected && layoutType == LayoutType.ISOM_LAYOUT) {
+		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this, layoutType
 					+ " cannot be applied on a subset of "
 					+ getNodesName().toLowerCase() + ". Apply " + layoutType
 					+ " on all " + getNodesName().toLowerCase() + "?",
 					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				nodesSelected = false;
+				selectedNodes = new LinkedHashSet<>();
 			} else {
 				return;
 			}
@@ -662,9 +664,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		case KK_LAYOUT:
 			layout = new KKLayout<>(graph);
 			break;
+		default:
+			throw new IllegalArgumentException("Illegal input");
 		}
 
-		if (nodesSelected) {
+		if (!selectedNodes.isEmpty()) {
 			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
 					getTranslationY() / getScaleY());
 

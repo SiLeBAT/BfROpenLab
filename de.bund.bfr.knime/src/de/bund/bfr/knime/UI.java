@@ -308,6 +308,7 @@ public class UI {
 						.getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
+				return;
 			}
 
 			String[] rows = clipboardContent.split("\n");
@@ -353,6 +354,7 @@ public class UI {
 						.getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
+				return;
 			}
 
 			String[] rows = clipboardContent.split("\n");
