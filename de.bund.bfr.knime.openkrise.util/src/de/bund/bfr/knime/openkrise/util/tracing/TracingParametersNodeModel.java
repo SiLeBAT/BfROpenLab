@@ -127,6 +127,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			if (weight != null && weight != 0.0) {
 				nodeWeights.put(id, weight);
 				tracing.setCase(Integer.parseInt(id), weight);
+			} else {
+				nodeWeights.put(id, 0.0);
 			}
 
 			Boolean cross = null;
@@ -160,6 +162,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			if (weight != null && weight != 0.0) {
 				edgeWeights.put(id, weight);
 				tracing.setCaseDelivery(Integer.parseInt(id), weight);
+			} else {
+				edgeWeights.put(id, 0.0);
 			}
 
 			Boolean cross = null;

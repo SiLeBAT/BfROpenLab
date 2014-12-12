@@ -141,6 +141,7 @@ public class TracingUtils {
 				properties.put(TracingConstants.ID_COLUMN, id);
 				properties.put(TracingConstants.FROM_COLUMN, from);
 				properties.put(TracingConstants.TO_COLUMN, to);
+				replaceNullsInInputProperties(properties, edgeProperties);
 				edges.add(new Edge<>(id, properties, node1, node2));
 			}
 		}
@@ -169,6 +170,7 @@ public class TracingUtils {
 			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
 					row);
 			properties.put(TracingConstants.ID_COLUMN, id);
+			replaceNullsInInputProperties(properties, nodeProperties);
 			nodes.put(id, new GraphNode(id, properties, null));
 		}
 
@@ -229,6 +231,7 @@ public class TracingUtils {
 			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
 					row);
 			properties.put(TracingConstants.ID_COLUMN, id);
+			replaceNullsInInputProperties(properties, nodeProperties);
 			nodes.put(
 					id,
 					new LocationNode(id, properties, new Point2D.Double(p
@@ -314,6 +317,25 @@ public class TracingUtils {
 		}
 
 		CanvasUtils.addObjectToMap(map, property, type, obj);
+	}
+
+	private static void replaceNullsInInputProperties(
+			Map<String, Object> properties, Map<String, Class<?>> allProperties) {
+		if (allProperties.containsKey(TracingConstants.WEIGHT_COLUMN)
+				&& properties.get(TracingConstants.WEIGHT_COLUMN) == null) {
+			properties.put(TracingConstants.WEIGHT_COLUMN, 0.0);
+		}
+
+		if (allProperties
+				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)
+				&& properties.get(TracingConstants.CROSS_CONTAMINATION_COLUMN) == null) {
+			properties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN, false);
+		}
+
+		if (allProperties.containsKey(TracingConstants.OBSERVED_COLUMN)
+				&& properties.get(TracingConstants.OBSERVED_COLUMN) == null) {
+			properties.put(TracingConstants.OBSERVED_COLUMN, false);
+		}
 	}
 
 	public static HighlightConditionList renameColumns(

@@ -127,7 +127,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (GraphNode node : getNodeSaveMap().values()) {
 			if (nodeWeights.containsKey(node.getId())) {
 				node.getProperties().put(TracingConstants.WEIGHT_COLUMN,
-						nodeWeights.get(node.getId()));
+						nullToZero(nodeWeights.get(node.getId())));
 			}
 		}
 
@@ -153,7 +153,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			if (edgeWeights.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingConstants.WEIGHT_COLUMN,
-						edgeWeights.get(edge.getId()));
+						nullToZero(edgeWeights.get(edge.getId())));
 			}
 		}
 
@@ -181,7 +181,7 @@ public class TracingCanvas extends GraphCanvas {
 			if (nodeCrossContaminations.containsKey(node.getId())) {
 				node.getProperties().put(
 						TracingConstants.CROSS_CONTAMINATION_COLUMN,
-						nodeCrossContaminations.get(node.getId()));
+						nullToFalse(nodeCrossContaminations.get(node.getId())));
 			}
 		}
 
@@ -209,7 +209,7 @@ public class TracingCanvas extends GraphCanvas {
 			if (edgeCrossContaminations.containsKey(edge.getId())) {
 				edge.getProperties().put(
 						TracingConstants.CROSS_CONTAMINATION_COLUMN,
-						edgeCrossContaminations.get(edge.getId()));
+						nullToFalse(edgeCrossContaminations.get(edge.getId())));
 			}
 		}
 
@@ -235,7 +235,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (GraphNode node : getNodeSaveMap().values()) {
 			if (observedNodes.containsKey(node.getId())) {
 				node.getProperties().put(TracingConstants.OBSERVED_COLUMN,
-						observedNodes.get(node.getId()));
+						nullToFalse(observedNodes.get(node.getId())));
 			}
 		}
 
@@ -261,7 +261,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			if (observedEdges.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingConstants.OBSERVED_COLUMN,
-						observedEdges.get(edge.getId()));
+						nullToFalse(observedEdges.get(edge.getId())));
 			}
 		}
 
@@ -753,6 +753,14 @@ public class TracingCanvas extends GraphCanvas {
 
 	private static int createId(Collection<String> c) {
 		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
+	}
+
+	private static double nullToZero(Double value) {
+		return value == null ? 0.0 : value;
+	}
+
+	private static boolean nullToFalse(Boolean value) {
+		return value == null ? false : value;
 	}
 
 	private class HighlightChecker implements HighlightConditionChecker {
