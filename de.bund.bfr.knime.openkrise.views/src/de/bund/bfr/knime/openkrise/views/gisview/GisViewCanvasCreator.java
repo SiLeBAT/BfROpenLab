@@ -34,7 +34,7 @@ import org.knime.core.node.InvalidSettingsException;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class GisViewCanvasCreator {
@@ -57,12 +57,12 @@ public class GisViewCanvasCreator {
 		List<LocationNode> nodes = new ArrayList<>(TracingUtils
 				.readLocationNodes(nodeTable, nodeProperties).values());
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
-				TracingConstants.ID_COLUMN, regions);
+				TracingColumns.ID, regions);
 
-		canvas.setNodeName(TracingConstants.NODE_NAME);
-		canvas.setEdgeName(TracingConstants.EDGE_NAME);
-		canvas.setNodesName(TracingConstants.NODES_NAME);
-		canvas.setEdgesName(TracingConstants.EDGES_NAME);
+		canvas.setNodeName(TracingUtils.NODE_NAME);
+		canvas.setEdgeName(TracingUtils.EDGE_NAME);
+		canvas.setNodesName(TracingUtils.NODES_NAME);
+		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGisSettings().setToCanvas(canvas, nodeProperties, true);
 
 		return canvas;

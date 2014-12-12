@@ -64,7 +64,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 
 public class EditablePropertiesDialog extends JDialog implements
 		ActionListener, CellEditorListener, RowSorterListener,
@@ -109,21 +109,20 @@ public class EditablePropertiesDialog extends JDialog implements
 
 		switch (type) {
 		case NODE:
-			idColumns.add(TracingConstants.ID_COLUMN);
+			idColumns.add(TracingColumns.ID);
 			break;
 		case EDGE:
-			idColumns.addAll(Arrays.asList(TracingConstants.ID_COLUMN,
-					TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN));
+			idColumns.addAll(Arrays.asList(TracingColumns.ID,
+					TracingColumns.FROM, TracingColumns.TO));
 			break;
 		}
 
 		Map<String, Class<?>> uneditableProperties = new LinkedHashMap<>(
 				properties);
 
-		uneditableProperties.remove(TracingConstants.WEIGHT_COLUMN);
-		uneditableProperties
-				.remove(TracingConstants.CROSS_CONTAMINATION_COLUMN);
-		uneditableProperties.remove(TracingConstants.OBSERVED_COLUMN);
+		uneditableProperties.remove(TracingColumns.WEIGHT);
+		uneditableProperties.remove(TracingColumns.CROSS_CONTAMINATION);
+		uneditableProperties.remove(TracingColumns.OBSERVED);
 
 		elementList = new ArrayList<>(elements);
 		table = new PropertiesTable(elementList, uneditableProperties,
@@ -146,24 +145,21 @@ public class EditablePropertiesDialog extends JDialog implements
 
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
-		weightButton = new JButton("Set All " + TracingConstants.WEIGHT_COLUMN);
+		weightButton = new JButton("Set All " + TracingColumns.WEIGHT);
 		weightButton.addActionListener(this);
 		contaminationButton = new JButton("Set All "
-				+ TracingConstants.CROSS_CONTAMINATION_COLUMN);
+				+ TracingColumns.CROSS_CONTAMINATION);
 		contaminationButton.addActionListener(this);
-		filterButton = new JButton("Set All "
-				+ TracingConstants.OBSERVED_COLUMN);
+		filterButton = new JButton("Set All " + TracingColumns.OBSERVED);
 		filterButton.addActionListener(this);
 
 		JPanel cornerPanel = new JPanel();
 
 		cornerPanel.setLayout(new GridLayout(1, 3));
+		cornerPanel.add(getTableHeaderComponent(TracingColumns.WEIGHT));
 		cornerPanel
-				.add(getTableHeaderComponent(TracingConstants.WEIGHT_COLUMN));
-		cornerPanel
-				.add(getTableHeaderComponent(TracingConstants.CROSS_CONTAMINATION_COLUMN));
-		cornerPanel
-				.add(getTableHeaderComponent(TracingConstants.OBSERVED_COLUMN));
+				.add(getTableHeaderComponent(TracingColumns.CROSS_CONTAMINATION));
+		cornerPanel.add(getTableHeaderComponent(TracingColumns.OBSERVED));
 
 		scrollPane = new JScrollPane();
 		scrollPane
@@ -194,15 +190,15 @@ public class EditablePropertiesDialog extends JDialog implements
 			buttons.add(selectButton);
 		}
 
-		if (properties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
+		if (properties.containsKey(TracingColumns.WEIGHT)) {
 			buttons.add(weightButton);
 		}
 
-		if (properties.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+		if (properties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
 			buttons.add(contaminationButton);
 		}
 
-		if (properties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
+		if (properties.containsKey(TracingColumns.OBSERVED)) {
 			buttons.add(filterButton);
 		}
 
@@ -247,12 +243,11 @@ public class EditablePropertiesDialog extends JDialog implements
 			for (Element element : elementList) {
 				InputTable.Input input = values.get(element.getId());
 
-				element.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+				element.getProperties().put(TracingColumns.WEIGHT,
 						input.getWeight());
-				element.getProperties().put(
-						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						input.isCrossContamination());
-				element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+				element.getProperties().put(TracingColumns.OBSERVED,
 						input.isObserved());
 			}
 
@@ -283,7 +278,7 @@ public class EditablePropertiesDialog extends JDialog implements
 			}
 		} else if (e.getSource() == weightButton) {
 			Object result = JOptionPane.showInputDialog(this,
-					"Set All Values to?", TracingConstants.WEIGHT_COLUMN,
+					"Set All Values to?", TracingColumns.WEIGHT,
 					JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
 			Double value = null;
 
@@ -293,27 +288,25 @@ public class EditablePropertiesDialog extends JDialog implements
 			}
 
 			if (value != null) {
-				setAllValuesTo(TracingConstants.WEIGHT_COLUMN, value);
+				setAllValuesTo(TracingColumns.WEIGHT, value);
 			}
 		} else if (e.getSource() == contaminationButton) {
 			Object result = JOptionPane.showInputDialog(this,
-					"Set All Values to?",
-					TracingConstants.CROSS_CONTAMINATION_COLUMN,
+					"Set All Values to?", TracingColumns.CROSS_CONTAMINATION,
 					JOptionPane.QUESTION_MESSAGE, null, new Boolean[] {
 							Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
-				setAllValuesTo(TracingConstants.CROSS_CONTAMINATION_COLUMN,
-						result);
+				setAllValuesTo(TracingColumns.CROSS_CONTAMINATION, result);
 			}
 		} else if (e.getSource() == filterButton) {
 			Object result = JOptionPane.showInputDialog(this,
-					"Set All Values to?", TracingConstants.OBSERVED_COLUMN,
+					"Set All Values to?", TracingColumns.OBSERVED,
 					JOptionPane.QUESTION_MESSAGE, null, new Boolean[] {
 							Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
-				setAllValuesTo(TracingConstants.OBSERVED_COLUMN, result);
+				setAllValuesTo(TracingColumns.OBSERVED, result);
 			}
 		}
 	}
@@ -358,7 +351,7 @@ public class EditablePropertiesDialog extends JDialog implements
 	}
 
 	private void updateValues() {
-		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+		int idColumn = UI.findColumn(table, TracingColumns.ID);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			String id = (String) table.getValueAt(row, idColumn);
@@ -368,7 +361,7 @@ public class EditablePropertiesDialog extends JDialog implements
 	}
 
 	private void applyValues() {
-		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+		int idColumn = UI.findColumn(table, TracingColumns.ID);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			String id = (String) table.getValueAt(row, idColumn);
@@ -379,12 +372,11 @@ public class EditablePropertiesDialog extends JDialog implements
 
 	private void setAllValuesTo(String column, Object value) {
 		for (InputTable.Input input : values.values()) {
-			if (column.equals(TracingConstants.WEIGHT_COLUMN)) {
+			if (column.equals(TracingColumns.WEIGHT)) {
 				input.setWeight((Double) value);
-			} else if (column
-					.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
+			} else if (column.equals(TracingColumns.CROSS_CONTAMINATION)) {
 				input.setCrossContamination((Boolean) value);
-			} else if (column.equals(TracingConstants.OBSERVED_COLUMN)) {
+			} else if (column.equals(TracingColumns.OBSERVED)) {
 				input.setObserved((Boolean) value);
 			}
 		}

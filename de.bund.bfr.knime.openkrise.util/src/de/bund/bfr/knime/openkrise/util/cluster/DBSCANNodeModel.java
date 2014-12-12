@@ -62,7 +62,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 
 /**
  * This is the model implementation of DBSCAN.
@@ -117,7 +117,7 @@ public class DBSCANNodeModel extends NodeModel {
 					.equals(GeocodingNodeModel.LONGITUDE_COLUMN))
 				lonCol = i;
 			else if (data.getSpec().getColumnNames()[i]
-					.equals(TracingConstants.CLUSTERABLE_COLUMN))
+					.equals(TracingColumns.CLUSTERABLE))
 				doItCol = i;
 		}
 		if (latCol >= 0 && lonCol >= 0) {
@@ -188,7 +188,7 @@ public class DBSCANNodeModel extends NodeModel {
 			spec[i] = inSpec.getColumnSpec(i);
 		}
 		spec[inSpec.getNumColumns()] = new DataColumnSpecCreator(
-				TracingConstants.CLUSTER_ID_COLUMN, IntCell.TYPE).createSpec();
+				TracingColumns.CLUSTER_ID, IntCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
 	}
 

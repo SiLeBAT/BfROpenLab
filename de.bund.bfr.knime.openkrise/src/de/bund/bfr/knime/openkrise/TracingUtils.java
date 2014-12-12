@@ -73,6 +73,11 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class TracingUtils {
 
+	public static final String NODE_NAME = "Station";
+	public static final String EDGE_NAME = "Delivery";
+	public static final String NODES_NAME = "Stations";
+	public static final String EDGES_NAME = "Deliveries";
+
 	private TracingUtils() {
 	}
 
@@ -100,31 +105,29 @@ public class TracingUtils {
 			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
 			Map<String, V> nodes) throws InvalidSettingsException {
 		List<Edge<V>> edges = new ArrayList<>();
-		int idIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
-		int fromIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.FROM_COLUMN);
-		int toIndex = edgeTable.getSpec().findColumnIndex(
-				TracingConstants.TO_COLUMN);
+		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		int fromIndex = edgeTable.getSpec()
+				.findColumnIndex(TracingColumns.FROM);
+		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
 
 		if (idIndex == -1) {
-			throw new InvalidSettingsException("Column \""
-					+ TracingConstants.ID_COLUMN + "\" is missing");
+			throw new InvalidSettingsException("Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
 		if (fromIndex == -1) {
 			throw new InvalidSettingsException("Column \""
-					+ TracingConstants.FROM_COLUMN + "\" is missing");
+					+ TracingColumns.FROM + "\" is missing");
 		}
 
 		if (toIndex == -1) {
-			throw new InvalidSettingsException("Column \""
-					+ TracingConstants.TO_COLUMN + "\" is missing");
+			throw new InvalidSettingsException("Column \"" + TracingColumns.TO
+					+ "\" is missing");
 		}
 
-		edgeProperties.put(TracingConstants.ID_COLUMN, String.class);
-		edgeProperties.put(TracingConstants.FROM_COLUMN, String.class);
-		edgeProperties.put(TracingConstants.TO_COLUMN, String.class);
+		edgeProperties.put(TracingColumns.ID, String.class);
+		edgeProperties.put(TracingColumns.FROM, String.class);
+		edgeProperties.put(TracingColumns.TO, String.class);
 
 		for (DataRow row : edgeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -138,9 +141,9 @@ public class TracingUtils {
 
 				TracingUtils.addToProperties(properties, edgeProperties,
 						edgeTable, row);
-				properties.put(TracingConstants.ID_COLUMN, id);
-				properties.put(TracingConstants.FROM_COLUMN, from);
-				properties.put(TracingConstants.TO_COLUMN, to);
+				properties.put(TracingColumns.ID, id);
+				properties.put(TracingColumns.FROM, from);
+				properties.put(TracingColumns.TO, to);
 				replaceNullsInInputProperties(properties, edgeProperties);
 				edges.add(new Edge<>(id, properties, node1, node2));
 			}
@@ -152,16 +155,15 @@ public class TracingUtils {
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties)
 			throws InvalidSettingsException {
-		int idIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
+		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 
 		if (idIndex == -1) {
-			throw new InvalidSettingsException("Column \""
-					+ TracingConstants.ID_COLUMN + "\" is missing");
+			throw new InvalidSettingsException("Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
-		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
+		nodeProperties.put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -169,7 +171,7 @@ public class TracingUtils {
 
 			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
 					row);
-			properties.put(TracingConstants.ID_COLUMN, id);
+			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeProperties);
 			nodes.put(id, new GraphNode(id, properties, null));
 		}
@@ -181,8 +183,7 @@ public class TracingUtils {
 			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties)
 			throws InvalidSettingsException {
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
-		int idIndex = nodeTable.getSpec().findColumnIndex(
-				TracingConstants.ID_COLUMN);
+		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(
@@ -190,8 +191,8 @@ public class TracingUtils {
 		GeometryFactory factory = new GeometryFactory();
 
 		if (idIndex == -1) {
-			throw new InvalidSettingsException("Column \""
-					+ TracingConstants.ID_COLUMN + "\" is missing");
+			throw new InvalidSettingsException("Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
 		if (latIndex == -1) {
@@ -204,7 +205,7 @@ public class TracingUtils {
 					+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
 		}
 
-		nodeProperties.put(TracingConstants.ID_COLUMN, String.class);
+		nodeProperties.put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -230,7 +231,7 @@ public class TracingUtils {
 
 			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
 					row);
-			properties.put(TracingConstants.ID_COLUMN, id);
+			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeProperties);
 			nodes.put(
 					id,
@@ -321,20 +322,19 @@ public class TracingUtils {
 
 	private static void replaceNullsInInputProperties(
 			Map<String, Object> properties, Map<String, Class<?>> allProperties) {
-		if (allProperties.containsKey(TracingConstants.WEIGHT_COLUMN)
-				&& properties.get(TracingConstants.WEIGHT_COLUMN) == null) {
-			properties.put(TracingConstants.WEIGHT_COLUMN, 0.0);
+		if (allProperties.containsKey(TracingColumns.WEIGHT)
+				&& properties.get(TracingColumns.WEIGHT) == null) {
+			properties.put(TracingColumns.WEIGHT, 0.0);
 		}
 
-		if (allProperties
-				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)
-				&& properties.get(TracingConstants.CROSS_CONTAMINATION_COLUMN) == null) {
-			properties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN, false);
+		if (allProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)
+				&& properties.get(TracingColumns.CROSS_CONTAMINATION) == null) {
+			properties.put(TracingColumns.CROSS_CONTAMINATION, false);
 		}
 
-		if (allProperties.containsKey(TracingConstants.OBSERVED_COLUMN)
-				&& properties.get(TracingConstants.OBSERVED_COLUMN) == null) {
-			properties.put(TracingConstants.OBSERVED_COLUMN, false);
+		if (allProperties.containsKey(TracingColumns.OBSERVED)
+				&& properties.get(TracingColumns.OBSERVED) == null) {
+			properties.put(TracingColumns.OBSERVED, false);
 		}
 	}
 
@@ -404,15 +404,14 @@ public class TracingUtils {
 			return null;
 		}
 
-		if (column.equals(TracingConstants.OLD_WEIGHT_COLUMN)
-				&& !properties.containsKey(TracingConstants.OLD_WEIGHT_COLUMN)) {
-			return TracingConstants.WEIGHT_COLUMN;
+		if (column.equals(TracingColumns.OLD_WEIGHT)
+				&& !properties.containsKey(TracingColumns.OLD_WEIGHT)) {
+			return TracingColumns.WEIGHT;
 		}
 
-		if (column.equals(TracingConstants.OLD_OBSERVED_COLUMN)
-				&& !properties
-						.containsKey(TracingConstants.OLD_OBSERVED_COLUMN)) {
-			return TracingConstants.OBSERVED_COLUMN;
+		if (column.equals(TracingColumns.OLD_OBSERVED)
+				&& !properties.containsKey(TracingColumns.OLD_OBSERVED)) {
+			return TracingColumns.OBSERVED;
 		}
 
 		return column;
@@ -424,9 +423,8 @@ public class TracingUtils {
 		DataTableSpec dataSpec = dataTable.getSpec();
 		DataTableSpec edgeSpec = edgeTable.getSpec();
 
-		if (dataTable.getSpec().findColumnIndex(TracingConstants.ID_COLUMN) == -1
-				|| dataTable.getSpec().findColumnIndex(
-						TracingConstants.NEXT_COLUMN) == -1) {
+		if (dataTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
+				|| dataTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
 			throw new NotConfigurableException(
 					"Tracing Data Model cannot be read."
 							+ " Try reexecuting the Supply Chain Reader or"
@@ -437,13 +435,13 @@ public class TracingUtils {
 
 		for (DataRow row : edgeTable) {
 			int id = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN))));
+					.findColumnIndex(TracingColumns.ID))));
 			int from = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingConstants.FROM_COLUMN))));
+					.findColumnIndex(TracingColumns.FROM))));
 			int to = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingConstants.TO_COLUMN))));
+					.findColumnIndex(TracingColumns.TO))));
 			String date = IO.getString(row.getCell(edgeSpec
-					.findColumnIndex(TracingConstants.DELIVERY_DATE)));
+					.findColumnIndex(TracingColumns.DELIVERY_DATE)));
 			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
 					getMonth(date), getYear(date));
 
@@ -452,9 +450,9 @@ public class TracingUtils {
 
 		for (DataRow row : dataTable) {
 			int id = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+					.findColumnIndex(TracingColumns.ID)));
 			int next = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingConstants.NEXT_COLUMN)));
+					.findColumnIndex(TracingColumns.NEXT)));
 
 			if (deliveries.containsKey(id) && deliveries.containsKey(next)) {
 				deliveries.get(id).getAllNextIDs().add(next);

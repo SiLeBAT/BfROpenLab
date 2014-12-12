@@ -39,7 +39,6 @@ import org.knime.core.node.NotConfigurableException;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.openkrise.TracingConstants;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
@@ -80,14 +79,14 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		addTab("Options",
 				UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab(TracingConstants.NODE_NAME + " Weights", nodeWeightPanel);
-		addTab(TracingConstants.EDGE_NAME + " Weights", edgeWeightPanel);
-		addTab(TracingConstants.NODE_NAME + " Cross Contaminations",
+		addTab(TracingUtils.NODE_NAME + " Weights", nodeWeightPanel);
+		addTab(TracingUtils.EDGE_NAME + " Weights", edgeWeightPanel);
+		addTab(TracingUtils.NODE_NAME + " Cross Contaminations",
 				nodeContaminationPanel);
-		addTab(TracingConstants.EDGE_NAME + " Cross Contaminations",
+		addTab(TracingUtils.EDGE_NAME + " Cross Contaminations",
 				edgeContaminationPanel);
-		addTab("Observed " + TracingConstants.NODES_NAME, nodeFilterPanel);
-		addTab("Observed " + TracingConstants.EDGES_NAME, edgeFilterPanel);
+		addTab("Observed " + TracingUtils.NODES_NAME, nodeFilterPanel);
+		addTab("Observed " + TracingUtils.EDGES_NAME, edgeFilterPanel);
 	}
 
 	@Override

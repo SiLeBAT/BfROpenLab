@@ -45,7 +45,7 @@ import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 
 public class EditableSinglePropertiesDialog extends JDialog implements
 		ActionListener {
@@ -79,30 +79,29 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 		boolean crossContamination = false;
 		boolean observed = false;
 
-		if (element.getProperties().get(TracingConstants.WEIGHT_COLUMN) != null) {
-			weight = (Double) element.getProperties().get(
-					TracingConstants.WEIGHT_COLUMN);
+		if (element.getProperties().get(TracingColumns.WEIGHT) != null) {
+			weight = (Double) element.getProperties()
+					.get(TracingColumns.WEIGHT);
 		}
 
-		if (element.getProperties().get(
-				TracingConstants.CROSS_CONTAMINATION_COLUMN) != null) {
+		if (element.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null) {
 			crossContamination = (Boolean) element.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+					TracingColumns.CROSS_CONTAMINATION);
 		}
 
-		if (element.getProperties().get(TracingConstants.OBSERVED_COLUMN) != null) {
+		if (element.getProperties().get(TracingColumns.OBSERVED) != null) {
 			observed = (Boolean) element.getProperties().get(
-					TracingConstants.OBSERVED_COLUMN);
+					TracingColumns.OBSERVED);
 		}
 
 		caseField = new JTextField(String.valueOf(weight));
 		contaminationBox = new JCheckBox("", crossContamination);
 		observedBox = new JCheckBox("", observed);
 
-		leftNorthPanel.add(new JLabel(TracingConstants.WEIGHT_COLUMN + ":"));
-		leftNorthPanel.add(new JLabel(
-				TracingConstants.CROSS_CONTAMINATION_COLUMN + ":"));
-		leftNorthPanel.add(new JLabel(TracingConstants.OBSERVED_COLUMN + ":"));
+		leftNorthPanel.add(new JLabel(TracingColumns.WEIGHT + ":"));
+		leftNorthPanel
+				.add(new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"));
+		leftNorthPanel.add(new JLabel(TracingColumns.OBSERVED + ":"));
 		rightNorthPanel.add(caseField);
 		rightNorthPanel.add(contaminationBox);
 		rightNorthPanel.add(observedBox);
@@ -125,10 +124,9 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 		for (String property : properties.keySet()) {
 			Object value = element.getProperties().get(property);
 
-			if (!property.equals(TracingConstants.WEIGHT_COLUMN)
-					&& !property
-							.equals(TracingConstants.CROSS_CONTAMINATION_COLUMN)
-					&& !property.equals(TracingConstants.OBSERVED_COLUMN)) {
+			if (!property.equals(TracingColumns.WEIGHT)
+					&& !property.equals(TracingColumns.CROSS_CONTAMINATION)
+					&& !property.equals(TracingColumns.OBSERVED)) {
 				JTextField field = new JTextField();
 
 				if (value != null) {
@@ -175,24 +173,22 @@ public class EditableSinglePropertiesDialog extends JDialog implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			if (caseField.getText().isEmpty()) {
-				element.getProperties()
-						.put(TracingConstants.WEIGHT_COLUMN, 0.0);
+				element.getProperties().put(TracingColumns.WEIGHT, 0.0);
 			} else {
 				try {
-					element.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+					element.getProperties().put(TracingColumns.WEIGHT,
 							Double.parseDouble(caseField.getText()));
 				} catch (NumberFormatException ex) {
 					JOptionPane.showMessageDialog(this,
 							"Please enter valid number for "
-									+ TracingConstants.WEIGHT_COLUMN, "Error",
+									+ TracingColumns.WEIGHT, "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 
-			element.getProperties().put(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN,
+			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 					contaminationBox.isSelected());
-			element.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+			element.getProperties().put(TracingColumns.OBSERVED,
 					observedBox.isSelected());
 			approved = true;
 			dispose();

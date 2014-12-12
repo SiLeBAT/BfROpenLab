@@ -60,7 +60,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 
 public class TableInputPanel<T> extends JPanel implements ActionListener,
 		RowSorterListener, CellEditorListener, ListSelectionListener {
@@ -126,7 +126,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		}
 
 		Set<String> filteredIds = new LinkedHashSet<>();
-		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+		int idColumn = UI.findColumn(table, TracingColumns.ID);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			filteredIds.add((String) table.getValueAt(row, idColumn));
@@ -202,7 +202,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		}
 
 		if (e.getSource() == table.getRowSorter()) {
-			int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+			int idColumn = UI.findColumn(table, TracingColumns.ID);
 
 			for (int row = 0; row < table.getRowCount(); row++) {
 				String id = (String) table.getValueAt(row, idColumn);
@@ -215,7 +215,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	@SuppressWarnings("unchecked")
 	@Override
 	public void editingStopped(ChangeEvent e) {
-		int idColumn = UI.findColumn(table, TracingConstants.ID_COLUMN);
+		int idColumn = UI.findColumn(table, TracingColumns.ID);
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			String id = (String) table.getValueAt(row, idColumn);
@@ -276,11 +276,11 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		switch (type) {
 		case NODE:
-			idColumns.add(TracingConstants.ID_COLUMN);
+			idColumns.add(TracingColumns.ID);
 			break;
 		case EDGE:
-			idColumns.addAll(Arrays.asList(TracingConstants.ID_COLUMN,
-					TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN));
+			idColumns.addAll(Arrays.asList(TracingColumns.ID,
+					TracingColumns.FROM, TracingColumns.TO));
 			break;
 		}
 

@@ -42,7 +42,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class InputTable extends JTable {
@@ -61,20 +61,18 @@ public class InputTable extends JTable {
 			boolean crossContamination = false;
 			boolean observed = false;
 
-			if (e.getProperties().get(TracingConstants.WEIGHT_COLUMN) != null) {
-				weight = (Double) e.getProperties().get(
-						TracingConstants.WEIGHT_COLUMN);
+			if (e.getProperties().get(TracingColumns.WEIGHT) != null) {
+				weight = (Double) e.getProperties().get(TracingColumns.WEIGHT);
 			}
 
-			if (e.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN) != null) {
+			if (e.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null) {
 				crossContamination = (Boolean) e.getProperties().get(
-						TracingConstants.CROSS_CONTAMINATION_COLUMN);
+						TracingColumns.CROSS_CONTAMINATION);
 			}
 
-			if (e.getProperties().get(TracingConstants.OBSERVED_COLUMN) != null) {
+			if (e.getProperties().get(TracingColumns.OBSERVED) != null) {
 				observed = (Boolean) e.getProperties().get(
-						TracingConstants.OBSERVED_COLUMN);
+						TracingColumns.OBSERVED);
 			}
 
 			inputs.add(new Input(weight, crossContamination, observed));

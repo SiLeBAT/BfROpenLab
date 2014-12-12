@@ -342,8 +342,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataTableSpec getDataModelSpec() {
 		DataColumnSpec[] spec = new DataColumnSpec[2];
-		spec[0] = new DataColumnSpecCreator(TracingConstants.ID_COLUMN, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator(TracingConstants.NEXT_COLUMN, IntCell.TYPE).createSpec();		
+		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
+		spec[1] = new DataColumnSpecCreator(TracingColumns.NEXT, IntCell.TYPE).createSpec();		
 		return new DataTableSpec(spec);
 	}
 
@@ -356,7 +356,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	private DataTableSpec getSpec33Nodes() {
 		DataColumnSpec[] spec = new DataColumnSpec[19];
-		spec[0] = new DataColumnSpecCreator(TracingConstants.ID_COLUMN, IntCell.TYPE).createSpec();
+		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
 		spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
 		spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
 		spec[3] = new DataColumnSpecCreator("HouseNumber", StringCell.TYPE).createSpec();
@@ -380,9 +380,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataTableSpec getSpec33Links() {
 		DataColumnSpec[] spec = new DataColumnSpec[20];
-		spec[0] = new DataColumnSpecCreator(TracingConstants.ID_COLUMN, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator(TracingConstants.FROM_COLUMN, IntCell.TYPE).createSpec();
-		spec[2] = new DataColumnSpecCreator(TracingConstants.TO_COLUMN, IntCell.TYPE).createSpec();
+		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
+		spec[1] = new DataColumnSpecCreator(TracingColumns.FROM, IntCell.TYPE).createSpec();
+		spec[2] = new DataColumnSpecCreator(TracingColumns.TO, IntCell.TYPE).createSpec();
 		spec[3] = new DataColumnSpecCreator("Item Number", StringCell.TYPE).createSpec();
 		spec[4] = new DataColumnSpecCreator("Name", StringCell.TYPE).createSpec();
 		spec[5] = new DataColumnSpecCreator("Processing", StringCell.TYPE).createSpec();
@@ -390,7 +390,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		spec[7] = new DataColumnSpecCreator("Charge Number", StringCell.TYPE).createSpec();
 		spec[8] = new DataColumnSpecCreator("Date Expiration", StringCell.TYPE).createSpec();
 		spec[9] = new DataColumnSpecCreator("Date Manufactoring", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(TracingConstants.DELIVERY_DATE, StringCell.TYPE).createSpec();
+		spec[10] = new DataColumnSpecCreator(TracingColumns.DELIVERY_DATE, StringCell.TYPE).createSpec();
 		spec[11] = new DataColumnSpecCreator("Amount [kg]", DoubleCell.TYPE).createSpec();
 		spec[12] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
 		spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();

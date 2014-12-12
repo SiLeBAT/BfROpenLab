@@ -37,7 +37,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class GisGraphViewCanvasCreator {
@@ -66,14 +66,14 @@ public class GisGraphViewCanvasCreator {
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, false);
+				edges, nodeProperties, edgeProperties, TracingColumns.ID,
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO,
+				false);
 
-		canvas.setNodeName(TracingConstants.NODE_NAME);
-		canvas.setEdgeName(TracingConstants.EDGE_NAME);
-		canvas.setNodesName(TracingConstants.NODES_NAME);
-		canvas.setEdgesName(TracingConstants.EDGES_NAME);
+		canvas.setNodeName(TracingUtils.NODE_NAME);
+		canvas.setEdgeName(TracingUtils.EDGE_NAME);
+		canvas.setNodesName(TracingUtils.NODES_NAME);
+		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);
 
@@ -92,14 +92,13 @@ public class GisGraphViewCanvasCreator {
 				edgeProperties, nodes);
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN,
-				regionNodes);
+				TracingColumns.ID, TracingColumns.ID, TracingColumns.FROM,
+				TracingColumns.TO, regionNodes);
 
-		canvas.setNodeName(TracingConstants.NODE_NAME);
-		canvas.setEdgeName(TracingConstants.EDGE_NAME);
-		canvas.setNodesName(TracingConstants.NODES_NAME);
-		canvas.setEdgesName(TracingConstants.EDGES_NAME);
+		canvas.setNodeName(TracingUtils.NODE_NAME);
+		canvas.setEdgeName(TracingUtils.EDGE_NAME);
+		canvas.setNodesName(TracingUtils.NODES_NAME);
+		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);
 		set.getGisSettings().setToCanvas(canvas, nodeProperties, false);

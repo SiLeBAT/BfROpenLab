@@ -59,7 +59,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
@@ -243,7 +243,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(nodeInSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+					.findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
 			for (DataColumnSpec column : nodeInSpec) {
@@ -251,18 +251,18 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(nodeInSpec.findColumnIndex(column.getName()));
 			}
 
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO
 					.createCell(nodeWeights.get(id));
 			cells[nodeOutSpec
-					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
+					.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossNodes.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
 					.createCell(tracing.getStationScore(Integer.parseInt(id)));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.OBSERVED_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(filterNodes.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
 					.createCell(backwardNodes.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO
 					.createCell(forwardNodes.contains(id));
 
 			nodeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -282,7 +282,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		for (DataRow row : edgeTable) {
 			String id = IO.getToCleanString(row.getCell(edgeInSpec
-					.findColumnIndex(TracingConstants.ID_COLUMN)));
+					.findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
 			for (DataColumnSpec column : edgeInSpec) {
@@ -290,18 +290,18 @@ public class TracingParametersNodeModel extends NodeModel {
 						.getCell(edgeInSpec.findColumnIndex(column.getName()));
 			}
 
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.WEIGHT_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO
 					.createCell(edgeWeights.get(id));
 			cells[edgeOutSpec
-					.findColumnIndex(TracingConstants.CROSS_CONTAMINATION_COLUMN)] = IO
+					.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.OBSERVED_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(filterEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.SCORE_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
 					.createCell(tracing.getDeliveryScore(Integer.parseInt(id)));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.BACKWARD_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
 					.createCell(backwardEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingConstants.FORWARD_COLUMN)] = IO
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO
 					.createCell(forwardEdges.contains(id));
 
 			edgeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -386,13 +386,12 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
-				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : nodeSpec) {
 			if (newColumns.containsKey(column.getName())) {
@@ -416,13 +415,12 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
-				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : edgeSpec) {
 			if (newColumns.containsKey(column.getName())) {

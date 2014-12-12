@@ -64,7 +64,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCond
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.views.BfrLogo;
 import de.bund.bfr.knime.openkrise.views.FoodChainLabLogo;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
@@ -100,9 +100,8 @@ public class TracingCanvas extends GraphCanvas {
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties,
 			HashMap<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties,
-				TracingConstants.ID_COLUMN, TracingConstants.ID_COLUMN,
-				TracingConstants.FROM_COLUMN, TracingConstants.TO_COLUMN, true);
+		super(nodes, edges, nodeProperties, edgeProperties, TracingColumns.ID,
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO, true);
 		this.deliveries = deliveries;
 		performTracing = DEFAULT_PERFORM_TRACING;
 
@@ -114,10 +113,8 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Double> nodeWeights = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
-			Double value = (Double) node.getProperties().get(
-					TracingConstants.WEIGHT_COLUMN);
-
-			nodeWeights.put(node.getId(), value);
+			nodeWeights.put(node.getId(),
+					(Double) node.getProperties().get(TracingColumns.WEIGHT));
 		}
 
 		return nodeWeights;
@@ -126,7 +123,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
 		for (GraphNode node : getNodeSaveMap().values()) {
 			if (nodeWeights.containsKey(node.getId())) {
-				node.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+				node.getProperties().put(TracingColumns.WEIGHT,
 						nullToZero(nodeWeights.get(node.getId())));
 			}
 		}
@@ -140,10 +137,8 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Double> edgeWeights = new LinkedHashMap<>();
 
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
-			Double value = (Double) edge.getProperties().get(
-					TracingConstants.WEIGHT_COLUMN);
-
-			edgeWeights.put(edge.getId(), value);
+			edgeWeights.put(edge.getId(),
+					(Double) edge.getProperties().get(TracingColumns.WEIGHT));
 		}
 
 		return edgeWeights;
@@ -152,7 +147,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			if (edgeWeights.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingConstants.WEIGHT_COLUMN,
+				edge.getProperties().put(TracingColumns.WEIGHT,
 						nullToZero(edgeWeights.get(edge.getId())));
 			}
 		}
@@ -166,10 +161,8 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
-			Boolean value = (Boolean) node.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN);
-
-			nodeCrossContaminations.put(node.getId(), value);
+			nodeCrossContaminations.put(node.getId(), (Boolean) node
+					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
 
 		return nodeCrossContaminations;
@@ -179,8 +172,7 @@ public class TracingCanvas extends GraphCanvas {
 			Map<String, Boolean> nodeCrossContaminations) {
 		for (GraphNode node : getNodeSaveMap().values()) {
 			if (nodeCrossContaminations.containsKey(node.getId())) {
-				node.getProperties().put(
-						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				node.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						nullToFalse(nodeCrossContaminations.get(node.getId())));
 			}
 		}
@@ -194,10 +186,8 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
 
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
-			Boolean value = (Boolean) edge.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN);
-
-			edgeCrossContaminations.put(edge.getId(), value);
+			edgeCrossContaminations.put(edge.getId(), (Boolean) edge
+					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
 
 		return edgeCrossContaminations;
@@ -207,8 +197,7 @@ public class TracingCanvas extends GraphCanvas {
 			Map<String, Boolean> edgeCrossContaminations) {
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			if (edgeCrossContaminations.containsKey(edge.getId())) {
-				edge.getProperties().put(
-						TracingConstants.CROSS_CONTAMINATION_COLUMN,
+				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						nullToFalse(edgeCrossContaminations.get(edge.getId())));
 			}
 		}
@@ -222,10 +211,10 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
 
 		for (GraphNode node : getNodeSaveMap().values()) {
-			Boolean value = (Boolean) node.getProperties().get(
-					TracingConstants.OBSERVED_COLUMN);
-
-			observedNodes.put(node.getId(), value);
+			observedNodes
+					.put(node.getId(),
+							(Boolean) node.getProperties().get(
+									TracingColumns.OBSERVED));
 		}
 
 		return observedNodes;
@@ -234,7 +223,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
 		for (GraphNode node : getNodeSaveMap().values()) {
 			if (observedNodes.containsKey(node.getId())) {
-				node.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+				node.getProperties().put(TracingColumns.OBSERVED,
 						nullToFalse(observedNodes.get(node.getId())));
 			}
 		}
@@ -248,10 +237,10 @@ public class TracingCanvas extends GraphCanvas {
 		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
 
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
-			Boolean value = (Boolean) edge.getProperties().get(
-					TracingConstants.OBSERVED_COLUMN);
-
-			observedEdges.put(edge.getId(), value);
+			observedEdges
+					.put(edge.getId(),
+							(Boolean) edge.getProperties().get(
+									TracingColumns.OBSERVED));
 		}
 
 		return observedEdges;
@@ -260,7 +249,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
 		for (Edge<GraphNode> edge : getEdgeSaveMap().values()) {
 			if (observedEdges.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingConstants.OBSERVED_COLUMN,
+				edge.getProperties().put(TracingColumns.OBSERVED,
 						nullToFalse(observedEdges.get(edge.getId())));
 			}
 		}
@@ -606,7 +595,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (GraphNode node : getNodes()) {
 			int id = getIntegerId(node, getCollapsedNodes());
 			Boolean value = (Boolean) node.getProperties().get(
-					TracingConstants.OBSERVED_COLUMN);
+					TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
 				backwardNodes.addAll(tracing.getBackwardStations(id));
@@ -619,7 +608,7 @@ public class TracingCanvas extends GraphCanvas {
 		for (Edge<GraphNode> edge : edges) {
 			int id = getIntegerId(edge);
 			Boolean value = (Boolean) edge.getProperties().get(
-					TracingConstants.OBSERVED_COLUMN);
+					TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
 				backwardNodes.addAll(tracing.getBackwardStations2(id));
@@ -632,33 +621,31 @@ public class TracingCanvas extends GraphCanvas {
 		for (GraphNode node : getNodes()) {
 			int id = getIntegerId(node, getCollapsedNodes());
 
-			node.getProperties().put(TracingConstants.SCORE_COLUMN,
+			node.getProperties().put(TracingColumns.SCORE,
 					tracing.getStationScore(id));
-			node.getProperties().put(TracingConstants.BACKWARD_COLUMN,
+			node.getProperties().put(TracingColumns.BACKWARD,
 					backwardNodes.contains(id));
-			node.getProperties().put(TracingConstants.FORWARD_COLUMN,
+			node.getProperties().put(TracingColumns.FORWARD,
 					forwardNodes.contains(id));
 		}
 
 		for (Edge<GraphNode> edge : edges) {
 			int id = Integer.parseInt(edge.getId());
 
-			edge.getProperties().put(TracingConstants.SCORE_COLUMN,
+			edge.getProperties().put(TracingColumns.SCORE,
 					tracing.getDeliveryScore(id));
-			edge.getProperties().put(TracingConstants.BACKWARD_COLUMN,
+			edge.getProperties().put(TracingColumns.BACKWARD,
 					backwardEdges.contains(id));
-			edge.getProperties().put(TracingConstants.FORWARD_COLUMN,
+			edge.getProperties().put(TracingColumns.FORWARD,
 					forwardEdges.contains(id));
 		}
 
 		if (isJoinEdges()) {
 			for (Edge<GraphNode> edge : getEdges()) {
-				edge.getProperties()
-						.put(TracingConstants.OBSERVED_COLUMN, null);
-				edge.getProperties().put(TracingConstants.SCORE_COLUMN, null);
-				edge.getProperties()
-						.put(TracingConstants.BACKWARD_COLUMN, null);
-				edge.getProperties().put(TracingConstants.FORWARD_COLUMN, null);
+				edge.getProperties().put(TracingColumns.OBSERVED, null);
+				edge.getProperties().put(TracingColumns.SCORE, null);
+				edge.getProperties().put(TracingColumns.BACKWARD, null);
+				edge.getProperties().put(TracingColumns.FORWARD, null);
 			}
 		}
 	}
@@ -691,9 +678,9 @@ public class TracingCanvas extends GraphCanvas {
 		for (GraphNode node : getNodes()) {
 			int id = getIntegerId(node, getCollapsedNodes());
 			Double caseValue = (Double) node.getProperties().get(
-					TracingConstants.WEIGHT_COLUMN);
+					TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
 				tracing.setCase(id, caseValue);
@@ -713,9 +700,9 @@ public class TracingCanvas extends GraphCanvas {
 		for (Edge<GraphNode> edge : edges) {
 			int id = getIntegerId(edge);
 			Double caseValue = (Double) edge.getProperties().get(
-					TracingConstants.WEIGHT_COLUMN);
+					TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) edge.getProperties().get(
-					TracingConstants.CROSS_CONTAMINATION_COLUMN);
+					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
 				tracing.setCaseDelivery(id, caseValue);
@@ -767,10 +754,8 @@ public class TracingCanvas extends GraphCanvas {
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			List<String> tracingColumns = Arrays.asList(
-					TracingConstants.SCORE_COLUMN,
-					TracingConstants.BACKWARD_COLUMN,
-					TracingConstants.FORWARD_COLUMN);
+			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
+					TracingColumns.BACKWARD, TracingColumns.FORWARD);
 			String error = "The following columns cannot be used with \"Invisible\" option:\n";
 
 			for (String column : tracingColumns) {

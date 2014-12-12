@@ -35,7 +35,7 @@ import org.knime.core.node.InvalidSettingsException;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 public class TracingViewCanvasCreator {
@@ -60,56 +60,54 @@ public class TracingViewCanvasCreator {
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 
-		if (!nodeProperties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
-			nodeProperties.put(TracingConstants.WEIGHT_COLUMN, Double.class);
+		if (!nodeProperties.containsKey(TracingColumns.WEIGHT)) {
+			nodeProperties.put(TracingColumns.WEIGHT, Double.class);
 		}
 
-		if (!nodeProperties
-				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
-			nodeProperties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+		if (!nodeProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
+			nodeProperties.put(TracingColumns.CROSS_CONTAMINATION,
 					Boolean.class);
 		}
 
-		if (!nodeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
-			nodeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
+		if (!nodeProperties.containsKey(TracingColumns.SCORE)) {
+			nodeProperties.put(TracingColumns.SCORE, Double.class);
 		}
 
-		if (!nodeProperties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
-			nodeProperties.put(TracingConstants.OBSERVED_COLUMN, Boolean.class);
+		if (!nodeProperties.containsKey(TracingColumns.OBSERVED)) {
+			nodeProperties.put(TracingColumns.OBSERVED, Boolean.class);
 		}
 
-		if (!nodeProperties.containsKey(TracingConstants.BACKWARD_COLUMN)) {
-			nodeProperties.put(TracingConstants.BACKWARD_COLUMN, Boolean.class);
+		if (!nodeProperties.containsKey(TracingColumns.BACKWARD)) {
+			nodeProperties.put(TracingColumns.BACKWARD, Boolean.class);
 		}
 
-		if (!nodeProperties.containsKey(TracingConstants.FORWARD_COLUMN)) {
-			nodeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
+		if (!nodeProperties.containsKey(TracingColumns.FORWARD)) {
+			nodeProperties.put(TracingColumns.FORWARD, Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.WEIGHT_COLUMN)) {
-			edgeProperties.put(TracingConstants.WEIGHT_COLUMN, Double.class);
+		if (!edgeProperties.containsKey(TracingColumns.WEIGHT)) {
+			edgeProperties.put(TracingColumns.WEIGHT, Double.class);
 		}
 
-		if (!edgeProperties
-				.containsKey(TracingConstants.CROSS_CONTAMINATION_COLUMN)) {
-			edgeProperties.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
+		if (!edgeProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
+			edgeProperties.put(TracingColumns.CROSS_CONTAMINATION,
 					Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.OBSERVED_COLUMN)) {
-			edgeProperties.put(TracingConstants.OBSERVED_COLUMN, Boolean.class);
+		if (!edgeProperties.containsKey(TracingColumns.OBSERVED)) {
+			edgeProperties.put(TracingColumns.OBSERVED, Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.SCORE_COLUMN)) {
-			edgeProperties.put(TracingConstants.SCORE_COLUMN, Double.class);
+		if (!edgeProperties.containsKey(TracingColumns.SCORE)) {
+			edgeProperties.put(TracingColumns.SCORE, Double.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.BACKWARD_COLUMN)) {
-			edgeProperties.put(TracingConstants.BACKWARD_COLUMN, Boolean.class);
+		if (!edgeProperties.containsKey(TracingColumns.BACKWARD)) {
+			edgeProperties.put(TracingColumns.BACKWARD, Boolean.class);
 		}
 
-		if (!edgeProperties.containsKey(TracingConstants.FORWARD_COLUMN)) {
-			edgeProperties.put(TracingConstants.FORWARD_COLUMN, Boolean.class);
+		if (!edgeProperties.containsKey(TracingColumns.FORWARD)) {
+			edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
 		}
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
@@ -120,10 +118,10 @@ public class TracingViewCanvasCreator {
 				new ArrayList<>(nodes.values()), edges, nodeProperties,
 				edgeProperties, deliveries);
 
-		canvas.setNodeName(TracingConstants.NODE_NAME);
-		canvas.setEdgeName(TracingConstants.EDGE_NAME);
-		canvas.setNodesName(TracingConstants.NODES_NAME);
-		canvas.setEdgesName(TracingConstants.EDGES_NAME);
+		canvas.setNodeName(TracingUtils.NODE_NAME);
+		canvas.setEdgeName(TracingUtils.EDGE_NAME);
+		canvas.setNodesName(TracingUtils.NODES_NAME);
+		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		canvas.setPerformTracing(false);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, false);

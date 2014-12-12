@@ -61,7 +61,7 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.TracingConstants;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
@@ -268,7 +268,7 @@ public class TracingViewNodeModel extends NodeModel {
 		Map<String, DataType> columns = new LinkedHashMap<>();
 
 		for (DataColumnSpec column : nodeSpec) {
-			if (column.getName().equals(TracingConstants.ID_COLUMN)) {
+			if (column.getName().equals(TracingColumns.ID)) {
 				column = new DataColumnSpecCreator(column.getName(),
 						StringCell.TYPE).createSpec();
 			}
@@ -279,13 +279,12 @@ public class TracingViewNodeModel extends NodeModel {
 
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
-				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (String column : newColumns.keySet()) {
 			if (!columns.containsKey(column)) {
@@ -306,9 +305,9 @@ public class TracingViewNodeModel extends NodeModel {
 		Map<String, DataType> columns = new LinkedHashMap<>();
 
 		for (DataColumnSpec column : edgeSpec) {
-			if (column.getName().equals(TracingConstants.ID_COLUMN)
-					|| column.getName().equals(TracingConstants.FROM_COLUMN)
-					|| column.getName().equals(TracingConstants.TO_COLUMN)) {
+			if (column.getName().equals(TracingColumns.ID)
+					|| column.getName().equals(TracingColumns.FROM)
+					|| column.getName().equals(TracingColumns.TO)) {
 				column = new DataColumnSpecCreator(column.getName(),
 						StringCell.TYPE).createSpec();
 			}
@@ -319,13 +318,12 @@ public class TracingViewNodeModel extends NodeModel {
 
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
-		newColumns.put(TracingConstants.WEIGHT_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.CROSS_CONTAMINATION_COLUMN,
-				BooleanCell.TYPE);
-		newColumns.put(TracingConstants.OBSERVED_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.SCORE_COLUMN, DoubleCell.TYPE);
-		newColumns.put(TracingConstants.BACKWARD_COLUMN, BooleanCell.TYPE);
-		newColumns.put(TracingConstants.FORWARD_COLUMN, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (String column : newColumns.keySet()) {
 			if (!columns.containsKey(column)) {

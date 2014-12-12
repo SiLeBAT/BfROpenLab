@@ -24,31 +24,26 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-public interface TracingConstants {
+public interface TracingColumns {
 
-	public static final String ID_COLUMN = "ID";
-	public static final String FROM_COLUMN = "from";
-	public static final String TO_COLUMN = "to";
-	public static final String NEXT_COLUMN = "Next";
+	public static final String ID = "ID";
+	public static final String FROM = "from";
+	public static final String TO = "to";
+	public static final String NEXT = "Next";
 
-	public static final String OLD_WEIGHT_COLUMN = "CaseWeight";
-	public static final String WEIGHT_COLUMN = "Weight";
-	public static final String CROSS_CONTAMINATION_COLUMN = "CrossContamination";
-	public static final String SCORE_COLUMN = "Score";
+	public static final String OLD_WEIGHT = "CaseWeight";
+	public static final String WEIGHT = "Weight";
+	public static final String CROSS_CONTAMINATION = "CrossContamination";
+	public static final String SCORE = "Score";
 
-	public static final String OLD_OBSERVED_COLUMN = "Filter";
-	public static final String OBSERVED_COLUMN = "Observed";
-	public static final String BACKWARD_COLUMN = "Backward";
-	public static final String FORWARD_COLUMN = "Forward";
+	public static final String OLD_OBSERVED = "Filter";
+	public static final String OBSERVED = "Observed";
+	public static final String BACKWARD = "Backward";
+	public static final String FORWARD = "Forward";
 
-	public static final String CLUSTERABLE_COLUMN = "Clusterable";
-	public static final String CLUSTER_ID_COLUMN = "ClusterID";
+	public static final String CLUSTERABLE = "Clusterable";
+	public static final String CLUSTER_ID = "ClusterID";
 
 	public static final String DELIVERY_DATE = "Date Delivery";
-
-	public static final String NODE_NAME = "Station";
-	public static final String EDGE_NAME = "Delivery";
-	public static final String NODES_NAME = "Stations";
-	public static final String EDGES_NAME = "Deliveries";
 
 }
