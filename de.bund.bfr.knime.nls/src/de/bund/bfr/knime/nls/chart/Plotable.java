@@ -265,8 +265,8 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionPoints(String paramX, Transform transformX,
-			Transform transformY, double minX, double maxX, double minY,
-			double maxY) throws ParseException {
+			Transform transformY, double minX, double maxX)
+			throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null) {
@@ -283,15 +283,13 @@ public class Plotable {
 			parser.setVarValue(paramX, transformX.from(x));
 
 			Object number = parser.evaluate(f);
-			Double y;
+			Double y = Double.NaN;
 
 			if (number instanceof Double) {
 				y = transformY.to((Double) number);
+			}
 
-				if (!MathUtils.isValidDouble(y) || y < minY || y > maxY) {
-					y = Double.NaN;
-				}
-			} else {
+			if (!MathUtils.isValidDouble(y)) {
 				y = Double.NaN;
 			}
 
@@ -303,8 +301,8 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionErrors(String paramX, Transform transformX,
-			Transform transformY, double minX, double maxX, double minY,
-			double maxY) throws ParseException {
+			Transform transformY, double minX, double maxX)
+			throws ParseException {
 		DJep parser = createParser(paramX);
 
 		if (function == null || parser == null || covarianceMatrixMissing()) {
@@ -340,8 +338,8 @@ public class Plotable {
 	}
 
 	public double[][] getDiffPoints(String paramX, Transform transformX,
-			Transform transformY, double minX, double maxX, double minY,
-			double maxY) throws ParseException {
+			Transform transformY, double minX, double maxX)
+			throws ParseException {
 		if (functions.isEmpty() || !paramX.equals(diffVariable)) {
 			return null;
 		}
@@ -382,7 +380,7 @@ public class Plotable {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 			double transX = transformX.from(x);
-			Double y;
+			Double y = Double.NaN;
 
 			if (transX == diffValue) {
 				y = transformY.to(value[depIndex]);
@@ -390,8 +388,6 @@ public class Plotable {
 				integrator.integrate(f, diffValue, value, transX, value);
 				y = transformY.to(value[depIndex]);
 				diffValue = transX;
-			} else {
-				y = Double.NaN;
 			}
 
 			if (!MathUtils.isValidDouble(y)) {

@@ -204,48 +204,34 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null && plotable.getType() == Plotable.Type.DATA) {
+			if (plotable == null) {
+				continue;
+			}
+
+			switch (plotable.getType()) {
+			case DATA:
 				plotDataSet(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index));
-				index++;
-			}
-		}
-
-		for (String id : idsToPaint) {
-			Plotable plotable = plotables.get(id);
-
-			if (plotable != null
-					&& plotable.getType() == Plotable.Type.FUNCTION) {
+				break;
+			case FUNCTION:
 				plotFunction(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
-			}
-		}
-
-		for (String id : idsToPaint) {
-			Plotable plotable = plotables.get(id);
-
-			if (plotable != null
-					&& plotable.getType() == Plotable.Type.DATA_FUNCTION) {
+				break;
+			case DATA_FUNCTION:
 				plotDataFunction(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
-			}
-		}
-
-		for (String id : idsToPaint) {
-			Plotable plotable = plotables.get(id);
-
-			if (plotable != null
-					&& plotable.getType() == Plotable.Type.DATA_DIFF) {
+				break;
+			case DATA_DIFF:
 				plotDataDiff(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
+				break;
 			}
+
+			index++;
 		}
 
 		if (minToZero && !useManualRange) {
@@ -467,15 +453,13 @@ public class ChartCreator extends ChartPanel {
 	private XYDataset createFunctionDataSet(Plotable plotable, String id,
 			double minX, double maxX) throws ParseException {
 		double[][] points = plotable.getFunctionPoints(paramX, transformX,
-				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				transformY, minX, maxX);
 		double[][] functionErrors = null;
 		String leg = legend.get(id);
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(paramX, transformX,
-					transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
+					transformY, minX, maxX);
 		}
 
 		if (points != null) {
@@ -546,8 +530,7 @@ public class ChartCreator extends ChartPanel {
 	private XYDataset createDiffDataSet(Plotable plotable, String id,
 			double minX, double maxX) throws ParseException {
 		double[][] points = plotable.getDiffPoints(paramX, transformX,
-				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				transformY, minX, maxX);
 		String leg = legend.get(id);
 
 		if (points != null) {
