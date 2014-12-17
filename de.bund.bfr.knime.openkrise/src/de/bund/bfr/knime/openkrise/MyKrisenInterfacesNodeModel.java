@@ -91,6 +91,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		super(0, 3);
 	}
 
+	private Connection getLocalConn() {
+		DBKernel.getLocalConn(false);
+		return null;
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -108,7 +112,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			rng.getDeliveryDelivery(deliveryDelivery);
 		}
 		else {
-			Connection conn = override ? getNewLocalConnection(login, passwd, filename) : null;
+			Connection conn = override ? getNewLocalConnection(login, passwd, filename) : getLocalConn();
 			//if (doAnonymize) doAnonymizeHard(conn);
 		
 
