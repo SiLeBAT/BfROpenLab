@@ -43,17 +43,9 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private static final double EPSILON = 0.00001;
 	private static final int MAX_THREADS = 8;
 
-	private Map<String, DJep[]> parsers;
-	private Map<String, Node[]> functions;
-	private String[] dependentVariables;
-	private Double[] initValues;
-	private String[] initParameters;
+	private Map<String, VectorDiffFunction> diffFunctions;
 	private String[] parameters;
-	private Map<String, double[]> variableValues;
 	private double[] timeValues;
-	private String dependentVariable;
-	private String timeVariable;
-	private Integrator integrator;
 
 	public VectorDiffFunctionJacobian(String[] formulas,
 			String[] dependentVariables, Double[] initValues,
@@ -61,15 +53,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			Map<String, double[]> variableValues, double[] timeValues,
 			String dependentVariable, String timeVariable, Integrator integrator)
 			throws ParseException {
-		this.dependentVariables = dependentVariables;
-		this.initValues = initValues;
-		this.initParameters = initParameters;
 		this.parameters = parameters;
-		this.variableValues = variableValues;
 		this.timeValues = timeValues;
-		this.dependentVariable = dependentVariable;
-		this.timeVariable = timeVariable;
-		this.integrator = integrator;
 
 		Set<String> variables = new LinkedHashSet<>();
 
@@ -77,19 +62,21 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
-		parsers = new LinkedHashMap<>();
-		functions = new LinkedHashMap<>();
+		diffFunctions = new LinkedHashMap<>();
 
 		for (String param : parameters) {
-			parsers.put(param, new DJep[formulas.length]);
-			functions.put(param, new Node[formulas.length]);
+			DJep[] parsers = new DJep[formulas.length];
+			Node[] functions = new Node[formulas.length];
 
 			for (int i = 0; i < formulas.length; i++) {
-				DJep parser = MathUtils.createParser(variables);
-
-				parsers.get(param)[i] = parser;
-				functions.get(param)[i] = parser.parse(formulas[i]);
+				parsers[i] = MathUtils.createParser(variables);
+				functions[i] = parsers[i].parse(formulas[i]);
 			}
+
+			diffFunctions.put(param, new VectorDiffFunction(parsers, functions,
+					dependentVariables, initValues, initParameters, parameters,
+					variableValues, timeValues, dependentVariable,
+					timeVariable, integrator));
 		}
 	}
 
@@ -135,23 +122,17 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 		@Override
 		public void run() {
-			DJep[] parser = parsers.get(parameters[index]);
-			Node[] function = functions.get(parameters[index]);
+			VectorDiffFunction diffFunction = diffFunctions
+					.get(parameters[index]);
 			double[] point = this.point.clone();
 
 			point[index] = this.point[index] - EPSILON;
 
-			double[] result1 = new VectorDiffFunction(parser, function,
-					dependentVariables, initValues, initParameters, parameters,
-					variableValues, timeValues, dependentVariable,
-					timeVariable, integrator).value(point);
+			double[] result1 = diffFunction.value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
-			double[] result2 = new VectorDiffFunction(parser, function,
-					dependentVariables, initValues, initParameters, parameters,
-					variableValues, timeValues, dependentVariable,
-					timeVariable, integrator).value(point);
+			double[] result2 = diffFunction.value(point);
 
 			for (int i = 0; i < result.length; i++) {
 				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);
