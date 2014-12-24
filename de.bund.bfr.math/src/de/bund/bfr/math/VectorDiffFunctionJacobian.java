@@ -25,7 +25,6 @@
 package de.bund.bfr.math;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -43,9 +42,9 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private static final double EPSILON = 0.00001;
 	private static final int MAX_THREADS = 8;
 
-	private Map<String, VectorDiffFunction> diffFunctions;
-	private String[] parameters;
-	private double[] timeValues;
+	private VectorDiffFunction[] diffFunctions;
+	private int nParams;
+	private int nValues;
 
 	public VectorDiffFunctionJacobian(String[] formulas,
 			String[] dependentVariables, Double[] initValues,
@@ -53,8 +52,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			Map<String, double[]> variableValues, double[] timeValues,
 			String dependentVariable, String timeVariable, Integrator integrator)
 			throws ParseException {
-		this.parameters = parameters;
-		this.timeValues = timeValues;
+		nParams = parameters.length;
+		nValues = timeValues.length;
 
 		Set<String> variables = new LinkedHashSet<>();
 
@@ -62,30 +61,31 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
-		diffFunctions = new LinkedHashMap<>();
+		diffFunctions = new VectorDiffFunction[nParams];
 
-		for (String param : parameters) {
+		for (int i = 0; i < nParams; i++) {
 			DJep[] parsers = new DJep[formulas.length];
 			Node[] functions = new Node[formulas.length];
 
-			for (int i = 0; i < formulas.length; i++) {
-				parsers[i] = MathUtils.createParser(variables);
-				functions[i] = parsers[i].parse(formulas[i]);
+			for (int j = 0; j < formulas.length; j++) {
+				parsers[j] = MathUtils.createParser(variables);
+				functions[j] = parsers[j].parse(formulas[j]);
 			}
 
-			diffFunctions.put(param, new VectorDiffFunction(parsers, functions,
+			diffFunctions[i] = new VectorDiffFunction(parsers, functions,
 					dependentVariables, initValues, initParameters, parameters,
-					variableValues, timeValues, dependentVariable,
-					timeVariable, integrator));
+					variableValues, timeValues, Arrays.asList(
+							dependentVariables).indexOf(dependentVariable),
+					timeVariable, integrator);
 		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		double[][] r = new double[parameters.length][timeValues.length];
+		double[][] r = new double[nParams][nValues];
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
-		for (int i = 0; i < parameters.length; i++) {
+		for (int i = 0; i < nParams; i++) {
 			executor.execute(new ParamDiffThread(point, i, r[i]));
 		}
 
@@ -97,10 +97,10 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			e.printStackTrace();
 		}
 
-		double[][] result = new double[timeValues.length][parameters.length];
+		double[][] result = new double[nValues][nParams];
 
-		for (int i = 0; i < parameters.length; i++) {
-			for (int j = 0; j < timeValues.length; j++) {
+		for (int i = 0; i < nParams; i++) {
+			for (int j = 0; j < nValues; j++) {
 				result[j][i] = r[i][j];
 			}
 		}
@@ -122,17 +122,15 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 		@Override
 		public void run() {
-			VectorDiffFunction diffFunction = diffFunctions
-					.get(parameters[index]);
 			double[] point = this.point.clone();
 
 			point[index] = this.point[index] - EPSILON;
 
-			double[] result1 = diffFunction.value(point);
+			double[] result1 = diffFunctions[index].value(point);
 
 			point[index] = this.point[index] + EPSILON;
 
-			double[] result2 = diffFunction.value(point);
+			double[] result2 = diffFunctions[index].value(point);
 
 			for (int i = 0; i < result.length; i++) {
 				result[i] = (result2[i] - result1[i]) / (2 * EPSILON);

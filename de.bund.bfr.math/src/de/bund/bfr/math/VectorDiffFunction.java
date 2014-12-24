@@ -45,7 +45,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private double[] timeValues;
-	private String dependentVariable;
+	private int dependentIndex;
 	private String timeVariable;
 	private Integrator integrator;
 
@@ -60,7 +60,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.timeValues = timeValues;
-		this.dependentVariable = dependentVariable;
+		this.dependentIndex = Arrays.asList(dependentVariables).indexOf(
+				dependentVariable);
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
 
@@ -83,7 +84,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable, Integrator integrator) {
+			int dependentIndex, String timeVariable, Integrator integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -92,7 +93,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.timeValues = timeValues;
-		this.dependentVariable = dependentVariable;
+		this.dependentIndex = dependentIndex;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
 	}
@@ -122,15 +123,13 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 				dependentVariables, variableValues, timeVariable);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		double[] result = new double[timeValues.length];
-		int depIndex = Arrays.asList(dependentVariables).indexOf(
-				dependentVariable);
 
-		result[0] = values[depIndex];
+		result[0] = values[dependentIndex];
 
 		for (int i = 1; i < timeValues.length; i++) {
 			integratorInstance.integrate(f, timeValues[i - 1], values,
 					timeValues[i], values);
-			result[i] = values[depIndex];
+			result[i] = values[dependentIndex];
 		}
 
 		return result;
