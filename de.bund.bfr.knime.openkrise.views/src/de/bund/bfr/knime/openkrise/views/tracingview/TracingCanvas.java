@@ -80,7 +80,7 @@ public class TracingCanvas extends GraphCanvas {
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
-	private HashMap<Integer, MyDelivery> deliveries;
+	private Map<Integer, MyDelivery> deliveries;
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
@@ -93,13 +93,13 @@ public class TracingCanvas extends GraphCanvas {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new LinkedHashMap<String, Class<?>>(),
 				new LinkedHashMap<String, Class<?>>(),
-				new HashMap<Integer, MyDelivery>());
+				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties,
-			HashMap<Integer, MyDelivery> deliveries) {
+			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingColumns.ID,
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO, true);
 		this.deliveries = deliveries;

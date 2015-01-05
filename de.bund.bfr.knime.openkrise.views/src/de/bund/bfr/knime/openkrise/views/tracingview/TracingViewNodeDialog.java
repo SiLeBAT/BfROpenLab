@@ -117,7 +117,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		listener = new ResizeListener();
 		panel.addComponentListener(listener);
-		updateGraphCanvas();
+		updateCanvas();
 	}
 
 	@Override
@@ -133,21 +133,21 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			updateSettings();
 			set.getNodeWeights().clear();
 			set.getEdgeWeights().clear();
-			updateGraphCanvas();
+			updateCanvas();
 		} else if (e.getSource() == resetCrossButton) {
 			updateSettings();
 			set.getNodeCrossContaminations().clear();
 			set.getEdgeCrossContaminations().clear();
-			updateGraphCanvas();
+			updateCanvas();
 		} else if (e.getSource() == resetFilterButton) {
 			updateSettings();
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
-			updateGraphCanvas();
+			updateCanvas();
 		}
 	}
 
-	private void updateGraphCanvas() {
+	private void updateCanvas() {
 		if (canvas != null) {
 			panel.remove(canvas);
 		}

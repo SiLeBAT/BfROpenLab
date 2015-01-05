@@ -57,7 +57,7 @@ public class GisSettings extends Settings {
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
 
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	public static final int DEFAULT_NODE_SIZE = 4;
+	private static final int DEFAULT_NODE_SIZE = 4;
 	private static final int DEFAULT_FONT_SIZE = 12;
 	private static final boolean DEFAULT_FONT_BOLD = false;
 	private static final int DEFAULT_BORDER_ALPHA = 255;
