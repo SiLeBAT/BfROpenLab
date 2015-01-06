@@ -62,6 +62,7 @@ import org.w3c.dom.svg.SVGDocument;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -100,6 +101,77 @@ public class CanvasUtils {
 			newEdges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge
 					.getProperties()), nodesById.get(edge.getFrom().getId()),
 					nodesById.get(edge.getTo().getId())));
+		}
+	}
+
+	public static void applyNodeCollapse(GraphCanvas canvas,
+			Map<String, GraphNode> newMetaNodes) {
+		canvas.getNodes().clear();
+		canvas.getEdges().clear();
+
+		Map<String, String> collapseTo = new LinkedHashMap<>();
+
+		for (String to : canvas.getCollapsedNodes().keySet()) {
+			for (String from : canvas.getCollapsedNodes().get(to).keySet()) {
+				collapseTo.put(from, to);
+			}
+		}
+
+		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
+
+		for (String id : CanvasUtils.getElementIds(canvas.getAllNodes())) {
+			if (!collapseTo.keySet().contains(id)) {
+				GraphNode newNode = canvas.getNodeSaveMap().get(id);
+
+				canvas.getNodes().add(newNode);
+				nodesById.put(id, newNode);
+			}
+		}
+
+		Set<GraphNode> metaNodes = new LinkedHashSet<>();
+
+		for (String newId : canvas.getCollapsedNodes().keySet()) {
+			GraphNode newNode = canvas.getNodeSaveMap().get(newId);
+
+			if (newNode == null) {
+				newNode = newMetaNodes.get(newId);
+				canvas.getNodeSaveMap().put(newId, newNode);
+			}
+
+			canvas.getNodes().add(newNode);
+			nodesById.put(newNode.getId(), newNode);
+			metaNodes.add(newNode);
+		}
+
+		for (Edge<GraphNode> edge : canvas.getAllEdges()) {
+			GraphNode from = nodesById.get(edge.getFrom().getId());
+			GraphNode to = nodesById.get(edge.getTo().getId());
+
+			if (from == null) {
+				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
+			}
+
+			if (to == null) {
+				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
+			}
+
+			if (from == to && metaNodes.contains(from)) {
+				continue;
+			}
+
+			Edge<GraphNode> newEdge = canvas.getEdgeSaveMap().get(edge.getId());
+
+			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
+				newEdge.getProperties().put(canvas.getEdgeFromProperty(),
+						from.getId());
+				newEdge.getProperties().put(canvas.getEdgeToProperty(),
+						to.getId());
+				canvas.getEdgeSaveMap().put(newEdge.getId(), newEdge);
+			}
+
+			canvas.getEdges().add(newEdge);
 		}
 	}
 

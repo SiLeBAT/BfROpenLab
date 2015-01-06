@@ -41,6 +41,7 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -120,6 +121,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
+	}
+
+	public List<GraphNode> getAllNodes() {
+		return allNodes;
+	}
+
+	public List<Edge<GraphNode>> getAllEdges() {
+		return allEdges;
 	}
 
 	@Override
@@ -475,78 +484,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyNodeCollapse() {
-		nodes = new LinkedHashSet<>();
-		edges = new LinkedHashSet<>();
-
-		Map<String, String> collapseTo = new LinkedHashMap<>();
-
-		for (String to : collapsedNodes.keySet()) {
-			for (String from : collapsedNodes.get(to).keySet()) {
-				collapseTo.put(from, to);
-			}
-		}
-
-		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
-
-		for (String id : CanvasUtils.getElementIds(allNodes)) {
-			if (!collapseTo.keySet().contains(id)) {
-				GraphNode newNode = nodeSaveMap.get(id);
-
-				nodes.add(newNode);
-				nodesById.put(id, newNode);
-			}
-		}
-
-		Set<GraphNode> metaNodes = new LinkedHashSet<>();
+		Map<String, GraphNode> newMetaNodes = new LinkedHashMap<>();
 
 		for (String newId : collapsedNodes.keySet()) {
-			GraphNode newNode = nodeSaveMap.get(newId);
-
-			if (newNode == null) {
+			if (!nodeSaveMap.containsKey(newId)) {
 				Set<GraphNode> nodes = CanvasUtils.getElementsById(nodeSaveMap,
 						collapsedNodes.get(newId).keySet());
-				Point2D pos = CanvasUtils.getCenter(getNodePositions(nodes)
-						.values());
 
-				newNode = combineNodes(newId, nodes);
-				getViewer().getGraphLayout().setLocation(newNode, pos);
-				nodeSaveMap.put(newId, newNode);
+				newMetaNodes.put(newId, createMetaNode(newId, nodes));
 			}
-
-			nodes.add(newNode);
-			nodesById.put(newNode.getId(), newNode);
-			metaNodes.add(newNode);
 		}
 
-		for (Edge<GraphNode> edge : allEdges) {
-			GraphNode from = nodesById.get(edge.getFrom().getId());
-			GraphNode to = nodesById.get(edge.getTo().getId());
-
-			if (from == null) {
-				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
-			}
-
-			if (to == null) {
-				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
-			}
-
-			if (from == to && metaNodes.contains(from)) {
-				continue;
-			}
-
-			Edge<GraphNode> newEdge = edgeSaveMap.get(edge.getId());
-
-			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
-				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
-						from, to);
-				newEdge.getProperties()
-						.put(getEdgeFromProperty(), from.getId());
-				newEdge.getProperties().put(getEdgeToProperty(), to.getId());
-				edgeSaveMap.put(newEdge.getId(), newEdge);
-			}
-
-			edges.add(newEdge);
-		}
+		CanvasUtils.applyNodeCollapse(this, newMetaNodes);
 	}
 
 	protected void applyInvisibility() {
@@ -558,13 +507,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyJoinEdgesAndSkipEdgeless() {
+		joinMap.clear();
+
 		if (isJoinEdges()) {
 			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
 					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
-			edges = joinMap.keySet();
-		} else {
-			joinMap = new LinkedHashMap<>();
+			edges = new LinkedHashSet<>(joinMap.keySet());
 		}
 
 		if (isSkipEdgelessNodes()) {
@@ -589,7 +538,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return joinMap;
 	}
 
-	protected GraphNode combineNodes(String id, Collection<GraphNode> nodes) {
+	private GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
@@ -603,7 +552,22 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		properties.put(metaNodeProperty, true);
 
-		return new GraphNode(id, properties, null);
+		if (properties.containsKey(GeocodingNodeModel.LATITUDE_COLUMN)) {
+			properties.put(GeocodingNodeModel.LATITUDE_COLUMN, CanvasUtils
+					.getMeanValue(nodes, GeocodingNodeModel.LATITUDE_COLUMN));
+		}
+
+		if (properties.containsKey(GeocodingNodeModel.LONGITUDE_COLUMN)) {
+			properties.put(GeocodingNodeModel.LONGITUDE_COLUMN, CanvasUtils
+					.getMeanValue(nodes, GeocodingNodeModel.LONGITUDE_COLUMN));
+		}
+
+		GraphNode newNode = new GraphNode(id, properties, null);
+
+		getViewer().getGraphLayout().setLocation(newNode,
+				CanvasUtils.getCenter(getNodePositions(nodes).values()));
+
+		return newNode;
 	}
 
 	private void updatePopupMenuAndOptionsPanel() {

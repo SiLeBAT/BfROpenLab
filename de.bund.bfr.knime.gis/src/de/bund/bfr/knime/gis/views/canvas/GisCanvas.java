@@ -77,26 +77,32 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void nodeAllPropertiesItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void collapseToNodeItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void expandFromNodeItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void collapseByPropertyItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
