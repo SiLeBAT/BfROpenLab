@@ -26,6 +26,7 @@ package de.bund.bfr.knime.gis.views.canvas.element;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class LocationNode extends Node {
@@ -52,5 +53,11 @@ public class LocationNode extends Node {
 		transformedCenter = new Point();
 		transformedCenter.x = (int) (center.x * scaleX + translationX);
 		transformedCenter.y = (int) (center.y * scaleY + translationY);
+	}
+
+	@Override
+	public LocationNode copy() {
+		return new LocationNode(getId(), new LinkedHashMap<>(getProperties()),
+				center);
 	}
 }

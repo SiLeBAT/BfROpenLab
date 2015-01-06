@@ -29,6 +29,7 @@ import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,5 +105,11 @@ public class RegionNode extends Node {
 	public boolean containsPoint(Point2D point) {
 		return boundingBox.contains(point)
 				&& GisUtils.containsPoint(polygon, point);
+	}
+
+	@Override
+	public RegionNode copy() {
+		return new RegionNode(getId(), new LinkedHashMap<>(getProperties()),
+				polygon);
 	}
 }

@@ -24,6 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class GraphNode extends Node {
@@ -37,5 +38,11 @@ public class GraphNode extends Node {
 
 	public String getRegion() {
 		return region;
+	}
+
+	@Override
+	public GraphNode copy() {
+		return new GraphNode(getId(), new LinkedHashMap<>(getProperties()),
+				region);
 	}
 }

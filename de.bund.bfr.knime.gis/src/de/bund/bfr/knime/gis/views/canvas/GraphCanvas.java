@@ -96,25 +96,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			String edgeToProperty, boolean allowCollapse) {
 		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
 				edgeFromProperty, edgeToProperty);
+		this.allowCollapse = allowCollapse;
 		this.nodes = new LinkedHashSet<>();
 		this.edges = new LinkedHashSet<>();
-		this.allowCollapse = allowCollapse;
-
-		Map<String, GraphNode> nodesById = new LinkedHashMap<>();
-
-		for (GraphNode node : nodes) {
-			GraphNode newNode = new GraphNode(node.getId(),
-					new LinkedHashMap<>(node.getProperties()), node.getRegion());
-
-			nodesById.put(node.getId(), newNode);
-			this.nodes.add(newNode);
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			this.edges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge
-					.getProperties()), nodesById.get(edge.getFrom().getId()),
-					nodesById.get(edge.getTo().getId())));
-		}
+		CanvasUtils.copyNodesAndEdges(nodes, edges, this.nodes, this.edges);
 
 		allNodes = nodes;
 		allEdges = edges;
@@ -130,6 +115,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
+		getViewer().getRenderContext().setVertexStrokeTransformer(
+				new NodeStrokeTransformer<GraphNode>(metaNodeProperty));
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
@@ -476,6 +463,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		applyNodeCollapse();
+		applyInvisibility();
+		applyJoinEdgesAndSkipEdgeless();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtils.createGraph(nodes, edges));
 		applyHighlights();
 
 		setSelectedNodeIds(selectedNodeIds);
@@ -556,9 +547,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			edges.add(newEdge);
 		}
+	}
 
-		removeInvisibleElements(nodes, edges);
+	protected void applyInvisibility() {
+		CanvasUtils
+				.removeInvisibleElements(nodes, getNodeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(edges, getEdgeHighlightConditions());
+		CanvasUtils.removeNodelessEdges(edges, nodes);
+	}
 
+	protected void applyJoinEdgesAndSkipEdgeless() {
 		if (isJoinEdges()) {
 			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
 					getEdgeIdProperty(), getEdgeFromProperty(),
@@ -571,12 +570,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		if (isSkipEdgelessNodes()) {
 			CanvasUtils.removeEdgelessNodes(nodes, edges);
 		}
-
-		getViewer().getGraphLayout().setGraph(
-				CanvasUtils.createGraph(nodes, edges));
-		getViewer().getRenderContext().setVertexStrokeTransformer(
-				new NodeStrokeTransformer<>(metaNodes));
-		getViewer().getPickedVertexState().clear();
 	}
 
 	protected void applyHighlights() {
@@ -584,15 +577,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				getNodeHighlightConditions(), getNodeSize());
 		CanvasUtils.applyEdgeHighlights(getViewer(),
 				getEdgeHighlightConditions());
-	}
-
-	protected void removeInvisibleElements(Set<GraphNode> nodes,
-			Set<Edge<GraphNode>> edges) {
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
-		CanvasUtils
-				.removeInvisibleElements(edges, getEdgeHighlightConditions());
-		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
 	@Override

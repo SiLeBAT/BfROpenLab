@@ -32,4 +32,5 @@ public abstract class Node extends Element {
 		super(id, properties);
 	}
 
+	public abstract Node copy();
 }

@@ -454,6 +454,10 @@ public class TracingCanvas extends GraphCanvas {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
 		applyNodeCollapse();
+		applyInvisibility();
+		applyJoinEdgesAndSkipEdgeless();
+		getViewer().getGraphLayout().setGraph(
+				CanvasUtils.createGraph(getNodes(), getEdges()));
 		applyHighlights();
 		applyTracing();
 		applyHighlights();
@@ -482,40 +486,40 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected void removeInvisibleElements(Set<GraphNode> nodes,
-			Set<Edge<GraphNode>> edges) {
+	protected void applyInvisibility() {
 		if (!isShowForward()) {
-			super.removeInvisibleElements(nodes, edges);
+			super.applyInvisibility();
 			return;
 		}
 
-		MyNewTracing tracingWithCC = createTracing(edges, true);
-		MyNewTracing tracingWithoutCC = createTracing(edges, false);
+		MyNewTracing tracingWithCC = createTracing(getEdges(), true);
+		MyNewTracing tracingWithoutCC = createTracing(getEdges(), false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
-		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
+		CanvasUtils.removeInvisibleElements(getNodes(),
+				getNodeHighlightConditions());
+		removedEdges.addAll(CanvasUtils.removeInvisibleElements(getEdges(),
 				getEdgeHighlightConditions()));
-		removedEdges.addAll(CanvasUtils.removeNodelessEdges(edges, nodes));
+		removedEdges.addAll(CanvasUtils.removeNodelessEdges(getEdges(),
+				getNodes()));
 
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<GraphNode> edge : getEdges()) {
 			forwardEdges.addAll(tracingWithCC
 					.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<GraphNode> edge : getEdges()) {
 			forwardEdges.removeAll(tracingWithoutCC
 					.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
 		for (Edge<GraphNode> edge : removedEdges) {
 			if (forwardEdges.contains(getIntegerId(edge))) {
-				nodes.add(edge.getFrom());
-				nodes.add(edge.getTo());
-				edges.add(edge);
+				getNodes().add(edge.getFrom());
+				getNodes().add(edge.getTo());
+				getEdges().add(edge);
 			}
 		}
 	}

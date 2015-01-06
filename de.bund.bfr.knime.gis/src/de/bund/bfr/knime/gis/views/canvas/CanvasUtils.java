@@ -83,6 +83,26 @@ public class CanvasUtils {
 	private CanvasUtils() {
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes,
+			Collection<Edge<V>> edges, Collection<V> newNodes,
+			Collection<Edge<V>> newEdges) {
+		Map<String, V> nodesById = new LinkedHashMap<>();
+
+		for (V node : nodes) {
+			V newNode = (V) node.copy();
+
+			nodesById.put(node.getId(), newNode);
+			newNodes.add(newNode);
+		}
+
+		for (Edge<V> edge : edges) {
+			newEdges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge
+					.getProperties()), nodesById.get(edge.getFrom().getId()),
+					nodesById.get(edge.getTo().getId())));
+		}
+	}
+
 	public static Point2D addPoints(Point2D p1, Point2D p2) {
 		return new Point2D.Double(p1.getX() + p2.getX(), p1.getY() + p2.getY());
 	}

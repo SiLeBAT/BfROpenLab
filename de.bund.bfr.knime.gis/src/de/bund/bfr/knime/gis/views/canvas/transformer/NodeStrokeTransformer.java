@@ -26,21 +26,26 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.BasicStroke;
 import java.awt.Stroke;
-import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
-public class NodeStrokeTransformer<V> implements Transformer<V, Stroke> {
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
-	private Set<V> metaNodes;
+public class NodeStrokeTransformer<V extends Node> implements
+		Transformer<V, Stroke> {
 
-	public NodeStrokeTransformer(Set<V> metaNodes) {
-		this.metaNodes = metaNodes;
+	private String metaNodeProperty;
+
+	public NodeStrokeTransformer(String metaNodeProperty) {
+		this.metaNodeProperty = metaNodeProperty;
 	}
 
 	@Override
 	public Stroke transform(V node) {
-		if (metaNodes.contains(node)) {
+		Boolean isMetaNode = (Boolean) node.getProperties().get(
+				metaNodeProperty);
+
+		if (isMetaNode != null && isMetaNode) {
 			return new BasicStroke(4.0f);
 		}
 
