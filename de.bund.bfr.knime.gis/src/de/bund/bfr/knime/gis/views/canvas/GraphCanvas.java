@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -123,10 +122,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
+	@Override
 	public List<GraphNode> getAllNodes() {
 		return allNodes;
 	}
 
+	@Override
 	public List<Edge<GraphNode>> getAllEdges() {
 		return allEdges;
 	}
@@ -141,12 +142,25 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return edges;
 	}
 
+	@Override
 	public Map<String, GraphNode> getNodeSaveMap() {
 		return nodeSaveMap;
 	}
 
+	@Override
 	public Map<String, Edge<GraphNode>> getEdgeSaveMap() {
 		return edgeSaveMap;
+	}
+
+	@Override
+	public Map<String, Set<String>> getCollapseMap() {
+		Map<String, Set<String>> collapseMap = new LinkedHashMap<>();
+
+		for (String id : collapsedNodes.keySet()) {
+			collapseMap.put(id, collapsedNodes.get(id).keySet());
+		}
+
+		return collapseMap;
 	}
 
 	public Map<String, Point2D> getNodePositions() {
@@ -211,30 +225,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
 		applyLayout(layoutType, getSelectedNodes());
-	}
-
-	@Override
-	public void nodeAllPropertiesItemClicked() {
-		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
-		Set<GraphNode> pickedAll = new LinkedHashSet<>();
-
-		picked.retainAll(nodes);
-
-		for (GraphNode node : picked) {
-			if (collapsedNodes.containsKey(node.getId())) {
-				for (String id : collapsedNodes.get(node.getId()).keySet()) {
-					pickedAll.add(nodeSaveMap.get(id));
-				}
-			} else {
-				pickedAll.add(node);
-			}
-		}
-
-		PropertiesDialog<GraphNode> dialog = PropertiesDialog.createNodeDialog(
-				this, pickedAll, getNodeProperties(), false,
-				new LinkedHashSet<>(Arrays.asList(getNodeIdProperty())));
-
-		dialog.setVisible(true);
 	}
 
 	@Override

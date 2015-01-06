@@ -32,6 +32,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -58,6 +59,31 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		image = null;
 
 		getViewer().addPreRenderPaintable(new PrePaintable(false));
+	}
+
+	@Override
+	public List<V> getAllNodes() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<Edge<V>> getAllEdges() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, V> getNodeSaveMap() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, Edge<V>> getEdgeSaveMap() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, Set<String>> getCollapseMap() {
+		throw new UnsupportedOperationException();
 	}
 
 	public List<RegionNode> getRegions() {

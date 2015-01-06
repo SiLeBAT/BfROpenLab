@@ -320,9 +320,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setBorderAlpha(borderAlpha);
 	}
 
+	public abstract List<V> getAllNodes();
+
+	public abstract List<Edge<V>> getAllEdges();
+
 	public abstract Set<V> getNodes();
 
 	public abstract Set<Edge<V>> getEdges();
+
+	public abstract Map<String, V> getNodeSaveMap();
+
+	public abstract Map<String, Edge<V>> getEdgeSaveMap();
+
+	public abstract Map<String, Set<String>> getCollapseMap();
 
 	public Map<String, Class<?>> getNodeProperties() {
 		return nodeProperties;
@@ -833,6 +843,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				true,
 				new LinkedHashSet<>(Arrays.asList(edgeIdProperty,
 						edgeFromProperty, edgeToProperty)));
+
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void nodeAllPropertiesItemClicked() {
+		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
+		Set<V> pickedAll = new LinkedHashSet<>();
+		Map<String, Set<String>> collapseMap = getCollapseMap();
+
+		picked.retainAll(getNodes());
+
+		for (V node : picked) {
+			if (collapseMap.containsKey(node.getId())) {
+				for (String id : collapseMap.get(node.getId())) {
+					pickedAll.add(getNodeSaveMap().get(id));
+				}
+			} else {
+				pickedAll.add(node);
+			}
+		}
+
+		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
+				pickedAll, getNodeProperties(), false, new LinkedHashSet<>(
+						Arrays.asList(getNodeIdProperty())));
 
 		dialog.setVisible(true);
 	}
