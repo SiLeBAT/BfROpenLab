@@ -117,7 +117,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	protected Map<String, Set<String>> getCollapseMap() {
-		throw new UnsupportedOperationException();
+		return new LinkedHashMap<>();
 	}
 
 	@Override

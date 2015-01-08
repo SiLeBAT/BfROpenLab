@@ -179,6 +179,27 @@ public class CanvasUtils {
 		}
 	}
 
+	public static String openNewIdDialog(Component parent, Set<String> usedIds,
+			String nodeName) {
+		String newId = null;
+
+		while (true) {
+			newId = (String) JOptionPane.showInputDialog(parent,
+					"Specify ID for Meta " + nodeName, nodeName + " ID",
+					JOptionPane.QUESTION_MESSAGE, null, null, "");
+
+			if (newId == null || !usedIds.contains(newId)) {
+				break;
+			}
+
+			JOptionPane.showMessageDialog(parent,
+					"ID already exists, please specify different ID", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+
+		return newId;
+	}
+
 	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(
 			Component parent, Collection<String> nodeProperties,
 			Collection<String> uncollapsedIds, Map<String, V> nodes) {

@@ -140,23 +140,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			}
 		}
 
-		String newId = null;
-
-		while (true) {
-			newId = (String) JOptionPane.showInputDialog(this,
-					"Specify ID for Meta " + nodeName, nodeName + " ID",
-					JOptionPane.QUESTION_MESSAGE, null, null, "");
-
-			if (newId == null) {
-				return;
-			} else if (nodeSaveMap.containsKey(newId)) {
-				JOptionPane.showMessageDialog(this,
-						"ID already exists, please specify different ID",
-						"Error", JOptionPane.ERROR_MESSAGE);
-			} else {
-				break;
-			}
-		}
+		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
+				nodeName);
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();

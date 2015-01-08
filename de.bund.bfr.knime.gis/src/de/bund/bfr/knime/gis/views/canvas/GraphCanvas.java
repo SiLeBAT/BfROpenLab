@@ -183,24 +183,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		String newId = null;
-
-		while (true) {
-			newId = (String) JOptionPane.showInputDialog(this,
-					"Specify ID for Meta " + nodeName, nodeName + " ID",
-					JOptionPane.QUESTION_MESSAGE, null, null, "");
-
-			if (newId == null) {
-				return;
-			} else if (nodeSaveMap.containsKey(newId)) {
-				JOptionPane.showMessageDialog(this,
-						"ID already exists, please specify different ID",
-						"Error", JOptionPane.ERROR_MESSAGE);
-			} else {
-				break;
-			}
-		}
-
+		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
+				nodeName);
 		Map<String, Point2D> absPos = getNodePositions(CanvasUtils
 				.getElementsById(viewer.getGraphLayout().getGraph()
 						.getVertices(), selectedIds));
