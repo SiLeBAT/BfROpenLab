@@ -365,10 +365,10 @@ public class TracingCanvas extends GraphCanvas {
 
 		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
 
-		if (!getJoinMap().isEmpty()) {
+		if (!joinMap.isEmpty()) {
 			for (Edge<GraphNode> p : picked) {
-				if (getJoinMap().containsKey(p)) {
-					allPicked.addAll(getJoinMap().get(p));
+				if (joinMap.containsKey(p)) {
+					allPicked.addAll(joinMap.get(p));
 				}
 			}
 		} else {
@@ -560,7 +560,7 @@ public class TracingCanvas extends GraphCanvas {
 			edges.addAll(this.edges);
 		} else {
 			for (Edge<GraphNode> edge : this.edges) {
-				edges.addAll(getJoinMap().get(edge));
+				edges.addAll(joinMap.get(edge));
 			}
 		}
 

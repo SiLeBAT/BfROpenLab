@@ -66,12 +66,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<Edge<GraphNode>, Set<Edge<GraphNode>>> joinMap;
 	private Map<String, Map<String, Point2D>> collapsedNodes;
 
 	private boolean allowCollapse;
-
-	private String metaNodeProperty;
 
 	public GraphCanvas(boolean allowCollapse) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -88,11 +85,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowCollapse = allowCollapse;
-		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
-		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE
-				+ getNodeName(), getNodeProperties().keySet());
-		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
 		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
@@ -106,7 +99,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	public Map<String, Set<String>> getCollapseMap() {
+	protected Map<String, Set<String>> getCollapseMap() {
 		Map<String, Set<String>> collapseMap = new LinkedHashMap<>();
 
 		for (String id : collapsedNodes.keySet()) {
@@ -474,11 +467,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();
-	}
-
-	@Override
-	protected Map<Edge<GraphNode>, Set<Edge<GraphNode>>> getJoinMap() {
-		return joinMap;
 	}
 
 	private GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {

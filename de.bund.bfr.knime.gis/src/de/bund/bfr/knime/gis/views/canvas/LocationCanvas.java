@@ -58,12 +58,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private static final long serialVersionUID = 1L;
 
 	private List<RegionNode> regions;
-	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
 	private Map<String, Set<String>> collapsedNodes;
 
 	private boolean allowEdges;
-
-	private String metaNodeProperty;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -101,11 +98,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
 		this.regions = regions;
-		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
-		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE
-				+ getNodeName(), getNodeProperties().keySet());
-		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
 		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
@@ -125,7 +118,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	public Map<String, Set<String>> getCollapseMap() {
+	protected Map<String, Set<String>> getCollapseMap() {
 		return collapsedNodes;
 	}
 
@@ -341,11 +334,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 						}
 					}
 				}, editingMode);
-	}
-
-	@Override
-	protected Map<Edge<LocationNode>, Set<Edge<LocationNode>>> getJoinMap() {
-		return joinMap;
 	}
 
 	@Override

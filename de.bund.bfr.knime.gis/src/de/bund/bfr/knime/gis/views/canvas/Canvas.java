@@ -108,11 +108,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		MouseListener, CanvasPopupMenu.ClickListener,
 		CanvasOptionsPanel.ChangeListener {
 
-	protected static final String IS_META_NODE = "IsMeta";
-
 	private static final long serialVersionUID = 1L;
 	private static final String COPY = "Copy";
 	private static final String PASTE = "Paste";
+	private static final String IS_META_NODE = "IsMeta";
 
 	private static final String DEFAULT_NODE_NAME = "Node";
 	private static final String DEFAULT_EDGE_NAME = "Edge";
@@ -125,6 +124,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected Set<Edge<V>> edges;
 	protected Map<String, V> nodeSaveMap;
 	protected Map<String, Edge<V>> edgeSaveMap;
+	protected Map<Edge<V>, Set<Edge<V>>> joinMap;
+	protected String metaNodeProperty;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
@@ -182,6 +183,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		allEdges = edges;
 		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
 		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
+		joinMap = new LinkedHashMap<>();
+		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE,
+				nodeProperties.keySet());
+		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
 		viewer = new VisualizationViewer<>(new StaticLayout<>(
 				new DirectedSparseMultigraph<V, Edge<V>>()));
@@ -229,8 +234,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public Set<Edge<V>> getEdges() {
 		return edges;
 	}
-
-	public abstract Map<String, Set<String>> getCollapseMap();
 
 	public String getNodeName() {
 		return nodeName;
@@ -894,10 +897,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		Set<Edge<V>> allPicked = new LinkedHashSet<>();
 
-		if (!getJoinMap().isEmpty()) {
+		if (!joinMap.isEmpty()) {
 			for (Edge<V> p : picked) {
-				if (getJoinMap().containsKey(p)) {
-					allPicked.addAll(getJoinMap().get(p));
+				if (joinMap.containsKey(p)) {
+					allPicked.addAll(joinMap.get(p));
 				}
 			}
 		} else {
@@ -1113,7 +1116,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
 
-	protected abstract Map<Edge<V>, Set<Edge<V>>> getJoinMap();
+	protected abstract Map<String, Set<String>> getCollapseMap();
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

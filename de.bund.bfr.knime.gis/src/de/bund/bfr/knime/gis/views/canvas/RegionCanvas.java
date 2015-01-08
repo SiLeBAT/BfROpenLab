@@ -58,8 +58,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<Edge<RegionNode>, Set<Edge<RegionNode>>> joinMap;
-
 	private boolean allowEdges;
 
 	public RegionCanvas(boolean allowEdges) {
@@ -93,7 +91,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
-		joinMap = new LinkedHashMap<>();
 
 		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
@@ -119,7 +116,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	public Map<String, Set<String>> getCollapseMap() {
+	protected Map<String, Set<String>> getCollapseMap() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -304,11 +301,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		super.paintGis(g, toSvg);
-	}
-
-	@Override
-	protected Map<Edge<RegionNode>, Set<Edge<RegionNode>>> getJoinMap() {
-		return joinMap;
 	}
 
 	@Override
