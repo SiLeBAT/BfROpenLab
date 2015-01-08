@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -40,6 +41,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -49,6 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -60,6 +63,7 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
+import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -101,6 +105,141 @@ public class CanvasUtils {
 					.getProperties()), nodesById.get(edge.getFrom().getId()),
 					nodesById.get(edge.getTo().getId())));
 		}
+	}
+
+	public static <V extends Node> void applyNodeCollapse(Set<V> nodes,
+			Set<Edge<V>> edges, List<V> allNodes, List<Edge<V>> allEdges,
+			Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
+			String edgeFromProperty, String edgeToProperty,
+			Map<String, Set<String>> collapseMap, Map<String, V> newMetaNodes) {
+		nodes.clear();
+		edges.clear();
+
+		Map<String, String> collapseTo = new LinkedHashMap<>();
+
+		for (String to : collapseMap.keySet()) {
+			for (String from : collapseMap.get(to)) {
+				collapseTo.put(from, to);
+			}
+		}
+
+		Map<String, V> nodesById = new LinkedHashMap<>();
+
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
+			if (!collapseTo.keySet().contains(id)) {
+				V newNode = nodeSaveMap.get(id);
+
+				nodes.add(newNode);
+				nodesById.put(id, newNode);
+			}
+		}
+
+		Set<V> metaNodes = new LinkedHashSet<>();
+
+		for (String newId : collapseMap.keySet()) {
+			V newNode = nodeSaveMap.get(newId);
+
+			if (newNode == null) {
+				newNode = newMetaNodes.get(newId);
+				nodeSaveMap.put(newId, newNode);
+			}
+
+			nodes.add(newNode);
+			nodesById.put(newNode.getId(), newNode);
+			metaNodes.add(newNode);
+		}
+
+		for (Edge<V> edge : allEdges) {
+			V from = nodesById.get(edge.getFrom().getId());
+			V to = nodesById.get(edge.getTo().getId());
+
+			if (from == null) {
+				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
+			}
+
+			if (to == null) {
+				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
+			}
+
+			if (from == to && metaNodes.contains(from)) {
+				continue;
+			}
+
+			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
+
+			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
+				newEdge.getProperties().put(edgeFromProperty, from.getId());
+				newEdge.getProperties().put(edgeToProperty, to.getId());
+				edgeSaveMap.put(newEdge.getId(), newEdge);
+			}
+
+			edges.add(newEdge);
+		}
+	}
+
+	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(
+			Component parent, Collection<String> nodeProperties,
+			Collection<String> uncollapsedIds, Map<String, V> nodes) {
+		String[] properties = nodeProperties.toArray(new String[0]);
+		String result = (String) JOptionPane.showInputDialog(parent,
+				"Select Property for Collapse?", "Collapse by Property",
+				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+
+		if (result == null) {
+			return new LinkedHashMap<>();
+		}
+
+		Map<Object, Set<V>> nodesByProperty = new LinkedHashMap<>();
+
+		for (String id : uncollapsedIds) {
+			V node = nodes.get(id);
+			Object value = node.getProperties().get(result);
+
+			if (value == null) {
+				continue;
+			}
+
+			if (!nodesByProperty.containsKey(value)) {
+				nodesByProperty.put(value, new LinkedHashSet<V>());
+			}
+
+			nodesByProperty.get(value).add(node);
+		}
+
+		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
+
+		Collections.sort(propertyList, new Comparator<Object>() {
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof String && o2 instanceof String) {
+					return ((String) o1).compareTo((String) o2);
+				} else if (o1 instanceof Integer && o2 instanceof Integer) {
+					return ((Integer) o1).compareTo((Integer) o2);
+				} else if (o1 instanceof Double && o2 instanceof Double) {
+					return ((Double) o1).compareTo((Double) o2);
+				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+					return ((Boolean) o1).compareTo((Boolean) o2);
+				}
+
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent,
+				propertyList);
+
+		dialog.setVisible(true);
+
+		if (!dialog.isApproved()) {
+			return new LinkedHashMap<>();
+		}
+
+		nodesByProperty.keySet().retainAll(dialog.getFiltered());
+
+		return nodesByProperty;
 	}
 
 	public static Point2D addPoints(Point2D p1, Point2D p2) {

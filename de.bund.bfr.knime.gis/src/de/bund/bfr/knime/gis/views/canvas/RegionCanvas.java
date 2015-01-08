@@ -160,9 +160,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				.removeInvisibleElements(edges, getEdgeHighlightConditions());
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
-					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
+			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
+					edgeIdProperty, edgeFromProperty, edgeToProperty,
+					CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
 			joinMap = new LinkedHashMap<>();
@@ -227,14 +227,12 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 							if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge,
-										getEdgeProperties());
+										e.getComponent(), edge, edgeProperties);
 
 								dialog.setVisible(true);
 							} else if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node,
-										getNodeProperties());
+										e.getComponent(), node, nodeProperties);
 
 								dialog.setVisible(true);
 							}

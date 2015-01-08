@@ -29,8 +29,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,7 +42,6 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -193,63 +190,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	@Override
 	public void collapseByPropertyItemClicked() {
-		String[] properties = getNodeProperties().keySet().toArray(
-				new String[0]);
-		String result = (String) JOptionPane.showInputDialog(this,
-				"Select Property for Collapse?", "Collapse by Property",
-				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+		Map<Object, Set<LocationNode>> nodesByProperty = CanvasUtils
+				.openCollapseByPropertyDialog(this, nodeProperties.keySet(),
+						CanvasUtils.getElementIds(allNodes), nodeSaveMap);
 
-		if (result == null) {
+		if (nodesByProperty.isEmpty()) {
 			return;
 		}
-
-		Map<Object, Set<LocationNode>> nodesByProperty = new LinkedHashMap<>();
-
-		for (String id : CanvasUtils.getElementIds(allNodes)) {
-			LocationNode node = nodeSaveMap.get(id);
-			Object value = node.getProperties().get(result);
-
-			if (value == null) {
-				continue;
-			}
-
-			if (!nodesByProperty.containsKey(value)) {
-				nodesByProperty.put(value, new LinkedHashSet<LocationNode>());
-			}
-
-			nodesByProperty.get(value).add(node);
-		}
-
-		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
-
-		Collections.sort(propertyList, new Comparator<Object>() {
-
-			@Override
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof String && o2 instanceof String) {
-					return ((String) o1).compareTo((String) o2);
-				} else if (o1 instanceof Integer && o2 instanceof Integer) {
-					return ((Integer) o1).compareTo((Integer) o2);
-				} else if (o1 instanceof Double && o2 instanceof Double) {
-					return ((Double) o1).compareTo((Double) o2);
-				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
-					return ((Boolean) o1).compareTo((Boolean) o2);
-				}
-
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
-
-		ListFilterDialog<Object> dialog = new ListFilterDialog<>(this,
-				propertyList);
-
-		dialog.setVisible(true);
-
-		if (!dialog.isApproved()) {
-			return;
-		}
-
-		nodesByProperty.keySet().retainAll(dialog.getFiltered());
 
 		for (String id : collapsedNodes.keySet()) {
 			nodeSaveMap.remove(id);
@@ -313,14 +260,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node,
-										getNodeProperties());
+										e.getComponent(), node, nodeProperties);
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge,
-										getEdgeProperties());
+										e.getComponent(), edge, edgeProperties);
 
 								dialog.setVisible(true);
 							}
@@ -353,7 +298,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			}
 		}
 
-		applyNodeCollapse(newMetaNodes);
+		CanvasUtils.applyNodeCollapse(nodes, edges, allNodes, allEdges,
+				nodeSaveMap, edgeSaveMap, edgeFromProperty, edgeToProperty,
+				collapsedNodes, newMetaNodes);
 	}
 
 	private void applyInvisibility() {
@@ -368,9 +315,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		joinMap.clear();
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
-					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
+			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
+					edgeIdProperty, edgeFromProperty, edgeToProperty,
+					CanvasUtils.getElementIds(allEdges));
 			edges = new LinkedHashSet<>(joinMap.keySet());
 		}
 
@@ -391,12 +338,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, getNodeProperties(),
+			CanvasUtils.addMapToMap(properties, nodeProperties,
 					node.getProperties());
 		}
 
-		if (getNodeIdProperty() != null) {
-			properties.put(getNodeIdProperty(), id);
+		if (nodeIdProperty != null) {
+			properties.put(nodeIdProperty, id);
 		}
 
 		properties.put(metaNodeProperty, true);

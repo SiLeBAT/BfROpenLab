@@ -125,6 +125,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected Map<String, V> nodeSaveMap;
 	protected Map<String, Edge<V>> edgeSaveMap;
 	protected Map<Edge<V>, Set<Edge<V>>> joinMap;
+
+	protected Map<String, Class<?>> nodeProperties;
+	protected Map<String, Class<?>> edgeProperties;
+	protected String nodeIdProperty;
+	protected String edgeIdProperty;
+	protected String edgeFromProperty;
+	protected String edgeToProperty;
 	protected String metaNodeProperty;
 
 	private VisualizationViewer<V, Edge<V>> viewer;
@@ -140,13 +147,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private HighlightConditionList nodeHighlightConditions;
 	private HighlightConditionList edgeHighlightConditions;
-
-	private Map<String, Class<?>> nodeProperties;
-	private Map<String, Class<?>> edgeProperties;
-	private String nodeIdProperty;
-	private String edgeIdProperty;
-	private String edgeFromProperty;
-	private String edgeToProperty;
 
 	private String nodeName;
 	private String edgeName;
@@ -186,7 +186,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		joinMap = new LinkedHashMap<>();
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE,
 				nodeProperties.keySet());
-		getNodeProperties().put(metaNodeProperty, Boolean.class);
+		nodeProperties.put(metaNodeProperty, Boolean.class);
 
 		viewer = new VisualizationViewer<>(new StaticLayout<>(
 				new DirectedSparseMultigraph<V, Edge<V>>()));
@@ -357,22 +357,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	public Map<String, Class<?>> getEdgeProperties() {
 		return edgeProperties;
-	}
-
-	public String getNodeIdProperty() {
-		return nodeIdProperty;
-	}
-
-	public String getEdgeIdProperty() {
-		return edgeIdProperty;
-	}
-
-	public String getEdgeFromProperty() {
-		return edgeFromProperty;
-	}
-
-	public String getEdgeToProperty() {
-		return edgeToProperty;
 	}
 
 	public Set<V> getSelectedNodes() {
@@ -883,8 +867,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
-				pickedAll, getNodeProperties(), false, new LinkedHashSet<>(
-						Arrays.asList(getNodeIdProperty())));
+				pickedAll, nodeProperties, false,
+				new LinkedHashSet<>(Arrays.asList(nodeIdProperty)));
 
 		dialog.setVisible(true);
 	}
@@ -1037,75 +1021,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.addChecker(new EdgeHighlightChecker());
 
 		return dialog;
-	}
-
-	protected void applyNodeCollapse(Map<String, V> newMetaNodes) {
-		nodes.clear();
-		edges.clear();
-
-		Map<String, Set<String>> collapseMap = getCollapseMap();
-		Map<String, String> collapseTo = new LinkedHashMap<>();
-
-		for (String to : collapseMap.keySet()) {
-			for (String from : collapseMap.get(to)) {
-				collapseTo.put(from, to);
-			}
-		}
-
-		Map<String, V> nodesById = new LinkedHashMap<>();
-
-		for (String id : CanvasUtils.getElementIds(allNodes)) {
-			if (!collapseTo.keySet().contains(id)) {
-				V newNode = nodeSaveMap.get(id);
-
-				nodes.add(newNode);
-				nodesById.put(id, newNode);
-			}
-		}
-
-		Set<V> metaNodes = new LinkedHashSet<>();
-
-		for (String newId : collapseMap.keySet()) {
-			V newNode = nodeSaveMap.get(newId);
-
-			if (newNode == null) {
-				newNode = newMetaNodes.get(newId);
-				nodeSaveMap.put(newId, newNode);
-			}
-
-			nodes.add(newNode);
-			nodesById.put(newNode.getId(), newNode);
-			metaNodes.add(newNode);
-		}
-
-		for (Edge<V> edge : allEdges) {
-			V from = nodesById.get(edge.getFrom().getId());
-			V to = nodesById.get(edge.getTo().getId());
-
-			if (from == null) {
-				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
-			}
-
-			if (to == null) {
-				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
-			}
-
-			if (from == to && metaNodes.contains(from)) {
-				continue;
-			}
-
-			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
-
-			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
-				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
-						from, to);
-				newEdge.getProperties().put(edgeFromProperty, from.getId());
-				newEdge.getProperties().put(edgeToProperty, to.getId());
-				edgeSaveMap.put(newEdge.getId(), newEdge);
-			}
-
-			edges.add(newEdge);
-		}
 	}
 
 	protected abstract void applyNameChanges();

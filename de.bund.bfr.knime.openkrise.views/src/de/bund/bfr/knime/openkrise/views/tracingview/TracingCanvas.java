@@ -327,7 +327,7 @@ public class TracingCanvas extends GraphCanvas {
 		picked.retainAll(nodes);
 
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
-				.createNodeDialog(this, picked, getNodeProperties(), true);
+				.createNodeDialog(this, picked, nodeProperties, true);
 
 		dialog.setVisible(true);
 
@@ -347,7 +347,7 @@ public class TracingCanvas extends GraphCanvas {
 			picked.retainAll(edges);
 
 			EditablePropertiesDialog dialog = EditablePropertiesDialog
-					.createEdgeDialog(this, picked, getEdgeProperties(), true);
+					.createEdgeDialog(this, picked, edgeProperties, true);
 
 			dialog.setVisible(true);
 
@@ -376,7 +376,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
-				.createEdgeDialog(this, allPicked, getEdgeProperties(), false);
+				.createEdgeDialog(this, allPicked, edgeProperties, false);
 
 		dialog.setVisible(true);
 
@@ -415,8 +415,7 @@ public class TracingCanvas extends GraphCanvas {
 
 							if (node != null) {
 								EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-										e.getComponent(), node,
-										getNodeProperties());
+										e.getComponent(), node, nodeProperties);
 
 								dialog.setVisible(true);
 
@@ -427,7 +426,7 @@ public class TracingCanvas extends GraphCanvas {
 								if (!isJoinEdges()) {
 									EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
 											e.getComponent(), edge,
-											getEdgeProperties());
+											edgeProperties);
 
 									dialog.setVisible(true);
 
@@ -437,7 +436,7 @@ public class TracingCanvas extends GraphCanvas {
 								} else {
 									SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 											e.getComponent(), edge,
-											getEdgeProperties());
+											edgeProperties);
 
 									dialog.setVisible(true);
 								}
