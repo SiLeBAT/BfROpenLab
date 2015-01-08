@@ -25,13 +25,26 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
+import com.google.common.math.DoubleMath;
+import com.google.common.primitives.Doubles;
+
+import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -50,7 +63,13 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private Set<Edge<LocationNode>> edges;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
 
+	private Map<String, Set<String>> collapsedNodes;
+	private Map<String, LocationNode> nodeSaveMap;
+	private Map<String, Edge<LocationNode>> edgeSaveMap;
+
 	private boolean allowEdges;
+
+	private String metaNodeProperty;
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
@@ -87,12 +106,20 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			boolean allowEdges) {
 		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.nodes = new LinkedHashSet<>(nodes);
-		this.edges = new LinkedHashSet<>(edges);
 		this.allowEdges = allowEdges;
+		this.nodes = new LinkedHashSet<>();
+		this.edges = new LinkedHashSet<>();
+		CanvasUtils.copyNodesAndEdges(nodes, edges, this.nodes, this.edges);
+
 		allNodes = nodes;
 		allEdges = edges;
+		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
+		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<>();
+		collapsedNodes = new LinkedHashMap<>();
+		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE
+				+ getNodeName(), getNodeProperties().keySet());
+		getNodeProperties().put(metaNodeProperty, Boolean.class);
 
 		updatePopupMenuAndOptionsPanel();
 		getViewer().getRenderContext().setVertexShapeTransformer(
@@ -117,39 +144,197 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
+	public List<LocationNode> getAllNodes() {
+		return allNodes;
+	}
+
+	@Override
+	public List<Edge<LocationNode>> getAllEdges() {
+		return allEdges;
+	}
+
+	@Override
+	public Map<String, LocationNode> getNodeSaveMap() {
+		return nodeSaveMap;
+	}
+
+	@Override
+	public Map<String, Edge<LocationNode>> getEdgeSaveMap() {
+		return edgeSaveMap;
+	}
+
+	@Override
+	public Map<String, Set<String>> getCollapseMap() {
+		return collapsedNodes;
+	}
+
+	public Map<String, Set<String>> getCollapsedNodes() {
+		return collapsedNodes;
+	}
+
+	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
+		this.collapsedNodes = collapsedNodes;
+	}
+
+	@Override
+	public void collapseToNodeItemClicked() {
+		Set<String> selectedIds = getSelectedNodeIds();
+
+		for (String id : collapsedNodes.keySet()) {
+			if (selectedIds.contains(id)) {
+				JOptionPane.showMessageDialog(this, "Some of the selected "
+						+ getNodesName().toLowerCase()
+						+ " are already collapsed", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
+		String newId = null;
+
+		while (true) {
+			newId = (String) JOptionPane.showInputDialog(this,
+					"Specify ID for Meta " + getNodeName(), getNodeName()
+							+ " ID", JOptionPane.QUESTION_MESSAGE, null, null,
+					"");
+
+			if (newId == null) {
+				return;
+			} else if (nodeSaveMap.containsKey(newId)) {
+				JOptionPane.showMessageDialog(this,
+						"ID already exists, please specify different ID",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			} else {
+				break;
+			}
+		}
+
+		collapsedNodes.put(newId, selectedIds);
+		applyChanges();
+		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
+	}
+
+	@Override
+	public void expandFromNodeItemClicked() {
+		Set<String> selectedIds = getSelectedNodeIds();
+
+		for (String id : selectedIds) {
+			if (!collapsedNodes.keySet().contains(id)) {
+				JOptionPane.showMessageDialog(this, "Some of the selected "
+						+ getNodesName().toLowerCase() + " are not collapsed",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
+		Set<String> newIds = new LinkedHashSet<>();
+
+		for (String id : selectedIds) {
+			newIds.addAll(collapsedNodes.remove(id));
+		}
+
+		applyChanges();
+		setSelectedNodeIds(newIds);
+	}
+
+	@Override
+	public void collapseByPropertyItemClicked() {
+		String[] properties = getNodeProperties().keySet().toArray(
+				new String[0]);
+		String result = (String) JOptionPane.showInputDialog(this,
+				"Select Property for Collapse?", "Collapse by Property",
+				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+
+		if (result == null) {
+			return;
+		}
+
+		Map<Object, Set<LocationNode>> nodesByProperty = new LinkedHashMap<>();
+
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
+			LocationNode node = nodeSaveMap.get(id);
+			Object value = node.getProperties().get(result);
+
+			if (value == null) {
+				continue;
+			}
+
+			if (!nodesByProperty.containsKey(value)) {
+				nodesByProperty.put(value, new LinkedHashSet<LocationNode>());
+			}
+
+			nodesByProperty.get(value).add(node);
+		}
+
+		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
+
+		Collections.sort(propertyList, new Comparator<Object>() {
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof String && o2 instanceof String) {
+					return ((String) o1).compareTo((String) o2);
+				} else if (o1 instanceof Integer && o2 instanceof Integer) {
+					return ((Integer) o1).compareTo((Integer) o2);
+				} else if (o1 instanceof Double && o2 instanceof Double) {
+					return ((Double) o1).compareTo((Double) o2);
+				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+					return ((Boolean) o1).compareTo((Boolean) o2);
+				}
+
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(this,
+				propertyList);
+
+		dialog.setVisible(true);
+
+		if (!dialog.isApproved()) {
+			return;
+		}
+
+		nodesByProperty.keySet().retainAll(dialog.getFiltered());
+
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
+
+		for (Object value : nodesByProperty.keySet()) {
+			String newId = KnimeUtils.createNewValue(value.toString(),
+					nodeSaveMap.keySet());
+
+			collapsedNodes.put(newId,
+					CanvasUtils.getElementIds(nodesByProperty.get(value)));
+		}
+
+		applyChanges();
+		setSelectedNodeIds(collapsedNodes.keySet());
+	}
+
+	@Override
+	public void clearCollapsedNodesItemClicked() {
+		collapsedNodes.clear();
+		applyChanges();
+		getViewer().getPickedVertexState().clear();
+	}
+
+	@Override
 	protected void applyChanges() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
-		nodes = new LinkedHashSet<>(allNodes);
-		edges = new LinkedHashSet<>(allEdges);
-
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
-		CanvasUtils
-				.removeInvisibleElements(edges, getEdgeHighlightConditions());
-		CanvasUtils.removeNodelessEdges(edges, nodes);
-
-		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
-					getEdgeIdProperty(), getEdgeFromProperty(),
-					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
-			edges = joinMap.keySet();
-		} else {
-			joinMap = new LinkedHashMap<>();
-		}
-
-		if (isSkipEdgelessNodes()) {
-			CanvasUtils.removeEdgelessNodes(nodes, edges);
-		}
-
+		applyNodeCollapse();
+		applyInvisibility();
+		applyJoinEdgesAndSkipEdgeless();
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtils.createGraph(nodes, edges));
+		applyHighlights();
 
-		CanvasUtils.applyNodeHighlights(getViewer(),
-				getNodeHighlightConditions(), getNodeSize());
-		CanvasUtils.applyEdgeHighlights(getViewer(),
-				getEdgeHighlightConditions());
-
+		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
 		getViewer().repaint();
 	}
@@ -205,6 +390,84 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();
+	}
+
+	private void applyNodeCollapse() {
+		Map<String, LocationNode> newMetaNodes = new LinkedHashMap<>();
+
+		for (String newId : collapsedNodes.keySet()) {
+			if (!nodeSaveMap.containsKey(newId)) {
+				Set<LocationNode> nodes = CanvasUtils.getElementsById(
+						nodeSaveMap, collapsedNodes.get(newId));
+
+				newMetaNodes.put(newId, createMetaNode(newId, nodes));
+			}
+		}
+
+		CanvasUtils.applyNodeCollapse(this, newMetaNodes);
+	}
+
+	private void applyInvisibility() {
+		CanvasUtils
+				.removeInvisibleElements(nodes, getNodeHighlightConditions());
+		CanvasUtils
+				.removeInvisibleElements(edges, getEdgeHighlightConditions());
+		CanvasUtils.removeNodelessEdges(edges, nodes);
+	}
+
+	private void applyJoinEdgesAndSkipEdgeless() {
+		joinMap.clear();
+
+		if (isJoinEdges()) {
+			joinMap = CanvasUtils.joinEdges(edges, getEdgeProperties(),
+					getEdgeIdProperty(), getEdgeFromProperty(),
+					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
+			edges = new LinkedHashSet<>(joinMap.keySet());
+		}
+
+		if (isSkipEdgelessNodes()) {
+			CanvasUtils.removeEdgelessNodes(nodes, edges);
+		}
+	}
+
+	private void applyHighlights() {
+		CanvasUtils.applyNodeHighlights(getViewer(),
+				getNodeHighlightConditions(), getNodeSize());
+		CanvasUtils.applyEdgeHighlights(getViewer(),
+				getEdgeHighlightConditions());
+	}
+
+	private LocationNode createMetaNode(String id,
+			Collection<LocationNode> nodes) {
+		Map<String, Object> properties = new LinkedHashMap<>();
+
+		for (LocationNode node : nodes) {
+			CanvasUtils.addMapToMap(properties, getNodeProperties(),
+					node.getProperties());
+		}
+
+		if (getNodeIdProperty() != null) {
+			properties.put(getNodeIdProperty(), id);
+		}
+
+		properties.put(metaNodeProperty, true);
+		properties.put(GeocodingNodeModel.LATITUDE_COLUMN, CanvasUtils
+				.getMeanValue(nodes, GeocodingNodeModel.LATITUDE_COLUMN));
+		properties.put(GeocodingNodeModel.LONGITUDE_COLUMN, CanvasUtils
+				.getMeanValue(nodes, GeocodingNodeModel.LONGITUDE_COLUMN));
+
+		List<Double> xList = new ArrayList<Double>();
+		List<Double> yList = new ArrayList<Double>();
+
+		for (LocationNode node : nodes) {
+			xList.add(node.getCenter().x);
+			yList.add(node.getCenter().y);
+		}
+
+		double x = DoubleMath.mean(Doubles.toArray(xList));
+		double y = DoubleMath.mean(Doubles.toArray(yList));
+
+		return new LocationNode(id, properties, new Point2D.Double(x, y));
 	}
 
 	private void updatePopupMenuAndOptionsPanel() {

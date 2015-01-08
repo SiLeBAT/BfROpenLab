@@ -32,7 +32,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -61,31 +60,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		getViewer().addPreRenderPaintable(new PrePaintable(false));
 	}
 
-	@Override
-	public List<V> getAllNodes() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public List<Edge<V>> getAllEdges() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, V> getNodeSaveMap() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, Edge<V>> getEdgeSaveMap() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, Set<String>> getCollapseMap() {
-		throw new UnsupportedOperationException();
-	}
-
 	public List<RegionNode> getRegions() {
 		return regions;
 	}
@@ -103,31 +77,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void nodeAllPropertiesItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void collapseToNodeItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void expandFromNodeItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void collapseByPropertyItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clearCollapsedNodesItemClicked() {
 		throw new UnsupportedOperationException();
 	}
 

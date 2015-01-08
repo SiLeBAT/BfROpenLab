@@ -130,6 +130,31 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
+	public List<RegionNode> getAllNodes() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<Edge<RegionNode>> getAllEdges() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, RegionNode> getNodeSaveMap() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, Edge<RegionNode>> getEdgeSaveMap() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, Set<String>> getCollapseMap() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void itemStateChanged(ItemEvent e) {
 		super.itemStateChanged(e);
 
@@ -137,6 +162,26 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			flushImage();
 			getViewer().repaint();
 		}
+	}
+
+	@Override
+	public void collapseToNodeItemClicked() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void expandFromNodeItemClicked() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void collapseByPropertyItemClicked() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clearCollapsedNodesItemClicked() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

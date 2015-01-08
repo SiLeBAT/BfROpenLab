@@ -108,6 +108,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		MouseListener, CanvasPopupMenu.ClickListener,
 		CanvasOptionsPanel.ChangeListener {
 
+	protected static final String IS_META_NODE = "IsMeta";
+
 	private static final long serialVersionUID = 1L;
 	private static final String COPY = "Copy";
 	private static final String PASTE = "Paste";

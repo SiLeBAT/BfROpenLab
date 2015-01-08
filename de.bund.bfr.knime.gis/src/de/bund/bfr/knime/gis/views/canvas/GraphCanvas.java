@@ -66,8 +66,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String IS_META_NODE = "IsMeta";
-
 	private List<GraphNode> allNodes;
 	private List<Edge<GraphNode>> allEdges;
 	private Set<GraphNode> nodes;
