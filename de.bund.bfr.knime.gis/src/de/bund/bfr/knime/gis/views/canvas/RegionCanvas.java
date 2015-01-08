@@ -93,20 +93,20 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		this.allowEdges = allowEdges;
 
 		updatePopupMenuAndOptionsPanel();
-		getViewer().getRenderContext().setVertexShapeTransformer(
+		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(2,
 						new LinkedHashMap<RegionNode, Double>()));
-		getViewer().getRenderContext().setVertexDrawPaintTransformer(
+		viewer.getRenderContext().setVertexDrawPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
-		getViewer().getRenderContext().setVertexFillPaintTransformer(
+		viewer.getRenderContext().setVertexFillPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
-		getViewer().getRenderer().getVertexLabelRenderer()
+		viewer.getRenderer().getVertexLabelRenderer()
 				.setPosition(Position.CNTR);
-		getViewer().getGraphLayout().setGraph(
+		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (RegionNode node : this.nodes) {
-			getViewer().getGraphLayout().setLocation(node, node.getCenter());
+			viewer.getGraphLayout().setLocation(node, node.getCenter());
 		}
 	}
 
@@ -126,7 +126,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		if (e.getItem() instanceof RegionNode) {
 			flushImage();
-			getViewer().repaint();
+			viewer.repaint();
 		}
 	}
 
@@ -156,8 +156,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		edges = CanvasUtils.getElementsById(edgeSaveMap,
 				CanvasUtils.getElementIds(allEdges));
-		CanvasUtils
-				.removeInvisibleElements(edges, getEdgeHighlightConditions());
+		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 
 		if (isJoinEdges()) {
 			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
@@ -168,16 +167,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			joinMap = new LinkedHashMap<>();
 		}
 
-		getViewer().getGraphLayout().setGraph(
-				CanvasUtils.createGraph(nodes, edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 
-		CanvasUtils.applyNodeLabels(getViewer(), getNodeHighlightConditions());
-		CanvasUtils.applyEdgeHighlights(getViewer(),
-				getEdgeHighlightConditions());
+		CanvasUtils.applyNodeLabels(viewer, nodeHighlightConditions);
+		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 
 		setSelectedEdgeIds(selectedEdgeIds);
 		flushImage();
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	@Override
@@ -189,24 +186,22 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 					@Override
 					public void mousePressed(MouseEvent e) {
 						RegionNode node = getContainingNode(e.getX(), e.getY());
-						Edge<RegionNode> edge = getViewer().getPickSupport()
-								.getEdge(getViewer().getGraphLayout(),
-										e.getX(), e.getY());
+						Edge<RegionNode> edge = viewer.getPickSupport()
+								.getEdge(viewer.getGraphLayout(), e.getX(),
+										e.getY());
 
 						if (e.getButton() == MouseEvent.BUTTON1 && node != null
 								&& edge == null) {
 							if (!e.isShiftDown()) {
-								getViewer().getPickedVertexState().clear();
+								viewer.getPickedVertexState().clear();
 							}
 
 							if (e.isShiftDown()
-									&& getViewer().getPickedVertexState()
-											.isPicked(node)) {
-								getViewer().getPickedVertexState().pick(node,
-										false);
+									&& viewer.getPickedVertexState().isPicked(
+											node)) {
+								viewer.getPickedVertexState().pick(node, false);
 							} else {
-								getViewer().getPickedVertexState().pick(node,
-										true);
+								viewer.getPickedVertexState().pick(node, true);
 								vertex = node;
 							}
 						} else {
@@ -220,10 +215,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 								&& e.getClickCount() == 2) {
 							RegionNode node = getContainingNode(e.getX(),
 									e.getY());
-							Edge<RegionNode> edge = getViewer()
-									.getPickSupport().getEdge(
-											getViewer().getGraphLayout(),
-											e.getX(), e.getY());
+							Edge<RegionNode> edge = viewer.getPickSupport()
+									.getEdge(viewer.getGraphLayout(), e.getX(),
+											e.getY());
 
 							if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
@@ -250,7 +244,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
-		for (RegionNode node : getViewer().getPickedVertexState().getPicked()) {
+		for (RegionNode node : viewer.getPickedVertexState().getPicked()) {
 			g.setColor(Color.BLUE);
 
 			for (Polygon part : node.getTransformedPolygon()) {
@@ -260,13 +254,13 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 		List<Color> nodeColors = new ArrayList<>();
 		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<>();
-		boolean prioritize = getNodeHighlightConditions().isPrioritizeColors();
+		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		for (RegionNode node : nodes) {
 			nodeAlphas.put(node, new ArrayList<Double>());
 		}
 
-		for (HighlightCondition condition : getNodeHighlightConditions()
+		for (HighlightCondition condition : nodeHighlightConditions
 				.getConditions()) {
 			Map<RegionNode, Double> values = condition.getValues(nodes);
 
@@ -289,7 +283,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 					nodeAlphas.get(node));
 
 			if (!color.equals(Color.WHITE)
-					&& !getViewer().getPickedVertexState().isPicked(node)) {
+					&& !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);
 
 				for (Polygon part : node.getTransformedPolygon()) {

@@ -105,7 +105,7 @@ public class TracingCanvas extends GraphCanvas {
 		performTracing = DEFAULT_PERFORM_TRACING;
 
 		updatePopupMenuAndOptionsPanel();
-		getViewer().prependPostRenderPaintable(new PostPaintable());
+		viewer.prependPostRenderPaintable(new PostPaintable());
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -281,7 +281,7 @@ public class TracingCanvas extends GraphCanvas {
 	public void setLabel(String label) {
 		this.label = label;
 		labelField.setText(label != null ? label : "");
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	public boolean isPerformTracing() {
@@ -406,12 +406,12 @@ public class TracingCanvas extends GraphCanvas {
 					public void mouseClicked(MouseEvent e) {
 						if (e.getButton() == MouseEvent.BUTTON1
 								&& e.getClickCount() == 2) {
-							GraphNode node = getViewer().getPickSupport()
-									.getVertex(getViewer().getGraphLayout(),
+							GraphNode node = viewer.getPickSupport()
+									.getVertex(viewer.getGraphLayout(),
 											e.getX(), e.getY());
-							Edge<GraphNode> edge = getViewer().getPickSupport()
-									.getEdge(getViewer().getGraphLayout(),
-											e.getX(), e.getY());
+							Edge<GraphNode> edge = viewer.getPickSupport()
+									.getEdge(viewer.getGraphLayout(), e.getX(),
+											e.getY());
 
 							if (node != null) {
 								EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
@@ -454,15 +454,14 @@ public class TracingCanvas extends GraphCanvas {
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
-		getViewer().getGraphLayout().setGraph(
-				CanvasUtils.createGraph(nodes, edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 		applyHighlights();
 		applyTracing();
 		applyHighlights();
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	@Override
@@ -494,10 +493,9 @@ public class TracingCanvas extends GraphCanvas {
 		MyNewTracing tracingWithoutCC = createTracing(edges, false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
+		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
 		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
-				getEdgeHighlightConditions()));
+				edgeHighlightConditions));
 		removedEdges.addAll(CanvasUtils.removeNodelessEdges(edges, nodes));
 
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
@@ -543,8 +541,8 @@ public class TracingCanvas extends GraphCanvas {
 
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
-		getOptionsPanel().addOption(
-				"Show Cross Contaminated " + getEdgesName(), showForwardBox);
+		getOptionsPanel().addOption("Show Cross Contaminated " + edgesName,
+				showForwardBox);
 		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 

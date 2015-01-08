@@ -55,7 +55,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		image = null;
 
-		getViewer().addPreRenderPaintable(new PrePaintable(false));
+		viewer.addPreRenderPaintable(new PrePaintable(false));
 	}
 
 	public abstract Collection<RegionNode> getRegions();
@@ -68,7 +68,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		computeTransform(getViewer().getSize());
+		computeTransform(viewer.getSize());
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	@Override
 	public void borderAlphaChanged() {
 		flushImage();
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	protected void applyTransform() {
 		flushImage();
 		computeTransformedShapes();
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	protected void flushImage() {
@@ -173,8 +173,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private void computeTransformedShapes() {
 		for (RegionNode node : getRegions()) {
-			node.setTransform(getTranslationX(), getTranslationY(),
-					getScaleX(), getScaleY());
+			node.setTransform(translationX, translationY, scaleX, scaleY);
 		}
 	}
 

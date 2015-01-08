@@ -98,14 +98,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		collapsedNodes = new LinkedHashMap<>();
 
 		updatePopupMenuAndOptionsPanel();
-		getViewer().getRenderContext().setVertexShapeTransformer(
+		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
-		getViewer().getGraphLayout().setGraph(
+		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (LocationNode node : this.nodes) {
-			getViewer().getGraphLayout().setLocation(node, node.getCenter());
+			viewer.getGraphLayout().setLocation(node, node.getCenter());
 		}
 	}
 
@@ -134,9 +134,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		for (String id : collapsedNodes.keySet()) {
 			if (selectedIds.contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase()
-						+ " are already collapsed", "Error",
-						JOptionPane.ERROR_MESSAGE);
+						+ nodesName.toLowerCase() + " are already collapsed",
+						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
@@ -145,9 +144,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 		while (true) {
 			newId = (String) JOptionPane.showInputDialog(this,
-					"Specify ID for Meta " + getNodeName(), getNodeName()
-							+ " ID", JOptionPane.QUESTION_MESSAGE, null, null,
-					"");
+					"Specify ID for Meta " + nodeName, nodeName + " ID",
+					JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 			if (newId == null) {
 				return;
@@ -172,7 +170,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		for (String id : selectedIds) {
 			if (!collapsedNodes.keySet().contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase() + " are not collapsed",
+						+ nodesName.toLowerCase() + " are not collapsed",
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -220,7 +218,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	public void clearCollapsedNodesItemClicked() {
 		collapsedNodes.clear();
 		applyChanges();
-		getViewer().getPickedVertexState().clear();
+		viewer.getPickedVertexState().clear();
 	}
 
 	@Override
@@ -231,13 +229,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
-		getViewer().getGraphLayout().setGraph(
-				CanvasUtils.createGraph(nodes, edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 		applyHighlights();
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	@Override
@@ -250,13 +247,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 					public void mouseClicked(MouseEvent e) {
 						if (e.getButton() == MouseEvent.BUTTON1
 								&& e.getClickCount() == 2) {
-							LocationNode node = getViewer().getPickSupport()
-									.getVertex(getViewer().getGraphLayout(),
+							LocationNode node = viewer.getPickSupport()
+									.getVertex(viewer.getGraphLayout(),
 											e.getX(), e.getY());
-							Edge<LocationNode> edge = getViewer()
-									.getPickSupport().getEdge(
-											getViewer().getGraphLayout(),
-											e.getX(), e.getY());
+							Edge<LocationNode> edge = viewer.getPickSupport()
+									.getEdge(viewer.getGraphLayout(), e.getX(),
+											e.getY());
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
@@ -304,10 +300,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	private void applyInvisibility() {
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
-		CanvasUtils
-				.removeInvisibleElements(edges, getEdgeHighlightConditions());
+		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
+		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
@@ -327,10 +321,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	private void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(getViewer(),
-				getNodeHighlightConditions(), getNodeSize());
-		CanvasUtils.applyEdgeHighlights(getViewer(),
-				getEdgeHighlightConditions());
+		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
+				getNodeSize());
+		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}
 
 	private LocationNode createMetaNode(String id,

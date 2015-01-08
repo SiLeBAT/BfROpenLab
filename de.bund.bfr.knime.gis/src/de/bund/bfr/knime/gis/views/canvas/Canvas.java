@@ -118,6 +118,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final String DEFAULT_NODES_NAME = "Nodes";
 	private static final String DEFAULT_EDGES_NAME = "Edges";
 
+	protected VisualizationViewer<V, Edge<V>> viewer;
+	protected double scaleX;
+	protected double scaleY;
+	protected double translationX;
+	protected double translationY;
+
 	protected List<V> allNodes;
 	protected List<Edge<V>> allEdges;
 	protected Set<V> nodes;
@@ -134,24 +140,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected String edgeToProperty;
 	protected String metaNodeProperty;
 
-	private VisualizationViewer<V, Edge<V>> viewer;
+	protected HighlightConditionList nodeHighlightConditions;
+	protected HighlightConditionList edgeHighlightConditions;
+
+	protected String nodeName;
+	protected String edgeName;
+	protected String nodesName;
+	protected String edgesName;
+
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
 
-	private double scaleX;
-	private double scaleY;
-	private double translationX;
-	private double translationY;
-
 	private List<CanvasListener> canvasListeners;
-
-	private HighlightConditionList nodeHighlightConditions;
-	private HighlightConditionList edgeHighlightConditions;
-
-	private String nodeName;
-	private String edgeName;
-	private String nodesName;
-	private String edgesName;
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges,
 			Map<String, Class<?>> nodeProperties,
@@ -955,10 +955,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		viewer.repaint();
-	}
-
-	public VisualizationViewer<V, Edge<V>> getViewer() {
-		return viewer;
 	}
 
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(

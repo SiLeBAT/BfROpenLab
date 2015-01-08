@@ -85,12 +85,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		collapsedNodes = new LinkedHashMap<>();
 
 		updatePopupMenuAndOptionsPanel();
-		getViewer().getRenderContext().setVertexShapeTransformer(
+		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
-		getViewer().getRenderContext().setVertexStrokeTransformer(
+		viewer.getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<GraphNode>(metaNodeProperty));
-		getViewer().getGraphLayout().setGraph(
+		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
@@ -123,11 +123,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(
-				getViewer().getGraphLayout().getGraph());
+		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer
+				.getGraphLayout().getGraph());
 		Point2D upperLeft = toGraphCoordinates(0, 0);
 		Point2D upperRight = toGraphCoordinates(
-				getViewer().getPreferredSize().width, 0);
+				viewer.getPreferredSize().width, 0);
 		double x1 = upperLeft.getX();
 		double x2 = upperRight.getX();
 		double y = upperLeft.getY();
@@ -146,8 +146,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		layout.setSize(getViewer().getSize());
-		getViewer().setGraphLayout(layout);
+		layout.setSize(viewer.getSize());
+		viewer.setGraphLayout(layout);
 	}
 
 	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
@@ -177,9 +177,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		for (String id : collapsedNodes.keySet()) {
 			if (selectedIds.contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase()
-						+ " are already collapsed", "Error",
-						JOptionPane.ERROR_MESSAGE);
+						+ nodesName.toLowerCase() + " are already collapsed",
+						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
@@ -188,9 +187,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		while (true) {
 			newId = (String) JOptionPane.showInputDialog(this,
-					"Specify ID for Meta " + getNodeName(), getNodeName()
-							+ " ID", JOptionPane.QUESTION_MESSAGE, null, null,
-					"");
+					"Specify ID for Meta " + nodeName, nodeName + " ID",
+					JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 			if (newId == null) {
 				return;
@@ -204,7 +202,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		Map<String, Point2D> absPos = getNodePositions(CanvasUtils
-				.getElementsById(getViewer().getGraphLayout().getGraph()
+				.getElementsById(viewer.getGraphLayout().getGraph()
 						.getVertices(), selectedIds));
 		Map<String, Point2D> relPos = new LinkedHashMap<>();
 		Point2D center = CanvasUtils.getCenter(absPos.values());
@@ -225,7 +223,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		for (String id : selectedIds) {
 			if (!collapsedNodes.keySet().contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase() + " are not collapsed",
+						+ nodesName.toLowerCase() + " are not collapsed",
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -235,14 +233,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		for (String id : selectedIds) {
 			Map<String, Point2D> removed = collapsedNodes.remove(id);
-			Point2D center = getViewer().getGraphLayout().transform(
+			Point2D center = viewer.getGraphLayout().transform(
 					nodeSaveMap.remove(id));
 
 			newIds.addAll(removed.keySet());
 
 			for (String newId : removed.keySet()) {
-				getViewer().getGraphLayout().setLocation(
-						nodeSaveMap.get(newId),
+				viewer.getGraphLayout().setLocation(nodeSaveMap.get(newId),
 						CanvasUtils.addPoints(removed.get(newId), center));
 			}
 		}
@@ -291,19 +288,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	public void clearCollapsedNodesItemClicked() {
 		for (String id : collapsedNodes.keySet()) {
 			Map<String, Point2D> removed = collapsedNodes.get(id);
-			Point2D center = getViewer().getGraphLayout().transform(
+			Point2D center = viewer.getGraphLayout().transform(
 					nodeSaveMap.remove(id));
 
 			for (String newId : removed.keySet()) {
-				getViewer().getGraphLayout().setLocation(
-						nodeSaveMap.get(newId),
+				viewer.getGraphLayout().setLocation(nodeSaveMap.get(newId),
 						CanvasUtils.addPoints(removed.get(newId), center));
 			}
 		}
 
 		collapsedNodes.clear();
 		applyChanges();
-		getViewer().getPickedVertexState().clear();
+		viewer.getPickedVertexState().clear();
 	}
 
 	@Override
@@ -324,12 +320,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					public void mouseClicked(MouseEvent e) {
 						if (e.getButton() == MouseEvent.BUTTON1
 								&& e.getClickCount() == 2) {
-							GraphNode node = getViewer().getPickSupport()
-									.getVertex(getViewer().getGraphLayout(),
+							GraphNode node = viewer.getPickSupport()
+									.getVertex(viewer.getGraphLayout(),
 											e.getX(), e.getY());
-							Edge<GraphNode> edge = getViewer().getPickSupport()
-									.getEdge(getViewer().getGraphLayout(),
-											e.getX(), e.getY());
+							Edge<GraphNode> edge = viewer.getPickSupport()
+									.getEdge(viewer.getGraphLayout(), e.getX(),
+											e.getY());
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
@@ -355,13 +351,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
-		getViewer().getGraphLayout().setGraph(
-				CanvasUtils.createGraph(nodes, edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 		applyHighlights();
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
-		getViewer().repaint();
+		viewer.repaint();
 	}
 
 	protected void applyNodeCollapse() {
@@ -382,10 +377,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyInvisibility() {
-		CanvasUtils
-				.removeInvisibleElements(nodes, getNodeHighlightConditions());
-		CanvasUtils
-				.removeInvisibleElements(edges, getEdgeHighlightConditions());
+		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
+		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
@@ -405,10 +398,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	protected void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(getViewer(),
-				getNodeHighlightConditions(), getNodeSize());
-		CanvasUtils.applyEdgeHighlights(getViewer(),
-				getEdgeHighlightConditions());
+		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
+				getNodeSize());
+		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}
 
 	@Override
@@ -442,7 +434,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		GraphNode newNode = new GraphNode(id, properties, null);
 
-		getViewer().getGraphLayout().setLocation(newNode,
+		viewer.getGraphLayout().setLocation(newNode,
 				CanvasUtils.getCenter(getNodePositions(nodes).values()));
 
 		return newNode;
@@ -458,15 +450,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			selectedNodes = new LinkedHashSet<>();
 		}
 
-		Graph<GraphNode, Edge<GraphNode>> graph = getViewer().getGraphLayout()
+		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout()
 				.getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
-			if (JOptionPane.showConfirmDialog(this, layoutType
-					+ " cannot be applied on a subset of "
-					+ getNodesName().toLowerCase() + ". Apply " + layoutType
-					+ " on all " + getNodesName().toLowerCase() + "?",
+			if (JOptionPane.showConfirmDialog(this,
+					layoutType + " cannot be applied on a subset of "
+							+ nodesName.toLowerCase() + ". Apply " + layoutType
+							+ " on all " + nodesName.toLowerCase() + "?",
 					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				selectedNodes = new LinkedHashSet<>();
 			} else {
@@ -495,42 +487,41 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (!selectedNodes.isEmpty()) {
-			Point2D move = new Point2D.Double(getTranslationX() / getScaleX(),
-					getTranslationY() / getScaleY());
+			Point2D move = new Point2D.Double(translationX / scaleX,
+					translationY / scaleY);
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(getViewer()
+					layout.setLocation(node, CanvasUtils.addPoints(viewer
 							.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
 
 			layout.setSize(new Dimension(
-					(int) (getViewer().getSize().width / getScaleX()),
-					(int) (getViewer().getSize().height / getScaleY())));
+					(int) (viewer.getSize().width / scaleX), (int) (viewer
+							.getSize().height / scaleY)));
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(getViewer()
+					layout.setLocation(node, CanvasUtils.addPoints(viewer
 							.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
 
-			setTransform(getScaleX(), getScaleY(), 0.0, 0.0);
+			setTransform(scaleX, scaleY, 0.0, 0.0);
 		} else {
-			layout.setSize(getViewer().getSize());
+			layout.setSize(viewer.getSize());
 			setTransform(1.0, 1.0, 0.0, 0.0);
 		}
 
-		getViewer().setGraphLayout(layout);
+		viewer.setGraphLayout(layout);
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
 		Map<String, Point2D> map = new LinkedHashMap<>();
-		Layout<GraphNode, Edge<GraphNode>> layout = getViewer()
-				.getGraphLayout();
+		Layout<GraphNode, Edge<GraphNode>> layout = viewer.getGraphLayout();
 
 		for (GraphNode node : nodes) {
 			Point2D pos = layout.transform(node);
