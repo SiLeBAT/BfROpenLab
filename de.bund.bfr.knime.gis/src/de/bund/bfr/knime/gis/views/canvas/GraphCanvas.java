@@ -66,15 +66,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<GraphNode> allNodes;
-	private List<Edge<GraphNode>> allEdges;
-	private Set<GraphNode> nodes;
-	private Set<Edge<GraphNode>> edges;
 	private Map<Edge<GraphNode>, Set<Edge<GraphNode>>> joinMap;
-
 	private Map<String, Map<String, Point2D>> collapsedNodes;
-	private Map<String, GraphNode> nodeSaveMap;
-	private Map<String, Edge<GraphNode>> edgeSaveMap;
 
 	private boolean allowCollapse;
 
@@ -92,17 +85,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty, boolean allowCollapse) {
-		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
-				edgeFromProperty, edgeToProperty);
+		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowCollapse = allowCollapse;
-		this.nodes = new LinkedHashSet<>();
-		this.edges = new LinkedHashSet<>();
-		CanvasUtils.copyNodesAndEdges(nodes, edges, this.nodes, this.edges);
-
-		allNodes = nodes;
-		allEdges = edges;
-		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
-		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE
@@ -118,36 +103,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		getViewer().getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
-	}
-
-	@Override
-	public List<GraphNode> getAllNodes() {
-		return allNodes;
-	}
-
-	@Override
-	public List<Edge<GraphNode>> getAllEdges() {
-		return allEdges;
-	}
-
-	@Override
-	public Set<GraphNode> getNodes() {
-		return nodes;
-	}
-
-	@Override
-	public Set<Edge<GraphNode>> getEdges() {
-		return edges;
-	}
-
-	@Override
-	public Map<String, GraphNode> getNodeSaveMap() {
-		return nodeSaveMap;
-	}
-
-	@Override
-	public Map<String, Edge<GraphNode>> getEdgeSaveMap() {
-		return edgeSaveMap;
 	}
 
 	@Override
@@ -483,7 +438,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		CanvasUtils.applyNodeCollapse(this, newMetaNodes);
+		applyNodeCollapse(newMetaNodes);
 	}
 
 	protected void applyInvisibility() {

@@ -57,15 +57,9 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<LocationNode> allNodes;
-	private List<Edge<LocationNode>> allEdges;
-	private Set<LocationNode> nodes;
-	private Set<Edge<LocationNode>> edges;
+	private List<RegionNode> regions;
 	private Map<Edge<LocationNode>, Set<Edge<LocationNode>>> joinMap;
-
 	private Map<String, Set<String>> collapsedNodes;
-	private Map<String, LocationNode> nodeSaveMap;
-	private Map<String, Edge<LocationNode>> edgeSaveMap;
 
 	private boolean allowEdges;
 
@@ -102,19 +96,11 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty, List<RegionNode> regionNodes,
-			boolean allowEdges) {
-		super(regionNodes, nodeProperties, edgeProperties, nodeIdProperty,
+			String edgeToProperty, List<RegionNode> regions, boolean allowEdges) {
+		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
-		this.nodes = new LinkedHashSet<>();
-		this.edges = new LinkedHashSet<>();
-		CanvasUtils.copyNodesAndEdges(nodes, edges, this.nodes, this.edges);
-
-		allNodes = nodes;
-		allEdges = edges;
-		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
-		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
+		this.regions = regions;
 		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE
@@ -134,33 +120,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	public Set<LocationNode> getNodes() {
-		return nodes;
-	}
-
-	@Override
-	public Set<Edge<LocationNode>> getEdges() {
-		return edges;
-	}
-
-	@Override
-	public List<LocationNode> getAllNodes() {
-		return allNodes;
-	}
-
-	@Override
-	public List<Edge<LocationNode>> getAllEdges() {
-		return allEdges;
-	}
-
-	@Override
-	public Map<String, LocationNode> getNodeSaveMap() {
-		return nodeSaveMap;
-	}
-
-	@Override
-	public Map<String, Edge<LocationNode>> getEdgeSaveMap() {
-		return edgeSaveMap;
+	public Collection<RegionNode> getRegions() {
+		return regions;
 	}
 
 	@Override
@@ -404,7 +365,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			}
 		}
 
-		CanvasUtils.applyNodeCollapse(this, newMetaNodes);
+		applyNodeCollapse(newMetaNodes);
 	}
 
 	private void applyInvisibility() {

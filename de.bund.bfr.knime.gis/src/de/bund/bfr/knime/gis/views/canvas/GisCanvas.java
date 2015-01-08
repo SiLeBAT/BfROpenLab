@@ -30,6 +30,7 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -43,26 +44,21 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<RegionNode> regions;
-
 	private BufferedImage image;
 
-	public GisCanvas(List<RegionNode> regions,
+	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty) {
-		super(nodeProperties, edgeProperties, nodeIdProperty, edgeIdProperty,
-				edgeFromProperty, edgeToProperty);
-		this.regions = regions;
+		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
+				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		image = null;
 
 		getViewer().addPreRenderPaintable(new PrePaintable(false));
 	}
 
-	public List<RegionNode> getRegions() {
-		return regions;
-	}
+	public abstract Collection<RegionNode> getRegions();
 
 	@Override
 	public void setCanvasSize(Dimension canvasSize) {
@@ -120,7 +116,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 			borderGraphics.setColor(Color.BLACK);
 
-			for (RegionNode node : regions) {
+			for (RegionNode node : getRegions()) {
 				for (Polygon part : node.getTransformedPolygon()) {
 					borderGraphics.drawPolygon(part);
 				}
@@ -130,7 +126,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		} else {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 
-			for (RegionNode node : regions) {
+			for (RegionNode node : getRegions()) {
 				for (Polygon part : node.getTransformedPolygon()) {
 					g.drawPolygon(part);
 				}
@@ -176,7 +172,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	private void computeTransformedShapes() {
-		for (RegionNode node : regions) {
+		for (RegionNode node : getRegions()) {
 			node.setTransform(getTranslationX(), getTranslationY(),
 					getScaleX(), getScaleY());
 		}
@@ -185,7 +181,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private Rectangle2D.Double getPolygonsBounds() {
 		Rectangle2D.Double bounds = null;
 
-		for (RegionNode node : regions) {
+		for (RegionNode node : getRegions()) {
 			if (bounds == null) {
 				bounds = node.getBoundingBox();
 			} else {

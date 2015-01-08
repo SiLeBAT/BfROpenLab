@@ -119,6 +119,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final String DEFAULT_NODES_NAME = "Nodes";
 	private static final String DEFAULT_EDGES_NAME = "Edges";
 
+	protected List<V> allNodes;
+	protected List<Edge<V>> allEdges;
+	protected Set<V> nodes;
+	protected Set<Edge<V>> edges;
+	protected Map<String, V> nodeSaveMap;
+	protected Map<String, Edge<V>> edgeSaveMap;
+
 	private VisualizationViewer<V, Edge<V>> viewer;
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
@@ -145,7 +152,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private String nodesName;
 	private String edgesName;
 
-	public Canvas(Map<String, Class<?>> nodeProperties,
+	public Canvas(List<V> nodes, List<Edge<V>> edges,
+			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty) {
@@ -166,6 +174,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		canvasListeners = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
+
+		this.nodes = new LinkedHashSet<>();
+		this.edges = new LinkedHashSet<>();
+		CanvasUtils.copyNodesAndEdges(nodes, edges, this.nodes, this.edges);
+		allNodes = nodes;
+		allEdges = edges;
+		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
+		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 
 		viewer = new VisualizationViewer<>(new StaticLayout<>(
 				new DirectedSparseMultigraph<V, Edge<V>>()));
@@ -205,6 +221,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void removeCanvasListener(CanvasListener listener) {
 		canvasListeners.remove(listener);
 	}
+
+	public Set<V> getNodes() {
+		return nodes;
+	}
+
+	public Set<Edge<V>> getEdges() {
+		return edges;
+	}
+
+	public abstract Map<String, Set<String>> getCollapseMap();
 
 	public String getNodeName() {
 		return nodeName;
@@ -321,20 +347,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setBorderAlpha(int borderAlpha) {
 		optionsPanel.setBorderAlpha(borderAlpha);
 	}
-
-	public abstract List<V> getAllNodes();
-
-	public abstract List<Edge<V>> getAllEdges();
-
-	public abstract Set<V> getNodes();
-
-	public abstract Set<Edge<V>> getEdges();
-
-	public abstract Map<String, V> getNodeSaveMap();
-
-	public abstract Map<String, Edge<V>> getEdgeSaveMap();
-
-	public abstract Map<String, Set<String>> getCollapseMap();
 
 	public Map<String, Class<?>> getNodeProperties() {
 		return nodeProperties;
@@ -642,7 +654,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectConnectionsItemClicked() {
-		for (Edge<V> edge : getEdges()) {
+		for (Edge<V> edge : edges) {
 			if (getSelectedNodes().contains(edge.getFrom())
 					&& getSelectedNodes().contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
@@ -652,7 +664,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectIncomingItemClicked() {
-		for (Edge<V> edge : getEdges()) {
+		for (Edge<V> edge : edges) {
 			if (getSelectedNodes().contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
@@ -661,7 +673,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectOutgoingItemClicked() {
-		for (Edge<V> edge : getEdges()) {
+		for (Edge<V> edge : edges) {
 			if (getSelectedNodes().contains(edge.getFrom())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
@@ -774,7 +786,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtils.getHighlightedElements(getNodes(),
+			setSelectedNodes(CanvasUtils.getHighlightedElements(nodes,
 					dialog.getHighlightConditions()));
 		}
 	}
@@ -787,7 +799,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtils.getHighlightedElements(getEdges(),
+			setSelectedEdges(CanvasUtils.getHighlightedElements(edges,
 					dialog.getHighlightConditions()));
 		}
 
@@ -801,7 +813,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedNodes(CanvasUtils.getHighlightedElements(getNodes(),
+			setSelectedNodes(CanvasUtils.getHighlightedElements(nodes,
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -814,7 +826,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			setSelectedEdges(CanvasUtils.getHighlightedElements(getEdges(),
+			setSelectedEdges(CanvasUtils.getHighlightedElements(edges,
 					Arrays.asList(dialog.getHighlightCondition())));
 		}
 	}
@@ -823,7 +835,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void nodePropertiesItemClicked() {
 		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
 
-		picked.retainAll(getNodes());
+		picked.retainAll(nodes);
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
 				picked, nodeProperties, true,
@@ -836,7 +848,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void edgePropertiesItemClicked() {
 		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
-		picked.retainAll(getEdges());
+		picked.retainAll(edges);
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(
 				this,
@@ -855,12 +867,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		Set<V> pickedAll = new LinkedHashSet<>();
 		Map<String, Set<String>> collapseMap = getCollapseMap();
 
-		picked.retainAll(getNodes());
+		picked.retainAll(nodes);
 
 		for (V node : picked) {
 			if (collapseMap.containsKey(node.getId())) {
 				for (String id : collapseMap.get(node.getId())) {
-					pickedAll.add(getNodeSaveMap().get(id));
+					pickedAll.add(nodeSaveMap.get(id));
 				}
 			} else {
 				pickedAll.add(node);
@@ -878,7 +890,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void edgeAllPropertiesItemClicked() {
 		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
 
-		picked.retainAll(getEdges());
+		picked.retainAll(edges);
 
 		Set<Edge<V>> allPicked = new LinkedHashSet<>();
 
@@ -1024,6 +1036,75 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return dialog;
 	}
 
+	protected void applyNodeCollapse(Map<String, V> newMetaNodes) {
+		nodes.clear();
+		edges.clear();
+
+		Map<String, Set<String>> collapseMap = getCollapseMap();
+		Map<String, String> collapseTo = new LinkedHashMap<>();
+
+		for (String to : collapseMap.keySet()) {
+			for (String from : collapseMap.get(to)) {
+				collapseTo.put(from, to);
+			}
+		}
+
+		Map<String, V> nodesById = new LinkedHashMap<>();
+
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
+			if (!collapseTo.keySet().contains(id)) {
+				V newNode = nodeSaveMap.get(id);
+
+				nodes.add(newNode);
+				nodesById.put(id, newNode);
+			}
+		}
+
+		Set<V> metaNodes = new LinkedHashSet<>();
+
+		for (String newId : collapseMap.keySet()) {
+			V newNode = nodeSaveMap.get(newId);
+
+			if (newNode == null) {
+				newNode = newMetaNodes.get(newId);
+				nodeSaveMap.put(newId, newNode);
+			}
+
+			nodes.add(newNode);
+			nodesById.put(newNode.getId(), newNode);
+			metaNodes.add(newNode);
+		}
+
+		for (Edge<V> edge : allEdges) {
+			V from = nodesById.get(edge.getFrom().getId());
+			V to = nodesById.get(edge.getTo().getId());
+
+			if (from == null) {
+				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
+			}
+
+			if (to == null) {
+				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
+			}
+
+			if (from == to && metaNodes.contains(from)) {
+				continue;
+			}
+
+			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
+
+			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
+				newEdge.getProperties().put(edgeFromProperty, from.getId());
+				newEdge.getProperties().put(edgeToProperty, to.getId());
+				edgeSaveMap.put(newEdge.getId(), newEdge);
+			}
+
+			edges.add(newEdge);
+		}
+	}
+
 	protected abstract void applyNameChanges();
 
 	protected abstract void applyChanges();
@@ -1132,9 +1213,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		@Override
 		public void paint(Graphics g) {
 			if (optionsPanel.isShowLegend()) {
-				new CanvasLegend<>(Canvas.this, nodeHighlightConditions,
-						getNodes(), edgeHighlightConditions, getEdges()).paint(
-						g, getCanvasSize().width, getCanvasSize().height,
+				new CanvasLegend<>(Canvas.this, nodeHighlightConditions, nodes,
+						edgeHighlightConditions, edges).paint(g,
+						getCanvasSize().width, getCanvasSize().height,
 						optionsPanel.getFontSize(), optionsPanel.isFontBold());
 			}
 

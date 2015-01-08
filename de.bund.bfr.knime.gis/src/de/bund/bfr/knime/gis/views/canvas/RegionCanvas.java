@@ -33,9 +33,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +58,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Edge<RegionNode>> allEdges;
-	private Set<RegionNode> nodes;
-	private Set<Edge<RegionNode>> edges;
 	private Map<Edge<RegionNode>, Set<Edge<RegionNode>>> joinMap;
 
 	private boolean allowEdges;
@@ -93,12 +90,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
 			String edgeIdProperty, String edgeFromProperty,
 			String edgeToProperty, boolean allowEdges) {
-		super(nodes, nodeProperties, edgeProperties, nodeIdProperty,
+		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
-		this.nodes = new LinkedHashSet<>(nodes);
-		this.edges = new LinkedHashSet<>(edges);
 		this.allowEdges = allowEdges;
-		allEdges = edges;
 		joinMap = new LinkedHashMap<>();
 
 		updatePopupMenuAndOptionsPanel();
@@ -120,33 +114,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	public Set<RegionNode> getNodes() {
+	public Collection<RegionNode> getRegions() {
 		return nodes;
-	}
-
-	@Override
-	public Set<Edge<RegionNode>> getEdges() {
-		return edges;
-	}
-
-	@Override
-	public List<RegionNode> getAllNodes() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public List<Edge<RegionNode>> getAllEdges() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, RegionNode> getNodeSaveMap() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, Edge<RegionNode>> getEdgeSaveMap() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -188,7 +157,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
-		edges = new LinkedHashSet<>(allEdges);
+		edges = CanvasUtils.getElementsById(edgeSaveMap,
+				CanvasUtils.getElementIds(allEdges));
 		CanvasUtils
 				.removeInvisibleElements(edges, getEdgeHighlightConditions());
 
@@ -198,7 +168,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 					getEdgeToProperty(), CanvasUtils.getElementIds(allEdges));
 			edges = joinMap.keySet();
 		} else {
-			edges = new LinkedHashSet<>(allEdges);
 			joinMap = new LinkedHashMap<>();
 		}
 
