@@ -27,7 +27,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -35,12 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -110,85 +106,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	public Collection<RegionNode> getRegions() {
 		return regions;
-	}
-
-	@Override
-	public void collapseToNodeItemClicked() {
-		Set<String> selectedIds = getSelectedNodeIds();
-
-		for (String id : collapsedNodes.keySet()) {
-			if (selectedIds.contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ nodesName.toLowerCase() + " are already collapsed",
-						"Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		}
-
-		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
-				nodeName);
-
-		collapsedNodes.put(newId, selectedIds);
-		applyChanges();
-		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
-	}
-
-	@Override
-	public void expandFromNodeItemClicked() {
-		Set<String> selectedIds = getSelectedNodeIds();
-
-		for (String id : selectedIds) {
-			if (!collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ nodesName.toLowerCase() + " are not collapsed",
-						"Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		}
-
-		Set<String> newIds = new LinkedHashSet<>();
-
-		for (String id : selectedIds) {
-			newIds.addAll(collapsedNodes.remove(id));
-		}
-
-		applyChanges();
-		setSelectedNodeIds(newIds);
-	}
-
-	@Override
-	public void collapseByPropertyItemClicked() {
-		Map<Object, Set<LocationNode>> nodesByProperty = CanvasUtils
-				.openCollapseByPropertyDialog(this, nodeProperties.keySet(),
-						CanvasUtils.getElementIds(allNodes), nodeSaveMap);
-
-		if (nodesByProperty.isEmpty()) {
-			return;
-		}
-
-		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
-		}
-
-		collapsedNodes.clear();
-
-		for (Object value : nodesByProperty.keySet()) {
-			String newId = KnimeUtils.createNewValue(value.toString(),
-					nodeSaveMap.keySet());
-
-			collapsedNodes.put(newId,
-					CanvasUtils.getElementIds(nodesByProperty.get(value)));
-		}
-
-		applyChanges();
-		setSelectedNodeIds(collapsedNodes.keySet());
-	}
-
-	@Override
-	public void clearCollapsedNodesItemClicked() {
-		collapsedNodes.clear();
-		applyChanges();
-		viewer.getPickedVertexState().clear();
 	}
 
 	@Override

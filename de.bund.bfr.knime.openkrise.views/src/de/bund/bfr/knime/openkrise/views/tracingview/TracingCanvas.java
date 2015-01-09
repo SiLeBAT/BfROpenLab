@@ -321,12 +321,9 @@ public class TracingCanvas extends GraphCanvas {
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		Set<GraphNode> picked = new LinkedHashSet<>(getSelectedNodes());
-
-		picked.retainAll(nodes);
-
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
-				.createNodeDialog(this, picked, nodeProperties, true);
+				.createNodeDialog(this, getSelectedNodes(), nodeProperties,
+						true);
 
 		dialog.setVisible(true);
 
@@ -340,13 +337,9 @@ public class TracingCanvas extends GraphCanvas {
 		if (isJoinEdges()) {
 			super.edgePropertiesItemClicked();
 		} else {
-			Set<Edge<GraphNode>> picked = new LinkedHashSet<>(
-					getSelectedEdges());
-
-			picked.retainAll(edges);
-
 			EditablePropertiesDialog dialog = EditablePropertiesDialog
-					.createEdgeDialog(this, picked, edgeProperties, true);
+					.createEdgeDialog(this, getSelectedEdges(), edgeProperties,
+							true);
 
 			dialog.setVisible(true);
 
@@ -358,20 +351,14 @@ public class TracingCanvas extends GraphCanvas {
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<GraphNode>> picked = new LinkedHashSet<>(getSelectedEdges());
-
-		picked.retainAll(edges);
-
 		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
 
-		if (!joinMap.isEmpty()) {
-			for (Edge<GraphNode> p : picked) {
-				if (joinMap.containsKey(p)) {
-					allPicked.addAll(joinMap.get(p));
-				}
+		for (Edge<GraphNode> p : getSelectedEdges()) {
+			if (joinMap.containsKey(p)) {
+				allPicked.addAll(joinMap.get(p));
+			} else {
+				allPicked.add(p);
 			}
-		} else {
-			allPicked.addAll(picked);
 		}
 
 		EditablePropertiesDialog dialog = EditablePropertiesDialog

@@ -362,36 +362,45 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public Set<V> getSelectedNodes() {
-		return viewer.getPickedVertexState().getPicked();
+		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState()
+				.getPicked());
+
+		selected.retainAll(nodes);
+
+		return selected;
 	}
 
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		viewer.getPickedVertexState().clear();
 
-		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
-			if (selectedNodes.contains(node)) {
+		for (V node : selectedNodes) {
+			if (nodes.contains(node)) {
 				viewer.getPickedVertexState().pick(node, true);
 			}
 		}
 	}
 
 	public Set<Edge<V>> getSelectedEdges() {
-		return viewer.getPickedEdgeState().getPicked();
+		Set<Edge<V>> selected = new LinkedHashSet<>(viewer.getPickedEdgeState()
+				.getPicked());
+
+		selected.retainAll(edges);
+
+		return selected;
 	}
 
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		viewer.getPickedEdgeState().clear();
 
-		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
-			if (selectedEdges.contains(edge)) {
+		for (Edge<V> edge : selectedEdges) {
+			if (edges.contains(edge)) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
 	}
 
 	public Set<String> getSelectedNodeIds() {
-		return CanvasUtils.getElementIds(viewer.getPickedVertexState()
-				.getPicked());
+		return CanvasUtils.getElementIds(getSelectedNodes());
 	}
 
 	public void setSelectedNodeIds(Set<String> selectedNodeIds) {
@@ -400,8 +409,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public Set<String> getSelectedEdgeIds() {
-		return CanvasUtils.getElementIds(viewer.getPickedEdgeState()
-				.getPicked());
+		return CanvasUtils.getElementIds(getSelectedEdges());
 	}
 
 	public void setSelectedEdgeIds(Set<String> selectedEdgeIds) {
@@ -652,9 +660,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectConnectionsItemClicked() {
+		Set<V> selected = getSelectedNodes();
+
 		for (Edge<V> edge : edges) {
-			if (getSelectedNodes().contains(edge.getFrom())
-					&& getSelectedNodes().contains(edge.getTo())) {
+			if (selected.contains(edge.getFrom())
+					&& selected.contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
@@ -662,8 +672,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectIncomingItemClicked() {
+		Set<V> selected = getSelectedNodes();
+
 		for (Edge<V> edge : edges) {
-			if (getSelectedNodes().contains(edge.getTo())) {
+			if (selected.contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
@@ -671,8 +683,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectOutgoingItemClicked() {
+		Set<V> selected = getSelectedNodes();
+
 		for (Edge<V> edge : edges) {
-			if (getSelectedNodes().contains(edge.getFrom())) {
+			if (selected.contains(edge.getFrom())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
@@ -831,26 +845,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
-
-		picked.retainAll(nodes);
-
 		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
-				picked, nodeProperties, true,
-				new LinkedHashSet<>(Arrays.asList(nodeIdProperty)));
+				getSelectedNodes(), nodeProperties, true, new LinkedHashSet<>(
+						Arrays.asList(nodeIdProperty)));
 
 		dialog.setVisible(true);
 	}
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
-
-		picked.retainAll(edges);
-
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(
 				this,
-				picked,
+				getSelectedEdges(),
 				edgeProperties,
 				true,
 				new LinkedHashSet<>(Arrays.asList(edgeIdProperty,
@@ -861,12 +867,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void nodeAllPropertiesItemClicked() {
-		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
 		Set<V> pickedAll = new LinkedHashSet<>();
 
-		picked.retainAll(nodes);
-
-		for (V node : picked) {
+		for (V node : getSelectedNodes()) {
 			if (collapsedNodes.containsKey(node.getId())) {
 				for (String id : collapsedNodes.get(node.getId())) {
 					pickedAll.add(nodeSaveMap.get(id));
@@ -885,20 +888,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<V>> picked = new LinkedHashSet<>(getSelectedEdges());
-
-		picked.retainAll(edges);
-
 		Set<Edge<V>> allPicked = new LinkedHashSet<>();
 
-		if (!joinMap.isEmpty()) {
-			for (Edge<V> p : picked) {
-				if (joinMap.containsKey(p)) {
-					allPicked.addAll(joinMap.get(p));
-				}
+		for (Edge<V> p : getSelectedEdges()) {
+			if (joinMap.containsKey(p)) {
+				allPicked.addAll(joinMap.get(p));
+			} else {
+				allPicked.add(p);
 			}
-		} else {
-			allPicked.addAll(picked);
 		}
 
 		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(
@@ -910,6 +907,90 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 						edgeFromProperty, edgeToProperty)));
 
 		dialog.setVisible(true);
+	}
+
+	@Override
+	public void collapseToNodeItemClicked() {
+		Set<String> selectedIds = getSelectedNodeIds();
+
+		for (String id : selectedIds) {
+			if (collapsedNodes.keySet().contains(id)) {
+				JOptionPane.showMessageDialog(this, "Some of the selected "
+						+ nodesName.toLowerCase() + " are already collapsed",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
+		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
+				nodeName);
+
+		collapsedNodes.put(newId, selectedIds);
+		applyChanges();
+		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
+	}
+
+	@Override
+	public void expandFromNodeItemClicked() {
+		Set<String> selectedIds = getSelectedNodeIds();
+
+		for (String id : selectedIds) {
+			if (!collapsedNodes.keySet().contains(id)) {
+				JOptionPane.showMessageDialog(this, "Some of the selected "
+						+ nodesName.toLowerCase() + " are not collapsed",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
+		Set<String> newIds = new LinkedHashSet<>();
+
+		for (String id : selectedIds) {
+			newIds.addAll(collapsedNodes.remove(id));
+			nodeSaveMap.remove(id);
+		}
+
+		applyChanges();
+		setSelectedNodeIds(newIds);
+	}
+
+	@Override
+	public void collapseByPropertyItemClicked() {
+		Map<Object, Set<V>> nodesByProperty = CanvasUtils
+				.openCollapseByPropertyDialog(this, nodeProperties.keySet(),
+						CanvasUtils.getElementIds(allNodes), nodeSaveMap);
+
+		if (nodesByProperty.isEmpty()) {
+			return;
+		}
+
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
+
+		for (Object value : nodesByProperty.keySet()) {
+			String newId = KnimeUtils.createNewValue(value.toString(),
+					nodeSaveMap.keySet());
+
+			collapsedNodes.put(newId,
+					CanvasUtils.getElementIds(nodesByProperty.get(value)));
+		}
+
+		applyChanges();
+		setSelectedNodeIds(collapsedNodes.keySet());
+	}
+
+	@Override
+	public void clearCollapsedNodesItemClicked() {
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
+		}
+
+		collapsedNodes.clear();
+		applyChanges();
+		viewer.getPickedVertexState().clear();
 	}
 
 	@Override

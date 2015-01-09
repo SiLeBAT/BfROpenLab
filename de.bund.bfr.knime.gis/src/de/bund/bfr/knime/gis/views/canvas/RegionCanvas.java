@@ -126,26 +126,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	public void collapseToNodeItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void expandFromNodeItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void collapseByPropertyItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clearCollapsedNodesItemClicked() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	protected void applyChanges() {
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
