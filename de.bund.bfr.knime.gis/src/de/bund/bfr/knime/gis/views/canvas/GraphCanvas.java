@@ -198,21 +198,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void applyChanges() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-
-		applyNodeCollapse();
-		applyInvisibility();
-		applyJoinEdgesAndSkipEdgeless();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
-		applyHighlights();
-
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
-		viewer.repaint();
-	}
-
 	protected void applyNodeCollapse() {
 		Map<String, GraphNode> newMetaNodes = new LinkedHashMap<>();
 
@@ -228,33 +213,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		CanvasUtils.applyNodeCollapse(nodes, edges, allNodes, allEdges,
 				nodeSaveMap, edgeSaveMap, edgeFromProperty, edgeToProperty,
 				collapsedNodes, newMetaNodes);
-	}
-
-	protected void applyInvisibility() {
-		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
-		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
-		CanvasUtils.removeNodelessEdges(edges, nodes);
-	}
-
-	protected void applyJoinEdgesAndSkipEdgeless() {
-		joinMap.clear();
-
-		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
-					edgeIdProperty, edgeFromProperty, edgeToProperty,
-					CanvasUtils.getElementIds(allEdges));
-			edges = new LinkedHashSet<>(joinMap.keySet());
-		}
-
-		if (isSkipEdgelessNodes()) {
-			CanvasUtils.removeEdgelessNodes(nodes, edges);
-		}
-	}
-
-	protected void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
-				getNodeSize());
-		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}
 
 	@Override

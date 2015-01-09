@@ -404,8 +404,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public void setSelectedNodeIds(Set<String> selectedNodeIds) {
-		setSelectedNodes(CanvasUtils.getElementsById(viewer.getGraphLayout()
-				.getGraph().getVertices(), selectedNodeIds));
+		setSelectedNodes(CanvasUtils.getElementsById(nodes, selectedNodeIds));
 	}
 
 	public Set<String> getSelectedEdgeIds() {
@@ -413,8 +412,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public void setSelectedEdgeIds(Set<String> selectedEdgeIds) {
-		setSelectedEdges(CanvasUtils.getElementsById(viewer.getGraphLayout()
-				.getGraph().getEdges(), selectedEdgeIds));
+		setSelectedEdges(CanvasUtils.getElementsById(edges, selectedEdgeIds));
 	}
 
 	public HighlightConditionList getNodeHighlightConditions() {
@@ -1110,9 +1108,51 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return dialog;
 	}
 
-	protected abstract void applyNameChanges();
+	protected void applyChanges() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
-	protected abstract void applyChanges();
+		applyNodeCollapse();
+		applyInvisibility();
+		applyJoinEdgesAndSkipEdgeless();
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
+		applyHighlights();
+
+		setSelectedNodeIds(selectedNodeIds);
+		setSelectedEdgeIds(selectedEdgeIds);
+		viewer.repaint();
+	}
+
+	protected abstract void applyNodeCollapse();
+
+	protected void applyInvisibility() {
+		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
+		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
+		CanvasUtils.removeNodelessEdges(edges, nodes);
+	}
+
+	protected void applyJoinEdgesAndSkipEdgeless() {
+		joinMap.clear();
+
+		if (isJoinEdges()) {
+			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
+					edgeIdProperty, edgeFromProperty, edgeToProperty,
+					CanvasUtils.getElementIds(allEdges));
+			edges = new LinkedHashSet<>(joinMap.keySet());
+		}
+
+		if (isSkipEdgelessNodes()) {
+			CanvasUtils.removeEdgelessNodes(nodes, edges);
+		}
+	}
+
+	protected void applyHighlights() {
+		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
+				getNodeSize());
+		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
+	}
+
+	protected abstract void applyNameChanges();
 
 	protected abstract void applyTransform();
 

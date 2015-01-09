@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -127,29 +126,20 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	protected void applyChanges() {
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+		flushImage();
+		super.applyChanges();
+	}
 
+	@Override
+	protected void applyNodeCollapse() {
 		edges = CanvasUtils.getElementsById(edgeSaveMap,
 				CanvasUtils.getElementIds(allEdges));
-		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
+	}
 
-		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
-					edgeIdProperty, edgeFromProperty, edgeToProperty,
-					CanvasUtils.getElementIds(allEdges));
-			edges = joinMap.keySet();
-		} else {
-			joinMap = new LinkedHashMap<>();
-		}
-
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
-
+	@Override
+	protected void applyHighlights() {
 		CanvasUtils.applyNodeLabels(viewer, nodeHighlightConditions);
 		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
-
-		setSelectedEdgeIds(selectedEdgeIds);
-		flushImage();
-		viewer.repaint();
 	}
 
 	@Override

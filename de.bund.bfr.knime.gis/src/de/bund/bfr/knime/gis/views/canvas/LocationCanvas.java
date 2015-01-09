@@ -29,7 +29,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,22 +108,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void applyChanges() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-
-		applyNodeCollapse();
-		applyInvisibility();
-		applyJoinEdgesAndSkipEdgeless();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
-		applyHighlights();
-
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
-		viewer.repaint();
-	}
-
-	@Override
 	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
 			Mode editingMode) {
 		return new GraphMouse<>(
@@ -169,7 +152,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		updatePopupMenuAndOptionsPanel();
 	}
 
-	private void applyNodeCollapse() {
+	@Override
+	protected void applyNodeCollapse() {
 		Map<String, LocationNode> newMetaNodes = new LinkedHashMap<>();
 
 		for (String newId : collapsedNodes.keySet()) {
@@ -184,33 +168,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		CanvasUtils.applyNodeCollapse(nodes, edges, allNodes, allEdges,
 				nodeSaveMap, edgeSaveMap, edgeFromProperty, edgeToProperty,
 				collapsedNodes, newMetaNodes);
-	}
-
-	private void applyInvisibility() {
-		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
-		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
-		CanvasUtils.removeNodelessEdges(edges, nodes);
-	}
-
-	private void applyJoinEdgesAndSkipEdgeless() {
-		joinMap.clear();
-
-		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, edgeProperties,
-					edgeIdProperty, edgeFromProperty, edgeToProperty,
-					CanvasUtils.getElementIds(allEdges));
-			edges = new LinkedHashSet<>(joinMap.keySet());
-		}
-
-		if (isSkipEdgelessNodes()) {
-			CanvasUtils.removeEdgelessNodes(nodes, edges);
-		}
-	}
-
-	private void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
-				getNodeSize());
-		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}
 
 	private LocationNode createMetaNode(String id,
