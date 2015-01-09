@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
@@ -153,24 +152,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void applyNodeCollapse() {
-		Map<String, LocationNode> newMetaNodes = new LinkedHashMap<>();
-
-		for (String newId : collapsedNodes.keySet()) {
-			if (!nodeSaveMap.containsKey(newId)) {
-				Set<LocationNode> nodes = CanvasUtils.getElementsById(
-						nodeSaveMap, collapsedNodes.get(newId));
-
-				newMetaNodes.put(newId, createMetaNode(newId, nodes));
-			}
-		}
-
-		CanvasUtils.applyNodeCollapse(nodes, edges, allNodes, allEdges,
-				nodeSaveMap, edgeSaveMap, edgeFromProperty, edgeToProperty,
-				collapsedNodes, newMetaNodes);
-	}
-
-	private LocationNode createMetaNode(String id,
+	protected LocationNode createMetaNode(String id,
 			Collection<LocationNode> nodes) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 

@@ -198,29 +198,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void applyNodeCollapse() {
-		Map<String, GraphNode> newMetaNodes = new LinkedHashMap<>();
-
-		for (String newId : collapsedNodes.keySet()) {
-			if (!nodeSaveMap.containsKey(newId)) {
-				Set<GraphNode> nodes = CanvasUtils.getElementsById(nodeSaveMap,
-						collapsedNodes.get(newId));
-
-				newMetaNodes.put(newId, createMetaNode(newId, nodes));
-			}
-		}
-
-		CanvasUtils.applyNodeCollapse(nodes, edges, allNodes, allEdges,
-				nodeSaveMap, edgeSaveMap, edgeFromProperty, edgeToProperty,
-				collapsedNodes, newMetaNodes);
-	}
-
-	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();
 	}
 
-	private GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
+	@Override
+	protected GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {

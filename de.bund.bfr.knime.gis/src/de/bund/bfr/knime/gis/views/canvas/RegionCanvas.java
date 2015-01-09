@@ -131,12 +131,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyNodeCollapse() {
-		edges = CanvasUtils.getElementsById(edgeSaveMap,
-				CanvasUtils.getElementIds(allEdges));
-	}
-
-	@Override
 	protected void applyHighlights() {
 		CanvasUtils.applyNodeLabels(viewer, nodeHighlightConditions);
 		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
@@ -273,6 +267,11 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	@Override
 	protected void applyNameChanges() {
 		updatePopupMenuAndOptionsPanel();
+	}
+
+	@Override
+	protected RegionNode createMetaNode(String id, Collection<RegionNode> nodes) {
+		throw new UnsupportedOperationException();
 	}
 
 	private void updatePopupMenuAndOptionsPanel() {

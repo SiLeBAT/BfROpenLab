@@ -53,6 +53,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1123,7 +1124,84 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
-	protected abstract void applyNodeCollapse();
+	protected void applyNodeCollapse() {
+		Map<String, V> newMetaNodes = new LinkedHashMap<>();
+
+		for (String newId : collapsedNodes.keySet()) {
+			if (!nodeSaveMap.containsKey(newId)) {
+				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap,
+						collapsedNodes.get(newId));
+
+				newMetaNodes.put(newId, createMetaNode(newId, nodes));
+			}
+		}
+
+		nodes.clear();
+		edges.clear();
+
+		Map<String, String> collapseTo = new LinkedHashMap<>();
+
+		for (String to : collapsedNodes.keySet()) {
+			for (String from : collapsedNodes.get(to)) {
+				collapseTo.put(from, to);
+			}
+		}
+
+		Map<String, V> nodesById = new LinkedHashMap<>();
+
+		for (String id : CanvasUtils.getElementIds(allNodes)) {
+			if (!collapseTo.keySet().contains(id)) {
+				V newNode = nodeSaveMap.get(id);
+
+				nodes.add(newNode);
+				nodesById.put(id, newNode);
+			}
+		}
+
+		Set<V> metaNodes = new LinkedHashSet<>();
+
+		for (String newId : collapsedNodes.keySet()) {
+			V newNode = nodeSaveMap.get(newId);
+
+			if (newNode == null) {
+				newNode = newMetaNodes.get(newId);
+				nodeSaveMap.put(newId, newNode);
+			}
+
+			nodes.add(newNode);
+			nodesById.put(newNode.getId(), newNode);
+			metaNodes.add(newNode);
+		}
+
+		for (Edge<V> edge : allEdges) {
+			V from = nodesById.get(edge.getFrom().getId());
+			V to = nodesById.get(edge.getTo().getId());
+
+			if (from == null) {
+				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
+			}
+
+			if (to == null) {
+				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
+			}
+
+			if (from == to && metaNodes.contains(from)) {
+				continue;
+			}
+
+			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
+
+			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
+						from, to);
+				newEdge.getProperties().put(edgeFromProperty, from.getId());
+				newEdge.getProperties().put(edgeToProperty, to.getId());
+				edgeSaveMap.put(newEdge.getId(), newEdge);
+			}
+
+			edges.add(newEdge);
+		}
+	}
 
 	protected void applyInvisibility() {
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
@@ -1157,6 +1235,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void applyTransform();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
+
+	protected abstract V createMetaNode(String id, Collection<V> nodes);
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {
