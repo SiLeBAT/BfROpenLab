@@ -45,7 +45,6 @@ import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -83,8 +82,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
-		viewer.getRenderContext().setVertexStrokeTransformer(
-				new NodeStrokeTransformer<GraphNode>(metaNodeProperty));
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
@@ -158,6 +155,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void borderAlphaChanged() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -277,8 +275,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		case KK_LAYOUT:
 			layout = new KKLayout<>(graph);
 			break;
-		default:
-			throw new IllegalArgumentException("Illegal input");
 		}
 
 		if (!selectedNodes.isEmpty()) {

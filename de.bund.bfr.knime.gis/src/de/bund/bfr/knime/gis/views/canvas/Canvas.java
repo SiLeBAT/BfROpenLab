@@ -93,6 +93,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
+import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
@@ -202,6 +203,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				new NodeFillTransformer<>(viewer,
 						new LinkedHashMap<V, List<Double>>(),
 						new ArrayList<Color>()));
+		viewer.getRenderContext().setVertexStrokeTransformer(
+				new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
 				new EdgeDrawTransformer<>(viewer,
 						new LinkedHashMap<Edge<V>, List<Double>>(),
