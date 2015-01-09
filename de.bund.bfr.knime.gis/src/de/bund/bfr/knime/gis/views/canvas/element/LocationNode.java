@@ -24,7 +24,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,7 +31,6 @@ import java.util.Map;
 public class LocationNode extends Node {
 
 	private Point2D.Double center;
-	private Point transformedCenter;
 
 	public LocationNode(String id, Map<String, Object> properties,
 			Point2D.Double center) {
@@ -42,17 +40,6 @@ public class LocationNode extends Node {
 
 	public Point2D.Double getCenter() {
 		return center;
-	}
-
-	public Point getTransformedCenter() {
-		return transformedCenter;
-	}
-
-	public void setTransform(double translationX, double translationY,
-			double scaleX, double scaleY) {
-		transformedCenter = new Point();
-		transformedCenter.x = (int) (center.x * scaleX + translationX);
-		transformedCenter.y = (int) (center.y * scaleY + translationY);
 	}
 
 	@Override

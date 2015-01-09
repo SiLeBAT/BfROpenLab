@@ -181,12 +181,16 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 		double x = DoubleMath.mean(Doubles.toArray(xList));
 		double y = DoubleMath.mean(Doubles.toArray(yList));
+		LocationNode newNode = new LocationNode(id, properties,
+				new Point2D.Double(x, y));
 
-		return new LocationNode(id, properties, new Point2D.Double(x, y));
+		viewer.getGraphLayout().setLocation(newNode, newNode.getCenter());
+
+		return newNode;
 	}
 
 	private void updatePopupMenuAndOptionsPanel() {
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
 	}
 }

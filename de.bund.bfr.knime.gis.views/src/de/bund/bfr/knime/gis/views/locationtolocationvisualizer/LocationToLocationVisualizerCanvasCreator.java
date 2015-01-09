@@ -73,7 +73,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 				edges, nodeProperties, edgeProperties, set.getGraphSettings()
 						.getNodeIdColumn(), edgeIdProperty, set
 						.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn(), false);
+						.getGraphSettings().getEdgeToColumn(), true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
