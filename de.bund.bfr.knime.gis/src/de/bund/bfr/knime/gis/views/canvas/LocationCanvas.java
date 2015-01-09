@@ -55,7 +55,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	private static final long serialVersionUID = 1L;
 
 	private List<RegionNode> regions;
-	private Map<String, Set<String>> collapsedNodes;
 
 	private boolean allowEdges;
 
@@ -95,7 +94,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 				edgeIdProperty, edgeFromProperty, edgeToProperty);
 		this.allowEdges = allowEdges;
 		this.regions = regions;
-		collapsedNodes = new LinkedHashMap<>();
 
 		updatePopupMenuAndOptionsPanel();
 		viewer.getRenderContext().setVertexShapeTransformer(
@@ -112,19 +110,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	@Override
 	public Collection<RegionNode> getRegions() {
 		return regions;
-	}
-
-	@Override
-	protected Map<String, Set<String>> getCollapseMap() {
-		return collapsedNodes;
-	}
-
-	public Map<String, Set<String>> getCollapsedNodes() {
-		return collapsedNodes;
-	}
-
-	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
-		this.collapsedNodes = collapsedNodes;
 	}
 
 	@Override

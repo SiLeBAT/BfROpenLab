@@ -116,11 +116,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected Map<String, Set<String>> getCollapseMap() {
-		return new LinkedHashMap<>();
-	}
-
-	@Override
 	public void itemStateChanged(ItemEvent e) {
 		super.itemStateChanged(e);
 

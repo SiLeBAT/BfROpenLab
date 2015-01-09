@@ -131,6 +131,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected Map<String, V> nodeSaveMap;
 	protected Map<String, Edge<V>> edgeSaveMap;
 	protected Map<Edge<V>, Set<Edge<V>>> joinMap;
+	protected Map<String, Set<String>> collapsedNodes;
 
 	protected Map<String, Class<?>> nodeProperties;
 	protected Map<String, Class<?>> edgeProperties;
@@ -184,6 +185,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		nodeSaveMap = CanvasUtils.getElementsById(this.nodes);
 		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<>();
+		collapsedNodes = new LinkedHashMap<>();
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE,
 				nodeProperties.keySet());
 		nodeProperties.put(metaNodeProperty, Boolean.class);
@@ -364,11 +366,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public void setSelectedNodes(Set<V> selectedNodes) {
+		viewer.getPickedVertexState().clear();
+
 		for (V node : viewer.getGraphLayout().getGraph().getVertices()) {
 			if (selectedNodes.contains(node)) {
 				viewer.getPickedVertexState().pick(node, true);
-			} else {
-				viewer.getPickedVertexState().pick(node, false);
 			}
 		}
 	}
@@ -378,11 +380,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
+		viewer.getPickedEdgeState().clear();
+
 		for (Edge<V> edge : viewer.getGraphLayout().getGraph().getEdges()) {
 			if (selectedEdges.contains(edge)) {
 				viewer.getPickedEdgeState().pick(edge, true);
-			} else {
-				viewer.getPickedEdgeState().pick(edge, false);
 			}
 		}
 	}
@@ -427,6 +429,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
 		fireEdgeHighlightingChanged();
+	}
+
+	public Map<String, Set<String>> getCollapsedNodes() {
+		return collapsedNodes;
+	}
+
+	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
+		this.collapsedNodes = collapsedNodes;
+		applyChanges();
 	}
 
 	public double getScaleX() {
@@ -852,13 +863,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void nodeAllPropertiesItemClicked() {
 		Set<V> picked = new LinkedHashSet<>(getSelectedNodes());
 		Set<V> pickedAll = new LinkedHashSet<>();
-		Map<String, Set<String>> collapseMap = getCollapseMap();
 
 		picked.retainAll(nodes);
 
 		for (V node : picked) {
-			if (collapseMap.containsKey(node.getId())) {
-				for (String id : collapseMap.get(node.getId())) {
+			if (collapsedNodes.containsKey(node.getId())) {
+				for (String id : collapsedNodes.get(node.getId())) {
 					pickedAll.add(nodeSaveMap.get(id));
 				}
 			} else {
@@ -1026,8 +1036,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	protected abstract void applyTransform();
 
 	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
-
-	protected abstract Map<String, Set<String>> getCollapseMap();
 
 	private void fireNodeSelectionChanged() {
 		for (CanvasListener listener : canvasListeners) {

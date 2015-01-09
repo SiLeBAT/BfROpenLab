@@ -32,7 +32,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -641,7 +640,7 @@ public class TracingCanvas extends GraphCanvas {
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
 
 		for (String id : getCollapsedNodes().keySet()) {
-			Set<String> nodeIdStrings = getCollapsedNodes().get(id).keySet();
+			Set<String> nodeIdStrings = getCollapsedNodes().get(id);
 			Set<Integer> nodeIds = new LinkedHashSet<>();
 
 			for (String idString : nodeIdStrings) {
@@ -702,9 +701,9 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	private static int getIntegerId(GraphNode node,
-			Map<String, Map<String, Point2D>> collapsedNodes) {
+			Map<String, Set<String>> collapsedNodes) {
 		if (collapsedNodes.containsKey(node.getId())) {
-			return createId(collapsedNodes.get(node.getId()).keySet());
+			return createId(collapsedNodes.get(node.getId()));
 		} else {
 			return Integer.parseInt(node.getId());
 		}

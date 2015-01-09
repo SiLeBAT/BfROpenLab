@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -278,7 +279,20 @@ public class GraphSettings extends Settings {
 
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = ((GraphCanvas) canvas).getNodePositions();
-			collapsedNodes = ((GraphCanvas) canvas).getCollapsedNodes();
+			collapsedNodes = new LinkedHashMap<>();
+
+			Map<String, Set<String>> converted = ((GraphCanvas) canvas)
+					.getCollapsedNodes();
+
+			for (String id : converted.keySet()) {
+				Map<String, Point2D> pos = new LinkedHashMap<>();
+
+				for (String oldId : converted.get(id)) {
+					pos.put(oldId, null);
+				}
+
+				collapsedNodes.put(id, pos);
+			}
 		}
 	}
 
@@ -295,7 +309,13 @@ public class GraphSettings extends Settings {
 		canvas.setArrowInMiddle(arrowInMiddle);
 
 		if (canvas instanceof GraphCanvas) {
-			((GraphCanvas) canvas).setCollapsedNodes(collapsedNodes);
+			Map<String, Set<String>> converted = new LinkedHashMap<>();
+
+			for (String id : collapsedNodes.keySet()) {
+				converted.put(id, collapsedNodes.get(id).keySet());
+			}
+
+			((GraphCanvas) canvas).setCollapsedNodes(converted);
 		}
 
 		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
