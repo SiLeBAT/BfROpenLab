@@ -303,22 +303,20 @@ public class GraphSettings extends Settings {
 			canvasSize = canvas.getCanvasSize();
 		}
 
+		collapsedNodes = new LinkedHashMap<>();
+
+		Map<String, Set<String>> collapsed = canvas.getCollapsedNodes();
+
+		for (String id1 : collapsed.keySet()) {
+			collapsedNodes.put(id1, new LinkedHashMap<String, Point2D>());
+
+			for (String id2 : collapsed.get(id1)) {
+				collapsedNodes.get(id1).put(id2, null);
+			}
+		}
+
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = ((GraphCanvas) canvas).getNodePositions();
-			collapsedNodes = new LinkedHashMap<>();
-
-			Map<String, Set<String>> converted = ((GraphCanvas) canvas)
-					.getCollapsedNodes();
-
-			for (String id : converted.keySet()) {
-				Map<String, Point2D> pos = new LinkedHashMap<>();
-
-				for (String oldId : converted.get(id)) {
-					pos.put(oldId, null);
-				}
-
-				collapsedNodes.put(id, pos);
-			}
 		}
 	}
 
@@ -332,15 +330,13 @@ public class GraphSettings extends Settings {
 		canvas.setJoinEdges(joinEdges);
 		canvas.setArrowInMiddle(arrowInMiddle);
 
-		if (canvas instanceof GraphCanvas) {
-			Map<String, Set<String>> converted = new LinkedHashMap<>();
+		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
 
-			for (String id : collapsedNodes.keySet()) {
-				converted.put(id, collapsedNodes.get(id).keySet());
-			}
-
-			((GraphCanvas) canvas).setCollapsedNodes(converted);
+		for (String id : collapsedNodes.keySet()) {
+			collapsed.put(id, collapsedNodes.get(id).keySet());
 		}
+
+		canvas.setCollapsedNodes(collapsed);
 
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setEdgeHighlightConditions(edgeHighlightConditions);
