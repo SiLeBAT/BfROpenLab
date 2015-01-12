@@ -35,7 +35,6 @@ import java.util.Map;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
-import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -54,38 +53,28 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
-				new ArrayList<Edge<LocationNode>>(),
-				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
-				new ArrayList<RegionNode>(), allowEdges);
+				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), new ArrayList<RegionNode>(),
+				allowEdges);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
-			Map<String, Class<?>> nodeProperties, String nodeIdProperty,
-			List<RegionNode> regions) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeProperties,
-				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
-				null, null, regions, false);
+			NodePropertySchema nodeSchema, List<RegionNode> regions) {
+		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema,
+				new EdgePropertySchema(), regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty, List<RegionNode> regions) {
-		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty, regions, true);
+			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, List<RegionNode> regions) {
+		this(nodes, edges, nodeSchema, edgeSchema, regions, true);
 	}
 
 	private LocationCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty, List<RegionNode> regions, boolean allowEdges) {
-		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);
+			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, List<RegionNode> regions,
+			boolean allowEdges) {
+		super(nodes, edges, nodeSchema, edgeSchema);
 		this.allowEdges = allowEdges;
 		this.regions = regions;
 
@@ -125,12 +114,14 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeProperties);
+										e.getComponent(), node, nodeSchema
+												.getMap());
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeProperties);
+										e.getComponent(), edge, edgeSchema
+												.getMap());
 
 								dialog.setVisible(true);
 							}
@@ -157,19 +148,22 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeProperties,
+			CanvasUtils.addMapToMap(properties, nodeSchema.getMap(),
 					node.getProperties());
 		}
 
-		if (nodeIdProperty != null) {
-			properties.put(nodeIdProperty, id);
+		properties.put(nodeSchema.getId(), id);
+		properties.put(metaNodeProperty, true);
+
+		if (nodeSchema.getLatitude() != null) {
+			properties.put(nodeSchema.getLatitude(),
+					CanvasUtils.getMeanValue(nodes, nodeSchema.getLatitude()));
 		}
 
-		properties.put(metaNodeProperty, true);
-		properties.put(GeocodingNodeModel.LATITUDE_COLUMN, CanvasUtils
-				.getMeanValue(nodes, GeocodingNodeModel.LATITUDE_COLUMN));
-		properties.put(GeocodingNodeModel.LONGITUDE_COLUMN, CanvasUtils
-				.getMeanValue(nodes, GeocodingNodeModel.LONGITUDE_COLUMN));
+		if (nodeSchema.getLongitude() != null) {
+			properties.put(nodeSchema.getLongitude(),
+					CanvasUtils.getMeanValue(nodes, nodeSchema.getLongitude()));
+		}
 
 		List<Double> xList = new ArrayList<Double>();
 		List<Double> yList = new ArrayList<Double>();

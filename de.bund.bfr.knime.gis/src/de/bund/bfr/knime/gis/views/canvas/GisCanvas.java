@@ -32,7 +32,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -47,12 +46,8 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private BufferedImage image;
 
 	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty) {
-		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
+		super(nodes, edges, nodeSchema, edgeSchema);
 		image = null;
 
 		viewer.addPreRenderPaintable(new PrePaintable(false));

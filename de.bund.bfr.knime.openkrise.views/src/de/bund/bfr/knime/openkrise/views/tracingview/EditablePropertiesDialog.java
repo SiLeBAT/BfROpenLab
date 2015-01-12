@@ -59,6 +59,8 @@ import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -214,15 +216,15 @@ public class EditablePropertiesDialog extends JDialog implements
 
 	public static EditablePropertiesDialog createNodeDialog(
 			TracingCanvas parent, Collection<GraphNode> nodes,
-			Map<String, Class<?>> properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog(parent, nodes, properties,
+			NodePropertySchema properties, boolean allowViewSelection) {
+		return new EditablePropertiesDialog(parent, nodes, properties.getMap(),
 				Type.NODE, allowViewSelection);
 	}
 
 	public static <V extends Node> EditablePropertiesDialog createEdgeDialog(
 			TracingCanvas parent, Collection<Edge<GraphNode>> edges,
-			Map<String, Class<?>> properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog(parent, edges, properties,
+			EdgePropertySchema properties, boolean allowViewSelection) {
+		return new EditablePropertiesDialog(parent, edges, properties.getMap(),
 				Type.EDGE, allowViewSelection);
 	}
 

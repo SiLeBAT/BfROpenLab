@@ -32,8 +32,10 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -69,11 +71,17 @@ public class LocationToLocationVisualizerCanvasCreator {
 						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn());
+
+		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
+		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
+
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getGraphSettings()
-						.getNodeIdColumn(), edgeIdProperty, set
-						.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn(), true);
+				edges, nodeSchema, edgeSchema, true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
@@ -99,11 +107,17 @@ public class LocationToLocationVisualizerCanvasCreator {
 						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn());
+
+		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
+		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
+
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeProperties, edgeProperties, set
-				.getGraphSettings().getNodeIdColumn(), edgeIdProperty, set
-				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
-				.getEdgeToColumn(), regionNodes);
+				nodes.values()), edges, nodeSchema, edgeSchema, regionNodes);
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);

@@ -38,7 +38,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -78,11 +80,13 @@ public class RegionToRegionVisualizerCanvasCreator {
 						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
+						.getGraphSettings().getEdgeToColumn());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getGraphSettings()
-						.getNodeIdColumn(), edgeIdProperty, set
-						.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn(), false);
+				edges, nodeSchema, edgeSchema, false);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
@@ -111,11 +115,13 @@ public class RegionToRegionVisualizerCanvasCreator {
 						.getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
 				edgeProperties);
-		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, set.getGraphSettings()
-						.getNodeIdColumn(), edgeIdProperty, set
-						.getGraphSettings().getEdgeFromColumn(), set
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn());
+		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
+				edges, nodeSchema, edgeSchema);
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);

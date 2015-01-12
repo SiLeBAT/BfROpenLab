@@ -24,7 +24,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -45,7 +44,6 @@ public class RegionNode extends Node {
 	private Rectangle2D.Double boundingBox;
 
 	private List<Polygon> transformedPolygon;
-	private Point transformedCenter;
 
 	public RegionNode(String id, Map<String, Object> properties,
 			MultiPolygon polygon) {
@@ -71,14 +69,9 @@ public class RegionNode extends Node {
 		return transformedPolygon;
 	}
 
-	public Point getTransformedCenter() {
-		return transformedCenter;
-	}
-
 	public void setTransform(double translationX, double translationY,
 			double scaleX, double scaleY) {
 		transformedPolygon = new ArrayList<>();
-		transformedCenter = new Point();
 
 		for (int index = 0; index < polygon.getNumGeometries(); index++) {
 			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
@@ -94,11 +87,6 @@ public class RegionNode extends Node {
 			}
 
 			transformedPolygon.add(new Polygon(xs, ys, n));
-		}
-
-		if (center != null) {
-			transformedCenter.x = (int) (center.x * scaleX + translationX);
-			transformedCenter.y = (int) (center.y * scaleY + translationY);
 		}
 	}
 

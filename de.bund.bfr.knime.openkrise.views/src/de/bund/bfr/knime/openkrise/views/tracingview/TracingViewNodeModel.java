@@ -113,12 +113,13 @@ public class TracingViewNodeModel extends NodeModel {
 				cells[i] = DataType.getMissingCell();
 			}
 
-			for (String property : allEdgesCanvas.getNodeProperties().keySet()) {
+			for (String property : allEdgesCanvas.getNodeSchema().getMap()
+					.keySet()) {
 				int column = nodeOutSpec.findColumnIndex(property);
 
 				if (column != -1) {
-					Class<?> type = allEdgesCanvas.getNodeProperties().get(
-							property);
+					Class<?> type = allEdgesCanvas.getNodeSchema().getMap()
+							.get(property);
 
 					if (type == String.class) {
 						cells[column] = IO.createCell((String) node
@@ -157,12 +158,13 @@ public class TracingViewNodeModel extends NodeModel {
 				cells[i] = DataType.getMissingCell();
 			}
 
-			for (String property : allEdgesCanvas.getEdgeProperties().keySet()) {
+			for (String property : allEdgesCanvas.getEdgeSchema().getMap()
+					.keySet()) {
 				int column = edgeOutSpec.findColumnIndex(property);
 
 				if (column != -1) {
-					Class<?> type = allEdgesCanvas.getEdgeProperties().get(
-							property);
+					Class<?> type = allEdgesCanvas.getEdgeSchema().getMap()
+							.get(property);
 
 					if (type == String.class) {
 						cells[column] = IO.createCell((String) edge

@@ -48,8 +48,10 @@ import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -89,17 +91,15 @@ public class TracingCanvas extends GraphCanvas {
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(),
+				new NodePropertySchema(), new EdgePropertySchema(),
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
 	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties,
+			NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties, TracingColumns.ID,
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO, true);
+		super(nodes, edges, nodeProperties, edgeProperties, true);
 		this.deliveries = deliveries;
 		performTracing = DEFAULT_PERFORM_TRACING;
 
@@ -322,8 +322,7 @@ public class TracingCanvas extends GraphCanvas {
 	@Override
 	public void nodePropertiesItemClicked() {
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
-				.createNodeDialog(this, getSelectedNodes(), nodeProperties,
-						true);
+				.createNodeDialog(this, getSelectedNodes(), nodeSchema, true);
 
 		dialog.setVisible(true);
 
@@ -338,7 +337,7 @@ public class TracingCanvas extends GraphCanvas {
 			super.edgePropertiesItemClicked();
 		} else {
 			EditablePropertiesDialog dialog = EditablePropertiesDialog
-					.createEdgeDialog(this, getSelectedEdges(), edgeProperties,
+					.createEdgeDialog(this, getSelectedEdges(), edgeSchema,
 							true);
 
 			dialog.setVisible(true);
@@ -362,7 +361,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		EditablePropertiesDialog dialog = EditablePropertiesDialog
-				.createEdgeDialog(this, allPicked, edgeProperties, false);
+				.createEdgeDialog(this, allPicked, edgeSchema, false);
 
 		dialog.setVisible(true);
 
@@ -401,7 +400,8 @@ public class TracingCanvas extends GraphCanvas {
 
 							if (node != null) {
 								EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-										e.getComponent(), node, nodeProperties);
+										e.getComponent(), node,
+										nodeSchema.getMap());
 
 								dialog.setVisible(true);
 
@@ -412,7 +412,7 @@ public class TracingCanvas extends GraphCanvas {
 								if (!isJoinEdges()) {
 									EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
 											e.getComponent(), edge,
-											edgeProperties);
+											edgeSchema.getMap());
 
 									dialog.setVisible(true);
 
@@ -422,7 +422,7 @@ public class TracingCanvas extends GraphCanvas {
 								} else {
 									SinglePropertiesDialog dialog = new SinglePropertiesDialog(
 											e.getComponent(), edge,
-											edgeProperties);
+											edgeSchema.getMap());
 
 									dialog.setVisible(true);
 								}

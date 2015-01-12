@@ -37,7 +37,6 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -64,18 +63,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public GraphCanvas(boolean allowCollapse) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
+				new NodePropertySchema(), new EdgePropertySchema(),
 				allowCollapse);
 	}
 
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty, boolean allowCollapse) {
-		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			boolean allowCollapse) {
+		super(nodes, edges, nodeSchema, edgeSchema);
 		this.allowCollapse = allowCollapse;
 
 		updatePopupMenuAndOptionsPanel();
@@ -181,12 +176,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeProperties);
+										e.getComponent(), node,
+										nodeSchema.getMap());
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeProperties);
+										e.getComponent(), edge,
+										edgeSchema.getMap());
 
 								dialog.setVisible(true);
 							}
@@ -205,24 +202,21 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeProperties,
+			CanvasUtils.addMapToMap(properties, nodeSchema.getMap(),
 					node.getProperties());
 		}
 
-		if (nodeIdProperty != null) {
-			properties.put(nodeIdProperty, id);
-		}
-
+		properties.put(nodeSchema.getId(), id);
 		properties.put(metaNodeProperty, true);
 
-		if (properties.containsKey(GeocodingNodeModel.LATITUDE_COLUMN)) {
-			properties.put(GeocodingNodeModel.LATITUDE_COLUMN, CanvasUtils
-					.getMeanValue(nodes, GeocodingNodeModel.LATITUDE_COLUMN));
+		if (nodeSchema.getLatitude() != null) {
+			properties.put(nodeSchema.getLatitude(),
+					CanvasUtils.getMeanValue(nodes, nodeSchema.getLatitude()));
 		}
 
-		if (properties.containsKey(GeocodingNodeModel.LONGITUDE_COLUMN)) {
-			properties.put(GeocodingNodeModel.LONGITUDE_COLUMN, CanvasUtils
-					.getMeanValue(nodes, GeocodingNodeModel.LONGITUDE_COLUMN));
+		if (nodeSchema.getLongitude() != null) {
+			properties.put(nodeSchema.getLongitude(),
+					CanvasUtils.getMeanValue(nodes, nodeSchema.getLongitude()));
 		}
 
 		GraphNode newNode = new GraphNode(id, properties, null);

@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -42,6 +43,8 @@ import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -106,18 +109,19 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
 			Canvas<V> parent, Collection<V> nodes,
-			Map<String, Class<?>> properties, boolean allowViewSelection,
-			Set<String> idColumns) {
-		return new PropertiesDialog<>(parent, nodes, properties, Type.NODE,
-				allowViewSelection, idColumns);
+			NodePropertySchema properties, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, nodes, properties.getMap(),
+				Type.NODE, allowViewSelection, new LinkedHashSet<>(
+						Arrays.asList(properties.getId())));
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
 			Canvas<V> parent, Collection<Edge<V>> edges,
-			Map<String, Class<?>> properties, boolean allowViewSelection,
-			Set<String> idColumns) {
-		return new PropertiesDialog<>(parent, edges, properties, Type.EDGE,
-				allowViewSelection, idColumns);
+			EdgePropertySchema properties, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, edges, properties.getMap(),
+				Type.EDGE, allowViewSelection, new LinkedHashSet<>(
+						Arrays.asList(properties.getId(), properties.getFrom(),
+								properties.getTo())));
 	}
 
 	@SuppressWarnings("unchecked")

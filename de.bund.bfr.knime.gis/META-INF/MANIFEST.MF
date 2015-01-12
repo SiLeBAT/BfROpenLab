@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base;bundle-version="2.10.0",
  org.knime.ext.svg,
  org.apache.commons.math3,
- com.google.guava,
+ com.google.guava;bundle-version="16.0.0",
  org.geotools;visibility:=reexport,
  edu.uci.ics.jung;visibility:=reexport,
  de.bund.bfr.knime;visibility:=reexport

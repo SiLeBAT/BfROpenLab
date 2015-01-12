@@ -32,6 +32,9 @@ import java.util.Map;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
@@ -114,9 +117,17 @@ public class TracingViewCanvasCreator {
 				nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+
+		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
+		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+
 		TracingCanvas canvas = new TracingCanvas(
-				new ArrayList<>(nodes.values()), edges, nodeProperties,
-				edgeProperties, deliveries);
+				new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+				deliveries);
 
 		canvas.setNodeName(TracingUtils.NODE_NAME);
 		canvas.setEdgeName(TracingUtils.EDGE_NAME);

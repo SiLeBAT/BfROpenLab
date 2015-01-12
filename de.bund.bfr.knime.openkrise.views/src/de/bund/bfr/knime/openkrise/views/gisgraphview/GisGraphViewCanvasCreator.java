@@ -31,8 +31,11 @@ import java.util.Map;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -65,10 +68,16 @@ public class GisGraphViewCanvasCreator {
 				nodeProperties);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+
+		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
+		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeProperties, edgeProperties, TracingColumns.ID,
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO,
-				false);
+				edges, nodeSchema, edgeSchema, false);
 
 		canvas.setNodeName(TracingUtils.NODE_NAME);
 		canvas.setEdgeName(TracingUtils.EDGE_NAME);
@@ -90,10 +99,16 @@ public class GisGraphViewCanvasCreator {
 				nodeTable, nodeProperties);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeProperties, nodes);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+
+		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
+		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeProperties, edgeProperties,
-				TracingColumns.ID, TracingColumns.ID, TracingColumns.FROM,
-				TracingColumns.TO, regionNodes);
+				nodes.values()), edges, nodeSchema, edgeSchema, regionNodes);
 
 		canvas.setNodeName(TracingUtils.NODE_NAME);
 		canvas.setEdgeName(TracingUtils.EDGE_NAME);

@@ -61,34 +61,23 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
-				new LinkedHashMap<String, Class<?>>(),
-				new LinkedHashMap<String, Class<?>>(), null, null, null, null,
-				allowEdges);
+				new NodePropertySchema(), new EdgePropertySchema(), allowEdges);
 	}
 
-	public RegionCanvas(List<RegionNode> nodes,
-			Map<String, Class<?>> nodeProperties, String nodeIdProperty) {
-		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeProperties,
-				new LinkedHashMap<String, Class<?>>(), nodeIdProperty, null,
-				null, null, false);
+	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema) {
+		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema,
+				new EdgePropertySchema(), false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty) {
-		this(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty, true);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
+		this(nodes, edges, nodeSchema, edgeSchema, true);
 	}
 
 	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, String nodeIdProperty,
-			String edgeIdProperty, String edgeFromProperty,
-			String edgeToProperty, boolean allowEdges) {
-		super(nodes, edges, nodeProperties, edgeProperties, nodeIdProperty,
-				edgeIdProperty, edgeFromProperty, edgeToProperty);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			boolean allowEdges) {
+		super(nodes, edges, nodeSchema, edgeSchema);
 		this.allowEdges = allowEdges;
 
 		updatePopupMenuAndOptionsPanel();
@@ -180,12 +169,14 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 							if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeProperties);
+										e.getComponent(), edge, edgeSchema
+												.getMap());
 
 								dialog.setVisible(true);
 							} else if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeProperties);
+										e.getComponent(), node, nodeSchema
+												.getMap());
 
 								dialog.setVisible(true);
 							}

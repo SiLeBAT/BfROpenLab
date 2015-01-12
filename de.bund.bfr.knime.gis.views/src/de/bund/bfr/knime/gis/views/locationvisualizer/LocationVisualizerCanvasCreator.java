@@ -33,6 +33,7 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
@@ -60,8 +61,13 @@ public class LocationVisualizerCanvasCreator {
 				set.getGisSettings().getNodeLongitudeColumn()).values());
 		String nodeIdProperty = ViewUtils.createNewIdProperty(nodes,
 				nodeProperties);
-		LocationCanvas canvas = new LocationCanvas(nodes, nodeProperties,
-				nodeIdProperty, regions);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				nodeIdProperty);
+
+		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
+		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
+
+		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, regions);
 
 		set.getGisSettings().setToCanvas(canvas);
 
