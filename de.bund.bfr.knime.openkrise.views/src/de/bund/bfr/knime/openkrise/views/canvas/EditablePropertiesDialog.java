@@ -59,16 +59,16 @@ import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 
-public class EditablePropertiesDialog extends JDialog implements
+public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		ActionListener, CellEditorListener, RowSorterListener,
 		ListSelectionListener {
 
@@ -78,7 +78,7 @@ public class EditablePropertiesDialog extends JDialog implements
 		NODE, EDGE
 	}
 
-	private TracingCanvas parent;
+	private Canvas<V> parent;
 	private Type type;
 
 	private List<Element> elementList;
@@ -98,7 +98,7 @@ public class EditablePropertiesDialog extends JDialog implements
 
 	private Map<String, InputTable.Input> values;
 
-	private EditablePropertiesDialog(TracingCanvas parent,
+	private EditablePropertiesDialog(Canvas<V> parent,
 			Collection<? extends Element> elements,
 			Map<String, Class<?>> properties, Type type,
 			boolean allowViewSelection) {
@@ -214,18 +214,18 @@ public class EditablePropertiesDialog extends JDialog implements
 		UI.adjustDialog(this);
 	}
 
-	public static EditablePropertiesDialog createNodeDialog(
-			TracingCanvas parent, Collection<GraphNode> nodes,
+	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(
+			Canvas<V> parent, Collection<V> nodes,
 			NodePropertySchema properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog(parent, nodes, properties.getMap(),
-				Type.NODE, allowViewSelection);
+		return new EditablePropertiesDialog<V>(parent, nodes,
+				properties.getMap(), Type.NODE, allowViewSelection);
 	}
 
-	public static <V extends Node> EditablePropertiesDialog createEdgeDialog(
-			TracingCanvas parent, Collection<Edge<GraphNode>> edges,
+	public static <V extends Node> EditablePropertiesDialog<V> createEdgeDialog(
+			Canvas<V> parent, Collection<Edge<V>> edges,
 			EdgePropertySchema properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog(parent, edges, properties.getMap(),
-				Type.EDGE, allowViewSelection);
+		return new EditablePropertiesDialog<V>(parent, edges,
+				properties.getMap(), Type.EDGE, allowViewSelection);
 	}
 
 	public boolean isApproved() {
@@ -260,19 +260,19 @@ public class EditablePropertiesDialog extends JDialog implements
 		} else if (e.getSource() == selectButton) {
 			switch (type) {
 			case NODE:
-				Set<GraphNode> nodes = new LinkedHashSet<>();
+				Set<V> nodes = new LinkedHashSet<>();
 
 				for (Element element : table.getSelectedElements()) {
-					nodes.add((GraphNode) element);
+					nodes.add((V) element);
 				}
 
 				parent.setSelectedNodes(nodes);
 				break;
 			case EDGE:
-				Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
+				Set<Edge<V>> edges = new LinkedHashSet<>();
 
 				for (Element element : table.getSelectedElements()) {
-					edges.add((Edge<GraphNode>) element);
+					edges.add((Edge<V>) element);
 				}
 
 				parent.setSelectedEdges(edges);

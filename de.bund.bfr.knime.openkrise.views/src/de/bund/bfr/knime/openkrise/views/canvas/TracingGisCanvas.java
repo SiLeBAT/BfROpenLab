@@ -49,14 +49,15 @@ import javax.swing.JTextField;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
@@ -70,7 +71,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingCanvas extends GraphCanvas {
+public class TracingGisCanvas extends LocationCanvas {
 
 	private static final long serialVersionUID = 1L;
 
@@ -87,17 +88,18 @@ public class TracingCanvas extends GraphCanvas {
 	private JTextField labelField;
 	private JButton labelButton;
 
-	public TracingCanvas() {
-		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(),
+	public TracingGisCanvas() {
+		this(new ArrayList<LocationNode>(),
+				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), new ArrayList<RegionNode>(),
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
-	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties,
+	public TracingGisCanvas(List<LocationNode> nodes,
+			List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, List<RegionNode> regions,
 			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties, true);
+		super(nodes, edges, nodeProperties, edgeProperties, regions);
 		this.deliveries = deliveries;
 		performTracing = DEFAULT_PERFORM_TRACING;
 
@@ -108,7 +110,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Double> getNodeWeights() {
 		Map<String, Double> nodeWeights = new LinkedHashMap<>();
 
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			nodeWeights.put(node.getId(),
 					(Double) node.getProperties().get(TracingColumns.WEIGHT));
 		}
@@ -117,7 +119,7 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			if (nodeWeights.containsKey(node.getId())) {
 				node.getProperties().put(TracingColumns.WEIGHT,
 						nullToZero(nodeWeights.get(node.getId())));
@@ -132,7 +134,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Double> getEdgeWeights() {
 		Map<String, Double> edgeWeights = new LinkedHashMap<>();
 
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			edgeWeights.put(edge.getId(),
 					(Double) edge.getProperties().get(TracingColumns.WEIGHT));
 		}
@@ -141,7 +143,7 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			if (edgeWeights.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingColumns.WEIGHT,
 						nullToZero(edgeWeights.get(edge.getId())));
@@ -156,7 +158,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getNodeCrossContaminations() {
 		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
 
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			nodeCrossContaminations.put(node.getId(), (Boolean) node
 					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
@@ -166,7 +168,7 @@ public class TracingCanvas extends GraphCanvas {
 
 	public void setNodeCrossContaminations(
 			Map<String, Boolean> nodeCrossContaminations) {
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			if (nodeCrossContaminations.containsKey(node.getId())) {
 				node.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						nullToFalse(nodeCrossContaminations.get(node.getId())));
@@ -181,7 +183,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getEdgeCrossContaminations() {
 		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
 
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			edgeCrossContaminations.put(edge.getId(), (Boolean) edge
 					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
@@ -191,7 +193,7 @@ public class TracingCanvas extends GraphCanvas {
 
 	public void setEdgeCrossContaminations(
 			Map<String, Boolean> edgeCrossContaminations) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			if (edgeCrossContaminations.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						nullToFalse(edgeCrossContaminations.get(edge.getId())));
@@ -206,7 +208,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getObservedNodes() {
 		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
 
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			observedNodes
 					.put(node.getId(),
 							(Boolean) node.getProperties().get(
@@ -217,7 +219,7 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
-		for (GraphNode node : nodeSaveMap.values()) {
+		for (LocationNode node : nodeSaveMap.values()) {
 			if (observedNodes.containsKey(node.getId())) {
 				node.getProperties().put(TracingColumns.OBSERVED,
 						nullToFalse(observedNodes.get(node.getId())));
@@ -232,7 +234,7 @@ public class TracingCanvas extends GraphCanvas {
 	public Map<String, Boolean> getObservedEdges() {
 		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
 
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			observedEdges
 					.put(edge.getId(),
 							(Boolean) edge.getProperties().get(
@@ -243,7 +245,7 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
+		for (Edge<LocationNode> edge : edgeSaveMap.values()) {
 			if (observedEdges.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingColumns.OBSERVED,
 						nullToFalse(observedEdges.get(edge.getId())));
@@ -319,7 +321,7 @@ public class TracingCanvas extends GraphCanvas {
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
+		EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
 				.createNodeDialog(this, getSelectedNodes(), nodeSchema, true);
 
 		dialog.setVisible(true);
@@ -334,7 +336,7 @@ public class TracingCanvas extends GraphCanvas {
 		if (isJoinEdges()) {
 			super.edgePropertiesItemClicked();
 		} else {
-			EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
+			EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
 					.createEdgeDialog(this, getSelectedEdges(), edgeSchema,
 							true);
 
@@ -348,9 +350,9 @@ public class TracingCanvas extends GraphCanvas {
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
+		Set<Edge<LocationNode>> allPicked = new LinkedHashSet<>();
 
-		for (Edge<GraphNode> p : getSelectedEdges()) {
+		for (Edge<LocationNode> p : getSelectedEdges()) {
 			if (joinMap.containsKey(p)) {
 				allPicked.addAll(joinMap.get(p));
 			} else {
@@ -358,7 +360,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
+		EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
 				.createEdgeDialog(this, allPicked, edgeSchema, false);
 
 		dialog.setVisible(true);
@@ -369,9 +371,9 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(
+	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(
 			boolean toSvg) {
-		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
+		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super
 				.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new PostPaintable());
@@ -380,26 +382,26 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
+	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
 			Mode editingMode) {
 		return new GraphMouse<>(
-				new PickingGraphMousePlugin<GraphNode, Edge<GraphNode>>() {
+				new PickingGraphMousePlugin<LocationNode, Edge<LocationNode>>() {
 
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						if (e.getButton() == MouseEvent.BUTTON1
 								&& e.getClickCount() == 2) {
-							GraphNode node = viewer.getPickSupport()
+							LocationNode node = viewer.getPickSupport()
 									.getVertex(viewer.getGraphLayout(),
 											e.getX(), e.getY());
-							Edge<GraphNode> edge = viewer.getPickSupport()
+							Edge<LocationNode> edge = viewer.getPickSupport()
 									.getEdge(viewer.getGraphLayout(), e.getX(),
 											e.getY());
 
 							if (node != null) {
 								EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-										e.getComponent(), node,
-										nodeSchema.getMap());
+										e.getComponent(), node, nodeSchema
+												.getMap());
 
 								dialog.setVisible(true);
 
@@ -409,8 +411,8 @@ public class TracingCanvas extends GraphCanvas {
 							} else if (edge != null) {
 								if (!isJoinEdges()) {
 									EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-											e.getComponent(), edge,
-											edgeSchema.getMap());
+											e.getComponent(), edge, edgeSchema
+													.getMap());
 
 									dialog.setVisible(true);
 
@@ -419,8 +421,8 @@ public class TracingCanvas extends GraphCanvas {
 									}
 								} else {
 									SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-											e.getComponent(), edge,
-											edgeSchema.getMap());
+											e.getComponent(), edge, edgeSchema
+													.getMap());
 
 									dialog.setVisible(true);
 								}
@@ -475,7 +477,7 @@ public class TracingCanvas extends GraphCanvas {
 
 		MyNewTracing tracingWithCC = createTracing(edges, true);
 		MyNewTracing tracingWithoutCC = createTracing(edges, false);
-		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
+		Set<Edge<LocationNode>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
 		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
@@ -484,17 +486,17 @@ public class TracingCanvas extends GraphCanvas {
 
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<LocationNode> edge : edges) {
 			forwardEdges.addAll(tracingWithCC
 					.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<LocationNode> edge : edges) {
 			forwardEdges.removeAll(tracingWithoutCC
 					.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
-		for (Edge<GraphNode> edge : removedEdges) {
+		for (Edge<LocationNode> edge : removedEdges) {
 			if (forwardEdges.contains(getIntegerId(edge))) {
 				nodes.add(edge.getFrom());
 				nodes.add(edge.getTo());
@@ -535,12 +537,12 @@ public class TracingCanvas extends GraphCanvas {
 			return;
 		}
 
-		Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
+		Set<Edge<LocationNode>> edges = new LinkedHashSet<>();
 
 		if (!isJoinEdges()) {
 			edges.addAll(this.edges);
 		} else {
-			for (Edge<GraphNode> edge : this.edges) {
+			for (Edge<LocationNode> edge : this.edges) {
 				edges.addAll(joinMap.get(edge));
 			}
 		}
@@ -552,7 +554,7 @@ public class TracingCanvas extends GraphCanvas {
 		Set<Integer> backwardEdges = new LinkedHashSet<>();
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
-		for (GraphNode node : nodes) {
+		for (LocationNode node : nodes) {
 			int id = getIntegerId(node, getCollapsedNodes());
 			Boolean value = (Boolean) node.getProperties().get(
 					TracingColumns.OBSERVED);
@@ -565,7 +567,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<LocationNode> edge : edges) {
 			int id = getIntegerId(edge);
 			Boolean value = (Boolean) edge.getProperties().get(
 					TracingColumns.OBSERVED);
@@ -578,7 +580,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		for (GraphNode node : nodes) {
+		for (LocationNode node : nodes) {
 			int id = getIntegerId(node, getCollapsedNodes());
 
 			node.getProperties().put(TracingColumns.SCORE,
@@ -589,7 +591,7 @@ public class TracingCanvas extends GraphCanvas {
 					forwardNodes.contains(id));
 		}
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<LocationNode> edge : edges) {
 			int id = Integer.parseInt(edge.getId());
 
 			edge.getProperties().put(TracingColumns.SCORE,
@@ -601,7 +603,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		if (isJoinEdges()) {
-			for (Edge<GraphNode> edge : edges) {
+			for (Edge<LocationNode> edge : edges) {
 				edge.getProperties().put(TracingColumns.OBSERVED, null);
 				edge.getProperties().put(TracingColumns.SCORE, null);
 				edge.getProperties().put(TracingColumns.BACKWARD, null);
@@ -610,11 +612,11 @@ public class TracingCanvas extends GraphCanvas {
 		}
 	}
 
-	private MyNewTracing createTracing(Set<Edge<GraphNode>> edges,
+	private MyNewTracing createTracing(Set<Edge<LocationNode>> edges,
 			boolean useCrossContamination) {
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
-		for (Edge<GraphNode> id : edges) {
+		for (Edge<LocationNode> id : edges) {
 			activeDeliveries.put(getIntegerId(id),
 					deliveries.get(getIntegerId(id)));
 		}
@@ -635,7 +637,7 @@ public class TracingCanvas extends GraphCanvas {
 			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
 		}
 
-		for (GraphNode node : nodes) {
+		for (LocationNode node : nodes) {
 			int id = getIntegerId(node, getCollapsedNodes());
 			Double caseValue = (Double) node.getProperties().get(
 					TracingColumns.WEIGHT);
@@ -657,7 +659,7 @@ public class TracingCanvas extends GraphCanvas {
 			}
 		}
 
-		for (Edge<GraphNode> edge : edges) {
+		for (Edge<LocationNode> edge : edges) {
 			int id = getIntegerId(edge);
 			Double caseValue = (Double) edge.getProperties().get(
 					TracingColumns.WEIGHT);
@@ -685,7 +687,7 @@ public class TracingCanvas extends GraphCanvas {
 		return tracing;
 	}
 
-	private static int getIntegerId(GraphNode node,
+	private static int getIntegerId(LocationNode node,
 			Map<String, Set<String>> collapsedNodes) {
 		if (collapsedNodes.containsKey(node.getId())) {
 			return createId(collapsedNodes.get(node.getId()));
@@ -694,7 +696,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 	}
 
-	private static int getIntegerId(Edge<GraphNode> edge) {
+	private static int getIntegerId(Edge<LocationNode> edge) {
 		return Integer.parseInt(edge.getId());
 	}
 

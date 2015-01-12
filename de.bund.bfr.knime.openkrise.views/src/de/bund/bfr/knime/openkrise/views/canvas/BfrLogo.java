@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
