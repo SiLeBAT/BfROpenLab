@@ -339,21 +339,21 @@ public class TracingUtils {
 	}
 
 	public static HighlightConditionList renameColumns(
-			HighlightConditionList list, Map<String, Class<?>> properties) {
+			HighlightConditionList list, Set<String> columns) {
 		HighlightConditionList newList = new HighlightConditionList(list);
 		List<HighlightCondition> newL = new ArrayList<>();
 
 		for (HighlightCondition c : list.getConditions()) {
 			if (c instanceof AndOrHighlightCondition) {
-				newL.add(renameColumn((AndOrHighlightCondition) c, properties));
+				newL.add(renameColumn((AndOrHighlightCondition) c, columns));
 			} else if (c instanceof ValueHighlightCondition) {
-				newL.add(renameColumn((ValueHighlightCondition) c, properties));
+				newL.add(renameColumn((ValueHighlightCondition) c, columns));
 			} else if (c instanceof LogicalValueHighlightCondition) {
 				newL.add(new LogicalValueHighlightCondition(renameColumn(
 						((LogicalValueHighlightCondition) c)
-								.getValueCondition(), properties),
-						renameColumn(((LogicalValueHighlightCondition) c)
-								.getLogicalCondition(), properties)));
+								.getValueCondition(), columns), renameColumn(
+						((LogicalValueHighlightCondition) c)
+								.getLogicalCondition(), columns)));
 			}
 		}
 
@@ -363,11 +363,11 @@ public class TracingUtils {
 	}
 
 	private static AndOrHighlightCondition renameColumn(
-			AndOrHighlightCondition c, Map<String, Class<?>> properties) {
+			AndOrHighlightCondition c, Set<String> columns) {
 		AndOrHighlightCondition newC = new AndOrHighlightCondition(c);
 		List<List<LogicalHighlightCondition>> newL1 = new ArrayList<>();
 
-		newC.setLabelProperty(renameColumn(c.getLabelProperty(), properties));
+		newC.setLabelProperty(renameColumn(c.getLabelProperty(), columns));
 
 		for (List<LogicalHighlightCondition> l2 : c.getConditions()) {
 			List<LogicalHighlightCondition> newL2 = new ArrayList<>();
@@ -376,7 +376,7 @@ public class TracingUtils {
 				LogicalHighlightCondition newL3 = new LogicalHighlightCondition(
 						l3);
 
-				newL3.setProperty(renameColumn(l3.getProperty(), properties));
+				newL3.setProperty(renameColumn(l3.getProperty(), columns));
 				newL2.add(newL3);
 			}
 
@@ -389,28 +389,27 @@ public class TracingUtils {
 	}
 
 	private static ValueHighlightCondition renameColumn(
-			ValueHighlightCondition c, Map<String, Class<?>> properties) {
+			ValueHighlightCondition c, Set<String> columns) {
 		ValueHighlightCondition newC = new ValueHighlightCondition(c);
 
-		newC.setProperty(renameColumn(c.getProperty(), properties));
-		newC.setLabelProperty(renameColumn(c.getLabelProperty(), properties));
+		newC.setProperty(renameColumn(c.getProperty(), columns));
+		newC.setLabelProperty(renameColumn(c.getLabelProperty(), columns));
 
 		return newC;
 	}
 
-	private static String renameColumn(String column,
-			Map<String, Class<?>> properties) {
+	private static String renameColumn(String column, Set<String> columns) {
 		if (column == null) {
 			return null;
 		}
 
 		if (column.equals(TracingColumns.OLD_WEIGHT)
-				&& !properties.containsKey(TracingColumns.OLD_WEIGHT)) {
+				&& !columns.contains(TracingColumns.OLD_WEIGHT)) {
 			return TracingColumns.WEIGHT;
 		}
 
 		if (column.equals(TracingColumns.OLD_OBSERVED)
-				&& !properties.containsKey(TracingColumns.OLD_OBSERVED)) {
+				&& !columns.contains(TracingColumns.OLD_OBSERVED)) {
 			return TracingColumns.OBSERVED;
 		}
 

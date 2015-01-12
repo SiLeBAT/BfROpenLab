@@ -219,7 +219,7 @@ public class GisSettings extends Settings {
 
 		if (applySelectionAndHighlighting) {
 			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-					nodeHighlightConditions, nodeProperties));
+					nodeHighlightConditions, nodeProperties.keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		}
 

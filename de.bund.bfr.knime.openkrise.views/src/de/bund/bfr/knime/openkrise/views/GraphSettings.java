@@ -315,9 +315,9 @@ public class GraphSettings extends Settings {
 		canvas.setCollapsedNodes(collapsed);
 
 		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, nodeProperties));
+				nodeHighlightConditions, nodeProperties.keySet()));
 		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, edgeProperties));
+				edgeHighlightConditions, edgeProperties.keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));

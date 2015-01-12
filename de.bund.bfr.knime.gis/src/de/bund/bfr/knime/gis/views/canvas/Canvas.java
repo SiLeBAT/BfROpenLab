@@ -1020,18 +1020,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void arrowInMiddleChanged() {
-		if (optionsPanel.isArrowInMiddle()) {
-			viewer.getRenderer()
-					.getEdgeRenderer()
-					.setEdgeArrowRenderingSupport(
-							new MiddleEdgeArrowRenderingSupport<>());
-		} else {
-			viewer.getRenderer()
-					.getEdgeRenderer()
-					.setEdgeArrowRenderingSupport(
-							new BasicEdgeArrowRenderingSupport<>());
-		}
-
+		viewer.getRenderer()
+				.getEdgeRenderer()
+				.setEdgeArrowRenderingSupport(
+						optionsPanel.isArrowInMiddle() ? new MiddleEdgeArrowRenderingSupport<>()
+								: new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
 	}
 
@@ -1113,17 +1106,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected void applyNodeCollapse() {
-		Map<String, V> newMetaNodes = new LinkedHashMap<>();
-
-		for (String newId : collapsedNodes.keySet()) {
-			if (!nodeSaveMap.containsKey(newId)) {
-				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap,
-						collapsedNodes.get(newId));
-
-				newMetaNodes.put(newId, createMetaNode(newId, nodes));
-			}
-		}
-
 		nodes.clear();
 		edges.clear();
 
@@ -1152,7 +1134,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			V newNode = nodeSaveMap.get(newId);
 
 			if (newNode == null) {
-				newNode = newMetaNodes.get(newId);
+				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap,
+						collapsedNodes.get(newId));
+
+				newNode = createMetaNode(newId, nodes);
 				nodeSaveMap.put(newId, newNode);
 			}
 
