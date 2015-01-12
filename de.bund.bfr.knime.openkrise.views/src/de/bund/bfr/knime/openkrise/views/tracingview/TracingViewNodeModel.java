@@ -63,6 +63,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingCanvas;
 
 /**
  * This is the model implementation of TracingVisualizer.
