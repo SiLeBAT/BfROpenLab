@@ -437,6 +437,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
+		fireCollapsedNodesChanged();
 	}
 
 	public double getScaleX() {
@@ -908,6 +909,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
+		fireCollapsedNodesChanged();
 		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
 	}
 
@@ -932,6 +934,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		applyChanges();
+		fireCollapsedNodesChanged();
 		setSelectedNodeIds(newIds);
 	}
 
@@ -961,6 +964,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 
 		applyChanges();
+		fireCollapsedNodesChanged();
 		setSelectedNodeIds(collapsedNodes.keySet());
 	}
 
@@ -972,6 +976,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		collapsedNodes.clear();
 		applyChanges();
+		fireCollapsedNodesChanged();
 		viewer.getPickedVertexState().clear();
 	}
 
@@ -1253,6 +1258,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireSkipEdgelessChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
+		}
+	}
+
+	private void fireCollapsedNodesChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.collapsedNodesChanged(this);
 		}
 	}
 

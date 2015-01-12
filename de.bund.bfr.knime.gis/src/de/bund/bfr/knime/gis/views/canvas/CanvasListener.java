@@ -37,4 +37,6 @@ public interface CanvasListener {
 	public void edgeJoinChanged(Canvas<?> source);
 
 	public void skipEdgelessChanged(Canvas<?> source);
+
+	public void collapsedNodesChanged(Canvas<?> source);
 }

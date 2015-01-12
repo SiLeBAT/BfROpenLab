@@ -208,6 +208,19 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 	}
 
+	@Override
+	public void collapsedNodesChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setCollapsedNodes(graphCanvas.getCollapsedNodes());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setCollapsedNodes(gisCanvas.getCollapsedNodes());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);

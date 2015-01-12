@@ -262,6 +262,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 		}
 	}
 
+	@Override
+	public void collapsedNodesChanged(Canvas<?> source) {
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);
