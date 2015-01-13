@@ -31,6 +31,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,8 +46,10 @@ import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -59,6 +62,9 @@ import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class Tracing<V extends Node> implements ItemListener {
 
@@ -334,6 +340,54 @@ public class Tracing<V extends Node> implements ItemListener {
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
 		}
+	}
+
+	public GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode) {
+		return new GraphMouse<>(new PickingGraphMousePlugin<V, Edge<V>>() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
+
+				if (e.getButton() == MouseEvent.BUTTON1
+						&& e.getClickCount() == 2) {
+					V node = viewer.getPickSupport().getVertex(
+							viewer.getGraphLayout(), e.getX(), e.getY());
+					Edge<V> edge = viewer.getPickSupport().getEdge(
+							viewer.getGraphLayout(), e.getX(), e.getY());
+
+					if (node != null) {
+						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
+								e.getComponent(), node, canvas.getNodeSchema()
+										.getMap());
+
+						dialog.setVisible(true);
+
+						if (dialog.isApproved()) {
+							canvas.applyChanges();
+						}
+					} else if (edge != null) {
+						if (!canvas.isJoinEdges()) {
+							EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
+									e.getComponent(), edge, canvas
+											.getEdgeSchema().getMap());
+
+							dialog.setVisible(true);
+
+							if (dialog.isApproved()) {
+								canvas.applyChanges();
+							}
+						} else {
+							SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+									e.getComponent(), edge, canvas
+											.getEdgeSchema().getMap());
+
+							dialog.setVisible(true);
+						}
+					}
+				}
+			}
+		}, editingMode);
 	}
 
 	public MyNewTracing createTracing(Set<Edge<V>> edges,

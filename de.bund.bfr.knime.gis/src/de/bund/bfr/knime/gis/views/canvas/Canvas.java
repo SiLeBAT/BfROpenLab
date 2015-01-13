@@ -1001,6 +1001,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
+	public VisualizationViewer<V, Edge<V>> getViewer() {
+		return viewer;
+	}
+
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
 			final boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
