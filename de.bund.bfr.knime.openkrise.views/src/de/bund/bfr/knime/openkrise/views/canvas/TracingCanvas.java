@@ -75,6 +75,8 @@ public class TracingCanvas extends GraphCanvas {
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 
+	private Tracing<GraphNode> tracing;
+
 	private Map<Integer, MyDelivery> deliveries;
 	private boolean performTracing;
 
@@ -93,6 +95,7 @@ public class TracingCanvas extends GraphCanvas {
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, true);
 		this.deliveries = deliveries;
+		tracing = new Tracing<>(nodeSaveMap, edgeSaveMap);
 		performTracing = DEFAULT_PERFORM_TRACING;
 
 		updatePopupMenuAndOptionsPanel();
@@ -100,23 +103,11 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Double> getNodeWeights() {
-		Map<String, Double> nodeWeights = new LinkedHashMap<>();
-
-		for (GraphNode node : nodeSaveMap.values()) {
-			nodeWeights.put(node.getId(),
-					(Double) node.getProperties().get(TracingColumns.WEIGHT));
-		}
-
-		return nodeWeights;
+		return tracing.getNodeWeights();
 	}
 
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
-		for (GraphNode node : nodeSaveMap.values()) {
-			if (nodeWeights.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.WEIGHT,
-						nullToZero(nodeWeights.get(node.getId())));
-			}
-		}
+		tracing.setNodeWeights(nodeWeights);
 
 		if (performTracing) {
 			applyChanges();
@@ -124,23 +115,11 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Double> getEdgeWeights() {
-		Map<String, Double> edgeWeights = new LinkedHashMap<>();
-
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			edgeWeights.put(edge.getId(),
-					(Double) edge.getProperties().get(TracingColumns.WEIGHT));
-		}
-
-		return edgeWeights;
+		return tracing.getEdgeWeights();
 	}
 
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			if (edgeWeights.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.WEIGHT,
-						nullToZero(edgeWeights.get(edge.getId())));
-			}
-		}
+		tracing.setEdgeWeights(edgeWeights);
 
 		if (performTracing) {
 			applyChanges();
@@ -148,24 +127,12 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
-		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
-
-		for (GraphNode node : nodeSaveMap.values()) {
-			nodeCrossContaminations.put(node.getId(), (Boolean) node
-					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
-		}
-
-		return nodeCrossContaminations;
+		return tracing.getNodeCrossContaminations();
 	}
 
 	public void setNodeCrossContaminations(
 			Map<String, Boolean> nodeCrossContaminations) {
-		for (GraphNode node : nodeSaveMap.values()) {
-			if (nodeCrossContaminations.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-						nullToFalse(nodeCrossContaminations.get(node.getId())));
-			}
-		}
+		tracing.setNodeCrossContaminations(nodeCrossContaminations);
 
 		if (performTracing) {
 			applyChanges();
@@ -173,24 +140,12 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
-		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
-
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			edgeCrossContaminations.put(edge.getId(), (Boolean) edge
-					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
-		}
-
-		return edgeCrossContaminations;
+		return tracing.getEdgeCrossContaminations();
 	}
 
 	public void setEdgeCrossContaminations(
 			Map<String, Boolean> edgeCrossContaminations) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			if (edgeCrossContaminations.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-						nullToFalse(edgeCrossContaminations.get(edge.getId())));
-			}
-		}
+		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
 
 		if (performTracing) {
 			applyChanges();
@@ -198,25 +153,11 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
-		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
-
-		for (GraphNode node : nodeSaveMap.values()) {
-			observedNodes
-					.put(node.getId(),
-							(Boolean) node.getProperties().get(
-									TracingColumns.OBSERVED));
-		}
-
-		return observedNodes;
+		return tracing.getObservedNodes();
 	}
 
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
-		for (GraphNode node : nodeSaveMap.values()) {
-			if (observedNodes.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.OBSERVED,
-						nullToFalse(observedNodes.get(node.getId())));
-			}
-		}
+		tracing.setObservedNodes(observedNodes);
 
 		if (performTracing) {
 			applyChanges();
@@ -224,25 +165,11 @@ public class TracingCanvas extends GraphCanvas {
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
-		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
-
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			observedEdges
-					.put(edge.getId(),
-							(Boolean) edge.getProperties().get(
-									TracingColumns.OBSERVED));
-		}
-
-		return observedEdges;
+		return tracing.getObservedEdges();
 	}
 
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
-		for (Edge<GraphNode> edge : edgeSaveMap.values()) {
-			if (observedEdges.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.OBSERVED,
-						nullToFalse(observedEdges.get(edge.getId())));
-			}
-		}
+		tracing.setObservedEdges(observedEdges);
 
 		if (performTracing) {
 			applyChanges();
@@ -669,14 +596,6 @@ public class TracingCanvas extends GraphCanvas {
 
 	private static int createId(Collection<String> c) {
 		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
-	}
-
-	private static double nullToZero(Double value) {
-		return value == null ? 0.0 : value;
-	}
-
-	private static boolean nullToFalse(Boolean value) {
-		return value == null ? false : value;
 	}
 
 	private class HighlightChecker implements HighlightConditionChecker {
