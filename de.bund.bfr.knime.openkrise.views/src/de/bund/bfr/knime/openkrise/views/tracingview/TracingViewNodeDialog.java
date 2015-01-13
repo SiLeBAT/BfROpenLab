@@ -47,6 +47,8 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.ResizeListener;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 /**
@@ -58,12 +60,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		ActionListener {
 
 	private JPanel panel;
-	private TracingGraphCanvas canvas;
+	private ITracingCanvas<?> canvas;
 
 	private ResizeListener listener;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private BufferedDataTable shapeTable;
 	private HashMap<Integer, MyDelivery> deliveries;
 
 	private TracingViewSettings set;
@@ -72,6 +75,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
 	private JCheckBox exportAsSvgBox;
+	private JButton switchButton;
+
+	private boolean showGis;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -86,14 +92,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetFilterButton = new JButton("Reset Observed");
 		resetFilterButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
+		switchButton = new JButton("Switch to Graph/GIS");
+		switchButton.addActionListener(this);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
 				resetWeightsButton, resetCrossButton, resetFilterButton,
-				exportAsSvgBox)), BorderLayout.NORTH);
+				exportAsSvgBox, switchButton)), BorderLayout.NORTH);
 
 		addTab("Options", panel, false);
+		showGis = false;
 	}
 
 	@Override
@@ -101,6 +110,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
+		shapeTable = (BufferedDataTable) input[4];
 		deliveries = TracingUtils.getDeliveries((BufferedDataTable) input[2],
 				edgeTable);
 
@@ -145,31 +155,36 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
 			updateCanvas();
+		} else if (e.getSource() == switchButton) {
+			updateSettings();
+			showGis = !showGis;
+			updateCanvas();
 		}
 	}
 
 	private void updateCanvas() {
 		if (canvas != null) {
-			panel.remove(canvas);
+			panel.remove(canvas.getComponent());
 		}
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, deliveries, set);
+				nodeTable, edgeTable, shapeTable, deliveries, set);
 
 		try {
-			canvas = creator.createGraphCanvas();
+			canvas = showGis ? creator.createGisCanvas() : creator
+					.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = new TracingGraphCanvas();
+			canvas = showGis ? new TracingGisCanvas()
+					: new TracingGraphCanvas();
 			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 		}
 
-		panel.add(canvas, BorderLayout.CENTER);
+		panel.add(canvas.getComponent(), BorderLayout.CENTER);
 		panel.revalidate();
 	}
 
 	private void updateSettings() {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
-		set.getGraphSettings().setFromCanvas(canvas, listener.isResized());
 		set.setNodeWeights(canvas.getNodeWeights());
 		set.setEdgeWeights(canvas.getEdgeWeights());
 		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
@@ -178,6 +193,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setObservedEdges(canvas.getObservedEdges());
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
 		set.setShowForward(canvas.isShowForward());
-		set.setLabel(canvas.getLabel());
+
+		set.getGraphSettings().setFromCanvas(canvas, listener.isResized());
+
+		if (canvas instanceof TracingGisCanvas) {
+			set.getGisSettings().setFromCanvas(canvas);
+		}
 	}
 }

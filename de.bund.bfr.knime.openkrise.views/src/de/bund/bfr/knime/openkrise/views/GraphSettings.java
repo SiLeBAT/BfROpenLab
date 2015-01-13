@@ -38,8 +38,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -65,6 +65,7 @@ public class GraphSettings extends Settings {
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
 	private static final String CFG_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
 	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
+	private static final String CFG_LABEL = "Label";
 
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	private static final boolean DEFAULT_JOIN_EDGES = true;
@@ -95,6 +96,7 @@ public class GraphSettings extends Settings {
 	private HighlightConditionList nodeHighlightConditions;
 	private HighlightConditionList edgeHighlightConditions;
 	private Map<String, Map<String, Point2D>> collapsedNodes;
+	private String label;
 
 	public GraphSettings() {
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
@@ -116,6 +118,7 @@ public class GraphSettings extends Settings {
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 		collapsedNodes = new LinkedHashMap<>();
+		label = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -222,6 +225,11 @@ public class GraphSettings extends Settings {
 					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			label = settings.getString(CFG_LABEL);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -248,9 +256,10 @@ public class GraphSettings extends Settings {
 				SERIALIZER.toXml(edgeHighlightConditions));
 		settings.addString(CFG_COLLAPSED_NODES,
 				SERIALIZER.toXml(collapsedNodes));
+		settings.addString(CFG_LABEL, label);
 	}
 
-	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
+	public void setFromCanvas(ICanvas<?> canvas, boolean resized) {
 		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
 		selectedEdges = new ArrayList<>(canvas.getSelectedEdgeIds());
 
@@ -268,6 +277,7 @@ public class GraphSettings extends Settings {
 		joinEdges = canvas.isJoinEdges();
 		arrowInMiddle = canvas.isArrowInMiddle();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+		label = canvas.getLabel();
 
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
@@ -294,7 +304,7 @@ public class GraphSettings extends Settings {
 		}
 	}
 
-	public void setToCanvas(Canvas<?> canvas,
+	public void setToCanvas(ICanvas<?> canvas,
 			Map<String, Class<?>> nodeProperties,
 			Map<String, Class<?>> edgeProperties, boolean applyNodePosition) {
 		canvas.setShowLegend(showLegend);
@@ -305,6 +315,7 @@ public class GraphSettings extends Settings {
 		canvas.setFontBold(fontBold);
 		canvas.setJoinEdges(joinEdges);
 		canvas.setArrowInMiddle(arrowInMiddle);
+		canvas.setLabel(label);
 
 		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
 
@@ -485,5 +496,13 @@ public class GraphSettings extends Settings {
 	public void setCollapsedNodes(
 			Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 }

@@ -24,13 +24,11 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views;
 
-import java.util.Map;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 
 public class GisSettings extends Settings {
 
@@ -123,7 +121,7 @@ public class GisSettings extends Settings {
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 	}
 
-	public void setFromCanvas(Canvas<?> canvas) {
+	public void setFromCanvas(ICanvas<?> canvas) {
 		scaleX = canvas.getScaleX();
 		scaleY = canvas.getScaleY();
 		translationX = canvas.getTranslationX();
@@ -134,9 +132,7 @@ public class GisSettings extends Settings {
 		borderAlpha = canvas.getBorderAlpha();
 	}
 
-	public void setToCanvas(Canvas<?> canvas,
-			Map<String, Class<?>> nodeProperties,
-			boolean applySelectionAndHighlighting) {
+	public void setToCanvas(ICanvas<?> canvas) {
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);

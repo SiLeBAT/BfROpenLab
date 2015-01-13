@@ -80,10 +80,10 @@ public class TracingViewNodeModel extends NodeModel {
 	 */
 	protected TracingViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
-				new PortType[] { BufferedDataTable.TYPE,
-						BufferedDataTable.TYPE, ImagePortObject.TYPE,
-						BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL,
+				BufferedDataTable.TYPE_OPTIONAL }, new PortType[] {
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				ImagePortObject.TYPE, BufferedDataTable.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -97,10 +97,11 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
 				(BufferedDataTable) inObjects[2], edgeTable);
+		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[4];
 		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
-				edgeTable, tracing, set).createGraphCanvas();
+				edgeTable, shapeTable, tracing, set).createGraphCanvas();
 		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
-				edgeTable, tracing, set);
+				edgeTable, shapeTable, tracing, set);
 
 		int index = 0;
 		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
@@ -343,6 +344,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 	private static TracingGraphCanvas createAllEdgesCanvas(
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			BufferedDataTable shapeTable,
 			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set)
 			throws InvalidSettingsException {
 		boolean joinEdges = set.getGraphSettings().isJoinEdges();
@@ -350,7 +352,7 @@ public class TracingViewNodeModel extends NodeModel {
 		set.getGraphSettings().setJoinEdges(false);
 
 		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
-				edgeTable, deliveries, set).createGraphCanvas();
+				edgeTable, shapeTable, deliveries, set).createGraphCanvas();
 
 		set.getGraphSettings().setJoinEdges(joinEdges);
 

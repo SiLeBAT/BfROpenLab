@@ -42,7 +42,8 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class TracingGisCanvas extends LocationCanvas {
+public class TracingGisCanvas extends LocationCanvas implements
+		ITracingCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,76 +65,94 @@ public class TracingGisCanvas extends LocationCanvas {
 				deliveries);
 	}
 
+	@Override
 	public Map<String, Double> getNodeWeights() {
 		return tracing.getNodeWeights();
 	}
 
+	@Override
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
 		tracing.setNodeWeights(nodeWeights);
 	}
 
+	@Override
 	public Map<String, Double> getEdgeWeights() {
 		return tracing.getEdgeWeights();
 	}
 
+	@Override
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
 		tracing.setEdgeWeights(edgeWeights);
 	}
 
+	@Override
 	public Map<String, Boolean> getNodeCrossContaminations() {
 		return tracing.getNodeCrossContaminations();
 	}
 
+	@Override
 	public void setNodeCrossContaminations(
 			Map<String, Boolean> nodeCrossContaminations) {
 		tracing.setNodeCrossContaminations(nodeCrossContaminations);
 	}
 
+	@Override
 	public Map<String, Boolean> getEdgeCrossContaminations() {
 		return tracing.getEdgeCrossContaminations();
 	}
 
+	@Override
 	public void setEdgeCrossContaminations(
 			Map<String, Boolean> edgeCrossContaminations) {
 		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
 	}
 
+	@Override
 	public Map<String, Boolean> getObservedNodes() {
 		return tracing.getObservedNodes();
 	}
 
+	@Override
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
 		tracing.setObservedNodes(observedNodes);
 	}
 
+	@Override
 	public Map<String, Boolean> getObservedEdges() {
 		return tracing.getObservedEdges();
 	}
 
+	@Override
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
 		tracing.setObservedEdges(observedEdges);
 	}
 
+	@Override
 	public boolean isEnforceTemporalOrder() {
 		return tracing.isEnforceTemporalOrder();
 	}
 
+	@Override
 	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
 		tracing.setEnforceTemporalOrder(enforceTemporalOrder);
 	}
 
+	@Override
 	public boolean isShowForward() {
 		return tracing.isShowForward();
 	}
 
+	@Override
 	public void setShowForward(boolean showForward) {
 		tracing.setShowForward(showForward);
 	}
 
+	@Override
 	public boolean isPerformTracing() {
 		return tracing.isPerformTracing();
 	}
 
+	@Override
 	public void setPerformTracing(boolean performTracing) {
 		tracing.setPerformTracing(performTracing);
 	}

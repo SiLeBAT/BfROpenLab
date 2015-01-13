@@ -31,6 +31,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.openkrise.views.GisSettings;
 import de.bund.bfr.knime.openkrise.views.GraphSettings;
 import de.bund.bfr.knime.openkrise.views.ViewSettings;
 
@@ -44,7 +45,6 @@ public class TracingViewSettings extends ViewSettings {
 	private static final String CFG_OBSERVED_EDGES = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
-	private static final String CFG_LABEL = "Label";
 
 	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static final boolean DEFAULT_SHOW_FORWARD = false;
@@ -57,9 +57,9 @@ public class TracingViewSettings extends ViewSettings {
 	private Map<String, Boolean> observedEdges;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
-	private String label;
 
 	private GraphSettings graphSettings;
+	private GisSettings gisSettings;
 
 	public TracingViewSettings() {
 		nodeWeights = new LinkedHashMap<>();
@@ -70,9 +70,9 @@ public class TracingViewSettings extends ViewSettings {
 		observedEdges = new LinkedHashMap<>();
 		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
 		showForward = DEFAULT_SHOW_FORWARD;
-		label = null;
 
 		graphSettings = new GraphSettings();
+		gisSettings = new GisSettings();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -127,12 +127,8 @@ public class TracingViewSettings extends ViewSettings {
 		} catch (InvalidSettingsException e) {
 		}
 
-		try {
-			label = settings.getString(CFG_LABEL);
-		} catch (InvalidSettingsException e) {
-		}
-
 		graphSettings.loadSettings(settings);
+		gisSettings.loadSettings(settings);
 	}
 
 	@Override
@@ -149,9 +145,9 @@ public class TracingViewSettings extends ViewSettings {
 		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 		settings.addBoolean(CFG_SHOW_FORWARD, showForward);
-		settings.addString(CFG_LABEL, label);
 
 		graphSettings.saveSettings(settings);
+		gisSettings.saveSettings(settings);
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -220,19 +216,19 @@ public class TracingViewSettings extends ViewSettings {
 		this.showForward = showForward;
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
 	public GraphSettings getGraphSettings() {
 		return graphSettings;
 	}
 
 	public void setGraphSettings(GraphSettings graphSettings) {
 		this.graphSettings = graphSettings;
+	}
+
+	public GisSettings getGisSettings() {
+		return gisSettings;
+	}
+
+	public void setGisSettings(GisSettings gisSettings) {
+		this.gisSettings = gisSettings;
 	}
 }

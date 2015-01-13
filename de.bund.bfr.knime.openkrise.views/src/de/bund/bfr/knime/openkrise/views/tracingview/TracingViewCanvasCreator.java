@@ -37,29 +37,34 @@ import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 public class TracingViewCanvasCreator {
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private BufferedDataTable shapeTable;
 	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
+	private NodePropertySchema nodeSchema;
+	private EdgePropertySchema edgeSchema;
+
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, HashMap<Integer, MyDelivery> tracing,
-			TracingViewSettings set) {
+			BufferedDataTable edgeTable, BufferedDataTable shapeTable,
+			HashMap<Integer, MyDelivery> tracing, TracingViewSettings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
+		this.shapeTable = shapeTable;
 		this.deliveries = tracing;
 		this.set = set;
-	}
 
-	public TracingGraphCanvas createGraphCanvas()
-			throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
@@ -115,25 +120,26 @@ public class TracingViewCanvasCreator {
 			edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
 		}
 
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeProperties);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
-				TracingColumns.ID);
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
-
+		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
+		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID,
+				TracingColumns.FROM, TracingColumns.TO);
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+	}
+
+	public TracingGraphCanvas createGraphCanvas()
+			throws InvalidSettingsException {
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeSchema.getMap());
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
+				edgeSchema.getMap(), nodes);
 
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
 		canvas.setPerformTracing(false);
-		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
-				edgeProperties, false);
-		canvas.setLabel(set.getLabel());
+		set.getGraphSettings().setToCanvas(canvas, nodeSchema.getMap(),
+				edgeSchema.getMap(), false);
 		canvas.setNodeWeights(set.getNodeWeights());
 		canvas.setEdgeWeights(set.getEdgeWeights());
 		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
@@ -144,6 +150,33 @@ public class TracingViewCanvasCreator {
 		canvas.setShowForward(set.isShowForward());
 		canvas.setPerformTracing(true);
 		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
+
+		return canvas;
+	}
+
+	public TracingGisCanvas createGisCanvas() throws InvalidSettingsException {
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
+				nodeTable, nodeSchema.getMap());
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
+				edgeSchema.getMap(), nodes);
+		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable);
+		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
+				nodes.values()), edges, nodeSchema, edgeSchema, regions,
+				deliveries);
+
+		canvas.setPerformTracing(false);
+		set.getGraphSettings().setToCanvas(canvas, nodeSchema.getMap(),
+				edgeSchema.getMap(), false);
+		set.getGisSettings().setToCanvas(canvas);
+		canvas.setNodeWeights(set.getNodeWeights());
+		canvas.setEdgeWeights(set.getEdgeWeights());
+		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
+		canvas.setEdgeCrossContaminations(set.getEdgeCrossContaminations());
+		canvas.setObservedNodes(set.getObservedNodes());
+		canvas.setObservedEdges(set.getObservedEdges());
+		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
+		canvas.setShowForward(set.isShowForward());
+		canvas.setPerformTracing(true);
 
 		return canvas;
 	}

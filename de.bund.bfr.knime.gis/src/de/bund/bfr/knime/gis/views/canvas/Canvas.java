@@ -26,6 +26,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -110,7 +111,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public abstract class Canvas<V extends Node> extends JPanel implements
 		ActionListener, ChangeListener, ItemListener, KeyListener,
 		MouseListener, CanvasPopupMenu.ClickListener,
-		CanvasOptionsPanel.ChangeListener {
+		CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final String DEFAULT_NODE_NAME = "Node";
 	private static final String DEFAULT_EDGE_NAME = "Edge";
@@ -208,118 +209,152 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		add(viewer, BorderLayout.CENTER);
 	}
 
+	@Override
+	public Component getComponent() {
+		return this;
+	}
+
+	@Override
 	public void addCanvasListener(CanvasListener listener) {
 		canvasListeners.add(listener);
 	}
 
+	@Override
 	public void removeCanvasListener(CanvasListener listener) {
 		canvasListeners.remove(listener);
 	}
 
+	@Override
 	public Set<V> getNodes() {
 		return nodes;
 	}
 
+	@Override
 	public Set<Edge<V>> getEdges() {
 		return edges;
 	}
 
+	@Override
 	public Dimension getCanvasSize() {
 		return viewer.getSize();
 	}
 
+	@Override
 	public void setCanvasSize(Dimension canvasSize) {
 		viewer.setPreferredSize(canvasSize);
 	}
 
+	@Override
 	public Mode getEditingMode() {
 		return optionsPanel.getEditingMode();
 	}
 
+	@Override
 	public void setEditingMode(Mode editingMode) {
 		optionsPanel.setEditingMode(editingMode);
 	}
 
+	@Override
 	public boolean isShowLegend() {
 		return optionsPanel.isShowLegend();
 	}
 
+	@Override
 	public void setShowLegend(boolean showLegend) {
 		optionsPanel.setShowLegend(showLegend);
 	}
 
+	@Override
 	public boolean isJoinEdges() {
 		return optionsPanel.isJoinEdges();
 	}
 
+	@Override
 	public void setJoinEdges(boolean joinEdges) {
 		optionsPanel.setJoinEdges(joinEdges);
 	}
 
+	@Override
 	public boolean isSkipEdgelessNodes() {
 		return optionsPanel.isSkipEdgelessNodes();
 	}
 
+	@Override
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		optionsPanel.setSkipEdgelessNodes(skipEdgelessNodes);
 	}
 
+	@Override
 	public int getFontSize() {
 		return optionsPanel.getFontSize();
 	}
 
+	@Override
 	public void setFontSize(int fontSize) {
 		optionsPanel.setFontSize(fontSize);
 	}
 
+	@Override
 	public boolean isFontBold() {
 		return optionsPanel.isFontBold();
 	}
 
+	@Override
 	public void setFontBold(boolean fontBold) {
 		optionsPanel.setFontBold(fontBold);
 	}
 
+	@Override
 	public int getNodeSize() {
 		return optionsPanel.getNodeSize();
 	}
 
+	@Override
 	public void setNodeSize(int nodeSize) {
 		optionsPanel.setNodeSize(nodeSize);
 	}
 
+	@Override
 	public boolean isArrowInMiddle() {
 		return optionsPanel.isArrowInMiddle();
 	}
 
+	@Override
 	public void setArrowInMiddle(boolean arrowInMiddle) {
 		optionsPanel.setArrowInMiddle(arrowInMiddle);
 	}
 
+	@Override
 	public String getLabel() {
 		return optionsPanel.getLabel();
 	}
 
+	@Override
 	public void setLabel(String label) {
 		optionsPanel.setLabel(label);
 	}
 
+	@Override
 	public int getBorderAlpha() {
 		return optionsPanel.getBorderAlpha();
 	}
 
+	@Override
 	public void setBorderAlpha(int borderAlpha) {
 		optionsPanel.setBorderAlpha(borderAlpha);
 	}
 
+	@Override
 	public NodePropertySchema getNodeSchema() {
 		return nodeSchema;
 	}
 
+	@Override
 	public EdgePropertySchema getEdgeSchema() {
 		return edgeSchema;
 	}
 
+	@Override
 	public Set<V> getSelectedNodes() {
 		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState()
 				.getPicked());
@@ -329,6 +364,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return selected;
 	}
 
+	@Override
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		viewer.getPickedVertexState().clear();
 
@@ -339,6 +375,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
+	@Override
 	public Set<Edge<V>> getSelectedEdges() {
 		Set<Edge<V>> selected = new LinkedHashSet<>(viewer.getPickedEdgeState()
 				.getPicked());
@@ -348,6 +385,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return selected;
 	}
 
+	@Override
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		viewer.getPickedEdgeState().clear();
 
@@ -358,26 +396,32 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
+	@Override
 	public Set<String> getSelectedNodeIds() {
 		return CanvasUtils.getElementIds(getSelectedNodes());
 	}
 
+	@Override
 	public void setSelectedNodeIds(Set<String> selectedNodeIds) {
 		setSelectedNodes(CanvasUtils.getElementsById(nodes, selectedNodeIds));
 	}
 
+	@Override
 	public Set<String> getSelectedEdgeIds() {
 		return CanvasUtils.getElementIds(getSelectedEdges());
 	}
 
+	@Override
 	public void setSelectedEdgeIds(Set<String> selectedEdgeIds) {
 		setSelectedEdges(CanvasUtils.getElementsById(edges, selectedEdgeIds));
 	}
 
+	@Override
 	public HighlightConditionList getNodeHighlightConditions() {
 		return nodeHighlightConditions;
 	}
 
+	@Override
 	public void setNodeHighlightConditions(
 			HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
@@ -385,10 +429,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		fireNodeHighlightingChanged();
 	}
 
+	@Override
 	public HighlightConditionList getEdgeHighlightConditions() {
 		return edgeHighlightConditions;
 	}
 
+	@Override
 	public void setEdgeHighlightConditions(
 			HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
@@ -396,32 +442,39 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		fireEdgeHighlightingChanged();
 	}
 
+	@Override
 	public Map<String, Set<String>> getCollapsedNodes() {
 		return collapsedNodes;
 	}
 
+	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
 		fireCollapsedNodesChanged();
 	}
 
+	@Override
 	public double getScaleX() {
 		return scaleX;
 	}
 
+	@Override
 	public double getScaleY() {
 		return scaleY;
 	}
 
+	@Override
 	public double getTranslationX() {
 		return translationX;
 	}
 
+	@Override
 	public double getTranslationY() {
 		return translationY;
 	}
 
+	@Override
 	public void setTransform(double scaleX, double scaleY, double translationX,
 			double translationY) {
 		this.scaleX = scaleX;
@@ -1002,10 +1055,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
+	@Override
 	public VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
 	}
 
+	@Override
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
 			final boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
@@ -1019,10 +1074,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return server;
 	}
 
+	@Override
 	public CanvasOptionsPanel getOptionsPanel() {
 		return optionsPanel;
 	}
 
+	@Override
 	public void setOptionsPanel(CanvasOptionsPanel optionsPanel) {
 		if (this.optionsPanel != null) {
 			remove(this.optionsPanel);
@@ -1034,16 +1091,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		revalidate();
 	}
 
+	@Override
 	public CanvasPopupMenu getPopupMenu() {
 		return popup;
 	}
 
+	@Override
 	public void setPopupMenu(CanvasPopupMenu popup) {
 		this.popup = popup;
 		popup.addClickListener(this);
 		viewer.setComponentPopupMenu(popup);
 	}
 
+	@Override
 	public void applyChanges() {
 		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
@@ -1059,6 +1119,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
+	@Override
 	public void applyNodeCollapse() {
 		nodes.clear();
 		edges.clear();
@@ -1130,12 +1191,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
+	@Override
 	public void applyInvisibility() {
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
 		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
+	@Override
 	public void applyJoinEdgesAndSkipEdgeless() {
 		joinMap.clear();
 
@@ -1150,6 +1213,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
+	@Override
 	public void applyHighlights() {
 		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
 				getNodeSize());
