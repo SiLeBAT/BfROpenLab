@@ -739,11 +739,6 @@ public class TracingCanvas extends GraphCanvas {
 
 		@Override
 		public void paint(Graphics g) {
-			paintLogo(g);
-			paintLabel(g);
-		}
-
-		private void paintLogo(Graphics g) {
 			int w = getCanvasSize().width;
 			int h = getCanvasSize().height;
 
@@ -784,29 +779,6 @@ public class TracingCanvas extends GraphCanvas {
 					+ fontAscent);
 			logo2.setDimension(new Dimension(iw2, logoHeight));
 			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
-		}
-
-		private void paintLabel(Graphics g) {
-			if (getLabel() == null || getLabel().isEmpty()) {
-				return;
-			}
-
-			int w = getCanvasSize().width;
-			Font font = new Font("Default", Font.BOLD, 10);
-			int fontHeight = g.getFontMetrics(font).getHeight();
-			int fontAscent = g.getFontMetrics(font).getAscent();
-			int dy = 2;
-
-			int dx = 5;
-			int sw = (int) font.getStringBounds(getLabel(),
-					((Graphics2D) g).getFontRenderContext()).getWidth();
-
-			g.setColor(new Color(230, 230, 230));
-			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-			g.setColor(Color.BLACK);
-			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
-			g.setFont(font);
-			g.drawString(getLabel(), w - sw - dx, dy + fontAscent);
 		}
 	}
 }

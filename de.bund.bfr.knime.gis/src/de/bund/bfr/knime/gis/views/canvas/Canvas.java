@@ -28,7 +28,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -1326,6 +1328,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		@Override
 		public void paint(Graphics g) {
+			if (getLabel() != null && !getLabel().isEmpty()) {
+				paintLabel(g);
+			}
+
 			if (optionsPanel.isShowLegend()) {
 				new CanvasLegend<>(Canvas.this, nodeHighlightConditions, nodes,
 						edgeHighlightConditions, edges).paint(g,
@@ -1338,6 +1344,25 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				g.drawRect(0, 0, getCanvasSize().width - 1,
 						getCanvasSize().height - 1);
 			}
+		}
+
+		private void paintLabel(Graphics g) {
+			int w = getCanvasSize().width;
+			Font font = new Font("Default", Font.BOLD, 10);
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dy = 2;
+
+			int dx = 5;
+			int sw = (int) font.getStringBounds(getLabel(),
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+
+			g.setColor(new Color(230, 230, 230));
+			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
+			g.setFont(font);
+			g.drawString(getLabel(), w - sw - dx, dy + fontAscent);
 		}
 	}
 }
