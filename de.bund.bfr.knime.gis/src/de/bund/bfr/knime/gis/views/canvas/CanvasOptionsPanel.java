@@ -83,6 +83,9 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
 	private JCheckBox arrowInMiddleBox;
+	private String label;
+	private JTextField labelField;
+	private JButton labelButton;
 	private int borderAlpha;
 	private JSlider borderAlphaSlider;
 	private JButton borderAlphaButton;
@@ -101,6 +104,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		panel.add(getOptionPanel("Show Legend", showLegendBox));
 		panel.add(Box.createHorizontalStrut(5));
 		panel.add(getOptionPanel("Font", fontSizeBox, fontBoldBox));
+		panel.add(getOptionPanel("Label", labelField, labelButton));
 
 		if (allowEdges) {
 			panel.add(Box.createHorizontalStrut(5));
@@ -217,6 +221,16 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		arrowInMiddleBox.setSelected(arrowInMiddle);
 	}
 
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+		labelField.setText(label != null ? label : "");
+		labelButton.doClick();
+	}
+
 	public int getBorderAlpha() {
 		return borderAlpha;
 	}
@@ -234,6 +248,12 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 			for (ChangeListener l : listeners) {
 				l.borderAlphaChanged();
+			}
+		} else if (e.getSource() == labelButton) {
+			label = labelField.getText();
+
+			for (ChangeListener l : listeners) {
+				l.labelChanged();
 			}
 		}
 	}
@@ -338,6 +358,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
 		arrowInMiddleBox.addItemListener(this);
+		label = new String();
+		labelField = new JTextField(label, 20);
+		labelButton = new JButton("Apply");
+		labelButton.addActionListener(this);
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
 		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
 				.getPreferredSize().height));
@@ -382,6 +406,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		public void nodeSizeChanged();
 
 		public void arrowInMiddleChanged();
+
+		public void labelChanged();
 
 		public void borderAlphaChanged();
 	}

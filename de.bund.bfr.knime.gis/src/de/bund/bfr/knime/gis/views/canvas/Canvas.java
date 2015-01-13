@@ -338,6 +338,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		optionsPanel.setArrowInMiddle(arrowInMiddle);
 	}
 
+	public String getLabel() {
+		return optionsPanel.getLabel();
+	}
+
+	public void setLabel(String label) {
+		optionsPanel.setLabel(label);
+	}
+
 	public int getBorderAlpha() {
 		return optionsPanel.getBorderAlpha();
 	}
@@ -1025,6 +1033,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.setEdgeArrowRenderingSupport(
 						optionsPanel.isArrowInMiddle() ? new MiddleEdgeArrowRenderingSupport<>()
 								: new BasicEdgeArrowRenderingSupport<>());
+		viewer.repaint();
+	}
+
+	@Override
+	public void labelChanged() {
 		viewer.repaint();
 	}
 

@@ -29,7 +29,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -42,9 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JTextField;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
@@ -83,9 +80,6 @@ public class TracingCanvas extends GraphCanvas {
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
-	private String label;
-	private JTextField labelField;
-	private JButton labelButton;
 
 	public TracingCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -271,16 +265,6 @@ public class TracingCanvas extends GraphCanvas {
 		showForwardBox.setSelected(showForward);
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-		labelField.setText(label != null ? label : "");
-		viewer.repaint();
-	}
-
 	public boolean isPerformTracing() {
 		return performTracing;
 	}
@@ -290,15 +274,6 @@ public class TracingCanvas extends GraphCanvas {
 
 		if (performTracing) {
 			applyChanges();
-		}
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		if (e.getSource() == labelButton) {
-			setLabel(labelField.getText());
 		}
 	}
 
@@ -518,16 +493,10 @@ public class TracingCanvas extends GraphCanvas {
 		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
 		showForwardBox.addItemListener(this);
 
-		label = new String();
-		labelField = new JTextField(label, 20);
-		labelButton = new JButton("Apply");
-		labelButton.addActionListener(this);
-
 		getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
 		getOptionsPanel().addOption("Show Cross Contaminated " + edgesName,
 				showForwardBox);
-		getOptionsPanel().addOption("Label", labelField, labelButton);
 	}
 
 	private void applyTracing() {
@@ -818,7 +787,7 @@ public class TracingCanvas extends GraphCanvas {
 		}
 
 		private void paintLabel(Graphics g) {
-			if (label == null || label.isEmpty()) {
+			if (getLabel() == null || getLabel().isEmpty()) {
 				return;
 			}
 
@@ -829,7 +798,7 @@ public class TracingCanvas extends GraphCanvas {
 			int dy = 2;
 
 			int dx = 5;
-			int sw = (int) font.getStringBounds(label,
+			int sw = (int) font.getStringBounds(getLabel(),
 					((Graphics2D) g).getFontRenderContext()).getWidth();
 
 			g.setColor(new Color(230, 230, 230));
@@ -837,7 +806,7 @@ public class TracingCanvas extends GraphCanvas {
 			g.setColor(Color.BLACK);
 			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
 			g.setFont(font);
-			g.drawString(label, w - sw - dx, dy + fontAscent);
+			g.drawString(getLabel(), w - sw - dx, dy + fontAscent);
 		}
 	}
 }
