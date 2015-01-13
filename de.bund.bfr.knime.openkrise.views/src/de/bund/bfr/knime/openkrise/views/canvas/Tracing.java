@@ -46,6 +46,7 @@ import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
@@ -108,6 +109,8 @@ public class Tracing<V extends Node> implements ItemListener {
 		canvas.getOptionsPanel().addOption(
 				"Show Cross Contaminated " + TracingUtils.EDGES_NAME,
 				showForwardBox);
+		canvas.getViewer()
+				.prependPostRenderPaintable(new PostPaintable(canvas));
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -342,6 +345,70 @@ public class Tracing<V extends Node> implements ItemListener {
 		}
 	}
 
+	public void applyChanges() {
+		Set<String> selectedNodeIds = canvas.getSelectedNodeIds();
+		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
+
+		canvas.applyNodeCollapse();
+		canvas.applyInvisibility();
+		canvas.applyJoinEdgesAndSkipEdgeless();
+		canvas.getViewer()
+				.getGraphLayout()
+				.setGraph(
+						CanvasUtils.createGraph(canvas.getNodes(),
+								canvas.getEdges()));
+		canvas.applyHighlights();
+		applyTracing();
+		canvas.applyHighlights();
+
+		canvas.setSelectedNodeIds(selectedNodeIds);
+		canvas.setSelectedEdgeIds(selectedEdgeIds);
+		canvas.getViewer().repaint();
+	}
+
+	public void applyInvisibility() {
+		if (!isShowForward()) {
+			CanvasUtils.removeInvisibleElements(canvas.getNodes(),
+					canvas.getNodeHighlightConditions());
+			CanvasUtils.removeInvisibleElements(canvas.getEdges(),
+					canvas.getEdgeHighlightConditions());
+			CanvasUtils.removeNodelessEdges(canvas.getEdges(),
+					canvas.getNodes());
+			return;
+		}
+
+		MyNewTracing tracingWithCC = createTracing(canvas.getEdges(), true);
+		MyNewTracing tracingWithoutCC = createTracing(canvas.getEdges(), false);
+		Set<Edge<V>> removedEdges = new LinkedHashSet<>();
+
+		CanvasUtils.removeInvisibleElements(canvas.getNodes(),
+				canvas.getNodeHighlightConditions());
+		removedEdges.addAll(CanvasUtils.removeInvisibleElements(
+				canvas.getEdges(), canvas.getEdgeHighlightConditions()));
+		removedEdges.addAll(CanvasUtils.removeNodelessEdges(canvas.getEdges(),
+				canvas.getNodes()));
+
+		Set<Integer> forwardEdges = new LinkedHashSet<>();
+
+		for (Edge<V> edge : canvas.getEdges()) {
+			forwardEdges.addAll(tracingWithCC
+					.getForwardDeliveries2(getIntegerId(edge)));
+		}
+
+		for (Edge<V> edge : canvas.getEdges()) {
+			forwardEdges.removeAll(tracingWithoutCC
+					.getForwardDeliveries2(getIntegerId(edge)));
+		}
+
+		for (Edge<V> edge : removedEdges) {
+			if (forwardEdges.contains(getIntegerId(edge))) {
+				canvas.getNodes().add(edge.getFrom());
+				canvas.getNodes().add(edge.getTo());
+				canvas.getEdges().add(edge);
+			}
+		}
+	}
+
 	public GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode) {
 		return new GraphMouse<>(new PickingGraphMousePlugin<V, Edge<V>>() {
 
@@ -390,7 +457,20 @@ public class Tracing<V extends Node> implements ItemListener {
 		}, editingMode);
 	}
 
-	public MyNewTracing createTracing(Set<Edge<V>> edges,
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == enforceTemporalOrderBox) {
+			if (performTracing) {
+				canvas.applyChanges();
+			}
+		} else if (e.getSource() == showForwardBox) {
+			if (performTracing) {
+				canvas.applyChanges();
+			}
+		}
+	}
+
+	private MyNewTracing createTracing(Set<Edge<V>> edges,
 			boolean useCrossContamination) {
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
@@ -465,15 +545,82 @@ public class Tracing<V extends Node> implements ItemListener {
 		return tracing;
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == enforceTemporalOrderBox) {
-			if (performTracing) {
-				canvas.applyChanges();
+	private void applyTracing() {
+		if (!isPerformTracing()) {
+			return;
+		}
+
+		Set<Edge<V>> edges = new LinkedHashSet<>();
+
+		if (!canvas.isJoinEdges()) {
+			edges.addAll(canvas.getEdges());
+		} else {
+			for (Edge<V> edge : canvas.getEdges()) {
+				edges.addAll(joinMap.get(edge));
 			}
-		} else if (e.getSource() == showForwardBox) {
-			if (performTracing) {
-				canvas.applyChanges();
+		}
+
+		MyNewTracing tracing = createTracing(edges, true);
+
+		Set<Integer> backwardNodes = new LinkedHashSet<>();
+		Set<Integer> forwardNodes = new LinkedHashSet<>();
+		Set<Integer> backwardEdges = new LinkedHashSet<>();
+		Set<Integer> forwardEdges = new LinkedHashSet<>();
+
+		for (V node : canvas.getNodes()) {
+			int id = getIntegerId(node, canvas.getCollapsedNodes());
+			Boolean value = (Boolean) node.getProperties().get(
+					TracingColumns.OBSERVED);
+
+			if (value != null && value == true) {
+				backwardNodes.addAll(tracing.getBackwardStations(id));
+				forwardNodes.addAll(tracing.getForwardStations(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+			}
+		}
+
+		for (Edge<V> edge : canvas.getEdges()) {
+			int id = getIntegerId(edge);
+			Boolean value = (Boolean) edge.getProperties().get(
+					TracingColumns.OBSERVED);
+
+			if (value != null && value == true) {
+				backwardNodes.addAll(tracing.getBackwardStations2(id));
+				forwardNodes.addAll(tracing.getForwardStations2(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
+				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+			}
+		}
+
+		for (V node : canvas.getNodes()) {
+			int id = getIntegerId(node, canvas.getCollapsedNodes());
+
+			node.getProperties().put(TracingColumns.SCORE,
+					tracing.getStationScore(id));
+			node.getProperties().put(TracingColumns.BACKWARD,
+					backwardNodes.contains(id));
+			node.getProperties().put(TracingColumns.FORWARD,
+					forwardNodes.contains(id));
+		}
+
+		for (Edge<V> edge : canvas.getEdges()) {
+			int id = Integer.parseInt(edge.getId());
+
+			edge.getProperties().put(TracingColumns.SCORE,
+					tracing.getDeliveryScore(id));
+			edge.getProperties().put(TracingColumns.BACKWARD,
+					backwardEdges.contains(id));
+			edge.getProperties().put(TracingColumns.FORWARD,
+					forwardEdges.contains(id));
+		}
+
+		if (canvas.isJoinEdges()) {
+			for (Edge<V> edge : canvas.getEdges()) {
+				edge.getProperties().put(TracingColumns.OBSERVED, null);
+				edge.getProperties().put(TracingColumns.SCORE, null);
+				edge.getProperties().put(TracingColumns.BACKWARD, null);
+				edge.getProperties().put(TracingColumns.FORWARD, null);
 			}
 		}
 	}

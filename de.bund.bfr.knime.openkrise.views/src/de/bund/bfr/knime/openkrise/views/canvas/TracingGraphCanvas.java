@@ -25,15 +25,10 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
@@ -42,8 +37,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
-import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -67,7 +60,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 		super(nodes, edges, nodeProperties, edgeProperties, true);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
 				deliveries);
-		viewer.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -172,20 +164,12 @@ public class TracingGraphCanvas extends GraphCanvas {
 
 	@Override
 	public void applyChanges() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+		tracing.applyChanges();
+	}
 
-		applyNodeCollapse();
-		applyInvisibility();
-		applyJoinEdgesAndSkipEdgeless();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
-		applyHighlights();
-		applyTracing();
-		applyHighlights();
-
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
-		viewer.repaint();
+	@Override
+	public void applyInvisibility() {
+		tracing.applyInvisibility();
 	}
 
 	@Override
@@ -213,43 +197,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected void applyInvisibility() {
-		if (!isShowForward()) {
-			super.applyInvisibility();
-			return;
-		}
-
-		MyNewTracing tracingWithCC = tracing.createTracing(edges, true);
-		MyNewTracing tracingWithoutCC = tracing.createTracing(edges, false);
-		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
-
-		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
-		removedEdges.addAll(CanvasUtils.removeInvisibleElements(edges,
-				edgeHighlightConditions));
-		removedEdges.addAll(CanvasUtils.removeNodelessEdges(edges, nodes));
-
-		Set<Integer> forwardEdges = new LinkedHashSet<>();
-
-		for (Edge<GraphNode> edge : edges) {
-			forwardEdges.addAll(tracingWithCC
-					.getForwardDeliveries2(getIntegerId(edge)));
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			forwardEdges.removeAll(tracingWithoutCC
-					.getForwardDeliveries2(getIntegerId(edge)));
-		}
-
-		for (Edge<GraphNode> edge : removedEdges) {
-			if (forwardEdges.contains(getIntegerId(edge))) {
-				nodes.add(edge.getFrom());
-				nodes.add(edge.getTo());
-				edges.add(edge);
-			}
-		}
-	}
-
-	@Override
 	protected String getNodeName() {
 		return TracingUtils.NODE_NAME;
 	}
@@ -267,102 +214,5 @@ public class TracingGraphCanvas extends GraphCanvas {
 	@Override
 	protected String getEdgesName() {
 		return TracingUtils.EDGES_NAME;
-	}
-
-	private void applyTracing() {
-		if (!isPerformTracing()) {
-			return;
-		}
-
-		Set<Edge<GraphNode>> edges = new LinkedHashSet<>();
-
-		if (!isJoinEdges()) {
-			edges.addAll(this.edges);
-		} else {
-			for (Edge<GraphNode> edge : this.edges) {
-				edges.addAll(joinMap.get(edge));
-			}
-		}
-
-		MyNewTracing tracing = this.tracing.createTracing(edges, true);
-
-		Set<Integer> backwardNodes = new LinkedHashSet<>();
-		Set<Integer> forwardNodes = new LinkedHashSet<>();
-		Set<Integer> backwardEdges = new LinkedHashSet<>();
-		Set<Integer> forwardEdges = new LinkedHashSet<>();
-
-		for (GraphNode node : nodes) {
-			int id = getIntegerId(node, getCollapsedNodes());
-			Boolean value = (Boolean) node.getProperties().get(
-					TracingColumns.OBSERVED);
-
-			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations(id));
-				forwardNodes.addAll(tracing.getForwardStations(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries(id));
-			}
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			int id = getIntegerId(edge);
-			Boolean value = (Boolean) edge.getProperties().get(
-					TracingColumns.OBSERVED);
-
-			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations2(id));
-				forwardNodes.addAll(tracing.getForwardStations2(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
-			}
-		}
-
-		for (GraphNode node : nodes) {
-			int id = getIntegerId(node, getCollapsedNodes());
-
-			node.getProperties().put(TracingColumns.SCORE,
-					tracing.getStationScore(id));
-			node.getProperties().put(TracingColumns.BACKWARD,
-					backwardNodes.contains(id));
-			node.getProperties().put(TracingColumns.FORWARD,
-					forwardNodes.contains(id));
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			int id = Integer.parseInt(edge.getId());
-
-			edge.getProperties().put(TracingColumns.SCORE,
-					tracing.getDeliveryScore(id));
-			edge.getProperties().put(TracingColumns.BACKWARD,
-					backwardEdges.contains(id));
-			edge.getProperties().put(TracingColumns.FORWARD,
-					forwardEdges.contains(id));
-		}
-
-		if (isJoinEdges()) {
-			for (Edge<GraphNode> edge : edges) {
-				edge.getProperties().put(TracingColumns.OBSERVED, null);
-				edge.getProperties().put(TracingColumns.SCORE, null);
-				edge.getProperties().put(TracingColumns.BACKWARD, null);
-				edge.getProperties().put(TracingColumns.FORWARD, null);
-			}
-		}
-	}
-
-	private static int getIntegerId(GraphNode node,
-			Map<String, Set<String>> collapsedNodes) {
-		if (collapsedNodes.containsKey(node.getId())) {
-			return createId(collapsedNodes.get(node.getId()));
-		} else {
-			return Integer.parseInt(node.getId());
-		}
-	}
-
-	private static int getIntegerId(Edge<GraphNode> edge) {
-		return Integer.parseInt(edge.getId());
-	}
-
-	private static int createId(Collection<String> c) {
-		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
 	}
 }

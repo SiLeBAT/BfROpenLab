@@ -80,8 +80,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
-		viewer.getGraphLayout().setGraph(
-				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (LocationNode node : this.nodes) {
 			viewer.getGraphLayout().setLocation(node, node.getCenter());

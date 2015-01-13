@@ -88,8 +88,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 				new InvisibleTransformer<RegionNode>());
 		viewer.getRenderer().getVertexLabelRenderer()
 				.setPosition(Position.CNTR);
-		viewer.getGraphLayout().setGraph(
-				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		for (RegionNode node : this.nodes) {
 			viewer.getGraphLayout().setLocation(node, node.getCenter());
@@ -118,7 +116,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyHighlights() {
+	public void applyHighlights() {
 		CanvasUtils.applyNodeLabels(viewer, nodeHighlightConditions);
 		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}

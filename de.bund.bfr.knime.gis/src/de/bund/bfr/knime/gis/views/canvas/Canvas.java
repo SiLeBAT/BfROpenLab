@@ -195,13 +195,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
-		viewer.setGraphMouse(createMouseModel(Mode.TRANSFORMING));
 		viewer.registerKeyboardAction(this, COPY, KeyStroke.getKeyStroke(
 				KeyEvent.VK_C, ActionEvent.CTRL_MASK, false),
 				JComponent.WHEN_FOCUSED);
 		viewer.registerKeyboardAction(this, PASTE, KeyStroke.getKeyStroke(
 				KeyEvent.VK_V, ActionEvent.CTRL_MASK, false),
 				JComponent.WHEN_FOCUSED);
+		viewer.getGraphLayout().setGraph(
+				CanvasUtils.createGraph(this.nodes, this.edges));
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -1058,47 +1059,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.repaint();
 	}
 
-	protected String getNodeName() {
-		return DEFAULT_NODE_NAME;
-	}
-
-	protected String getEdgeName() {
-		return DEFAULT_EDGE_NAME;
-	}
-
-	protected String getNodesName() {
-		return DEFAULT_NODES_NAME;
-	}
-
-	protected String getEdgesName() {
-		return DEFAULT_EDGES_NAME;
-	}
-
-	protected Point2D toGraphCoordinates(int x, int y) {
-		return new Point2D.Double((x - translationX) / scaleX,
-				(y - translationY) / scaleY);
-	}
-
-	protected Point toWindowsCoordinates(double x, double y) {
-		return new Point((int) (x * scaleX + translationX),
-				(int) (y * scaleY + translationY));
-	}
-
-	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, nodeSchema.getMap(),
-				nodeHighlightConditions);
-	}
-
-	protected HighlightListDialog openEdgeHighlightDialog() {
-		HighlightListDialog dialog = new HighlightListDialog(this,
-				edgeSchema.getMap(), edgeHighlightConditions);
-
-		dialog.addChecker(new EdgeHighlightChecker());
-
-		return dialog;
-	}
-
-	protected void applyNodeCollapse() {
+	public void applyNodeCollapse() {
 		nodes.clear();
 		edges.clear();
 
@@ -1169,13 +1130,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
-	protected void applyInvisibility() {
+	public void applyInvisibility() {
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
 		CanvasUtils.removeInvisibleElements(edges, edgeHighlightConditions);
 		CanvasUtils.removeNodelessEdges(edges, nodes);
 	}
 
-	protected void applyJoinEdgesAndSkipEdgeless() {
+	public void applyJoinEdgesAndSkipEdgeless() {
 		joinMap.clear();
 
 		if (isJoinEdges()) {
@@ -1189,10 +1150,50 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		}
 	}
 
-	protected void applyHighlights() {
+	public void applyHighlights() {
 		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
 				getNodeSize());
 		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
+	}
+
+	protected String getNodeName() {
+		return DEFAULT_NODE_NAME;
+	}
+
+	protected String getEdgeName() {
+		return DEFAULT_EDGE_NAME;
+	}
+
+	protected String getNodesName() {
+		return DEFAULT_NODES_NAME;
+	}
+
+	protected String getEdgesName() {
+		return DEFAULT_EDGES_NAME;
+	}
+
+	protected Point2D toGraphCoordinates(int x, int y) {
+		return new Point2D.Double((x - translationX) / scaleX,
+				(y - translationY) / scaleY);
+	}
+
+	protected Point toWindowsCoordinates(double x, double y) {
+		return new Point((int) (x * scaleX + translationX),
+				(int) (y * scaleY + translationY));
+	}
+
+	protected HighlightListDialog openNodeHighlightDialog() {
+		return new HighlightListDialog(this, nodeSchema.getMap(),
+				nodeHighlightConditions);
+	}
+
+	protected HighlightListDialog openEdgeHighlightDialog() {
+		HighlightListDialog dialog = new HighlightListDialog(this,
+				edgeSchema.getMap(), edgeHighlightConditions);
+
+		dialog.addChecker(new EdgeHighlightChecker());
+
+		return dialog;
 	}
 
 	protected abstract void applyTransform();

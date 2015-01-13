@@ -75,8 +75,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
-		viewer.getGraphLayout().setGraph(
-				CanvasUtils.createGraph(this.nodes, this.edges));
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
