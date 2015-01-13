@@ -67,7 +67,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingCanvas extends GraphCanvas {
+public class TracingGraphCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
@@ -83,14 +83,14 @@ public class TracingCanvas extends GraphCanvas {
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
 
-	public TracingCanvas() {
+	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(),
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
-	public TracingCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			NodePropertySchema nodeProperties,
+	public TracingGraphCanvas(List<GraphNode> nodes,
+			List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, true);

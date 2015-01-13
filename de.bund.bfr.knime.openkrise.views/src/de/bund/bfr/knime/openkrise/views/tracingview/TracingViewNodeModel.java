@@ -63,7 +63,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 /**
  * This is the model implementation of TracingVisualizer.
@@ -97,9 +97,9 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
 				(BufferedDataTable) inObjects[2], edgeTable);
-		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
+		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, tracing, set).createGraphCanvas();
-		TracingCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
+		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
 				edgeTable, tracing, set);
 
 		int index = 0;
@@ -341,7 +341,7 @@ public class TracingViewNodeModel extends NodeModel {
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static TracingCanvas createAllEdgesCanvas(
+	private static TracingGraphCanvas createAllEdgesCanvas(
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
 			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set)
 			throws InvalidSettingsException {
@@ -349,7 +349,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 		set.getGraphSettings().setJoinEdges(false);
 
-		TracingCanvas canvas = new TracingViewCanvasCreator(nodeTable,
+		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, deliveries, set).createGraphCanvas();
 
 		set.getGraphSettings().setJoinEdges(joinEdges);

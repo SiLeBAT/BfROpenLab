@@ -47,7 +47,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.ResizeListener;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -58,7 +58,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		ActionListener {
 
 	private JPanel panel;
-	private TracingCanvas canvas;
+	private TracingGraphCanvas canvas;
 
 	private ResizeListener listener;
 
@@ -159,7 +159,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		try {
 			canvas = creator.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = new TracingCanvas();
+			canvas = new TracingGraphCanvas();
 			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 		}
 

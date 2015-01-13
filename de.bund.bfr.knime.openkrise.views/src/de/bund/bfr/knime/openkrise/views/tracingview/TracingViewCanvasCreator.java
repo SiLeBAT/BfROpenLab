@@ -40,7 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 public class TracingViewCanvasCreator {
 
@@ -58,7 +58,8 @@ public class TracingViewCanvasCreator {
 		this.set = set;
 	}
 
-	public TracingCanvas createGraphCanvas() throws InvalidSettingsException {
+	public TracingGraphCanvas createGraphCanvas()
+			throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
@@ -126,9 +127,8 @@ public class TracingViewCanvasCreator {
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		TracingCanvas canvas = new TracingCanvas(
-				new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-				deliveries);
+		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
+				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
 		canvas.setNodeName(TracingUtils.NODE_NAME);
 		canvas.setEdgeName(TracingUtils.EDGE_NAME);
