@@ -24,16 +24,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,32 +39,24 @@ import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
+public class TracingGraphCanvas extends GraphCanvas implements
+		TracingCanvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
 	private Tracing<GraphNode> tracing;
-
-	private Map<Integer, MyDelivery> deliveries;
 
 	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -84,9 +69,8 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 			EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, true);
-		this.deliveries = deliveries;
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap);
-		viewer.prependPostRenderPaintable(new PostPaintable());
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, deliveries);
+		viewer.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -220,7 +204,7 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
 				.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new PostPaintable());
+		server.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 
 		return server;
 	}
@@ -298,7 +282,7 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 	protected HighlightListDialog openNodeHighlightDialog() {
 		HighlightListDialog dialog = super.openNodeHighlightDialog();
 
-		dialog.addChecker(new HighlightChecker());
+		dialog.addChecker(new Tracing.HighlightChecker());
 
 		return dialog;
 	}
@@ -307,7 +291,7 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		HighlightListDialog dialog = super.openEdgeHighlightDialog();
 
-		dialog.addChecker(new HighlightChecker());
+		dialog.addChecker(new Tracing.HighlightChecker());
 
 		return dialog;
 	}
@@ -319,8 +303,8 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 			return;
 		}
 
-		MyNewTracing tracingWithCC = createTracing(edges, true);
-		MyNewTracing tracingWithoutCC = createTracing(edges, false);
+		MyNewTracing tracingWithCC = tracing.createTracing(edges, true);
+		MyNewTracing tracingWithoutCC = tracing.createTracing(edges, false);
 		Set<Edge<GraphNode>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtils.removeInvisibleElements(nodes, nodeHighlightConditions);
@@ -384,7 +368,7 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 			}
 		}
 
-		MyNewTracing tracing = createTracing(edges, true);
+		MyNewTracing tracing = this.tracing.createTracing(edges, true);
 
 		Set<Integer> backwardNodes = new LinkedHashSet<>();
 		Set<Integer> forwardNodes = new LinkedHashSet<>();
@@ -449,81 +433,6 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 		}
 	}
 
-	private MyNewTracing createTracing(Set<Edge<GraphNode>> edges,
-			boolean useCrossContamination) {
-		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
-
-		for (Edge<GraphNode> id : edges) {
-			activeDeliveries.put(getIntegerId(id),
-					deliveries.get(getIntegerId(id)));
-		}
-
-		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
-				new LinkedHashMap<Integer, Double>(),
-				new LinkedHashMap<Integer, Double>(),
-				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
-
-		for (String id : getCollapsedNodes().keySet()) {
-			Set<String> nodeIdStrings = getCollapsedNodes().get(id);
-			Set<Integer> nodeIds = new LinkedHashSet<>();
-
-			for (String idString : nodeIdStrings) {
-				nodeIds.add(Integer.parseInt(idString));
-			}
-
-			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
-		}
-
-		for (GraphNode node : nodes) {
-			int id = getIntegerId(node, getCollapsedNodes());
-			Double caseValue = (Double) node.getProperties().get(
-					TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) node.getProperties().get(
-					TracingColumns.CROSS_CONTAMINATION);
-
-			if (caseValue != null) {
-				tracing.setCase(id, caseValue);
-			} else {
-				tracing.setCase(id, 0.0);
-			}
-
-			if (useCrossContamination) {
-				if (contaminationValue != null) {
-					tracing.setCrossContamination(id, contaminationValue);
-				} else {
-					tracing.setCrossContamination(id, false);
-				}
-			}
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			int id = getIntegerId(edge);
-			Double caseValue = (Double) edge.getProperties().get(
-					TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) edge.getProperties().get(
-					TracingColumns.CROSS_CONTAMINATION);
-
-			if (caseValue != null) {
-				tracing.setCaseDelivery(id, caseValue);
-			} else {
-				tracing.setCaseDelivery(id, 0.0);
-			}
-
-			if (useCrossContamination) {
-				if (contaminationValue != null) {
-					tracing.setCrossContaminationDelivery(id,
-							contaminationValue);
-				} else {
-					tracing.setCrossContaminationDelivery(id, false);
-				}
-			}
-		}
-
-		tracing.fillDeliveries(isEnforceTemporalOrder());
-
-		return tracing;
-	}
-
 	private static int getIntegerId(GraphNode node,
 			Map<String, Set<String>> collapsedNodes) {
 		if (collapsedNodes.containsKey(node.getId())) {
@@ -539,108 +448,5 @@ public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 
 	private static int createId(Collection<String> c) {
 		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
-	}
-
-	private class HighlightChecker implements HighlightConditionChecker {
-
-		@Override
-		public String findError(HighlightCondition condition) {
-			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
-					TracingColumns.BACKWARD, TracingColumns.FORWARD);
-			String error = "The following columns cannot be used with \"Invisible\" option:\n";
-
-			for (String column : tracingColumns) {
-				error += column + ", ";
-			}
-
-			error = error.substring(0, error.length() - 2);
-
-			if (condition != null && condition.isInvisible()) {
-				AndOrHighlightCondition logicalCondition = null;
-				ValueHighlightCondition valueCondition = null;
-
-				if (condition instanceof AndOrHighlightCondition) {
-					logicalCondition = (AndOrHighlightCondition) condition;
-				} else if (condition instanceof ValueHighlightCondition) {
-					valueCondition = (ValueHighlightCondition) condition;
-				} else if (condition instanceof LogicalValueHighlightCondition) {
-					logicalCondition = ((LogicalValueHighlightCondition) condition)
-							.getLogicalCondition();
-					valueCondition = ((LogicalValueHighlightCondition) condition)
-							.getValueCondition();
-				}
-
-				if (logicalCondition != null) {
-					for (List<LogicalHighlightCondition> cc : logicalCondition
-							.getConditions()) {
-						for (LogicalHighlightCondition c : cc) {
-							if (tracingColumns.contains(c.getProperty())) {
-								return error;
-							}
-						}
-					}
-				}
-
-				if (valueCondition != null) {
-					if (tracingColumns.contains(valueCondition.getProperty())) {
-						return error;
-					}
-				}
-			}
-
-			return null;
-		}
-	}
-
-	private class PostPaintable implements Paintable {
-
-		@Override
-		public boolean useTransform() {
-			return false;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			int w = getCanvasSize().width;
-			int h = getCanvasSize().height;
-
-			Font font = new Font("Default", Font.BOLD, 20);
-
-			int height = 28;
-			int fontHeight = g.getFontMetrics(font).getHeight();
-			int fontAscent = g.getFontMetrics(font).getAscent();
-			int dFont = (height - fontHeight) / 2;
-			int logoHeight = 18;
-			int dLogo = (height - logoHeight) / 2;
-
-			int dx = 10;
-			String s1 = "Created with";
-			int sw1 = (int) font.getStringBounds(s1,
-					((Graphics2D) g).getFontRenderContext()).getWidth();
-			String s2 = "by";
-			int sw2 = (int) font.getStringBounds(s2,
-					((Graphics2D) g).getFontRenderContext()).getWidth();
-			FoodChainLabLogo logo1 = new FoodChainLabLogo();
-			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
-			BfrLogo logo2 = new BfrLogo();
-			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
-
-			g.setColor(new Color(230, 230, 230));
-			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, height);
-			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, height);
-			g.setFont(font);
-			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight
-					- dFont + fontAscent);
-			logo1.setDimension(new Dimension(iw1, logoHeight));
-			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
-					- logoHeight - dLogo);
-			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
-					+ fontAscent);
-			logo2.setDimension(new Dimension(iw2, logoHeight));
-			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
-		}
 	}
 }

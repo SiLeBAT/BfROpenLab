@@ -24,18 +24,32 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.util.Map;
+import java.util.Set;
+
 import de.bund.bfr.knime.gis.views.canvas.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
-public interface TracingCanvas {
+public interface TracingCanvas<V extends Node> {
 
-	public abstract void applyChanges();
+	public abstract Set<V> getNodes();
+
+	public abstract Set<Edge<V>> getEdges();
+
+	public abstract Map<String, Set<String>> getCollapsedNodes();
+
+	public abstract void setCollapsedNodes(
+			Map<String, Set<String>> collapsedNodes);
 
 	public abstract CanvasOptionsPanel getOptionsPanel();
 
-	public void setOptionsPanel(CanvasOptionsPanel optionsPanel);
+	public abstract void setOptionsPanel(CanvasOptionsPanel optionsPanel);
 
-	public CanvasPopupMenu getPopupMenu();
+	public abstract CanvasPopupMenu getPopupMenu();
 
-	public void setPopupMenu(CanvasPopupMenu popup);
+	public abstract void setPopupMenu(CanvasPopupMenu popup);
+
+	public abstract void applyChanges();
 }

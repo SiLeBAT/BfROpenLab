@@ -24,17 +24,40 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 
+import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
 public class Tracing<V extends Node> implements ItemListener {
 
@@ -42,20 +65,23 @@ public class Tracing<V extends Node> implements ItemListener {
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 
-	private TracingCanvas canvas;
+	private TracingCanvas<V> canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
+	private Map<Integer, MyDelivery> deliveries;
 
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
 
-	public Tracing(TracingCanvas canvas, Map<String, V> nodeSaveMap,
-			Map<String, Edge<V>> edgeSaveMap) {
+	public Tracing(TracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
+			Map<String, Edge<V>> edgeSaveMap,
+			Map<Integer, MyDelivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
+		this.deliveries = deliveries;
 
 		performTracing = DEFAULT_PERFORM_TRACING;
 
@@ -252,6 +278,81 @@ public class Tracing<V extends Node> implements ItemListener {
 		}
 	}
 
+	public MyNewTracing createTracing(Set<Edge<V>> edges,
+			boolean useCrossContamination) {
+		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
+
+		for (Edge<V> id : edges) {
+			activeDeliveries.put(getIntegerId(id),
+					deliveries.get(getIntegerId(id)));
+		}
+
+		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
+
+		for (String id : canvas.getCollapsedNodes().keySet()) {
+			Set<String> nodeIdStrings = canvas.getCollapsedNodes().get(id);
+			Set<Integer> nodeIds = new LinkedHashSet<>();
+
+			for (String idString : nodeIdStrings) {
+				nodeIds.add(Integer.parseInt(idString));
+			}
+
+			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
+		}
+
+		for (V node : canvas.getNodes()) {
+			int id = getIntegerId(node, canvas.getCollapsedNodes());
+			Double caseValue = (Double) node.getProperties().get(
+					TracingColumns.WEIGHT);
+			Boolean contaminationValue = (Boolean) node.getProperties().get(
+					TracingColumns.CROSS_CONTAMINATION);
+
+			if (caseValue != null) {
+				tracing.setCase(id, caseValue);
+			} else {
+				tracing.setCase(id, 0.0);
+			}
+
+			if (useCrossContamination) {
+				if (contaminationValue != null) {
+					tracing.setCrossContamination(id, contaminationValue);
+				} else {
+					tracing.setCrossContamination(id, false);
+				}
+			}
+		}
+
+		for (Edge<V> edge : edges) {
+			int id = getIntegerId(edge);
+			Double caseValue = (Double) edge.getProperties().get(
+					TracingColumns.WEIGHT);
+			Boolean contaminationValue = (Boolean) edge.getProperties().get(
+					TracingColumns.CROSS_CONTAMINATION);
+
+			if (caseValue != null) {
+				tracing.setCaseDelivery(id, caseValue);
+			} else {
+				tracing.setCaseDelivery(id, 0.0);
+			}
+
+			if (useCrossContamination) {
+				if (contaminationValue != null) {
+					tracing.setCrossContaminationDelivery(id,
+							contaminationValue);
+				} else {
+					tracing.setCrossContaminationDelivery(id, false);
+				}
+			}
+		}
+
+		tracing.fillDeliveries(isEnforceTemporalOrder());
+
+		return tracing;
+	}
+
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == enforceTemporalOrderBox) {
@@ -271,5 +372,131 @@ public class Tracing<V extends Node> implements ItemListener {
 
 	private static boolean nullToFalse(Boolean value) {
 		return value == null ? false : value;
+	}
+
+	private static <V extends Node> int getIntegerId(V node,
+			Map<String, Set<String>> collapsedNodes) {
+		if (collapsedNodes.containsKey(node.getId())) {
+			return createId(collapsedNodes.get(node.getId()));
+		} else {
+			return Integer.parseInt(node.getId());
+		}
+	}
+
+	private static <V extends Node> int getIntegerId(Edge<V> edge) {
+		return Integer.parseInt(edge.getId());
+	}
+
+	private static int createId(Collection<String> c) {
+		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
+	}
+
+	public static class HighlightChecker implements HighlightConditionChecker {
+
+		@Override
+		public String findError(HighlightCondition condition) {
+			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
+					TracingColumns.BACKWARD, TracingColumns.FORWARD);
+			String error = "The following columns cannot be used with \"Invisible\" option:\n";
+
+			for (String column : tracingColumns) {
+				error += column + ", ";
+			}
+
+			error = error.substring(0, error.length() - 2);
+
+			if (condition != null && condition.isInvisible()) {
+				AndOrHighlightCondition logicalCondition = null;
+				ValueHighlightCondition valueCondition = null;
+
+				if (condition instanceof AndOrHighlightCondition) {
+					logicalCondition = (AndOrHighlightCondition) condition;
+				} else if (condition instanceof ValueHighlightCondition) {
+					valueCondition = (ValueHighlightCondition) condition;
+				} else if (condition instanceof LogicalValueHighlightCondition) {
+					logicalCondition = ((LogicalValueHighlightCondition) condition)
+							.getLogicalCondition();
+					valueCondition = ((LogicalValueHighlightCondition) condition)
+							.getValueCondition();
+				}
+
+				if (logicalCondition != null) {
+					for (List<LogicalHighlightCondition> cc : logicalCondition
+							.getConditions()) {
+						for (LogicalHighlightCondition c : cc) {
+							if (tracingColumns.contains(c.getProperty())) {
+								return error;
+							}
+						}
+					}
+				}
+
+				if (valueCondition != null) {
+					if (tracingColumns.contains(valueCondition.getProperty())) {
+						return error;
+					}
+				}
+			}
+
+			return null;
+		}
+	}
+
+	public static class PostPaintable implements Paintable {
+
+		private Canvas<?> canvas;
+
+		public PostPaintable(Canvas<?> canvas) {
+			this.canvas = canvas;
+		}
+
+		@Override
+		public boolean useTransform() {
+			return false;
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			int w = canvas.getCanvasSize().width;
+			int h = canvas.getCanvasSize().height;
+
+			Font font = new Font("Default", Font.BOLD, 20);
+
+			int height = 28;
+			int fontHeight = g.getFontMetrics(font).getHeight();
+			int fontAscent = g.getFontMetrics(font).getAscent();
+			int dFont = (height - fontHeight) / 2;
+			int logoHeight = 18;
+			int dLogo = (height - logoHeight) / 2;
+
+			int dx = 10;
+			String s1 = "Created with";
+			int sw1 = (int) font.getStringBounds(s1,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+			String s2 = "by";
+			int sw2 = (int) font.getStringBounds(s2,
+					((Graphics2D) g).getFontRenderContext()).getWidth();
+			FoodChainLabLogo logo1 = new FoodChainLabLogo();
+			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
+			BfrLogo logo2 = new BfrLogo();
+			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
+
+			g.setColor(new Color(230, 230, 230));
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.setColor(Color.BLACK);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.setFont(font);
+			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight
+					- dFont + fontAscent);
+			logo1.setDimension(new Dimension(iw1, logoHeight));
+			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
+					- logoHeight - dLogo);
+			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
+					+ fontAscent);
+			logo2.setDimension(new Dimension(iw2, logoHeight));
+			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
+		}
 	}
 }
