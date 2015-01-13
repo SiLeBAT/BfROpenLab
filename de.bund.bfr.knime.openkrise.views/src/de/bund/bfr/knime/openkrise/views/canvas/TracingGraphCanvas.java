@@ -51,8 +51,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingGraphCanvas extends GraphCanvas implements
-		TracingCanvas<GraphNode> {
+public class TracingGraphCanvas extends GraphCanvas {
 
 	private static final long serialVersionUID = 1L;
 
@@ -69,7 +68,8 @@ public class TracingGraphCanvas extends GraphCanvas implements
 			EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, true);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, deliveries);
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
+				deliveries);
 		viewer.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 	}
 
@@ -149,53 +149,17 @@ public class TracingGraphCanvas extends GraphCanvas implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
-				.createNodeDialog(this, getSelectedNodes(), nodeSchema, true);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			applyChanges();
-		}
+		tracing.nodePropertiesItemClicked();
 	}
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		if (isJoinEdges()) {
-			super.edgePropertiesItemClicked();
-		} else {
-			EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
-					.createEdgeDialog(this, getSelectedEdges(), edgeSchema,
-							true);
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				applyChanges();
-			}
-		}
+		tracing.edgePropertiesItemClicked();
 	}
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<GraphNode>> allPicked = new LinkedHashSet<>();
-
-		for (Edge<GraphNode> p : getSelectedEdges()) {
-			if (joinMap.containsKey(p)) {
-				allPicked.addAll(joinMap.get(p));
-			} else {
-				allPicked.add(p);
-			}
-		}
-
-		EditablePropertiesDialog<GraphNode> dialog = EditablePropertiesDialog
-				.createEdgeDialog(this, allPicked, edgeSchema, false);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			applyChanges();
-		}
+		tracing.edgeAllPropertiesItemClicked();
 	}
 
 	@Override

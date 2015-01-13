@@ -46,6 +46,7 @@ import javax.swing.JCheckBox;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -65,9 +66,10 @@ public class Tracing<V extends Node> implements ItemListener {
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 
-	private TracingCanvas<V> canvas;
+	private Canvas<V> canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
+	private Map<Edge<V>, Set<Edge<V>>> joinMap;
 	private Map<Integer, MyDelivery> deliveries;
 
 	private boolean performTracing;
@@ -75,12 +77,14 @@ public class Tracing<V extends Node> implements ItemListener {
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
 
-	public Tracing(TracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
+	public Tracing(Canvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap,
+			Map<Edge<V>, Set<Edge<V>>> joinMap,
 			Map<Integer, MyDelivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
+		this.joinMap = joinMap;
 		this.deliveries = deliveries;
 
 		performTracing = DEFAULT_PERFORM_TRACING;
@@ -274,6 +278,60 @@ public class Tracing<V extends Node> implements ItemListener {
 		this.performTracing = performTracing;
 
 		if (performTracing) {
+			canvas.applyChanges();
+		}
+	}
+
+	public void nodePropertiesItemClicked() {
+		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
+				.createNodeDialog(canvas, canvas.getSelectedNodes(),
+						canvas.getNodeSchema(), true);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			canvas.applyChanges();
+		}
+	}
+
+	public void edgePropertiesItemClicked() {
+		if (canvas.isJoinEdges()) {
+			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(
+					canvas, canvas.getSelectedEdges(), canvas.getEdgeSchema(),
+					true);
+
+			dialog.setVisible(true);
+		} else {
+			EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
+					.createEdgeDialog(canvas, canvas.getSelectedEdges(),
+							canvas.getEdgeSchema(), true);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				canvas.applyChanges();
+			}
+		}
+	}
+
+	public void edgeAllPropertiesItemClicked() {
+		Set<Edge<V>> allPicked = new LinkedHashSet<>();
+
+		for (Edge<V> p : canvas.getSelectedEdges()) {
+			if (joinMap.containsKey(p)) {
+				allPicked.addAll(joinMap.get(p));
+			} else {
+				allPicked.add(p);
+			}
+		}
+
+		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
+				.createEdgeDialog(canvas, allPicked, canvas.getEdgeSchema(),
+						false);
+
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
 			canvas.applyChanges();
 		}
 	}

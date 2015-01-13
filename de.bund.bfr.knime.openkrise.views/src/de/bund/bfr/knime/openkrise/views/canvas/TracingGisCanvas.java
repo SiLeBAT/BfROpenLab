@@ -52,8 +52,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingGisCanvas extends LocationCanvas implements
-		TracingCanvas<LocationNode> {
+public class TracingGisCanvas extends LocationCanvas {
 
 	private static final long serialVersionUID = 1L;
 
@@ -71,7 +70,8 @@ public class TracingGisCanvas extends LocationCanvas implements
 			EdgePropertySchema edgeProperties, List<RegionNode> regions,
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, regions);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, deliveries);
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
+				deliveries);
 		viewer.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 	}
 
@@ -151,53 +151,17 @@ public class TracingGisCanvas extends LocationCanvas implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
-				.createNodeDialog(this, getSelectedNodes(), nodeSchema, true);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			applyChanges();
-		}
+		tracing.nodePropertiesItemClicked();
 	}
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		if (isJoinEdges()) {
-			super.edgePropertiesItemClicked();
-		} else {
-			EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
-					.createEdgeDialog(this, getSelectedEdges(), edgeSchema,
-							true);
-
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				applyChanges();
-			}
-		}
+		tracing.edgePropertiesItemClicked();
 	}
 
 	@Override
 	public void edgeAllPropertiesItemClicked() {
-		Set<Edge<LocationNode>> allPicked = new LinkedHashSet<>();
-
-		for (Edge<LocationNode> p : getSelectedEdges()) {
-			if (joinMap.containsKey(p)) {
-				allPicked.addAll(joinMap.get(p));
-			} else {
-				allPicked.add(p);
-			}
-		}
-
-		EditablePropertiesDialog<LocationNode> dialog = EditablePropertiesDialog
-				.createEdgeDialog(this, allPicked, edgeSchema, false);
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			applyChanges();
-		}
+		tracing.edgeAllPropertiesItemClicked();
 	}
 
 	@Override
