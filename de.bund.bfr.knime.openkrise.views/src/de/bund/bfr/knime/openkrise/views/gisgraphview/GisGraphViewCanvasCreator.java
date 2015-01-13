@@ -79,10 +79,6 @@ public class GisGraphViewCanvasCreator {
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
 				edges, nodeSchema, edgeSchema, false);
 
-		canvas.setNodeName(TracingUtils.NODE_NAME);
-		canvas.setEdgeName(TracingUtils.EDGE_NAME);
-		canvas.setNodesName(TracingUtils.NODES_NAME);
-		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);
 
@@ -110,10 +106,6 @@ public class GisGraphViewCanvasCreator {
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regionNodes);
 
-		canvas.setNodeName(TracingUtils.NODE_NAME);
-		canvas.setEdgeName(TracingUtils.EDGE_NAME);
-		canvas.setNodesName(TracingUtils.NODES_NAME);
-		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);
 		set.getGisSettings().setToCanvas(canvas, nodeProperties, false);

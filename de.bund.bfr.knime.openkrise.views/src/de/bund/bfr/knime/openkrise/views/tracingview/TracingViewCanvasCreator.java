@@ -130,10 +130,6 @@ public class TracingViewCanvasCreator {
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
-		canvas.setNodeName(TracingUtils.NODE_NAME);
-		canvas.setEdgeName(TracingUtils.EDGE_NAME);
-		canvas.setNodesName(TracingUtils.NODES_NAME);
-		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		canvas.setPerformTracing(false);
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, false);

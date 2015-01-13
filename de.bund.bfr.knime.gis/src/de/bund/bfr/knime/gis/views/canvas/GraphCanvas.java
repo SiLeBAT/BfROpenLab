@@ -59,8 +59,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean allowCollapse;
-
 	public GraphCanvas(boolean allowCollapse) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(),
@@ -71,9 +69,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema);
-		this.allowCollapse = allowCollapse;
 
-		updatePopupMenuAndOptionsPanel();
+		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
+		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<GraphNode, Double>()));
@@ -193,11 +191,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
-	protected void applyNameChanges() {
-		updatePopupMenuAndOptionsPanel();
-	}
-
-	@Override
 	protected GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
@@ -227,11 +220,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 
-	private void updatePopupMenuAndOptionsPanel() {
-		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
-		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
-	}
-
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		if (selectedNodes == null) {
 			selectedNodes = new LinkedHashSet<>();
@@ -242,10 +230,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
-			if (JOptionPane.showConfirmDialog(this,
-					layoutType + " cannot be applied on a subset of "
-							+ nodesName.toLowerCase() + ". Apply " + layoutType
-							+ " on all " + nodesName.toLowerCase() + "?",
+			if (JOptionPane.showConfirmDialog(this, layoutType
+					+ " cannot be applied on a subset of "
+					+ getNodesName().toLowerCase() + ". Apply " + layoutType
+					+ " on all " + getNodesName().toLowerCase() + "?",
 					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				selectedNodes = new LinkedHashSet<>();
 			} else {

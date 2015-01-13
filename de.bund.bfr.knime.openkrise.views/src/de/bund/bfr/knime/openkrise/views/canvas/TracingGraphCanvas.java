@@ -29,7 +29,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +39,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
@@ -62,26 +59,19 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class TracingGraphCanvas extends GraphCanvas {
+public class TracingGraphCanvas extends GraphCanvas implements TracingCanvas {
 
 	private static final long serialVersionUID = 1L;
-
-	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-	private static boolean DEFAULT_SHOW_FORWARD = false;
-	private static boolean DEFAULT_PERFORM_TRACING = true;
 
 	private Tracing<GraphNode> tracing;
 
 	private Map<Integer, MyDelivery> deliveries;
-	private boolean performTracing;
-
-	private JCheckBox enforceTemporalOrderBox;
-	private JCheckBox showForwardBox;
 
 	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -95,10 +85,7 @@ public class TracingGraphCanvas extends GraphCanvas {
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, true);
 		this.deliveries = deliveries;
-		tracing = new Tracing<>(nodeSaveMap, edgeSaveMap);
-		performTracing = DEFAULT_PERFORM_TRACING;
-
-		updatePopupMenuAndOptionsPanel();
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap);
 		viewer.prependPostRenderPaintable(new PostPaintable());
 	}
 
@@ -108,10 +95,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
 		tracing.setNodeWeights(nodeWeights);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -120,10 +103,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
 		tracing.setEdgeWeights(edgeWeights);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
@@ -133,10 +112,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 	public void setNodeCrossContaminations(
 			Map<String, Boolean> nodeCrossContaminations) {
 		tracing.setNodeCrossContaminations(nodeCrossContaminations);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -146,10 +121,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 	public void setEdgeCrossContaminations(
 			Map<String, Boolean> edgeCrossContaminations) {
 		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
@@ -158,10 +129,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
 		tracing.setObservedNodes(observedNodes);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -170,53 +137,30 @@ public class TracingGraphCanvas extends GraphCanvas {
 
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
 		tracing.setObservedEdges(observedEdges);
-
-		if (performTracing) {
-			applyChanges();
-		}
 	}
 
 	public boolean isEnforceTemporalOrder() {
-		return enforceTemporalOrderBox.isSelected();
+		return tracing.isEnforceTemporalOrder();
 	}
 
 	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
-		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
+		tracing.setEnforceTemporalOrder(enforceTemporalOrder);
 	}
 
 	public boolean isShowForward() {
-		return showForwardBox.isSelected();
+		return tracing.isShowForward();
 	}
 
 	public void setShowForward(boolean showForward) {
-		showForwardBox.setSelected(showForward);
+		tracing.setShowForward(showForward);
 	}
 
 	public boolean isPerformTracing() {
-		return performTracing;
+		return tracing.isPerformTracing();
 	}
 
 	public void setPerformTracing(boolean performTracing) {
-		this.performTracing = performTracing;
-
-		if (performTracing) {
-			applyChanges();
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		super.itemStateChanged(e);
-
-		if (e.getSource() == enforceTemporalOrderBox) {
-			if (performTracing) {
-				applyChanges();
-			}
-		} else if (e.getSource() == showForwardBox) {
-			if (performTracing) {
-				applyChanges();
-			}
-		}
+		tracing.setPerformTracing(performTracing);
 	}
 
 	@Override
@@ -282,6 +226,24 @@ public class TracingGraphCanvas extends GraphCanvas {
 	}
 
 	@Override
+	public void applyChanges() {
+		Set<String> selectedNodeIds = getSelectedNodeIds();
+		Set<String> selectedEdgeIds = getSelectedEdgeIds();
+
+		applyNodeCollapse();
+		applyInvisibility();
+		applyJoinEdgesAndSkipEdgeless();
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
+		applyHighlights();
+		applyTracing();
+		applyHighlights();
+
+		setSelectedNodeIds(selectedNodeIds);
+		setSelectedEdgeIds(selectedEdgeIds);
+		viewer.repaint();
+	}
+
+	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
 			Mode editingMode) {
 		return new GraphMouse<>(
@@ -330,24 +292,6 @@ public class TracingGraphCanvas extends GraphCanvas {
 						}
 					}
 				}, editingMode);
-	}
-
-	@Override
-	protected void applyChanges() {
-		Set<String> selectedNodeIds = getSelectedNodeIds();
-		Set<String> selectedEdgeIds = getSelectedEdgeIds();
-
-		applyNodeCollapse();
-		applyInvisibility();
-		applyJoinEdgesAndSkipEdgeless();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
-		applyHighlights();
-		applyTracing();
-		applyHighlights();
-
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
-		viewer.repaint();
 	}
 
 	@Override
@@ -406,28 +350,27 @@ public class TracingGraphCanvas extends GraphCanvas {
 	}
 
 	@Override
-	protected void applyNameChanges() {
-		super.applyNameChanges();
-		updatePopupMenuAndOptionsPanel();
+	protected String getNodeName() {
+		return TracingUtils.NODE_NAME;
 	}
 
-	private void updatePopupMenuAndOptionsPanel() {
-		enforceTemporalOrderBox = new JCheckBox("Activate");
-		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
-		enforceTemporalOrderBox.addItemListener(this);
+	@Override
+	protected String getEdgeName() {
+		return TracingUtils.EDGE_NAME;
+	}
 
-		showForwardBox = new JCheckBox("Activate");
-		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
-		showForwardBox.addItemListener(this);
+	@Override
+	protected String getNodesName() {
+		return TracingUtils.NODES_NAME;
+	}
 
-		getOptionsPanel().addOption("Enforce Temporal Order",
-				enforceTemporalOrderBox);
-		getOptionsPanel().addOption("Show Cross Contaminated " + edgesName,
-				showForwardBox);
+	@Override
+	protected String getEdgesName() {
+		return TracingUtils.EDGES_NAME;
 	}
 
 	private void applyTracing() {
-		if (!performTracing) {
+		if (!isPerformTracing()) {
 			return;
 		}
 
@@ -576,7 +519,7 @@ public class TracingGraphCanvas extends GraphCanvas {
 			}
 		}
 
-		tracing.fillDeliveries(enforceTemporalOrderBox.isSelected());
+		tracing.fillDeliveries(isEnforceTemporalOrder());
 
 		return tracing;
 	}

@@ -49,8 +49,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private List<RegionNode> regions;
 
-	private boolean allowEdges;
-
 	public LocationCanvas(boolean allowEdges) {
 		this(new ArrayList<LocationNode>(),
 				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
@@ -75,10 +73,10 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 			EdgePropertySchema edgeSchema, List<RegionNode> regions,
 			boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema);
-		this.allowEdges = allowEdges;
 		this.regions = regions;
 
-		updatePopupMenuAndOptionsPanel();
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
@@ -138,11 +136,6 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void applyNameChanges() {
-		updatePopupMenuAndOptionsPanel();
-	}
-
-	@Override
 	protected LocationNode createMetaNode(String id,
 			Collection<LocationNode> nodes) {
 		Map<String, Object> properties = new LinkedHashMap<>();
@@ -181,10 +174,5 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		viewer.getGraphLayout().setLocation(newNode, newNode.getCenter());
 
 		return newNode;
-	}
-
-	private void updatePopupMenuAndOptionsPanel() {
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
 	}
 }

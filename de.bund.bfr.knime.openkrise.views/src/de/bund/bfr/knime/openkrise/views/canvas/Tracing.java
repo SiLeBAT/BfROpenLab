@@ -24,21 +24,54 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
-public class Tracing<V extends Node> {
+public class Tracing<V extends Node> implements ItemListener {
 
+	private static boolean DEFAULT_PERFORM_TRACING = true;
+	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
+	private static boolean DEFAULT_SHOW_FORWARD = false;
+
+	private TracingCanvas canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 
-	public Tracing(Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap) {
+	private boolean performTracing;
+
+	private JCheckBox enforceTemporalOrderBox;
+	private JCheckBox showForwardBox;
+
+	public Tracing(TracingCanvas canvas, Map<String, V> nodeSaveMap,
+			Map<String, Edge<V>> edgeSaveMap) {
+		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
+
+		performTracing = DEFAULT_PERFORM_TRACING;
+
+		enforceTemporalOrderBox = new JCheckBox("Activate");
+		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
+		enforceTemporalOrderBox.addItemListener(this);
+
+		showForwardBox = new JCheckBox("Activate");
+		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
+		showForwardBox.addItemListener(this);
+
+		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
+				enforceTemporalOrderBox);
+		canvas.getOptionsPanel().addOption(
+				"Show Cross Contaminated " + TracingUtils.EDGES_NAME,
+				showForwardBox);
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -59,6 +92,10 @@ public class Tracing<V extends Node> {
 						nullToZero(nodeWeights.get(node.getId())));
 			}
 		}
+
+		if (performTracing) {
+			canvas.applyChanges();
+		}
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -78,6 +115,10 @@ public class Tracing<V extends Node> {
 				edge.getProperties().put(TracingColumns.WEIGHT,
 						nullToZero(edgeWeights.get(edge.getId())));
 			}
+		}
+
+		if (performTracing) {
+			canvas.applyChanges();
 		}
 	}
 
@@ -100,6 +141,10 @@ public class Tracing<V extends Node> {
 						nullToFalse(nodeCrossContaminations.get(node.getId())));
 			}
 		}
+
+		if (performTracing) {
+			canvas.applyChanges();
+		}
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -120,6 +165,10 @@ public class Tracing<V extends Node> {
 				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						nullToFalse(edgeCrossContaminations.get(edge.getId())));
 			}
+		}
+
+		if (performTracing) {
+			canvas.applyChanges();
 		}
 	}
 
@@ -143,6 +192,10 @@ public class Tracing<V extends Node> {
 						nullToFalse(observedNodes.get(node.getId())));
 			}
 		}
+
+		if (performTracing) {
+			canvas.applyChanges();
+		}
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -163,6 +216,51 @@ public class Tracing<V extends Node> {
 			if (observedEdges.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingColumns.OBSERVED,
 						nullToFalse(observedEdges.get(edge.getId())));
+			}
+		}
+
+		if (performTracing) {
+			canvas.applyChanges();
+		}
+	}
+
+	public boolean isEnforceTemporalOrder() {
+		return enforceTemporalOrderBox.isSelected();
+	}
+
+	public void setEnforceTemporalOrder(boolean enforceTemporalOrder) {
+		enforceTemporalOrderBox.setSelected(enforceTemporalOrder);
+	}
+
+	public boolean isShowForward() {
+		return showForwardBox.isSelected();
+	}
+
+	public void setShowForward(boolean showForward) {
+		showForwardBox.setSelected(showForward);
+	}
+
+	public boolean isPerformTracing() {
+		return performTracing;
+	}
+
+	public void setPerformTracing(boolean performTracing) {
+		this.performTracing = performTracing;
+
+		if (performTracing) {
+			canvas.applyChanges();
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == enforceTemporalOrderBox) {
+			if (performTracing) {
+				canvas.applyChanges();
+			}
+		} else if (e.getSource() == showForwardBox) {
+			if (performTracing) {
+				canvas.applyChanges();
 			}
 		}
 	}

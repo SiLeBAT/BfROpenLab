@@ -66,10 +66,6 @@ public class GisViewCanvasCreator {
 
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, regions);
 
-		canvas.setNodeName(TracingUtils.NODE_NAME);
-		canvas.setEdgeName(TracingUtils.EDGE_NAME);
-		canvas.setNodesName(TracingUtils.NODES_NAME);
-		canvas.setEdgesName(TracingUtils.EDGES_NAME);
 		set.getGisSettings().setToCanvas(canvas, nodeProperties, true);
 
 		return canvas;

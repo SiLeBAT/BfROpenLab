@@ -57,8 +57,6 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean allowEdges;
-
 	public RegionCanvas(boolean allowEdges) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(), allowEdges);
@@ -78,9 +76,9 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema);
-		this.allowEdges = allowEdges;
 
-		updatePopupMenuAndOptionsPanel();
+		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(2,
 						new LinkedHashMap<RegionNode, Double>()));
@@ -114,7 +112,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyChanges() {
+	public void applyChanges() {
 		flushImage();
 		super.applyChanges();
 	}
@@ -256,18 +254,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyNameChanges() {
-		updatePopupMenuAndOptionsPanel();
-	}
-
-	@Override
 	protected RegionNode createMetaNode(String id, Collection<RegionNode> nodes) {
 		throw new UnsupportedOperationException();
-	}
-
-	private void updatePopupMenuAndOptionsPanel() {
-		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
 	}
 
 	private RegionNode getContainingNode(int x, int y) {
