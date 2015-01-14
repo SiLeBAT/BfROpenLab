@@ -24,8 +24,15 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -33,7 +40,11 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
 
@@ -41,6 +52,18 @@ public class TracingViewSettings extends NodeSettings {
 			Activator.class.getClassLoader());
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
+	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
+	private static final String CFG_JOIN_EDGES = "JoinEdges";
+	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
+	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
+	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
+	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
+	private static final String CFG_EDITING_MODE = "GraphEditingMode2";
+	private static final String CFG_CANVAS_SIZE = "GraphCanvasSize";
+	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
+	private static final String CFG_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
+	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
+	private static final String CFG_LABEL = "Label";
 
 	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
@@ -52,10 +75,28 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
 	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
+	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
+	private static final boolean DEFAULT_JOIN_EDGES = true;
+	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
+	private static final boolean DEFAULT_SHOW_LEGEND = false;
+	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
+	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static final boolean DEFAULT_SHOW_FORWARD = false;
 
 	private boolean exportAsSvg;
+	private boolean skipEdgelessNodes;
+	private boolean joinEdges;
+	private boolean arrowInMiddle;
+	private boolean showLegend;
+	private Mode editingMode;
+	private Dimension canvasSize;
+	private List<String> selectedNodes;
+	private List<String> selectedEdges;
+	private HighlightConditionList nodeHighlightConditions;
+	private HighlightConditionList edgeHighlightConditions;
+	private Map<String, Map<String, Point2D>> collapsedNodes;
+	private String label;
 
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
@@ -71,6 +112,18 @@ public class TracingViewSettings extends NodeSettings {
 
 	public TracingViewSettings() {
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
+		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
+		joinEdges = DEFAULT_JOIN_EDGES;
+		arrowInMiddle = DEFAULT_ARROW_IN_MIDDLE;
+		showLegend = DEFAULT_SHOW_LEGEND;
+		editingMode = DEFAULT_EDITING_MODE;
+		canvasSize = DEFAULT_CANVAS_SIZE;
+		selectedNodes = new ArrayList<>();
+		selectedEdges = new ArrayList<>();
+		nodeHighlightConditions = new HighlightConditionList();
+		edgeHighlightConditions = new HighlightConditionList();
+		collapsedNodes = new LinkedHashMap<>();
+		label = null;
 
 		nodeWeights = new LinkedHashMap<>();
 		edgeWeights = new LinkedHashMap<>();
@@ -90,6 +143,72 @@ public class TracingViewSettings extends NodeSettings {
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
 			exportAsSvg = settings.getBoolean(CFG_EXPORT_AS_SVG);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			joinEdges = settings.getBoolean(CFG_JOIN_EDGES);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			arrowInMiddle = settings.getBoolean(CFG_ARROW_IN_MIDDLE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			canvasSize = (Dimension) SERIALIZER.fromXml(settings
+					.getString(CFG_CANVAS_SIZE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
+					.getString(CFG_SELECTED_NODES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			selectedEdges = (List<String>) SERIALIZER.fromXml(settings
+					.getString(CFG_SELECTED_EDGES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
+					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			label = settings.getString(CFG_LABEL);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -147,6 +266,21 @@ public class TracingViewSettings extends NodeSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
+		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
+		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
+		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
+		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
+		settings.addString(CFG_EDITING_MODE, editingMode.name());
+		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
+		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
+		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
+		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
+				SERIALIZER.toXml(nodeHighlightConditions));
+		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS,
+				SERIALIZER.toXml(edgeHighlightConditions));
+		settings.addString(CFG_COLLAPSED_NODES,
+				SERIALIZER.toXml(collapsedNodes));
+		settings.addString(CFG_LABEL, label);
 
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
@@ -163,12 +297,190 @@ public class TracingViewSettings extends NodeSettings {
 		gisSettings.saveSettings(settings);
 	}
 
+	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
+		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
+		selectedEdges = new ArrayList<>(canvas.getSelectedEdgeIds());
+
+		Collections.sort(selectedNodes);
+		Collections.sort(selectedEdges);
+
+		showLegend = canvas.isShowLegend();
+		joinEdges = canvas.isJoinEdges();
+		arrowInMiddle = canvas.isArrowInMiddle();
+		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+		label = canvas.getLabel();
+
+		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
+		editingMode = canvas.getEditingMode();
+
+		if (resized) {
+			canvasSize = canvas.getCanvasSize();
+		}
+
+		collapsedNodes = new LinkedHashMap<>();
+
+		Map<String, Set<String>> collapsed = canvas.getCollapsedNodes();
+
+		for (String id1 : collapsed.keySet()) {
+			collapsedNodes.put(id1, new LinkedHashMap<String, Point2D>());
+
+			for (String id2 : collapsed.get(id1)) {
+				collapsedNodes.get(id1).put(id2, null);
+			}
+		}
+
+		nodeWeights = canvas.getNodeWeights();
+		edgeWeights = canvas.getEdgeWeights();
+		nodeCrossContaminations = canvas.getNodeCrossContaminations();
+		edgeCrossContaminations = canvas.getEdgeCrossContaminations();
+		observedNodes = canvas.getObservedNodes();
+		observedEdges = canvas.getObservedEdges();
+		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
+		showForward = canvas.isShowForward();
+	}
+
+	public void setToCanvas(ITracingCanvas<?> canvas,
+			Map<String, Class<?>> nodeProperties,
+			Map<String, Class<?>> edgeProperties) {
+		canvas.setShowLegend(showLegend);
+		canvas.setCanvasSize(canvasSize);
+		canvas.setEditingMode(editingMode);
+		canvas.setJoinEdges(joinEdges);
+		canvas.setArrowInMiddle(arrowInMiddle);
+		canvas.setLabel(label);
+
+		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
+
+		for (String id : collapsedNodes.keySet()) {
+			collapsed.put(id, collapsedNodes.get(id).keySet());
+		}
+
+		canvas.setCollapsedNodes(collapsed);
+
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
+				nodeHighlightConditions, nodeProperties.keySet()));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
+				edgeHighlightConditions, edgeProperties.keySet()));
+		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
+		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+
+		canvas.setNodeWeights(nodeWeights);
+		canvas.setEdgeWeights(edgeWeights);
+		canvas.setNodeCrossContaminations(nodeCrossContaminations);
+		canvas.setEdgeCrossContaminations(edgeCrossContaminations);
+		canvas.setObservedNodes(observedNodes);
+		canvas.setObservedEdges(observedEdges);
+		canvas.setEnforceTemporalOrder(enforeTemporalOrder);
+		canvas.setShowForward(showForward);
+	}
+
 	public boolean isExportAsSvg() {
 		return exportAsSvg;
 	}
 
 	public void setExportAsSvg(boolean exportAsSvg) {
 		this.exportAsSvg = exportAsSvg;
+	}
+
+	public boolean isSkipEdgelessNodes() {
+		return skipEdgelessNodes;
+	}
+
+	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
+		this.skipEdgelessNodes = skipEdgelessNodes;
+	}
+
+	public boolean isJoinEdges() {
+		return joinEdges;
+	}
+
+	public void setJoinEdges(boolean joinEdges) {
+		this.joinEdges = joinEdges;
+	}
+
+	public boolean isArrowInMiddle() {
+		return arrowInMiddle;
+	}
+
+	public void setArrowInMiddle(boolean arrowInMiddle) {
+		this.arrowInMiddle = arrowInMiddle;
+	}
+
+	public boolean isShowLegend() {
+		return showLegend;
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		this.showLegend = showLegend;
+	}
+
+	public Mode getEditingMode() {
+		return editingMode;
+	}
+
+	public void setEditingMode(Mode editingMode) {
+		this.editingMode = editingMode;
+	}
+
+	public Dimension getCanvasSize() {
+		return canvasSize;
+	}
+
+	public void setCanvasSize(Dimension canvasSize) {
+		this.canvasSize = canvasSize;
+	}
+
+	public List<String> getSelectedNodes() {
+		return selectedNodes;
+	}
+
+	public void setSelectedNodes(List<String> selectedNodes) {
+		this.selectedNodes = selectedNodes;
+	}
+
+	public List<String> getSelectedEdges() {
+		return selectedEdges;
+	}
+
+	public void setSelectedEdges(List<String> selectedEdges) {
+		this.selectedEdges = selectedEdges;
+	}
+
+	public HighlightConditionList getNodeHighlightConditions() {
+		return nodeHighlightConditions;
+	}
+
+	public void setNodeHighlightConditions(
+			HighlightConditionList nodeHighlightConditions) {
+		this.nodeHighlightConditions = nodeHighlightConditions;
+	}
+
+	public HighlightConditionList getEdgeHighlightConditions() {
+		return edgeHighlightConditions;
+	}
+
+	public void setEdgeHighlightConditions(
+			HighlightConditionList edgeHighlightConditions) {
+		this.edgeHighlightConditions = edgeHighlightConditions;
+	}
+
+	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
+		return collapsedNodes;
+	}
+
+	public void setCollapsedNodes(
+			Map<String, Map<String, Point2D>> collapsedNodes) {
+		this.collapsedNodes = collapsedNodes;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public Map<String, Double> getNodeWeights() {

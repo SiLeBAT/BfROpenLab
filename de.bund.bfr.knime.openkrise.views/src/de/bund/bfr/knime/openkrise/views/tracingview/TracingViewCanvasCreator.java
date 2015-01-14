@@ -138,18 +138,9 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
 		canvas.setPerformTracing(false);
-		set.getGraphSettings().setToCanvas(canvas, nodeSchema.getMap(),
-				edgeSchema.getMap(), false);
-		canvas.setNodeWeights(set.getNodeWeights());
-		canvas.setEdgeWeights(set.getEdgeWeights());
-		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
-		canvas.setEdgeCrossContaminations(set.getEdgeCrossContaminations());
-		canvas.setObservedNodes(set.getObservedNodes());
-		canvas.setObservedEdges(set.getObservedEdges());
-		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
-		canvas.setShowForward(set.isShowForward());
+		set.setToCanvas(canvas, nodeSchema.getMap(), edgeSchema.getMap());
+		set.getGraphSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
-		canvas.setNodePositions(set.getGraphSettings().getNodePositions());
 
 		return canvas;
 	}
@@ -165,17 +156,8 @@ public class TracingViewCanvasCreator {
 				deliveries);
 
 		canvas.setPerformTracing(false);
-		set.getGraphSettings().setToCanvas(canvas, nodeSchema.getMap(),
-				edgeSchema.getMap(), false);
+		set.setToCanvas(canvas, nodeSchema.getMap(), edgeSchema.getMap());
 		set.getGisSettings().setToCanvas(canvas);
-		canvas.setNodeWeights(set.getNodeWeights());
-		canvas.setEdgeWeights(set.getEdgeWeights());
-		canvas.setNodeCrossContaminations(set.getNodeCrossContaminations());
-		canvas.setEdgeCrossContaminations(set.getEdgeCrossContaminations());
-		canvas.setObservedNodes(set.getObservedNodes());
-		canvas.setObservedEdges(set.getObservedEdges());
-		canvas.setEnforceTemporalOrder(set.isEnforeTemporalOrder());
-		canvas.setShowForward(set.isShowForward());
 		canvas.setPerformTracing(true);
 
 		return canvas;

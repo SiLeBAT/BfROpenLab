@@ -24,15 +24,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -41,21 +35,13 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.ICanvas;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphSettings extends NodeSettings {
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());
 
-	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
-	private static final String CFG_JOIN_EDGES = "JoinEdges";
-	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
-	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
 	private static final String CFG_SCALE_X = "GraphScaleX";
 	private static final String CFG_SCALE_Y = "GraphScaleY";
 	private static final String CFG_TRANSLATION_X = "GraphTranslationX";
@@ -64,29 +50,11 @@ public class GraphSettings extends NodeSettings {
 	private static final String CFG_NODE_SIZE = "GraphNodeSize";
 	private static final String CFG_FONT_SIZE = "GraphTextSize";
 	private static final String CFG_FONT_BOLD = "GraphTextBold";
-	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
-	private static final String CFG_SELECTED_EDGES = "GraphSelectedEdges";
-	private static final String CFG_EDITING_MODE = "GraphEditingMode2";
-	private static final String CFG_CANVAS_SIZE = "GraphCanvasSize";
-	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "GraphNodeHighlightConditions";
-	private static final String CFG_EDGE_HIGHLIGHT_CONDITIONS = "GraphEdgeHighlightConditions";
-	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
-	private static final String CFG_LABEL = "Label";
 
-	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	private static final boolean DEFAULT_JOIN_EDGES = true;
-	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final int DEFAULT_NODE_SIZE = 10;
 	private static final int DEFAULT_FONT_SIZE = 12;
 	private static final boolean DEFAULT_FONT_BOLD = false;
-	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
-	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
 
-	private boolean skipEdgelessNodes;
-	private boolean joinEdges;
-	private boolean arrowInMiddle;
-	private boolean showLegend;
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
@@ -95,20 +63,8 @@ public class GraphSettings extends NodeSettings {
 	private int nodeSize;
 	private int fontSize;
 	private boolean fontBold;
-	private Mode editingMode;
-	private Dimension canvasSize;
-	private List<String> selectedNodes;
-	private List<String> selectedEdges;
-	private HighlightConditionList nodeHighlightConditions;
-	private HighlightConditionList edgeHighlightConditions;
-	private Map<String, Map<String, Point2D>> collapsedNodes;
-	private String label;
 
 	public GraphSettings() {
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		arrowInMiddle = DEFAULT_ARROW_IN_MIDDLE;
-		showLegend = DEFAULT_SHOW_LEGEND;
 		scaleX = Double.NaN;
 		scaleY = Double.NaN;
 		translationX = Double.NaN;
@@ -117,39 +73,11 @@ public class GraphSettings extends NodeSettings {
 		nodeSize = DEFAULT_NODE_SIZE;
 		fontSize = DEFAULT_FONT_SIZE;
 		fontBold = DEFAULT_FONT_BOLD;
-		editingMode = DEFAULT_EDITING_MODE;
-		canvasSize = DEFAULT_CANVAS_SIZE;
-		selectedNodes = new ArrayList<>();
-		selectedEdges = new ArrayList<>();
-		nodeHighlightConditions = new HighlightConditionList();
-		edgeHighlightConditions = new HighlightConditionList();
-		collapsedNodes = new LinkedHashMap<>();
-		label = null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
-		try {
-			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			joinEdges = settings.getBoolean(CFG_JOIN_EDGES);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			arrowInMiddle = settings.getBoolean(CFG_ARROW_IN_MIDDLE);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			showLegend = settings.getBoolean(CFG_SHOW_LEGEND);
-		} catch (InvalidSettingsException e) {
-		}
-
 		try {
 			scaleX = settings.getDouble(CFG_SCALE_X);
 		} catch (InvalidSettingsException e) {
@@ -190,60 +118,10 @@ public class GraphSettings extends NodeSettings {
 			fontBold = settings.getBoolean(CFG_FONT_BOLD);
 		} catch (InvalidSettingsException e) {
 		}
-
-		try {
-			editingMode = Mode.valueOf(settings.getString(CFG_EDITING_MODE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			canvasSize = (Dimension) SERIALIZER.fromXml(settings
-					.getString(CFG_CANVAS_SIZE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_NODES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			selectedEdges = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_EDGES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
-					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			label = settings.getString(CFG_LABEL);
-		} catch (InvalidSettingsException e) {
-		}
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
-		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
-		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
-		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, scaleX);
 		settings.addDouble(CFG_SCALE_Y, scaleY);
 		settings.addDouble(CFG_TRANSLATION_X, translationX);
@@ -252,27 +130,9 @@ public class GraphSettings extends NodeSettings {
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
-		settings.addString(CFG_EDITING_MODE, editingMode.name());
-		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
-		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
-		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
-		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(nodeHighlightConditions));
-		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(edgeHighlightConditions));
-		settings.addString(CFG_COLLAPSED_NODES,
-				SERIALIZER.toXml(collapsedNodes));
-		settings.addString(CFG_LABEL, label);
 	}
 
-	public void setFromCanvas(ICanvas<?> canvas, boolean resized) {
-		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
-		selectedEdges = new ArrayList<>(canvas.getSelectedEdgeIds());
-
-		Collections.sort(selectedNodes);
-		Collections.sort(selectedEdges);
-
-		showLegend = canvas.isShowLegend();
+	public void setFromCanvas(GraphCanvas canvas) {
 		scaleX = canvas.getScaleX();
 		scaleY = canvas.getScaleY();
 		translationX = canvas.getTranslationX();
@@ -280,105 +140,20 @@ public class GraphSettings extends NodeSettings {
 		nodeSize = canvas.getNodeSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
-		joinEdges = canvas.isJoinEdges();
-		arrowInMiddle = canvas.isArrowInMiddle();
-		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
-		label = canvas.getLabel();
-
-		nodeHighlightConditions = canvas.getNodeHighlightConditions();
-		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
-		editingMode = canvas.getEditingMode();
-
-		if (resized) {
-			canvasSize = canvas.getCanvasSize();
-		}
-
-		collapsedNodes = new LinkedHashMap<>();
-
-		Map<String, Set<String>> collapsed = canvas.getCollapsedNodes();
-
-		for (String id1 : collapsed.keySet()) {
-			collapsedNodes.put(id1, new LinkedHashMap<String, Point2D>());
-
-			for (String id2 : collapsed.get(id1)) {
-				collapsedNodes.get(id1).put(id2, null);
-			}
-		}
-
-		if (canvas instanceof GraphCanvas) {
-			nodePositions = ((GraphCanvas) canvas).getNodePositions();
-		}
+		nodePositions = canvas.getNodePositions();
 	}
 
-	public void setToCanvas(ICanvas<?> canvas,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, boolean applyNodePosition) {
-		canvas.setShowLegend(showLegend);
-		canvas.setCanvasSize(canvasSize);
-		canvas.setEditingMode(editingMode);
+	public void setToCanvas(GraphCanvas canvas) {
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
-		canvas.setJoinEdges(joinEdges);
-		canvas.setArrowInMiddle(arrowInMiddle);
-		canvas.setLabel(label);
-
-		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
-
-		for (String id : collapsedNodes.keySet()) {
-			collapsed.put(id, collapsedNodes.get(id).keySet());
-		}
-
-		canvas.setCollapsedNodes(collapsed);
-
-		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, nodeProperties.keySet()));
-		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, edgeProperties.keySet()));
-		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
-		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
-		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
 
 		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
 				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
 			canvas.setTransform(scaleX, scaleY, translationX, translationY);
 		}
 
-		if (applyNodePosition && canvas instanceof GraphCanvas) {
-			((GraphCanvas) canvas).setNodePositions(nodePositions);
-		}
-	}
-
-	public boolean isSkipEdgelessNodes() {
-		return skipEdgelessNodes;
-	}
-
-	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
-		this.skipEdgelessNodes = skipEdgelessNodes;
-	}
-
-	public boolean isJoinEdges() {
-		return joinEdges;
-	}
-
-	public void setJoinEdges(boolean joinEdges) {
-		this.joinEdges = joinEdges;
-	}
-
-	public boolean isArrowInMiddle() {
-		return arrowInMiddle;
-	}
-
-	public void setArrowInMiddle(boolean arrowInMiddle) {
-		this.arrowInMiddle = arrowInMiddle;
-	}
-
-	public boolean isShowLegend() {
-		return showLegend;
-	}
-
-	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
+		canvas.setNodePositions(nodePositions);
 	}
 
 	public double getScaleX() {
@@ -443,72 +218,5 @@ public class GraphSettings extends NodeSettings {
 
 	public void setFontBold(boolean fontBold) {
 		this.fontBold = fontBold;
-	}
-
-	public Mode getEditingMode() {
-		return editingMode;
-	}
-
-	public void setEditingMode(Mode editingMode) {
-		this.editingMode = editingMode;
-	}
-
-	public Dimension getCanvasSize() {
-		return canvasSize;
-	}
-
-	public void setCanvasSize(Dimension canvasSize) {
-		this.canvasSize = canvasSize;
-	}
-
-	public List<String> getSelectedNodes() {
-		return selectedNodes;
-	}
-
-	public void setSelectedNodes(List<String> selectedNodes) {
-		this.selectedNodes = selectedNodes;
-	}
-
-	public List<String> getSelectedEdges() {
-		return selectedEdges;
-	}
-
-	public void setSelectedEdges(List<String> selectedEdges) {
-		this.selectedEdges = selectedEdges;
-	}
-
-	public HighlightConditionList getNodeHighlightConditions() {
-		return nodeHighlightConditions;
-	}
-
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
-		this.nodeHighlightConditions = nodeHighlightConditions;
-	}
-
-	public HighlightConditionList getEdgeHighlightConditions() {
-		return edgeHighlightConditions;
-	}
-
-	public void setEdgeHighlightConditions(
-			HighlightConditionList edgeHighlightConditions) {
-		this.edgeHighlightConditions = edgeHighlightConditions;
-	}
-
-	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
-		return collapsedNodes;
-	}
-
-	public void setCollapsedNodes(
-			Map<String, Map<String, Point2D>> collapsedNodes) {
-		this.collapsedNodes = collapsedNodes;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
 	}
 }

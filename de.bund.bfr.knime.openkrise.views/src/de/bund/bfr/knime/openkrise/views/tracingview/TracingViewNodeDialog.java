@@ -47,6 +47,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
@@ -197,7 +198,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		} catch (InvalidSettingsException e) {
 			canvas = showGis ? new TracingGisCanvas()
 					: new TracingGraphCanvas();
-			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			canvas.setCanvasSize(set.getCanvasSize());
 		}
 
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);
@@ -206,19 +207,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private void updateSettings() {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
-		set.setNodeWeights(canvas.getNodeWeights());
-		set.setEdgeWeights(canvas.getEdgeWeights());
-		set.setNodeCrossContaminations(canvas.getNodeCrossContaminations());
-		set.setEdgeCrossContaminations(canvas.getEdgeCrossContaminations());
-		set.setObservedNodes(canvas.getObservedNodes());
-		set.setObservedEdges(canvas.getObservedEdges());
-		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
-		set.setShowForward(canvas.isShowForward());
+		set.setFromCanvas(canvas, resized);
 
-		set.getGraphSettings().setFromCanvas(canvas, resized);
-
-		if (canvas instanceof TracingGisCanvas) {
-			set.getGisSettings().setFromCanvas(canvas);
+		if (canvas instanceof TracingGraphCanvas) {
+			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
+		} else if (canvas instanceof TracingGisCanvas) {
+			set.getGisSettings().setFromCanvas((TracingGisCanvas) canvas);
 		}
 	}
 }

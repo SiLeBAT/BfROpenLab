@@ -347,14 +347,14 @@ public class TracingViewNodeModel extends NodeModel {
 			BufferedDataTable shapeTable,
 			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set)
 			throws InvalidSettingsException {
-		boolean joinEdges = set.getGraphSettings().isJoinEdges();
+		boolean joinEdges = set.isJoinEdges();
 
-		set.getGraphSettings().setJoinEdges(false);
+		set.setJoinEdges(false);
 
 		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, shapeTable, deliveries, set).createGraphCanvas();
 
-		set.getGraphSettings().setJoinEdges(joinEdges);
+		set.setJoinEdges(joinEdges);
 
 		return canvas;
 	}
