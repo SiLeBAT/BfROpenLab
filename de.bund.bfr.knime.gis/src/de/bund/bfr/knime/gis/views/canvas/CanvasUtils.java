@@ -647,6 +647,9 @@ public class CanvasUtils {
 			height = Math.max(height, c.getCanvasSize().height);
 		}
 
+		width = Math.max(width, 1);
+		height = Math.max(height, 1);
+
 		BufferedImage img = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) img.getGraphics();
@@ -672,6 +675,9 @@ public class CanvasUtils {
 			width += c.getCanvasSize().width;
 			height = Math.max(height, c.getCanvasSize().height);
 		}
+
+		width = Math.max(width, 1);
+		height = Math.max(height, 1);
 
 		SVGDOMImplementation domImpl = new SVGDOMImplementation();
 		Document document = domImpl.createDocument(null, "svg", null);

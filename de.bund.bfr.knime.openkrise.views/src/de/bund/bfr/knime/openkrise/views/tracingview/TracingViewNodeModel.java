@@ -81,7 +81,8 @@ public class TracingViewNodeModel extends NodeModel {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
 				new PortType[] { BufferedDataTable.TYPE,
-						BufferedDataTable.TYPE, ImagePortObject.TYPE });
+						BufferedDataTable.TYPE, ImagePortObject.TYPE,
+						ImagePortObject.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -96,8 +97,6 @@ public class TracingViewNodeModel extends NodeModel {
 		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
 				(BufferedDataTable) inObjects[2], edgeTable);
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[3];
-		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
-				edgeTable, shapeTable, tracing, set).createGraphCanvas();
 		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
 				edgeTable, shapeTable, tracing, set);
 
@@ -193,9 +192,16 @@ public class TracingViewNodeModel extends NodeModel {
 
 		edgeContainer.close();
 
+		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
+				nodeTable, edgeTable, shapeTable, tracing, set);
+		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(),
+				creator.createGraphCanvas());
+		ImagePortObject gisImage = shapeTable != null ? CanvasUtils.getImage(
+				set.isExportAsSvg(), creator.createGisCanvas()) : CanvasUtils
+				.getImage(set.isExportAsSvg());
+
 		return new PortObject[] { nodeContainer.getTable(),
-				edgeContainer.getTable(),
-				CanvasUtils.getImage(set.isExportAsSvg(), canvas) };
+				edgeContainer.getTable(), graphImage, gisImage };
 	}
 
 	/**
@@ -216,6 +222,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec),
 				createEdgeOutSpec(edgeSpec),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
