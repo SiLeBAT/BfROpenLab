@@ -17,7 +17,10 @@
 package de.bund.bfr.knime.pmf.validate;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +40,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.numl.ConformityMessage;
 import de.bund.bfr.pmf.PMFReader;
 
@@ -70,7 +72,7 @@ public class PmfValidatorNodeModel extends NodeModel {
 		DataTableSpec spec = configure(null)[0];
 		BufferedDataContainer container = exec.createDataContainer(spec);
 
-		File file = KnimeUtils.getFile(pmfFile.getStringValue());
+		File file = getFile(pmfFile.getStringValue());
 		PMFReader reader = new PMFReader();
 		int index = 1;
 
@@ -156,4 +158,20 @@ public class PmfValidatorNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
+	private static File getFile(String fileName) throws FileNotFoundException {
+		File file = new File(fileName);
+
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(fileName).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
+		if (!file.exists()) {
+			throw new FileNotFoundException(fileName);
+		}
+
+		return file;
+	}
 }
