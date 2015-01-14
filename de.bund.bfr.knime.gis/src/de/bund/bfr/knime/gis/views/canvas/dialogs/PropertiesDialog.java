@@ -42,8 +42,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -58,19 +58,19 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 		NODE, EDGE
 	}
 
-	private Canvas<V> parent;
+	private ICanvas<V> parent;
 	private Type type;
 
 	private PropertiesTable table;
 	private JButton selectButton;
 	private JButton okButton;
 
-	private PropertiesDialog(Canvas<V> parent,
+	private PropertiesDialog(ICanvas<V> parent,
 			Collection<? extends Element> elements,
 			Map<String, Class<?>> properties, Type type,
 			boolean allowViewSelection, Set<String> idColumns) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties",
-				DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(parent.getComponent()),
+				"Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 
@@ -103,12 +103,12 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 		add(scrollPane, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
-		setLocationRelativeTo(parent);
+		setLocationRelativeTo(parent.getComponent());
 		UI.adjustDialog(this);
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
-			Canvas<V> parent, Collection<V> nodes,
+			ICanvas<V> parent, Collection<V> nodes,
 			NodePropertySchema properties, boolean allowViewSelection) {
 		return new PropertiesDialog<>(parent, nodes, properties.getMap(),
 				Type.NODE, allowViewSelection, new LinkedHashSet<>(
@@ -116,7 +116,7 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
-			Canvas<V> parent, Collection<Edge<V>> edges,
+			ICanvas<V> parent, Collection<Edge<V>> edges,
 			EdgePropertySchema properties, boolean allowViewSelection) {
 		return new PropertiesDialog<>(parent, edges, properties.getMap(),
 				Type.EDGE, allowViewSelection, new LinkedHashSet<>(

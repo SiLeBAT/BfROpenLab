@@ -48,6 +48,7 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
@@ -209,10 +210,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.setFromCanvas(canvas, resized);
 
-		if (canvas instanceof TracingGraphCanvas) {
+		if (canvas instanceof GraphCanvas) {
 			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
-		} else if (canvas instanceof TracingGisCanvas) {
-			set.getGisSettings().setFromCanvas((TracingGisCanvas) canvas);
+		} else if (canvas instanceof LocationCanvas) {
+			set.getGisSettings().setFromCanvas((LocationCanvas) canvas);
 		}
 	}
 }

@@ -638,11 +638,11 @@ public class CanvasUtils {
 		return graph;
 	}
 
-	public static BufferedImage getBufferedImage(Canvas<?>... canvas) {
+	public static BufferedImage getBufferedImage(ICanvas<?>... canvas) {
 		int width = 0;
 		int height = 0;
 
-		for (Canvas<?> c : canvas) {
+		for (ICanvas<?> c : canvas) {
 			width += c.getCanvasSize().width;
 			height = Math.max(height, c.getCanvasSize().height);
 		}
@@ -652,7 +652,7 @@ public class CanvasUtils {
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		int x = 0;
 
-		for (Canvas<?> c : canvas) {
+		for (ICanvas<?> c : canvas) {
 			VisualizationImageServer<?, ?> server = c
 					.getVisualizationServer(false);
 
@@ -664,11 +664,11 @@ public class CanvasUtils {
 		return img;
 	}
 
-	public static SVGDocument getSvgDocument(Canvas<?>... canvas) {
+	public static SVGDocument getSvgDocument(ICanvas<?>... canvas) {
 		int width = 0;
 		int height = 0;
 
-		for (Canvas<?> c : canvas) {
+		for (ICanvas<?> c : canvas) {
 			width += c.getCanvasSize().width;
 			height = Math.max(height, c.getCanvasSize().height);
 		}
@@ -680,7 +680,7 @@ public class CanvasUtils {
 
 		g.setSVGCanvasSize(new Dimension(width, height));
 
-		for (Canvas<?> c : canvas) {
+		for (ICanvas<?> c : canvas) {
 			VisualizationImageServer<?, ?> server = c
 					.getVisualizationServer(true);
 
@@ -695,7 +695,7 @@ public class CanvasUtils {
 		return (SVGDocument) document;
 	}
 
-	public static ImagePortObject getImage(boolean asSvg, Canvas<?>... canvas)
+	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas)
 			throws IOException {
 		if (asSvg) {
 			return new ImagePortObject(new SvgImageContent(

@@ -45,9 +45,9 @@ import java.util.Set;
 import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
@@ -73,7 +73,7 @@ public class Tracing<V extends Node> implements ItemListener {
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 
-	private Canvas<V> canvas;
+	private ITracingCanvas<V> canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
@@ -84,7 +84,7 @@ public class Tracing<V extends Node> implements ItemListener {
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
 
-	public Tracing(Canvas<V> canvas, Map<String, V> nodeSaveMap,
+	public Tracing(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap,
 			Map<Edge<V>, Set<Edge<V>>> joinMap,
 			Map<Integer, MyDelivery> deliveries) {
@@ -703,9 +703,9 @@ public class Tracing<V extends Node> implements ItemListener {
 
 	public static class PostPaintable implements Paintable {
 
-		private Canvas<?> canvas;
+		private ICanvas<?> canvas;
 
-		public PostPaintable(Canvas<?> canvas) {
+		public PostPaintable(ICanvas<?> canvas) {
 			this.canvas = canvas;
 		}
 
