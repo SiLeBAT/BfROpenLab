@@ -79,8 +79,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private JCheckBox exportAsSvgBox;
 	private JButton switchButton;
 
-	private boolean showGis;
-
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
@@ -94,17 +92,23 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetFilterButton = new JButton("Reset Observed");
 		resetFilterButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
-		switchButton = new JButton("Switch to Graph/GIS");
+		switchButton = new JButton();
 		switchButton.addActionListener(this);
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new BorderLayout());
+		northPanel.add(UI.createHorizontalPanel(resetWeightsButton,
+				resetCrossButton, resetFilterButton, exportAsSvgBox),
+				BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(switchButton),
+				BorderLayout.EAST);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(
-				resetWeightsButton, resetCrossButton, resetFilterButton,
-				exportAsSvgBox, switchButton)), BorderLayout.NORTH);
+		panel.add(northPanel, BorderLayout.NORTH);
 
 		addTab("Options", panel, false);
-		showGis = false;
 	}
 
 	@Override
@@ -115,8 +119,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		deliveries = TracingUtils.getDeliveries((BufferedDataTable) input[2],
 				edgeTable);
 		shapeTable = (BufferedDataTable) input[3];
-
 		set.loadSettings(settings);
+
+		if (shapeTable == null) {
+			set.setShowGis(false);
+			switchButton.setEnabled(false);
+		}
+
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = false;
 		panel.addComponentListener(this);
@@ -149,7 +158,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			updateCanvas();
 		} else if (e.getSource() == switchButton) {
 			updateSettings();
-			showGis = !showGis;
+			set.setShowGis(!set.isShowGis());
 			updateCanvas();
 		}
 	}
@@ -182,14 +191,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 				nodeTable, edgeTable, shapeTable, deliveries, set);
 
 		try {
-			canvas = showGis ? creator.createGisCanvas() : creator
+			canvas = set.isShowGis() ? creator.createGisCanvas() : creator
 					.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = showGis ? new TracingGisCanvas()
+			canvas = set.isShowGis() ? new TracingGisCanvas()
 					: new TracingGraphCanvas();
 			canvas.setCanvasSize(set.getCanvasSize());
 		}
 
+		switchButton
+				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);
 		panel.revalidate();
 	}
@@ -204,4 +215,5 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getGisSettings().setFromCanvas((LocationCanvas) canvas);
 		}
 	}
+
 }

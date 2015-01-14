@@ -51,6 +51,7 @@ public class TracingViewSettings extends NodeSettings {
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());
 
+	private static final String CFG_SHOW_GIS = "ShowGis";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
@@ -74,6 +75,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
+	private static final boolean DEFAULT_SHOW_GIS = false;
 	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
 	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 	private static final boolean DEFAULT_JOIN_EDGES = true;
@@ -84,6 +86,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static final boolean DEFAULT_SHOW_FORWARD = false;
 
+	private boolean showGis;
 	private boolean exportAsSvg;
 	private boolean skipEdgelessNodes;
 	private boolean joinEdges;
@@ -111,6 +114,7 @@ public class TracingViewSettings extends NodeSettings {
 	private GisSettings gisSettings;
 
 	public TracingViewSettings() {
+		showGis = DEFAULT_SHOW_GIS;
 		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
 		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		joinEdges = DEFAULT_JOIN_EDGES;
@@ -141,6 +145,11 @@ public class TracingViewSettings extends NodeSettings {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			showGis = settings.getBoolean(CFG_SHOW_GIS);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			exportAsSvg = settings.getBoolean(CFG_EXPORT_AS_SVG);
 		} catch (InvalidSettingsException e) {
@@ -265,6 +274,7 @@ public class TracingViewSettings extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addBoolean(CFG_SHOW_GIS, showGis);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
@@ -374,6 +384,14 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setObservedEdges(observedEdges);
 		canvas.setEnforceTemporalOrder(enforeTemporalOrder);
 		canvas.setShowForward(showForward);
+	}
+
+	public boolean isShowGis() {
+		return showGis;
+	}
+
+	public void setShowGis(boolean showGis) {
+		this.showGis = showGis;
 	}
 
 	public boolean isExportAsSvg() {
