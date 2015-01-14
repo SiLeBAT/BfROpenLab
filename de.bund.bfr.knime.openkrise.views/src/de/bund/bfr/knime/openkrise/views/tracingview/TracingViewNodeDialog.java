@@ -27,12 +27,15 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -46,7 +49,6 @@ import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.views.ResizeListener;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
@@ -57,12 +59,12 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener {
+		ActionListener, ComponentListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
 
-	private ResizeListener listener;
+	private boolean resized;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
@@ -126,8 +128,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		listener = new ResizeListener();
-		panel.addComponentListener(listener);
+		resized = false;
+		panel.addComponentListener(this);
 		updateCanvas();
 	}
 
@@ -162,6 +164,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 	}
 
+	@Override
+	public void componentResized(ComponentEvent e) {
+		if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
+			resized = true;
+		}
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+	}
+
 	private void updateCanvas() {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
@@ -194,7 +215,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setEnforeTemporalOrder(canvas.isEnforceTemporalOrder());
 		set.setShowForward(canvas.isShowForward());
 
-		set.getGraphSettings().setFromCanvas(canvas, listener.isResized());
+		set.getGraphSettings().setFromCanvas(canvas, resized);
 
 		if (canvas instanceof TracingGisCanvas) {
 			set.getGisSettings().setFromCanvas(canvas);

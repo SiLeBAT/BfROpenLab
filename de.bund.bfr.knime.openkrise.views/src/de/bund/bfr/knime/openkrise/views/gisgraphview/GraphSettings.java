@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.views.gisgraphview;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -38,13 +38,19 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.Activator;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class GraphSettings extends Settings {
+public class GraphSettings extends NodeSettings {
+
+	protected static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
 
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";

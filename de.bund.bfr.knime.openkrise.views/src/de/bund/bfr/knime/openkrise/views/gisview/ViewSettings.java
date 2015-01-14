@@ -22,13 +22,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.views.gisview;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-public class ViewSettings extends Settings {
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.openkrise.views.Activator;
+
+public class ViewSettings extends NodeSettings {
+
+	protected static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 

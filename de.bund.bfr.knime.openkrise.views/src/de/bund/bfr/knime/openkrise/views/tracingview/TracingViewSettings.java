@@ -31,11 +31,16 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.openkrise.views.GisSettings;
-import de.bund.bfr.knime.openkrise.views.GraphSettings;
-import de.bund.bfr.knime.openkrise.views.ViewSettings;
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.openkrise.views.Activator;
 
-public class TracingViewSettings extends ViewSettings {
+public class TracingViewSettings extends NodeSettings {
+
+	protected static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
+
+	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 
 	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
@@ -46,8 +51,11 @@ public class TracingViewSettings extends ViewSettings {
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
+	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
 	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static final boolean DEFAULT_SHOW_FORWARD = false;
+
+	private boolean exportAsSvg;
 
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
@@ -62,6 +70,8 @@ public class TracingViewSettings extends ViewSettings {
 	private GisSettings gisSettings;
 
 	public TracingViewSettings() {
+		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
+
 		nodeWeights = new LinkedHashMap<>();
 		edgeWeights = new LinkedHashMap<>();
 		nodeCrossContaminations = new LinkedHashMap<>();
@@ -75,10 +85,13 @@ public class TracingViewSettings extends ViewSettings {
 		gisSettings = new GisSettings();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public void loadSettings(NodeSettingsRO settings) {
-		super.loadSettings(settings);
+		try {
+			exportAsSvg = settings.getBoolean(CFG_EXPORT_AS_SVG);
+		} catch (InvalidSettingsException e) {
+		}
 
 		try {
 			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
@@ -133,7 +146,7 @@ public class TracingViewSettings extends ViewSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		super.saveSettings(settings);
+		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
@@ -148,6 +161,14 @@ public class TracingViewSettings extends ViewSettings {
 
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
+	}
+
+	public boolean isExportAsSvg() {
+		return exportAsSvg;
+	}
+
+	public void setExportAsSvg(boolean exportAsSvg) {
+		this.exportAsSvg = exportAsSvg;
 	}
 
 	public Map<String, Double> getNodeWeights() {

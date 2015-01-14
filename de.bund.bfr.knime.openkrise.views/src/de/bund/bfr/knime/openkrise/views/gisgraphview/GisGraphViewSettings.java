@@ -27,9 +27,8 @@ package de.bund.bfr.knime.openkrise.views.gisgraphview;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.openkrise.views.GraphSettings;
-import de.bund.bfr.knime.openkrise.views.ViewSettings;
 import de.bund.bfr.knime.openkrise.views.gisview.GisSettings;
+import de.bund.bfr.knime.openkrise.views.gisview.ViewSettings;
 
 public class GisGraphViewSettings extends ViewSettings {
 

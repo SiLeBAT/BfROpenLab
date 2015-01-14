@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="./FoodChainLab.png" type="Visualizer" xmlns="http://knime.org/node/v2.8"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-	<name>GIS-Graph View</name>
+	<name>GIS-Graph View (deprecated)</name>
 
 	<shortDescription>
 		Provides geographic and network visualization of locations with latitude and

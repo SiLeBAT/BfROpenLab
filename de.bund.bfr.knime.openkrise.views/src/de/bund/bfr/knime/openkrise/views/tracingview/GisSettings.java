@@ -22,15 +22,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.openkrise.views;
+package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
+import de.bund.bfr.knime.openkrise.views.Activator;
 
-public class GisSettings extends Settings {
+public class GisSettings extends NodeSettings {
+
+	protected static final XmlConverter SERIALIZER = new XmlConverter(
+			Activator.class.getClassLoader());
 
 	private static final String CFG_SCALE_X = "GisScaleX";
 	private static final String CFG_SCALE_Y = "GisScaleY";

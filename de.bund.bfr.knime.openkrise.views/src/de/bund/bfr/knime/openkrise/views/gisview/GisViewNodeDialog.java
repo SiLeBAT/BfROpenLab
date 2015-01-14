@@ -41,7 +41,6 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
-import de.bund.bfr.knime.openkrise.views.ResizeListener;
 
 /**
  * <code>NodeDialog</code> for the "GisView" Node.
