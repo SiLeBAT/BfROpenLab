@@ -110,6 +110,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel("Join " + owner.getEdgesName(),
 					joinEdgesBox));
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Arrow in Middle", arrowInMiddleBox));
 		}
 
 		if (allowEdges && allowNodeResize) {
@@ -122,11 +124,6 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel(owner.getNodeName() + " Size", nodeSizeBox));
-		}
-
-		if (allowEdges) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Arrow in Middle", arrowInMiddleBox));
 		}
 
 		if (allowPolygons) {

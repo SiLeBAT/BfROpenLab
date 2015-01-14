@@ -9,7 +9,7 @@
 
 	<fullDescription>
 		<intro>
-			This station can visualize a supply chain. The three mandatory input ports expect a station
+			This node can visualize a supply chain. The three mandatory input ports expect a station
 			table, an delivery table and a data table. These tables are provided by the Supply Chain
 			Analyzer. Tracing can be performed by setting the following three properties for stations or
 			deliveries: "Weight", "Cross Contamination" and "Observed". Based on the properties the following
@@ -59,6 +59,10 @@
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
 			</option>
+			<option name="Switch to Graph/GIS">
+				If a shape table is provided to the optional input port, this button can be
+				used to switch between the usual graph view and a geographical view.
+			</option>
 		</tab>
 		<tab name="Options Bar">
 			<option name="Editing Mode">
@@ -74,14 +78,26 @@
 				Font Size and type (plain or bold) can be specified here. This font is used
 				for station/delivery labels and in the legend.
 			</option>
+			<option name="Label">
+				Small Label, that is displayed in the upper right corner of the graph image.
+			</option>
 			<option name="Join Deliveries">
 				If checked, deliveries with the same source and target are joined.
 			</option>
-			<option name="Skip Deliveryless Stations">
+			<option name="Arrow in Middle">
+				If checked, arrows are drawn in the middle of each delivery.
+			</option>
+			<option name="Skip Unconnected Stations">
 				If checked, stations without any connected deliveries are not shown.
 			</option>
 			<option name="Station Size">
 				Diameter of the stations.
+			</option>
+			<option name="Skip Unconnected Stations">
+				If checked, stations without any connected deliveries are not shown.
+			</option>
+			<option name="Border Alpha">
+				Alpha value used to draw the geographical borders.
 			</option>
 			<option name="Enforce Temporal Order">
 				If checked, the delivery date is used for cross contamination. That means a
@@ -90,9 +106,6 @@
 			<option name="Show Cross Contaminated Deliveries">
 				If checked, all invisible deliveries, that can be reached from the visible
 				deliveries via the cross contamination specified by the user, are made visible.
-			</option>
-			<option name="Label">
-				Small Label, that is displayed in the upper right corner of the graph image.
 			</option>
 		</tab>
 		<tab name="Context Menu">
@@ -293,13 +306,12 @@
 			Model that contains the relations between deliveries. Is provided by
 			third out port of Supply Chain Reader.
 		</inPort>
-		<inPort index="3" name="Settings">
-			Optional port with settings.
+		<inPort index="3" name="Shape Table">
+			Optional Table with geographical shape column.
 		</inPort>
 		<outPort index="0" name="Stations">
 			Table with Station data. Contains meta stations instead of
-			stations
-			contained in meta stations.
+			stations contained in meta stations.
 		</outPort>
 		<outPort index="1" name="Deliveries">
 			Table with Delivery data. Does not contain joined deliveries.
@@ -307,8 +319,8 @@
 		<outPort index="2" name="Graph Image">
 			Image of the Graph.
 		</outPort>
-		<outPort index="3" name="Settings">
-			Settings Output.
+		<outPort index="3" name="GIS">
+			Geographical image of the Graph.
 		</outPort>
 	</ports>
 </knimeNode>

@@ -12,20 +12,16 @@
 		<intro>
 			<p>
 				This station can visualize a graph of locations with different layouts and in a geographical
-				map.
-				The geographical map is read from the table in the first port, that has to contains a column
-				with shapes. Additionally a station table in the second port, which contains the IDs, latitudes
-				and
-				longitudes of the locations, and an delivery table in the third port, that specifies how the
-				locations are connected, are needed as input. Any data in the station or delivery table can be
-				used for
-				highlighting (as explained below).
+				map. The geographical map is read from the table in the first port, that has to contains a
+				column with shapes. Additionally a station table in the second port, which contains the IDs,
+				latitudes and longitudes of the locations, and an delivery table in the third port, that
+				specifies how the locations are connected, are needed as input. Any data in the station or
+				delivery table can be used for highlighting (as explained below).
 			</p>
 			<p>
 				Two views of the graph are available, one showing the graph's structure and the other one its
 				geographical representation. These views are synchronized. Whenever the user selects a station
-				or
-				delivery in one view, its representation in the other view is automatically selected.
+				or delivery in one view, its representation in the other view is automatically selected.
 			</p>
 		</intro>
 
@@ -237,9 +233,6 @@
 		<inPort index="2" name="Delivery Table">
 			Table with delivery data.
 		</inPort>
-		<inPort index="3" name="Settings">
-			Optional port with settings.
-		</inPort>
 		<outPort index="0" name="Graph Image">
 			Image of the Graph.
 		</outPort>
@@ -248,9 +241,6 @@
 		</outPort>
 		<outPort index="2" name="Combined Image">
 			Combined Graph and Geographical Image.
-		</outPort>
-		<outPort index="3" name="Settings">
-			Settings Output.
 		</outPort>
 	</ports>
 </knimeNode>
