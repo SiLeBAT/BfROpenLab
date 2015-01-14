@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.IOException;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -45,7 +44,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -114,21 +112,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
-		shapeTable = (BufferedDataTable) input[4];
 		deliveries = TracingUtils.getDeliveries((BufferedDataTable) input[2],
 				edgeTable);
+		shapeTable = (BufferedDataTable) input[3];
 
 		set.loadSettings(settings);
-
-		if (input[3] != null) {
-			try {
-				set.loadFromXml(KnimeUtils
-						.tableToXml((BufferedDataTable) input[3]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = false;
 		panel.addComponentListener(this);

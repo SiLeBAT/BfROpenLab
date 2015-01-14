@@ -25,7 +25,6 @@
 package de.bund.bfr.knime.openkrise.views.gisgraphview;
 
 import java.awt.BorderLayout;
-import java.io.IOException;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -41,7 +40,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -101,16 +99,6 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 		edgeTable = (BufferedDataTable) input[2];
 
 		set.loadSettings(settings);
-
-		if (input[3] != null) {
-			try {
-				set.loadFromXml(KnimeUtils
-						.tableToXml((BufferedDataTable) input[3]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		listener = new ResizeListener();
 		panel.addComponentListener(listener);

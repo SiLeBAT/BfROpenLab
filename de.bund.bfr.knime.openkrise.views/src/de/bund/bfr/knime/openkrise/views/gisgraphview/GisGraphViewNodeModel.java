@@ -40,7 +40,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -60,9 +59,9 @@ public class GisGraphViewNodeModel extends NodeModel {
 	 */
 	protected GisGraphViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
-				new PortType[] { ImagePortObject.TYPE, ImagePortObject.TYPE,
-						ImagePortObject.TYPE, BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE }, new PortType[] {
+				ImagePortObject.TYPE, ImagePortObject.TYPE,
+				ImagePortObject.TYPE });
 		set = new GisGraphViewSettings();
 	}
 
@@ -84,7 +83,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
 				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas),
 				CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas,
-						gisCanvas), KnimeUtils.xmlToTable(set.toXml(), exec) };
+						gisCanvas) };
 	}
 
 	/**
@@ -103,8 +102,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 		return new PortObjectSpec[] {
 				CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				KnimeUtils.getXmlSpec() };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**

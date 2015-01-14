@@ -56,7 +56,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -80,10 +79,9 @@ public class TracingViewNodeModel extends NodeModel {
 	 */
 	protected TracingViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL,
-				BufferedDataTable.TYPE_OPTIONAL }, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				ImagePortObject.TYPE, BufferedDataTable.TYPE });
+				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL },
+				new PortType[] { BufferedDataTable.TYPE,
+						BufferedDataTable.TYPE, ImagePortObject.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -97,7 +95,7 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
 				(BufferedDataTable) inObjects[2], edgeTable);
-		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[4];
+		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[3];
 		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
 				edgeTable, shapeTable, tracing, set).createGraphCanvas();
 		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
@@ -197,8 +195,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new PortObject[] { nodeContainer.getTable(),
 				edgeContainer.getTable(),
-				CanvasUtils.getImage(set.isExportAsSvg(), canvas),
-				KnimeUtils.xmlToTable(set.toXml(), exec) };
+				CanvasUtils.getImage(set.isExportAsSvg(), canvas) };
 	}
 
 	/**
@@ -219,8 +216,7 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec),
 				createEdgeOutSpec(edgeSpec),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				KnimeUtils.getXmlSpec() };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
