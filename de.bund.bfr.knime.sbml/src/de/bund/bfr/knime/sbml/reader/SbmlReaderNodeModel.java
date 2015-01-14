@@ -25,7 +25,10 @@
 package de.bund.bfr.knime.sbml.reader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,8 +66,7 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.UnitDefinition;
 
-import de.bund.bfr.knime.IO;
-import de.bund.bfr.knime.KnimeUtils;
+import com.google.common.base.Joiner;
 
 /**
  * This is the model implementation of SbmlReader.
@@ -105,7 +107,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		File path = KnimeUtils.getFile(inPath.getStringValue());
+		File path = getFile(inPath.getStringValue());
 
 		if (!path.isDirectory()) {
 			throw new IOException(path + " is not a directory");
@@ -222,7 +224,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 			columns.put(MODEL_ID, StringCell.TYPE);
 		}
 
-		row.put(MODEL_ID, IO.createCell(model.getId()));
+		row.put(MODEL_ID, createCell(model.getId()));
 
 		Species organism = model.getSpecies(0);
 		Compartment matrix = model.getCompartment(0);
@@ -232,7 +234,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 				columns.put(ORGANISM, StringCell.TYPE);
 			}
 
-			row.put(ORGANISM, IO.createCell(organism.getName()));
+			row.put(ORGANISM, createCell(organism.getName()));
 		}
 
 		if (matrix != null) {
@@ -240,7 +242,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 				columns.put(MATRIX, StringCell.TYPE);
 			}
 
-			row.put(MATRIX, IO.createCell(matrix.getName()));
+			row.put(MATRIX, createCell(matrix.getName()));
 		}
 
 		AlgebraicRule rule = getAssignmentRule(model.getListOfRules());
@@ -263,9 +265,9 @@ public class SbmlReaderNodeModel extends NodeModel {
 		}
 
 		row.put(FORMULA_LEFT,
-				IO.createCell(rule.getMath().getChild(0).toFormula()));
-		row.put(FORMULA_RIGHT,
-				IO.createCell(rule.getMath().getChild(1).toFormula()));
+				createCell(rule.getMath().getChild(0).toFormula()));
+		row.put(FORMULA_RIGHT, createCell(rule.getMath().getChild(1)
+				.toFormula()));
 
 		String dependentVariable = null;
 		List<String> independentVariables = new ArrayList<>();
@@ -280,7 +282,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 						.getNonRDFannotationAsString();
 
 				if (annotation != null && annotation.trim().equals("<start>")) {
-					row.put(START_PARAMETER, IO.createCell(name));
+					row.put(START_PARAMETER, createCell(name));
 				}
 
 				if (!columns.containsKey(name + UNIT)) {
@@ -288,7 +290,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 				}
 
 				if (unit != null) {
-					row.put(name + UNIT, IO.createCell(unit.toString()));
+					row.put(name + UNIT, createCell(unit.toString()));
 				} else {
 					row.put(name + UNIT, DataType.getMissingCell());
 				}
@@ -298,8 +300,8 @@ public class SbmlReaderNodeModel extends NodeModel {
 				}
 
 				if (minMax != null) {
-					row.put(name + MIN_MAX,
-							IO.createCell(minMax.getMath().toFormula()));
+					row.put(name + MIN_MAX, createCell(minMax.getMath()
+							.toFormula()));
 				} else {
 					row.put(name + MIN_MAX, DataType.getMissingCell());
 				}
@@ -320,7 +322,7 @@ public class SbmlReaderNodeModel extends NodeModel {
 					columns.put(name, DoubleCell.TYPE);
 				}
 
-				row.put(name, IO.createCell(param.getValue()));
+				row.put(name, createCell(param.getValue()));
 				paramters.add(name);
 			}
 		}
@@ -329,20 +331,22 @@ public class SbmlReaderNodeModel extends NodeModel {
 			columns.put(DEPENDENT_VARIABLE, StringCell.TYPE);
 		}
 
-		row.put(DEPENDENT_VARIABLE, IO.createCell(dependentVariable));
+		row.put(DEPENDENT_VARIABLE, createCell(dependentVariable));
 
 		if (!columns.containsKey(INDEPENDENT_VARIABLES)) {
 			columns.put(INDEPENDENT_VARIABLES, StringCell.TYPE);
 		}
 
 		row.put(INDEPENDENT_VARIABLES,
-				IO.createCell(KnimeUtils.listToString(independentVariables)));
+				createCell(Joiner.on(",").useForNull("null")
+						.join(independentVariables)));
 
 		if (!columns.containsKey(PARAMETERS)) {
 			columns.put(PARAMETERS, StringCell.TYPE);
 		}
 
-		row.put(PARAMETERS, IO.createCell(KnimeUtils.listToString(paramters)));
+		row.put(PARAMETERS,
+				createCell(Joiner.on(",").useForNull("null").join(paramters)));
 
 		rows.add(row);
 	}
@@ -388,4 +392,36 @@ public class SbmlReaderNodeModel extends NodeModel {
 		return null;
 	}
 
+	private static DataCell createCell(String s) {
+		if (s != null) {
+			return new StringCell(s);
+		}
+
+		return DataType.getMissingCell();
+	}
+
+	private static DataCell createCell(Double s) {
+		if (s != null) {
+			return new DoubleCell(s);
+		}
+
+		return DataType.getMissingCell();
+	}
+
+	private static File getFile(String fileName) throws FileNotFoundException {
+		File file = new File(fileName);
+
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(fileName).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
+		if (!file.exists()) {
+			throw new FileNotFoundException(fileName);
+		}
+
+		return file;
+	}
 }
