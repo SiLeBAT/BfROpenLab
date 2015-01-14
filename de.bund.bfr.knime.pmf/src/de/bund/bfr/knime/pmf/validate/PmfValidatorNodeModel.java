@@ -84,7 +84,6 @@ public class PmfValidatorNodeModel extends NodeModel {
 			exec.setProgress((double) index
 					/ (double) reader.getMessages().size());
 		}
-		reader.getMessages().get(0).toString();
 
 		container.close();
 
