@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PmfValidator-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmf.validate; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: .
+Bundle-Activator: de.bund.bfr.knime.pmf.Activator
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.pmf;bundle-version="0.9.2",
+ de.bund.bfr.knime
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmf.validate
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+
