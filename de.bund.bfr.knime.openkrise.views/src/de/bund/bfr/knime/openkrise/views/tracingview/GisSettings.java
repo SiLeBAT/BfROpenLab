@@ -47,7 +47,7 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_FONT_BOLD = "GisTextBold";
 	private static final String CFG_BORDER_ALPHA = "GisBorderAlpha";
 
-	private static final int DEFAULT_NODE_SIZE = 4;
+	private static final int DEFAULT_NODE_SIZE = 10;
 	private static final int DEFAULT_FONT_SIZE = 12;
 	private static final boolean DEFAULT_FONT_BOLD = false;
 	private static final int DEFAULT_BORDER_ALPHA = 255;

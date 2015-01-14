@@ -124,6 +124,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (shapeTable == null) {
 			set.setShowGis(false);
 			switchButton.setEnabled(false);
+		} else {
+			switchButton.setEnabled(true);
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());

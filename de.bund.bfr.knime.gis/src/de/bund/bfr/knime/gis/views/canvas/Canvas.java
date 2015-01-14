@@ -204,6 +204,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				JComponent.WHEN_FOCUSED);
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
+		viewer.setGraphMouse(new GraphMouse<>(null, Mode.TRANSFORMING));
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -1203,9 +1204,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		joinMap.clear();
 
 		if (isJoinEdges()) {
-			joinMap = CanvasUtils.joinEdges(edges, edgeSchema,
-					CanvasUtils.getElementIds(allEdges));
-			edges = new LinkedHashSet<>(joinMap.keySet());
+			joinMap.putAll(CanvasUtils.joinEdges(edges, edgeSchema,
+					CanvasUtils.getElementIds(allEdges)));
+			edges.clear();
+			edges.addAll(joinMap.keySet());
 		}
 
 		if (isSkipEdgelessNodes()) {
