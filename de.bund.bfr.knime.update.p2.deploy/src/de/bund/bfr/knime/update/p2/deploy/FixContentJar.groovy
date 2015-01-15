@@ -24,23 +24,30 @@
  ******************************************************************************/
 package de.bund.bfr.knime.update.p2.deploy
 
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+
 class FixContentJar {
 
-	static String CATEGORY = "test";
+	static String CATEGORY = "bfropenlab";
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
 
 	static main(args) {
-		def root = new XmlParser().parse("${UPDATE_SITE}/content.xml");
+		def contentJar = new File("${UPDATE_SITE}/content.jar")
+		def zip = new ZipFile(contentJar)
+		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry("content.xml")))
 		def unit = root.units.unit.findAll{ it.@id == CATEGORY }.get(0)
 
 		unit.requires.required.each { s ->
 			s.@range = "0.0.0"
 		}
 
-		def writer = new StringWriter()
-		new XmlNodePrinter(new PrintWriter(writer)).print(unit)
-		def result = writer.toString()
+		def out = new ZipOutputStream(new FileOutputStream(contentJar))
 
-		println result
+		out.putNextEntry(new ZipEntry("content.xml"))
+		new XmlNodePrinter(new PrintWriter(out)).print(root)
+		out.closeEntry()
+		out.close()
 	}
 }
