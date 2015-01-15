@@ -125,16 +125,9 @@ public interface ICanvas<V extends Node> {
 	public abstract void setCollapsedNodes(
 			Map<String, Set<String>> collapsedNodes);
 
-	public abstract double getScaleX();
+	public abstract Transform getTransform();
 
-	public abstract double getScaleY();
-
-	public abstract double getTranslationX();
-
-	public abstract double getTranslationY();
-
-	public abstract void setTransform(double scaleX, double scaleY,
-			double translationX, double translationY);
+	public abstract void setTransform(Transform transform);
 
 	public abstract VisualizationViewer<V, Edge<V>> getViewer();
 

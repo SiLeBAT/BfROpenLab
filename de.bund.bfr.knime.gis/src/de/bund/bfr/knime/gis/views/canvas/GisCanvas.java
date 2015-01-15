@@ -145,9 +145,10 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			double translationX = canvasCenterX - polygonCenterX * scaleX;
 			double translationY = canvasCenterY - polygonCenterY * scaleY;
 
-			setTransform(scaleX, scaleY, translationX, translationY);
+			setTransform(new Transform(scaleX, scaleY, translationX,
+					translationY));
 		} else {
-			setTransform(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
 	}
 
@@ -168,7 +169,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private void computeTransformedShapes() {
 		for (RegionNode node : getRegions()) {
-			node.setTransform(translationX, translationY, scaleX, scaleY);
+			node.setTransform(transform);
 		}
 	}
 

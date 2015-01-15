@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -124,10 +123,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private static final String IS_META_NODE = "IsMeta";
 
 	protected VisualizationViewer<V, Edge<V>> viewer;
-	protected double scaleX;
-	protected double scaleY;
-	protected double translationX;
-	protected double translationY;
+	protected Transform transform;
 
 	protected List<V> allNodes;
 	protected List<Edge<V>> allEdges;
@@ -154,10 +150,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
 		this.nodeSchema = nodeSchema;
 		this.edgeSchema = edgeSchema;
-		scaleX = Double.NaN;
-		scaleY = Double.NaN;
-		translationX = Double.NaN;
-		translationY = Double.NaN;
+		transform = Transform.IDENTITY_TRANSFORM;
 		canvasListeners = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
@@ -456,37 +449,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public double getScaleX() {
-		return scaleX;
+	public Transform getTransform() {
+		return transform;
 	}
 
 	@Override
-	public double getScaleY() {
-		return scaleY;
-	}
-
-	@Override
-	public double getTranslationX() {
-		return translationX;
-	}
-
-	@Override
-	public double getTranslationY() {
-		return translationY;
-	}
-
-	@Override
-	public void setTransform(double scaleX, double scaleY, double translationX,
-			double translationY) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.translationX = translationX;
-		this.translationY = translationY;
+	public void setTransform(Transform transform) {
+		this.transform = transform;
 
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.setTransform(new AffineTransform(scaleX, 0, 0, scaleY,
-						translationX, translationY));
+				.setTransform(transform.toAffineTransform());
 		applyTransform();
 		viewer.repaint();
 	}
@@ -531,15 +504,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getTransformer(Layer.LAYOUT)).getTransform();
 
 		if (transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0) {
-			scaleX = transform.getScaleX();
-			scaleY = transform.getScaleY();
-			translationX = transform.getTranslateX();
-			translationY = transform.getTranslateY();
+			this.transform = new Transform(transform);
 		} else {
-			scaleX = Double.NaN;
-			scaleY = Double.NaN;
-			translationX = Double.NaN;
-			translationY = Double.NaN;
+			this.transform = Transform.IDENTITY_TRANSFORM;
 		}
 
 		applyTransform();
@@ -1236,16 +1203,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected String getEdgesName() {
 		return DEFAULT_EDGES_NAME;
-	}
-
-	protected Point2D toGraphCoordinates(int x, int y) {
-		return new Point2D.Double((x - translationX) / scaleX,
-				(y - translationY) / scaleY);
-	}
-
-	protected Point toWindowsCoordinates(double x, double y) {
-		return new Point((int) (x * scaleX + translationX),
-				(int) (y * scaleY + translationY));
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {

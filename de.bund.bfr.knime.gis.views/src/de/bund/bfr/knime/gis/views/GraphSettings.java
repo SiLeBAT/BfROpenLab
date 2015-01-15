@@ -40,6 +40,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
@@ -69,16 +70,6 @@ public class GraphSettings extends Settings {
 	private static final String CFG_COLLAPSED_NODES = "CollapsedNodes";
 	private static final String CFG_LABEL = "GraphLabel";
 
-	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	private static final boolean DEFAULT_JOIN_EDGES = true;
-	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	private static final int DEFAULT_NODE_SIZE = 10;
-	private static final int DEFAULT_FONT_SIZE = 12;
-	private static final boolean DEFAULT_FONT_BOLD = false;
-	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
-	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
-
 	private String nodeIdColumn;
 	private String edgeFromColumn;
 	private String edgeToColumn;
@@ -86,10 +77,7 @@ public class GraphSettings extends Settings {
 	private boolean joinEdges;
 	private boolean arrowInMiddle;
 	private boolean showLegend;
-	private double scaleX;
-	private double scaleY;
-	private double translationX;
-	private double translationY;
+	private Transform transform;
 	private Map<String, Point2D> nodePositions;
 	private int nodeSize;
 	private int fontSize;
@@ -107,20 +95,17 @@ public class GraphSettings extends Settings {
 		nodeIdColumn = null;
 		edgeFromColumn = null;
 		edgeToColumn = null;
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		arrowInMiddle = DEFAULT_ARROW_IN_MIDDLE;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		scaleX = Double.NaN;
-		scaleY = Double.NaN;
-		translationX = Double.NaN;
-		translationY = Double.NaN;
+		skipEdgelessNodes = true;
+		joinEdges = true;
+		arrowInMiddle = false;
+		showLegend = false;
+		transform = Transform.INVALID_TRANSFORM;
 		nodePositions = new LinkedHashMap<>();
-		nodeSize = DEFAULT_NODE_SIZE;
-		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
-		editingMode = DEFAULT_EDITING_MODE;
-		canvasSize = DEFAULT_CANVAS_SIZE;
+		nodeSize = 10;
+		fontSize = 12;
+		fontBold = false;
+		editingMode = Mode.PICKING;
+		canvasSize = new Dimension(400, 600);
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
@@ -168,22 +153,10 @@ public class GraphSettings extends Settings {
 		}
 
 		try {
-			scaleX = settings.getDouble(CFG_SCALE_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			scaleY = settings.getDouble(CFG_SCALE_Y);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationX = settings.getDouble(CFG_TRANSLATION_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationY = settings.getDouble(CFG_TRANSLATION_Y);
+			transform = new Transform(settings.getDouble(CFG_SCALE_X),
+					settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -264,10 +237,10 @@ public class GraphSettings extends Settings {
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
-		settings.addDouble(CFG_SCALE_X, scaleX);
-		settings.addDouble(CFG_SCALE_Y, scaleY);
-		settings.addDouble(CFG_TRANSLATION_X, translationX);
-		settings.addDouble(CFG_TRANSLATION_Y, translationY);
+		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
+		settings.addDouble(CFG_SCALE_Y, transform.getScaleY());
+		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
+		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addString(CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_FONT_SIZE, fontSize);
@@ -293,10 +266,7 @@ public class GraphSettings extends Settings {
 		Collections.sort(selectedEdges);
 
 		showLegend = canvas.isShowLegend();
-		scaleX = canvas.getScaleX();
-		scaleY = canvas.getScaleY();
-		translationX = canvas.getTranslationX();
-		translationY = canvas.getTranslationY();
+		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
@@ -355,9 +325,8 @@ public class GraphSettings extends Settings {
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
 
-		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
-				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
-			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		if (transform.isValid()) {
+			canvas.setTransform(transform);
 		}
 
 		if (canvas instanceof GraphCanvas) {
@@ -421,36 +390,12 @@ public class GraphSettings extends Settings {
 		this.showLegend = showLegend;
 	}
 
-	public double getScaleX() {
-		return scaleX;
+	public Transform getTransform() {
+		return transform;
 	}
 
-	public void setScaleX(double scaleX) {
-		this.scaleX = scaleX;
-	}
-
-	public double getScaleY() {
-		return scaleY;
-	}
-
-	public void setScaleY(double scaleY) {
-		this.scaleY = scaleY;
-	}
-
-	public double getTranslationX() {
-		return translationX;
-	}
-
-	public void setTranslationX(double translationX) {
-		this.translationX = translationX;
-	}
-
-	public double getTranslationY() {
-		return translationY;
-	}
-
-	public void setTranslationY(double translationY) {
-		this.translationY = translationY;
+	public void setTransform(Transform transform) {
+		this.transform = transform;
 	}
 
 	public Map<String, Point2D> getNodePositions() {

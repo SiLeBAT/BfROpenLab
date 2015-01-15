@@ -24,6 +24,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -36,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisUtils;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 
 public class RegionNode extends Node {
 
@@ -69,8 +71,7 @@ public class RegionNode extends Node {
 		return transformedPolygon;
 	}
 
-	public void setTransform(double translationX, double translationY,
-			double scaleX, double scaleY) {
+	public void setTransform(Transform transform) {
 		transformedPolygon = new ArrayList<>();
 
 		for (int index = 0; index < polygon.getNumGeometries(); index++) {
@@ -82,8 +83,10 @@ public class RegionNode extends Node {
 			int[] ys = new int[n];
 
 			for (int i = 0; i < n; i++) {
-				xs[i] = (int) (points[i].x * scaleX + translationX);
-				ys[i] = (int) (points[i].y * scaleY + translationY);
+				Point p = transform.apply(points[i].x, points[i].y);
+
+				xs[i] = p.x;
+				ys[i] = p.y;
 			}
 
 			transformedPolygon.add(new Polygon(xs, ys, n));

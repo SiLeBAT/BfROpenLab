@@ -39,12 +39,10 @@ public class ViewSettings extends NodeSettings {
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 
-	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
-
 	private boolean exportAsSvg;
 
 	public ViewSettings() {
-		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
+		exportAsSvg = false;
 	}
 
 	@Override

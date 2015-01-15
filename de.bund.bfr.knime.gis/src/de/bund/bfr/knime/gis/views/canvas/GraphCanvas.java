@@ -97,8 +97,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer
 				.getGraphLayout().getGraph());
-		Point2D upperLeft = toGraphCoordinates(0, 0);
-		Point2D upperRight = toGraphCoordinates(
+		Point2D upperLeft = transform.applyInverse(0, 0);
+		Point2D upperRight = transform.applyInverse(
 				viewer.getPreferredSize().width, 0);
 		double x1 = upperLeft.getX();
 		double x2 = upperRight.getX();
@@ -124,7 +124,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		setTransform(1.0, 1.0, 0.0, 0.0);
+		setTransform(Transform.IDENTITY_TRANSFORM);
 	}
 
 	@Override
@@ -258,8 +258,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (!selectedNodes.isEmpty()) {
-			Point2D move = new Point2D.Double(translationX / scaleX,
-					translationY / scaleY);
+			Point2D move = new Point2D.Double(transform.getTranslationX()
+					/ transform.getScaleX(), transform.getTranslationY()
+					/ transform.getScaleY());
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
@@ -270,8 +271,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 
 			layout.setSize(new Dimension(
-					(int) (viewer.getSize().width / scaleX), (int) (viewer
-							.getSize().height / scaleY)));
+					(int) (viewer.getSize().width / transform.getScaleX()),
+					(int) (viewer.getSize().height / transform.getScaleY())));
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
@@ -281,10 +282,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				}
 			}
 
-			setTransform(scaleX, scaleY, 0.0, 0.0);
+			setTransform(new Transform(transform.getScaleX(),
+					transform.getScaleY(), 0, 0));
 		} else {
 			layout.setSize(viewer.getSize());
-			setTransform(1.0, 1.0, 0.0, 0.0);
+			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
 
 		viewer.setGraphLayout(layout);

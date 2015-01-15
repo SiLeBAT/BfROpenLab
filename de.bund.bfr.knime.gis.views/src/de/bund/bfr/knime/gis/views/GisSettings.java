@@ -35,6 +35,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
@@ -53,21 +54,11 @@ public class GisSettings extends Settings {
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_SELECTED_NODES = "SelectedNodes";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
-	private static final String CFG_LABEL = "GraphLabel";
-
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	private static final int DEFAULT_FONT_SIZE = 12;
-	private static final boolean DEFAULT_FONT_BOLD = false;
-	private static final int DEFAULT_BORDER_ALPHA = 255;
-	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
-	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
+	private static final String CFG_LABEL = "Label";
 
 	private String shapeColumn;
 	private boolean showLegend;
-	private double scaleX;
-	private double scaleY;
-	private double translationX;
-	private double translationY;
+	private Transform transform;
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
@@ -79,18 +70,15 @@ public class GisSettings extends Settings {
 
 	public GisSettings() {
 		shapeColumn = null;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		scaleX = Double.NaN;
-		scaleY = Double.NaN;
-		translationX = Double.NaN;
-		translationY = Double.NaN;
-		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
-		borderAlpha = DEFAULT_BORDER_ALPHA;
-		editingMode = DEFAULT_EDITING_MODE;
+		showLegend = false;
+		transform = Transform.INVALID_TRANSFORM;
+		fontSize = 12;
+		fontBold = false;
+		borderAlpha = 255;
+		editingMode = Mode.PICKING;
 		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
-		canvasSize = DEFAULT_CANVAS_SIZE;
+		canvasSize = new Dimension(400, 600);
 		label = null;
 	}
 
@@ -108,22 +96,10 @@ public class GisSettings extends Settings {
 		}
 
 		try {
-			scaleX = settings.getDouble(CFG_SCALE_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			scaleY = settings.getDouble(CFG_SCALE_Y);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationX = settings.getDouble(CFG_TRANSLATION_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationY = settings.getDouble(CFG_TRANSLATION_Y);
+			transform = new Transform(settings.getDouble(CFG_SCALE_X),
+					settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -175,10 +151,10 @@ public class GisSettings extends Settings {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
-		settings.addDouble(CFG_SCALE_X, scaleX);
-		settings.addDouble(CFG_SCALE_Y, scaleY);
-		settings.addDouble(CFG_TRANSLATION_X, translationX);
-		settings.addDouble(CFG_TRANSLATION_Y, translationY);
+		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
+		settings.addDouble(CFG_SCALE_Y, transform.getScaleY());
+		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
+		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
@@ -196,10 +172,7 @@ public class GisSettings extends Settings {
 		Collections.sort(selectedNodes);
 
 		showLegend = canvas.isShowLegend();
-		scaleX = canvas.getScaleX();
-		scaleY = canvas.getScaleY();
-		translationX = canvas.getTranslationX();
-		translationY = canvas.getTranslationY();
+		transform = canvas.getTransform();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		borderAlpha = canvas.getBorderAlpha();
@@ -223,9 +196,8 @@ public class GisSettings extends Settings {
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setLabel(label);
 
-		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
-				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
-			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		if (transform.isValid()) {
+			canvas.setTransform(transform);
 		}
 	}
 
@@ -245,36 +217,12 @@ public class GisSettings extends Settings {
 		this.showLegend = showLegend;
 	}
 
-	public double getScaleX() {
-		return scaleX;
+	public Transform getTransform() {
+		return transform;
 	}
 
-	public void setScaleX(double scaleX) {
-		this.scaleX = scaleX;
-	}
-
-	public double getScaleY() {
-		return scaleY;
-	}
-
-	public void setScaleY(double scaleY) {
-		this.scaleY = scaleY;
-	}
-
-	public double getTranslationX() {
-		return translationX;
-	}
-
-	public void setTranslationX(double translationX) {
-		this.translationX = translationX;
-	}
-
-	public double getTranslationY() {
-		return translationY;
-	}
-
-	public void setTranslationY(double translationY) {
-		this.translationY = translationY;
+	public void setTransform(Transform transform) {
+		this.transform = transform;
 	}
 
 	public int getFontSize() {

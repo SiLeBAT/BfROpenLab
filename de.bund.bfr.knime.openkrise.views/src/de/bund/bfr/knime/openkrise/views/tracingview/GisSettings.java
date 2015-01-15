@@ -31,6 +31,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GisSettings extends NodeSettings {
@@ -47,50 +48,27 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_FONT_BOLD = "GisTextBold";
 	private static final String CFG_BORDER_ALPHA = "GisBorderAlpha";
 
-	private static final int DEFAULT_NODE_SIZE = 10;
-	private static final int DEFAULT_FONT_SIZE = 12;
-	private static final boolean DEFAULT_FONT_BOLD = false;
-	private static final int DEFAULT_BORDER_ALPHA = 255;
-
-	private double scaleX;
-	private double scaleY;
-	private double translationX;
-	private double translationY;
+	private Transform transform;
 	private int nodeSize;
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
 
 	public GisSettings() {
-		scaleX = Double.NaN;
-		scaleY = Double.NaN;
-		translationX = Double.NaN;
-		translationY = Double.NaN;
-		nodeSize = DEFAULT_NODE_SIZE;
-		fontSize = DEFAULT_FONT_SIZE;
-		fontBold = DEFAULT_FONT_BOLD;
-		borderAlpha = DEFAULT_BORDER_ALPHA;
+		transform = Transform.INVALID_TRANSFORM;
+		nodeSize = 10;
+		fontSize = 12;
+		fontBold = false;
+		borderAlpha = 255;
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			scaleX = settings.getDouble(CFG_SCALE_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			scaleY = settings.getDouble(CFG_SCALE_Y);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationX = settings.getDouble(CFG_TRANSLATION_X);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			translationY = settings.getDouble(CFG_TRANSLATION_Y);
+			transform = new Transform(settings.getDouble(CFG_SCALE_X),
+					settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -117,10 +95,10 @@ public class GisSettings extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addDouble(CFG_SCALE_X, scaleX);
-		settings.addDouble(CFG_SCALE_Y, scaleY);
-		settings.addDouble(CFG_TRANSLATION_X, translationX);
-		settings.addDouble(CFG_TRANSLATION_Y, translationY);
+		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
+		settings.addDouble(CFG_SCALE_Y, transform.getScaleY());
+		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
+		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
@@ -128,10 +106,7 @@ public class GisSettings extends NodeSettings {
 	}
 
 	public void setFromCanvas(LocationCanvas canvas) {
-		scaleX = canvas.getScaleX();
-		scaleY = canvas.getScaleY();
-		translationX = canvas.getTranslationX();
-		translationY = canvas.getTranslationY();
+		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
@@ -144,42 +119,17 @@ public class GisSettings extends NodeSettings {
 		canvas.setFontBold(fontBold);
 		canvas.setBorderAlpha(borderAlpha);
 
-		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
-				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
-			canvas.setTransform(scaleX, scaleY, translationX, translationY);
+		if (transform.isValid()) {
+			canvas.setTransform(transform);
 		}
 	}
 
-	public double getScaleX() {
-		return scaleX;
+	public Transform getTransform() {
+		return transform;
 	}
 
-	public void setScaleX(double scaleX) {
-		this.scaleX = scaleX;
-	}
-
-	public double getScaleY() {
-		return scaleY;
-	}
-
-	public void setScaleY(double scaleY) {
-		this.scaleY = scaleY;
-	}
-
-	public double getTranslationX() {
-		return translationX;
-	}
-
-	public void setTranslationX(double translationX) {
-		this.translationX = translationX;
-	}
-
-	public double getTranslationY() {
-		return translationY;
-	}
-
-	public void setTranslationY(double translationY) {
-		this.translationY = translationY;
+	public void setTransform(Transform transform) {
+		this.transform = transform;
 	}
 
 	public int getNodeSize() {

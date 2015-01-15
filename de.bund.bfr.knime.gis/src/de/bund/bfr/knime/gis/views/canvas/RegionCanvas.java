@@ -257,7 +257,7 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	private RegionNode getContainingNode(int x, int y) {
-		Point2D p = toGraphCoordinates(x, y);
+		Point2D p = transform.applyInverse(x, y);
 
 		for (RegionNode node : getRegions()) {
 			if (node.containsPoint(p)) {
