@@ -53,6 +53,7 @@ public class GisSettings extends Settings {
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_SELECTED_NODES = "SelectedNodes";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
+	private static final String CFG_LABEL = "GraphLabel";
 
 	private static final boolean DEFAULT_SHOW_LEGEND = false;
 	private static final int DEFAULT_FONT_SIZE = 12;
@@ -74,6 +75,7 @@ public class GisSettings extends Settings {
 	private Dimension canvasSize;
 	private List<String> selectedNodes;
 	private HighlightConditionList nodeHighlightConditions;
+	private String label;
 
 	public GisSettings() {
 		shapeColumn = null;
@@ -89,6 +91,7 @@ public class GisSettings extends Settings {
 		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = DEFAULT_CANVAS_SIZE;
+		label = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -161,6 +164,11 @@ public class GisSettings extends Settings {
 					.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			label = settings.getString(CFG_LABEL);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -179,6 +187,7 @@ public class GisSettings extends Settings {
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
 				SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
+		settings.addString(CFG_LABEL, label);
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
@@ -196,6 +205,7 @@ public class GisSettings extends Settings {
 		borderAlpha = canvas.getBorderAlpha();
 		editingMode = canvas.getEditingMode();
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+		label = canvas.getLabel();
 
 		if (resized) {
 			canvasSize = canvas.getCanvasSize();
@@ -211,6 +221,7 @@ public class GisSettings extends Settings {
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
+		canvas.setLabel(label);
 
 		if (!Double.isNaN(scaleX) && !Double.isNaN(scaleY)
 				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)) {
@@ -321,5 +332,13 @@ public class GisSettings extends Settings {
 	public void setNodeHighlightConditions(
 			HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 }
