@@ -35,12 +35,6 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class FittingSettings extends NlsNodeSettings {
 
-	private static final boolean DEFAULT_EXPERT_SETTINGS = false;
-	private static final int DEFAULT_N_PARAMETER_SPACE = 10000;
-	private static final int DEFAULT_N_LEVENBERG = 10;
-	private static final boolean DEFAULT_STOP_WHEN_SUCCESSFUL = false;
-	private static final boolean DEFAULT_ENFORCE_LIMITS = false;
-
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
@@ -58,7 +52,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private Map<String, Double> maxStartValues;
 
 	public FittingSettings() {
-		expertSettings = DEFAULT_EXPERT_SETTINGS;
+		expertSettings = false;
 		setExpertParametersToDefault();
 	}
 
@@ -177,10 +171,10 @@ public class FittingSettings extends NlsNodeSettings {
 	}
 
 	private void setExpertParametersToDefault() {
-		nParameterSpace = DEFAULT_N_PARAMETER_SPACE;
-		nLevenberg = DEFAULT_N_LEVENBERG;
-		stopWhenSuccessful = DEFAULT_STOP_WHEN_SUCCESSFUL;
-		enforceLimits = DEFAULT_ENFORCE_LIMITS;
+		nParameterSpace = 10000;
+		nLevenberg = 10;
+		stopWhenSuccessful = false;
+		enforceLimits = false;
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();
 	}

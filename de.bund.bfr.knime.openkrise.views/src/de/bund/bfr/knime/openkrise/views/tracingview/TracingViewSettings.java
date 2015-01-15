@@ -75,17 +75,6 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
-	private static final boolean DEFAULT_SHOW_GIS = false;
-	private static final boolean DEFAULT_EXPORT_AS_SVG = false;
-	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
-	private static final boolean DEFAULT_JOIN_EDGES = true;
-	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	private static final Mode DEFAULT_EDITING_MODE = Mode.PICKING;
-	private static final Dimension DEFAULT_CANVAS_SIZE = new Dimension(400, 600);
-	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-	private static final boolean DEFAULT_SHOW_FORWARD = false;
-
 	private boolean showGis;
 	private boolean exportAsSvg;
 	private boolean skipEdgelessNodes;
@@ -114,14 +103,14 @@ public class TracingViewSettings extends NodeSettings {
 	private GisSettings gisSettings;
 
 	public TracingViewSettings() {
-		showGis = DEFAULT_SHOW_GIS;
-		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
-		skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
-		joinEdges = DEFAULT_JOIN_EDGES;
-		arrowInMiddle = DEFAULT_ARROW_IN_MIDDLE;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		editingMode = DEFAULT_EDITING_MODE;
-		canvasSize = DEFAULT_CANVAS_SIZE;
+		showGis = false;
+		exportAsSvg = false;
+		skipEdgelessNodes = true;
+		joinEdges = true;
+		arrowInMiddle = false;
+		showLegend = false;
+		editingMode = Mode.PICKING;
+		canvasSize = new Dimension(400, 600);
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
@@ -135,8 +124,8 @@ public class TracingViewSettings extends NodeSettings {
 		edgeCrossContaminations = new LinkedHashMap<>();
 		observedNodes = new LinkedHashMap<>();
 		observedEdges = new LinkedHashMap<>();
-		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
-		showForward = DEFAULT_SHOW_FORWARD;
+		enforeTemporalOrder = false;
+		showForward = false;
 
 		graphSettings = new GraphSettings();
 		gisSettings = new GisSettings();

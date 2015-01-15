@@ -32,8 +32,6 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 
 public class LocationSettings extends GisSettings {
 
-	public static final int DEFAULT_NODE_SIZE = 4;
-
 	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
@@ -45,7 +43,7 @@ public class LocationSettings extends GisSettings {
 	public LocationSettings() {
 		nodeLatitudeColumn = null;
 		nodeLongitudeColumn = null;
-		nodeSize = DEFAULT_NODE_SIZE;
+		nodeSize = 4;
 	}
 
 	@Override

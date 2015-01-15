@@ -61,8 +61,6 @@ public class TracingParametersSettings extends NodeSettings {
 	private static final String CFG_OBSERVED_EDGES_CONDITION_VALUE = "EdgeFilterConditionValue";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 
-	private static final boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
-
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
 	private Map<String, Boolean> nodeCrossContaminations;
@@ -102,7 +100,7 @@ public class TracingParametersSettings extends NodeSettings {
 		edgeContaminationConditionValue = false;
 		observedNodesConditionValue = false;
 		observedEdgesConditionValue = false;
-		enforeTemporalOrder = DEFAULT_ENFORCE_TEMPORAL_ORDER;
+		enforeTemporalOrder = false;
 	}
 
 	@SuppressWarnings("unchecked")

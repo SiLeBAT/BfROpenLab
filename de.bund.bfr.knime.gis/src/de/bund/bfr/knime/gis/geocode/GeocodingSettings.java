@@ -43,10 +43,6 @@ public class GeocodingSettings extends NodeSettings {
 	public static final String[] MULTIPLE_CHOICES = { MULTIPLE_DO_NOT_USE,
 			MULTIPLE_USE_FIRST, MULTIPLE_ASK_USER };
 
-	public static final String DEFAULT_SERVICE_PROVIDER = PROVIDER_MAPQUEST;
-	public static final int DEFAULT_REQUEST_DELAY = 500;
-	public static final String DEFAULT_MULTIPLE_RESULTS = MULTIPLE_DO_NOT_USE;
-
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
 	private static final String CFG_STREET_COLUMN = "StreetColumn";
@@ -76,7 +72,7 @@ public class GeocodingSettings extends NodeSettings {
 	private String multipleResults;
 
 	public GeocodingSettings() {
-		serviceProvider = DEFAULT_SERVICE_PROVIDER;
+		serviceProvider = PROVIDER_MAPQUEST;
 		addressColumn = null;
 		streetColumn = null;
 		cityColumn = null;
@@ -87,8 +83,8 @@ public class GeocodingSettings extends NodeSettings {
 		postalCodeColumn = null;
 		mapQuestKey = null;
 		gisgraphyServer = null;
-		requestDelay = DEFAULT_REQUEST_DELAY;
-		multipleResults = DEFAULT_MULTIPLE_RESULTS;
+		requestDelay = 500;
+		multipleResults = MULTIPLE_DO_NOT_USE;
 	}
 
 	@Override

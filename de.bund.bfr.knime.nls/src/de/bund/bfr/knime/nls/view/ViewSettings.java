@@ -43,19 +43,6 @@ import de.bund.bfr.math.Transform;
 
 public class ViewSettings extends NlsNodeSettings {
 
-	public static final boolean DEFAULT_MIN_TO_ZERO = false;
-	public static final boolean DEFAULT_MANUAL_RANGE = false;
-	public static final double DEFAULT_MIN_X = 0.0;
-	public static final double DEFAULT_MAX_X = 10.0;
-	public static final double DEFAULT_MIN_Y = 0.0;
-	public static final double DEFAULT_MAX_Y = 10.0;
-	public static final boolean DEFAULT_DRAW_LINES = false;
-	public static final boolean DEFAULT_SHOW_LEGEND = true;
-	public static final boolean DEFAULT_EXPORT_AS_SVG = false;
-	public static final boolean DEFAULT_SHOW_CONFIDENCE = false;
-	public static final Transform DEFAULT_TRANSFORM = Transform.NO_TRANSFORM;
-	public static final boolean DEFAULT_SELECT_ALL = true;
-
 	private static final String CFG_MIN_TO_ZERO = "MinToZero";
 	private static final String CFG_MANUAL_RANGE = "ManualRange";
 	private static final String CFG_MIN_X = "MinX";
@@ -93,20 +80,20 @@ public class ViewSettings extends NlsNodeSettings {
 	private Map<String, Shape> shapes;
 
 	public ViewSettings() {
-		minToZero = DEFAULT_MIN_TO_ZERO;
-		manualRange = DEFAULT_MANUAL_RANGE;
-		minX = DEFAULT_MIN_X;
-		maxX = DEFAULT_MAX_X;
-		minY = DEFAULT_MIN_Y;
-		maxY = DEFAULT_MAX_Y;
-		drawLines = DEFAULT_DRAW_LINES;
-		showLegend = DEFAULT_SHOW_LEGEND;
-		exportAsSvg = DEFAULT_EXPORT_AS_SVG;
-		showConfidence = DEFAULT_SHOW_CONFIDENCE;
+		minToZero = false;
+		manualRange = false;
+		minX = 0.0;
+		maxX = 10.0;
+		minY = 0.0;
+		maxY = 10.0;
+		drawLines = false;
+		showLegend = true;
+		exportAsSvg = false;
+		showConfidence = false;
 		currentParamX = null;
-		transformX = DEFAULT_TRANSFORM;
-		transformY = DEFAULT_TRANSFORM;
-		selectAll = DEFAULT_SELECT_ALL;
+		transformX = Transform.NO_TRANSFORM;
+		transformY = Transform.NO_TRANSFORM;
+		selectAll = true;
 		selectedIDs = new ArrayList<>();
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
