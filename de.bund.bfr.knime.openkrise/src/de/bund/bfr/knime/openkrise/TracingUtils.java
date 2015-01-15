@@ -265,9 +265,7 @@ public class TracingUtils {
 							(MultiPolygon) JTS.transform(shape,
 									GisUtils.LATLON_TO_VIZ)));
 					index++;
-				} catch (MismatchedDimensionException e) {
-					e.printStackTrace();
-				} catch (TransformException e) {
+				} catch (MismatchedDimensionException | TransformException e) {
 					e.printStackTrace();
 				}
 			}

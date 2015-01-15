@@ -803,8 +803,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectNodesItemClicked() {
-		HighlightDialog dialog = new HighlightDialog(this, nodeSchema.getMap(),
-				false, false, false, false, false, false, null, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
+				nodeSchema.getMap(), null);
 
 		dialog.setVisible(true);
 
@@ -816,8 +816,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectEdgesItemClicked() {
-		HighlightDialog dialog = new HighlightDialog(this, edgeSchema.getMap(),
-				false, false, false, false, false, false, null, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
+				edgeSchema.getMap(), null);
 
 		dialog.setVisible(true);
 

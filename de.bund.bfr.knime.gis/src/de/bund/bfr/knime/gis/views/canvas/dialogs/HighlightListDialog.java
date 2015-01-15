@@ -249,8 +249,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		int i = list.getSelectedIndex();
 
 		if (e.getClickCount() == 2 && i != -1) {
-			HighlightDialog dialog = new HighlightDialog(this, properties,
-					true, true, allowInvisible, allowThickness, true, true,
+			HighlightDialog dialog = HighlightDialog.createHighlightDialog(
+					this, properties, allowInvisible, allowThickness,
 					highlightConditions.getConditions().get(i), checkers);
 
 			dialog.setVisible(true);
@@ -311,9 +311,9 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = new HighlightDialog(this, properties, true,
-				true, allowInvisible, allowThickness, true, true, condition,
-				checkers);
+		HighlightDialog dialog = HighlightDialog
+				.createHighlightDialog(this, properties, allowInvisible,
+						allowThickness, condition, checkers);
 
 		dialog.setVisible(true);
 

@@ -218,9 +218,7 @@ public class ViewUtils {
 							(MultiPolygon) JTS.transform(shape,
 									GisUtils.LATLON_TO_VIZ)));
 					index++;
-				} catch (MismatchedDimensionException e) {
-					e.printStackTrace();
-				} catch (TransformException e) {
+				} catch (MismatchedDimensionException | TransformException e) {
 					e.printStackTrace();
 				}
 			}
@@ -342,10 +340,7 @@ public class ViewUtils {
 				p = (Point) JTS.transform(
 						factory.createPoint(new Coordinate(lat, lon)),
 						GisUtils.LATLON_TO_VIZ);
-			} catch (MismatchedDimensionException e) {
-				e.printStackTrace();
-				continue;
-			} catch (TransformException e) {
+			} catch (MismatchedDimensionException | TransformException e) {
 				e.printStackTrace();
 				continue;
 			}

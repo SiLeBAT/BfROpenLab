@@ -164,9 +164,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = new HighlightDialog(filterButton,
-					properties, false, false, false, false, false, false,
-					condition, null);
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(
+					filterButton, properties, condition);
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);

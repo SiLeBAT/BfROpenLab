@@ -142,7 +142,21 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private HighlightCondition condition;
 	private boolean approved;
 
-	public HighlightDialog(Component parent, Map<String, Class<?>> properties,
+	public static HighlightDialog createFilterDialog(Component parent,
+			Map<String, Class<?>> properties, HighlightCondition condition) {
+		return new HighlightDialog(parent, properties, false, false, false,
+				false, false, false, condition, null);
+	}
+
+	public static HighlightDialog createHighlightDialog(Component parent,
+			Map<String, Class<?>> properties, boolean allowInvisible,
+			boolean allowThickness, HighlightCondition condition,
+			List<HighlightConditionChecker> checkers) {
+		return new HighlightDialog(parent, properties, true, true,
+				allowInvisible, allowThickness, true, true, condition, checkers);
+	}
+
+	private HighlightDialog(Component parent, Map<String, Class<?>> properties,
 			boolean allowName, boolean allowColor, boolean allowInvisible,
 			boolean allowThickness, boolean allowLabel,
 			boolean allowValueCondition, HighlightCondition condition,
