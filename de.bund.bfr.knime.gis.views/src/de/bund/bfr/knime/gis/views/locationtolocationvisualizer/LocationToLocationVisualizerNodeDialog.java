@@ -43,6 +43,7 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 
 /**
  * <code>NodeDialog</code> for the "LocationToLocationVisualizer" Node.
@@ -213,9 +214,9 @@ public class LocationToLocationVisualizerNodeDialog extends
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 		} catch (InvalidSettingsException e) {
-			graphCanvas = new GraphCanvas(false);
+			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
-			gisCanvas = new LocationCanvas(true);
+			gisCanvas = new LocationCanvas(true, Naming.DEFAULT_NAMING);
 			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {

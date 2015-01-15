@@ -60,7 +60,8 @@ public class TracingGisCanvas extends LocationCanvas implements
 			List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties, List<RegionNode> regions,
 			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties, regions);
+		super(nodes, edges, nodeProperties, edgeProperties,
+				TracingUtils.NAMING, regions);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
 				deliveries);
 	}
@@ -215,25 +216,5 @@ public class TracingGisCanvas extends LocationCanvas implements
 		dialog.addChecker(new Tracing.HighlightChecker());
 
 		return dialog;
-	}
-
-	@Override
-	protected String getNodeName() {
-		return TracingUtils.NODE_NAME;
-	}
-
-	@Override
-	protected String getEdgeName() {
-		return TracingUtils.EDGE_NAME;
-	}
-
-	@Override
-	protected String getNodesName() {
-		return TracingUtils.NODES_NAME;
-	}
-
-	@Override
-	protected String getEdgesName() {
-		return TracingUtils.EDGES_NAME;
 	}
 }

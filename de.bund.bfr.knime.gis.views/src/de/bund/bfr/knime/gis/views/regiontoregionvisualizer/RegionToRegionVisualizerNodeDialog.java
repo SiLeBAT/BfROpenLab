@@ -48,6 +48,7 @@ import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -287,9 +288,9 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 						JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
-			graphCanvas = new GraphCanvas(false);
+			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
-			gisCanvas = new RegionCanvas(true);
+			gisCanvas = new RegionCanvas(true, Naming.DEFAULT_NAMING);
 			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {

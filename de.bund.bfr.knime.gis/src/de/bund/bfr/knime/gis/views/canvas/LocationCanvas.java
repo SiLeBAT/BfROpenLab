@@ -49,30 +49,32 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 	private List<RegionNode> regions;
 
-	public LocationCanvas(boolean allowEdges) {
+	public LocationCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(),
 				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(), new ArrayList<RegionNode>(),
+				new EdgePropertySchema(), naming, new ArrayList<RegionNode>(),
 				allowEdges);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
-			NodePropertySchema nodeSchema, List<RegionNode> regions) {
+			NodePropertySchema nodeSchema, Naming naming,
+			List<RegionNode> regions) {
 		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema,
-				new EdgePropertySchema(), regions, false);
+				new EdgePropertySchema(), naming, regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, List<RegionNode> regions) {
-		this(nodes, edges, nodeSchema, edgeSchema, regions, true);
+			EdgePropertySchema edgeSchema, Naming naming,
+			List<RegionNode> regions) {
+		this(nodes, edges, nodeSchema, edgeSchema, naming, regions, true);
 	}
 
 	private LocationCanvas(List<LocationNode> nodes,
 			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, List<RegionNode> regions,
-			boolean allowEdges) {
-		super(nodes, edges, nodeSchema, edgeSchema);
+			EdgePropertySchema edgeSchema, Naming naming,
+			List<RegionNode> regions, boolean allowEdges) {
+		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		this.regions = regions;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));

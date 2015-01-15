@@ -46,8 +46,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private BufferedImage image;
 
 	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
-		super(nodes, edges, nodeSchema, edgeSchema);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			Naming naming) {
+		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		image = null;
 
 		viewer.addPreRenderPaintable(new PrePaintable(false));

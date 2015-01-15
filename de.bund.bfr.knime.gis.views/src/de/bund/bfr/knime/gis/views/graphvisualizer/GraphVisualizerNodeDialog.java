@@ -39,6 +39,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 
 /**
  * <code>NodeDialog</code> for the "GraphVisualizer" Node.
@@ -104,7 +105,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 		try {
 			canvas = creator.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = new GraphCanvas(true);
+			canvas = new GraphCanvas(true, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 
 			if (showWarning) {

@@ -35,6 +35,7 @@ import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -81,7 +82,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, true);
+				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING, true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
@@ -117,7 +118,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeSchema, edgeSchema, regionNodes);
+				nodes.values()), edges, nodeSchema, edgeSchema,
+				Naming.DEFAULT_NAMING, regionNodes);
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);

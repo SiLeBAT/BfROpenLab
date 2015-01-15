@@ -41,6 +41,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
  * <code>NodeDialog</code> for the "GisView" Node.
@@ -113,7 +114,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 		try {
 			canvas = creator.createCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = new LocationCanvas(false);
+			canvas = new LocationCanvas(false, TracingUtils.NAMING);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {

@@ -34,6 +34,7 @@ import org.knime.core.node.InvalidSettingsException;
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -70,7 +71,7 @@ public class GraphVisualizerCanvasCreator {
 				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, true);
+				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING, true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 

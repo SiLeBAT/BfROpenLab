@@ -77,7 +77,7 @@ public class GisGraphViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, false);
+				edges, nodeSchema, edgeSchema, TracingUtils.NAMING, false);
 
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);
@@ -104,7 +104,8 @@ public class GisGraphViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeSchema, edgeSchema, regionNodes);
+				nodes.values()), edges, nodeSchema, edgeSchema,
+				TracingUtils.NAMING, regionNodes);
 
 		set.getGraphSettings().setToCanvas(canvas, nodeProperties,
 				edgeProperties, true);

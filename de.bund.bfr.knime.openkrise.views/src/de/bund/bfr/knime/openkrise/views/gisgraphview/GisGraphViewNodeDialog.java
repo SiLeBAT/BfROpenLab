@@ -45,6 +45,7 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.gisview.ResizeListener;
 
 /**
@@ -223,9 +224,9 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 		} catch (InvalidSettingsException e) {
-			graphCanvas = new GraphCanvas(false);
+			graphCanvas = new GraphCanvas(false, TracingUtils.NAMING);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
-			gisCanvas = new LocationCanvas(true);
+			gisCanvas = new LocationCanvas(true, TracingUtils.NAMING);
 			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {

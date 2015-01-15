@@ -58,7 +58,8 @@ public class TracingGraphCanvas extends GraphCanvas implements
 			List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
 			EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties, true);
+		super(nodes, edges, nodeProperties, edgeProperties,
+				TracingUtils.NAMING, true);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
 				deliveries);
 	}
@@ -213,25 +214,5 @@ public class TracingGraphCanvas extends GraphCanvas implements
 		dialog.addChecker(new Tracing.HighlightChecker());
 
 		return dialog;
-	}
-
-	@Override
-	protected String getNodeName() {
-		return TracingUtils.NODE_NAME;
-	}
-
-	@Override
-	protected String getEdgeName() {
-		return TracingUtils.EDGE_NAME;
-	}
-
-	@Override
-	protected String getNodesName() {
-		return TracingUtils.NODES_NAME;
-	}
-
-	@Override
-	protected String getEdgesName() {
-		return TracingUtils.EDGES_NAME;
 	}
 }

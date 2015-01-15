@@ -59,16 +59,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	public GraphCanvas(boolean allowCollapse) {
+	public GraphCanvas(boolean allowCollapse, Naming naming) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(),
+				new NodePropertySchema(), new EdgePropertySchema(), naming,
 				allowCollapse);
 	}
 
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			boolean allowCollapse) {
-		super(nodes, edges, nodeSchema, edgeSchema);
+			Naming naming, boolean allowCollapse) {
+		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
@@ -229,10 +229,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this, layoutType
-					+ " cannot be applied on a subset of "
-					+ getNodesName().toLowerCase() + ". Apply " + layoutType
-					+ " on all " + getNodesName().toLowerCase() + "?",
-					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					+ " cannot be applied on a subset of " + naming.nodes()
+					+ ". Apply " + layoutType + " on all " + naming.nodes()
+					+ "?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				selectedNodes = new LinkedHashSet<>();
 			} else {
 				return;

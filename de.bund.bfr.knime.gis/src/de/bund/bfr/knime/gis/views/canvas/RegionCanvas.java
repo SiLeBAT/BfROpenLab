@@ -57,25 +57,28 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	public RegionCanvas(boolean allowEdges) {
+	public RegionCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), allowEdges);
+				new NodePropertySchema(), new EdgePropertySchema(), naming,
+				allowEdges);
 	}
 
-	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema) {
+	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema,
+			Naming naming) {
 		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema,
-				new EdgePropertySchema(), false);
+				new EdgePropertySchema(), naming, false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
-		this(nodes, edges, nodeSchema, edgeSchema, true);
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			Naming naming) {
+		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
 
 	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			boolean allowEdges) {
-		super(nodes, edges, nodeSchema, edgeSchema);
+			Naming naming, boolean allowEdges) {
+		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));

@@ -94,6 +94,8 @@ public interface ICanvas<V extends Node> {
 
 	public abstract EdgePropertySchema getEdgeSchema();
 
+	public abstract Naming getNaming();
+
 	public abstract Set<V> getSelectedNodes();
 
 	public abstract void setSelectedNodes(Set<V> selectedNodes);

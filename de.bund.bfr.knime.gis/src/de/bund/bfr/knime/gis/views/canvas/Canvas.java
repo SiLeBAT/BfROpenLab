@@ -112,11 +112,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		MouseListener, CanvasPopupMenu.ClickListener,
 		CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
-	private static final String DEFAULT_NODE_NAME = "Node";
-	private static final String DEFAULT_EDGE_NAME = "Edge";
-	private static final String DEFAULT_NODES_NAME = "Nodes";
-	private static final String DEFAULT_EDGES_NAME = "Edges";
-
 	private static final long serialVersionUID = 1L;
 	private static final String COPY = "Copy";
 	private static final String PASTE = "Paste";
@@ -124,6 +119,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected VisualizationViewer<V, Edge<V>> viewer;
 	protected Transform transform;
+	protected Naming naming;
 
 	protected List<V> allNodes;
 	protected List<Edge<V>> allEdges;
@@ -147,9 +143,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private List<CanvasListener> canvasListeners;
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			Naming naming) {
 		this.nodeSchema = nodeSchema;
 		this.edgeSchema = edgeSchema;
+		this.naming = naming;
 		transform = Transform.IDENTITY_TRANSFORM;
 		canvasListeners = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
@@ -349,6 +347,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
+	public Naming getNaming() {
+		return naming;
+	}
+
+	@Override
 	public Set<V> getSelectedNodes() {
 		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState()
 				.getPicked());
@@ -473,7 +476,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			Toolkit.getDefaultToolkit().getSystemClipboard()
 					.setContents(stsel, stsel);
-			JOptionPane.showMessageDialog(this, getNodeName()
+			JOptionPane.showMessageDialog(this, naming.Node()
 					+ " selection has been copied to clipboard", "Clipboard",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else if (e.getActionCommand().equals(PASTE)) {
@@ -491,7 +494,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			setSelectedNodeIds(new LinkedHashSet<>(
 					KnimeUtils.stringToList(selected)));
-			JOptionPane.showMessageDialog(this, getNodeName()
+			JOptionPane.showMessageDialog(this, naming.Node()
 					+ " selection has been pasted from clipboard", "Clipboard",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -754,8 +757,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void clearHighlightedNodesItemClicked() {
 		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all "
-						+ getNodeName().toLowerCase()
+				"Do you really want to remove all " + naming.node()
 						+ " highlight conditions?", "Please Confirm",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			setNodeHighlightConditions(new HighlightConditionList());
@@ -765,8 +767,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void clearHighlightedEdgesItemClicked() {
 		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all "
-						+ getEdgeName().toLowerCase()
+				"Do you really want to remove all " + naming.edge()
 						+ " highlight conditions?", "Please Confirm",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			setEdgeHighlightConditions(new HighlightConditionList());
@@ -887,15 +888,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		for (String id : selectedIds) {
 			if (collapsedNodes.keySet().contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase()
-						+ " are already collapsed", "Error",
+						+ naming.nodes() + " are already collapsed", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 
 		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
-				getNodeName());
+				naming.Node());
+
+		if (newId == null) {
+			return;
+		}
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
@@ -910,8 +914,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		for (String id : selectedIds) {
 			if (!collapsedNodes.keySet().contains(id)) {
 				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ getNodesName().toLowerCase() + " are not collapsed",
-						"Error", JOptionPane.ERROR_MESSAGE);
+						+ naming.nodes() + " are not collapsed", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
@@ -1189,22 +1193,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
 	}
 
-	protected String getNodeName() {
-		return DEFAULT_NODE_NAME;
-	}
-
-	protected String getEdgeName() {
-		return DEFAULT_EDGE_NAME;
-	}
-
-	protected String getNodesName() {
-		return DEFAULT_NODES_NAME;
-	}
-
-	protected String getEdgesName() {
-		return DEFAULT_EDGES_NAME;
-	}
-
 	protected HighlightListDialog openNodeHighlightDialog() {
 		return new HighlightListDialog(this, nodeSchema.getMap(),
 				nodeHighlightConditions);
@@ -1274,7 +1262,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			String error = "The column \""
 					+ edgeSchema.getId()
 					+ "\" cannot be used with \"Invisible\" option as it is used as "
-					+ getEdgeName().toLowerCase() + " ID";
+					+ naming.edge() + " ID";
 
 			if (condition != null && condition.isInvisible()) {
 				AndOrHighlightCondition logicalCondition = null;

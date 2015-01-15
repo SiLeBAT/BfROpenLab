@@ -40,6 +40,7 @@ import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -86,7 +87,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, false);
+				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING, false);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
@@ -121,7 +122,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
 						.getGraphSettings().getEdgeToColumn());
 		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema);
+				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING);
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);

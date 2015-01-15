@@ -61,7 +61,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
-import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -107,7 +106,7 @@ public class Tracing<V extends Node> implements ItemListener {
 		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
 		canvas.getOptionsPanel().addOption(
-				"Show Cross Contaminated " + TracingUtils.EDGES_NAME,
+				"Show Cross Contaminated " + canvas.getNaming().Edges(),
 				showForwardBox);
 		canvas.getViewer()
 				.prependPostRenderPaintable(new PostPaintable(canvas));

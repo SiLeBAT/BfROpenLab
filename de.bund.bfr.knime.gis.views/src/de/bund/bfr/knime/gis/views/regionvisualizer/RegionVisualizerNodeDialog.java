@@ -38,6 +38,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 
 /**
@@ -110,7 +111,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 						JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
-			canvas = new RegionCanvas(false);
+			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {

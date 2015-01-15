@@ -59,6 +59,7 @@ import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -73,10 +74,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class TracingUtils {
 
-	public static final String NODE_NAME = "Station";
-	public static final String EDGE_NAME = "Delivery";
-	public static final String NODES_NAME = "Stations";
-	public static final String EDGES_NAME = "Deliveries";
+	public static final Naming NAMING = new Naming("Station", "Stations",
+			"Delivery", "Deliveries");
 
 	private TracingUtils() {
 	}

@@ -64,7 +64,8 @@ public class GisViewCanvasCreator {
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, regions);
+		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema,
+				TracingUtils.NAMING, regions);
 
 		set.getGisSettings().setToCanvas(canvas, nodeProperties, true);
 

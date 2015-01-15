@@ -36,6 +36,7 @@ import org.knime.core.node.InvalidSettingsException;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -69,7 +70,8 @@ public class RegionVisualizerCanvasCreator {
 				.values());
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
 				set.getGisSettings().getNodeRegionColumn());
-		RegionCanvas canvas = new RegionCanvas(nodes, nodeSchema);
+		RegionCanvas canvas = new RegionCanvas(nodes, nodeSchema,
+				Naming.DEFAULT_NAMING);
 
 		set.getGisSettings().setToCanvas(canvas);
 

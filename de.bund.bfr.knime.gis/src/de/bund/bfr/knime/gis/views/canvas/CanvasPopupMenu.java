@@ -280,12 +280,14 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	private void init(Canvas<?> owner) {
 		listeners = new ArrayList<>();
 
-		nodeSelectionMenu = new JMenu(owner.getNodeName() + " Selection");
+		nodeSelectionMenu = new JMenu(owner.getNaming().Node() + " Selection");
 		nodeSelectionMenu.setEnabled(false);
-		edgeSelectionMenu = new JMenu(owner.getEdgeName() + " Selection");
+		edgeSelectionMenu = new JMenu(owner.getNaming().Edge() + " Selection");
 		edgeSelectionMenu.setEnabled(false);
-		nodeHighlightMenu = new JMenu(owner.getNodeName() + " Highlighting");
-		edgeHighlightMenu = new JMenu(owner.getEdgeName() + " Highlighting");
+		nodeHighlightMenu = new JMenu(owner.getNaming().Node()
+				+ " Highlighting");
+		edgeHighlightMenu = new JMenu(owner.getNaming().Edge()
+				+ " Highlighting");
 		layoutMenu = new JMenu("Apply Layout");
 
 		resetLayoutItem = new JMenuItem("Reset Layout");
@@ -331,21 +333,21 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
 
-		selectNodesItem = new JMenuItem("Select " + owner.getNodesName());
+		selectNodesItem = new JMenuItem("Select " + owner.getNaming().Nodes());
 		selectNodesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select " + owner.getEdgesName());
+		selectEdgesItem = new JMenuItem("Select " + owner.getNaming().Edges());
 		selectEdgesItem.addActionListener(this);
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta "
-				+ owner.getNodeName());
+				+ owner.getNaming().Node());
 		collapseToNodeItem.addActionListener(this);
 		expandFromNodeItem = new JMenuItem("Expand from Meta "
-				+ owner.getNodeName());
+				+ owner.getNaming().Node());
 		expandFromNodeItem.addActionListener(this);
 		collapseByPropertyItem = new JMenuItem("Collapse by Property");
 		collapseByPropertyItem.addActionListener(this);
 		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed "
-				+ owner.getNodesName());
+				+ owner.getNaming().Nodes());
 		clearCollapsedNodesItem.addActionListener(this);
 
 		layoutItems = new LinkedHashMap<>();

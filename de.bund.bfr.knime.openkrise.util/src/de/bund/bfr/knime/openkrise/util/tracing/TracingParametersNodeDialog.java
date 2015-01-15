@@ -79,14 +79,14 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		addTab("Options",
 				UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab(TracingUtils.NODE_NAME + " Weights", nodeWeightPanel);
-		addTab(TracingUtils.EDGE_NAME + " Weights", edgeWeightPanel);
-		addTab(TracingUtils.NODE_NAME + " Cross Contaminations",
+		addTab(TracingUtils.NAMING.Node() + " Weights", nodeWeightPanel);
+		addTab(TracingUtils.NAMING.Edge() + " Weights", edgeWeightPanel);
+		addTab(TracingUtils.NAMING.Node() + " Cross Contaminations",
 				nodeContaminationPanel);
-		addTab(TracingUtils.EDGE_NAME + " Cross Contaminations",
+		addTab(TracingUtils.NAMING.Edge() + " Cross Contaminations",
 				edgeContaminationPanel);
-		addTab("Observed " + TracingUtils.NODES_NAME, nodeFilterPanel);
-		addTab("Observed " + TracingUtils.EDGES_NAME, edgeFilterPanel);
+		addTab("Observed " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
+		addTab("Observed " + TracingUtils.NAMING.Edges(), edgeFilterPanel);
 	}
 
 	@Override

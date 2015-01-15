@@ -169,13 +169,13 @@ public class CanvasLegend<V extends Node> {
 		g.setFont(legendHeadFont);
 
 		if (!nodeLegend.isEmpty()) {
-			g.drawString(owner.getNodesName(), xNodeColor, yNode
+			g.drawString(owner.getNaming().Nodes(), xNodeColor, yNode
 					+ headFontAcent);
 			yNode += legendHeadHeight + LEGEND_DY;
 		}
 
 		if (!edgeLegend.isEmpty()) {
-			g.drawString(owner.getEdgesName(), xEdgeColor, yEdge
+			g.drawString(owner.getNaming().Edges(), xEdgeColor, yEdge
 					+ headFontAcent);
 			yEdge += legendHeadHeight + LEGEND_DY;
 		}

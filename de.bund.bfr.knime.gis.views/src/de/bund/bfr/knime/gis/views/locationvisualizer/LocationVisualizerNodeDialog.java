@@ -39,6 +39,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Naming;
 
 /**
  * <code>NodeDialog</code> for the "LocationVisualizer" Node.
@@ -103,7 +104,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 		try {
 			canvas = creator.createCanvas();
 		} catch (InvalidSettingsException e) {
-			canvas = new LocationCanvas(false);
+			canvas = new LocationCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 
 			if (showWarning) {
