@@ -46,6 +46,7 @@ import javax.swing.JCheckBox;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
@@ -451,6 +452,13 @@ public class Tracing<V extends Node> implements ItemListener {
 							dialog.setVisible(true);
 						}
 					}
+				}
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if (vertex == null || !(canvas instanceof GisCanvas)) {
+					super.mouseDragged(e);
 				}
 			}
 		}, editingMode);
