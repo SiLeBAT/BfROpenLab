@@ -260,6 +260,10 @@ public class MathUtils {
 		return parser;
 	}
 
+	public static Double toDouble(Integer value) {
+		return value != null ? value.doubleValue() : null;
+	}
+
 	private static class ZeroDiffRule implements DiffRulesI {
 
 		private String name;
@@ -278,7 +282,5 @@ public class MathUtils {
 		public String getName() {
 			return name;
 		}
-
 	}
-
 }
