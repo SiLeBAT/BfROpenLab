@@ -30,13 +30,16 @@ import java.util.zip.ZipOutputStream
 
 class FixContentJar {
 
-	static String CATEGORY = "bfropenlab";
+	static String CATEGORY = "bfropenlab"
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
 
+	static String CONTENT_JAR = "content.jar"
+	static String CONTENT_XML = "content.xml"
+
 	static main(args) {
-		def contentJar = new File("${UPDATE_SITE}/content.jar")
+		def contentJar = new File("${UPDATE_SITE}/${CONTENT_JAR}")
 		def zip = new ZipFile(contentJar)
-		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry("content.xml")))
+		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))
 		def unit = root.units.unit.findAll{ it.@id == CATEGORY }.get(0)
 
 		unit.requires.required.each { s ->
@@ -45,7 +48,7 @@ class FixContentJar {
 
 		def out = new ZipOutputStream(new FileOutputStream(contentJar))
 
-		out.putNextEntry(new ZipEntry("content.xml"))
+		out.putNextEntry(new ZipEntry(CONTENT_XML))
 		new XmlNodePrinter(new PrintWriter(out)).print(root)
 		out.closeEntry()
 		out.close()
