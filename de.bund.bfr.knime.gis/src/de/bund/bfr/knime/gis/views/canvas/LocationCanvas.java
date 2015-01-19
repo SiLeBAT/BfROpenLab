@@ -112,14 +112,12 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 
 							if (node != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeSchema
-												.getMap());
+										e.getComponent(), node, nodeSchema);
 
 								dialog.setVisible(true);
 							} else if (edge != null) {
 								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeSchema
-												.getMap());
+										e.getComponent(), edge, edgeSchema);
 
 								dialog.setVisible(true);
 							}
@@ -141,7 +139,7 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema.getMap(),
+			CanvasUtils.addMapToMap(properties, nodeSchema,
 					node.getProperties());
 		}
 

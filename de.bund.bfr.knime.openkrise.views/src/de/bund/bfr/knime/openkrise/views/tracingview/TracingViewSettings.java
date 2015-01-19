@@ -339,9 +339,7 @@ public class TracingViewSettings extends NodeSettings {
 		showForward = canvas.isShowForward();
 	}
 
-	public void setToCanvas(ITracingCanvas<?> canvas,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties) {
+	public void setToCanvas(ITracingCanvas<?> canvas) {
 		canvas.setShowLegend(showLegend);
 		canvas.setCanvasSize(canvasSize);
 		canvas.setEditingMode(editingMode);
@@ -358,9 +356,11 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setCollapsedNodes(collapsed);
 
 		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, nodeProperties.keySet()));
+				nodeHighlightConditions, canvas.getNodeSchema().getMap()
+						.keySet()));
 		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, edgeProperties.keySet()));
+				edgeHighlightConditions, canvas.getEdgeSchema().getMap()
+						.keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));

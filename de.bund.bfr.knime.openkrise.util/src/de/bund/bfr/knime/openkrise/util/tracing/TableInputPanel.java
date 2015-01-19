@@ -56,6 +56,7 @@ import javax.swing.event.RowSorterListener;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -77,7 +78,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private Map<String, T> values;
 	private AndOrHighlightCondition condition;
 
-	private Map<String, Class<?>> properties;
+	private PropertySchema schema;
 	private Collection<? extends Element> elements;
 
 	private JPanel tablePanel;
@@ -102,17 +103,16 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	}
 
 	public void update(Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Map<String, T> values,
+			PropertySchema schema, Map<String, T> values,
 			AndOrHighlightCondition condition, T valueForAll) {
 		this.elements = elements;
-		this.properties = properties;
+		this.schema = schema;
 		this.values = values;
 		this.condition = condition;
 
 		tablePanel.removeAll();
-		tablePanel.add(
-				createInputPanel(filterElements(elements, condition),
-						properties), BorderLayout.CENTER);
+		tablePanel.add(createInputPanel(filterElements(elements, condition)),
+				BorderLayout.CENTER);
 		updateSetAll(valueForAll != null);
 
 		if (valueForAll != null && classType == Double.class) {
@@ -165,7 +165,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
 			HighlightDialog dialog = HighlightDialog.createFilterDialog(
-					filterButton, properties, condition);
+					filterButton, schema, condition);
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);
@@ -175,8 +175,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 						.getHighlightCondition();
 				tablePanel.removeAll();
 				tablePanel.add(
-						createInputPanel(filterElements(elements, condition),
-								properties), BorderLayout.CENTER);
+						createInputPanel(filterElements(elements, condition)),
+						BorderLayout.CENTER);
 				tablePanel.revalidate();
 				updateSetAll(setAllBox.isSelected());
 			}
@@ -269,8 +269,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		return null;
 	}
 
-	private JComponent createInputPanel(Collection<? extends Element> nodes,
-			Map<String, Class<?>> nodeProperties) {
+	private JComponent createInputPanel(Collection<? extends Element> elements) {
 		Set<String> idColumns = new LinkedHashSet<>();
 
 		switch (type) {
@@ -283,7 +282,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			break;
 		}
 
-		table = new PropertiesTable(new ArrayList<>(nodes), nodeProperties,
+		table = new PropertiesTable(new ArrayList<>(elements), schema,
 				idColumns);
 		inputTable = new InputTable(classType, table.getRowCount());
 

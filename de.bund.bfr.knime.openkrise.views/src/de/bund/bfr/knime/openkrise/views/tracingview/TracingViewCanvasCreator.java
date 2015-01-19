@@ -141,15 +141,15 @@ public class TracingViewCanvasCreator {
 	public TracingGraphCanvas createGraphCanvas()
 			throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema.getMap(), shapeTable != null, skippedNodeRows);
+				nodeSchema, shapeTable != null, skippedNodeRows);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema.getMap(), nodes, skippedEdgeRows);
+				edgeSchema, nodes, skippedEdgeRows);
 
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
 		canvas.setPerformTracing(false);
-		set.setToCanvas(canvas, nodeSchema.getMap(), edgeSchema.getMap());
+		set.setToCanvas(canvas);
 		set.getGraphSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
 
@@ -158,17 +158,17 @@ public class TracingViewCanvasCreator {
 
 	public TracingGisCanvas createGisCanvas() throws NotConfigurableException {
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema.getMap(), skippedNodeRows);
+				nodeTable, nodeSchema, skippedNodeRows);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema.getMap(), nodes, skippedEdgeRows);
-		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable,
+				edgeSchema, nodes, skippedEdgeRows);
+		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
 				skippedShapeRows);
 		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
 
 		canvas.setPerformTracing(false);
-		set.setToCanvas(canvas, nodeSchema.getMap(), edgeSchema.getMap());
+		set.setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
 

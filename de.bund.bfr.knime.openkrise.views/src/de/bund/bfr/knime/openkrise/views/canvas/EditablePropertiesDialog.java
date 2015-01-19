@@ -62,6 +62,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -99,9 +100,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 	private Map<String, InputTable.Input> values;
 
 	private EditablePropertiesDialog(ICanvas<V> parent,
-			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Type type,
-			boolean allowViewSelection) {
+			Collection<? extends Element> elements, PropertySchema schema,
+			Type type, boolean allowViewSelection) {
 		super(SwingUtilities.getWindowAncestor(parent.getComponent()),
 				"Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
@@ -119,16 +119,15 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 			break;
 		}
 
-		Map<String, Class<?>> uneditableProperties = new LinkedHashMap<>(
-				properties);
+		PropertySchema uneditableSchema = new PropertySchema(
+				new LinkedHashMap<>(schema.getMap()));
 
-		uneditableProperties.remove(TracingColumns.WEIGHT);
-		uneditableProperties.remove(TracingColumns.CROSS_CONTAMINATION);
-		uneditableProperties.remove(TracingColumns.OBSERVED);
+		uneditableSchema.getMap().remove(TracingColumns.WEIGHT);
+		uneditableSchema.getMap().remove(TracingColumns.CROSS_CONTAMINATION);
+		uneditableSchema.getMap().remove(TracingColumns.OBSERVED);
 
 		elementList = new ArrayList<>(elements);
-		table = new PropertiesTable(elementList, uneditableProperties,
-				idColumns);
+		table = new PropertiesTable(elementList, uneditableSchema, idColumns);
 		table.getRowSorter().addRowSorterListener(this);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
@@ -192,15 +191,15 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 			buttons.add(selectButton);
 		}
 
-		if (properties.containsKey(TracingColumns.WEIGHT)) {
+		if (schema.getMap().containsKey(TracingColumns.WEIGHT)) {
 			buttons.add(weightButton);
 		}
 
-		if (properties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
+		if (schema.getMap().containsKey(TracingColumns.CROSS_CONTAMINATION)) {
 			buttons.add(contaminationButton);
 		}
 
-		if (properties.containsKey(TracingColumns.OBSERVED)) {
+		if (schema.getMap().containsKey(TracingColumns.OBSERVED)) {
 			buttons.add(filterButton);
 		}
 
@@ -215,17 +214,17 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 	}
 
 	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(
-			ICanvas<V> parent, Collection<V> nodes,
-			NodePropertySchema properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog<V>(parent, nodes,
-				properties.getMap(), Type.NODE, allowViewSelection);
+			ICanvas<V> parent, Collection<V> nodes, NodePropertySchema schema,
+			boolean allowViewSelection) {
+		return new EditablePropertiesDialog<V>(parent, nodes, schema,
+				Type.NODE, allowViewSelection);
 	}
 
 	public static <V extends Node> EditablePropertiesDialog<V> createEdgeDialog(
 			ICanvas<V> parent, Collection<Edge<V>> edges,
-			EdgePropertySchema properties, boolean allowViewSelection) {
-		return new EditablePropertiesDialog<V>(parent, edges,
-				properties.getMap(), Type.EDGE, allowViewSelection);
+			EdgePropertySchema schema, boolean allowViewSelection) {
+		return new EditablePropertiesDialog<V>(parent, edges, schema,
+				Type.EDGE, allowViewSelection);
 	}
 
 	public boolean isApproved() {

@@ -280,9 +280,7 @@ public class GraphSettings extends NodeSettings {
 		}
 	}
 
-	public void setToCanvas(ICanvas<?> canvas,
-			Map<String, Class<?>> nodeProperties,
-			Map<String, Class<?>> edgeProperties, boolean applyNodePosition) {
+	public void setToCanvas(ICanvas<?> canvas, boolean applyNodePosition) {
 		canvas.setShowLegend(showLegend);
 		canvas.setCanvasSize(canvasSize);
 		canvas.setEditingMode(editingMode);
@@ -302,9 +300,11 @@ public class GraphSettings extends NodeSettings {
 		canvas.setCollapsedNodes(collapsed);
 
 		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, nodeProperties.keySet()));
+				nodeHighlightConditions, canvas.getNodeSchema().getMap()
+						.keySet()));
 		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, edgeProperties.keySet()));
+				edgeHighlightConditions, canvas.getEdgeSchema().getMap()
+						.keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));

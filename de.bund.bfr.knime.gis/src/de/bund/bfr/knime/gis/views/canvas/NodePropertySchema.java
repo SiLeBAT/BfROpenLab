@@ -27,9 +27,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class NodePropertySchema {
+public class NodePropertySchema extends PropertySchema {
 
-	private Map<String, Class<?>> map;
 	private String id;
 
 	private String latitude;
@@ -40,14 +39,10 @@ public class NodePropertySchema {
 	}
 
 	public NodePropertySchema(Map<String, Class<?>> map, String id) {
-		this.map = map;
+		super(map);
 		this.id = id;
 		latitude = null;
 		longitude = null;
-	}
-
-	public Map<String, Class<?>> getMap() {
-		return map;
 	}
 
 	public String getId() {

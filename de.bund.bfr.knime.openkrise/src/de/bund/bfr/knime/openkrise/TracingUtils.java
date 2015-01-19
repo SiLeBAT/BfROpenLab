@@ -59,7 +59,10 @@ import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -101,7 +104,7 @@ public class TracingUtils {
 	}
 
 	public static <V extends Node> List<Edge<V>> readEdges(
-			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
+			BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
 			Map<String, V> nodes, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
@@ -127,9 +130,9 @@ public class TracingUtils {
 		List<Edge<V>> edges = new ArrayList<>();
 		Set<String> ids = new LinkedHashSet<>();
 
-		edgeProperties.put(TracingColumns.ID, String.class);
-		edgeProperties.put(TracingColumns.FROM, String.class);
-		edgeProperties.put(TracingColumns.TO, String.class);
+		edgeSchema.getMap().put(TracingColumns.ID, String.class);
+		edgeSchema.getMap().put(TracingColumns.FROM, String.class);
+		edgeSchema.getMap().put(TracingColumns.TO, String.class);
 
 		for (DataRow row : edgeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -154,12 +157,12 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, edgeProperties, edgeTable,
-					row);
+			TracingUtils
+					.addToProperties(properties, edgeSchema, edgeTable, row);
 			properties.put(TracingColumns.ID, id);
 			properties.put(TracingColumns.FROM, from);
 			properties.put(TracingColumns.TO, to);
-			replaceNullsInInputProperties(properties, edgeProperties);
+			replaceNullsInInputProperties(properties, edgeSchema);
 			edges.add(new Edge<>(id, properties, node1, node2));
 		}
 
@@ -172,7 +175,7 @@ public class TracingUtils {
 	}
 
 	public static Map<String, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
+			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
 			boolean useGis, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
@@ -201,7 +204,7 @@ public class TracingUtils {
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
 
-		nodeProperties.put(TracingColumns.ID, String.class);
+		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -226,10 +229,10 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
-					row);
+			TracingUtils
+					.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
-			replaceNullsInInputProperties(properties, nodeProperties);
+			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new GraphNode(id, properties, null));
 		}
 
@@ -242,7 +245,7 @@ public class TracingUtils {
 	}
 
 	public static Map<String, LocationNode> readLocationNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
+			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
 			Set<RowKey> skippedRows) throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
@@ -269,7 +272,7 @@ public class TracingUtils {
 		Set<String> ids = new LinkedHashSet<>();
 		GeometryFactory factory = new GeometryFactory();
 
-		nodeProperties.put(TracingColumns.ID, String.class);
+		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
@@ -302,10 +305,10 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeProperties, nodeTable,
-					row);
+			TracingUtils
+					.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
-			replaceNullsInInputProperties(properties, nodeProperties);
+			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(
 					id,
 					new LocationNode(id, properties, new Point2D.Double(p
@@ -320,9 +323,8 @@ public class TracingUtils {
 		return nodes;
 	}
 
-	public static List<RegionNode> readRegionNodes(
-			BufferedDataTable shapeTable, Set<RowKey> skippedRows)
-			throws NotConfigurableException {
+	public static List<RegionNode> readRegions(BufferedDataTable shapeTable,
+			Set<RowKey> skippedRows) throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
 		List<String> shapeColumns = KnimeUtils.getColumnNames(KnimeUtils
 				.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE));
@@ -372,10 +374,9 @@ public class TracingUtils {
 	}
 
 	private static void addToProperties(Map<String, Object> properties,
-			Map<String, Class<?>> propertyTypes, BufferedDataTable table,
-			DataRow row) {
-		for (String property : propertyTypes.keySet()) {
-			Class<?> type = propertyTypes.get(property);
+			PropertySchema schema, BufferedDataTable table, DataRow row) {
+		for (String property : schema.getMap().keySet()) {
+			Class<?> type = schema.getMap().get(property);
 			int column = table.getSpec().findColumnIndex(property);
 
 			if (column != -1) {
@@ -405,18 +406,18 @@ public class TracingUtils {
 	}
 
 	private static void replaceNullsInInputProperties(
-			Map<String, Object> properties, Map<String, Class<?>> allProperties) {
-		if (allProperties.containsKey(TracingColumns.WEIGHT)
+			Map<String, Object> properties, PropertySchema schema) {
+		if (schema.getMap().containsKey(TracingColumns.WEIGHT)
 				&& properties.get(TracingColumns.WEIGHT) == null) {
 			properties.put(TracingColumns.WEIGHT, 0.0);
 		}
 
-		if (allProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)
+		if (schema.getMap().containsKey(TracingColumns.CROSS_CONTAMINATION)
 				&& properties.get(TracingColumns.CROSS_CONTAMINATION) == null) {
 			properties.put(TracingColumns.CROSS_CONTAMINATION, false);
 		}
 
-		if (allProperties.containsKey(TracingColumns.OBSERVED)
+		if (schema.getMap().containsKey(TracingColumns.OBSERVED)
 				&& properties.get(TracingColumns.OBSERVED) == null) {
 			properties.put(TracingColumns.OBSERVED, false);
 		}

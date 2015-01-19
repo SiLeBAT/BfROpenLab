@@ -252,7 +252,7 @@ public class CanvasUtils {
 				Map<String, Object> prop = new LinkedHashMap<>();
 
 				for (Edge<V> edge : edgeMap.get(from).get(to)) {
-					CanvasUtils.addMapToMap(prop, properties.getMap(),
+					CanvasUtils.addMapToMap(prop, properties,
 							edge.getProperties());
 				}
 
@@ -272,9 +272,9 @@ public class CanvasUtils {
 	}
 
 	public static void addMapToMap(Map<String, Object> map,
-			Map<String, Class<?>> properties, Map<String, Object> addMap) {
-		for (String property : properties.keySet()) {
-			addObjectToMap(map, property, properties.get(property),
+			PropertySchema schema, Map<String, Object> addMap) {
+		for (String property : schema.getMap().keySet()) {
+			addObjectToMap(map, property, schema.getMap().get(property),
 					addMap.get(property));
 		}
 	}

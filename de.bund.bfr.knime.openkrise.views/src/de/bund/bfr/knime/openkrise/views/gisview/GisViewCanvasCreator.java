@@ -27,7 +27,6 @@ package de.bund.bfr.knime.openkrise.views.gisview;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
@@ -55,23 +54,22 @@ public class GisViewCanvasCreator {
 	}
 
 	public LocationCanvas createCanvas() throws NotConfigurableException {
-		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable,
-				new LinkedHashSet<RowKey>());
-		Map<String, Class<?>> nodeProperties = TracingUtils
-				.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(TracingUtils
-				.readLocationNodes(nodeTable, nodeProperties,
-						new LinkedHashSet<RowKey>()).values());
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+		NodePropertySchema nodeSchema = new NodePropertySchema(
+				TracingUtils.getTableColumns(nodeTable.getSpec()),
 				TracingColumns.ID);
 
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
+		List<LocationNode> nodes = new ArrayList<>(TracingUtils
+				.readLocationNodes(nodeTable, nodeSchema,
+						new LinkedHashSet<RowKey>()).values());
+		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
+				new LinkedHashSet<RowKey>());
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema,
 				TracingUtils.NAMING, regions);
 
-		set.getGisSettings().setToCanvas(canvas, nodeProperties, true);
+		set.getGisSettings().setToCanvas(canvas, true);
 
 		return canvas;
 	}

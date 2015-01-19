@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -45,6 +44,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -66,15 +66,14 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 	private JButton okButton;
 
 	private PropertiesDialog(ICanvas<V> parent,
-			Collection<? extends Element> elements,
-			Map<String, Class<?>> properties, Type type,
-			boolean allowViewSelection, Set<String> idColumns) {
+			Collection<? extends Element> elements, PropertySchema schema,
+			Type type, boolean allowViewSelection, Set<String> idColumns) {
 		super(SwingUtilities.getWindowAncestor(parent.getComponent()),
 				"Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 
-		table = new PropertiesTable(new ArrayList<>(elements), properties,
+		table = new PropertiesTable(new ArrayList<>(elements), schema,
 				idColumns);
 		selectButton = new JButton("Select in View");
 		selectButton.addActionListener(this);
@@ -108,20 +107,19 @@ public class PropertiesDialog<V extends Node> extends JDialog implements
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(
-			ICanvas<V> parent, Collection<V> nodes,
-			NodePropertySchema properties, boolean allowViewSelection) {
-		return new PropertiesDialog<>(parent, nodes, properties.getMap(),
-				Type.NODE, allowViewSelection, new LinkedHashSet<>(
-						Arrays.asList(properties.getId())));
+			ICanvas<V> parent, Collection<V> nodes, NodePropertySchema schema,
+			boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, nodes, schema, Type.NODE,
+				allowViewSelection, new LinkedHashSet<>(Arrays.asList(schema
+						.getId())));
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(
 			ICanvas<V> parent, Collection<Edge<V>> edges,
-			EdgePropertySchema properties, boolean allowViewSelection) {
-		return new PropertiesDialog<>(parent, edges, properties.getMap(),
-				Type.EDGE, allowViewSelection, new LinkedHashSet<>(
-						Arrays.asList(properties.getId(), properties.getFrom(),
-								properties.getTo())));
+			EdgePropertySchema schema, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, edges, schema, Type.EDGE,
+				allowViewSelection, new LinkedHashSet<>(Arrays.asList(
+						schema.getId(), schema.getFrom(), schema.getTo())));
 	}
 
 	@SuppressWarnings("unchecked")

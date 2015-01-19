@@ -35,7 +35,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -51,6 +50,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
@@ -72,7 +72,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	private JButton okButton;
 	private JButton cancelButton;
 
-	private Map<String, Class<?>> properties;
+	private PropertySchema schema;
 	private boolean allowInvisible;
 	private boolean allowThickness;
 	private List<HighlightConditionChecker> checkers;
@@ -81,13 +81,12 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	private HighlightConditionList highlightConditions;
 	private boolean approved;
 
-	public HighlightListDialog(Component parent,
-			Map<String, Class<?>> properties,
+	public HighlightListDialog(Component parent, PropertySchema schema,
 			HighlightConditionList highlightConditions) {
 		super(SwingUtilities.getWindowAncestor(parent),
 				"Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
-		this.properties = properties;
+		this.schema = schema;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
 				highlightConditions.getConditions()),
 				highlightConditions.isPrioritizeColors());
@@ -250,7 +249,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 		if (e.getClickCount() == 2 && i != -1) {
 			HighlightDialog dialog = HighlightDialog.createHighlightDialog(
-					this, properties, allowInvisible, allowThickness,
+					this, schema, allowInvisible, allowThickness,
 					highlightConditions.getConditions().get(i), checkers);
 
 			dialog.setVisible(true);
@@ -311,9 +310,8 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = HighlightDialog
-				.createHighlightDialog(this, properties, allowInvisible,
-						allowThickness, condition, checkers);
+		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this,
+				schema, allowInvisible, allowThickness, condition, checkers);
 
 		dialog.setVisible(true);
 

@@ -35,6 +35,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.ui.BooleanCellRenderer;
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
@@ -46,14 +47,14 @@ public class PropertiesTable extends JTable {
 	private List<? extends Element> elements;
 
 	public PropertiesTable(List<? extends Element> elements,
-			Map<String, Class<?>> properties, Set<String> idColumns) {
+			PropertySchema schema, Set<String> idColumns) {
 		this.elements = elements;
 
 		List<String> columnNames = new ArrayList<>();
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
 
-		for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
+		for (Map.Entry<String, Class<?>> entry : schema.getMap().entrySet()) {
 			columnNames.add(entry.getKey());
 			columnTypes.add(entry.getValue());
 		}

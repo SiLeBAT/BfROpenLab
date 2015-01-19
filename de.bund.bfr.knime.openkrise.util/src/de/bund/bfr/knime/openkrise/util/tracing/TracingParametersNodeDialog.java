@@ -39,8 +39,11 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
@@ -99,41 +102,36 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		set.loadSettings(settings);
 
-		Map<String, Class<?>> nodeProperties = TracingUtils
-				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtils
-				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes;
-		List<Edge<GraphNode>> edges;
+		NodePropertySchema nodeSchema = new NodePropertySchema(
+				TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(
+				TracingUtils.getTableColumns(edgeTable.getSpec()),
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeSchema, false, new LinkedHashSet<RowKey>());
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
+				edgeSchema, nodes, new LinkedHashSet<RowKey>());
 
-		try {
-			nodes = TracingUtils.readGraphNodes(nodeTable, nodeProperties,
-					false, new LinkedHashSet<RowKey>());
-			edges = TracingUtils.readEdges(edgeTable, edgeProperties, nodes,
-					new LinkedHashSet<RowKey>());
-		} catch (NotConfigurableException e) {
-			throw new NotConfigurableException(e.getMessage());
-		}
-
-		nodeWeightPanel.update(nodes.values(), nodeProperties,
+		nodeWeightPanel.update(nodes.values(), nodeSchema,
 				set.getNodeWeights(), set.getNodeWeightCondition(),
 				set.getNodeWeightConditionValue());
 		edgeWeightPanel
-				.update(edges, edgeProperties, set.getEdgeWeights(),
+				.update(edges, edgeSchema, set.getEdgeWeights(),
 						set.getEdgeWeightCondition(),
 						set.getEdgeWeightConditionValue());
-		nodeContaminationPanel.update(nodes.values(), nodeProperties,
+		nodeContaminationPanel.update(nodes.values(), nodeSchema,
 				set.getNodeCrossContaminations(),
 				set.getNodeContaminationCondition(),
 				set.getNodeContaminationConditionValue());
-		edgeContaminationPanel.update(edges, edgeProperties,
+		edgeContaminationPanel.update(edges, edgeSchema,
 				set.getEdgeCrossContaminations(),
 				set.getEdgeContaminationCondition(),
 				set.getEdgeContaminationConditionValue());
-		nodeFilterPanel.update(nodes.values(), nodeProperties,
+		nodeFilterPanel.update(nodes.values(), nodeSchema,
 				set.getObservedNodes(), set.getObservedNodesCondition(),
 				set.getObservedNodesConditionValue());
-		edgeFilterPanel.update(edges, edgeProperties, set.getObservedEdges(),
+		edgeFilterPanel.update(edges, edgeSchema, set.getObservedEdges(),
 				set.getObservedEdgesCondition(),
 				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());

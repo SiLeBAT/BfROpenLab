@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -185,7 +184,6 @@ public class GisSettings extends NodeSettings {
 	}
 
 	public void setToCanvas(Canvas<?> canvas,
-			Map<String, Class<?>> nodeProperties,
 			boolean applySelectionAndHighlighting) {
 		canvas.setShowLegend(showLegend);
 		canvas.setCanvasSize(canvasSize);
@@ -197,7 +195,8 @@ public class GisSettings extends NodeSettings {
 
 		if (applySelectionAndHighlighting) {
 			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-					nodeHighlightConditions, nodeProperties.keySet()));
+					nodeHighlightConditions, canvas.getNodeSchema().getMap()
+							.keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		}
 

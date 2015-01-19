@@ -55,6 +55,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -89,14 +91,16 @@ public class TracingParametersNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
-		Map<String, Class<?>> nodeProperties = TracingUtils
-				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = TracingUtils
-				.getTableColumns(edgeTable.getSpec());
+		NodePropertySchema nodeSchema = new NodePropertySchema(
+				TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(
+				TracingUtils.getTableColumns(edgeTable.getSpec()),
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeProperties, false, new LinkedHashSet<RowKey>());
+				nodeSchema, false, new LinkedHashSet<RowKey>());
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes, new LinkedHashSet<RowKey>());
+				edgeSchema, nodes, new LinkedHashSet<RowKey>());
 		MyNewTracing tracing = new MyNewTracing(TracingUtils.getDeliveries(
 				inData[2], edgeTable), new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),

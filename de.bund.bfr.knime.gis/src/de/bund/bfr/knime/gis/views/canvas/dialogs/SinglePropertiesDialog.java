@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,6 +41,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class SinglePropertiesDialog extends JDialog implements ActionListener {
@@ -49,7 +49,7 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	public SinglePropertiesDialog(Component parent, Element element,
-			Map<String, Class<?>> properties) {
+			PropertySchema schema) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties",
 				DEFAULT_MODALITY_TYPE);
 
@@ -57,10 +57,12 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 		JPanel leftCenterPanel = new JPanel();
 		JPanel rightCenterPanel = new JPanel();
 
-		leftCenterPanel.setLayout(new GridLayout(properties.size(), 1, 5, 5));
-		rightCenterPanel.setLayout(new GridLayout(properties.size(), 1, 5, 5));
+		leftCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5,
+				5));
+		rightCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5,
+				5));
 
-		for (String property : properties.keySet()) {
+		for (String property : schema.getMap().keySet()) {
 			JTextField field = new JTextField();
 			Object value = element.getProperties().get(property);
 

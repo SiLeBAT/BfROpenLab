@@ -804,7 +804,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void selectNodesItemClicked() {
 		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
-				nodeSchema.getMap(), null);
+				nodeSchema, null);
 
 		dialog.setVisible(true);
 
@@ -817,7 +817,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void selectEdgesItemClicked() {
 		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
-				edgeSchema.getMap(), null);
+				edgeSchema, null);
 
 		dialog.setVisible(true);
 
@@ -1194,13 +1194,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {
-		return new HighlightListDialog(this, nodeSchema.getMap(),
+		return new HighlightListDialog(this, nodeSchema,
 				nodeHighlightConditions);
 	}
 
 	protected HighlightListDialog openEdgeHighlightDialog() {
-		HighlightListDialog dialog = new HighlightListDialog(this,
-				edgeSchema.getMap(), edgeHighlightConditions);
+		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema,
+				edgeHighlightConditions);
 
 		dialog.addChecker(new EdgeHighlightChecker());
 

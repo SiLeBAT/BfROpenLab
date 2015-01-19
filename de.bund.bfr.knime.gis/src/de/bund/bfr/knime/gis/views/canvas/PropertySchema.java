@@ -24,36 +24,17 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class EdgePropertySchema extends PropertySchema {
+public class PropertySchema {
 
-	private String id;
-	private String from;
-	private String to;
+	private Map<String, Class<?>> map;
 
-	public EdgePropertySchema() {
-		this(new LinkedHashMap<String, Class<?>>(), null, null, null);
+	public PropertySchema(Map<String, Class<?>> map) {
+		this.map = map;
 	}
 
-	public EdgePropertySchema(Map<String, Class<?>> map, String id,
-			String from, String to) {
-		super(map);
-		this.id = id;
-		this.from = from;
-		this.to = to;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-
-	public String getTo() {
-		return to;
+	public Map<String, Class<?>> getMap() {
+		return map;
 	}
 }

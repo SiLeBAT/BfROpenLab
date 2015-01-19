@@ -446,8 +446,8 @@ public class Tracing<V extends Node> implements ItemListener {
 							}
 						} else {
 							SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-									e.getComponent(), edge, canvas
-											.getEdgeSchema().getMap());
+									e.getComponent(), edge,
+									canvas.getEdgeSchema());
 
 							dialog.setVisible(true);
 						}
