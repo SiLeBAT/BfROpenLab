@@ -25,11 +25,13 @@
 package de.bund.bfr.knime.openkrise.views.gisview;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -52,12 +54,14 @@ public class GisViewCanvasCreator {
 		this.set = set;
 	}
 
-	public LocationCanvas createCanvas() throws InvalidSettingsException {
-		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable);
+	public LocationCanvas createCanvas() throws NotConfigurableException {
+		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable,
+				new LinkedHashSet<RowKey>());
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(TracingUtils
-				.readLocationNodes(nodeTable, nodeProperties).values());
+				.readLocationNodes(nodeTable, nodeProperties,
+						new LinkedHashSet<RowKey>()).values());
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
 				TracingColumns.ID);
 

@@ -113,7 +113,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 
 		try {
 			canvas = creator.createCanvas();
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			canvas = new LocationCanvas(false, TracingUtils.NAMING);
 			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
 

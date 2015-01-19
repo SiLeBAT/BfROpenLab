@@ -25,11 +25,13 @@
 package de.bund.bfr.knime.openkrise.views.gisgraphview;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -59,15 +61,15 @@ public class GisGraphViewCanvasCreator {
 		this.set = set;
 	}
 
-	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
+	public GraphCanvas createGraphCanvas() throws NotConfigurableException {
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeProperties);
+				nodeProperties, false, new LinkedHashSet<RowKey>());
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes);
+				edgeProperties, nodes, new LinkedHashSet<RowKey>());
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
@@ -85,16 +87,17 @@ public class GisGraphViewCanvasCreator {
 		return canvas;
 	}
 
-	public LocationCanvas createGisCanvas() throws InvalidSettingsException {
-		List<RegionNode> regionNodes = TracingUtils.readRegionNodes(shapeTable);
+	public LocationCanvas createGisCanvas() throws NotConfigurableException {
+		List<RegionNode> regionNodes = TracingUtils.readRegionNodes(shapeTable,
+				new LinkedHashSet<RowKey>());
 		Map<String, Class<?>> nodeProperties = TracingUtils
 				.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeProperties);
+				nodeTable, nodeProperties, new LinkedHashSet<RowKey>());
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes);
+				edgeProperties, nodes, new LinkedHashSet<RowKey>());
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,

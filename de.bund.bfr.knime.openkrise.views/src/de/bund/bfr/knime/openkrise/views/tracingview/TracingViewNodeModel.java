@@ -37,6 +37,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -50,6 +51,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -200,6 +202,21 @@ public class TracingViewNodeModel extends NodeModel {
 				set.isExportAsSvg(), creator.createGisCanvas()) : CanvasUtils
 				.getImage(set.isExportAsSvg());
 
+		for (RowKey key : creator.getSkippedNodeRows()) {
+			setWarningMessage("Station Table: Row " + key.getString()
+					+ " skipped");
+		}
+
+		for (RowKey key : creator.getSkippedEdgeRows()) {
+			setWarningMessage("Delivery Table: Row " + key.getString()
+					+ " skipped");
+		}
+
+		for (RowKey key : creator.getSkippedShapeRows()) {
+			setWarningMessage("Shape Table: Row " + key.getString()
+					+ " skipped");
+		}
+
 		return new PortObject[] { nodeContainer.getTable(),
 				edgeContainer.getTable(), graphImage, gisImage };
 	}
@@ -349,7 +366,7 @@ public class TracingViewNodeModel extends NodeModel {
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
 			BufferedDataTable shapeTable,
 			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set)
-			throws InvalidSettingsException {
+			throws NotConfigurableException {
 		boolean joinEdges = set.isJoinEdges();
 
 		set.setJoinEdges(false);

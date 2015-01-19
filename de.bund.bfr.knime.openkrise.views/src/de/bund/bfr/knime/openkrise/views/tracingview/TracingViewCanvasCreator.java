@@ -26,11 +26,14 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -55,6 +58,10 @@ public class TracingViewCanvasCreator {
 
 	private NodePropertySchema nodeSchema;
 	private EdgePropertySchema edgeSchema;
+
+	private Set<RowKey> skippedNodeRows;
+	private Set<RowKey> skippedEdgeRows;
+	private Set<RowKey> skippedShapeRows;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
 			BufferedDataTable edgeTable, BufferedDataTable shapeTable,
@@ -125,14 +132,18 @@ public class TracingViewCanvasCreator {
 				TracingColumns.FROM, TracingColumns.TO);
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
+
+		skippedNodeRows = new LinkedHashSet<>();
+		skippedEdgeRows = new LinkedHashSet<>();
+		skippedShapeRows = new LinkedHashSet<>();
 	}
 
 	public TracingGraphCanvas createGraphCanvas()
-			throws InvalidSettingsException {
+			throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema.getMap());
+				nodeSchema.getMap(), shapeTable != null, skippedNodeRows);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema.getMap(), nodes);
+				edgeSchema.getMap(), nodes, skippedEdgeRows);
 
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
@@ -145,12 +156,13 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 
-	public TracingGisCanvas createGisCanvas() throws InvalidSettingsException {
+	public TracingGisCanvas createGisCanvas() throws NotConfigurableException {
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema.getMap());
+				nodeTable, nodeSchema.getMap(), skippedNodeRows);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema.getMap(), nodes);
-		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable);
+				edgeSchema.getMap(), nodes, skippedEdgeRows);
+		List<RegionNode> regions = TracingUtils.readRegionNodes(shapeTable,
+				skippedShapeRows);
 		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
@@ -162,4 +174,17 @@ public class TracingViewCanvasCreator {
 
 		return canvas;
 	}
+
+	public Set<RowKey> getSkippedNodeRows() {
+		return skippedNodeRows;
+	}
+
+	public Set<RowKey> getSkippedEdgeRows() {
+		return skippedEdgeRows;
+	}
+
+	public Set<RowKey> getSkippedShapeRows() {
+		return skippedShapeRows;
+	}
+
 }

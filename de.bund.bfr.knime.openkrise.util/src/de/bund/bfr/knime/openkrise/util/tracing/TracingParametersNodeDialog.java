@@ -24,11 +24,13 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.tracing;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
 
+import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -105,9 +107,11 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		List<Edge<GraphNode>> edges;
 
 		try {
-			nodes = TracingUtils.readGraphNodes(nodeTable, nodeProperties);
-			edges = TracingUtils.readEdges(edgeTable, edgeProperties, nodes);
-		} catch (InvalidSettingsException e) {
+			nodes = TracingUtils.readGraphNodes(nodeTable, nodeProperties,
+					false, new LinkedHashSet<RowKey>());
+			edges = TracingUtils.readEdges(edgeTable, edgeProperties, nodes,
+					new LinkedHashSet<RowKey>());
+		} catch (NotConfigurableException e) {
 			throw new NotConfigurableException(e.getMessage());
 		}
 

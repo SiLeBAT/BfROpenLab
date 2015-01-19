@@ -223,7 +223,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 			gisCanvas = creator.createGisCanvas();
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			graphCanvas = new GraphCanvas(false, TracingUtils.NAMING);
 			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
 			gisCanvas = new LocationCanvas(true, TracingUtils.NAMING);

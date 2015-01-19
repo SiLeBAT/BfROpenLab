@@ -40,6 +40,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -93,9 +94,9 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, Class<?>> edgeProperties = TracingUtils
 				.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeProperties);
+				nodeProperties, false, new LinkedHashSet<RowKey>());
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeProperties, nodes);
+				edgeProperties, nodes, new LinkedHashSet<RowKey>());
 		MyNewTracing tracing = new MyNewTracing(TracingUtils.getDeliveries(
 				inData[2], edgeTable), new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),

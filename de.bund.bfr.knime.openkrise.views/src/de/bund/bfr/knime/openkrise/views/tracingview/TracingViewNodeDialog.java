@@ -25,6 +25,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -50,8 +52,6 @@ import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -131,7 +131,33 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = false;
 		panel.addComponentListener(this);
-		updateCanvas();
+
+		final String warning = updateCanvas();
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				while (true) {
+					Window window = SwingUtilities.getWindowAncestor(panel);
+
+					if (window != null && window.isActive()) {
+						JOptionPane.showMessageDialog(panel, warning,
+								"Warning", JOptionPane.WARNING_MESSAGE);
+						break;
+					}
+
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		if (warning != null) {
+			thread.start();
+		}
 	}
 
 	@Override
@@ -143,25 +169,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		updateSettings();
+
 		if (e.getSource() == resetWeightsButton) {
-			updateSettings();
 			set.getNodeWeights().clear();
 			set.getEdgeWeights().clear();
-			updateCanvas();
 		} else if (e.getSource() == resetCrossButton) {
-			updateSettings();
 			set.getNodeCrossContaminations().clear();
 			set.getEdgeCrossContaminations().clear();
-			updateCanvas();
 		} else if (e.getSource() == resetFilterButton) {
-			updateSettings();
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
-			updateCanvas();
 		} else if (e.getSource() == switchButton) {
-			updateSettings();
 			set.setShowGis(!set.isShowGis());
+		}
+
+		try {
 			updateCanvas();
+		} catch (NotConfigurableException ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -184,7 +210,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void componentHidden(ComponentEvent e) {
 	}
 
-	private void updateCanvas() {
+	private String updateCanvas() throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
 		}
@@ -192,19 +218,32 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, shapeTable, deliveries, set);
 
-		try {
-			canvas = set.isShowGis() ? creator.createGisCanvas() : creator
-					.createGraphCanvas();
-		} catch (InvalidSettingsException e) {
-			canvas = set.isShowGis() ? new TracingGisCanvas()
-					: new TracingGraphCanvas();
-			canvas.setCanvasSize(set.getCanvasSize());
-		}
-
+		canvas = set.isShowGis() ? creator.createGisCanvas() : creator
+				.createGraphCanvas();
 		switchButton
 				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
+
+		boolean skippedNodes = !creator.getSkippedNodeRows().isEmpty();
+		boolean skippedEdges = !creator.getSkippedEdgeRows().isEmpty();
+
+		String warning = null;
+
+		if (skippedNodes && skippedEdges) {
+			warning = "Some rows from the station and delivery tables could not be imported.";
+		} else if (skippedNodes) {
+			warning = "Some rows from the station table could not be imported.";
+		} else if (skippedEdges) {
+			warning = "Some rows from the delivery table could not be imported.";
+		}
+
+		if (warning != null) {
+			warning += " Execute the Tracing View for more information.";
+		}
+
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);
 		panel.revalidate();
+
+		return warning;
 	}
 
 	private void updateSettings() {
