@@ -24,16 +24,33 @@
  ******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.cluster;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Arrays;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponent;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+
+import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.ui.DoubleTextField;
+import de.bund.bfr.knime.ui.IntTextField;
 
 /**
  * <code>NodeDialog</code> for the "DBSCAN" Node.
@@ -46,63 +63,127 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
-		ChangeListener {
+public class DBSCANNodeDialog extends NodeDialogPane implements ActionListener,
+		ItemListener {
 
-	private DialogComponent algorithmComp;
-	private DialogComponent minPointsComp;
-	private DialogComponent maxDistComp;
-	private DialogComponent clustersComp;
+	private DBSCANNSettings set;
+	private PropertySchema schema;
+
+	private JComboBox<String> modelBox;
+	private JButton filterButton;
+	private IntTextField minPointsField;
+	private DoubleTextField maxDistField;
+	private IntTextField numClustersField;
+
+	private JPanel panel;
 
 	/**
 	 * New pane for configuring the DBSCAN node.
 	 */
 	public DBSCANNodeDialog() {
-		algorithmComp = new DialogComponentStringSelection(
-				new SettingsModelString(DBSCANNodeModel.CFG_CHOSENMODEL,
-						DBSCANNodeModel.DEFAULT_CHOSENMODEL),
-				"Algorithm",
-				new String[] { DBSCANNodeModel.DBSCAN, DBSCANNodeModel.K_MEANS });
-		algorithmComp.getModel().addChangeListener(this);
-		minPointsComp = new DialogComponentNumber(new SettingsModelInteger(
-				DBSCANNodeModel.CFG_MINPTS, DBSCANNodeModel.DEFAULT_MINPTS),
-				"Min Number of Points per Cluster", 1);
-		maxDistComp = new DialogComponentNumber(new SettingsModelDouble(
-				DBSCANNodeModel.CFG_EPS, DBSCANNodeModel.DEFAULT_EPS),
-				"Max Neighborhood Distance (km)", 0.5);
-		clustersComp = new DialogComponentNumber(
-				new SettingsModelInteger(DBSCANNodeModel.CFG_CLUSTERS,
-						DBSCANNodeModel.DEFAULT_CLUSTERS),
-				"Number of Clusters", 1);
+		set = new DBSCANNSettings();
 
-		addChangeListeners();
-		addDialogComponent(algorithmComp);
-		addDialogComponent(minPointsComp);
-		addDialogComponent(maxDistComp);
-		addDialogComponent(clustersComp);
+		modelBox = new JComboBox<>(DBSCANNSettings.MODEL_CHOICES);
+		modelBox.addItemListener(this);
+		filterButton = new JButton("Set Filter");
+		filterButton.addActionListener(this);
+		minPointsField = new IntTextField(false, 5);
+		minPointsField.setMinValue(1);
+		maxDistField = new DoubleTextField(false, 5);
+		maxDistField.setMinValue(0);
+		numClustersField = new IntTextField(false, 5);
+		numClustersField.setMinValue(1);
+
+		panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		addTab("Options", UI.createNorthPanel(panel));
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		boolean isDBSCAN = ((SettingsModelString) algorithmComp.getModel())
-				.getStringValue().equals(DBSCANNodeModel.DBSCAN);
+	protected void loadSettingsFrom(final NodeSettingsRO settings,
+			final DataTableSpec[] specs) throws NotConfigurableException {
+		schema = new PropertySchema(TracingUtils.getTableColumns(specs[0]));
 
-		removeChangeListeners();
-		minPointsComp.getModel().setEnabled(isDBSCAN);
-		maxDistComp.getModel().setEnabled(isDBSCAN);
-		clustersComp.getModel().setEnabled(!isDBSCAN);
-		addChangeListeners();
+		set.loadSettings(settings);
+		modelBox.setSelectedItem(set.getModel());
+		minPointsField.setValue(set.getMinPoints());
+		maxDistField.setValue(set.getMaxDistance());
+		numClustersField.setValue(set.getNumClusters());
+		updatePanel();
 	}
 
-	private void addChangeListeners() {
-		minPointsComp.getModel().addChangeListener(this);
-		maxDistComp.getModel().addChangeListener(this);
-		clustersComp.getModel().addChangeListener(this);
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		set.setModel((String) modelBox.getSelectedItem());
+
+		if (set.getModel().equals(DBSCANNSettings.MODEL_DBSCAN)) {
+			if (!minPointsField.isValueValid()) {
+				throw new InvalidSettingsException(
+						"Invalid: Min Number of Points per Cluster");
+			}
+
+			if (!maxDistField.isValueValid()) {
+				throw new InvalidSettingsException(
+						"Invalid: Max Neighborhood Distance (km)");
+			}
+
+			set.setMinPoints(minPointsField.getValue());
+			set.setMaxDistance(maxDistField.getValue());
+		} else if (set.getModel().equals(DBSCANNSettings.MODEL_K_MEANS)) {
+			if (!numClustersField.isValueValid()) {
+				throw new InvalidSettingsException(
+						"Invalid: Number of Clusters");
+			}
+
+			set.setNumClusters(numClustersField.getValue());
+		}
+
+		set.saveSettings(settings);
 	}
 
-	private void removeChangeListeners() {
-		minPointsComp.getModel().removeChangeListener(this);
-		maxDistComp.getModel().removeChangeListener(this);
-		clustersComp.getModel().removeChangeListener(this);
+	private void updatePanel() {
+		String model = (String) modelBox.getSelectedItem();
+
+		panel.removeAll();
+		panel.add(UI.createOptionsPanel("Options",
+				Arrays.asList(new JLabel("Cluster Algorithm:"), filterButton),
+				Arrays.asList(modelBox, new JLabel())));
+
+		if (model.equals(DBSCANNSettings.MODEL_DBSCAN)) {
+			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(
+					new JLabel("Min Number of Points per Cluster:"),
+					new JLabel("Max Neighborhood Distance (km):")), Arrays
+					.asList(minPointsField, maxDistField)));
+		} else if (model.equals(DBSCANNSettings.MODEL_K_MEANS)) {
+			panel.add(UI.createOptionsPanel("Options",
+					Arrays.asList(new JLabel("Number of Clusters")),
+					Arrays.asList(numClustersField)));
+		}
+
+		panel.revalidate();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == filterButton) {
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(
+					filterButton, schema, set.getFilter());
+
+			dialog.setLocationRelativeTo(filterButton);
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				set.setFilter((AndOrHighlightCondition) dialog
+						.getHighlightCondition());
+			}
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == modelBox) {
+			updatePanel();
+		}
 	}
 }

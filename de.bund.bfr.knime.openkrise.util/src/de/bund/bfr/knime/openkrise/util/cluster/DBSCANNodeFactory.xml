@@ -11,8 +11,7 @@
 		<intro>
 			This node performs a clustering based on geographical coordinates. The geographical
 			coordinates can be acquired via the "Geocoding" node. Two clustering algorithms are supported:
-			DBSCAN and k-means. When the input table contains a column "Clusterable", only rows with
-			"Clusterable=true" are clustered.
+			DBSCAN and k-means.
 		</intro>
 
 		<option name="Algorithm">

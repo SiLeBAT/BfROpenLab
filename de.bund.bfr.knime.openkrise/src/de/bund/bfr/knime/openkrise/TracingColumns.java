@@ -41,7 +41,6 @@ public interface TracingColumns {
 	public static final String BACKWARD = "Backward";
 	public static final String FORWARD = "Forward";
 
-	public static final String CLUSTERABLE = "Clusterable";
 	public static final String CLUSTER_ID = "ClusterID";
 
 	public static final String DELIVERY_DATE = "Date Delivery";

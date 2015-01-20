@@ -28,8 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
@@ -43,8 +45,8 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -55,12 +57,13 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 
 /**
  * This is the model implementation of DBSCAN.
@@ -70,34 +73,14 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
  */
 public class DBSCANNodeModel extends NodeModel {
 
-	protected static final String DBSCAN = "DBSCAN";
-	protected static final String K_MEANS = "k-means";
-
-	protected static final String CFG_MINPTS = "minPts";
-	protected static final String CFG_EPS = "eps";
-	protected static final String CFG_CHOSENMODEL = "chosenmodel";
-	protected static final String CFG_CLUSTERS = "clusters";
-
-	protected static final int DEFAULT_MINPTS = 2;
-	protected static final double DEFAULT_EPS = 2.0;
-	protected static final String DEFAULT_CHOSENMODEL = DBSCAN;
-	protected static final int DEFAULT_CLUSTERS = 3;
-
-	private SettingsModelInteger m_minPts;
-	private SettingsModelDouble m_eps;
-	private SettingsModelString m_chosenModel;
-	private SettingsModelInteger m_clusters;
+	private DBSCANNSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	public DBSCANNodeModel() {
 		super(1, 1);
-		m_minPts = new SettingsModelInteger(CFG_MINPTS, DEFAULT_MINPTS);
-		m_eps = new SettingsModelDouble(CFG_EPS, DEFAULT_EPS);
-		m_chosenModel = new SettingsModelString(CFG_CHOSENMODEL,
-				DEFAULT_CHOSENMODEL);
-		m_clusters = new SettingsModelInteger(CFG_CLUSTERS, DEFAULT_CLUSTERS);
+		set = new DBSCANNSettings();
 	}
 
 	/**
@@ -106,13 +89,17 @@ public class DBSCANNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		BufferedDataTable data = inData[0];
-		BufferedDataContainer buf = exec.createDataContainer(createSpec(data
-				.getSpec()));
-		int latIndex = data.getSpec().findColumnIndex(
+		BufferedDataTable nodeTable = inData[0];
+
+		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
-		int lonIndex = data.getSpec().findColumnIndex(
+		int lonIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LONGITUDE_COLUMN);
+
+		if (idIndex == -1) {
+			throw new Exception(TracingColumns.ID + " colum missing");
+		}
 
 		if (latIndex == -1) {
 			throw new Exception(GeocodingNodeModel.LATITUDE_COLUMN
@@ -124,44 +111,60 @@ public class DBSCANNodeModel extends NodeModel {
 					+ " column missing");
 		}
 
-		Map<Integer, DoublePoint> idp = new LinkedHashMap<>();
+		NodePropertySchema nodeSchema = new NodePropertySchema(
+				TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
+				nodeSchema, false, new LinkedHashSet<RowKey>());
+		Set<String> filteredOut = new LinkedHashSet<>();
+
+		if (set.getFilter() != null) {
+			Map<GraphNode, Double> filterResult = set.getFilter().getValues(
+					nodes.values());
+
+			for (GraphNode node : filterResult.keySet()) {
+				if (filterResult.get(node) == 0.0) {
+					filteredOut.add(node.getId());
+				}
+			}
+		}
+
+		BufferedDataContainer buf = exec
+				.createDataContainer(createSpec(nodeTable.getSpec()));
+
+		Map<RowKey, DoublePoint> idp = new LinkedHashMap<>();
 		List<DoublePoint> points = new ArrayList<>();
-		int rowNumber = 0;
 
-		for (DataRow row : data) {
-			exec.checkCanceled();
+		for (DataRow row : nodeTable) {
+			String id = IO.getToCleanString(row.getCell(idIndex));
+			Double lat = IO.getDouble(row.getCell(latIndex));
+			Double lon = IO.getDouble(row.getCell(lonIndex));
 
-			if (!row.getCell(latIndex).isMissing()
-					&& !row.getCell(lonIndex).isMissing()) {
-				DoubleCell latCell = (DoubleCell) row.getCell(latIndex);
-				DoubleCell lonCell = (DoubleCell) row.getCell(lonIndex);
-				double[] d = new double[2];
-
-				d[0] = Math.toRadians(latCell.getDoubleValue());
-				d[1] = Math.toRadians(lonCell.getDoubleValue());
-
-				DoublePoint dp = new DoublePoint(d);
-
-				idp.put(rowNumber, dp);
-				points.add(dp);
+			if (id == null || lat == null || lon == null
+					|| filteredOut.contains(id)) {
+				continue;
 			}
 
-			rowNumber++;
+			DoublePoint dp = new DoublePoint(new double[] {
+					Math.toRadians(lat), Math.toRadians(lon) });
+
+			idp.put(row.getKey(), dp);
+			points.add(dp);
+			exec.checkCanceled();
 		}
+
 		List<? extends Cluster<DoublePoint>> cluster = null;
 
-		if (m_chosenModel.getStringValue().equals(DBSCAN)) {
+		if (set.getModel().equals(DBSCANNSettings.MODEL_DBSCAN)) {
 			cluster = dbScan(points);
-		} else if (m_chosenModel.getStringValue().equals(K_MEANS)) {
+		} else if (set.getModel().equals(DBSCANNSettings.MODEL_K_MEANS)) {
 			cluster = kMeans(points);
 		}
 
-		rowNumber = 0;
+		int index = 0;
 
-		for (DataRow row : data) {
-			exec.checkCanceled();
-
-			int n = data.getSpec().getNumColumns() + 1;
+		for (DataRow row : nodeTable) {
+			int n = nodeTable.getSpec().getNumColumns() + 1;
 			DataCell[] cells = new DataCell[n];
 
 			for (int i = 0; i < row.getNumCells(); i++) {
@@ -171,14 +174,14 @@ public class DBSCANNodeModel extends NodeModel {
 			cells[n - 1] = DataType.getMissingCell();
 
 			for (int i = 0; i < cluster.size(); i++) {
-				if (cluster.get(i).getPoints().contains(idp.get(rowNumber))) {
+				if (cluster.get(i).getPoints().contains(idp.get(row.getKey()))) {
 					cells[n - 1] = new IntCell(i);
 					break;
 				}
 			}
 
-			buf.addRowToTable(new DefaultRow(String.valueOf(rowNumber), cells));
-			rowNumber++;
+			buf.addRowToTable(new DefaultRow(String.valueOf(index++), cells));
+			exec.checkCanceled();
 		}
 
 		buf.close();
@@ -199,7 +202,6 @@ public class DBSCANNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
 		return new DataTableSpec[] { createSpec(inSpecs[0]) };
 	}
 
@@ -208,10 +210,7 @@ public class DBSCANNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		m_eps.saveSettingsTo(settings);
-		m_minPts.saveSettingsTo(settings);
-		m_chosenModel.saveSettingsTo(settings);
-		m_clusters.saveSettingsTo(settings);
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -220,10 +219,7 @@ public class DBSCANNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		m_eps.loadSettingsFrom(settings);
-		m_minPts.loadSettingsFrom(settings);
-		m_chosenModel.loadSettingsFrom(settings);
-		m_clusters.loadSettingsFrom(settings);
+		set.loadSettings(settings);
 	}
 
 	/**
@@ -232,10 +228,6 @@ public class DBSCANNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		m_eps.validateSettings(settings);
-		m_minPts.validateSettings(settings);
-		m_chosenModel.validateSettings(settings);
-		m_clusters.validateSettings(settings);
 	}
 
 	/**
@@ -269,21 +261,21 @@ public class DBSCANNodeModel extends NodeModel {
 		return new DataTableSpec(spec);
 	}
 
+	private List<? extends Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
+		DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(
+				set.getMaxDistance(), set.getMinPoints(),
+				new HaversineDistance());
+
+		return dbscan.cluster(points);
+	}
+
 	private List<? extends Cluster<DoublePoint>> kMeans(List<DoublePoint> points) {
 		KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(
-				m_clusters.getIntValue(), -1, new HaversineDistance());
+				set.getNumClusters(), -1, new HaversineDistance());
 		MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(
 				km, 5);
 
 		return mkm.cluster(points);
-	}
-
-	private List<? extends Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
-		DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(
-				m_eps.getDoubleValue(), m_minPts.getIntValue(),
-				new HaversineDistance());
-
-		return dbscan.cluster(points);
 	}
 
 	private static class HaversineDistance implements DistanceMeasure {
