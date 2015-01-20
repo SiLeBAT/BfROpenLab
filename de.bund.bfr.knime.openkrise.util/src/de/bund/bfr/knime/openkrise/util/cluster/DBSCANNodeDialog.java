@@ -59,19 +59,23 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 	 */
 	public DBSCANNodeDialog() {
 		algorithmComp = new DialogComponentStringSelection(
-				new SettingsModelString(DBSCANNodeModel.CHOSENMODEL,
-						DBSCANNodeModel.DBSCAN), "Algorithm", new String[] {
-						DBSCANNodeModel.DBSCAN, DBSCANNodeModel.K_MEANS });
+				new SettingsModelString(DBSCANNodeModel.CFG_CHOSENMODEL,
+						DBSCANNodeModel.DEFAULT_CHOSENMODEL),
+				"Algorithm",
+				new String[] { DBSCANNodeModel.DBSCAN, DBSCANNodeModel.K_MEANS });
 		algorithmComp.getModel().addChangeListener(this);
 		minPointsComp = new DialogComponentNumber(new SettingsModelInteger(
-				DBSCANNodeModel.MINPTS, 2), "Min Number of Points per Cluster",
-				1);
+				DBSCANNodeModel.CFG_MINPTS, DBSCANNodeModel.DEFAULT_MINPTS),
+				"Min Number of Points per Cluster", 1);
 		maxDistComp = new DialogComponentNumber(new SettingsModelDouble(
-				DBSCANNodeModel.EPS, 2.0), "Max Neighborhood Distance (km)",
-				0.5);
-		clustersComp = new DialogComponentNumber(new SettingsModelInteger(
-				DBSCANNodeModel.CLUSTERS, 3), "Number of Clusters", 1);
+				DBSCANNodeModel.CFG_EPS, DBSCANNodeModel.DEFAULT_EPS),
+				"Max Neighborhood Distance (km)", 0.5);
+		clustersComp = new DialogComponentNumber(
+				new SettingsModelInteger(DBSCANNodeModel.CFG_CLUSTERS,
+						DBSCANNodeModel.DEFAULT_CLUSTERS),
+				"Number of Clusters", 1);
 
+		addChangeListeners();
 		addDialogComponent(algorithmComp);
 		addDialogComponent(minPointsComp);
 		addDialogComponent(maxDistComp);
@@ -83,8 +87,22 @@ public class DBSCANNodeDialog extends DefaultNodeSettingsPane implements
 		boolean isDBSCAN = ((SettingsModelString) algorithmComp.getModel())
 				.getStringValue().equals(DBSCANNodeModel.DBSCAN);
 
+		removeChangeListeners();
 		minPointsComp.getModel().setEnabled(isDBSCAN);
 		maxDistComp.getModel().setEnabled(isDBSCAN);
 		clustersComp.getModel().setEnabled(!isDBSCAN);
+		addChangeListeners();
+	}
+
+	private void addChangeListeners() {
+		minPointsComp.getModel().addChangeListener(this);
+		maxDistComp.getModel().addChangeListener(this);
+		clustersComp.getModel().addChangeListener(this);
+	}
+
+	private void removeChangeListeners() {
+		minPointsComp.getModel().removeChangeListener(this);
+		maxDistComp.getModel().removeChangeListener(this);
+		clustersComp.getModel().removeChangeListener(this);
 	}
 }
