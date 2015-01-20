@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -43,6 +45,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
@@ -67,7 +72,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class Tracing<V extends Node> implements ItemListener {
+public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
@@ -83,6 +88,7 @@ public class Tracing<V extends Node> implements ItemListener {
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
+	private JMenuItem defaultHighlightItem;
 
 	public Tracing(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap,
@@ -104,11 +110,16 @@ public class Tracing<V extends Node> implements ItemListener {
 		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
 		showForwardBox.addItemListener(this);
 
+		defaultHighlightItem = new JMenuItem("Set default Highlighting");
+		defaultHighlightItem.addActionListener(this);
+
 		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
 				enforceTemporalOrderBox);
 		canvas.getOptionsPanel().addOption(
 				"Show Cross Contaminated " + canvas.getNaming().Edges(),
 				showForwardBox);
+		canvas.getPopupMenu().add(new JSeparator());
+		canvas.getPopupMenu().add(defaultHighlightItem);
 		canvas.getViewer()
 				.prependPostRenderPaintable(new PostPaintable(canvas));
 	}
@@ -465,6 +476,21 @@ public class Tracing<V extends Node> implements ItemListener {
 	}
 
 	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == defaultHighlightItem) {
+			if (JOptionPane.showConfirmDialog(canvas.getComponent(),
+					"All current highlight conditions will be replaced "
+							+ "by default hightlight conditions?",
+					"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				canvas.setNodeHighlightConditions(DefaultHighlighting
+						.createNodeHighlighting());
+				canvas.setEdgeHighlightConditions(DefaultHighlighting
+						.createEdgeHighlighting());
+			}
+		}
+	}
+
+	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == enforceTemporalOrderBox) {
 			if (performTracing) {
@@ -765,4 +791,5 @@ public class Tracing<V extends Node> implements ItemListener {
 			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
 		}
 	}
+
 }

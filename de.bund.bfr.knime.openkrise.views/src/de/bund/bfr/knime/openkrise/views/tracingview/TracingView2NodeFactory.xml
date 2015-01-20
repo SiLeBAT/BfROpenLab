@@ -180,8 +180,7 @@
 			</option>
 			<option name="Delivery Highlighting -> Select Highlighted">
 				All delivery that have non zero values for the specified Highlight Condition
-				will
-				be selected.
+				will be selected.
 			</option>
 			<option name="Select Stations">
 				Opens a dialog to select stations based on a logical condition.
@@ -191,13 +190,15 @@
 			</option>
 			<option name="Collapse by Property">
 				Opens a dialog to collapse all stations (visible and invisible) to meta
-				stations
-				based on a certain property. That means all stations with the same property value will
-				be collapsed
-				to the same meta station.
+				stations based on a certain property. That means all stations with the same property value will
+				be collapsed to the same meta station.
 			</option>
 			<option name="Clear Collapsed Stations">
 				Expands all meta stations.
+			</option>
+			<option name="Set default Highlighting">
+				Default highlight conditions for stations and deliveries are automatically
+				generated.
 			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">

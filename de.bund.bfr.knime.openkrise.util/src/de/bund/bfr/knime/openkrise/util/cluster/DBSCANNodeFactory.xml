@@ -18,6 +18,10 @@
 			Algorithm used for clustering: DBSCAN (http://en.wikipedia.org/wiki/DBSCAN) or
 			k-means (http://en.wikipedia.org/wiki/K-means_clustering).
 		</option>
+		<option name="Filter">
+			Allows to apply a filter to all stations. Only filtered stations are used for
+			clustering.
+		</option>
 		<option name="DBSCAN -> Min Number of Points per Cluster">
 			Minimum number of points needed for a cluster. Only used by DBSCAN.
 		</option>
