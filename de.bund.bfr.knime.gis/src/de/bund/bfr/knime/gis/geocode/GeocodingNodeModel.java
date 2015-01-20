@@ -170,7 +170,9 @@ public class GeocodingNodeModel extends NodeModel {
 				result = performMapQuestGeocoding(street, city, county, state,
 						country, postalCode);
 			} else if (set.getServiceProvider().equals(
-					GeocodingSettings.PROVIDER_GISGRAPHY)) {
+					GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
+					|| set.getServiceProvider().equals(
+							GeocodingSettings.PROVIDER_GISGRAPHY)) {
 				result = performGisgraphyGeocoding(address, countryCode);
 			}
 
@@ -460,7 +462,10 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult();
 		}
 
-		String server = set.getGisgraphyServer().replace("http://", "");
+		String server = set.getServiceProvider().equals(
+				GeocodingSettings.PROVIDER_GISGRAPHY) ? set
+				.getGisgraphyServer().replace("http://", "")
+				: "services.gisgraphy.com//geocoding/geocode";
 		String authority = server.substring(0, server.indexOf("/"));
 		String path = server.substring(server.indexOf("/"));
 		URI uri;
@@ -506,7 +511,6 @@ public class GeocodingNodeModel extends NodeModel {
 					"/results/result[" + (i + 1) + "]/lat").evaluate(doc)));
 			longitudes.add(Double.parseDouble(xPath.compile(
 					"/results/result[" + (i + 1) + "]/lng").evaluate(doc)));
-
 		}
 
 		String fullAddress = getAddress(address, null, null, null, countryCode,

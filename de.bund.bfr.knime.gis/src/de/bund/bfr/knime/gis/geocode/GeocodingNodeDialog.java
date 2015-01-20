@@ -190,7 +190,9 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 			set.setPostalCodeColumn(postalCodeBox.getSelectedColumnName());
 			set.setMapQuestKey(keyField.getText().trim());
 		} else if (set.getServiceProvider().equals(
-				GeocodingSettings.PROVIDER_GISGRAPHY)) {
+				GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
+				|| set.getServiceProvider().equals(
+						GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			if (addressBox.getSelectedColumnName() == null) {
 				throw new InvalidSettingsException("No Address specified");
 			}
@@ -199,7 +201,9 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 				throw new InvalidSettingsException("No Country Code specified");
 			}
 
-			if (serverField.getText().trim().isEmpty()) {
+			if (set.getServiceProvider().equals(
+					GeocodingSettings.PROVIDER_GISGRAPHY)
+					&& serverField.getText().trim().isEmpty()) {
 				throw new InvalidSettingsException("No Server specified");
 			}
 
@@ -230,6 +234,14 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					new JLabel("MapQuest Key:"), new JLabel(
 							"Delay between Request:"), new JLabel(
 							"When multiple Results:")), Arrays.asList(keyField,
+					delayField, multipleBox)));
+		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)) {
+			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
+					new JLabel("Address:"), new JLabel("Country Code:")),
+					Arrays.asList(addressBox, countryCodeBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
+					new JLabel("Delay between Request:"), new JLabel(
+							"When multiple Results:")), Arrays.asList(
 					delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
