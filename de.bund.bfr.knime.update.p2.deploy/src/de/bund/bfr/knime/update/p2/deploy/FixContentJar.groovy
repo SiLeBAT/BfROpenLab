@@ -1,13 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Federal Institute for Risk Assessment (BfR), Germany
- *
- * Developers and contributors are
- * Christian Thoens (BfR)
- * Armin A. Weiser (BfR)
- * Matthias Filter (BfR)
- * Alexander Falenski (BfR)
- * Annemarie Kaesbohrer (BfR)
- * Bernd Appel (BfR)
+ * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +13,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
 package de.bund.bfr.knime.update.p2.deploy
 
 import java.util.zip.ZipEntry
