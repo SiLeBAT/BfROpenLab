@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog -root D:/KNIME/workspace/de.bund.bfr.knime.tests/workflows -xmlResult D:/KNIME/workspace/de.bund.bfr.knime.tests/test.xml
+      <programArgs>-consoleLog -root ${workspace_loc:de.bund.bfr.knime.tests}/workflows -xmlResult ${workspace_loc:de.bund.bfr.knime.tests}/test.xml
       </programArgs>
       <vmArgs>-Xmx768m
 -XX:MaxPermSize=256m
