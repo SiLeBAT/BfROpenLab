@@ -28,19 +28,22 @@ import java.util.Map;
 import org.apache.commons.collections15.Transformer;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import edu.uci.ics.jung.visualization.RenderContext;
 
-public class EdgeDrawTransformer<E> implements Transformer<E, Paint> {
+public class EdgeDrawTransformer<V extends Node> implements
+		Transformer<Edge<V>, Paint> {
 
-	private VisualizationViewer<?, E> viewer;
-	private Map<E, Paint> edgeColors;
+	private RenderContext<V, Edge<V>> renderContext;
+	private Map<Edge<V>, Paint> edgeColors;
 
-	public EdgeDrawTransformer(VisualizationViewer<?, E> viewer,
-			Map<E, List<Double>> alphaValues, List<Color> colors) {
-		this.viewer = viewer;
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> viewer,
+			Map<Edge<V>, List<Double>> alphaValues, List<Color> colors) {
+		this.renderContext = viewer;
 		edgeColors = new LinkedHashMap<>();
 
-		for (E edge : alphaValues.keySet()) {
+		for (Edge<V> edge : alphaValues.keySet()) {
 			List<Double> alphas = alphaValues.get(edge);
 
 			edgeColors.put(edge,
@@ -49,8 +52,8 @@ public class EdgeDrawTransformer<E> implements Transformer<E, Paint> {
 	}
 
 	@Override
-	public Paint transform(E edge) {
-		if (viewer.getPickedEdgeState().getPicked().contains(edge)) {
+	public Paint transform(Edge<V> edge) {
+		if (renderContext.getPickedEdgeState().getPicked().contains(edge)) {
 			return Color.GREEN;
 		} else if (edgeColors.containsKey(edge)) {
 			return edgeColors.get(edge);

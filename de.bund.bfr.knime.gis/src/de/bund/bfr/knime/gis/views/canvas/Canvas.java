@@ -27,13 +27,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -58,11 +51,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -103,13 +94,11 @@ import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
-		ActionListener, ChangeListener, ItemListener, KeyListener,
-		MouseListener, CanvasPopupMenu.ClickListener,
-		CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+		ChangeListener, ItemListener, KeyListener, MouseListener,
+		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener,
+		ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
-	private static final String COPY = "Copy";
-	private static final String PASTE = "Paste";
 	private static final String IS_META_NODE = "IsMeta";
 
 	protected VisualizationViewer<V, Edge<V>> viewer;
@@ -169,25 +158,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new NodeFillTransformer<>(viewer,
+				new NodeFillTransformer<>(viewer.getRenderContext(),
 						new LinkedHashMap<V, List<Double>>(),
 						new ArrayList<Color>()));
 		viewer.getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<>(viewer,
+				new EdgeDrawTransformer<>(viewer.getRenderContext(),
 						new LinkedHashMap<Edge<V>, List<Double>>(),
 						new ArrayList<Color>()));
 		((MutableAffineTransformer) viewer.getRenderContext()
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
-		viewer.registerKeyboardAction(this, COPY, KeyStroke.getKeyStroke(
-				KeyEvent.VK_C, ActionEvent.CTRL_MASK, false),
-				JComponent.WHEN_FOCUSED);
-		viewer.registerKeyboardAction(this, PASTE, KeyStroke.getKeyStroke(
-				KeyEvent.VK_V, ActionEvent.CTRL_MASK, false),
-				JComponent.WHEN_FOCUSED);
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 		viewer.setGraphMouse(new GraphMouse<>(null, Mode.TRANSFORMING));
@@ -463,39 +446,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals(COPY)) {
-			List<String> selected = new ArrayList<>(getSelectedNodeIds());
-			StringSelection stsel = new StringSelection(
-					KnimeUtils.listToString(selected));
-
-			Toolkit.getDefaultToolkit().getSystemClipboard()
-					.setContents(stsel, stsel);
-			JOptionPane.showMessageDialog(this, naming.Node()
-					+ " selection has been copied to clipboard", "Clipboard",
-					JOptionPane.INFORMATION_MESSAGE);
-		} else if (e.getActionCommand().equals(PASTE)) {
-			Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-			String selected = null;
-
-			try {
-				selected = (String) system.getContents(this).getTransferData(
-						DataFlavor.stringFlavor);
-			} catch (UnsupportedFlavorException ex) {
-				ex.printStackTrace();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-
-			setSelectedNodeIds(new LinkedHashSet<>(
-					KnimeUtils.stringToList(selected)));
-			JOptionPane.showMessageDialog(this, naming.Node()
-					+ " selection has been pasted from clipboard", "Clipboard",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
-	}
-
-	@Override
 	public void stateChanged(ChangeEvent e) {
 		AffineTransform transform = ((MutableAffineTransformer) viewer
 				.getRenderContext().getMultiLayerTransformer()
@@ -580,7 +530,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		viewer.requestFocus();
 	}
 
 	@Override
@@ -1078,8 +1027,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 		applyHighlights();
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 
 		setSelectedNodeIds(selectedNodeIds);
 		setSelectedEdgeIds(selectedEdgeIds);
@@ -1183,9 +1132,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(viewer, nodeHighlightConditions,
-				getNodeSize());
-		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
+		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes,
+				nodeHighlightConditions, getNodeSize());
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges,
+				edgeHighlightConditions);
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {

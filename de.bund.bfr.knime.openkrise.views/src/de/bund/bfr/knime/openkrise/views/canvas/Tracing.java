@@ -358,14 +358,13 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		canvas.applyNodeCollapse();
 		canvas.applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
+		applyTracing();
+		canvas.applyHighlights();
 		canvas.getViewer()
 				.getGraphLayout()
 				.setGraph(
 						CanvasUtils.createGraph(canvas.getNodes(),
 								canvas.getEdges()));
-		canvas.applyHighlights();
-		applyTracing();
-		canvas.applyHighlights();
 
 		canvas.setSelectedNodeIds(selectedNodeIds);
 		canvas.setSelectedEdgeIds(selectedEdgeIds);
@@ -633,7 +632,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			int id = Integer.parseInt(edge.getId());
+			int id = getIntegerId(edge);
 
 			edge.getProperties().put(TracingColumns.SCORE,
 					tracing.getDeliveryScore(id));

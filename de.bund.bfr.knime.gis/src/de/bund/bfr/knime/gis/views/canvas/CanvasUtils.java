@@ -58,6 +58,8 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
+import com.google.common.base.Joiner;
+
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -72,8 +74,8 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class CanvasUtils {
 
@@ -408,26 +410,26 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> void applyNodeHighlights(
-			VisualizationViewer<V, Edge<V>> viewer,
+			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize) {
-		applyNodeHighlights(viewer, nodeHighlightConditions, nodeSize, false);
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions,
+				nodeSize, false);
 	}
 
 	public static <V extends Node> void applyNodeLabels(
-			VisualizationViewer<V, Edge<V>> viewer,
+			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions) {
-		applyNodeHighlights(viewer, nodeHighlightConditions, 0, true);
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0,
+				true);
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
-			VisualizationViewer<V, Edge<V>> viewer,
+			RenderContext<V, Edge<V>> renderContext, Collection<Edge<V>> edges,
 			HighlightConditionList edgeHighlightConditions) {
 		List<Color> colors = new ArrayList<>();
 		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
 		Map<Edge<V>, Set<String>> labelLists = new LinkedHashMap<>();
-		Collection<Edge<V>> edges = viewer.getGraphLayout().getGraph()
-				.getEdges();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
 
 		for (Edge<V> edge : edges) {
@@ -485,25 +487,16 @@ public class CanvasUtils {
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
 		for (Edge<V> edge : labelLists.keySet()) {
-			if (!labelLists.get(edge).isEmpty()) {
-				String label = "";
-
-				for (String s : labelLists.get(edge)) {
-					label += s + "/";
-				}
-
-				labels.put(edge, label.substring(0, label.length() - 1));
-			}
+			labels.put(edge, Joiner.on("/").join(labelLists.get(edge)));
 		}
 
-		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<>(viewer, alphaValues, colors));
-		viewer.getRenderContext().setEdgeStrokeTransformer(
-				new EdgeStrokeTransformer<>(thicknessValues));
-		viewer.getRenderContext().setEdgeArrowTransformer(
-				new EdgeArrowTransformer<>(thicknessValues));
-		viewer.getRenderContext().setEdgeLabelTransformer(
-				new LabelTransformer<>(labels));
+		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(
+				renderContext, alphaValues, colors));
+		renderContext.setEdgeStrokeTransformer(new EdgeStrokeTransformer<>(
+				thicknessValues));
+		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(
+				thicknessValues));
+		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors,
@@ -722,14 +715,13 @@ public class CanvasUtils {
 	}
 
 	private static <V extends Node> void applyNodeHighlights(
-			VisualizationViewer<V, Edge<V>> viewer,
+			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize,
 			boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
 		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
-		Collection<V> nodes = viewer.getGraphLayout().getGraph().getVertices();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		if (!labelsOnly) {
@@ -789,25 +781,17 @@ public class CanvasUtils {
 		Map<V, String> labels = new LinkedHashMap<>();
 
 		for (V node : labelLists.keySet()) {
-			if (!labelLists.get(node).isEmpty()) {
-				StringBuilder label = new StringBuilder();
-
-				for (String s : labelLists.get(node)) {
-					label.append("/" + s);
-				}
-
-				labels.put(node, label.substring(1));
-			}
+			labels.put(node, Joiner.on("/").join(labelLists.get(node)));
 		}
 
 		if (!labelsOnly) {
-			viewer.getRenderContext().setVertexShapeTransformer(
-					new NodeShapeTransformer<>(nodeSize, thicknessValues));
-			viewer.getRenderContext().setVertexFillPaintTransformer(
-					new NodeFillTransformer<>(viewer, alphaValues, colors));
+			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(
+					nodeSize, thicknessValues));
+			renderContext
+					.setVertexFillPaintTransformer(new NodeFillTransformer<>(
+							renderContext, alphaValues, colors));
 		}
 
-		viewer.getRenderContext().setVertexLabelTransformer(
-				new LabelTransformer<>(labels));
+		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
 	}
 }

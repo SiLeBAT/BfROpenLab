@@ -115,8 +115,10 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 
 	@Override
 	public void applyHighlights() {
-		CanvasUtils.applyNodeLabels(viewer, nodeHighlightConditions);
-		CanvasUtils.applyEdgeHighlights(viewer, edgeHighlightConditions);
+		CanvasUtils.applyNodeLabels(viewer.getRenderContext(), nodes,
+				nodeHighlightConditions);
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges,
+				edgeHighlightConditions);
 	}
 
 	@Override

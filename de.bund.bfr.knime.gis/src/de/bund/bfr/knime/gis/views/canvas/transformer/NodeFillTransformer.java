@@ -28,16 +28,19 @@ import java.util.Map;
 import org.apache.commons.collections15.Transformer;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import edu.uci.ics.jung.visualization.RenderContext;
 
-public class NodeFillTransformer<V> implements Transformer<V, Paint> {
+public class NodeFillTransformer<V extends Node> implements
+		Transformer<V, Paint> {
 
-	private VisualizationViewer<V, ?> viewer;
+	private RenderContext<V, Edge<V>> renderContext;
 	private Map<V, Paint> nodeColors;
 
-	public NodeFillTransformer(VisualizationViewer<V, ?> viewer,
+	public NodeFillTransformer(RenderContext<V, Edge<V>> viewer,
 			Map<V, List<Double>> alphaValues, List<Color> colors) {
-		this.viewer = viewer;
+		this.renderContext = viewer;
 		nodeColors = new LinkedHashMap<>();
 
 		for (V node : alphaValues.keySet()) {
@@ -50,7 +53,7 @@ public class NodeFillTransformer<V> implements Transformer<V, Paint> {
 
 	@Override
 	public Paint transform(V n) {
-		if (viewer.getPickedVertexState().getPicked().contains(n)) {
+		if (renderContext.getPickedVertexState().getPicked().contains(n)) {
 			return Color.BLUE;
 		} else if (nodeColors.containsKey(n)) {
 			return nodeColors.get(n);
