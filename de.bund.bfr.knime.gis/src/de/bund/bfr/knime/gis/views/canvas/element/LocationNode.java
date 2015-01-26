@@ -25,15 +25,15 @@ import java.util.Map;
 
 public class LocationNode extends Node {
 
-	private Point2D.Double center;
+	private Point2D center;
 
 	public LocationNode(String id, Map<String, Object> properties,
-			Point2D.Double center) {
+			Point2D center) {
 		super(id, properties);
 		this.center = center;
 	}
 
-	public Point2D.Double getCenter() {
+	public Point2D getCenter() {
 		return center;
 	}
 

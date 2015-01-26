@@ -155,8 +155,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		List<Double> yList = new ArrayList<Double>();
 
 		for (LocationNode node : nodes) {
-			xList.add(node.getCenter().x);
-			yList.add(node.getCenter().y);
+			xList.add(node.getCenter().getX());
+			yList.add(node.getCenter().getY());
 		}
 
 		double x = DoubleMath.mean(Doubles.toArray(xList));

@@ -37,8 +37,8 @@ import de.bund.bfr.knime.gis.views.canvas.Transform;
 public class RegionNode extends Node {
 
 	private MultiPolygon polygon;
-	private Point2D.Double center;
-	private Rectangle2D.Double boundingBox;
+	private Point2D center;
+	private Rectangle2D boundingBox;
 
 	private List<Polygon> transformedPolygon;
 
@@ -54,11 +54,11 @@ public class RegionNode extends Node {
 		return polygon;
 	}
 
-	public Point2D.Double getCenter() {
+	public Point2D getCenter() {
 		return center;
 	}
 
-	public Rectangle2D.Double getBoundingBox() {
+	public Rectangle2D getBoundingBox() {
 		return boundingBox;
 	}
 

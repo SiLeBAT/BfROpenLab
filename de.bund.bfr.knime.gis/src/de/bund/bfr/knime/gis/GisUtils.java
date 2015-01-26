@@ -103,7 +103,7 @@ public class GisUtils {
 		return columns;
 	}
 
-	public static Point2D.Double getCenter(MultiPolygon poly) {
+	public static Point2D getCenter(MultiPolygon poly) {
 		double largestArea = 0.0;
 		Point center = null;
 
@@ -125,7 +125,7 @@ public class GisUtils {
 		return poly.getArea();
 	}
 
-	public static Rectangle2D.Double getBoundingBox(MultiPolygon poly) {
+	public static Rectangle2D getBoundingBox(MultiPolygon poly) {
 		double minX = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;

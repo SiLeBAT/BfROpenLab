@@ -126,11 +126,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	private void computeTransform(Dimension canvasSize) {
-		Rectangle2D.Double polygonsBounds = getPolygonsBounds();
+		Rectangle2D polygonsBounds = getPolygonsBounds();
 
 		if (polygonsBounds != null) {
-			double widthRatio = canvasSize.width / polygonsBounds.width;
-			double heightRatio = canvasSize.height / polygonsBounds.height;
+			double widthRatio = canvasSize.width / polygonsBounds.getWidth();
+			double heightRatio = canvasSize.height / polygonsBounds.getHeight();
 			double canvasCenterX = canvasSize.width / 2.0;
 			double canvasCenterY = canvasSize.height / 2.0;
 			double polygonCenterX = polygonsBounds.getCenterX();
@@ -169,15 +169,14 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	private Rectangle2D.Double getPolygonsBounds() {
-		Rectangle2D.Double bounds = null;
+	private Rectangle2D getPolygonsBounds() {
+		Rectangle2D bounds = null;
 
 		for (RegionNode node : getRegions()) {
 			if (bounds == null) {
 				bounds = node.getBoundingBox();
 			} else {
-				bounds = (Rectangle2D.Double) bounds.createUnion(node
-						.getBoundingBox());
+				bounds = bounds.createUnion(node.getBoundingBox());
 			}
 		}
 

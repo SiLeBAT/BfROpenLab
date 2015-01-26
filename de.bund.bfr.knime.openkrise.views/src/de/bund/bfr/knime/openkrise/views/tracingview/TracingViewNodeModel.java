@@ -197,11 +197,6 @@ public class TracingViewNodeModel extends NodeModel {
 				set.isExportAsSvg(), creator.createGisCanvas()) : CanvasUtils
 				.getImage(set.isExportAsSvg());
 
-		for (RowKey key : creator.getSkippedNodeRows()) {
-			setWarningMessage("Station Table: Row " + key.getString()
-					+ " skipped");
-		}
-
 		for (RowKey key : creator.getSkippedEdgeRows()) {
 			setWarningMessage("Delivery Table: Row " + key.getString()
 					+ " skipped");

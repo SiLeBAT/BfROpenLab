@@ -218,21 +218,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		switchButton
 				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 
-		boolean skippedNodes = !creator.getSkippedNodeRows().isEmpty();
-		boolean skippedEdges = !creator.getSkippedEdgeRows().isEmpty();
-
 		String warning = null;
 
-		if (skippedNodes && skippedEdges) {
-			warning = "Some rows from the station and delivery tables could not be imported.";
-		} else if (skippedNodes) {
-			warning = "Some rows from the station table could not be imported.";
-		} else if (skippedEdges) {
-			warning = "Some rows from the delivery table could not be imported.";
-		}
-
-		if (warning != null) {
-			warning += " Execute the Tracing View for more information.";
+		if (!creator.getSkippedEdgeRows().isEmpty()) {
+			warning = "Some rows from the delivery table could not be imported."
+					+ " Execute the Tracing View for more information.";
 		}
 
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);

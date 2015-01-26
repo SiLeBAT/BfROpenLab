@@ -128,7 +128,6 @@ public class TracingViewCanvasCreator {
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		skippedNodeRows = new LinkedHashSet<>();
 		skippedEdgeRows = new LinkedHashSet<>();
 		skippedShapeRows = new LinkedHashSet<>();
 	}
@@ -168,10 +167,6 @@ public class TracingViewCanvasCreator {
 		canvas.setPerformTracing(true);
 
 		return canvas;
-	}
-
-	public Set<RowKey> getSkippedNodeRows() {
-		return skippedNodeRows;
 	}
 
 	public Set<RowKey> getSkippedEdgeRows() {
