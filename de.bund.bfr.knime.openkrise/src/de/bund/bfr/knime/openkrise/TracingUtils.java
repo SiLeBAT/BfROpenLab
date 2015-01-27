@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -247,7 +246,8 @@ public class TracingUtils {
 
 	public static Map<String, LocationNode> readLocationNodes(
 			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			Set<RowKey> skippedRows) throws NotConfigurableException {
+			Set<RowKey> invalidRows, boolean skipInvalid)
+			throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
@@ -269,59 +269,17 @@ public class TracingUtils {
 					+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
 		}
 
-		GeometryFactory factory = new GeometryFactory();
-		Map<String, Point2D> positions = new LinkedHashMap<>();
-		Rectangle2D bounds = null;
-
-		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
-			Double lat = IO.getDouble(row.getCell(latIndex));
-			Double lon = IO.getDouble(row.getCell(lonIndex));
-
-			if (lat == null || lon == null) {
-				continue;
-			}
-
-			try {
-				Point p = (Point) JTS.transform(
-						factory.createPoint(new Coordinate(lat, lon)),
-						GisUtils.LATLON_TO_VIZ);
-				Rectangle2D r = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
-
-				if (bounds == null) {
-					bounds = r;
-				} else {
-					bounds = bounds.createUnion(r);
-				}
-
-				positions.put(id, new Point2D.Double(p.getX(), p.getY()));
-			} catch (MismatchedDimensionException | TransformException e) {
-				throw new NotConfigurableException(e.getMessage());
-			}
-		}
-
-		Point2D corner = null;
-
-		if (bounds == null) {
-			throw new NotConfigurableException(
-					"No geographic coordinates contained in table");
-		} else {
-			double dx = bounds.getWidth() != 0.0 ? bounds.getWidth() * 0.1
-					: 1.0;
-			double dy = bounds.getHeight() != 0.0 ? bounds.getHeight() * 0.1
-					: 1.0;
-
-			corner = new Point2D.Double(bounds.getMinX() - dx, bounds.getMaxY()
-					+ dy);
-		}
-
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
+		GeometryFactory factory = new GeometryFactory();
+		boolean hasCoordinates = false;
 
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
 			String id = IO.getToCleanString(row.getCell(idIndex));
+			Double lat = IO.getDouble(row.getCell(latIndex));
+			Double lon = IO.getDouble(row.getCell(lonIndex));
 
 			if (id == null) {
 				throw new NotConfigurableException("Missing value in "
@@ -331,10 +289,25 @@ public class TracingUtils {
 						+ TracingColumns.ID + " column: " + id);
 			}
 
-			Point2D p = positions.get(id);
+			Point2D.Double center = null;
 
-			if (p == null) {
-				p = corner;
+			if (lat != null && lon != null) {
+				try {
+					Point p = (Point) JTS.transform(
+							factory.createPoint(new Coordinate(lat, lon)),
+							GisUtils.LATLON_TO_VIZ);
+
+					center = new Point2D.Double(p.getX(), p.getY());
+					hasCoordinates = true;
+				} catch (MismatchedDimensionException | TransformException e) {
+					throw new NotConfigurableException(e.getMessage());
+				}
+			} else {
+				invalidRows.add(row.getKey());
+
+				if (skipInvalid) {
+					continue;
+				}
 			}
 
 			Map<String, Object> properties = new LinkedHashMap<>();
@@ -343,12 +316,17 @@ public class TracingUtils {
 					.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
-			nodes.put(id, new LocationNode(id, properties, p));
+			nodes.put(id, new LocationNode(id, properties, center));
 		}
 
 		if (nodes.isEmpty()) {
 			throw new NotConfigurableException(
 					"No valid nodes contained in table");
+		}
+
+		if (!hasCoordinates) {
+			throw new NotConfigurableException(
+					"No geographic coordinates contained in table");
 		}
 
 		return nodes;

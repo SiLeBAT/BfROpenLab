@@ -19,8 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +33,13 @@ import java.util.Set;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -45,6 +56,8 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 public class TracingViewCanvasCreator {
 
+	private static final double BORDER = 0.1;
+
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
 	private BufferedDataTable shapeTable;
@@ -54,7 +67,6 @@ public class TracingViewCanvasCreator {
 	private NodePropertySchema nodeSchema;
 	private EdgePropertySchema edgeSchema;
 
-	private Set<RowKey> skippedNodeRows;
 	private Set<RowKey> skippedEdgeRows;
 	private Set<RowKey> skippedShapeRows;
 
@@ -135,7 +147,7 @@ public class TracingViewCanvasCreator {
 	public TracingGraphCanvas createGraphCanvas()
 			throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, shapeTable != null, skippedNodeRows);
+				nodeSchema, shapeTable != null, new LinkedHashSet<RowKey>());
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 
@@ -151,12 +163,38 @@ public class TracingViewCanvasCreator {
 	}
 
 	public TracingGisCanvas createGisCanvas() throws NotConfigurableException {
+		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, skippedNodeRows);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, skippedEdgeRows);
+				nodeTable, nodeSchema, invalidRows, false);
 		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
 				skippedShapeRows);
+
+		if (!invalidRows.isEmpty()) {
+			Rectangle2D bounds = getBounds(nodes.values());
+			double dx = bounds.getWidth() != 0 ? bounds.getWidth() * BORDER
+					: 1.0;
+			double dy = bounds.getHeight() != 0 ? bounds.getHeight() * BORDER
+					: 1.0;
+
+			for (String id : nodes.keySet()) {
+				LocationNode node = nodes.get(id);
+
+				if (node.getCenter() == null) {
+					nodes.put(id, new LocationNode(id, node.getProperties(),
+							new Point2D.Double(bounds.getMinX() - 2 * dx,
+									bounds.getMaxY() + 2 * dy)));
+				}
+			}
+
+			MultiPolygon square = createSquare(bounds.getMinX() - 3 * dx,
+					bounds.getMaxY() + dy, 2 * dx, 2 * dy);
+
+			regions.add(new RegionNode("invalid",
+					new LinkedHashMap<String, Object>(), square));
+		}
+
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
+				edgeSchema, nodes, skippedEdgeRows);
 		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
@@ -177,4 +215,42 @@ public class TracingViewCanvasCreator {
 		return skippedShapeRows;
 	}
 
+	private static Rectangle2D getBounds(Collection<LocationNode> nodes) {
+		Rectangle2D bounds = null;
+
+		for (LocationNode node : nodes) {
+			if (node.getCenter() == null) {
+				continue;
+			}
+
+			Rectangle2D r = new Rectangle2D.Double(node.getCenter().getX(),
+					node.getCenter().getY(), 0, 0);
+
+			if (bounds == null) {
+				bounds = r;
+			} else {
+				bounds = bounds.createUnion(r);
+			}
+		}
+
+		return bounds;
+	}
+
+	private static MultiPolygon createSquare(double x, double y, double w,
+			double h) {
+		GeometryFactory factory = new GeometryFactory();
+		List<Coordinate> coordinates = new ArrayList<>();
+
+		coordinates.add(new Coordinate(x, y));
+		coordinates.add(new Coordinate(x + w, y));
+		coordinates.add(new Coordinate(x + w, y + h));
+		coordinates.add(new Coordinate(x, y + h));
+		coordinates.add(new Coordinate(x, y));
+
+		Polygon p = new Polygon(new LinearRing(new CoordinateArraySequence(
+				coordinates.toArray(new Coordinate[0])), factory), null,
+				factory);
+
+		return new MultiPolygon(new Polygon[] { p }, factory);
+	}
 }
