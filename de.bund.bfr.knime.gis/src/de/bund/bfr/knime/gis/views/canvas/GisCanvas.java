@@ -22,11 +22,15 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -39,17 +43,27 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	private static final long serialVersionUID = 1L;
 
 	private BufferedImage image;
+	private Map<String, Paint> regionFillPaints;
 
 	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		image = null;
+		regionFillPaints = new LinkedHashMap<>();
 
 		viewer.addPreRenderPaintable(new PrePaintable(false));
 	}
 
 	public abstract Collection<RegionNode> getRegions();
+
+	public Map<String, Paint> getRegionFillPaints() {
+		return regionFillPaints;
+	}
+
+	public void setRegionFillPaints(Map<String, Paint> regionFillPaints) {
+		this.regionFillPaints = regionFillPaints;
+	}
 
 	@Override
 	public void setCanvasSize(Dimension canvasSize) {
@@ -99,6 +113,20 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	protected void paintGis(Graphics g, boolean toSvg) {
+		for (RegionNode node : getRegions()) {
+			Paint paint = regionFillPaints.get(node.getId());
+
+			if (paint == null) {
+				continue;
+			}
+
+			((Graphics2D) g).setPaint(paint);
+
+			for (Polygon part : node.getTransformedPolygon()) {
+				g.fillPolygon(part);
+			}
+		}
+
 		if (!toSvg) {
 			BufferedImage borderImage = new BufferedImage(
 					getCanvasSize().width, getCanvasSize().height,

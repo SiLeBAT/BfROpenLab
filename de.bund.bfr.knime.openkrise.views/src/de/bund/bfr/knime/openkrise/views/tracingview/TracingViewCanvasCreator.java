@@ -19,9 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +44,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -56,6 +59,7 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 public class TracingViewCanvasCreator {
 
+	private static final String INVALID = "invalid";
 	private static final double BORDER = 0.1;
 
 	private BufferedDataTable nodeTable;
@@ -189,7 +193,7 @@ public class TracingViewCanvasCreator {
 			MultiPolygon square = createSquare(bounds.getMinX() - 3 * dx,
 					bounds.getMaxY() + dy, 2 * dx, 2 * dy);
 
-			regions.add(new RegionNode("invalid",
+			regions.add(new RegionNode(INVALID,
 					new LinkedHashMap<String, Object>(), square));
 		}
 
@@ -199,6 +203,11 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
 
+		canvas.getRegionFillPaints().put(
+				INVALID,
+				CanvasUtils.mixColors(Color.WHITE,
+						Arrays.asList(Color.RED, Color.WHITE),
+						Arrays.asList(1.0, 1.0)));
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
