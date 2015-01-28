@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -36,6 +35,8 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
+import com.google.common.math.DoubleMath;
+
 public class MathUtils {
 
 	private static final double PENALTY = 1e6;
@@ -46,20 +47,6 @@ public class MathUtils {
 	public static boolean isValidDouble(Object o) {
 		return o instanceof Double && !((Double) o).isNaN()
 				&& !((Double) o).isInfinite();
-	}
-
-	public static double getMean(Collection<Double> values) {
-		if (values.isEmpty()) {
-			throw new NoSuchElementException("Collection is empty");
-		}
-
-		double sum = 0.0;
-
-		for (double v : values) {
-			sum += v;
-		}
-
-		return sum / values.size();
 	}
 
 	public static boolean containsInvalidDouble(Collection<Double> values) {
@@ -178,13 +165,7 @@ public class MathUtils {
 			return null;
 		}
 
-		double targetSum = 0.0;
-
-		for (double v : targetValues) {
-			targetSum += v;
-		}
-
-		double targetMean = targetSum / targetValues.length;
+		double targetMean = DoubleMath.mean(targetValues);
 		double targetTotalSumOfSquares = 0.0;
 
 		for (int i = 0; i < targetValues.length; i++) {

@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base;bundle-version="2.10.0",
  org.knime.ext.svg,
+ com.google.guava;bundle-version="16.0.0",
  de.bund.bfr.knime.openkrise
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.openkrise.views,

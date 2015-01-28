@@ -220,8 +220,7 @@ public class UI {
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
-			width += 5;
-			col.setPreferredWidth(Math.min(width, maxColumnWidth));
+			col.setPreferredWidth(Math.min(width + 5, maxColumnWidth));
 		}
 	}
 

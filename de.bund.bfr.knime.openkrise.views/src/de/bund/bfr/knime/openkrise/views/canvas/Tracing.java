@@ -44,6 +44,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
+import com.google.common.base.Joiner;
+
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
@@ -630,13 +632,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		public String findError(HighlightCondition condition) {
 			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
 					TracingColumns.BACKWARD, TracingColumns.FORWARD);
-			String error = "The following columns cannot be used with \"Invisible\" option:\n";
-
-			for (String column : tracingColumns) {
-				error += column + ", ";
-			}
-
-			error = error.substring(0, error.length() - 2);
+			String error = "The following columns cannot be used with \"Invisible\" option:\n"
+					+ Joiner.on(", ").join(tracingColumns);
 
 			if (condition != null && condition.isInvisible()) {
 				AndOrHighlightCondition logicalCondition = null;

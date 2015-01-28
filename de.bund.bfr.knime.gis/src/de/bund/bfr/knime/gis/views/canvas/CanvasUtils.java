@@ -59,6 +59,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.google.common.base.Joiner;
+import com.google.common.math.DoubleMath;
+import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -390,23 +392,21 @@ public class CanvasUtils {
 
 	public static Double getMeanValue(Collection<? extends Element> elements,
 			String property) {
-		double sum = 0.0;
-		int n = 0;
+		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
 			Object o = element.getProperties().get(property);
 
 			if (o instanceof Double) {
-				sum += (Double) o;
-				n++;
+				values.add((Double) o);
 			}
 		}
 
-		if (n == 0) {
+		if (values.isEmpty()) {
 			return null;
 		}
 
-		return sum / n;
+		return DoubleMath.mean(Doubles.toArray(values));
 	}
 
 	public static <V extends Node> void applyNodeHighlights(

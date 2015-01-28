@@ -137,7 +137,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
-			col.setPreferredWidth(width += 10);
+			col.setPreferredWidth(width + 10);
 		}
 
 		selectColumnWidth = selectTable.getColumn(ChartUtils.SELECTED)
