@@ -175,23 +175,25 @@ public class TracingViewCanvasCreator {
 
 		if (!invalidRows.isEmpty()) {
 			Rectangle2D bounds = getBounds(nodes.values());
-			double dx = bounds.getWidth() != 0 ? bounds.getWidth() * BORDER
-					: 1.0;
-			double dy = bounds.getHeight() != 0 ? bounds.getHeight() * BORDER
-					: 1.0;
+			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * BORDER;
+
+			if (d == 0.0) {
+				d = 1.0;
+			}
+
+			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
+					bounds.getMaxY() + 2 * d);
 
 			for (String id : nodes.keySet()) {
 				LocationNode node = nodes.get(id);
 
 				if (node.getCenter() == null) {
-					nodes.put(id, new LocationNode(id, node.getProperties(),
-							new Point2D.Double(bounds.getMinX() - 2 * dx,
-									bounds.getMaxY() + 2 * dy)));
+					nodes.put(id, new LocationNode(id, node.getProperties(), p));
 				}
 			}
 
-			MultiPolygon square = createSquare(bounds.getMinX() - 3 * dx,
-					bounds.getMaxY() + dy, 2 * dx, 2 * dy);
+			MultiPolygon square = createSquare(bounds.getMinX() - 3 * d,
+					bounds.getMaxY() + d, 2 * d, 2 * d);
 
 			regions.add(new RegionNode(INVALID,
 					new LinkedHashMap<String, Object>(), square));

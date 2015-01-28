@@ -41,7 +41,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
@@ -122,68 +121,8 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 	}
 
 	@Override
-	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel(
-			Mode editingMode) {
-		return new GraphMouse<>(
-				new PickingGraphMousePlugin<RegionNode, Edge<RegionNode>>() {
-
-					@Override
-					public void mousePressed(MouseEvent e) {
-						RegionNode node = getContainingNode(e.getX(), e.getY());
-						Edge<RegionNode> edge = viewer.getPickSupport()
-								.getEdge(viewer.getGraphLayout(), e.getX(),
-										e.getY());
-
-						if (e.getButton() == MouseEvent.BUTTON1 && node != null
-								&& edge == null) {
-							if (!e.isShiftDown()) {
-								viewer.getPickedVertexState().clear();
-							}
-
-							if (e.isShiftDown()
-									&& viewer.getPickedVertexState().isPicked(
-											node)) {
-								viewer.getPickedVertexState().pick(node, false);
-							} else {
-								viewer.getPickedVertexState().pick(node, true);
-								vertex = node;
-							}
-						} else {
-							super.mousePressed(e);
-						}
-					}
-
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						if (e.getButton() == MouseEvent.BUTTON1
-								&& e.getClickCount() == 2) {
-							RegionNode node = getContainingNode(e.getX(),
-									e.getY());
-							Edge<RegionNode> edge = viewer.getPickSupport()
-									.getEdge(viewer.getGraphLayout(), e.getX(),
-											e.getY());
-
-							if (edge != null) {
-								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeSchema);
-
-								dialog.setVisible(true);
-							} else if (node != null) {
-								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeSchema);
-
-								dialog.setVisible(true);
-							}
-						}
-					}
-
-					@Override
-					public void mouseDragged(MouseEvent e) {
-						if (vertex == null) {
-							super.mouseDragged(e);
-						}
-					}
-				}, editingMode);
+	protected GraphMouse<RegionNode, Edge<RegionNode>> createMouseModel() {
+		return new GraphMouse<>(new PickingPlugin());
 	}
 
 	@Override
@@ -264,5 +203,61 @@ public class RegionCanvas extends GisCanvas<RegionNode> {
 		}
 
 		return null;
+	}
+
+	private class PickingPlugin extends
+			PickingGraphMousePlugin<RegionNode, Edge<RegionNode>> {
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			RegionNode node = getContainingNode(e.getX(), e.getY());
+			Edge<RegionNode> edge = viewer.getPickSupport().getEdge(
+					viewer.getGraphLayout(), e.getX(), e.getY());
+
+			if (e.getButton() == MouseEvent.BUTTON1 && node != null
+					&& edge == null) {
+				if (!e.isShiftDown()) {
+					viewer.getPickedVertexState().clear();
+				}
+
+				if (e.isShiftDown()
+						&& viewer.getPickedVertexState().isPicked(node)) {
+					viewer.getPickedVertexState().pick(node, false);
+				} else {
+					viewer.getPickedVertexState().pick(node, true);
+					vertex = node;
+				}
+			} else {
+				super.mousePressed(e);
+			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				RegionNode node = getContainingNode(e.getX(), e.getY());
+				Edge<RegionNode> edge = viewer.getPickSupport().getEdge(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+
+				if (edge != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), edge, edgeSchema);
+
+					dialog.setVisible(true);
+				} else if (node != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), node, nodeSchema);
+
+					dialog.setVisible(true);
+				}
+			}
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (vertex == null) {
+				super.mouseDragged(e);
+			}
+		}
 	}
 }

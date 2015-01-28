@@ -173,7 +173,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
-		viewer.setGraphMouse(new GraphMouse<>(null, Mode.TRANSFORMING));
+		viewer.setGraphMouse(new GraphMouse<>());
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -920,7 +920,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void editingModeChanged() {
-		viewer.setGraphMouse(createMouseModel(optionsPanel.getEditingMode()));
+		GraphMouse<V, Edge<V>> graphMouse = createMouseModel();
+
+		graphMouse.setMode(optionsPanel.getEditingMode());
+
+		viewer.setGraphMouse(graphMouse);
 	}
 
 	@Override
@@ -1154,7 +1158,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected abstract void applyTransform();
 
-	protected abstract GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode);
+	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
 

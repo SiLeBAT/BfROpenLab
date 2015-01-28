@@ -64,7 +64,6 @@ import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class Tracing<V extends Node> implements ActionListener, ItemListener {
@@ -414,59 +413,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
-	public GraphMouse<V, Edge<V>> createMouseModel(Mode editingMode) {
-		return new GraphMouse<>(new PickingGraphMousePlugin<V, Edge<V>>() {
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
-
-				if (e.getButton() == MouseEvent.BUTTON1
-						&& e.getClickCount() == 2) {
-					V node = viewer.getPickSupport().getVertex(
-							viewer.getGraphLayout(), e.getX(), e.getY());
-					Edge<V> edge = viewer.getPickSupport().getEdge(
-							viewer.getGraphLayout(), e.getX(), e.getY());
-
-					if (node != null) {
-						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-								e.getComponent(), node, canvas.getNodeSchema()
-										.getMap());
-
-						dialog.setVisible(true);
-
-						if (dialog.isApproved()) {
-							canvas.applyChanges();
-						}
-					} else if (edge != null) {
-						if (!canvas.isJoinEdges()) {
-							EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-									e.getComponent(), edge, canvas
-											.getEdgeSchema().getMap());
-
-							dialog.setVisible(true);
-
-							if (dialog.isApproved()) {
-								canvas.applyChanges();
-							}
-						} else {
-							SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-									e.getComponent(), edge,
-									canvas.getEdgeSchema());
-
-							dialog.setVisible(true);
-						}
-					}
-				}
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				if (vertex == null || !(canvas instanceof GisCanvas)) {
-					super.mouseDragged(e);
-				}
-			}
-		}, editingMode);
+	public GraphMouse<V, Edge<V>> createMouseModel() {
+		return new GraphMouse<>(new PickingPlugin());
 	}
 
 	@Override
@@ -786,4 +734,54 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
+	private class PickingPlugin extends PickingGraphMousePlugin<V, Edge<V>> {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
+
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				V node = viewer.getPickSupport().getVertex(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+				Edge<V> edge = viewer.getPickSupport().getEdge(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+
+				if (node != null) {
+					EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
+							e.getComponent(), node, canvas.getNodeSchema()
+									.getMap());
+
+					dialog.setVisible(true);
+
+					if (dialog.isApproved()) {
+						canvas.applyChanges();
+					}
+				} else if (edge != null) {
+					if (!canvas.isJoinEdges()) {
+						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
+								e.getComponent(), edge, canvas.getEdgeSchema()
+										.getMap());
+
+						dialog.setVisible(true);
+
+						if (dialog.isApproved()) {
+							canvas.applyChanges();
+						}
+					} else {
+						SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+								e.getComponent(), edge, canvas.getEdgeSchema());
+
+						dialog.setVisible(true);
+					}
+				}
+			}
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (vertex == null || !(canvas instanceof GisCanvas)) {
+				super.mouseDragged(e);
+			}
+		}
+	}
 }

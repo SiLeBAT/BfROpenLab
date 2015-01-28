@@ -35,7 +35,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class LocationCanvas extends GisCanvas<LocationNode> {
@@ -89,43 +88,8 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 	}
 
 	@Override
-	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
-			Mode editingMode) {
-		return new GraphMouse<>(
-				new PickingGraphMousePlugin<LocationNode, Edge<LocationNode>>() {
-
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						if (e.getButton() == MouseEvent.BUTTON1
-								&& e.getClickCount() == 2) {
-							LocationNode node = viewer.getPickSupport()
-									.getVertex(viewer.getGraphLayout(),
-											e.getX(), e.getY());
-							Edge<LocationNode> edge = viewer.getPickSupport()
-									.getEdge(viewer.getGraphLayout(), e.getX(),
-											e.getY());
-
-							if (node != null) {
-								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), node, nodeSchema);
-
-								dialog.setVisible(true);
-							} else if (edge != null) {
-								SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-										e.getComponent(), edge, edgeSchema);
-
-								dialog.setVisible(true);
-							}
-						}
-					}
-
-					@Override
-					public void mouseDragged(MouseEvent e) {
-						if (vertex == null) {
-							super.mouseDragged(e);
-						}
-					}
-				}, editingMode);
+	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel() {
+		return new GraphMouse<>(new PickingPlugin());
 	}
 
 	@Override
@@ -167,5 +131,38 @@ public class LocationCanvas extends GisCanvas<LocationNode> {
 		viewer.getGraphLayout().setLocation(newNode, newNode.getCenter());
 
 		return newNode;
+	}
+
+	private class PickingPlugin extends
+			PickingGraphMousePlugin<LocationNode, Edge<LocationNode>> {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				LocationNode node = viewer.getPickSupport().getVertex(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+				Edge<LocationNode> edge = viewer.getPickSupport().getEdge(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+
+				if (node != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), node, nodeSchema);
+
+					dialog.setVisible(true);
+				} else if (edge != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), edge, edgeSchema);
+
+					dialog.setVisible(true);
+				}
+			}
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (vertex == null) {
+				super.mouseDragged(e);
+			}
+		}
 	}
 }

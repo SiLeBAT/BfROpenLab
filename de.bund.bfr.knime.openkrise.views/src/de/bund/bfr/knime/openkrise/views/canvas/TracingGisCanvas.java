@@ -35,7 +35,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingGisCanvas extends LocationCanvas implements
 		ITracingCanvas<LocationNode> {
@@ -190,9 +189,8 @@ public class TracingGisCanvas extends LocationCanvas implements
 	}
 
 	@Override
-	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel(
-			Mode editingMode) {
-		return tracing.createMouseModel(editingMode);
+	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel() {
+		return tracing.createMouseModel();
 	}
 
 	@Override

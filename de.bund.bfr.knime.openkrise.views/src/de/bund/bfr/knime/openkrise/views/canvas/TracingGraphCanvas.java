@@ -34,7 +34,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingGraphCanvas extends GraphCanvas implements
 		ITracingCanvas<GraphNode> {
@@ -188,9 +187,8 @@ public class TracingGraphCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel(
-			Mode editingMode) {
-		return tracing.createMouseModel(editingMode);
+	protected GraphMouse<GraphNode, Edge<GraphNode>> createMouseModel() {
+		return tracing.createMouseModel();
 	}
 
 	@Override
