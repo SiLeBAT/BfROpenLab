@@ -25,6 +25,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Polygon;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
@@ -103,6 +105,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		flushImage();
 		computeTransformedShapes();
 		viewer.repaint();
+	}
+
+	@Override
+	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+		return new GisPickingPlugin();
 	}
 
 	protected void flushImage() {
@@ -209,6 +216,16 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 
 		return bounds;
+	}
+
+	protected class GisPickingPlugin extends PickingPlugin {
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (vertex == null) {
+				super.mouseDragged(e);
+			}
+		}
 	}
 
 	private class PrePaintable implements Paintable {

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
@@ -35,6 +34,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
 public class TracingGisCanvas extends LocationCanvas implements
 		ITracingCanvas<LocationNode> {
@@ -189,8 +189,8 @@ public class TracingGisCanvas extends LocationCanvas implements
 	}
 
 	@Override
-	protected GraphMouse<LocationNode, Edge<LocationNode>> createMouseModel() {
-		return tracing.createMouseModel();
+	protected PickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
+		return tracing.createPickingPlugin();
 	}
 
 	@Override

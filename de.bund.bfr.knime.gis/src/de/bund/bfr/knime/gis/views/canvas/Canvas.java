@@ -69,6 +69,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ImageFileChooser;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -89,6 +90,7 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
@@ -920,7 +922,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void editingModeChanged() {
-		GraphMouse<V, Edge<V>> graphMouse = createMouseModel();
+		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(
+				createPickingPlugin());
 
 		graphMouse.setMode(optionsPanel.getEditingMode());
 
@@ -1156,9 +1159,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return dialog;
 	}
 
-	protected abstract void applyTransform();
+	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+		return new PickingPlugin();
+	}
 
-	protected abstract GraphMouse<V, Edge<V>> createMouseModel();
+	protected abstract void applyTransform();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
 
@@ -1201,6 +1206,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireCollapsedNodesChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.collapsedNodesChanged(this);
+		}
+	}
+
+	protected class PickingPlugin extends PickingGraphMousePlugin<V, Edge<V>> {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				V node = viewer.getPickSupport().getVertex(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+				Edge<V> edge = viewer.getPickSupport().getEdge(
+						viewer.getGraphLayout(), e.getX(), e.getY());
+
+				if (node != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), node, nodeSchema);
+
+					dialog.setVisible(true);
+				} else if (edge != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
+							e.getComponent(), edge, edgeSchema);
+
+					dialog.setVisible(true);
+				}
+			}
 		}
 	}
 

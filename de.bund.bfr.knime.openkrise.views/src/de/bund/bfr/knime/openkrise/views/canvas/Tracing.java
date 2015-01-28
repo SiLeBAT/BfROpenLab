@@ -47,7 +47,6 @@ import javax.swing.JSeparator;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
-import de.bund.bfr.knime.gis.views.canvas.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
@@ -413,8 +412,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
-	public GraphMouse<V, Edge<V>> createMouseModel() {
-		return new GraphMouse<>(new PickingPlugin());
+	public PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+		return new PickingPlugin();
 	}
 
 	@Override
