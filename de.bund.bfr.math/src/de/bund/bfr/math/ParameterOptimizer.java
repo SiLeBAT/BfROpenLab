@@ -67,6 +67,7 @@ public class ParameterOptimizer {
 	private Double rmse;
 	private Double r2;
 	private Double aic;
+	private Integer dof;
 
 	private List<ProgressListener> progressListeners;
 
@@ -334,7 +335,7 @@ public class ParameterOptimizer {
 	}
 
 	public Integer getDOF() {
-		return targetValues.length - parameters.length;
+		return dof;
 	}
 
 	private void optimize(double[] startValues) {
@@ -350,10 +351,9 @@ public class ParameterOptimizer {
 	}
 
 	private void useCurrentResults() {
-		parameterValues.clear();
+		resetResults();
 		sse = optimizer.getChiSquare();
-		mse = MathUtils.getMSE(parameters.length, targetValues.length, sse);
-		rmse = MathUtils.getRMSE(parameters.length, targetValues.length, sse);
+		dof = targetValues.length - parameters.length;
 		r2 = MathUtils.getR2(sse, targetValues);
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
@@ -361,9 +361,12 @@ public class ParameterOptimizer {
 			parameterValues.put(parameters[i], optimizerValues.getPoint()[i]);
 		}
 
-		if (targetValues.length <= parameters.length) {
-			throw new RuntimeException();
+		if (dof <= 0) {
+			return;
 		}
+
+		mse = sse / dof;
+		rmse = Math.sqrt(mse);
 
 		double[][] covMatrix;
 
@@ -374,8 +377,7 @@ public class ParameterOptimizer {
 			return;
 		}
 
-		double factor = optimizer.getChiSquare()
-				/ (targetValues.length - parameters.length);
+		double factor = optimizer.getChiSquare() / dof;
 
 		parameterStandardErrors = new LinkedHashMap<>();
 		parameterTValues = new LinkedHashMap<>();
@@ -388,11 +390,10 @@ public class ParameterOptimizer {
 			parameterStandardErrors.put(parameters[i], error);
 
 			double tValue = optimizerValues.getPoint()[i] / error;
-			int degreesOfFreedom = targetValues.length - parameters.length;
 
 			parameterTValues.put(parameters[i], tValue);
 			parameterPValues.put(parameters[i],
-					MathUtils.getPValue(tValue, degreesOfFreedom));
+					MathUtils.getPValue(tValue, dof));
 		}
 
 		for (int i = 0; i < parameters.length; i++) {
@@ -417,6 +418,7 @@ public class ParameterOptimizer {
 		rmse = null;
 		r2 = null;
 		aic = null;
+		dof = null;
 
 		for (String param : parameters) {
 			covariances.put(param, new LinkedHashMap<String, Double>());

@@ -144,22 +144,6 @@ public class MathUtils {
 		return symbols;
 	}
 
-	public static Double getMSE(int numParam, int numSample, double sse) {
-		if (numSample <= numParam) {
-			return null;
-		}
-
-		return sse / (numSample - numParam);
-	}
-
-	public static Double getRMSE(int numParam, int numSample, double sse) {
-		if (numSample <= numParam) {
-			return null;
-		}
-
-		return Math.sqrt(sse / (numSample - numParam));
-	}
-
 	public static Double getR2(double sse, double[] targetValues) {
 		if (targetValues.length < 2) {
 			return null;
