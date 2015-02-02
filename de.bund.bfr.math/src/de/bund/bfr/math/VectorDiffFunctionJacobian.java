@@ -45,8 +45,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable, Integrator integrator)
-			throws ParseException {
+			String dependentVariable, String timeVariable,
+			IntegratorFactory integrator) throws ParseException {
 		nParams = parameters.length;
 		nValues = timeValues.length;
 

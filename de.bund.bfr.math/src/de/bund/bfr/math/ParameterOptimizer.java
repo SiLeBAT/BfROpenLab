@@ -91,7 +91,7 @@ public class ParameterOptimizer {
 			Double[] initValues, String[] initParameters, String[] parameters,
 			double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable,
-			Map<String, double[]> variableValues, Integrator integrator)
+			Map<String, double[]> variableValues, IntegratorFactory integrator)
 			throws ParseException {
 		this.parameters = parameters;
 		this.targetValues = targetValues;

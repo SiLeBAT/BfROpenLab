@@ -59,7 +59,7 @@ import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
-import de.bund.bfr.math.Integrator;
+import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.ParameterOptimizer;
 
@@ -498,8 +498,9 @@ public class FittingNodeModel extends NodeModel implements
 					Doubles.toArray(timeValues.get(id)),
 					Doubles.toArray(targetValues.get(id)),
 					function.getDependentVariable(),
-					function.getTimeVariable(), argumentArrays, new Integrator(
-							Integrator.Type.RUNGE_KUTTA, 0.01, 0, 0, 0, 0));
+					function.getTimeVariable(), argumentArrays,
+					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
+							0.01));
 
 			optimizer.addProgressListener(this);
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),

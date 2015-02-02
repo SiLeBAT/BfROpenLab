@@ -42,13 +42,13 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private double[] timeValues;
 	private int dependentIndex;
 	private String timeVariable;
-	private Integrator integrator;
+	private IntegratorFactory integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables,
 			Double[] initValues, String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable, Integrator integrator)
-			throws ParseException {
+			String dependentVariable, String timeVariable,
+			IntegratorFactory integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
@@ -79,7 +79,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, double[] timeValues,
-			int dependentIndex, String timeVariable, Integrator integrator) {
+			int dependentIndex, String timeVariable,
+			IntegratorFactory integrator) {
 		this.parsers = parsers;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;

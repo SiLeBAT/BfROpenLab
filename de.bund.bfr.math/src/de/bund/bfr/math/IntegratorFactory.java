@@ -21,14 +21,16 @@ package de.bund.bfr.math;
 
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
-import org.apache.commons.math3.ode.nonstiff.DormandPrince54Integrator;
-import org.apache.commons.math3.ode.nonstiff.DormandPrince853Integrator;
+import org.apache.commons.math3.ode.nonstiff.EulerIntegrator;
+import org.apache.commons.math3.ode.nonstiff.GillIntegrator;
+import org.apache.commons.math3.ode.nonstiff.MidpointIntegrator;
+import org.apache.commons.math3.ode.nonstiff.ThreeEighthesIntegrator;
 
-public class Integrator {
+public class IntegratorFactory {
 
 	public static enum Type {
-		RUNGE_KUTTA("Classical Runge Kutta"), DORMAND_PRINCE_54(
-				"Dormand Prince 54"), DORMAND_PRINCE_853("Dormand Prince 853");
+		RUNGE_KUTTA("Classical Runge Kutta"), EULER("Euler"), GILL("Gill"), MIDPOINT(
+				"Midpoint"), THREE_EIGHTHES("3/8");
 
 		private String name;
 
@@ -44,31 +46,24 @@ public class Integrator {
 
 	private Type type;
 	private double step;
-	private double minStep;
-	private double maxStep;
-	private double absTolerance;
-	private double relTolerance;
 
-	public Integrator(Type type, double step, double minStep, double maxStep,
-			double absTolerance, double relTolerance) {
+	public IntegratorFactory(Type type, double step) {
 		this.type = type;
 		this.step = step;
-		this.minStep = minStep;
-		this.maxStep = maxStep;
-		this.absTolerance = absTolerance;
-		this.relTolerance = relTolerance;
 	}
 
 	public FirstOrderIntegrator createIntegrator() {
 		switch (type) {
+		case EULER:
+			return new EulerIntegrator(step);
+		case GILL:
+			return new GillIntegrator(step);
+		case MIDPOINT:
+			return new MidpointIntegrator(step);
 		case RUNGE_KUTTA:
 			return new ClassicalRungeKuttaIntegrator(step);
-		case DORMAND_PRINCE_54:
-			return new DormandPrince54Integrator(minStep, maxStep,
-					absTolerance, relTolerance);
-		case DORMAND_PRINCE_853:
-			return new DormandPrince853Integrator(minStep, maxStep,
-					absTolerance, relTolerance);
+		case THREE_EIGHTHES:
+			return new ThreeEighthesIntegrator(step);
 		}
 
 		return null;
