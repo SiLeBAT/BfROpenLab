@@ -58,6 +58,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Joiner;
+
 import de.bund.bfr.knime.IO;
 
 /**
@@ -176,27 +178,24 @@ public class GeocodingNodeModel extends NodeModel {
 				result = performBkgGeocoding(address);
 			}
 
-			if (result != null) {
-				cells[outSpec.findColumnIndex(URL_COLUMN)] = IO
-						.createCell(result.getUrl());
-				cells[outSpec.findColumnIndex(STREET_COLUMN)] = IO
-						.createCell(result.getStreet());
-				cells[outSpec.findColumnIndex(CITY_COLUMN)] = IO
-						.createCell(result.getCity());
-				cells[outSpec.findColumnIndex(COUNTY_COLUMN)] = IO
-						.createCell(result.getCounty());
-				cells[outSpec.findColumnIndex(STATE_COLUMN)] = IO
-						.createCell(result.getState());
-				cells[outSpec.findColumnIndex(COUNTRY_COLUMN)] = IO
-						.createCell(result.getCountry());
-				cells[outSpec.findColumnIndex(POSTAL_CODE_COLUMN)] = IO
-						.createCell(result.getPostalCode());
-				cells[outSpec.findColumnIndex(LATITUDE_COLUMN)] = IO
-						.createCell(result.getLatitude());
-				cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO
-						.createCell(result.getLongitude());
-			}
-
+			cells[outSpec.findColumnIndex(URL_COLUMN)] = IO.createCell(result
+					.getUrl());
+			cells[outSpec.findColumnIndex(STREET_COLUMN)] = IO
+					.createCell(result.getStreet());
+			cells[outSpec.findColumnIndex(CITY_COLUMN)] = IO.createCell(result
+					.getCity());
+			cells[outSpec.findColumnIndex(COUNTY_COLUMN)] = IO
+					.createCell(result.getCounty());
+			cells[outSpec.findColumnIndex(STATE_COLUMN)] = IO.createCell(result
+					.getState());
+			cells[outSpec.findColumnIndex(COUNTRY_COLUMN)] = IO
+					.createCell(result.getCountry());
+			cells[outSpec.findColumnIndex(POSTAL_CODE_COLUMN)] = IO
+					.createCell(result.getPostalCode());
+			cells[outSpec.findColumnIndex(LATITUDE_COLUMN)] = IO
+					.createCell(result.getLatitude());
+			cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO
+					.createCell(result.getLongitude());
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.setProgress((double) (index++) / (double) table.getRowCount());
 			exec.checkCanceled();
@@ -384,41 +383,20 @@ public class GeocodingNodeModel extends NodeModel {
 					+ "/latLng/lng")));
 		}
 
-		String address = getAddress(street, city, county, state, country,
+		String fullAddress = getAddress(street, city, county, state, country,
 				postalCode);
-		List<String> addresses = new ArrayList<>();
+		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			addresses.add(getAddress(streets.get(i), cities.get(i),
+			choices.add(getAddress(streets.get(i), cities.get(i),
 					counties.get(i), states.get(i), countries.get(i),
 					postalCodes.get(i)));
 		}
 
-		int index = -1;
+		int index = getIndex(fullAddress, choices);
 
-		if (n == 0) {
+		if (index == -1) {
 			return new GeocodingResult(url);
-		} else if (n == 1) {
-			index = 0;
-		} else if (n > 1) {
-			if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-				return new GeocodingResult(url);
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_USE_FIRST)) {
-				index = 0;
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_ASK_USER)) {
-				Object selection = JOptionPane.showInputDialog(null, address,
-						"Select Best Fit", JOptionPane.QUESTION_MESSAGE, null,
-						addresses.toArray(), addresses.get(0));
-
-				if (selection != null) {
-					index = addresses.indexOf(selection);
-				} else {
-					return new GeocodingResult(url);
-				}
-			}
 		}
 
 		return new GeocodingResult(url, streets.get(index), cities.get(index),
@@ -449,18 +427,22 @@ public class GeocodingNodeModel extends NodeModel {
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(yc.getInputStream());
 		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
+		List<String> streets = new ArrayList<>();
 		List<String> cities = new ArrayList<>();
 		List<String> states = new ArrayList<>();
 		List<String> countryCodes = new ArrayList<>();
+		List<String> postalCodes = new ArrayList<>();
 		List<Double> latitudes = new ArrayList<>();
 		List<Double> longitudes = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			String location = "/results/result[" + (i + 1) + "]";
 
+			streets.add(evaluateXPath(doc, location + "/streetName"));
 			cities.add(evaluateXPath(doc, location + "/city"));
 			states.add(evaluateXPath(doc, location + "/state"));
 			countryCodes.add(evaluateXPath(doc, location + "/countryCode"));
+			postalCodes.add(evaluateXPath(doc, location + "/zipCode"));
 			latitudes.add(Double.parseDouble(evaluateXPath(doc, location
 					+ "/lat")));
 			longitudes.add(Double.parseDouble(evaluateXPath(doc, location
@@ -469,44 +451,23 @@ public class GeocodingNodeModel extends NodeModel {
 
 		String fullAddress = getAddress(address, null, null, null, countryCode,
 				null);
-		List<String> addresses = new ArrayList<>();
+		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			addresses.add(getAddress(null, cities.get(i), null, states.get(i),
-					countryCodes.get(i), null));
+			choices.add(getAddress(streets.get(i), cities.get(i), null,
+					states.get(i), countryCodes.get(i), postalCodes.get(i)));
 		}
 
-		int index = -1;
+		int index = getIndex(fullAddress, choices);
 
-		if (n == 0) {
+		if (index == -1) {
 			return new GeocodingResult(url);
-		} else if (n == 1) {
-			index = 0;
-		} else if (n > 1) {
-			if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-				return new GeocodingResult(url);
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_USE_FIRST)) {
-				index = 0;
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_ASK_USER)) {
-				Object selection = JOptionPane.showInputDialog(null,
-						fullAddress, "Select Best Fit",
-						JOptionPane.QUESTION_MESSAGE, null,
-						addresses.toArray(), addresses.get(0));
-
-				if (selection != null) {
-					index = addresses.indexOf(selection);
-				} else {
-					return new GeocodingResult(url);
-				}
-			}
 		}
 
-		return new GeocodingResult(url, null, cities.get(index), null,
-				states.get(index), countryCodes.get(index), null,
-				latitudes.get(index), longitudes.get(index));
+		return new GeocodingResult(url, streets.get(index), cities.get(index),
+				null, states.get(index), countryCodes.get(index),
+				postalCodes.get(index), latitudes.get(index),
+				longitudes.get(index));
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
@@ -553,39 +514,17 @@ public class GeocodingNodeModel extends NodeModel {
 		}
 
 		String fullAddress = getAddress(address, null, null, null, null, null);
-		List<String> addresses = new ArrayList<>();
+		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			addresses.add(getAddress(streets.get(i), cities.get(i),
+			choices.add(getAddress(streets.get(i), cities.get(i),
 					counties.get(i), states.get(i), DE, postalCodes.get(i)));
 		}
 
-		int index = -1;
+		int index = getIndex(fullAddress, choices);
 
-		if (n == 0) {
+		if (index == -1) {
 			return new GeocodingResult(url);
-		} else if (n == 1) {
-			index = 0;
-		} else if (n > 1) {
-			if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-				return new GeocodingResult(url);
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_USE_FIRST)) {
-				index = 0;
-			} else if (set.getMultipleResults().equals(
-					GeocodingSettings.MULTIPLE_ASK_USER)) {
-				Object selection = JOptionPane.showInputDialog(null,
-						fullAddress, "Select Best Fit",
-						JOptionPane.QUESTION_MESSAGE, null,
-						addresses.toArray(), addresses.get(0));
-
-				if (selection != null) {
-					index = addresses.indexOf(selection);
-				} else {
-					return new GeocodingResult(url);
-				}
-			}
 		}
 
 		return new GeocodingResult(url, streets.get(index), cities.get(index),
@@ -594,49 +533,68 @@ public class GeocodingNodeModel extends NodeModel {
 				longitudes.get(index));
 	}
 
-	private static String getAddress(String street, String city, String county,
-			String state, String country, String postalCode) {
-		StringBuilder s = new StringBuilder();
+	private int getIndex(String address, List<String> choices) {
+		if (choices.size() == 0) {
+			return -1;
+		} else if (choices.size() == 1) {
+			return 0;
+		} else if (set.getMultipleResults().equals(
+				GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
+			return -1;
+		} else if (set.getMultipleResults().equals(
+				GeocodingSettings.MULTIPLE_USE_FIRST)) {
+			return 0;
+		} else if (set.getMultipleResults().equals(
+				GeocodingSettings.MULTIPLE_ASK_USER)) {
+			Object selection = JOptionPane.showInputDialog(null, address,
+					"Select Best Fit", JOptionPane.QUESTION_MESSAGE, null,
+					choices.toArray(), choices.get(0));
 
-		if (!isEmpty(street)) {
-			s.append(street + ", ");
+			if (selection != null) {
+				return choices.indexOf(selection);
+			}
 		}
 
-		if (!isEmpty(city) && !isEmpty(postalCode)) {
-			s.append(postalCode + " " + city + ", ");
-		} else if (!isEmpty(city)) {
-			s.append(city + ", ");
-		} else if (!isEmpty(postalCode)) {
-			s.append(postalCode + ", ");
-		}
-
-		if (!isEmpty(county)) {
-			s.append(county + ", ");
-		}
-
-		if (!isEmpty(state)) {
-			s.append(state + ", ");
-		}
-
-		if (!isEmpty(country)) {
-			s.append(country + ", ");
-		}
-
-		if (s.length() > 2) {
-			s.delete(s.length() - 2, s.length());
-		}
-
-		return s.toString();
+		return -1;
 	}
 
-	private static boolean isEmpty(String s) {
-		return s == null || s.trim().isEmpty();
+	private static String getAddress(String street, String city, String county,
+			String state, String country, String postalCode) {
+		List<String> parts = new ArrayList<>();
+
+		if (street != null) {
+			parts.add(street);
+		}
+
+		if (city != null && postalCode != null) {
+			parts.add(postalCode + " " + city);
+		} else if (city != null) {
+			parts.add(city);
+		} else if (postalCode != null) {
+			parts.add(postalCode);
+		}
+
+		if (county != null) {
+			parts.add(county);
+		}
+
+		if (state != null) {
+			parts.add(state);
+		}
+
+		if (country != null) {
+			parts.add(country);
+		}
+
+		return Joiner.on(", ").join(parts);
 	}
 
 	private static String evaluateXPath(Document doc, String query)
 			throws XPathExpressionException {
-		return XPathFactory.newInstance().newXPath().compile(query)
+		String result = XPathFactory.newInstance().newXPath().compile(query)
 				.evaluate(doc);
+
+		return result.trim().isEmpty() ? null : result.trim();
 	}
 
 	private static NodeList evaluateXPathToNodeList(Document doc, String query)
