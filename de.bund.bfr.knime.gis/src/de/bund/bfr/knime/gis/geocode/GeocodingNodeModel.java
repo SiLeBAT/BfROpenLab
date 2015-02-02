@@ -313,7 +313,8 @@ public class GeocodingNodeModel extends NodeModel {
 	private GeocodingResult performMapQuestGeocoding(String street,
 			String city, String county, String state, String country,
 			String postalCode) throws IOException,
-			ParserConfigurationException, XPathExpressionException {
+			ParserConfigurationException, XPathExpressionException,
+			URISyntaxException, SAXException {
 		if (street == null && city == null && county == null && state == null
 				&& country == null && postalCode == null) {
 			return new GeocodingResult();
@@ -348,29 +349,14 @@ public class GeocodingNodeModel extends NodeModel {
 		json.deleteCharAt(json.length() - 1);
 		json.append("},}");
 
-		URI uri;
-
-		try {
-			uri = new URI("http", "open.mapquestapi.com",
-					"/geocoding/v1/address", "json=" + json.toString(), null);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return new GeocodingResult();
-		}
-
+		URI uri = new URI("http", "open.mapquestapi.com",
+				"/geocoding/v1/address", "json=" + json.toString(), null);
 		String url = uri.toASCIIString() + "&key=" + set.getMapQuestKey()
 				+ "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = null;
-
-		try {
-			doc = dBuilder.parse(yc.getInputStream());
-		} catch (SAXException | IOException e) {
-			return new GeocodingResult(url);
-		}
-
+		Document doc = dBuilder.parse(yc.getInputStream());
 		int n = evaluateXPathToNodeList(doc,
 				"/response/results/result/locations/location").getLength();
 		List<String> streets = new ArrayList<>();
@@ -443,7 +429,8 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private GeocodingResult performGisgraphyGeocoding(String address,
 			String countryCode) throws IOException,
-			ParserConfigurationException, XPathExpressionException {
+			ParserConfigurationException, XPathExpressionException,
+			URISyntaxException, SAXException {
 		if (address == null || countryCode == null) {
 			return new GeocodingResult();
 		}
@@ -454,28 +441,13 @@ public class GeocodingNodeModel extends NodeModel {
 				: "services.gisgraphy.com//geocoding/geocode";
 		String authority = server.substring(0, server.indexOf("/"));
 		String path = server.substring(server.indexOf("/"));
-		URI uri;
-
-		try {
-			uri = new URI("http", authority, path, "address=" + address
-					+ "&country=" + countryCode + "&postal=true", null);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return new GeocodingResult();
-		}
-
+		URI uri = new URI("http", authority, path, "address=" + address
+				+ "&country=" + countryCode + "&postal=true", null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = null;
-
-		try {
-			doc = dBuilder.parse(yc.getInputStream());
-		} catch (SAXException | IOException e) {
-			return new GeocodingResult(url);
-		}
-
+		Document doc = dBuilder.parse(yc.getInputStream());
 		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
 		List<String> cities = new ArrayList<>();
 		List<String> states = new ArrayList<>();
@@ -539,34 +511,20 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private GeocodingResult performBkgGeocoding(String address)
 			throws MalformedURLException, IOException,
-			ParserConfigurationException, XPathExpressionException {
+			ParserConfigurationException, XPathExpressionException,
+			URISyntaxException, SAXException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
 
 		String authority = "sg.geodatenzentrum.de";
 		String path = "/gdz_geokodierung__" + set.getBkgUuid() + "/geosearch";
-		URI uri;
-
-		try {
-			uri = new URI("http", authority, path, "query=" + address, null);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return new GeocodingResult();
-		}
-
+		URI uri = new URI("http", authority, path, "query=" + address, null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = null;
-
-		try {
-			doc = dBuilder.parse(yc.getInputStream());
-		} catch (SAXException | IOException e) {
-			return new GeocodingResult(url);
-		}
-
+		Document doc = dBuilder.parse(yc.getInputStream());
 		int n = evaluateXPathToNodeList(doc, "/FeatureCollection/featureMember")
 				.getLength();
 		List<String> streets = new ArrayList<>();
