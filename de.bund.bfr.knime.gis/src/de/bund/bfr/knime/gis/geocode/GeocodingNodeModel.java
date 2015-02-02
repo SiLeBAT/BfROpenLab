@@ -293,6 +293,9 @@ public class GeocodingNodeModel extends NodeModel {
 		String url = uri.toASCIIString() + "&key=" + mapQuestKey
 				+ "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
+
+		url = url.replace(mapQuestKey, "XXXXXX");
+
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(yc.getInputStream());
@@ -354,7 +357,7 @@ public class GeocodingNodeModel extends NodeModel {
 		String server = set.getServiceProvider().equals(
 				GeocodingSettings.PROVIDER_GISGRAPHY) ? set
 				.getGisgraphyServer().replace("http://", "")
-				: "services.gisgraphy.com//geocoding/geocode";
+				: "services.gisgraphy.com/geocoding/geocode";
 		String authority = server.substring(0, server.indexOf("/"));
 		String path = server.substring(server.indexOf("/"));
 		URI uri = new URI("http", authority, path, "address=" + address
@@ -422,11 +425,14 @@ public class GeocodingNodeModel extends NodeModel {
 					"UUID in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		String authority = "sg.geodatenzentrum.de";
-		String path = "/gdz_geokodierung__" + uuid + "/geosearch";
-		URI uri = new URI("http", authority, path, "query=" + address, null);
+		URI uri = new URI("http", "sg.geodatenzentrum.de",
+				"/gdz_geokodierung__" + uuid + "/geosearch",
+				"query=" + address, null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
+
+		url = url.replace(uuid, "XXXXXX");
+
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(yc.getInputStream());
