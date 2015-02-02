@@ -42,13 +42,7 @@ public class GeocodingSettings extends NodeSettings {
 
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
-	private static final String CFG_STREET_COLUMN = "StreetColumn";
-	private static final String CFG_CITY_COLUMN = "CityColumn";
-	private static final String CFG_COUNTY_COLUMN = "CountyColumn";
-	private static final String CFG_STATE_COLUMN = "StateColumn";
-	private static final String CFG_COUNTRY_COLUMN = "CountryColumn";
 	private static final String CFG_COUNTRY_CODE_COLUMN = "CountryCodeColumn";
-	private static final String CFG_POSTAL_CODE_COLUMN = "PostalCodeColumn";
 	private static final String CFG_MAP_QUEST_KEY = "MapQuestKey";
 	private static final String CFG_GISGRAPHY_SERVER = "GisgraphyServer";
 	private static final String CFG_BKG_UUID = "BKG UUID";
@@ -57,13 +51,7 @@ public class GeocodingSettings extends NodeSettings {
 
 	private String serviceProvider;
 	private String addressColumn;
-	private String streetColumn;
-	private String cityColumn;
-	private String countyColumn;
-	private String stateColumn;
-	private String countryColumn;
 	private String countryCodeColumn;
-	private String postalCodeColumn;
 	private String mapQuestKey;
 	private String gisgraphyServer;
 	private String bkgUuid;
@@ -73,13 +61,7 @@ public class GeocodingSettings extends NodeSettings {
 	public GeocodingSettings() {
 		serviceProvider = PROVIDER_MAPQUEST;
 		addressColumn = null;
-		streetColumn = null;
-		cityColumn = null;
-		countyColumn = null;
-		stateColumn = null;
-		countryColumn = null;
 		countryCodeColumn = null;
-		postalCodeColumn = null;
 		mapQuestKey = null;
 		gisgraphyServer = null;
 		bkgUuid = null;
@@ -100,37 +82,7 @@ public class GeocodingSettings extends NodeSettings {
 		}
 
 		try {
-			streetColumn = settings.getString(CFG_STREET_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			cityColumn = settings.getString(CFG_CITY_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			countyColumn = settings.getString(CFG_COUNTY_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			stateColumn = settings.getString(CFG_STATE_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			countryColumn = settings.getString(CFG_COUNTRY_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			countryCodeColumn = settings.getString(CFG_COUNTRY_CODE_COLUMN);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			postalCodeColumn = settings.getString(CFG_POSTAL_CODE_COLUMN);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -164,13 +116,7 @@ public class GeocodingSettings extends NodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_SERVICE_PROVIDER, serviceProvider);
 		settings.addString(CFG_ADDRESS_COLUMN, addressColumn);
-		settings.addString(CFG_STREET_COLUMN, streetColumn);
-		settings.addString(CFG_CITY_COLUMN, cityColumn);
-		settings.addString(CFG_COUNTY_COLUMN, countyColumn);
-		settings.addString(CFG_STATE_COLUMN, stateColumn);
-		settings.addString(CFG_COUNTRY_COLUMN, countryColumn);
 		settings.addString(CFG_COUNTRY_CODE_COLUMN, countryCodeColumn);
-		settings.addString(CFG_POSTAL_CODE_COLUMN, postalCodeColumn);
 		settings.addString(CFG_MAP_QUEST_KEY, mapQuestKey);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
 		settings.addString(CFG_BKG_UUID, bkgUuid);
@@ -194,60 +140,12 @@ public class GeocodingSettings extends NodeSettings {
 		this.addressColumn = addressColumn;
 	}
 
-	public String getStreetColumn() {
-		return streetColumn;
-	}
-
-	public void setStreetColumn(String streetColumn) {
-		this.streetColumn = streetColumn;
-	}
-
-	public String getCityColumn() {
-		return cityColumn;
-	}
-
-	public void setCityColumn(String cityColumn) {
-		this.cityColumn = cityColumn;
-	}
-
-	public String getCountyColumn() {
-		return countyColumn;
-	}
-
-	public void setCountyColumn(String countyColumn) {
-		this.countyColumn = countyColumn;
-	}
-
-	public String getStateColumn() {
-		return stateColumn;
-	}
-
-	public void setStateColumn(String stateColumn) {
-		this.stateColumn = stateColumn;
-	}
-
-	public String getCountryColumn() {
-		return countryColumn;
-	}
-
-	public void setCountryColumn(String countryColumn) {
-		this.countryColumn = countryColumn;
-	}
-
 	public String getCountryCodeColumn() {
 		return countryCodeColumn;
 	}
 
 	public void setCountryCodeColumn(String countryCodeColumn) {
 		this.countryCodeColumn = countryCodeColumn;
-	}
-
-	public String getPostalCodeColumn() {
-		return postalCodeColumn;
-	}
-
-	public void setPostalCodeColumn(String postalCodeColumn) {
-		this.postalCodeColumn = postalCodeColumn;
 	}
 
 	public String getMapQuestKey() {

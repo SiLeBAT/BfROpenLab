@@ -112,62 +112,24 @@ public class GeocodingNodeModel extends NodeModel {
 			}
 
 			int addressIndex = spec.findColumnIndex(set.getAddressColumn());
-			int streetIndex = spec.findColumnIndex(set.getStreetColumn());
-			int cityIndex = spec.findColumnIndex(set.getCityColumn());
-			int countyIndex = spec.findColumnIndex(set.getCountyColumn());
-			int stateIndex = spec.findColumnIndex(set.getStateColumn());
-			int countryIndex = spec.findColumnIndex(set.getCountryColumn());
 			int countryCodeIndex = spec.findColumnIndex(set
 					.getCountryCodeColumn());
-			int postalCodeIndex = spec.findColumnIndex(set
-					.getPostalCodeColumn());
 			String address = null;
-			String street = null;
-			String city = null;
-			String county = null;
-			String state = null;
-			String country = null;
 			String countryCode = null;
-			String postalCode = null;
 
 			if (addressIndex != -1) {
 				address = IO.getCleanString(row.getCell(addressIndex));
-			}
-
-			if (streetIndex != -1) {
-				street = IO.getCleanString(row.getCell(streetIndex));
-			}
-
-			if (cityIndex != -1) {
-				city = IO.getCleanString(row.getCell(cityIndex));
-			}
-
-			if (countyIndex != -1) {
-				county = IO.getCleanString(row.getCell(countyIndex));
-			}
-
-			if (stateIndex != -1) {
-				state = IO.getCleanString(row.getCell(stateIndex));
-			}
-
-			if (countryIndex != -1) {
-				country = IO.getCleanString(row.getCell(countryIndex));
 			}
 
 			if (countryCodeIndex != -1) {
 				countryCode = IO.getCleanString(row.getCell(countryCodeIndex));
 			}
 
-			if (postalCodeIndex != -1) {
-				postalCode = IO.getCleanString(row.getCell(postalCodeIndex));
-			}
-
 			GeocodingResult result = null;
 
 			if (set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_MAPQUEST)) {
-				result = performMapQuestGeocoding(street, city, county, state,
-						country, postalCode);
+				result = performMapQuestGeocoding(address);
 			} else if (set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
 					|| set.getServiceProvider().equals(
@@ -309,47 +271,15 @@ public class GeocodingNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private GeocodingResult performMapQuestGeocoding(String street,
-			String city, String county, String state, String country,
-			String postalCode) throws IOException,
-			ParserConfigurationException, XPathExpressionException,
-			URISyntaxException, SAXException {
-		if (street == null && city == null && county == null && state == null
-				&& country == null && postalCode == null) {
+	private GeocodingResult performMapQuestGeocoding(String address)
+			throws IOException, ParserConfigurationException,
+			XPathExpressionException, URISyntaxException, SAXException {
+		if (address == null) {
 			return new GeocodingResult();
 		}
 
-		StringBuilder json = new StringBuilder("{\"location\":{");
-
-		if (street != null) {
-			json.append("\"street\":\"" + street + "\",");
-		}
-
-		if (city != null) {
-			json.append("\"city\":\"" + city + "\",");
-		}
-
-		if (county != null) {
-			json.append("\"county\":\"" + county + "\",");
-		}
-
-		if (state != null) {
-			json.append("\"state\":\"" + state + "\",");
-		}
-
-		if (country != null) {
-			json.append("\"country\":\"" + country + "\",");
-		}
-
-		if (postalCode != null) {
-			json.append("\"postalCode\":\"" + postalCode + "\",");
-		}
-
-		json.deleteCharAt(json.length() - 1);
-		json.append("},}");
-
 		URI uri = new URI("http", "open.mapquestapi.com",
-				"/geocoding/v1/address", "json=" + json.toString(), null);
+				"/geocoding/v1/address", "location=" + address, null);
 		String url = uri.toASCIIString() + "&key=" + set.getMapQuestKey()
 				+ "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
@@ -383,8 +313,6 @@ public class GeocodingNodeModel extends NodeModel {
 					+ "/latLng/lng")));
 		}
 
-		String fullAddress = getAddress(street, city, county, state, country,
-				postalCode);
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -393,7 +321,7 @@ public class GeocodingNodeModel extends NodeModel {
 					postalCodes.get(i)));
 		}
 
-		int index = getIndex(fullAddress, choices);
+		int index = getIndex(address, choices);
 
 		if (index == -1) {
 			return new GeocodingResult(url);
@@ -449,8 +377,6 @@ public class GeocodingNodeModel extends NodeModel {
 					+ "/lng")));
 		}
 
-		String fullAddress = getAddress(address, null, null, null, countryCode,
-				null);
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -458,7 +384,7 @@ public class GeocodingNodeModel extends NodeModel {
 					states.get(i), countryCodes.get(i), postalCodes.get(i)));
 		}
 
-		int index = getIndex(fullAddress, choices);
+		int index = getIndex(address + ", " + countryCode, choices);
 
 		if (index == -1) {
 			return new GeocodingResult(url);
@@ -513,7 +439,6 @@ public class GeocodingNodeModel extends NodeModel {
 			longitudes.add(Double.parseDouble(pos[0]));
 		}
 
-		String fullAddress = getAddress(address, null, null, null, null, null);
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -521,7 +446,7 @@ public class GeocodingNodeModel extends NodeModel {
 					counties.get(i), states.get(i), DE, postalCodes.get(i)));
 		}
 
-		int index = getIndex(fullAddress, choices);
+		int index = getIndex(address, choices);
 
 		if (index == -1) {
 			return new GeocodingResult(url);
