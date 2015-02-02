@@ -30,8 +30,9 @@ public class GeocodingSettings extends NodeSettings {
 	public static final String PROVIDER_MAPQUEST = "MapQuest";
 	public static final String PROVIDER_GISGRAPHY_PUBLIC = "Gisgraphy Public Server";
 	public static final String PROVIDER_GISGRAPHY = "Gisgraphy";
+	public static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
 	public static final String[] PROVIDER_CHOICES = { PROVIDER_MAPQUEST,
-			PROVIDER_GISGRAPHY_PUBLIC, PROVIDER_GISGRAPHY };
+			PROVIDER_GISGRAPHY_PUBLIC, PROVIDER_GISGRAPHY, PROVIDER_BKG };
 
 	public static final String MULTIPLE_DO_NOT_USE = "Do not use";
 	public static final String MULTIPLE_USE_FIRST = "Use first";
@@ -50,6 +51,7 @@ public class GeocodingSettings extends NodeSettings {
 	private static final String CFG_POSTAL_CODE_COLUMN = "PostalCodeColumn";
 	private static final String CFG_MAP_QUEST_KEY = "MapQuestKey";
 	private static final String CFG_GISGRAPHY_SERVER = "GisgraphyServer";
+	private static final String CFG_BKG_UUID = "BKG UUID";
 	private static final String CFG_REQUEST_DELAY = "RequestDelay";
 	private static final String CFG_MULTIPLE_RESULTS = "UseMultiple";
 
@@ -64,6 +66,7 @@ public class GeocodingSettings extends NodeSettings {
 	private String postalCodeColumn;
 	private String mapQuestKey;
 	private String gisgraphyServer;
+	private String bkgUuid;
 	private int requestDelay;
 	private String multipleResults;
 
@@ -79,6 +82,7 @@ public class GeocodingSettings extends NodeSettings {
 		postalCodeColumn = null;
 		mapQuestKey = null;
 		gisgraphyServer = null;
+		bkgUuid = null;
 		requestDelay = 500;
 		multipleResults = MULTIPLE_DO_NOT_USE;
 	}
@@ -141,6 +145,11 @@ public class GeocodingSettings extends NodeSettings {
 		}
 
 		try {
+			bkgUuid = settings.getString(CFG_BKG_UUID);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			requestDelay = settings.getInt(CFG_REQUEST_DELAY);
 		} catch (InvalidSettingsException e) {
 		}
@@ -164,6 +173,7 @@ public class GeocodingSettings extends NodeSettings {
 		settings.addString(CFG_POSTAL_CODE_COLUMN, postalCodeColumn);
 		settings.addString(CFG_MAP_QUEST_KEY, mapQuestKey);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
+		settings.addString(CFG_BKG_UUID, bkgUuid);
 		settings.addInt(CFG_REQUEST_DELAY, requestDelay);
 		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults);
 	}
@@ -254,6 +264,14 @@ public class GeocodingSettings extends NodeSettings {
 
 	public void setGisgraphyServer(String gisgraphyServer) {
 		this.gisgraphyServer = gisgraphyServer;
+	}
+
+	public String getBkgUuid() {
+		return bkgUuid;
+	}
+
+	public void setBkgUuid(String bkgUuid) {
+		this.bkgUuid = bkgUuid;
 	}
 
 	public int getRequestDelay() {

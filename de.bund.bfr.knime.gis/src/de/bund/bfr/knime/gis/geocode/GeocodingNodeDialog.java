@@ -58,6 +58,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	private ColumnComboBox addressBox;
 	private ColumnComboBox countryCodeBox;
 	private JTextField serverField;
+	private JTextField uuidField;
 
 	private ColumnComboBox streetBox;
 	private ColumnComboBox cityBox;
@@ -82,6 +83,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		addressBox = new ColumnComboBox(false);
 		countryCodeBox = new ColumnComboBox(false);
 		serverField = new JTextField();
+		uuidField = new JTextField();
 
 		streetBox = new ColumnComboBox(true);
 		cityBox = new ColumnComboBox(true);
@@ -132,6 +134,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
 		serverField.setText(set.getGisgraphyServer() != null ? set
 				.getGisgraphyServer() : "");
+		uuidField.setText(set.getBkgUuid() != null ? set.getBkgUuid() : "");
 
 		streetBox.setSelectedColumnName(set.getStreetColumn());
 		cityBox.setSelectedColumnName(set.getCityColumn());
@@ -205,6 +208,18 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 			set.setAddressColumn(addressBox.getSelectedColumnName());
 			set.setCountryCodeColumn(countryCodeBox.getSelectedColumnName());
 			set.setGisgraphyServer(serverField.getText().trim());
+		} else if (set.getServiceProvider().equals(
+				GeocodingSettings.PROVIDER_BKG)) {
+			if (addressBox.getSelectedColumnName() == null) {
+				throw new InvalidSettingsException("No Address specified");
+			}
+
+			if (uuidField.getText().trim().isEmpty()) {
+				throw new InvalidSettingsException("No UUID specified");
+			}
+
+			set.setAddressColumn(addressBox.getSelectedColumnName());
+			set.setBkgUuid(uuidField.getText().trim());
 		}
 
 		set.saveSettings(settings);
@@ -247,6 +262,15 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 							"Delay between Request:"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
 					serverField, delayField, multipleBox)));
+		} else if (provider.equals(GeocodingSettings.PROVIDER_BKG)) {
+			panel.add(UI.createOptionsPanel("Addresses",
+					Arrays.asList(new JLabel("Address:")),
+					Arrays.asList(addressBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
+					new JLabel("BKG UUID:"), new JLabel(
+							"Delay between Request:"), new JLabel(
+							"When multiple Results:")), Arrays.asList(
+					uuidField, delayField, multipleBox)));
 		}
 
 		panel.revalidate();

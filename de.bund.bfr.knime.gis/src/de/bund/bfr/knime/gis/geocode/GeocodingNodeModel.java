@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.geocode;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,7 +33,6 @@ import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -77,6 +77,8 @@ public class GeocodingNodeModel extends NodeModel {
 	public static final String POSTAL_CODE_COLUMN = "GeocodingPostalCode";
 	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
 	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+
+	private static final String DE = "DE";
 
 	private GeocodingSettings set;
 
@@ -169,6 +171,9 @@ public class GeocodingNodeModel extends NodeModel {
 					|| set.getServiceProvider().equals(
 							GeocodingSettings.PROVIDER_GISGRAPHY)) {
 				result = performGisgraphyGeocoding(address, countryCode);
+			} else if (set.getServiceProvider().equals(
+					GeocodingSettings.PROVIDER_BKG)) {
+				result = performBkgGeocoding(address);
 			}
 
 			if (result != null) {
@@ -366,10 +371,8 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		int n = ((NodeList) xPath.compile(
-				"/response/results/result/locations/location").evaluate(doc,
-				XPathConstants.NODESET)).getLength();
+		int n = evaluateXPathToNodeList(doc,
+				"/response/results/result/locations/location").getLength();
 		List<String> streets = new ArrayList<>();
 		List<String> cities = new ArrayList<>();
 		List<String> counties = new ArrayList<>();
@@ -380,31 +383,19 @@ public class GeocodingNodeModel extends NodeModel {
 		List<Double> longitudes = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			streets.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/street").evaluate(doc));
-			cities.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/adminArea5").evaluate(doc));
-			counties.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/adminArea4").evaluate(doc));
-			states.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/adminArea3").evaluate(doc));
-			countries.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/adminArea1").evaluate(doc));
-			postalCodes.add(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/postalCode").evaluate(doc));
-			latitudes.add(Double.parseDouble(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/latLng/lat").evaluate(doc)));
-			longitudes.add(Double.parseDouble(xPath.compile(
-					"/response/results/result/locations/location[" + (i + 1)
-							+ "]/latLng/lng").evaluate(doc)));
+			String location = "/response/results/result/locations/location["
+					+ (i + 1) + "]";
 
+			streets.add(evaluateXPath(doc, location + "/street"));
+			cities.add(evaluateXPath(doc, location + "/adminArea5"));
+			counties.add(evaluateXPath(doc, location + "/adminArea4"));
+			states.add(evaluateXPath(doc, location + "/adminArea3"));
+			countries.add(evaluateXPath(doc, location + "/adminArea1"));
+			postalCodes.add(evaluateXPath(doc, location + "/postalCode"));
+			latitudes.add(Double.parseDouble(evaluateXPath(doc, location
+					+ "/latLng/lat")));
+			longitudes.add(Double.parseDouble(evaluateXPath(doc, location
+					+ "/latLng/lng")));
 		}
 
 		String address = getAddress(street, city, county, state, country,
@@ -485,9 +476,7 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		int n = ((NodeList) xPath.compile("/results/result").evaluate(doc,
-				XPathConstants.NODESET)).getLength();
+		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
 		List<String> cities = new ArrayList<>();
 		List<String> states = new ArrayList<>();
 		List<String> countryCodes = new ArrayList<>();
@@ -495,17 +484,15 @@ public class GeocodingNodeModel extends NodeModel {
 		List<Double> longitudes = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			cities.add(xPath.compile("/results/result[" + (i + 1) + "]/city")
-					.evaluate(doc));
-			states.add(xPath.compile("/results/result[" + (i + 1) + "]/state")
-					.evaluate(doc));
-			countryCodes.add(xPath.compile(
-					"/results/result[" + (i + 1) + "]/countryCode").evaluate(
-					doc));
-			latitudes.add(Double.parseDouble(xPath.compile(
-					"/results/result[" + (i + 1) + "]/lat").evaluate(doc)));
-			longitudes.add(Double.parseDouble(xPath.compile(
-					"/results/result[" + (i + 1) + "]/lng").evaluate(doc)));
+			String location = "/results/result[" + (i + 1) + "]";
+
+			cities.add(evaluateXPath(doc, location + "/city"));
+			states.add(evaluateXPath(doc, location + "/state"));
+			countryCodes.add(evaluateXPath(doc, location + "/countryCode"));
+			latitudes.add(Double.parseDouble(evaluateXPath(doc, location
+					+ "/lat")));
+			longitudes.add(Double.parseDouble(evaluateXPath(doc, location
+					+ "/lng")));
 		}
 
 		String fullAddress = getAddress(address, null, null, null, countryCode,
@@ -550,6 +537,105 @@ public class GeocodingNodeModel extends NodeModel {
 				latitudes.get(index), longitudes.get(index));
 	}
 
+	private GeocodingResult performBkgGeocoding(String address)
+			throws MalformedURLException, IOException,
+			ParserConfigurationException, XPathExpressionException {
+		if (address == null) {
+			return new GeocodingResult();
+		}
+
+		String authority = "sg.geodatenzentrum.de";
+		String path = "/gdz_geokodierung__" + set.getBkgUuid() + "/geosearch";
+		URI uri;
+
+		try {
+			uri = new URI("http", authority, path, "query=" + address, null);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return new GeocodingResult();
+		}
+
+		String url = uri.toASCIIString();
+		URLConnection yc = new URL(url).openConnection();
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = null;
+
+		try {
+			doc = dBuilder.parse(yc.getInputStream());
+		} catch (SAXException | IOException e) {
+			return new GeocodingResult(url);
+		}
+
+		int n = evaluateXPathToNodeList(doc, "/FeatureCollection/featureMember")
+				.getLength();
+		List<String> streets = new ArrayList<>();
+		List<String> cities = new ArrayList<>();
+		List<String> counties = new ArrayList<>();
+		List<String> states = new ArrayList<>();
+		List<String> postalCodes = new ArrayList<>();
+		List<Double> latitudes = new ArrayList<>();
+		List<Double> longitudes = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			String location = "/FeatureCollection/featureMember[" + (i + 1)
+					+ "]/Ortsangabe";
+
+			streets.add(evaluateXPath(doc, location + "/strasse"));
+			cities.add(evaluateXPath(doc, location + "/ort"));
+			counties.add(evaluateXPath(doc, location + "/kreis"));
+			states.add(evaluateXPath(doc, location + "/bundesland"));
+			postalCodes.add(evaluateXPath(doc, location + "/plz"));
+
+			String[] pos = evaluateXPath(doc, location + "/geometry/Point/pos")
+					.split(" ");
+
+			latitudes.add(Double.parseDouble(pos[1]));
+			longitudes.add(Double.parseDouble(pos[0]));
+		}
+
+		String fullAddress = getAddress(address, null, null, null, null, null);
+		List<String> addresses = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			addresses.add(getAddress(streets.get(i), cities.get(i),
+					counties.get(i), states.get(i), DE, postalCodes.get(i)));
+		}
+
+		int index = -1;
+
+		if (n == 0) {
+			return new GeocodingResult(url);
+		} else if (n == 1) {
+			index = 0;
+		} else if (n > 1) {
+			if (set.getMultipleResults().equals(
+					GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
+				return new GeocodingResult(url);
+			} else if (set.getMultipleResults().equals(
+					GeocodingSettings.MULTIPLE_USE_FIRST)) {
+				index = 0;
+			} else if (set.getMultipleResults().equals(
+					GeocodingSettings.MULTIPLE_ASK_USER)) {
+				Object selection = JOptionPane.showInputDialog(null,
+						fullAddress, "Select Best Fit",
+						JOptionPane.QUESTION_MESSAGE, null,
+						addresses.toArray(), addresses.get(0));
+
+				if (selection != null) {
+					index = addresses.indexOf(selection);
+				} else {
+					return new GeocodingResult(url);
+				}
+			}
+		}
+
+		return new GeocodingResult(url, streets.get(index), cities.get(index),
+				counties.get(index), states.get(index), DE,
+				postalCodes.get(index), latitudes.get(index),
+				longitudes.get(index));
+	}
+
 	private static String getAddress(String street, String city, String county,
 			String state, String country, String postalCode) {
 		StringBuilder s = new StringBuilder();
@@ -587,6 +673,18 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private static boolean isEmpty(String s) {
 		return s == null || s.trim().isEmpty();
+	}
+
+	private static String evaluateXPath(Document doc, String query)
+			throws XPathExpressionException {
+		return XPathFactory.newInstance().newXPath().compile(query)
+				.evaluate(doc);
+	}
+
+	private static NodeList evaluateXPathToNodeList(Document doc, String query)
+			throws XPathExpressionException {
+		return (NodeList) XPathFactory.newInstance().newXPath().compile(query)
+				.evaluate(doc, XPathConstants.NODESET);
 	}
 
 	private static class GeocodingResult {
