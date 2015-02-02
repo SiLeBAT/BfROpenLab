@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis;
 
-import org.eclipse.core.runtime.Plugin;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
  * 
  * @author Christian Thoens
  */
-public class Activator extends Plugin {
+public class Activator extends AbstractUIPlugin {
 	// The shared instance.
 	private static Activator plugin;
 

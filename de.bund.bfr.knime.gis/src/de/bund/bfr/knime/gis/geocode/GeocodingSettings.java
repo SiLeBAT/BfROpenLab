@@ -43,18 +43,14 @@ public class GeocodingSettings extends NodeSettings {
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
 	private static final String CFG_COUNTRY_CODE_COLUMN = "CountryCodeColumn";
-	private static final String CFG_MAP_QUEST_KEY = "MapQuestKey";
 	private static final String CFG_GISGRAPHY_SERVER = "GisgraphyServer";
-	private static final String CFG_BKG_UUID = "BKG UUID";
 	private static final String CFG_REQUEST_DELAY = "RequestDelay";
 	private static final String CFG_MULTIPLE_RESULTS = "UseMultiple";
 
 	private String serviceProvider;
 	private String addressColumn;
 	private String countryCodeColumn;
-	private String mapQuestKey;
 	private String gisgraphyServer;
-	private String bkgUuid;
 	private int requestDelay;
 	private String multipleResults;
 
@@ -62,9 +58,7 @@ public class GeocodingSettings extends NodeSettings {
 		serviceProvider = PROVIDER_MAPQUEST;
 		addressColumn = null;
 		countryCodeColumn = null;
-		mapQuestKey = null;
 		gisgraphyServer = null;
-		bkgUuid = null;
 		requestDelay = 500;
 		multipleResults = MULTIPLE_DO_NOT_USE;
 	}
@@ -87,17 +81,7 @@ public class GeocodingSettings extends NodeSettings {
 		}
 
 		try {
-			mapQuestKey = settings.getString(CFG_MAP_QUEST_KEY);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			gisgraphyServer = settings.getString(CFG_GISGRAPHY_SERVER);
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			bkgUuid = settings.getString(CFG_BKG_UUID);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -117,9 +101,7 @@ public class GeocodingSettings extends NodeSettings {
 		settings.addString(CFG_SERVICE_PROVIDER, serviceProvider);
 		settings.addString(CFG_ADDRESS_COLUMN, addressColumn);
 		settings.addString(CFG_COUNTRY_CODE_COLUMN, countryCodeColumn);
-		settings.addString(CFG_MAP_QUEST_KEY, mapQuestKey);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
-		settings.addString(CFG_BKG_UUID, bkgUuid);
 		settings.addInt(CFG_REQUEST_DELAY, requestDelay);
 		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults);
 	}
@@ -148,28 +130,12 @@ public class GeocodingSettings extends NodeSettings {
 		this.countryCodeColumn = countryCodeColumn;
 	}
 
-	public String getMapQuestKey() {
-		return mapQuestKey;
-	}
-
-	public void setMapQuestKey(String mapQuestKey) {
-		this.mapQuestKey = mapQuestKey;
-	}
-
 	public String getGisgraphyServer() {
 		return gisgraphyServer;
 	}
 
 	public void setGisgraphyServer(String gisgraphyServer) {
 		this.gisgraphyServer = gisgraphyServer;
-	}
-
-	public String getBkgUuid() {
-		return bkgUuid;
-	}
-
-	public void setBkgUuid(String bkgUuid) {
-		this.bkgUuid = bkgUuid;
 	}
 
 	public int getRequestDelay() {

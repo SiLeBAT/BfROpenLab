@@ -10,10 +10,17 @@
 	<fullDescription>
 		<intro>
 			This node provides latitude and longitude for given addresses by using the MapQuest Open
-			Geocoding API or an installation of the Gisgraphy Geocoder.
+			Geocoding API or an installation of the Gisgraphy Geocoder. The services from MapQuest and
+			"Bundesamt für Kartographie und Geodäsie" require a key/UUID, which have to be entered in the
+			KNIME preferences under KNIME->Geocoding. The MapQuest key can be obtained from
+			http://developer.mapquest.com/web/info/account/app-keys. Please contact the "Bundesamt für
+			Kartographie und Geodäsie" to get the UUID for its service "gdz_geokodierung".
 		</intro>
 
 		<tab name="Common">
+			<option name="Address">
+				The address that should be geocoded.
+			</option>
 			<option name="Delay between Request">
 				Some services enforce a request rate for the Geocoding. To satisfy this rate,
 				the user can specify the delay between two request.
@@ -23,20 +30,7 @@
 				options are provided on how to perform in this case.
 			</option>
 		</tab>
-		<tab name="Mapquest">
-			<option name="Address">
-				Different parts of the address have to be in seperate columns. At least one
-				the following columns must be provided: Street, City, County, State, Country, Postal Code.
-			</option>
-			<option name="MapQuest Key">
-				The Application Key from MapQuest. Can be obtained from
-				"http://developer.mapquest.com/web/info/account/app-keys".
-			</option>
-		</tab>
 		<tab name="Gisgraphy">
-			<option name="Address">
-				The address that should be geocoded.
-			</option>
 			<option name="Country Code">
 				The mandatory country code (ISO 3166-1 alpha-2).
 			</option>

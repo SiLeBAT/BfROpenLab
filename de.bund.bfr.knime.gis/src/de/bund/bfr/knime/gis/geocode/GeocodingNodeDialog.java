@@ -58,8 +58,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	private ColumnComboBox addressBox;
 	private ColumnComboBox countryCodeBox;
 	private JTextField serverField;
-	private JTextField uuidField;
-	private JTextField keyField;
 
 	private JPanel panel;
 
@@ -76,8 +74,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		addressBox = new ColumnComboBox(false);
 		countryCodeBox = new ColumnComboBox(false);
 		serverField = new JTextField();
-		uuidField = new JTextField();
-		keyField = new JTextField();
 
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -106,9 +102,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
 		serverField.setText(set.getGisgraphyServer() != null ? set
 				.getGisgraphyServer() : "");
-		uuidField.setText(set.getBkgUuid() != null ? set.getBkgUuid() : "");
-		keyField.setText(set.getMapQuestKey() != null ? set.getMapQuestKey()
-				: "");
 
 		updatePanel();
 	}
@@ -135,14 +128,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		set.setRequestDelay(Integer.parseInt(delayField.getText()));
 		set.setMultipleResults((String) multipleBox.getSelectedItem());
 
-		if (set.getServiceProvider()
-				.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
-			if (keyField.getText().trim().isEmpty()) {
-				throw new InvalidSettingsException("No MapQuest Key specified");
-			}
-
-			set.setMapQuestKey(keyField.getText().trim());
-		} else if (set.getServiceProvider().equals(
+		if (set.getServiceProvider().equals(
 				GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
 				|| set.getServiceProvider().equals(
 						GeocodingSettings.PROVIDER_GISGRAPHY)) {
@@ -158,13 +144,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 
 			set.setCountryCodeColumn(countryCodeBox.getSelectedColumnName());
 			set.setGisgraphyServer(serverField.getText().trim());
-		} else if (set.getServiceProvider().equals(
-				GeocodingSettings.PROVIDER_BKG)) {
-			if (uuidField.getText().trim().isEmpty()) {
-				throw new InvalidSettingsException("No UUID specified");
-			}
-
-			set.setBkgUuid(uuidField.getText().trim());
 		}
 
 		set.saveSettings(settings);
@@ -183,9 +162,8 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("MapQuest Key:"), new JLabel(
-							"Delay between Request:"), new JLabel(
-							"When multiple Results:")), Arrays.asList(keyField,
+					new JLabel("Delay between Request:"), new JLabel(
+							"When multiple Results:")), Arrays.asList(
 					delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)) {
 			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
@@ -209,10 +187,9 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("BKG UUID:"), new JLabel(
-							"Delay between Request:"), new JLabel(
+					new JLabel("Delay between Request:"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
-					uuidField, delayField, multipleBox)));
+					delayField, multipleBox)));
 		}
 
 		panel.revalidate();

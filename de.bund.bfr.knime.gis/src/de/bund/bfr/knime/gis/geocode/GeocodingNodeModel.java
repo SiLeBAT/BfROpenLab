@@ -61,6 +61,7 @@ import org.xml.sax.SAXException;
 import com.google.common.base.Joiner;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.gis.Activator;
 
 /**
  * This is the model implementation of Geocoding.
@@ -273,14 +274,23 @@ public class GeocodingNodeModel extends NodeModel {
 
 	private GeocodingResult performMapQuestGeocoding(String address)
 			throws IOException, ParserConfigurationException,
-			XPathExpressionException, URISyntaxException, SAXException {
+			XPathExpressionException, URISyntaxException, SAXException,
+			InvalidSettingsException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
 
+		String mapQuestKey = Activator.getDefault().getPreferenceStore()
+				.getString(GeocodingPreferencePage.MAPQUEST_KEY);
+
+		if (mapQuestKey == null || mapQuestKey.isEmpty()) {
+			throw new InvalidSettingsException(
+					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
+		}
+
 		URI uri = new URI("http", "open.mapquestapi.com",
 				"/geocoding/v1/address", "location=" + address, null);
-		String url = uri.toASCIIString() + "&key=" + set.getMapQuestKey()
+		String url = uri.toASCIIString() + "&key=" + mapQuestKey
 				+ "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -399,13 +409,21 @@ public class GeocodingNodeModel extends NodeModel {
 	private GeocodingResult performBkgGeocoding(String address)
 			throws MalformedURLException, IOException,
 			ParserConfigurationException, XPathExpressionException,
-			URISyntaxException, SAXException {
+			URISyntaxException, SAXException, InvalidSettingsException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
 
+		String uuid = Activator.getDefault().getPreferenceStore()
+				.getString(GeocodingPreferencePage.BKG_UUID);
+
+		if (uuid == null || uuid.isEmpty()) {
+			throw new InvalidSettingsException(
+					"UUID in preferences missing. Please enter it under KNIME->Geocoding.");
+		}
+
 		String authority = "sg.geodatenzentrum.de";
-		String path = "/gdz_geokodierung__" + set.getBkgUuid() + "/geosearch";
+		String path = "/gdz_geokodierung__" + uuid + "/geosearch";
 		URI uri = new URI("http", authority, path, "query=" + address, null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
