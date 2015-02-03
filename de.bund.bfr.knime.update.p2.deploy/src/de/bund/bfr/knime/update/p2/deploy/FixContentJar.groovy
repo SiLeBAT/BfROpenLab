@@ -27,6 +27,7 @@ class FixContentJar {
 
 	static String CATEGORY = "bfropenlab"
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
+	//static String UPDATE_SITE = "../../Other/de.bund.bfr.knime.flink.update.p2"
 
 	static String CONTENT_JAR = "content.jar"
 	static String CONTENT_XML = "content.xml"
