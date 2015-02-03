@@ -153,17 +153,17 @@ public class FittingNodeModel extends NodeModel implements
 			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO
 					.createCell(id);
 			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO
-					.createCell(result.getSSE());
+					.createCell(result.getSse());
 			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO
-					.createCell(result.getMSE());
+					.createCell(result.getMse());
 			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO
-					.createCell(result.getRMSE());
+					.createCell(result.getRmse());
 			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO
 					.createCell(result.getR2());
 			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO
-					.createCell(result.getAIC());
+					.createCell(result.getAic());
 			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
-					.createCell(result.getDOF());
+					.createCell(result.getDegreesOfFreedom());
 
 			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam)
 					+ "", paramCells));

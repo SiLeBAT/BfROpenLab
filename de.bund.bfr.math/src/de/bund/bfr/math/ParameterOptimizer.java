@@ -67,7 +67,7 @@ public class ParameterOptimizer {
 	private Double rmse;
 	private Double r2;
 	private Double aic;
-	private Integer dof;
+	private Integer degreesOfFreedom;
 
 	private List<ProgressListener> progressListeners;
 
@@ -271,7 +271,7 @@ public class ParameterOptimizer {
 						break;
 					}
 
-					if (r2 != null && r2 != 0.0) {
+					if (r2 != null && r2 > 0.0) {
 						successful = true;
 
 						if (stopWhenSuccessful) {
@@ -314,15 +314,15 @@ public class ParameterOptimizer {
 		return covariances;
 	}
 
-	public Double getSSE() {
+	public Double getSse() {
 		return sse;
 	}
 
-	public Double getMSE() {
+	public Double getMse() {
 		return mse;
 	}
 
-	public Double getRMSE() {
+	public Double getRmse() {
 		return rmse;
 	}
 
@@ -330,12 +330,12 @@ public class ParameterOptimizer {
 		return r2;
 	}
 
-	public Double getAIC() {
+	public Double getAic() {
 		return aic;
 	}
 
-	public Integer getDOF() {
-		return dof;
+	public Integer getDegreesOfFreedom() {
+		return degreesOfFreedom;
 	}
 
 	private void optimize(double[] startValues) {
@@ -353,7 +353,7 @@ public class ParameterOptimizer {
 	private void useCurrentResults() {
 		resetResults();
 		sse = optimizer.getChiSquare();
-		dof = targetValues.length - parameters.length;
+		degreesOfFreedom = targetValues.length - parameters.length;
 		r2 = MathUtils.getR2(sse, targetValues);
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
@@ -361,11 +361,11 @@ public class ParameterOptimizer {
 			parameterValues.put(parameters[i], optimizerValues.getPoint()[i]);
 		}
 
-		if (dof <= 0) {
+		if (degreesOfFreedom <= 0) {
 			return;
 		}
 
-		mse = sse / dof;
+		mse = sse / degreesOfFreedom;
 		rmse = Math.sqrt(mse);
 
 		double[][] covMatrix;
@@ -377,7 +377,7 @@ public class ParameterOptimizer {
 			return;
 		}
 
-		double factor = optimizer.getChiSquare() / dof;
+		double factor = optimizer.getChiSquare() / degreesOfFreedom;
 
 		parameterStandardErrors = new LinkedHashMap<>();
 		parameterTValues = new LinkedHashMap<>();
@@ -393,7 +393,7 @@ public class ParameterOptimizer {
 
 			parameterTValues.put(parameters[i], tValue);
 			parameterPValues.put(parameters[i],
-					MathUtils.getPValue(tValue, dof));
+					MathUtils.getPValue(tValue, degreesOfFreedom));
 		}
 
 		for (int i = 0; i < parameters.length; i++) {
@@ -418,7 +418,7 @@ public class ParameterOptimizer {
 		rmse = null;
 		r2 = null;
 		aic = null;
-		dof = null;
+		degreesOfFreedom = null;
 
 		for (String param : parameters) {
 			covariances.put(param, new LinkedHashMap<String, Double>());
