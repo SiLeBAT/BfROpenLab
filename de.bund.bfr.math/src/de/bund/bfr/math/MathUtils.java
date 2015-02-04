@@ -177,6 +177,12 @@ public class MathUtils {
 		return 1.0 - dist.probability(-Math.abs(tValue), Math.abs(tValue));
 	}
 
+	public static double get95PercentConfidence(int degreesOfFreedom) {
+		TDistribution dist = new TDistribution(degreesOfFreedom);
+
+		return dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+	}
+
 	public static DJep createParser() {
 		DJep parser = new DJep();
 
