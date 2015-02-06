@@ -34,22 +34,21 @@ import javax.swing.filechooser.FileFilter;
 
 public class FilePanel extends JPanel implements ActionListener, TextListener {
 
-	public enum Type {
-		OPEN_DIALOG, SAVE_DIALOG
-	}
+	public static final int OPEN_DIALOG = 1;
+	public static final int SAVE_DIALOG = 2;
 
 	private static final long serialVersionUID = 1L;
 
 	private List<FileListener> listeners;
 
-	private Type dialogType;
+	private int dialogType;
 	private boolean acceptAllFiles;
 	private List<FileFilter> fileFilters;
 
 	private JButton button;
 	private StringTextField field;
 
-	public FilePanel(String name, Type dialogType) {
+	public FilePanel(String name, int dialogType) {
 		this.dialogType = dialogType;
 		acceptAllFiles = true;
 		fileFilters = new ArrayList<>();
@@ -122,12 +121,12 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 			fileChooser.addChoosableFileFilter(filter);
 		}
 
-		if (fileChooser.showSaveDialog(button) == JFileChooser.APPROVE_OPTION) {
-			switch (dialogType) {
-			case OPEN_DIALOG:
+		if (dialogType == OPEN_DIALOG) {
+			if (fileChooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
 				field.setValue(fileChooser.getSelectedFile().getAbsolutePath());
-				break;
-			case SAVE_DIALOG:
+			}
+		} else if (dialogType == SAVE_DIALOG) {
+			if (fileChooser.showSaveDialog(button) == JFileChooser.APPROVE_OPTION) {
 				String fileName = fileChooser.getSelectedFile()
 						.getAbsolutePath();
 
@@ -136,9 +135,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 				}
 
 				field.setValue(fileName);
-				break;
 			}
-
 		}
 	}
 
@@ -146,4 +143,5 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	public void textChanged(Object source) {
 		fireFileChanged();
 	}
+
 }
