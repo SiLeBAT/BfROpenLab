@@ -58,8 +58,8 @@ public class ChartCreator extends ChartPanel {
 	private boolean selectAll;
 	private List<String> selectedIds;
 
-	private String paramX;
-	private String paramY;
+	private String varX;
+	private String varY;
 	private Transform transformX;
 	private Transform transformY;
 	private boolean minToZero;
@@ -112,7 +112,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	public JFreeChart createChart() throws ParseException {
-		if (paramX == null || paramY == null) {
+		if (varX == null || varY == null) {
 			return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT,
 					new XYPlot(), showLegend);
 		}
@@ -125,8 +125,8 @@ public class ChartCreator extends ChartPanel {
 			idsToPaint = selectedIds;
 		}
 
-		NumberAxis xAxis = new NumberAxis(transformX.getName(paramX));
-		NumberAxis yAxis = new NumberAxis(transformY.getName(paramY));
+		NumberAxis xAxis = new NumberAxis(transformX.getName(varX));
+		NumberAxis yAxis = new NumberAxis(transformY.getName(varY));
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
@@ -144,7 +144,7 @@ public class ChartCreator extends ChartPanel {
 			if (plotable.getType() == Plotable.Type.DATA
 					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
-				double[][] points = plotable.getDataPoints(paramX, paramY,
+				double[][] points = plotable.getDataPoints(varX, varY,
 						transformX, transformY);
 
 				if (points != null) {
@@ -159,9 +159,9 @@ public class ChartCreator extends ChartPanel {
 					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
 				Double minArg = transformX.to(plotable.getMinVariables().get(
-						paramX));
+						varX));
 				Double maxArg = transformX.to(plotable.getMaxVariables().get(
-						paramX));
+						varX));
 
 				if (minArg != null) {
 					usedMinX = Math.min(usedMinX, minArg);
@@ -245,12 +245,12 @@ public class ChartCreator extends ChartPanel {
 				showLegend);
 	}
 
-	public void setParamX(String paramX) {
-		this.paramX = paramX;
+	public void setVarX(String varX) {
+		this.varX = varX;
 	}
 
-	public void setParamY(String paramY) {
-		this.paramY = paramY;
+	public void setVarY(String varY) {
+		this.varY = varY;
 	}
 
 	public void setTransformX(Transform transformX) {
@@ -407,7 +407,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private XYDataset createDataSet(Plotable plotable, String id) {
-		double[][] points = plotable.getDataPoints(paramX, paramY, transformX,
+		double[][] points = plotable.getDataPoints(varX, varY, transformX,
 				transformY);
 		String leg = legend.get(id);
 
@@ -447,13 +447,13 @@ public class ChartCreator extends ChartPanel {
 
 	private XYDataset createFunctionDataSet(Plotable plotable, String id,
 			double minX, double maxX) throws ParseException {
-		double[][] points = plotable.getFunctionPoints(paramX, transformX,
+		double[][] points = plotable.getFunctionPoints(varX, transformX,
 				transformY, minX, maxX);
 		double[][] functionErrors = null;
 		String leg = legend.get(id);
 
 		if (showConfidenceInterval) {
-			functionErrors = plotable.getFunctionErrors(paramX, transformX,
+			functionErrors = plotable.getFunctionErrors(varX, transformX,
 					transformY, minX, maxX);
 		}
 
@@ -524,7 +524,7 @@ public class ChartCreator extends ChartPanel {
 
 	private XYDataset createDiffDataSet(Plotable plotable, String id,
 			double minX, double maxX) throws ParseException {
-		double[][] points = plotable.getDiffPoints(paramX, transformX,
+		double[][] points = plotable.getDiffPoints(varX, transformX,
 				transformY, minX, maxX);
 		String leg = legend.get(id);
 

@@ -98,13 +98,15 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel();
-		configPanel.setParameters(reader.getDepVar(), new ArrayList<>(
-				ChartUtils.getVariables(reader.getPlotables().values())), null);
+		configPanel.init(
+				reader.getDepVar(),
+				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
+						.values())), null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(),
 				reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
-		chartCreator.setParamY(reader.getDepVar());
+		chartCreator.setVarY(reader.getDepVar());
 
 		set.setToConfigPanel(configPanel);
 		set.setToSelectionPanel(selectionPanel);
@@ -135,7 +137,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void configChanged() {
-		if (!configPanel.getParamX().equals(set.getCurrentParamX())) {
+		if (!configPanel.getVarX().equals(set.getCurrentParamX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
 			reader = new FunctionReader(functionObject, paramTable, varTable,

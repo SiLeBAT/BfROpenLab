@@ -48,7 +48,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SHOW_CONFIDENCE = "ShowConfidence";
-	private static final String CFG_CURRENT_PARAM_X = "CurrentParamX";
+	private static final String CFG_VAR_X = "CurrentParamX";
 	private static final String CFG_TRANSFORM_X = "TransformX";
 	private static final String CFG_TRANSFORM_Y = "TransformY";
 	private static final String CFG_SELECT_ALL = "SelectAll";
@@ -66,7 +66,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private boolean showLegend;
 	private boolean exportAsSvg;
 	private boolean showConfidence;
-	private String currentParamX;
+	private String varX;
 	private Transform transformX;
 	private Transform transformY;
 	private boolean selectAll;
@@ -85,7 +85,7 @@ public class ViewSettings extends NlsNodeSettings {
 		showLegend = true;
 		exportAsSvg = false;
 		showConfidence = false;
-		currentParamX = null;
+		varX = null;
 		transformX = Transform.NO_TRANSFORM;
 		transformY = Transform.NO_TRANSFORM;
 		selectAll = true;
@@ -148,7 +148,7 @@ public class ViewSettings extends NlsNodeSettings {
 		}
 
 		try {
-			currentParamX = settings.getString(CFG_CURRENT_PARAM_X);
+			varX = settings.getString(CFG_VAR_X);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -198,7 +198,7 @@ public class ViewSettings extends NlsNodeSettings {
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SHOW_CONFIDENCE, showConfidence);
-		settings.addString(CFG_CURRENT_PARAM_X, currentParamX);
+		settings.addString(CFG_VAR_X, varX);
 		settings.addString(CFG_TRANSFORM_X, transformX.name());
 		settings.addString(CFG_TRANSFORM_Y, transformY.name());
 		settings.addBoolean(CFG_SELECT_ALL, selectAll);
@@ -218,7 +218,7 @@ public class ViewSettings extends NlsNodeSettings {
 		creator.setDrawLines(drawLines);
 		creator.setShowLegend(showLegend);
 		creator.setShowConfidence(showConfidence);
-		creator.setParamX(currentParamX);
+		creator.setVarX(varX);
 		creator.setTransformX(transformX);
 		creator.setTransformY(transformY);
 		creator.setSelectAll(selectAll);
@@ -238,7 +238,7 @@ public class ViewSettings extends NlsNodeSettings {
 		showLegend = configPanel.isShowLegend();
 		exportAsSvg = configPanel.isExportAsSvg();
 		showConfidence = configPanel.isShowConfidence();
-		currentParamX = configPanel.getParamX();
+		varX = configPanel.getVarX();
 		transformX = configPanel.getTransformX();
 		transformY = configPanel.getTransformY();
 	}
@@ -254,7 +254,7 @@ public class ViewSettings extends NlsNodeSettings {
 		configPanel.setShowLegend(showLegend);
 		configPanel.setExportAsSvg(exportAsSvg);
 		configPanel.setShowConfidence(showConfidence);
-		configPanel.setParamX(currentParamX);
+		configPanel.setVarX(varX);
 		configPanel.setTransformX(transformX);
 		configPanel.setTransformY(transformY);
 	}
@@ -354,11 +354,11 @@ public class ViewSettings extends NlsNodeSettings {
 	}
 
 	public String getCurrentParamX() {
-		return currentParamX;
+		return varX;
 	}
 
 	public void setCurrentParamX(String currentParamX) {
-		this.currentParamX = currentParamX;
+		this.varX = currentParamX;
 	}
 
 	public Transform getTransformX() {

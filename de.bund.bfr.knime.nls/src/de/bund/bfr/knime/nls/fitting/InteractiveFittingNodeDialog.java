@@ -112,7 +112,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel();
-		configPanel.setParameters(
+		configPanel.init(
 				reader.getDepVar(),
 				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
 						.values())),
@@ -122,7 +122,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setParamValues(set.getMinStartValues());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
-		chartCreator.setParamY(reader.getDepVar());
+		chartCreator.setVarY(reader.getDepVar());
 
 		configPanel.addConfigListener(this);
 		chartCreator.addZoomListener(this);
@@ -148,7 +148,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void configChanged() {
-		if (!configPanel.getParamX().equals(
+		if (!configPanel.getVarX().equals(
 				set.getViewSettings().getCurrentParamX())) {
 			set.getViewSettings().setFromConfigPanel(configPanel);
 

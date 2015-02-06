@@ -75,7 +75,7 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 
-		creator.setParamY(reader.getDepVar());
+		creator.setVarY(reader.getDepVar());
 		set.setToChartCreator(creator);
 
 		return new PortObject[] { ChartUtils.getImage(creator.createChart(),
