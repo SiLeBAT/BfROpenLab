@@ -377,15 +377,13 @@ public class ParameterOptimizer {
 			return;
 		}
 
-		double factor = optimizer.getChiSquare() / degreesOfFreedom;
-
 		parameterStandardErrors = new LinkedHashMap<>();
 		parameterTValues = new LinkedHashMap<>();
 		parameterPValues = new LinkedHashMap<>();
 		covariances = new LinkedHashMap<>();
 
 		for (int i = 0; i < parameters.length; i++) {
-			double error = Math.sqrt(factor * covMatrix[i][i]);
+			double error = Math.sqrt(mse * covMatrix[i][i]);
 
 			parameterStandardErrors.put(parameters[i], error);
 
@@ -400,7 +398,7 @@ public class ParameterOptimizer {
 			Map<String, Double> cov = new LinkedHashMap<>();
 
 			for (int j = 0; j < parameters.length; j++) {
-				cov.put(parameters[j], factor * covMatrix[i][j]);
+				cov.put(parameters[j], mse * covMatrix[i][j]);
 			}
 
 			covariances.put(parameters[i], cov);
