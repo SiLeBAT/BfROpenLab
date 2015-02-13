@@ -96,7 +96,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 		this.acceptAllFiles = acceptAllFiles;
 	}
 
-	public void addFileFilter(StandardFileFilter filter) {
+	public void addFileFilter(FileFilter filter) {
 		fileFilters.add(filter);
 	}
 

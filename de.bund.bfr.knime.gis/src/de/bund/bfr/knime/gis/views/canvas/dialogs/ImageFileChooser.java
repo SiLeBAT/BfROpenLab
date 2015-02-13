@@ -23,8 +23,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-
-import de.bund.bfr.knime.ui.StandardFileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageFileChooser extends JFileChooser {
 
@@ -38,9 +37,10 @@ public class ImageFileChooser extends JFileChooser {
 	private FileFilter svgFilter;
 
 	public ImageFileChooser() {
-		pngFilter = new StandardFileFilter(".png",
-				"Portable Network Graphics (*.png)");
-		svgFilter = new StandardFileFilter(".svg", "SVG Vector Graphic (*.svg)");
+		pngFilter = new FileNameExtensionFilter(
+				"Portable Network Graphics (*.png)", "png");
+		svgFilter = new FileNameExtensionFilter("SVG Vector Graphic (*.svg)",
+				"svg");
 
 		setAcceptAllFileFilterUsed(false);
 		addChoosableFileFilter(pngFilter);
