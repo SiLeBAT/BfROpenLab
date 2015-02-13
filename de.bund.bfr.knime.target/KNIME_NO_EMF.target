@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 2.11 TP (NO EMF)" sequenceNumber="13">
+<?pde version="3.8"?><target name="KNIME 2.11 TP (NO EMF)" sequenceNumber="15">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -14,7 +14,7 @@
 <unit id="org.knime.features.quickform.feature.group" version="2.11.0.0045686"/>
 <unit id="org.knime.features.xml.feature.group" version="2.11.1.0045686"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="2.11.0.0045346"/>
-<unit id="org.knime.features.testingapplication.feature.group" version="2.11.1.0045686"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="2.11.2.0046096"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="2.11.0.0045434"/>
 <repository location="http://www.knime.org/update/2.11"/>
 </location>
