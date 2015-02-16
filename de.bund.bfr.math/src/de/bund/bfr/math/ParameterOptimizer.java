@@ -30,15 +30,11 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.linear.SingularMatrixException;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointVectorValuePair;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
-import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
-import org.apache.commons.math3.optim.nonlinear.vector.Target;
-import org.apache.commons.math3.optim.nonlinear.vector.Weight;
-import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.nfunk.jep.ParseException;
 
 public class ParameterOptimizer {
@@ -53,8 +49,7 @@ public class ParameterOptimizer {
 	private String[] parameters;
 	private double[] targetValues;
 
-	private LevenbergMarquardtOptimizer optimizer;
-	private PointVectorValuePair optimizerValues;
+	private LeastSquaresOptimizer.Optimum optimizerValues;
 
 	private boolean successful;
 	private Map<String, Double> parameterValues;
@@ -263,7 +258,9 @@ public class ParameterOptimizer {
 			try {
 				optimize(startValues);
 
-				if (!successful || optimizer.getChiSquare() < sse) {
+				double cost = optimizerValues.getCost();
+
+				if (!successful || cost * cost < sse) {
 					useCurrentResults();
 
 					if (sse == 0.0) {
@@ -339,26 +336,27 @@ public class ParameterOptimizer {
 	}
 
 	private void optimize(double[] startValues) {
-		double[] weights = new double[targetValues.length];
+		LeastSquaresProblem problem = new LeastSquaresBuilder()
+				.model(optimizerFunction, optimizerFunctionJacobian)
+				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL)
+				.target(targetValues).start(startValues).build();
 
-		Arrays.fill(weights, 1.0);
-		optimizer = new LevenbergMarquardtOptimizer();
-		optimizerValues = optimizer.optimize(new ModelFunction(
-				optimizerFunction), new ModelFunctionJacobian(
-				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
-				targetValues), new Weight(weights), new InitialGuess(
-				startValues));
+		optimizerValues = new LevenbergMarquardtOptimizer().optimize(problem);
 	}
 
 	private void useCurrentResults() {
 		resetResults();
-		sse = optimizer.getChiSquare();
+
+		double cost = optimizerValues.getCost();
+
+		sse = cost * cost;
 		degreesOfFreedom = targetValues.length - parameters.length;
 		r2 = MathUtils.getR2(sse, targetValues);
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
 		for (int i = 0; i < parameters.length; i++) {
-			parameterValues.put(parameters[i], optimizerValues.getPoint()[i]);
+			parameterValues.put(parameters[i], optimizerValues.getPoint()
+					.getEntry(i));
 		}
 
 		if (degreesOfFreedom <= 0) {
@@ -371,8 +369,7 @@ public class ParameterOptimizer {
 		double[][] covMatrix;
 
 		try {
-			covMatrix = optimizer.computeCovariances(
-					optimizerValues.getPoint(), COV_THRESHOLD);
+			covMatrix = optimizerValues.getCovariances(COV_THRESHOLD).getData();
 		} catch (SingularMatrixException e) {
 			return;
 		}
@@ -387,7 +384,7 @@ public class ParameterOptimizer {
 
 			parameterStandardErrors.put(parameters[i], error);
 
-			double tValue = optimizerValues.getPoint()[i] / error;
+			double tValue = optimizerValues.getPoint().getEntry(i) / error;
 
 			parameterTValues.put(parameters[i], tValue);
 			parameterPValues.put(parameters[i],
