@@ -165,8 +165,8 @@ public class FittingNodeModel extends NodeModel implements
 			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
 					.createCell(result.getDegreesOfFreedom());
 
-			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam)
-					+ "", paramCells));
+			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam),
+					paramCells));
 			iParam++;
 		}
 

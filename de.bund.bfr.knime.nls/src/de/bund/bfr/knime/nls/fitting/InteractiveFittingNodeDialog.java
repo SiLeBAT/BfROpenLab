@@ -111,7 +111,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		configPanel = new ChartConfigPanel();
+		configPanel = new ChartConfigPanel(false, false);
 		configPanel.init(
 				reader.getDepVar(),
 				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()

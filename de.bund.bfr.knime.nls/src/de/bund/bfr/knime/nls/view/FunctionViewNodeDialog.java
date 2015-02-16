@@ -97,7 +97,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private JComponent createMainComponent() {
-		configPanel = new ChartConfigPanel();
+		configPanel = new ChartConfigPanel(true, true);
 		configPanel.init(
 				reader.getDepVar(),
 				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()

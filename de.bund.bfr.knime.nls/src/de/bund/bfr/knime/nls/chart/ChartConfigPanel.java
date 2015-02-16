@@ -82,7 +82,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private List<JButton> parameterAddButtons;
 	private List<JButton> parameterSubButtons;
 
-	public ChartConfigPanel() {
+	public ChartConfigPanel(boolean allowConfidence, boolean allowExport) {
 		configListeners = new ArrayList<>();
 		lastVarX = null;
 
@@ -94,7 +94,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		showLegendBox.addItemListener(this);
 		exportAsSvgBox = new JCheckBox("Export as SVG");
 		exportAsSvgBox.setSelected(false);
-		showConfidenceBox = new JCheckBox("Show Confidence Interval");
+		showConfidenceBox = new JCheckBox("Show Confidence");
 		showConfidenceBox.setSelected(false);
 		showConfidenceBox.addItemListener(this);
 
@@ -104,10 +104,20 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				BoxLayout.Y_AXIS));
 		displayOptionsPanel.setLayout(new GridBagLayout());
 		displayOptionsPanel.add(showLegendBox, UI.westConstraints(0, 0, 1, 1));
-		displayOptionsPanel.add(showConfidenceBox,
-				UI.westConstraints(1, 0, 1, 1));
-		displayOptionsPanel.add(drawLinesBox, UI.westConstraints(0, 1, 1, 1));
-		displayOptionsPanel.add(exportAsSvgBox, UI.westConstraints(1, 1, 1, 1));
+		displayOptionsPanel.add(drawLinesBox, UI.westConstraints(1, 0, 1, 1));
+
+		if (allowConfidence && allowExport) {
+			displayOptionsPanel.add(showConfidenceBox,
+					UI.westConstraints(0, 1, 1, 1));
+			displayOptionsPanel.add(exportAsSvgBox,
+					UI.westConstraints(1, 1, 1, 1));
+		} else if (allowConfidence) {
+			displayOptionsPanel.add(showConfidenceBox,
+					UI.westConstraints(0, 1, 1, 1));
+		} else if (allowExport) {
+			displayOptionsPanel.add(exportAsSvgBox,
+					UI.westConstraints(0, 1, 1, 1));
+		}
 
 		JPanel outerDisplayOptionsPanel = new JPanel();
 
