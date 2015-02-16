@@ -21,7 +21,6 @@ package de.bund.bfr.math;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +31,10 @@ import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.ParameterValidator;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.nfunk.jep.ParseException;
@@ -49,8 +50,6 @@ public class ParameterOptimizer {
 
 	private String[] parameters;
 	private double[] targetValues;
-
-	private LeastSquaresOptimizer.Optimum optimizerValues;
 
 	private boolean successful;
 	private Map<String, Double> parameterValues;
@@ -129,9 +128,9 @@ public class ParameterOptimizer {
 	public void optimize(int nParameterSpace, int nLevenberg,
 			boolean stopWhenSuccessful, Map<String, Double> minStartValues,
 			Map<String, Double> maxStartValues) {
-		List<Double> paramMin = new ArrayList<>();
-		List<Integer> paramStepCount = new ArrayList<>();
-		List<Double> paramStepSize = new ArrayList<>();
+		double[] paramMin = new double[parameters.length];
+		int[] paramStepCount = new int[parameters.length];
+		double[] paramStepSize = new double[parameters.length];
 		int paramsWithRange = 0;
 		int maxStepCount = nParameterSpace;
 
@@ -149,155 +148,33 @@ public class ParameterOptimizer {
 					1.0 / paramsWithRange);
 		}
 
-		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
+		for (int i = 0; i < parameters.length; i++) {
+			Double min = minStartValues.get(parameters[i]);
+			Double max = maxStartValues.get(parameters[i]);
 
 			if (min != null && max != null) {
-				paramMin.add(min);
-				paramStepCount.add(maxStepCount);
-
-				if (max > min) {
-					paramStepSize.add((max - min) / (maxStepCount - 1));
-				} else {
-					paramStepSize.add(1.0);
-				}
+				paramMin[i] = min;
+				paramStepCount[i] = maxStepCount;
+				paramStepSize[i] = (max - min) / (maxStepCount - 1);
 			} else if (min != null) {
-				if (min != 0.0) {
-					paramMin.add(min);
-				} else {
-					paramMin.add(EPSILON);
-				}
-
-				paramStepCount.add(1);
-				paramStepSize.add(1.0);
+				paramMin[i] = min != 0.0 ? min : EPSILON;
+				paramStepCount[i] = 1;
+				paramStepSize[i] = 1.0;
 			} else if (max != null) {
-				if (max != 0.0) {
-					paramMin.add(max);
-				} else {
-					paramMin.add(-EPSILON);
-				}
-
-				paramStepCount.add(1);
-				paramStepSize.add(1.0);
+				paramMin[i] = max != 0.0 ? max : -EPSILON;
+				paramStepCount[i] = 1;
+				paramStepSize[i] = 1.0;
 			} else {
-				paramMin.add(EPSILON);
-				paramStepCount.add(1);
-				paramStepSize.add(1.0);
+				paramMin[i] = EPSILON;
+				paramStepCount[i] = 1;
+				paramStepSize[i] = 1.0;
 			}
 		}
 
-		List<double[]> bestValues = new ArrayList<>();
-		List<Double> bestError = new ArrayList<>();
+		List<double[]> startValueChoices = createStartValueChoices(paramMin,
+				paramStepCount, paramStepSize, nLevenberg);
 
-		for (int i = 0; i < nLevenberg; i++) {
-			double[] v = new double[parameters.length];
-
-			Arrays.fill(v, i + 1.0);
-			bestValues.add(v);
-			bestError.add(Double.POSITIVE_INFINITY);
-		}
-
-		List<Integer> paramStepIndex = new ArrayList<>(Collections.nCopies(
-				parameters.length, 0));
-		boolean done = false;
-		int allStepSize = 1;
-		int count = 0;
-
-		for (int s : paramStepCount) {
-			allStepSize *= s;
-		}
-
-		while (!done) {
-			for (ProgressListener listener : progressListeners) {
-				listener.progressChanged((double) count / (double) allStepSize);
-			}
-
-			count++;
-
-			double[] values = new double[parameters.length];
-
-			for (int i = 0; i < parameters.length; i++) {
-				values[i] = paramMin.get(i) + paramStepIndex.get(i)
-						* paramStepSize.get(i);
-			}
-
-			double[] p = optimizerFunction.value(values);
-			double error = 0.0;
-
-			for (int i = 0; i < targetValues.length; i++) {
-				if (Double.isNaN(p[i])) {
-					error = Double.POSITIVE_INFINITY;
-					break;
-				}
-
-				double diff = targetValues[i] - p[i];
-
-				error += diff * diff;
-			}
-
-			for (int i = nLevenberg; i >= 0; i--) {
-				if (i == 0 || !(error < bestError.get(i - 1))) {
-					if (i != nLevenberg) {
-						bestError.add(i, error);
-						bestValues.add(i, values);
-						bestError.remove(nLevenberg);
-						bestValues.remove(nLevenberg);
-					}
-
-					break;
-				}
-			}
-
-			for (int i = 0;; i++) {
-				if (i >= parameters.length) {
-					done = true;
-					break;
-				}
-
-				paramStepIndex.set(i, paramStepIndex.get(i) + 1);
-
-				if (paramStepIndex.get(i) >= paramStepCount.get(i)) {
-					paramStepIndex.set(i, 0);
-				} else {
-					break;
-				}
-			}
-		}
-
-		successful = false;
-
-		for (double[] startValues : bestValues) {
-			try {
-				optimize(startValues);
-
-				double cost = optimizerValues.getCost();
-
-				if (!successful || cost * cost < sse) {
-					useCurrentResults();
-
-					if (sse == 0.0) {
-						successful = true;
-						break;
-					}
-
-					if (r2 != null && r2 > 0.0) {
-						successful = true;
-
-						if (stopWhenSuccessful) {
-							break;
-						}
-					}
-				}
-			} catch (TooManyEvaluationsException e) {
-				break;
-			} catch (ConvergenceException e) {
-			}
-		}
-
-		if (!successful) {
-			resetResults();
-		}
+		optimize(startValueChoices, stopWhenSuccessful);
 	}
 
 	public boolean isSuccessful() {
@@ -348,7 +225,119 @@ public class ParameterOptimizer {
 		return degreesOfFreedom;
 	}
 
-	private void optimize(double[] startValues) {
+	private void optimize(List<double[]> startValueChoices,
+			boolean stopWhenSuccessful) {
+		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+
+		successful = false;
+
+		for (double[] startValues : startValueChoices) {
+			try {
+				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
+						.optimize(createLeastSquaresProblem(startValues));
+				double cost = optimizerResults.getCost();
+
+				if (!successful || cost * cost < sse) {
+					setResults(optimizerResults);
+
+					if (sse == 0.0) {
+						successful = true;
+						break;
+					}
+
+					if (r2 != null && r2 > 0.0) {
+						successful = true;
+
+						if (stopWhenSuccessful) {
+							break;
+						}
+					}
+				}
+			} catch (TooManyEvaluationsException e) {
+				break;
+			} catch (ConvergenceException e) {
+			}
+		}
+
+		if (!successful) {
+			resetResults();
+		}
+	}
+
+	private List<double[]> createStartValueChoices(double[] paramMin,
+			int[] paramStepCount, double[] paramStepSize, int n) {
+		List<double[]> bestChoices = new ArrayList<>();
+		List<Double> bestError = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			double[] v = new double[parameters.length];
+
+			Arrays.fill(v, i + 1.0);
+			bestChoices.add(v);
+			bestError.add(Double.POSITIVE_INFINITY);
+		}
+
+		RealVector targetVector = new ArrayRealVector(targetValues);
+		int[] paramStepIndex = new int[parameters.length];
+		boolean done = false;
+		int allStepSize = 1;
+		int count = 0;
+
+		for (int s : paramStepCount) {
+			allStepSize *= s;
+		}
+
+		Arrays.fill(paramStepIndex, 0);
+
+		while (!done) {
+			for (ProgressListener listener : progressListeners) {
+				listener.progressChanged((double) count / (double) allStepSize);
+			}
+
+			count++;
+
+			double[] values = new double[parameters.length];
+
+			for (int i = 0; i < parameters.length; i++) {
+				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
+			}
+
+			double error = targetVector.getDistance(new ArrayRealVector(
+					optimizerFunction.value(values)));
+
+			for (int i = n; i >= 0; i--) {
+				if (i == 0 || error >= bestError.get(i - 1)) {
+					if (i != n) {
+						bestError.add(i, error);
+						bestChoices.add(i, values);
+						bestError.remove(n);
+						bestChoices.remove(n);
+					}
+
+					break;
+				}
+			}
+
+			for (int i = 0;; i++) {
+				if (i >= parameters.length) {
+					done = true;
+					break;
+				}
+
+				paramStepIndex[i]++;
+
+				if (paramStepIndex[i] >= paramStepCount[i]) {
+					paramStepIndex[i] = 0;
+				} else {
+					break;
+				}
+			}
+		}
+
+		return bestChoices;
+	}
+
+	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder()
 				.model(optimizerFunction, optimizerFunctionJacobian)
 				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL)
@@ -380,14 +369,13 @@ public class ParameterOptimizer {
 			});
 		}
 
-		optimizerValues = new LevenbergMarquardtOptimizer().optimize(builder
-				.build());
+		return builder.build();
 	}
 
-	private void useCurrentResults() {
+	private void setResults(LeastSquaresOptimizer.Optimum optimizerResults) {
 		resetResults();
 
-		double cost = optimizerValues.getCost();
+		double cost = optimizerResults.getCost();
 
 		sse = cost * cost;
 		degreesOfFreedom = targetValues.length - parameters.length;
@@ -395,7 +383,7 @@ public class ParameterOptimizer {
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
 		for (int i = 0; i < parameters.length; i++) {
-			parameterValues.put(parameters[i], optimizerValues.getPoint()
+			parameterValues.put(parameters[i], optimizerResults.getPoint()
 					.getEntry(i));
 		}
 
@@ -409,7 +397,8 @@ public class ParameterOptimizer {
 		double[][] covMatrix;
 
 		try {
-			covMatrix = optimizerValues.getCovariances(COV_THRESHOLD).getData();
+			covMatrix = optimizerResults.getCovariances(COV_THRESHOLD)
+					.getData();
 		} catch (SingularMatrixException e) {
 			return;
 		}
@@ -424,7 +413,7 @@ public class ParameterOptimizer {
 
 			parameterStandardErrors.put(parameters[i], error);
 
-			double tValue = optimizerValues.getPoint().getEntry(i) / error;
+			double tValue = optimizerResults.getPoint().getEntry(i) / error;
 
 			parameterTValues.put(parameters[i], tValue);
 			parameterPValues.put(parameters[i],
