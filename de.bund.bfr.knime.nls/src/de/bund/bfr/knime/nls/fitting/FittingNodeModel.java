@@ -489,6 +489,14 @@ public class FittingNodeModel extends NodeModel implements
 				valueVariables[i] = var;
 				initValues[i] = function.getInitValues().get(var);
 				initParameters[i] = function.getInitParameters().get(var);
+
+				if (set.isEnforceLimits()
+						&& var.equals(function.getDependentVariable())) {
+					terms[i] = MathUtils.addPenaltyTerms(terms[i],
+							function.getParameters(), set.getMinStartValues(),
+							set.getMaxStartValues());
+				}
+
 				i++;
 			}
 
