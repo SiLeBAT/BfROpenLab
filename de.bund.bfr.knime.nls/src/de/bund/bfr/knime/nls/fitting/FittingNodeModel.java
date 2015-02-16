@@ -372,15 +372,6 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
 		for (String id : targetValues.keySet()) {
-			String formula = function.getTerms().get(
-					function.getDependentVariable());
-
-			if (set.isEnforceLimits()) {
-				formula = MathUtils.addPenaltyTerms(formula,
-						function.getParameters(), set.getMinStartValues(),
-						set.getMaxStartValues());
-			}
-
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
@@ -389,9 +380,15 @@ public class FittingNodeModel extends NodeModel implements
 						Doubles.toArray(entry.getValue()));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(formula,
-					function.getParameters().toArray(new String[0]),
+			ParameterOptimizer optimizer = new ParameterOptimizer(function
+					.getTerms().get(function.getDependentVariable()), function
+					.getParameters().toArray(new String[0]),
 					Doubles.toArray(targetValues.get(id)), argumentArrays);
+
+			if (set.isEnforceLimits()) {
+				optimizer.getMinValues().putAll(set.getMinStartValues());
+				optimizer.getMaxValues().putAll(set.getMaxStartValues());
+			}
 
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 					set.isStopWhenSuccessful(), set.getMinStartValues(),
@@ -489,14 +486,6 @@ public class FittingNodeModel extends NodeModel implements
 				valueVariables[i] = var;
 				initValues[i] = function.getInitValues().get(var);
 				initParameters[i] = function.getInitParameters().get(var);
-
-				if (set.isEnforceLimits()
-						&& var.equals(function.getDependentVariable())) {
-					terms[i] = MathUtils.addPenaltyTerms(terms[i],
-							function.getParameters(), set.getMinStartValues(),
-							set.getMaxStartValues());
-				}
-
 				i++;
 			}
 
@@ -509,6 +498,11 @@ public class FittingNodeModel extends NodeModel implements
 					function.getTimeVariable(), argumentArrays,
 					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
 							0.01));
+
+			if (set.isEnforceLimits()) {
+				optimizer.getMinValues().putAll(set.getMinStartValues());
+				optimizer.getMaxValues().putAll(set.getMaxStartValues());
+			}
 
 			optimizer.addProgressListener(this);
 			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),

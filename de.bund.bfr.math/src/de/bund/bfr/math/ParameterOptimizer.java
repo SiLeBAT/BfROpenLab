@@ -32,8 +32,9 @@ import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.ParameterValidator;
+import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.nfunk.jep.ParseException;
 
@@ -64,22 +65,32 @@ public class ParameterOptimizer {
 	private Double aic;
 	private Integer degreesOfFreedom;
 
+	private Map<String, Double> minValues;
+	private Map<String, Double> maxValues;
+
 	private List<ProgressListener> progressListeners;
+
+	private ParameterOptimizer(String[] parameters, double[] targetValues) {
+		this.parameters = parameters;
+		this.targetValues = targetValues;
+
+		successful = false;
+		minValues = new LinkedHashMap<>();
+		maxValues = new LinkedHashMap<>();
+		progressListeners = new ArrayList<>();
+
+		resetResults();
+	}
 
 	public ParameterOptimizer(String formula, String[] parameters,
 			double[] targetValues, Map<String, double[]> variableValues)
 			throws ParseException {
-		this.parameters = parameters;
-		this.targetValues = targetValues;
-
+		this(parameters, targetValues);
 		optimizerFunction = new VectorFunction(formula, parameters,
 				variableValues);
 		optimizerFunctionJacobian = new VectorFunctionJacobian(formula,
 				parameters, variableValues);
-		successful = false;
-		resetResults();
 
-		progressListeners = new ArrayList<>();
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
@@ -88,9 +99,7 @@ public class ParameterOptimizer {
 			String dependentVariable, String timeVariable,
 			Map<String, double[]> variableValues, IntegratorFactory integrator)
 			throws ParseException {
-		this.parameters = parameters;
-		this.targetValues = targetValues;
-
+		this(parameters, targetValues);
 		optimizerFunction = new VectorDiffFunction(formulas,
 				dependentVariables, initValues, initParameters, parameters,
 				variableValues, timeValues, dependentVariable, timeVariable,
@@ -99,10 +108,14 @@ public class ParameterOptimizer {
 				dependentVariables, initValues, initParameters, parameters,
 				variableValues, timeValues, dependentVariable, timeVariable,
 				integrator);
-		successful = false;
-		resetResults();
+	}
 
-		progressListeners = new ArrayList<>();
+	public Map<String, Double> getMinValues() {
+		return minValues;
+	}
+
+	public Map<String, Double> getMaxValues() {
+		return maxValues;
 	}
 
 	public void addProgressListener(ProgressListener listener) {
@@ -336,12 +349,39 @@ public class ParameterOptimizer {
 	}
 
 	private void optimize(double[] startValues) {
-		LeastSquaresProblem problem = new LeastSquaresBuilder()
+		LeastSquaresBuilder builder = new LeastSquaresBuilder()
 				.model(optimizerFunction, optimizerFunctionJacobian)
 				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL)
-				.target(targetValues).start(startValues).build();
+				.target(targetValues).start(startValues);
 
-		optimizerValues = new LevenbergMarquardtOptimizer().optimize(problem);
+		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
+			builder = builder.parameterValidator(new ParameterValidator() {
+
+				@Override
+				public RealVector validate(RealVector params) {
+					for (int i = 0; i < parameters.length; i++) {
+						double value = params.getEntry(i);
+						Double min = minValues.get(parameters[i]);
+						Double max = maxValues.get(parameters[i]);
+
+						if (min != null && value < min) {
+							value = min;
+						}
+
+						if (max != null && value > max) {
+							value = max;
+						}
+
+						params.setEntry(i, value);
+					}
+
+					return params;
+				}
+			});
+		}
+
+		optimizerValues = new LevenbergMarquardtOptimizer().optimize(builder
+				.build());
 	}
 
 	private void useCurrentResults() {
