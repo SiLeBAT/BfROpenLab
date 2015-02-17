@@ -177,6 +177,10 @@ public class UI {
 		innerPanel.add(leftPanel, BorderLayout.WEST);
 		innerPanel.add(rightPanel, BorderLayout.CENTER);
 
+		if (name == null) {
+			return innerPanel;
+		}
+
 		JPanel outerPanel = new JPanel();
 
 		outerPanel.setBorder(BorderFactory.createTitledBorder(name));

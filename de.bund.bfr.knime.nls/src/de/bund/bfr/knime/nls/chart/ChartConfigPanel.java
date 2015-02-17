@@ -22,8 +22,6 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -36,7 +34,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -46,10 +43,11 @@ import javax.swing.JSlider;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.TextListener;
+import de.bund.bfr.knime.ui.VariablePanel;
 import de.bund.bfr.math.Transform;
 
-public class ChartConfigPanel extends JPanel implements ActionListener,
-		ItemListener, TextListener, MouseListener {
+public class ChartConfigPanel extends JPanel implements ItemListener,
+		TextListener, MouseListener, VariablePanel.ValueListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -80,14 +78,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private String lastVarX;
 	private List<String> variablesX;
 
-	private JPanel parameterPanel;
 	private List<String> parameters;
-	private List<JLabel> parameterLabels;
-	private List<DoubleTextField> parameterFields;
-	private List<JButton> parameterAddButtons;
-	private List<JButton> parameterSubButtons;
+	private JPanel outerParameterPanel;
+	private VariablePanel parameterPanel;
 
-	public ChartConfigPanel(boolean allowConfidence, boolean allowExport) {
+	public ChartConfigPanel(boolean allowConfidence, boolean allowExport,
+			boolean allowParameters) {
 		configListeners = new ArrayList<>();
 		lastVarX = null;
 
@@ -224,19 +220,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		outerVariablesPanel.setLayout(new BorderLayout());
 		outerVariablesPanel.add(variablesPanel, BorderLayout.WEST);
 
-		parameterPanel = new JPanel();
-		parameterPanel.setLayout(new GridBagLayout());
-		parameterFields = new ArrayList<>();
-		parameterLabels = new ArrayList<>();
-		parameterAddButtons = new ArrayList<>();
-		parameterSubButtons = new ArrayList<>();
-
-		JPanel outerParameterPanel = new JPanel();
-
-		outerParameterPanel.setBorder(BorderFactory
-				.createTitledBorder("Parameters"));
-		outerParameterPanel.setLayout(new BorderLayout());
-		outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
+		parameters = new ArrayList<>();
+		parameterPanel = new VariablePanel(
+				new LinkedHashMap<String, List<Double>>(),
+				new LinkedHashMap<String, Double>(),
+				new LinkedHashMap<String, Double>(), false, true);
 
 		JPanel mainPanel = new JPanel();
 
@@ -244,7 +232,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		mainPanel.add(outerDisplayOptionsPanel);
 		mainPanel.add(outerRangePanel);
 		mainPanel.add(outerVariablesPanel);
-		mainPanel.add(outerParameterPanel);
+
+		if (allowParameters) {
+			outerParameterPanel = new JPanel();
+			outerParameterPanel.setBorder(BorderFactory
+					.createTitledBorder("Parameters"));
+			outerParameterPanel.setLayout(new BorderLayout());
+			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
+			mainPanel.add(outerParameterPanel);
+		}
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
@@ -439,34 +435,20 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		if (!parameters.equals(this.parameters)) {
 			this.parameters = parameters;
-			parameterPanel.removeAll();
-			parameterFields.clear();
-			parameterLabels.clear();
 
-			int row = 0;
+			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
 
 			for (String param : parameters) {
-				JLabel label = new JLabel(param + ":");
-				DoubleTextField input = new DoubleTextField(false, 8);
-				JButton addButton = new JButton("+");
-				JButton subButton = new JButton("-");
-
-				input.setValue(0.0);
-				input.addTextListener(this);
-				addButton.addActionListener(this);
-				subButton.addActionListener(this);
-
-				parameterLabels.add(label);
-				parameterFields.add(input);
-				parameterAddButtons.add(addButton);
-				parameterSubButtons.add(subButton);
-				parameterPanel.add(label, UI.westConstraints(0, row, 1, 1));
-				parameterPanel.add(input, UI.westConstraints(1, row, 1, 1));
-				parameterPanel.add(addButton, UI.westConstraints(2, row, 1, 1));
-				parameterPanel.add(subButton, UI.westConstraints(3, row, 1, 1));
-
-				row++;
+				paramMap.put(param, new ArrayList<Double>());
 			}
+
+			parameterPanel = new VariablePanel(paramMap,
+					new LinkedHashMap<String, Double>(),
+					new LinkedHashMap<String, Double>(), false, true);
+			parameterPanel.addValueListener(this);
+
+			outerParameterPanel.removeAll();
+			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
 			Container container = getParent();
 
@@ -482,48 +464,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public Map<String, Double> getParamValues() {
-		Map<String, Double> valueLists = new LinkedHashMap<>();
-
-		for (int i = 0; i < parameterFields.size(); i++) {
-			DoubleTextField field = parameterFields.get(i);
-
-			if (field.getValue() != null) {
-				valueLists.put(parameters.get(i), field.getValue());
-			} else {
-				valueLists.put(parameters.get(i), 0.0);
-			}
-		}
-
-		return valueLists;
+		return parameterPanel.getValues();
 	}
 
 	public void setParamValues(Map<String, Double> paramValues) {
-		for (int i = 0; i < parameterFields.size(); i++) {
-			DoubleTextField field = parameterFields.get(i);
-
-			if (paramValues.containsKey(parameters.get(i))) {
-				field.setValue(paramValues.get(parameters.get(i)));
-			}
-		}
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (parameterAddButtons.contains(e.getSource())) {
-			int i = parameterAddButtons.indexOf(e.getSource());
-			DoubleTextField valueField = parameterFields.get(i);
-
-			if (valueField.getValue() != null) {
-				valueField.setValue(valueField.getValue() + 0.1);
-			}
-		} else if (parameterSubButtons.contains(e.getSource())) {
-			int i = parameterSubButtons.indexOf(e.getSource());
-			DoubleTextField valueField = parameterFields.get(i);
-
-			if (valueField.getValue() != null) {
-				valueField.setValue(valueField.getValue() - 0.1);
-			}
-		}
+		parameterPanel.setValues(paramValues);
 	}
 
 	@Override
@@ -578,6 +523,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void valuesChanged() {
+		fireConfigChanged();
 	}
 
 	private void fireConfigChanged() {
