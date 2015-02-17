@@ -37,6 +37,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
 	private static final String CFG_MIN_START_VALUES = "MinStartValues";
 	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
+	private static final String CFG_START_VALUES = "StartValues";
 
 	private boolean expertSettings;
 	private int nParameterSpace;
@@ -45,6 +46,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private boolean enforceLimits;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
+	private Map<String, Double> startValues;
 
 	public FittingSettings() {
 		expertSettings = false;
@@ -90,6 +92,12 @@ public class FittingSettings extends NlsNodeSettings {
 					.getString(CFG_MAX_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			startValues = (Map<String, Double>) SERIALIZER.fromXml(settings
+					.getString(CFG_START_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -107,6 +115,7 @@ public class FittingSettings extends NlsNodeSettings {
 				SERIALIZER.toXml(minStartValues));
 		settings.addString(CFG_MAX_START_VALUES,
 				SERIALIZER.toXml(maxStartValues));
+		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
 	}
 
 	public boolean isExpertSettings() {
@@ -165,6 +174,14 @@ public class FittingSettings extends NlsNodeSettings {
 		this.maxStartValues = maxStartValues;
 	}
 
+	public Map<String, Double> getStartValues() {
+		return startValues;
+	}
+
+	public void setStartValues(Map<String, Double> startValues) {
+		this.startValues = startValues;
+	}
+
 	private void setExpertParametersToDefault() {
 		nParameterSpace = 10000;
 		nLevenberg = 10;
@@ -172,5 +189,6 @@ public class FittingSettings extends NlsNodeSettings {
 		enforceLimits = false;
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();
+		startValues = new LinkedHashMap<>();
 	}
 }

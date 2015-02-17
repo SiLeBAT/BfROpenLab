@@ -147,7 +147,7 @@ public class VariablePanel extends JPanel implements ActionListener,
 					slider.setEnabled(false);
 				}
 
-				slider.setPreferredSize(new Dimension(50, slider
+				slider.setPreferredSize(new Dimension(80, slider
 						.getPreferredSize().height));
 				slider.addChangeListener(this);
 				slider.addMouseListener(this);

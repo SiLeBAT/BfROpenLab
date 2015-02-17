@@ -75,17 +75,14 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private JComboBox<String> yBox;
 	private JComboBox<Transform> xTransBox;
 	private JComboBox<Transform> yTransBox;
-	private String lastVarX;
-	private List<String> variablesX;
 
-	private List<String> parameters;
 	private JPanel outerParameterPanel;
 	private VariablePanel parameterPanel;
+	private JCheckBox enforceLimitsBox;
 
 	public ChartConfigPanel(boolean allowConfidence, boolean allowExport,
 			boolean allowParameters) {
 		configListeners = new ArrayList<>();
-		lastVarX = null;
 
 		drawLinesBox = new JCheckBox("Draw Lines");
 		drawLinesBox.setSelected(false);
@@ -220,12 +217,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		outerVariablesPanel.setLayout(new BorderLayout());
 		outerVariablesPanel.add(variablesPanel, BorderLayout.WEST);
 
-		parameters = new ArrayList<>();
-		parameterPanel = new VariablePanel(
-				new LinkedHashMap<String, List<Double>>(),
-				new LinkedHashMap<String, Double>(),
-				new LinkedHashMap<String, Double>(), false, true);
-
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -234,11 +225,18 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		mainPanel.add(outerVariablesPanel);
 
 		if (allowParameters) {
+			parameterPanel = new VariablePanel(
+					new LinkedHashMap<String, List<Double>>(),
+					new LinkedHashMap<String, Double>(),
+					new LinkedHashMap<String, Double>(), false, true);
+			enforceLimitsBox = new JCheckBox("Enforce Limits");
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory
 					.createTitledBorder("Parameters"));
 			outerParameterPanel.setLayout(new BorderLayout());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
+			outerParameterPanel.add(UI.createWestPanel(enforceLimitsBox),
+					BorderLayout.SOUTH);
 			mainPanel.add(outerParameterPanel);
 		}
 
@@ -391,7 +389,8 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	}
 
 	public void init(String varY, List<String> variablesX,
-			List<String> parameters) {
+			List<String> parameters, Map<String, Double> minValues,
+			Map<String, Double> maxValues) {
 		if (variablesX == null) {
 			variablesX = new ArrayList<>();
 		}
@@ -400,54 +399,41 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			parameters = new ArrayList<>();
 		}
 
-		if (varY == null) {
-			yBox.removeAllItems();
-		} else if (!varY.equals(yBox.getSelectedItem())) {
-			yBox.removeAllItems();
-			yBox.addItem(varY);
-			yBox.setSelectedIndex(0);
+		if (minValues == null) {
+			minValues = new LinkedHashMap<>();
 		}
 
-		if (!variablesX.equals(this.variablesX)) {
-			this.variablesX = variablesX;
-
-			xBox.removeItemListener(this);
-			xBox.removeAllItems();
-
-			for (String var : variablesX) {
-				xBox.addItem(var);
-			}
-
-			if (!variablesX.isEmpty()) {
-				if (variablesX.contains(lastVarX)) {
-					xBox.setSelectedItem(lastVarX);
-				} else {
-					xBox.setSelectedIndex(0);
-				}
-
-				lastVarX = (String) xBox.getSelectedItem();
-			} else {
-				lastVarX = null;
-			}
-
-			xBox.addItemListener(this);
+		if (maxValues == null) {
+			maxValues = new LinkedHashMap<>();
 		}
 
-		if (!parameters.equals(this.parameters)) {
-			this.parameters = parameters;
+		yBox.removeAllItems();
+		yBox.addItem(varY);
+		yBox.setSelectedIndex(0);
+		xBox.removeItemListener(this);
+		xBox.removeAllItems();
 
+		for (String var : variablesX) {
+			xBox.addItem(var);
+		}
+
+		if (!variablesX.isEmpty()) {
+			xBox.setSelectedIndex(0);
+		}
+
+		xBox.addItemListener(this);
+
+		if (!parameters.isEmpty()) {
 			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
 
 			for (String param : parameters) {
 				paramMap.put(param, new ArrayList<Double>());
 			}
 
-			parameterPanel = new VariablePanel(paramMap,
-					new LinkedHashMap<String, Double>(),
-					new LinkedHashMap<String, Double>(), false, true);
+			outerParameterPanel.remove(parameterPanel);
+			parameterPanel = new VariablePanel(paramMap, minValues, maxValues,
+					false, true);
 			parameterPanel.addValueListener(this);
-
-			outerParameterPanel.removeAll();
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
 			Container container = getParent();
@@ -471,6 +457,22 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		parameterPanel.setValues(paramValues);
 	}
 
+	public boolean isEnforceLimits() {
+		return enforceLimitsBox.isSelected();
+	}
+
+	public void setEnforceLimits(boolean enforceLimits) {
+		enforceLimitsBox.setSelected(enforceLimits);
+	}
+
+	public Map<String, Double> getMinValues() {
+		return parameterPanel.getMinValues();
+	}
+
+	public Map<String, Double> getMaxValues() {
+		return parameterPanel.getMaxValues();
+	}
+
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == manualRangeBox) {
@@ -487,8 +489,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 				maxXField.setEnabled(false);
 				maxYField.setEnabled(false);
 			}
-		} else if (e.getSource() == xBox) {
-			lastVarX = (String) xBox.getSelectedItem();
 		}
 
 		if (e.getSource() instanceof JCheckBox

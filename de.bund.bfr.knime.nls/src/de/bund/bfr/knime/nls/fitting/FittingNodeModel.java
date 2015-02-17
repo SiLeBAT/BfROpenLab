@@ -390,9 +390,17 @@ public class FittingNodeModel extends NodeModel implements
 				optimizer.getMaxValues().putAll(set.getMaxStartValues());
 			}
 
-			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-					set.isStopWhenSuccessful(), set.getMinStartValues(),
-					set.getMaxStartValues());
+			if (!set.getStartValues().isEmpty()) {
+				optimizer.optimize(set.getnParameterSpace(),
+						set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getStartValues(),
+						new LinkedHashMap<String, Double>());
+			} else {
+				optimizer.optimize(set.getnParameterSpace(),
+						set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getMinStartValues(), set.getMaxStartValues());
+			}
+
 			results.put(id, optimizer);
 		}
 
@@ -505,9 +513,18 @@ public class FittingNodeModel extends NodeModel implements
 			}
 
 			optimizer.addProgressListener(this);
-			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-					set.isStopWhenSuccessful(), set.getMinStartValues(),
-					set.getMaxStartValues());
+
+			if (!set.getStartValues().isEmpty()) {
+				optimizer.optimize(set.getnParameterSpace(),
+						set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getStartValues(),
+						new LinkedHashMap<String, Double>());
+			} else {
+				optimizer.optimize(set.getnParameterSpace(),
+						set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getMinStartValues(), set.getMaxStartValues());
+			}
+
 			results.put(id, optimizer);
 		}
 

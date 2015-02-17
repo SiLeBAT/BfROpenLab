@@ -101,7 +101,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.init(
 				reader.getDepVar(),
 				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
-						.values())), null);
+						.values())), null, null, null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(),
 				reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(),
