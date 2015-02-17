@@ -228,7 +228,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			parameterPanel = new VariablePanel(
 					new LinkedHashMap<String, List<Double>>(),
 					new LinkedHashMap<String, Double>(),
-					new LinkedHashMap<String, Double>(), false, true);
+					new LinkedHashMap<String, Double>(), false, true, true);
 			enforceLimitsBox = new JCheckBox("Enforce Limits");
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory
@@ -432,7 +432,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 			outerParameterPanel.remove(parameterPanel);
 			parameterPanel = new VariablePanel(paramMap, minValues, maxValues,
-					false, true);
+					false, true, true);
 			parameterPanel.addValueListener(this);
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 

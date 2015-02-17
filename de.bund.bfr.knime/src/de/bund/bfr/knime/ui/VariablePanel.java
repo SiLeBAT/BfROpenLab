@@ -73,12 +73,16 @@ public class VariablePanel extends JPanel implements ActionListener,
 
 	private List<ValueListener> valueListeners;
 
+	private boolean instantSliders;
+
 	public VariablePanel(Map<String, List<Double>> variables,
 			Map<String, Double> minValues, Map<String, Double> maxValues,
-			boolean multiSelection, boolean allowSetRanges) {
+			boolean multiSelection, boolean allowSetRanges,
+			boolean instantSliders) {
 		this.variables = variables;
 		this.minValues = minValues;
 		this.maxValues = maxValues;
+		this.instantSliders = instantSliders;
 		selectedValues = new LinkedHashMap<>();
 		valueListeners = new ArrayList<>();
 		valueFields = HashBiMap.create();
@@ -287,7 +291,7 @@ public class VariablePanel extends JPanel implements ActionListener,
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		if (valueSliders.values().contains(e.getSource())) {
-			sliderChanged((JSlider) e.getSource(), false);
+			sliderChanged((JSlider) e.getSource(), instantSliders);
 		}
 	}
 
