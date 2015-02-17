@@ -71,6 +71,7 @@ public class ChartCreator extends ChartPanel {
 	private boolean drawLines;
 	private boolean showLegend;
 	private boolean showConfidenceInterval;
+	private int resolution;
 
 	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> legend) {
@@ -203,6 +204,8 @@ public class ChartCreator extends ChartPanel {
 				continue;
 			}
 
+			plotable.setFunctionSteps(resolution);
+
 			switch (plotable.getType()) {
 			case DATA:
 				plotDataSet(plot, plotable, id, colorAndShapeCreator
@@ -311,6 +314,10 @@ public class ChartCreator extends ChartPanel {
 
 	public void setShowConfidence(boolean showConfidenceInterval) {
 		this.showConfidenceInterval = showConfidenceInterval;
+	}
+
+	public void setResolution(int resolution) {
+		this.resolution = resolution;
 	}
 
 	public void setColors(Map<String, Color> colors) {

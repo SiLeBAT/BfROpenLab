@@ -26,18 +26,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
@@ -45,7 +49,7 @@ import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.math.Transform;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
-		ItemListener, TextListener {
+		ItemListener, TextListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -60,6 +64,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JCheckBox showLegendBox;
 	private JCheckBox exportAsSvgBox;
 	private JCheckBox showConfidenceBox;
+	private JSlider resolutionSlider;
 
 	private JCheckBox minToZeroBox;
 	private JCheckBox manualRangeBox;
@@ -97,27 +102,48 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		showConfidenceBox = new JCheckBox("Show Confidence");
 		showConfidenceBox.setSelected(false);
 		showConfidenceBox.addItemListener(this);
+		resolutionSlider = new JSlider(0, 1000, 1000);
+		resolutionSlider.setMinorTickSpacing(100);
+		resolutionSlider.setMajorTickSpacing(200);
+		resolutionSlider.setPaintTicks(true);
+		resolutionSlider.setPaintLabels(true);
+		resolutionSlider.addMouseListener(this);
+
+		JPanel resolutionPanel = new JPanel();
+
+		resolutionPanel.setLayout(new BoxLayout(resolutionPanel,
+				BoxLayout.X_AXIS));
+		resolutionPanel.add(new JLabel("Resolution:"));
+		resolutionPanel.add(Box.createHorizontalStrut(5));
+		resolutionPanel.add(resolutionSlider);
+		resolutionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel displayOptionsPanel = new JPanel();
+		int row = 0;
 
 		displayOptionsPanel.setLayout(new BoxLayout(displayOptionsPanel,
 				BoxLayout.Y_AXIS));
 		displayOptionsPanel.setLayout(new GridBagLayout());
-		displayOptionsPanel.add(showLegendBox, UI.westConstraints(0, 0, 1, 1));
-		displayOptionsPanel.add(drawLinesBox, UI.westConstraints(1, 0, 1, 1));
+		displayOptionsPanel.add(showLegendBox, UI.westConstraints(0, row));
+		displayOptionsPanel.add(drawLinesBox, UI.westConstraints(1, row));
+		row++;
 
 		if (allowConfidence && allowExport) {
 			displayOptionsPanel.add(showConfidenceBox,
-					UI.westConstraints(0, 1, 1, 1));
-			displayOptionsPanel.add(exportAsSvgBox,
-					UI.westConstraints(1, 1, 1, 1));
+					UI.westConstraints(0, row));
+			displayOptionsPanel.add(exportAsSvgBox, UI.westConstraints(1, row));
+			row++;
 		} else if (allowConfidence) {
 			displayOptionsPanel.add(showConfidenceBox,
-					UI.westConstraints(0, 1, 1, 1));
+					UI.westConstraints(0, row));
+			row++;
 		} else if (allowExport) {
-			displayOptionsPanel.add(exportAsSvgBox,
-					UI.westConstraints(0, 1, 1, 1));
+			displayOptionsPanel.add(exportAsSvgBox, UI.westConstraints(0, row));
+			row++;
 		}
+
+		displayOptionsPanel.add(resolutionPanel,
+				UI.westConstraints(0, row, 2, 1));
 
 		JPanel outerDisplayOptionsPanel = new JPanel();
 
@@ -328,6 +354,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		showConfidenceBox.setSelected(showConfidenceInterval);
 	}
 
+	public int getResolution() {
+		return resolutionSlider.getValue();
+	}
+
+	public void setResolution(int resolution) {
+		resolutionSlider.setValue(resolution);
+	}
+
 	public String getVarX() {
 		return (String) xBox.getSelectedItem();
 	}
@@ -521,6 +555,29 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	@Override
 	public void textChanged(Object source) {
 		fireConfigChanged();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (e.getSource() == resolutionSlider) {
+			fireConfigChanged();
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 
 	private void fireConfigChanged() {

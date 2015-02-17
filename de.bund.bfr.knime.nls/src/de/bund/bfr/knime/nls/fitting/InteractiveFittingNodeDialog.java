@@ -96,7 +96,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 					conditionTable);
 		} else {
 			reader = new FunctionReader(functionObject, varTable, set
-					.getViewSettings().getCurrentParamX());
+					.getViewSettings().getVarX());
 		}
 
 		((JPanel) getTab("Options")).removeAll();
@@ -149,8 +149,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void configChanged() {
-		if (!configPanel.getVarX().equals(
-				set.getViewSettings().getCurrentParamX())) {
+		if (!configPanel.getVarX().equals(set.getViewSettings().getVarX())) {
 			set.getViewSettings().setFromConfigPanel(configPanel);
 
 			if (isDiff) {
@@ -158,7 +157,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 						conditionTable);
 			} else {
 				reader = new FunctionReader(functionObject, varTable, set
-						.getViewSettings().getCurrentParamX());
+						.getViewSettings().getVarX());
 			}
 
 			((JPanel) getTab("Options")).removeAll();

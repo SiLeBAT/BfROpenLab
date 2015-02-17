@@ -139,7 +139,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void configChanged() {
-		if (!configPanel.getVarX().equals(set.getCurrentParamX())) {
+		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
 			reader = new DiffFunctionReader(functionObject, paramTable,

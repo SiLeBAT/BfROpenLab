@@ -83,7 +83,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		varTable = (BufferedDataTable) input[2];
 		covarianceTable = (BufferedDataTable) input[3];
 		reader = new FunctionReader(functionObject, paramTable, varTable,
-				covarianceTable, set.getCurrentParamX());
+				covarianceTable, set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -137,11 +137,11 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void configChanged() {
-		if (!configPanel.getVarX().equals(set.getCurrentParamX())) {
+		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
 			reader = new FunctionReader(functionObject, paramTable, varTable,
-					covarianceTable, set.getCurrentParamX());
+					covarianceTable, set.getVarX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

@@ -70,7 +70,7 @@ public class FunctionViewNodeModel extends NodeModel {
 				(FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1],
 				(BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3], set.getCurrentParamX());
+				(BufferedDataTable) inObjects[3], set.getVarX());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 
