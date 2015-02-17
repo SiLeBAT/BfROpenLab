@@ -454,7 +454,7 @@ public class ChartCreator extends ChartPanel {
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(varX, transformX,
-					transformY, minX, maxX);
+					transformY, minX, maxX, false);
 		}
 
 		if (points != null) {

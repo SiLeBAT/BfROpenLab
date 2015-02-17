@@ -139,6 +139,10 @@ public class FunctionReader implements Reader {
 							covarianceTable, id, f));
 				}
 
+				if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
+					plotable.setMse(qualityValues.get(NlsUtils.MSE_COLUMN));
+				}
+
 				if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
 					plotable.setDegreesOfFreedom(qualityValues.get(
 							NlsUtils.DOF_COLUMN).intValue());

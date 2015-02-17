@@ -28,13 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.DiffFunction;
+import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
 
@@ -76,6 +76,7 @@ public class Plotable {
 	private Map<String, Map<String, Double>> covariances;
 	private Map<String, Double> minVariables;
 	private Map<String, Double> maxVariables;
+	private Double mse;
 	private Integer degreesOfFreedom;
 
 	public Plotable(Type type) {
@@ -213,6 +214,14 @@ public class Plotable {
 		this.maxVariables = maxVariables;
 	}
 
+	public Double getMse() {
+		return mse;
+	}
+
+	public void setMse(Double mse) {
+		this.mse = mse;
+	}
+
 	public Integer getDegreesOfFreedom() {
 		return degreesOfFreedom;
 	}
@@ -262,72 +271,97 @@ public class Plotable {
 	public double[][] getFunctionPoints(String paramX, Transform transformX,
 			Transform transformY, double minX, double maxX)
 			throws ParseException {
-		DJep parser = createParser(paramX);
+		Map<String, Double> parserConstants = createParserConstants(paramX);
 
-		if (function == null || parser == null) {
+		if (function == null || parserConstants == null) {
+			return null;
+		}
+
+		double[] xs = new double[FUNCTION_STEPS];
+		double[] convertedXs = new double[FUNCTION_STEPS];
+
+		for (int i = 0; i < FUNCTION_STEPS; i++) {
+			xs[i] = minX + (double) i / (double) (FUNCTION_STEPS - 1)
+					* (maxX - minX);
+			convertedXs[i] = transformX.from(xs[i]);
+		}
+
+		double[] convertedYs = Evaluator.getFunctionPoints(parserConstants,
+				function, paramX, convertedXs);
+
+		if (convertedYs == null) {
 			return null;
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		Node f = parser.parse(function);
+		boolean containsValidPoint = false;
 
-		for (int j = 0; j < FUNCTION_STEPS; j++) {
-			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
-					* (maxX - minX);
+		for (int i = 0; i < FUNCTION_STEPS; i++) {
+			Double y = transformY.to(convertedYs[i]);
 
-			parser.setVarValue(paramX, transformX.from(x));
-
-			Object number = parser.evaluate(f);
-			Double y = Double.NaN;
-
-			if (number instanceof Double) {
-				y = transformY.to((Double) number);
+			if (MathUtils.isValidDouble(y)) {
+				points[1][i] = y;
+				containsValidPoint = true;
+			} else {
+				points[1][i] = Double.NaN;
 			}
-
-			if (!MathUtils.isValidDouble(y)) {
-				y = Double.NaN;
-			}
-
-			points[0][j] = x;
-			points[1][j] = y;
 		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		System.arraycopy(xs, 0, points[0], 0, FUNCTION_STEPS);
 
 		return points;
 	}
 
 	public double[][] getFunctionErrors(String paramX, Transform transformX,
-			Transform transformY, double minX, double maxX)
+			Transform transformY, double minX, double maxX, boolean prediction)
 			throws ParseException {
-		DJep parser = createParser(paramX);
+		Map<String, Double> parserConstants = createParserConstants(paramX);
 
-		if (function == null || parser == null || covarianceMatrixMissing()) {
+		if (function == null || parserConstants == null
+				|| covarianceMatrixMissing()) {
+			return null;
+		}
+
+		double[] xs = new double[FUNCTION_STEPS];
+		double[] convertedXs = new double[FUNCTION_STEPS];
+
+		for (int i = 0; i < FUNCTION_STEPS; i++) {
+			xs[i] = minX + (double) i / (double) (FUNCTION_STEPS - 1)
+					* (maxX - minX);
+			convertedXs[i] = transformX.from(xs[i]);
+		}
+
+		double[] convertedYs = Evaluator.getFunctionErrors(parserConstants,
+				function, paramX, convertedXs, covariances, prediction ? mse
+						: 0.0, degreesOfFreedom);
+
+		if (convertedYs == null) {
 			return null;
 		}
 
 		double[][] points = new double[2][FUNCTION_STEPS];
-		Node f = parser.parse(function);
-		Map<String, Node> derivatives = new LinkedHashMap<>();
-		TDistribution tDist = new TDistribution(degreesOfFreedom);
+		boolean containsValidPoint = false;
 
-		for (String param : parameters.keySet()) {
-			derivatives.put(param, parser.differentiate(f, param));
-		}
+		for (int i = 0; i < FUNCTION_STEPS; i++) {
+			Double y = transformY.to(convertedYs[i]);
 
-		for (int n = 0; n < FUNCTION_STEPS; n++) {
-			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
-					* (maxX - minX);
-
-			parser.setVarValue(paramX, transformX.from(x));
-
-			Double y = transformY.to(getError(parser, derivatives, tDist));
-
-			if (!MathUtils.isValidDouble(y)) {
-				y = Double.NaN;
+			if (MathUtils.isValidDouble(y)) {
+				points[1][i] = y;
+				containsValidPoint = true;
+			} else {
+				points[1][i] = Double.NaN;
 			}
-
-			points[0][n] = x;
-			points[1][n] = y;
 		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		System.arraycopy(xs, 0, points[0], 0, FUNCTION_STEPS);
 
 		return points;
 	}
@@ -347,7 +381,18 @@ public class Plotable {
 		int index = 0;
 
 		for (String var : functions.keySet()) {
-			parsers[index] = createParser(diffVariable);
+			parsers[index] = MathUtils.createParser();
+			parsers[index].addVariable(dependentVariable, 0.0);
+
+			for (String indep : independentVariables.keySet()) {
+				parsers[index].addVariable(indep, 0.0);
+			}
+
+			for (Map.Entry<String, Double> entry : createParserConstants(
+					diffVariable).entrySet()) {
+				parsers[index].addConstant(entry.getKey(), entry.getValue());
+			}
+
 			fs[index] = parsers[index].parse(functions.get(var));
 			valueVariables[index] = var;
 
@@ -465,15 +510,15 @@ public class Plotable {
 		return false;
 	}
 
-	private DJep createParser(String varX) {
-		DJep parser = MathUtils.createParser();
+	private Map<String, Double> createParserConstants(String varX) {
+		Map<String, Double> parserConstants = new LinkedHashMap<>();
 
 		for (String constant : constants.keySet()) {
 			if (constants.get(constant) == null) {
 				return null;
 			}
 
-			parser.addConstant(constant, constants.get(constant));
+			parserConstants.put(constant, constants.get(constant));
 		}
 
 		for (String param : parameters.keySet()) {
@@ -481,64 +526,17 @@ public class Plotable {
 				return null;
 			}
 
-			parser.addConstant(param, parameters.get(param));
+			parserConstants.put(param, parameters.get(param));
 		}
 
-		if (type == Type.DATA_DIFF) {
-			for (String var : independentVariables.keySet()) {
-				parser.addVariable(var, 0.0);
-			}
-
-			parser.addVariable(dependentVariable, 0.0);
-		} else {
+		if (type != Type.DATA_DIFF) {
 			for (String param : independentVariables.keySet()) {
 				if (!param.equals(varX)) {
-					parser.addConstant(param, independentVariables.get(param));
+					parserConstants.put(param, independentVariables.get(param));
 				}
 			}
-
-			parser.addVariable(varX, 0.0);
 		}
 
-		return parser;
-	}
-
-	private Double getError(DJep parser, Map<String, Node> derivatives,
-			TDistribution tDist) throws ParseException {
-		Double y = 0.0;
-		List<String> paramList = new ArrayList<>(parameters.keySet());
-
-		for (String param : paramList) {
-			Object obj = parser.evaluate(derivatives.get(param));
-
-			if (!MathUtils.isValidDouble(obj)) {
-				return null;
-			}
-
-			y += (Double) obj * (Double) obj
-					* covariances.get(param).get(param);
-		}
-
-		for (int i = 0; i < paramList.size() - 1; i++) {
-			for (int j = i + 1; j < paramList.size(); j++) {
-				Object obj1 = parser
-						.evaluate(derivatives.get(paramList.get(i)));
-				Object obj2 = parser
-						.evaluate(derivatives.get(paramList.get(j)));
-
-				if (!MathUtils.isValidDouble(obj1)
-						|| !MathUtils.isValidDouble(obj2)) {
-					return null;
-				}
-
-				double cov = covariances.get(paramList.get(i)).get(
-						paramList.get(j));
-
-				y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
-			}
-		}
-
-		return Math.sqrt(y)
-				* tDist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+		return parserConstants;
 	}
 }
