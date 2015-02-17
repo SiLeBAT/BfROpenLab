@@ -158,10 +158,10 @@ public class ChartCreator extends ChartPanel {
 			if (plotable.getType() == Plotable.Type.FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
-				Double minArg = transformX.to(plotable.getMinVariables().get(
-						varX));
-				Double maxArg = transformX.to(plotable.getMaxVariables().get(
-						varX));
+				Double minArg = transformX
+						.to(plotable.getMinValues().get(varX));
+				Double maxArg = transformX
+						.to(plotable.getMaxValues().get(varX));
 
 				if (minArg != null) {
 					usedMinX = Math.min(usedMinX, minArg);

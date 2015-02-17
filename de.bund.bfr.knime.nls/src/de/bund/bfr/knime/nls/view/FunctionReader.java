@@ -120,23 +120,21 @@ public class FunctionReader implements Reader {
 
 				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
 				plotable.setDependentVariable(f.getDependentVariable());
-				plotable.setIndependentVariables(variables);
-				plotable.setMinVariables(new LinkedHashMap<String, Double>());
-				plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-				plotable.setValueLists(NlsUtils.getVariableValues(varTable, id,
-						f, fixed));
+				plotable.getIndependentVariables().putAll(variables);
+				plotable.getValueLists().putAll(
+						NlsUtils.getVariableValues(varTable, id, f, fixed));
 
 				if (paramTable != null) {
-					plotable.setParameters(NlsUtils.getParameters(paramTable,
-							id, f));
+					plotable.getParameters().putAll(
+							NlsUtils.getParameters(paramTable, id, f));
 				} else {
-					plotable.setParameters(NlsUtils.createZeroMap(f
-							.getParameters()));
+					plotable.getParameters().putAll(
+							NlsUtils.createZeroMap(f.getParameters()));
 				}
 
 				if (covarianceTable != null) {
-					plotable.setCovariances(NlsUtils.getCovariances(
-							covarianceTable, id, f));
+					plotable.getCovariances().putAll(
+							NlsUtils.getCovariances(covarianceTable, id, f));
 				}
 
 				if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {

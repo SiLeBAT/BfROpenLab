@@ -136,7 +136,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.getViewSettings().setToChartCreator(chartCreator);
 
 		for (Plotable plotable : reader.getPlotables().values()) {
-			plotable.setParameters(configPanel.getParamValues());
+			plotable.getParameters().clear();
+			plotable.getParameters().putAll(configPanel.getParamValues());
 		}
 
 		try {

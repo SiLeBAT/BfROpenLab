@@ -40,7 +40,7 @@ import de.bund.bfr.math.Transform;
 
 public class Plotable {
 
-	private static final int FUNCTION_STEPS = 1000;
+	private static final int DEFAULT_FUNCTION_STEPS = 1000;
 
 	public static enum Type {
 		DATA, FUNCTION, DATA_FUNCTION, DATA_DIFF
@@ -62,39 +62,50 @@ public class Plotable {
 	}
 
 	private Type type;
+	private int functionSteps;
+
 	private Map<String, double[]> valueLists;
 	private Map<String, double[]> conditionLists;
+
 	private String function;
-	private String dependentVariable;
-	private Map<String, String> functions;
-	private Map<String, Double> initValues;
-	private Map<String, String> initParameters;
-	private String diffVariable;
-	private Map<String, Double> independentVariables;
 	private Map<String, Double> constants;
 	private Map<String, Double> parameters;
 	private Map<String, Map<String, Double>> covariances;
-	private Map<String, Double> minVariables;
-	private Map<String, Double> maxVariables;
+	private Map<String, Double> independentVariables;
+	private Map<String, Double> minValues;
+	private Map<String, Double> maxValues;
+
+	private String dependentVariable;
+	private String diffVariable;
+	private Map<String, String> functions;
+	private Map<String, Double> initValues;
+	private Map<String, String> initParameters;
+
 	private Double mse;
 	private Integer degreesOfFreedom;
 
 	public Plotable(Type type) {
 		this.type = type;
+		functionSteps = DEFAULT_FUNCTION_STEPS;
+
 		valueLists = new LinkedHashMap<>();
 		conditionLists = new LinkedHashMap<>();
+
 		function = null;
+		constants = new LinkedHashMap<>();
+		parameters = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
+		independentVariables = new LinkedHashMap<>();
+		minValues = new LinkedHashMap<>();
+		maxValues = new LinkedHashMap<>();
+
 		dependentVariable = null;
+		diffVariable = null;
 		functions = new LinkedHashMap<>();
 		initValues = new LinkedHashMap<>();
 		initParameters = new LinkedHashMap<>();
-		diffVariable = null;
-		constants = new LinkedHashMap<>();
-		independentVariables = new LinkedHashMap<>();
-		minVariables = new LinkedHashMap<>();
-		maxVariables = new LinkedHashMap<>();
-		parameters = new LinkedHashMap<>();
-		covariances = new LinkedHashMap<>();
+
+		mse = null;
 		degreesOfFreedom = null;
 	}
 
@@ -102,20 +113,20 @@ public class Plotable {
 		return type;
 	}
 
+	public int getFunctionSteps() {
+		return functionSteps;
+	}
+
+	public void setFunctionSteps(int functionSteps) {
+		this.functionSteps = functionSteps;
+	}
+
 	public Map<String, double[]> getValueLists() {
 		return valueLists;
 	}
 
-	public void setValueLists(Map<String, double[]> valueLists) {
-		this.valueLists = valueLists;
-	}
-
 	public Map<String, double[]> getConditionLists() {
 		return conditionLists;
-	}
-
-	public void setConditionLists(Map<String, double[]> conditionLists) {
-		this.conditionLists = conditionLists;
 	}
 
 	public String getFunction() {
@@ -126,36 +137,36 @@ public class Plotable {
 		this.function = function;
 	}
 
+	public Map<String, Double> getConstants() {
+		return constants;
+	}
+
+	public Map<String, Double> getParameters() {
+		return parameters;
+	}
+
+	public Map<String, Map<String, Double>> getCovariances() {
+		return covariances;
+	}
+
+	public Map<String, Double> getIndependentVariables() {
+		return independentVariables;
+	}
+
+	public Map<String, Double> getMinValues() {
+		return minValues;
+	}
+
+	public Map<String, Double> getMaxValues() {
+		return maxValues;
+	}
+
 	public String getDependentVariable() {
 		return dependentVariable;
 	}
 
 	public void setDependentVariable(String dependentVariable) {
 		this.dependentVariable = dependentVariable;
-	}
-
-	public Map<String, String> getFunctions() {
-		return functions;
-	}
-
-	public void setFunctions(Map<String, String> functions) {
-		this.functions = functions;
-	}
-
-	public Map<String, String> getInitParameters() {
-		return initParameters;
-	}
-
-	public void setInitParameters(Map<String, String> initParameters) {
-		this.initParameters = initParameters;
-	}
-
-	public Map<String, Double> getInitValues() {
-		return initValues;
-	}
-
-	public void setInitValues(Map<String, Double> initValues) {
-		this.initValues = initValues;
 	}
 
 	public String getDiffVariable() {
@@ -166,52 +177,16 @@ public class Plotable {
 		this.diffVariable = diffVariable;
 	}
 
-	public Map<String, Double> getConstants() {
-		return constants;
+	public Map<String, String> getFunctions() {
+		return functions;
 	}
 
-	public void setConstants(Map<String, Double> constants) {
-		this.constants = constants;
+	public Map<String, Double> getInitValues() {
+		return initValues;
 	}
 
-	public Map<String, Double> getIndependentVariables() {
-		return independentVariables;
-	}
-
-	public void setIndependentVariables(Map<String, Double> independentVariables) {
-		this.independentVariables = independentVariables;
-	}
-
-	public Map<String, Double> getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(Map<String, Double> parameters) {
-		this.parameters = parameters;
-	}
-
-	public Map<String, Map<String, Double>> getCovariances() {
-		return covariances;
-	}
-
-	public void setCovariances(Map<String, Map<String, Double>> covariances) {
-		this.covariances = covariances;
-	}
-
-	public Map<String, Double> getMinVariables() {
-		return minVariables;
-	}
-
-	public void setMinVariables(Map<String, Double> minVariables) {
-		this.minVariables = minVariables;
-	}
-
-	public Map<String, Double> getMaxVariables() {
-		return maxVariables;
-	}
-
-	public void setMaxVariables(Map<String, Double> maxVariables) {
-		this.maxVariables = maxVariables;
+	public Map<String, String> getInitParameters() {
+		return initParameters;
 	}
 
 	public Double getMse() {
@@ -268,35 +243,35 @@ public class Plotable {
 		return pointsArray;
 	}
 
-	public double[][] getFunctionPoints(String paramX, Transform transformX,
+	public double[][] getFunctionPoints(String varX, Transform transformX,
 			Transform transformY, double minX, double maxX)
 			throws ParseException {
-		Map<String, Double> parserConstants = createParserConstants(paramX);
+		Map<String, Double> parserConstants = createParserConstants(varX);
 
 		if (function == null || parserConstants == null) {
 			return null;
 		}
 
-		double[] xs = new double[FUNCTION_STEPS];
-		double[] convertedXs = new double[FUNCTION_STEPS];
+		double[] xs = new double[functionSteps];
+		double[] convertedXs = new double[functionSteps];
 
-		for (int i = 0; i < FUNCTION_STEPS; i++) {
-			xs[i] = minX + (double) i / (double) (FUNCTION_STEPS - 1)
+		for (int i = 0; i < functionSteps; i++) {
+			xs[i] = minX + (double) i / (double) (functionSteps - 1)
 					* (maxX - minX);
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
 		double[] convertedYs = Evaluator.getFunctionPoints(parserConstants,
-				function, paramX, convertedXs);
+				function, varX, convertedXs);
 
 		if (convertedYs == null) {
 			return null;
 		}
 
-		double[][] points = new double[2][FUNCTION_STEPS];
+		double[][] points = new double[2][functionSteps];
 		boolean containsValidPoint = false;
 
-		for (int i = 0; i < FUNCTION_STEPS; i++) {
+		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
 			if (MathUtils.isValidDouble(y)) {
@@ -311,42 +286,42 @@ public class Plotable {
 			return null;
 		}
 
-		System.arraycopy(xs, 0, points[0], 0, FUNCTION_STEPS);
+		System.arraycopy(xs, 0, points[0], 0, functionSteps);
 
 		return points;
 	}
 
-	public double[][] getFunctionErrors(String paramX, Transform transformX,
+	public double[][] getFunctionErrors(String varX, Transform transformX,
 			Transform transformY, double minX, double maxX, boolean prediction)
 			throws ParseException {
-		Map<String, Double> parserConstants = createParserConstants(paramX);
+		Map<String, Double> parserConstants = createParserConstants(varX);
 
 		if (function == null || parserConstants == null
 				|| covarianceMatrixMissing()) {
 			return null;
 		}
 
-		double[] xs = new double[FUNCTION_STEPS];
-		double[] convertedXs = new double[FUNCTION_STEPS];
+		double[] xs = new double[functionSteps];
+		double[] convertedXs = new double[functionSteps];
 
-		for (int i = 0; i < FUNCTION_STEPS; i++) {
-			xs[i] = minX + (double) i / (double) (FUNCTION_STEPS - 1)
+		for (int i = 0; i < functionSteps; i++) {
+			xs[i] = minX + (double) i / (double) (functionSteps - 1)
 					* (maxX - minX);
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
 		double[] convertedYs = Evaluator.getFunctionErrors(parserConstants,
-				function, paramX, convertedXs, covariances, prediction ? mse
+				function, varX, convertedXs, covariances, prediction ? mse
 						: 0.0, degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;
 		}
 
-		double[][] points = new double[2][FUNCTION_STEPS];
+		double[][] points = new double[2][functionSteps];
 		boolean containsValidPoint = false;
 
-		for (int i = 0; i < FUNCTION_STEPS; i++) {
+		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
 			if (MathUtils.isValidDouble(y)) {
@@ -361,7 +336,7 @@ public class Plotable {
 			return null;
 		}
 
-		System.arraycopy(xs, 0, points[0], 0, FUNCTION_STEPS);
+		System.arraycopy(xs, 0, points[0], 0, functionSteps);
 
 		return points;
 	}
@@ -409,15 +384,15 @@ public class Plotable {
 			index++;
 		}
 
-		double[][] points = new double[2][FUNCTION_STEPS];
+		double[][] points = new double[2][functionSteps];
 		DiffFunction f = new DiffFunction(parsers, fs, valueVariables,
 				conditionLists, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);
 		double diffValue = conditionLists.get(diffVariable)[0];
 
-		for (int j = 0; j < FUNCTION_STEPS; j++) {
-			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
+		for (int j = 0; j < functionSteps; j++) {
+			double x = minX + (double) j / (double) (functionSteps - 1)
 					* (maxX - minX);
 			double transX = transformX.from(x);
 			Double y = Double.NaN;

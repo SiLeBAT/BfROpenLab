@@ -94,30 +94,29 @@ public class DiffFunctionReader implements Reader {
 
 			Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
 
-			plotable.setFunctions(f.getTerms());
-			plotable.setInitValues(f.getInitValues());
-			plotable.setInitParameters(f.getInitParameters());
+			plotable.getFunctions().putAll(f.getTerms());
+			plotable.getInitValues().putAll(f.getInitValues());
+			plotable.getInitParameters().putAll(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
-			plotable.setIndependentVariables(NlsUtils.createZeroMap(Arrays
-					.asList(f.getTimeVariable())));
-			plotable.setMinVariables(new LinkedHashMap<String, Double>());
-			plotable.setMaxVariables(new LinkedHashMap<String, Double>());
-			plotable.setValueLists(NlsUtils.getDiffVariableValues(varTable, id,
-					f));
-			plotable.setConditionLists(NlsUtils.getConditionValues(
-					conditionTable, id, f));
+			plotable.getIndependentVariables().putAll(
+					NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
+			plotable.getValueLists().putAll(
+					NlsUtils.getDiffVariableValues(varTable, id, f));
+			plotable.getConditionLists().putAll(
+					NlsUtils.getConditionValues(conditionTable, id, f));
 
 			if (paramTable != null) {
-				plotable.setParameters(NlsUtils
-						.getParameters(paramTable, id, f));
+				plotable.getParameters().putAll(
+						NlsUtils.getParameters(paramTable, id, f));
 			} else {
-				plotable.setParameters(NlsUtils.createZeroMap(f.getParameters()));
+				plotable.getParameters().putAll(
+						NlsUtils.createZeroMap(f.getParameters()));
 			}
 
 			if (covarianceTable != null) {
-				plotable.setCovariances(NlsUtils.getCovariances(
-						covarianceTable, id, f));
+				plotable.getCovariances().putAll(
+						NlsUtils.getCovariances(covarianceTable, id, f));
 			}
 
 			if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
