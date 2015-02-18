@@ -348,27 +348,26 @@ public class Plotable {
 			return null;
 		}
 
-		DJep[] parsers = new DJep[functions.size()];
 		Node[] fs = new Node[functions.size()];
 		String[] valueVariables = new String[functions.size()];
 		double[] value = new double[functions.size()];
 		int depIndex = -1;
 		int index = 0;
+		DJep parser = MathUtils.createParser();
+
+		parser.addVariable(dependentVariable, 0.0);
+
+		for (String indep : independentVariables.keySet()) {
+			parser.addVariable(indep, 0.0);
+		}
+
+		for (Map.Entry<String, Double> entry : createParserConstants(
+				diffVariable).entrySet()) {
+			parser.addConstant(entry.getKey(), entry.getValue());
+		}
 
 		for (String var : functions.keySet()) {
-			parsers[index] = MathUtils.createParser();
-			parsers[index].addVariable(dependentVariable, 0.0);
-
-			for (String indep : independentVariables.keySet()) {
-				parsers[index].addVariable(indep, 0.0);
-			}
-
-			for (Map.Entry<String, Double> entry : createParserConstants(
-					diffVariable).entrySet()) {
-				parsers[index].addConstant(entry.getKey(), entry.getValue());
-			}
-
-			fs[index] = parsers[index].parse(functions.get(var));
+			fs[index] = parser.parse(functions.get(var));
 			valueVariables[index] = var;
 
 			if (initValues.containsKey(var)) {
@@ -385,7 +384,7 @@ public class Plotable {
 		}
 
 		double[][] points = new double[2][functionSteps];
-		DiffFunction f = new DiffFunction(parsers, fs, valueVariables,
+		DiffFunction f = new DiffFunction(parser, fs, valueVariables,
 				conditionLists, diffVariable);
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
 				0.01);

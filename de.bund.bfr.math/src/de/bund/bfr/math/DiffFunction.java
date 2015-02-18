@@ -30,7 +30,7 @@ import org.nfunk.jep.ParseException;
 
 public class DiffFunction implements FirstOrderDifferentialEquations {
 
-	private DJep[] parsers;
+	private DJep parser;
 	private Node[] functions;
 	private String[] dependentVariables;
 	private String timeVariable;
@@ -38,10 +38,10 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private int lastIndex;
 
-	public DiffFunction(DJep[] parsers, Node[] functions,
+	public DiffFunction(DJep parser, Node[] functions,
 			String[] dependentVariables, Map<String, double[]> variableValues,
 			String timeVariable) {
-		this.parsers = parsers;
+		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
 		this.timeVariable = timeVariable;
@@ -66,21 +66,19 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 		lastIndex = index;
 
-		for (int i = 0; i < parsers.length; i++) {
-			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-				parsers[i].setVarValue(entry.getKey(), entry.getValue()[index]);
-			}
-
-			for (int j = 0; j < y.length; j++) {
-				parsers[i].setVarValue(dependentVariables[j], y[j]);
-			}
-
-			parsers[i].setVarValue(timeVariable, t);
+		for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
+			parser.setVarValue(entry.getKey(), entry.getValue()[index]);
 		}
+
+		for (int i = 0; i < y.length; i++) {
+			parser.setVarValue(dependentVariables[i], y[i]);
+		}
+
+		parser.setVarValue(timeVariable, t);
 
 		try {
 			for (int i = 0; i < y.length; i++) {
-				Object number = parsers[i].evaluate(functions[i]);
+				Object number = parser.evaluate(functions[i]);
 
 				if (!(number instanceof Double)) {
 					number = Double.NaN;

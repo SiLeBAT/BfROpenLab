@@ -59,15 +59,14 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		diffFunctions = new VectorDiffFunction[nParams];
 
 		for (int i = 0; i < nParams; i++) {
-			DJep[] parsers = new DJep[formulas.length];
+			DJep parser = MathUtils.createParser(variables);
 			Node[] functions = new Node[formulas.length];
 
 			for (int j = 0; j < formulas.length; j++) {
-				parsers[j] = MathUtils.createParser(variables);
-				functions[j] = parsers[j].parse(formulas[j]);
+				functions[j] = parser.parse(formulas[j]);
 			}
 
-			diffFunctions[i] = new VectorDiffFunction(parsers, functions,
+			diffFunctions[i] = new VectorDiffFunction(parser, functions,
 					dependentVariables, initValues, initParameters, parameters,
 					variableValues, timeValues, Arrays.asList(
 							dependentVariables).indexOf(dependentVariable),

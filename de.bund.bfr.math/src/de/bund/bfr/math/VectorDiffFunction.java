@@ -32,7 +32,7 @@ import org.nfunk.jep.ParseException;
 
 public class VectorDiffFunction implements MultivariateVectorFunction {
 
-	private DJep[] parsers;
+	private DJep parser;
 	private Node[] functions;
 	private String[] dependentVariables;
 	private Double[] initValues;
@@ -66,22 +66,21 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
-		parsers = new DJep[formulas.length];
+		parser = MathUtils.createParser(variables);
 		functions = new Node[formulas.length];
 
 		for (int i = 0; i < formulas.length; i++) {
-			parsers[i] = MathUtils.createParser(variables);
-			functions[i] = parsers[i].parse(formulas[i]);
+			functions[i] = parser.parse(formulas[i]);
 		}
 	}
 
-	public VectorDiffFunction(DJep[] parsers, Node[] functions,
+	public VectorDiffFunction(DJep parser, Node[] functions,
 			String[] dependentVariables, Double[] initValues,
 			String[] initParameters, String[] parameters,
 			Map<String, double[]> variableValues, double[] timeValues,
 			int dependentIndex, String timeVariable,
 			IntegratorFactory integrator) {
-		this.parsers = parsers;
+		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
@@ -96,11 +95,9 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		for (int i = 0; i < parsers.length; i++) {
-			for (int j = 0; j < parameters.length; j++) {
-				if (!Arrays.asList(initParameters).contains(parameters[j])) {
-					parsers[i].setVarValue(parameters[j], point[j]);
-				}
+		for (int i = 0; i < parameters.length; i++) {
+			if (!Arrays.asList(initParameters).contains(parameters[i])) {
+				parser.setVarValue(parameters[i], point[i]);
 			}
 		}
 
@@ -115,7 +112,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		DiffFunction f = new DiffFunction(parsers, functions,
+		DiffFunction f = new DiffFunction(parser, functions,
 				dependentVariables, variableValues, timeVariable);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		double[] result = new double[timeValues.length];
