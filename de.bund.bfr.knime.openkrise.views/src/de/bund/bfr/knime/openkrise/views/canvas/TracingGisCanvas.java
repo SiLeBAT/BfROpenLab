@@ -190,7 +190,7 @@ public class TracingGisCanvas extends LocationCanvas implements
 
 	@Override
 	protected PickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
-		return tracing.createPickingPlugin();
+		return new Tracing.PickingPlugin<>(this);
 	}
 
 	@Override

@@ -175,8 +175,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
-		viewer.setGraphMouse(new GraphMouse<>());
 
+		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(
+				createPickingPlugin());
+
+		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
+
+		viewer.setGraphMouse(graphMouse);
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 	}

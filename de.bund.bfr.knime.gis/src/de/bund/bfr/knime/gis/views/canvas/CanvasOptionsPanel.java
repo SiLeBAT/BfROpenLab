@@ -51,17 +51,17 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		ItemListener {
 
-	private static final long serialVersionUID = 1L;
+	public static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
+	public static final boolean DEFAULT_SHOW_LEGEND = false;
+	public static final boolean DEFAULT_JOIN_EDGES = false;
+	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
+	public static final int DEFAULT_FONT_SIZE = 12;
+	public static final boolean DEFAULT_FONT_BOLD = false;
+	public static final int DEFAULT_NODE_SIZE = 10;
+	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
+	public static final int DEFAULT_BORDER_ALPHA = 255;
 
-	private static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
-	private static final boolean DEFAULT_SHOW_LEGEND = false;
-	private static final boolean DEFAULT_JOIN_EDGES = false;
-	private static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
-	private static final int DEFAULT_FONT_SIZE = 12;
-	private static final boolean DEFAULT_FONT_BOLD = false;
-	private static final int DEFAULT_NODE_SIZE = 10;
-	private static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
-	private static final int DEFAULT_BORDER_ALPHA = 255;
+	private static final long serialVersionUID = 1L;
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };

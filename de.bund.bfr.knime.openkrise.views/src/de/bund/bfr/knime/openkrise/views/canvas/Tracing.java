@@ -414,10 +414,6 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
-	public PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new PickingPlugin();
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == defaultHighlightItem) {
@@ -730,7 +726,14 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
-	private class PickingPlugin extends PickingGraphMousePlugin<V, Edge<V>> {
+	public static class PickingPlugin<V extends Node> extends
+			PickingGraphMousePlugin<V, Edge<V>> {
+
+		private ICanvas<V> canvas;
+
+		public PickingPlugin(ICanvas<V> canvas) {
+			this.canvas = canvas;
+		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {

@@ -188,7 +188,7 @@ public class TracingGraphCanvas extends GraphCanvas implements
 
 	@Override
 	protected PickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
-		return tracing.createPickingPlugin();
+		return new Tracing.PickingPlugin<>(this);
 	}
 
 	@Override
