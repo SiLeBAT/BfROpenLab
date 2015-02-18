@@ -28,12 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
-import org.lsmp.djep.djep.DJep;
-import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.math.DiffFunction;
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
@@ -341,76 +337,62 @@ public class Plotable {
 		return points;
 	}
 
-	public double[][] getDiffPoints(String paramX, Transform transformX,
+	public double[][] getDiffPoints(String varX, Transform transformX,
 			Transform transformY, double minX, double maxX)
 			throws ParseException {
-		if (functions.isEmpty() || !paramX.equals(diffVariable)) {
+		Map<String, Double> parserConstants = createParserConstants(varX);
+
+		if (parserConstants == null || functions.isEmpty()
+				|| !varX.equals(diffVariable)) {
 			return null;
 		}
 
-		Node[] fs = new Node[functions.size()];
-		String[] valueVariables = new String[functions.size()];
-		double[] value = new double[functions.size()];
-		int depIndex = -1;
-		int index = 0;
-		DJep parser = MathUtils.createParser();
-
-		parser.addVariable(dependentVariable, 0.0);
-
-		for (String indep : independentVariables.keySet()) {
-			parser.addVariable(indep, 0.0);
-		}
-
-		for (Map.Entry<String, Double> entry : createParserConstants(
-				diffVariable).entrySet()) {
-			parser.addConstant(entry.getKey(), entry.getValue());
-		}
+		Map<String, Double> initValues = new LinkedHashMap<>();
 
 		for (String var : functions.keySet()) {
-			fs[index] = parser.parse(functions.get(var));
-			valueVariables[index] = var;
-
-			if (initValues.containsKey(var)) {
-				value[index] = initValues.get(var);
+			if (this.initValues.containsKey(var)) {
+				initValues.put(var, this.initValues.get(var));
 			} else {
-				value[index] = parameters.get(initParameters.get(var));
+				initValues.put(var, parameters.get(initParameters.get(var)));
 			}
+		}
 
-			if (var.equals(dependentVariable)) {
-				depIndex = index;
-			}
+		double[] xs = new double[functionSteps];
+		double[] convertedXs = new double[functionSteps];
 
-			index++;
+		for (int i = 0; i < functionSteps; i++) {
+			xs[i] = minX + (double) i / (double) (functionSteps - 1)
+					* (maxX - minX);
+			convertedXs[i] = transformX.from(xs[i]);
+		}
+
+		double[] convertedYs = Evaluator.getDiffPoints(parserConstants,
+				functions, initValues, conditionLists, dependentVariable,
+				independentVariables, varX, convertedXs);
+
+		if (convertedYs == null) {
+			return null;
 		}
 
 		double[][] points = new double[2][functionSteps];
-		DiffFunction f = new DiffFunction(parser, fs, valueVariables,
-				conditionLists, diffVariable);
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				0.01);
-		double diffValue = conditionLists.get(diffVariable)[0];
+		boolean containsValidPoint = false;
 
-		for (int j = 0; j < functionSteps; j++) {
-			double x = minX + (double) j / (double) (functionSteps - 1)
-					* (maxX - minX);
-			double transX = transformX.from(x);
-			Double y = Double.NaN;
+		for (int i = 0; i < functionSteps; i++) {
+			Double y = transformY.to(convertedYs[i]);
 
-			if (transX == diffValue) {
-				y = transformY.to(value[depIndex]);
-			} else if (transX > diffValue) {
-				integrator.integrate(f, diffValue, value, transX, value);
-				y = transformY.to(value[depIndex]);
-				diffValue = transX;
+			if (MathUtils.isValidDouble(y)) {
+				points[1][i] = y;
+				containsValidPoint = true;
+			} else {
+				points[1][i] = Double.NaN;
 			}
-
-			if (!MathUtils.isValidDouble(y)) {
-				y = Double.NaN;
-			}
-
-			points[0][j] = x;
-			points[1][j] = y;
 		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		System.arraycopy(xs, 0, points[0], 0, functionSteps);
 
 		return points;
 	}

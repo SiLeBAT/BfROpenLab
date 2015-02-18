@@ -313,7 +313,8 @@ public class VariablePanel extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (valueSliders.values().contains(e.getSource())) {
+		if (valueSliders.values().contains(e.getSource())
+				&& ((JSlider) e.getSource()).isEnabled()) {
 			sliderChanged((JSlider) e.getSource(), true);
 		}
 	}
