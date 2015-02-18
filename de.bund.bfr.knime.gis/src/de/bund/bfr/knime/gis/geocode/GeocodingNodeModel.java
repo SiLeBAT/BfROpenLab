@@ -139,6 +139,9 @@ public class GeocodingNodeModel extends NodeModel {
 			} else if (set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_BKG)) {
 				result = performBkgGeocoding(address);
+			} else {
+				throw new IllegalArgumentException("Unknown Service Provider: "
+						+ set.getServiceProvider());
 			}
 
 			cells[outSpec.findColumnIndex(URL_COLUMN)] = IO.createCell(result

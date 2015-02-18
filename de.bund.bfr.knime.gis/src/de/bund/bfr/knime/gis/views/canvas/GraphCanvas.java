@@ -210,6 +210,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		case KK_LAYOUT:
 			layout = new KKLayout<>(graph);
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown LayoutType: "
+					+ layoutType);
 		}
 
 		if (!selectedNodes.isEmpty()) {

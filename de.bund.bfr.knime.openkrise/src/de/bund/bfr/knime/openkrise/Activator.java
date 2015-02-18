@@ -28,7 +28,7 @@ import org.osgi.framework.BundleContext;
  * eclipse platform/plugin mechanism. If you want to move/rename this file, make
  * sure to change the plugin.xml file in the project root directory accordingly.
  * 
- * @author Jorgen Brandt
+ * @author Christian Thoens
  */
 public class Activator extends Plugin {
 	// The shared instance.

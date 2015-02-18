@@ -240,7 +240,7 @@ public class Evaluator {
 		}
 
 		if (!containsValidPoint) {
-			return valuesY = null;
+			valuesY = null;
 		}
 
 		diffResults.put(function, valuesY);
