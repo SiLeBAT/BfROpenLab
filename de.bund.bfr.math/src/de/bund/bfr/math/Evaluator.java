@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.lsmp.djep.djep.DJep;
@@ -35,6 +38,7 @@ import com.google.common.primitives.Doubles;
 public class Evaluator {
 
 	private static final double EPSILON = 1e-6;
+	private static final int MAX_THREADS = 8;
 
 	private static Map<FunctionConf, double[]> results = new LinkedHashMap<>();
 	private static Map<ErrorFunctionConf, double[]> errorResults = new LinkedHashMap<>();
@@ -272,35 +276,25 @@ public class Evaluator {
 
 		List<String> paramList = new ArrayList<>(covariances.keySet());
 		Map<String, double[]> derivValues = new LinkedHashMap<>();
+		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
 		for (String param : paramList) {
-			Map<String, Double> constantsMinus = new LinkedHashMap<>(
-					parserConstants);
-			Map<String, Double> constantsPlus = new LinkedHashMap<>(
-					parserConstants);
-			double value = parserConstants.get(param);
-
-			constantsMinus.put(param, value - EPSILON);
-			constantsPlus.put(param, value + EPSILON);
-
-			double[] valuesMinus = getDiffPoints(constantsMinus, functions,
-					initValues, initParameters, conditionLists,
-					dependentVariable, independentVariables, varX, valuesX);
-			double[] valuesPlus = getDiffPoints(constantsPlus, functions,
-					initValues, initParameters, conditionLists,
-					dependentVariable, independentVariables, varX, valuesX);
-
-			if (valuesMinus == null || valuesPlus == null) {
-				return null;
-			}
-
 			double[] deriv = new double[valuesX.length];
 
-			for (int i = 0; i < valuesX.length; i++) {
-				deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * EPSILON);
-			}
-
+			Arrays.fill(deriv, Double.NaN);
+			executor.execute(new DiffDerivThread(parserConstants, functions,
+					initValues, initParameters, conditionLists,
+					dependentVariable, independentVariables, varX, valuesX,
+					param, deriv));
 			derivValues.put(param, deriv);
+		}
+
+		executor.shutdown();
+
+		try {
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 
 		double[] valuesY = new double[valuesX.length];
@@ -566,6 +560,73 @@ public class Evaluator {
 			return covariances.equals(f.covariances)
 					&& extraVariance == f.extraVariance
 					&& degreesOfFreedom == f.degreesOfFreedom;
+		}
+	}
+
+	private static class DiffDerivThread implements Runnable {
+
+		private Map<String, Double> parserConstants;
+		private Map<String, String> functions;
+		private Map<String, Double> initValues;
+		private Map<String, String> initParameters;
+		private Map<String, double[]> conditionLists;
+		private String dependentVariable;
+		private Map<String, Double> independentVariables;
+		private String varX;
+		private double[] valuesX;
+		private String param;
+		private double[] deriv;
+
+		public DiffDerivThread(Map<String, Double> parserConstants,
+				Map<String, String> functions, Map<String, Double> initValues,
+				Map<String, String> initParameters,
+				Map<String, double[]> conditionLists, String dependentVariable,
+				Map<String, Double> independentVariables, String varX,
+				double[] valuesX, String param, double[] deriv) {
+			this.parserConstants = parserConstants;
+			this.functions = functions;
+			this.initValues = initValues;
+			this.initParameters = initParameters;
+			this.conditionLists = conditionLists;
+			this.dependentVariable = dependentVariable;
+			this.independentVariables = independentVariables;
+			this.varX = varX;
+			this.valuesX = valuesX;
+			this.param = param;
+			this.deriv = deriv;
+		}
+
+		@Override
+		public void run() {
+			Map<String, Double> constantsMinus = new LinkedHashMap<>(
+					parserConstants);
+			Map<String, Double> constantsPlus = new LinkedHashMap<>(
+					parserConstants);
+			double value = parserConstants.get(param);
+
+			constantsMinus.put(param, value - EPSILON);
+			constantsPlus.put(param, value + EPSILON);
+
+			double[] valuesMinus = null;
+			double[] valuesPlus = null;
+
+			try {
+				valuesMinus = getDiffPoints(constantsMinus, functions,
+						initValues, initParameters, conditionLists,
+						dependentVariable, independentVariables, varX, valuesX);
+				valuesPlus = getDiffPoints(constantsPlus, functions,
+						initValues, initParameters, conditionLists,
+						dependentVariable, independentVariables, varX, valuesX);
+			} catch (ParseException e) {
+			}
+
+			if (valuesMinus == null || valuesPlus == null) {
+				return;
+			}
+
+			for (int i = 0; i < valuesX.length; i++) {
+				deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * EPSILON);
+			}
 		}
 	}
 }
