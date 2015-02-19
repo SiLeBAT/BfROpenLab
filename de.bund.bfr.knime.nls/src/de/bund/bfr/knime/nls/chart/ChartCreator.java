@@ -456,22 +456,22 @@ public class ChartCreator extends ChartPanel {
 			double minX, double maxX) throws ParseException {
 		double[][] points = plotable.getFunctionPoints(varX, transformX,
 				transformY, minX, maxX);
-		double[][] functionErrors = null;
+		double[][] errors = null;
 		String leg = legend.get(id);
 
 		if (showConfidenceInterval) {
-			functionErrors = plotable.getFunctionErrors(varX, transformX,
-					transformY, minX, maxX, false);
+			errors = plotable.getFunctionErrors(varX, transformX, transformY,
+					minX, maxX, false);
 		}
 
 		if (points != null) {
-			if (functionErrors != null) {
+			if (errors != null) {
 				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
-					double error = Double.isNaN(functionErrors[1][j]) ? 0.0
-							: functionErrors[1][j];
+					double error = Double.isNaN(errors[1][j]) ? 0.0
+							: errors[1][j];
 
 					series.add(points[0][j], points[1][j],
 							points[1][j] - error, points[1][j] + error);
@@ -533,14 +533,37 @@ public class ChartCreator extends ChartPanel {
 			double minX, double maxX) throws ParseException {
 		double[][] points = plotable.getDiffPoints(varX, transformX,
 				transformY, minX, maxX);
+		double[][] errors = null;
 		String leg = legend.get(id);
 
+		if (showConfidenceInterval) {
+			errors = plotable.getDiffErrors(varX, transformX, transformY, minX,
+					maxX, false);
+		}
+
 		if (points != null) {
-			DefaultXYDataset functionDataset = new DefaultXYDataset();
+			if (errors != null) {
+				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
+				YIntervalSeries series = new YIntervalSeries(leg);
 
-			functionDataset.addSeries(leg, points);
+				for (int j = 0; j < points[0].length; j++) {
+					double error = Double.isNaN(errors[1][j]) ? 0.0
+							: errors[1][j];
 
-			return functionDataset;
+					series.add(points[0][j], points[1][j],
+							points[1][j] - error, points[1][j] + error);
+				}
+
+				functionDataset.addSeries(series);
+
+				return functionDataset;
+			} else {
+				DefaultXYDataset functionDataset = new DefaultXYDataset();
+
+				functionDataset.addSeries(leg, points);
+
+				return functionDataset;
+			}
 		}
 
 		return null;

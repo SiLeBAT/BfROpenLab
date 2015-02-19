@@ -347,14 +347,54 @@ public class Plotable {
 			return null;
 		}
 
-		Map<String, Double> initValues = new LinkedHashMap<>();
+		double[] xs = new double[functionSteps];
+		double[] convertedXs = new double[functionSteps];
 
-		for (String var : functions.keySet()) {
-			if (this.initValues.containsKey(var)) {
-				initValues.put(var, this.initValues.get(var));
+		for (int i = 0; i < functionSteps; i++) {
+			xs[i] = minX + (double) i / (double) (functionSteps - 1)
+					* (maxX - minX);
+			convertedXs[i] = transformX.from(xs[i]);
+		}
+
+		double[] convertedYs = Evaluator.getDiffPoints(parserConstants,
+				functions, initValues, initParameters, conditionLists,
+				dependentVariable, independentVariables, varX, convertedXs);
+
+		if (convertedYs == null) {
+			return null;
+		}
+
+		double[][] points = new double[2][functionSteps];
+		boolean containsValidPoint = false;
+
+		for (int i = 0; i < functionSteps; i++) {
+			Double y = transformY.to(convertedYs[i]);
+
+			if (MathUtils.isValidDouble(y)) {
+				points[1][i] = y;
+				containsValidPoint = true;
 			} else {
-				initValues.put(var, parameters.get(initParameters.get(var)));
+				points[1][i] = Double.NaN;
 			}
+		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		System.arraycopy(xs, 0, points[0], 0, functionSteps);
+
+		return points;
+	}
+
+	public double[][] getDiffErrors(String varX, Transform transformX,
+			Transform transformY, double minX, double maxX, boolean prediction)
+			throws ParseException {
+		Map<String, Double> parserConstants = createParserConstants(varX);
+
+		if (parserConstants == null || functions.isEmpty()
+				|| !varX.equals(diffVariable) || covarianceMatrixMissing()) {
+			return null;
 		}
 
 		double[] xs = new double[functionSteps];
@@ -366,9 +406,10 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
-		double[] convertedYs = Evaluator.getDiffPoints(parserConstants,
-				functions, initValues, conditionLists, dependentVariable,
-				independentVariables, varX, convertedXs);
+		double[] convertedYs = Evaluator.getDiffErrors(parserConstants,
+				functions, initValues, initParameters, conditionLists,
+				dependentVariable, independentVariables, varX, convertedXs,
+				covariances, prediction ? mse : 0.0, degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;

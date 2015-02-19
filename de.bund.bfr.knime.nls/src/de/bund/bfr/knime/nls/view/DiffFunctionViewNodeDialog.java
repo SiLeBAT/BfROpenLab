@@ -99,7 +99,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		configPanel = new ChartConfigPanel(false, true, false);
+		configPanel = new ChartConfigPanel(true, true, false);
 		configPanel.init(
 				reader.getDepVar(),
 				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
