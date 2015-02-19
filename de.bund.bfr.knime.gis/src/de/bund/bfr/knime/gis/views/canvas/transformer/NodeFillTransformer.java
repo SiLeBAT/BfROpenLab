@@ -43,11 +43,9 @@ public class NodeFillTransformer<V extends Node> implements
 		this.renderContext = viewer;
 		nodeColors = new LinkedHashMap<>();
 
-		for (V node : alphaValues.keySet()) {
-			List<Double> alphas = alphaValues.get(node);
-
-			nodeColors.put(node,
-					CanvasUtils.mixColors(Color.WHITE, colors, alphas));
+		for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
+			nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE,
+					colors, entry.getValue()));
 		}
 	}
 

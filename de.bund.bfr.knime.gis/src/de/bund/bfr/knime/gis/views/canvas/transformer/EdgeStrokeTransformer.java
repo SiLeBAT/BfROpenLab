@@ -29,24 +29,18 @@ import org.apache.commons.collections15.Transformer;
 public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
 	private Map<E, Double> thicknessValues;
+	private double max;
 
 	public EdgeStrokeTransformer(Map<E, Double> thicknessValues) {
 		this.thicknessValues = thicknessValues;
-
-		if (!thicknessValues.isEmpty()) {
-			double max = Collections.max(thicknessValues.values());
-
-			if (max != 0.0) {
-				for (E edge : thicknessValues.keySet()) {
-					thicknessValues.put(edge, thicknessValues.get(edge) / max);
-				}
-			}
-		}
+		max = !thicknessValues.isEmpty() ? Collections.max(thicknessValues
+				.values()) : 0.0;
 	}
 
 	@Override
 	public Stroke transform(E edge) {
-		int thickness = (int) Math.round(thicknessValues.get(edge) * 10.0) + 1;
+		int thickness = (int) Math
+				.round(thicknessValues.get(edge) / max * 10.0) + 1;
 
 		return new BasicStroke(thickness);
 	}

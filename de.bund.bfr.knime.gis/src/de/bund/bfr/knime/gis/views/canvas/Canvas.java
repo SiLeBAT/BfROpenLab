@@ -900,12 +900,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		collapsedNodes.clear();
 
-		for (Object value : nodesByProperty.keySet()) {
-			String newId = KnimeUtils.createNewValue(value.toString(),
+		for (Map.Entry<Object, Set<V>> entry : nodesByProperty.entrySet()) {
+			String newId = KnimeUtils.createNewValue(entry.getKey().toString(),
 					nodeSaveMap.keySet());
 
 			collapsedNodes.put(newId,
-					CanvasUtils.getElementIds(nodesByProperty.get(value)));
+					CanvasUtils.getElementIds(entry.getValue()));
 		}
 
 		applyChanges();

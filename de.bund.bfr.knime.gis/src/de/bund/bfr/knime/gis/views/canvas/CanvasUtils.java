@@ -330,11 +330,10 @@ public class CanvasUtils {
 		Set<T> highlightedElements = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions) {
-			Map<T, Double> highlighted = condition.getValues(elements);
-
-			for (T element : highlighted.keySet()) {
-				if (highlighted.get(element) > 0.0) {
-					highlightedElements.add(element);
+			for (Map.Entry<T, Double> entry : condition.getValues(elements)
+					.entrySet()) {
+				if (entry.getValue() > 0.0) {
+					highlightedElements.add(entry.getKey());
 				}
 			}
 		}
@@ -486,8 +485,8 @@ public class CanvasUtils {
 
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
-		for (Edge<V> edge : labelLists.keySet()) {
-			labels.put(edge, Joiner.on("/").join(labelLists.get(edge)));
+		for (Map.Entry<Edge<V>, Set<String>> entry : labelLists.entrySet()) {
+			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
 		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(
@@ -683,7 +682,7 @@ public class CanvasUtils {
 			x += c.getCanvasSize().width;
 		}
 
-		g.finalize();
+		g.dispose();
 		document.replaceChild(g.getRoot(), document.getDocumentElement());
 
 		return (SVGDocument) document;
@@ -780,8 +779,8 @@ public class CanvasUtils {
 
 		Map<V, String> labels = new LinkedHashMap<>();
 
-		for (V node : labelLists.keySet()) {
-			labels.put(node, Joiner.on("/").join(labelLists.get(node)));
+		for (Map.Entry<V, Set<String>> entry : labelLists.entrySet()) {
+			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
 		if (!labelsOnly) {

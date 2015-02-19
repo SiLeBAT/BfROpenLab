@@ -43,11 +43,9 @@ public class EdgeDrawTransformer<V extends Node> implements
 		this.renderContext = viewer;
 		edgeColors = new LinkedHashMap<>();
 
-		for (Edge<V> edge : alphaValues.keySet()) {
-			List<Double> alphas = alphaValues.get(edge);
-
-			edgeColors.put(edge,
-					CanvasUtils.mixColors(Color.BLACK, colors, alphas));
+		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
+			edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK,
+					colors, entry.getValue()));
 		}
 	}
 

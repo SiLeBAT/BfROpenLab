@@ -30,20 +30,13 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 
 	private int size;
 	private Map<V, Double> thicknessValues;
+	private double max;
 
 	public NodeShapeTransformer(int size, Map<V, Double> thicknessValues) {
 		this.size = size;
 		this.thicknessValues = thicknessValues;
-
-		if (!thicknessValues.isEmpty()) {
-			double max = Collections.max(thicknessValues.values());
-
-			if (max != 0.0) {
-				for (V node : thicknessValues.keySet()) {
-					thicknessValues.put(node, thicknessValues.get(node) / max);
-				}
-			}
-		}
+		max = !thicknessValues.isEmpty() ? Collections.max(thicknessValues
+				.values()) : 0.0;
 	}
 
 	@Override
@@ -54,7 +47,7 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 			factor = 0.0;
 		}
 
-		int size = (int) (this.size * (1 + factor));
+		int size = (int) (this.size * (1 + factor / max));
 
 		return new Ellipse2D.Double(-size / 2, -size / 2, size, size);
 	}

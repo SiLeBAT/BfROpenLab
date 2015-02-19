@@ -350,7 +350,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
 		arrowInMiddleBox.addItemListener(this);
-		label = new String();
+		label = null;
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(this);

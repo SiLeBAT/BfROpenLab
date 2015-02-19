@@ -35,25 +35,20 @@ public class EdgeArrowTransformer<V extends Node> implements
 		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> {
 
 	private Map<Edge<V>, Double> thicknessValues;
+	private double max;
 
 	public EdgeArrowTransformer(Map<Edge<V>, Double> thicknessValues) {
 		this.thicknessValues = thicknessValues;
-
-		if (!thicknessValues.isEmpty()) {
-			double max = Collections.max(thicknessValues.values());
-
-			if (max != 0.0) {
-				for (Edge<V> edge : thicknessValues.keySet()) {
-					thicknessValues.put(edge, thicknessValues.get(edge) / max);
-				}
-			}
-		}
+		max = !thicknessValues.isEmpty() ? Collections.max(thicknessValues
+				.values()) : 0.0;
 	}
 
 	@Override
 	public Shape transform(Context<Graph<V, Edge<V>>, Edge<V>> edge) {
-		int t1 = (int) Math.round(thicknessValues.get(edge.element) * 20.0);
-		int t2 = (int) Math.round(thicknessValues.get(edge.element) * 10.0);
+		int t1 = (int) Math.round(thicknessValues.get(edge.element) / max
+				* 20.0);
+		int t2 = (int) Math.round(thicknessValues.get(edge.element) / max
+				* 10.0);
 
 		return ArrowFactory.getNotchedArrow(t1 + 8, t2 + 10, 4);
 	}
