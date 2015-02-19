@@ -37,6 +37,7 @@ public class Evaluator {
 	private static Map<FunctionConf, double[]> results = new LinkedHashMap<>();
 	private static Map<ErrorFunctionConf, double[]> errorResults = new LinkedHashMap<>();
 	private static Map<DiffFunctionConf, double[]> diffResults = new LinkedHashMap<>();
+	private static Map<ErrorDiffFunctionConf, double[]> errorDiffResults = new LinkedHashMap<>();
 
 	public static double[] getFunctionPoints(
 			Map<String, Double> parserConstants, String formula, String varX,
@@ -118,35 +119,32 @@ public class Evaluator {
 
 		Arrays.fill(valuesY, Double.NaN);
 
-		loop: for (int n = 0; n < valuesX.length; n++) {
-			parser.setVarValue(varX, valuesX[n]);
+		loop: for (int index = 0; index < valuesX.length; index++) {
+			parser.setVarValue(varX, valuesX[index]);
 
 			double variance = 0.0;
+			int n = paramList.size();
+			double[] derivValues = new double[n];
 
-			for (String param : paramList) {
+			for (int i = 0; i < n; i++) {
+				String param = paramList.get(i);
 				Object obj = parser.evaluate(derivatives.get(param));
 
 				if (!MathUtils.isValidDouble(obj)) {
 					continue loop;
 				}
 
-				variance += (Double) obj * (Double) obj
+				derivValues[i] = (Double) obj;
+				variance += derivValues[i] * derivValues[i]
 						* covariances.get(param).get(param);
 			}
 
-			for (int i = 0; i < paramList.size() - 1; i++) {
-				for (int j = i + 1; j < paramList.size(); j++) {
+			for (int i = 0; i < n - 1; i++) {
+				for (int j = i + 1; j < n; j++) {
 					String param1 = paramList.get(i);
 					String param2 = paramList.get(j);
-					Object obj1 = parser.evaluate(derivatives.get(param1));
-					Object obj2 = parser.evaluate(derivatives.get(param2));
 
-					if (!MathUtils.isValidDouble(obj1)
-							|| !MathUtils.isValidDouble(obj2)) {
-						continue loop;
-					}
-
-					variance += 2.0 * (Double) obj1 * (Double) obj2
+					variance += 2.0 * derivValues[i] * derivValues[j]
 							* covariances.get(param1).get(param2);
 				}
 			}
@@ -157,7 +155,7 @@ public class Evaluator {
 				continue loop;
 			}
 
-			valuesY[n] = y;
+			valuesY[index] = y;
 			containsValidPoint = true;
 		}
 
@@ -244,6 +242,115 @@ public class Evaluator {
 		}
 
 		diffResults.put(function, valuesY);
+
+		return valuesY;
+	}
+
+	public static double[] getDiffFunctionErrors(
+			Map<String, Double> parserConstants, Map<String, String> functions,
+			Map<String, Double> initValues,
+			Map<String, double[]> conditionLists, String dependentVariable,
+			Map<String, Double> independentVariables, String varX,
+			double[] valuesX, Map<String, Map<String, Double>> covariances,
+			double extraVariance, int degreesOfFreedom) throws ParseException {
+		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(
+				parserConstants, functions, initValues, conditionLists,
+				dependentVariable, independentVariables, varX, valuesX,
+				covariances, extraVariance, degreesOfFreedom);
+
+		if (errorDiffResults.containsKey(function)) {
+			return errorDiffResults.get(function);
+		}
+
+		Node[] fs = new Node[functions.size()];
+		String[] valueVariables = new String[functions.size()];
+		double[] value = new double[functions.size()];
+		int depIndex = -1;
+		int index = 0;
+		DJep parser = MathUtils.createParser();
+
+		parser.addVariable(dependentVariable, 0.0);
+
+		for (String indep : independentVariables.keySet()) {
+			parser.addVariable(indep, 0.0);
+		}
+
+		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
+			parser.addConstant(entry.getKey(), entry.getValue());
+		}
+
+		for (String var : functions.keySet()) {
+			fs[index] = parser.parse(functions.get(var));
+			valueVariables[index] = var;
+			value[index] = initValues.get(var);
+
+			if (var.equals(dependentVariable)) {
+				depIndex = index;
+			}
+
+			index++;
+		}
+
+		List<String> paramList = new ArrayList<>(covariances.keySet());
+		double[] valuesY = new double[valuesX.length];
+		DiffFunction f = new DiffFunction(parser, fs, valueVariables,
+				conditionLists, varX);
+		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
+				0.01);
+		double diffValue = conditionLists.get(varX)[0];
+		boolean containsValidPoint = false;
+		double conf95 = MathUtils.get95PercentConfidence(degreesOfFreedom);
+
+		Arrays.fill(valuesY, Double.NaN);
+
+		loop: for (int n = 0; n < valuesX.length; n++) {
+			parser.setVarValue(varX, valuesX[n]);
+
+			double variance = 0.0;
+
+			// for (String param : paramList) {
+			// Object obj = parser.evaluate(derivatives.get(param));
+			//
+			// if (!MathUtils.isValidDouble(obj)) {
+			// continue loop;
+			// }
+			//
+			// variance += (Double) obj * (Double) obj
+			// * covariances.get(param).get(param);
+			// }
+			//
+			// for (int i = 0; i < paramList.size() - 1; i++) {
+			// for (int j = i + 1; j < paramList.size(); j++) {
+			// String param1 = paramList.get(i);
+			// String param2 = paramList.get(j);
+			// Object obj1 = parser.evaluate(derivatives.get(param1));
+			// Object obj2 = parser.evaluate(derivatives.get(param2));
+			//
+			// if (!MathUtils.isValidDouble(obj1)
+			// || !MathUtils.isValidDouble(obj2)) {
+			// continue loop;
+			// }
+			//
+			// variance += 2.0 * (Double) obj1 * (Double) obj2
+			// * covariances.get(param1).get(param2);
+			// }
+			// }
+
+			double y = Math.sqrt(variance + extraVariance) * conf95;
+
+			if (!MathUtils.isValidDouble(y)) {
+				continue loop;
+			}
+
+			valuesY[n] = y;
+			containsValidPoint = true;
+		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		errorDiffResults.put(function, valuesY);
 
 		return valuesY;
 	}
@@ -403,6 +510,52 @@ public class Evaluator {
 			}
 
 			return converted;
+		}
+	}
+
+	private static class ErrorDiffFunctionConf extends DiffFunctionConf {
+
+		private Map<String, Map<String, Double>> covariances;
+		private double extraVariance;
+		private int degreesOfFreedom;
+
+		public ErrorDiffFunctionConf(Map<String, Double> parserConstants,
+				Map<String, String> functions, Map<String, Double> initValues,
+				Map<String, double[]> conditionLists, String dependentVariable,
+				Map<String, Double> independentVariables, String varX,
+				double[] valuesX, Map<String, Map<String, Double>> covariances,
+				double extraVariance, int degreesOfFreedom) {
+			super(parserConstants, functions, initValues, conditionLists,
+					dependentVariable, independentVariables, varX, valuesX);
+			this.covariances = covariances;
+			this.extraVariance = extraVariance;
+			this.degreesOfFreedom = degreesOfFreedom;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			long temp = Double.doubleToLongBits(extraVariance);
+
+			result = prime * result + covariances.hashCode();
+			result = prime * result + degreesOfFreedom;
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof ErrorDiffFunctionConf) || !super.equals(obj)) {
+				return false;
+			}
+
+			ErrorDiffFunctionConf f = (ErrorDiffFunctionConf) obj;
+
+			return covariances.equals(f.covariances)
+					&& extraVariance == f.extraVariance
+					&& degreesOfFreedom == f.degreesOfFreedom;
 		}
 	}
 }
