@@ -194,16 +194,15 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			Map<String, double[]> newArgumentValues = new LinkedHashMap<>();
 			int index = 0;
 
-			for (String arg : argumentValues.keySet()) {
-				double[] oldValues = argumentValues.get(arg);
-				double[] newValues = new double[oldValues.length];
+			for (Map.Entry<String, double[]> entry : argumentValues.entrySet()) {
+				double[] newValues = new double[entry.getValue().length];
 				double d = changeList[index] * EPSILON;
 
-				for (int i = 0; i < oldValues.length; i++) {
-					newValues[i] = oldValues[i] + d;
+				for (int i = 0; i < entry.getValue().length; i++) {
+					newValues[i] = entry.getValue()[i] + d;
 				}
 
-				newArgumentValues.put(arg, newValues);
+				newArgumentValues.put(entry.getKey(), newValues);
 				index++;
 			}
 

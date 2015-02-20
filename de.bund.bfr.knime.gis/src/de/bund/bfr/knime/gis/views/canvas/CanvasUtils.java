@@ -246,11 +246,15 @@ public class CanvasUtils {
 		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<>();
 		int index = 0;
 
-		for (V from : edgeMap.keySet()) {
-			for (V to : edgeMap.get(from).keySet()) {
+		for (Map.Entry<V, Map<V, Set<Edge<V>>>> entry1 : edgeMap.entrySet()) {
+			V from = entry1.getKey();
+
+			for (Map.Entry<V, Set<Edge<V>>> entry2 : entry1.getValue()
+					.entrySet()) {
+				V to = entry2.getKey();
 				Map<String, Object> prop = new LinkedHashMap<>();
 
-				for (Edge<V> edge : edgeMap.get(from).get(to)) {
+				for (Edge<V> edge : entry2.getValue()) {
 					CanvasUtils.addMapToMap(prop, properties,
 							edge.getProperties());
 				}
@@ -263,7 +267,7 @@ public class CanvasUtils {
 				prop.put(properties.getFrom(), from.getId());
 				prop.put(properties.getTo(), to.getId());
 				joined.put(new Edge<>(index + "", prop, from, to),
-						edgeMap.get(from).get(to));
+						entry2.getValue());
 			}
 		}
 

@@ -145,8 +145,9 @@ public class MathUtils {
 			return null;
 		}
 
-		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1) + 2
-				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
+		return numSample * Math.log(sse / numSample) + 2.0 * (numParam + 1.0)
+				+ 2.0 * (numParam + 1.0) * (numParam + 2.0)
+				/ (numSample - numParam - 2.0);
 	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
