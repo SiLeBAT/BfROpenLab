@@ -183,20 +183,21 @@ public class TracingViewCanvasCreator {
 
 			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
 					bounds.getMaxY() + 2 * d);
+			Map<String, LocationNode> invalidNodes = new LinkedHashMap<>();
 
-			for (String id : nodes.keySet()) {
-				LocationNode node = nodes.get(id);
-
+			for (LocationNode node : nodes.values()) {
 				if (node.getCenter() == null) {
-					nodes.put(id, new LocationNode(id, node.getProperties(), p));
+					invalidNodes.put(node.getId(),
+							new LocationNode(node.getId(),
+									node.getProperties(), p));
 				}
 			}
 
-			MultiPolygon square = createSquare(bounds.getMinX() - 3 * d,
-					bounds.getMaxY() + d, 2 * d, 2 * d);
-
+			nodes.putAll(invalidNodes);
 			regions.add(new RegionNode(INVALID,
-					new LinkedHashMap<String, Object>(), square));
+					new LinkedHashMap<String, Object>(), createSquare(
+							bounds.getMinX() - 3 * d, bounds.getMaxY() + d,
+							2 * d, 2 * d)));
 		}
 
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,

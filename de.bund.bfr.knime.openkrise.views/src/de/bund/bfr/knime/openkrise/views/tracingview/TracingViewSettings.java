@@ -314,14 +314,15 @@ public class TracingViewSettings extends NodeSettings {
 
 		collapsedNodes = new LinkedHashMap<>();
 
-		Map<String, Set<String>> collapsed = canvas.getCollapsedNodes();
+		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes()
+				.entrySet()) {
+			Map<String, Point2D> ids = new LinkedHashMap<>();
 
-		for (String id1 : collapsed.keySet()) {
-			collapsedNodes.put(id1, new LinkedHashMap<String, Point2D>());
-
-			for (String id2 : collapsed.get(id1)) {
-				collapsedNodes.get(id1).put(id2, null);
+			for (String id : entry.getValue()) {
+				ids.put(id, null);
 			}
+
+			collapsedNodes.put(entry.getKey(), ids);
 		}
 
 		nodeWeights = canvas.getNodeWeights();

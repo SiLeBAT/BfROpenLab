@@ -300,13 +300,16 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
-		for (String column : newColumns.keySet()) {
-			if (!columns.containsKey(column)) {
-				newNodeSpec.add(new DataColumnSpecCreator(column, newColumns
-						.get(column)).createSpec());
-			} else if (!columns.get(column).equals(newColumns.get(column))) {
-				throw new InvalidSettingsException("Type of column \"" + column
-						+ "\" must be \"" + newColumns.get(column) + "\"");
+		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+			DataType oldType = columns.get(entry.getKey());
+
+			if (oldType == null) {
+				newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry
+						.getValue()).createSpec());
+			} else if (!oldType.equals(entry.getValue())) {
+				throw new InvalidSettingsException("Type of column \""
+						+ entry.getKey() + "\" must be \"" + entry.getValue()
+						+ "\"");
 			}
 		}
 
@@ -339,13 +342,16 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
-		for (String column : newColumns.keySet()) {
-			if (!columns.containsKey(column)) {
-				newEdgeSpec.add(new DataColumnSpecCreator(column, newColumns
-						.get(column)).createSpec());
-			} else if (!columns.get(column).equals(newColumns.get(column))) {
-				throw new InvalidSettingsException("Type of column \"" + column
-						+ "\" must be \"" + newColumns.get(column) + "\"");
+		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+			DataType oldType = columns.get(entry.getKey());
+
+			if (oldType == null) {
+				newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry
+						.getValue()).createSpec());
+			} else if (!oldType.equals(entry.getValue())) {
+				throw new InvalidSettingsException("Type of column \""
+						+ entry.getKey() + "\" must be \"" + entry.getValue()
+						+ "\"");
 			}
 		}
 
