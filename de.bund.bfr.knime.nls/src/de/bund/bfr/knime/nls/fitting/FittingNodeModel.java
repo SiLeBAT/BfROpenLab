@@ -23,8 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -124,8 +126,9 @@ public class FittingNodeModel extends NodeModel implements
 		int iParam = 0;
 		int iCov = 0;
 
-		for (String id : results.keySet()) {
-			ParameterOptimizer result = results.get(id);
+		for (Map.Entry<String, ParameterOptimizer> entry : results.entrySet()) {
+			String id = entry.getKey();
+			ParameterOptimizer result = entry.getValue();
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
 			for (String param1 : function.getParameters()) {
@@ -334,6 +337,7 @@ public class FittingNodeModel extends NodeModel implements
 		}
 
 		DataTableSpec spec = table.getSpec();
+		Set<String> ids = new LinkedHashSet<>();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
@@ -351,7 +355,7 @@ public class FittingNodeModel extends NodeModel implements
 				continue;
 			}
 
-			if (!targetValues.containsKey(id)) {
+			if (ids.add(id)) {
 				targetValues.put(id, new ArrayList<Double>());
 				argumentValues.put(id,
 						new LinkedHashMap<String, List<Double>>());
@@ -371,7 +375,7 @@ public class FittingNodeModel extends NodeModel implements
 
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
-		for (String id : targetValues.keySet()) {
+		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
@@ -416,6 +420,7 @@ public class FittingNodeModel extends NodeModel implements
 
 		DataTableSpec dataSpec = dataTable.getSpec();
 		DataTableSpec conditionSpec = conditionTable.getSpec();
+		Set<String> ids = new LinkedHashSet<>();
 		Map<String, List<Double>> timeValues = new LinkedHashMap<>();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 
@@ -432,7 +437,7 @@ public class FittingNodeModel extends NodeModel implements
 				continue;
 			}
 
-			if (!timeValues.containsKey(id)) {
+			if (ids.add(id)) {
 				timeValues.put(id, new ArrayList<Double>());
 				targetValues.put(id, new ArrayList<Double>());
 			}
@@ -473,7 +478,7 @@ public class FittingNodeModel extends NodeModel implements
 
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
-		for (String id : targetValues.keySet()) {
+		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)

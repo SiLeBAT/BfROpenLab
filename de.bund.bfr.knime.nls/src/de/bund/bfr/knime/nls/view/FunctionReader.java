@@ -105,12 +105,12 @@ public class FunctionReader implements Reader {
 				legend.put(newId, newId);
 				stringColumns.get(NlsUtils.ID_COLUMN).add(id);
 
-				for (String i : fixed.keySet()) {
-					doubleColumns.get(i).add(fixed.get(i));
+				for (Map.Entry<String, Double> entry : fixed.entrySet()) {
+					doubleColumns.get(entry.getKey()).add(entry.getValue());
 				}
 
-				for (String q : qualityColumns) {
-					doubleColumns.get(q).add(qualityValues.get(q));
+				for (String column : qualityColumns) {
+					doubleColumns.get(column).add(qualityValues.get(column));
 				}
 
 				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);

@@ -257,7 +257,8 @@ public class ViewUtils {
 			}
 		}
 
-		for (String id : polygonMap.keySet()) {
+		for (Map.Entry<String, MultiPolygon> entry : polygonMap.entrySet()) {
+			String id = entry.getKey();
 			Map<String, Object> properties = nodeMap.get(id);
 
 			if (properties == null) {
@@ -270,7 +271,7 @@ public class ViewUtils {
 				properties.put(nodeIdColumn, id);
 			}
 
-			nodes.put(id, new RegionNode(id, properties, polygonMap.get(id)));
+			nodes.put(id, new RegionNode(id, properties, entry.getValue()));
 		}
 
 		for (String id : nodeMap.keySet()) {
@@ -421,12 +422,12 @@ public class ViewUtils {
 	private static void addToProperties(Map<String, Object> properties,
 			Map<String, Class<?>> propertyTypes, BufferedDataTable table,
 			DataRow row) {
-		for (String property : propertyTypes.keySet()) {
-			Class<?> type = propertyTypes.get(property);
-			int column = table.getSpec().findColumnIndex(property);
+		for (Map.Entry<String, Class<?>> entry : propertyTypes.entrySet()) {
+			int column = table.getSpec().findColumnIndex(entry.getKey());
 			DataCell cell = row.getCell(column);
 
-			ViewUtils.addCellContentToMap(properties, property, type, cell);
+			ViewUtils.addCellContentToMap(properties, entry.getKey(),
+					entry.getValue(), cell);
 		}
 	}
 

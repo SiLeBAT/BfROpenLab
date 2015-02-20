@@ -329,9 +329,9 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		Collection<T> filteredNodes = new ArrayList<>();
 		Map<T, Double> values = condition.getValues(nodes);
 
-		for (T node : values.keySet()) {
-			if (values.get(node) != 0.0) {
-				filteredNodes.add(node);
+		for (Map.Entry<T, Double> entry : values.entrySet()) {
+			if (entry.getValue() != 0.0) {
+				filteredNodes.add(entry.getKey());
 			}
 		}
 

@@ -284,12 +284,18 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 		private List<Boolean> selections;
 
+		private int columnCount;
+
 		private List<String> ids;
 		private Map<String, List<String>> stringColumns;
 		private Map<String, List<Double>> doubleColumns;
 		private List<Color> colors;
 		private List<String> shapes;
 
+		private int idIndex;
+		private int selectedIndex;
+		private int colorIndex;
+		private int shapeIndex;
 		private Map<Integer, String> stringByIndex;
 		private Map<Integer, String> doubleByIndex;
 
@@ -315,44 +321,44 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			stringByIndex = new LinkedHashMap<>();
 			doubleByIndex = new LinkedHashMap<>();
 
-			int columnIndex = 4;
+			columnCount = 0;
+
+			idIndex = columnCount++;
+			selectedIndex = columnCount++;
+			colorIndex = columnCount++;
+			shapeIndex = columnCount++;
 
 			for (String column : stringColumns.keySet()) {
-				stringByIndex.put(columnIndex, column);
-				columnIndex++;
+				stringByIndex.put(columnCount++, column);
 			}
 
 			for (String column : doubleColumns.keySet()) {
-				doubleByIndex.put(columnIndex, column);
-				columnIndex++;
+				doubleByIndex.put(columnCount++, column);
 			}
 		}
 
 		@Override
 		public int getColumnCount() {
-			return stringColumns.size() + doubleColumns.size() + 4;
+			return columnCount;
 		}
 
 		@Override
 		public String getColumnName(int column) {
-			switch (column) {
-			case 0:
+			if (column == idIndex) {
 				return ChartUtils.ID;
-			case 1:
+			} else if (column == selectedIndex) {
 				return ChartUtils.SELECTED;
-			case 2:
+			} else if (column == colorIndex) {
 				return ChartUtils.COLOR;
-			case 3:
+			} else if (column == shapeIndex) {
 				return ChartUtils.SHAPE;
-			default:
-				if (stringByIndex.containsKey(column)) {
-					return stringByIndex.get(column);
-				} else if (doubleByIndex.containsKey(column)) {
-					return doubleByIndex.get(column);
-				}
-
-				return null;
+			} else if (stringByIndex.containsKey(column)) {
+				return stringByIndex.get(column);
+			} else if (doubleByIndex.containsKey(column)) {
+				return doubleByIndex.get(column);
 			}
+
+			return null;
 		}
 
 		@Override
@@ -362,62 +368,50 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 		@Override
 		public Object getValueAt(int row, int column) {
-			switch (column) {
-			case 0:
+			if (column == idIndex) {
 				return ids.get(row);
-			case 1:
+			} else if (column == selectedIndex) {
 				return selections.get(row);
-			case 2:
+			} else if (column == colorIndex) {
 				return colors.get(row);
-			case 3:
+			} else if (column == shapeIndex) {
 				return shapes.get(row);
-			default:
-				if (stringByIndex.containsKey(column)) {
-					return stringColumns.get(stringByIndex.get(column))
-							.get(row);
-				} else if (doubleByIndex.containsKey(column)) {
-					return doubleColumns.get(doubleByIndex.get(column))
-							.get(row);
-				}
-
-				return null;
+			} else if (stringByIndex.containsKey(column)) {
+				return stringColumns.get(stringByIndex.get(column)).get(row);
+			} else if (doubleByIndex.containsKey(column)) {
+				return doubleColumns.get(doubleByIndex.get(column)).get(row);
 			}
+
+			return null;
 		}
 
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 0:
+			if (column == idIndex) {
 				return String.class;
-			case 1:
+			} else if (column == selectedIndex) {
 				return Boolean.class;
-			case 2:
+			} else if (column == colorIndex) {
 				return Color.class;
-			case 3:
+			} else if (column == shapeIndex) {
 				return String.class;
-			default:
-				if (stringByIndex.containsKey(column)) {
-					return String.class;
-				} else if (doubleByIndex.containsKey(column)) {
-					return Double.class;
-				}
-
-				return null;
+			} else if (stringByIndex.containsKey(column)) {
+				return String.class;
+			} else if (doubleByIndex.containsKey(column)) {
+				return Double.class;
 			}
+
+			return null;
 		}
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
-			switch (column) {
-			case 1:
+			if (column == selectedIndex) {
 				selections.set(row, (Boolean) value);
-				break;
-			case 2:
+			} else if (column == colorIndex) {
 				colors.set(row, (Color) value);
-				break;
-			case 3:
+			} else if (column == shapeIndex) {
 				shapes.set(row, (String) value);
-				break;
 			}
 
 			fireTableCellUpdated(row, column);
@@ -425,7 +419,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return column == 1 || column == 2 || column == 3;
+			return column == selectedIndex || column == colorIndex
+					|| column == shapeIndex;
 		}
 	}
 

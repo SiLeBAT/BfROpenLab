@@ -21,6 +21,8 @@ package de.bund.bfr.knime.nls.functionport;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -63,18 +65,19 @@ public class FunctionPortObjectView extends JComponent {
 		}
 
 		if (!f.getInitValues().isEmpty()) {
-			String s = "Initial Values: ";
+			List<String> initValues = new ArrayList<>();
 			boolean hasInitialValues = false;
 
 			for (Map.Entry<String, Double> entry : f.getInitValues().entrySet()) {
 				if (entry.getValue() != null) {
-					s += entry.getKey() + "_0=" + entry.getValue() + ", ";
+					initValues.add(entry.getKey() + "_0=" + entry.getValue());
 					hasInitialValues = true;
 				}
 			}
 
 			if (hasInitialValues) {
-				JLabel label = new JLabel(s.substring(0, s.length() - 2));
+				JLabel label = new JLabel("Initial Values: "
+						+ Joiner.on(", ").join(initValues));
 
 				label.setAlignmentX(Component.LEFT_ALIGNMENT);
 				panel.add(label);

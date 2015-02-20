@@ -117,9 +117,9 @@ public class DBSCANNodeModel extends NodeModel {
 			Map<GraphNode, Double> filterResult = set.getFilter().getValues(
 					nodes.values());
 
-			for (GraphNode node : filterResult.keySet()) {
-				if (filterResult.get(node) == 0.0) {
-					filteredOut.add(node.getId());
+			for (Map.Entry<GraphNode, Double> entry : filterResult.entrySet()) {
+				if (entry.getValue() == 0.0) {
+					filteredOut.add(entry.getKey().getId());
 				}
 			}
 		}

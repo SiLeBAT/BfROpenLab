@@ -402,9 +402,9 @@ public class TracingParametersNodeModel extends NodeModel {
 			newNodeSpec.add(column);
 		}
 
-		for (String column : newColumns.keySet()) {
-			newNodeSpec.add(new DataColumnSpecCreator(column, newColumns
-					.get(column)).createSpec());
+		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+			newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry
+					.getValue()).createSpec());
 		}
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
@@ -431,9 +431,9 @@ public class TracingParametersNodeModel extends NodeModel {
 			newEdgeSpec.add(column);
 		}
 
-		for (String column : newColumns.keySet()) {
-			newEdgeSpec.add(new DataColumnSpecCreator(column, newColumns
-					.get(column)).createSpec());
+		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+			newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry
+					.getValue()).createSpec());
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));

@@ -98,17 +98,11 @@ public class VariablePanel extends JPanel implements ActionListener,
 			return;
 		}
 
-		for (String var : variables.keySet()) {
-			List<Double> values = variables.get(var);
+		for (Map.Entry<String, List<Double>> entry : variables.entrySet()) {
+			List<Boolean> selected = new ArrayList<>(Collections.nCopies(entry
+					.getValue().size(), true));
 
-			if (!values.isEmpty()) {
-				List<Boolean> selected = new ArrayList<>(Collections.nCopies(
-						values.size(), true));
-
-				selectedValues.put(var, selected);
-			} else {
-				selectedValues.put(var, new ArrayList<Boolean>());
-			}
+			selectedValues.put(entry.getKey(), selected);
 		}
 
 		for (String var : variables.keySet()) {

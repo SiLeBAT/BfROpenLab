@@ -127,7 +127,7 @@ public class ChartUtils {
 					new Rectangle2D.Double(0, 0, width, height));
 		}
 
-		svgGenerator.finalize();
+		svgGenerator.dispose();
 		document.replaceChild(svgGenerator.getRoot(),
 				document.getDocumentElement());
 

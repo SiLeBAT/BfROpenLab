@@ -246,8 +246,8 @@ public class NlsUtils {
 							.findColumnIndex(var))));
 				}
 
-				for (String var : fixed.keySet()) {
-					if (!fixed.get(var).equals(v.get(var))) {
+				for (Map.Entry<String, Double> entry : fixed.entrySet()) {
+					if (!entry.getValue().equals(v.get(entry.getKey()))) {
 						continue loop;
 					}
 				}
@@ -256,8 +256,8 @@ public class NlsUtils {
 					continue;
 				}
 
-				for (String var : v.keySet()) {
-					values.get(var).add(v.get(var));
+				for (Map.Entry<String, Double> entry : v.entrySet()) {
+					values.get(entry.getKey()).add(entry.getValue());
 				}
 			}
 		}
