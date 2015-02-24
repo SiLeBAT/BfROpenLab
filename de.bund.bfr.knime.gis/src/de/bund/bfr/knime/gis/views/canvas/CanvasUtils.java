@@ -717,6 +717,20 @@ public class CanvasUtils {
 		}
 	}
 
+	public static double getDenominator(Collection<Double> values) {
+		if (values.isEmpty()) {
+			return 1.0;
+		}
+
+		double max = Collections.max(values);
+
+		if (max == 0.0) {
+			return 1.0;
+		}
+
+		return max;
+	}
+
 	private static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize,

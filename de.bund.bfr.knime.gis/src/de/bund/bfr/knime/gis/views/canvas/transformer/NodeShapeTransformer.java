@@ -21,22 +21,22 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
+
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 
 public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 
 	private int size;
 	private Map<V, Double> thicknessValues;
-	private double max;
+	private double denom;
 
 	public NodeShapeTransformer(int size, Map<V, Double> thicknessValues) {
 		this.size = size;
 		this.thicknessValues = thicknessValues;
-		max = !thicknessValues.isEmpty() ? Collections.max(thicknessValues
-				.values()) : 0.0;
+		denom = CanvasUtils.getDenominator(thicknessValues.values());
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 			factor = 0.0;
 		}
 
-		int size = (int) (this.size * (1 + factor / max));
+		int size = (int) (this.size * (1 + factor / denom));
 
 		return new Ellipse2D.Double(-size / 2, -size / 2, size, size);
 	}

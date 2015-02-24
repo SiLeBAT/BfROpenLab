@@ -21,26 +21,26 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.BasicStroke;
 import java.awt.Stroke;
-import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+
 public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
 	private Map<E, Double> thicknessValues;
-	private double max;
+	private double denom;
 
 	public EdgeStrokeTransformer(Map<E, Double> thicknessValues) {
 		this.thicknessValues = thicknessValues;
-		max = !thicknessValues.isEmpty() ? Collections.max(thicknessValues
-				.values()) : 0.0;
+		denom = CanvasUtils.getDenominator(thicknessValues.values());
 	}
 
 	@Override
 	public Stroke transform(E edge) {
-		int thickness = (int) Math
-				.round(thicknessValues.get(edge) / max * 10.0) + 1;
+		int thickness = (int) Math.round(thicknessValues.get(edge) / denom
+				* 10.0) + 1;
 
 		return new BasicStroke(thickness);
 	}
