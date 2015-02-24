@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.shapefilereader;
 
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -57,7 +58,6 @@ import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -104,8 +104,6 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				.getStringValue());
 		ContentFeatureCollection collection = dataStore.getFeatureSource()
 				.getFeatures();
-		CoordinateReferenceSystem system = GisUtils.getCoordinateSystem(shpFile
-				.getStringValue());
 
 		DataTableSpec spec = createSpec(collection.getSchema());
 		BufferedDataContainer container = exec.createDataContainer(spec);
@@ -113,10 +111,11 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		MathTransform transform = null;
 		int index = 0;
 
-		if (system != null) {
-			transform = CRS.findMathTransform(system, CRS.decode("EPSG:4326"),
-					true);
-		} else {
+		try {
+			transform = CRS.findMathTransform(
+					GisUtils.getCoordinateSystem(shpFile.getStringValue()),
+					CRS.decode("EPSG:4326"), true);
+		} catch (FileNotFoundException e) {
 			transform = new AffineTransform2D(0, 1, 1, 0, 0, 0);
 		}
 

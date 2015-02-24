@@ -22,7 +22,6 @@ package de.bund.bfr.knime.gis;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -78,8 +77,6 @@ public class GisUtils {
 			}
 
 			return CRS.parseWKT(wkt.toString());
-		} catch (FileNotFoundException e) {
-			return null;
 		}
 	}
 

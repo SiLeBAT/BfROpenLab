@@ -20,9 +20,8 @@
 package de.bund.bfr.knime;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
+import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -64,21 +64,9 @@ public class KnimeUtils {
 		return doubleList;
 	}
 
-	public static File getFile(String fileName) throws FileNotFoundException {
-		File file = new File(fileName);
-
-		if (!file.exists()) {
-			try {
-				file = new File(new URI(fileName).getPath());
-			} catch (URISyntaxException e1) {
-			}
-		}
-
-		if (!file.exists()) {
-			throw new FileNotFoundException(fileName);
-		}
-
-		return file;
+	public static File getFile(String fileName) throws InvalidPathException,
+			MalformedURLException {
+		return FileUtil.getFileFromURL(FileUtil.toURL(fileName));
 	}
 
 	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
