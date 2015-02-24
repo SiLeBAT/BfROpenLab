@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -179,10 +179,12 @@ public class Evaluator {
 			Map<String, String> initParameters,
 			Map<String, double[]> conditionLists, String dependentVariable,
 			Map<String, Double> independentVariables, String varX,
-			double[] valuesX) throws ParseException {
+			double[] valuesX, IntegratorFactory integrator)
+			throws ParseException {
 		DiffFunctionConf function = new DiffFunctionConf(parserConstants,
 				functions, initValues, initParameters, conditionLists,
-				dependentVariable, independentVariables, varX, valuesX);
+				dependentVariable, independentVariables, varX, valuesX,
+				integrator);
 
 		if (diffResults.containsKey(function)) {
 			return diffResults.get(function);
@@ -225,8 +227,7 @@ public class Evaluator {
 		double[] valuesY = new double[valuesX.length];
 		DiffFunction f = new DiffFunction(parser, fs, valueVariables,
 				conditionLists, varX);
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(
-				0.01);
+		FirstOrderIntegrator instance = integrator.createIntegrator();
 		double diffValue = conditionLists.get(varX)[0];
 		boolean containsValidPoint = false;
 
@@ -236,7 +237,7 @@ public class Evaluator {
 			if (valuesX[i] == diffValue) {
 				y = value[depIndex];
 			} else if (valuesX[i] > diffValue) {
-				integrator.integrate(f, diffValue, value, valuesX[i], value);
+				instance.integrate(f, diffValue, value, valuesX[i], value);
 				y = value[depIndex];
 				diffValue = valuesX[i];
 			}
@@ -263,12 +264,14 @@ public class Evaluator {
 			Map<String, String> initParameters,
 			Map<String, double[]> conditionLists, String dependentVariable,
 			Map<String, Double> independentVariables, String varX,
-			double[] valuesX, Map<String, Map<String, Double>> covariances,
-			double extraVariance, int degreesOfFreedom) throws ParseException {
+			double[] valuesX, IntegratorFactory integrator,
+			Map<String, Map<String, Double>> covariances, double extraVariance,
+			int degreesOfFreedom) throws ParseException {
 		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(
 				parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX,
-				valuesX, covariances, extraVariance, degreesOfFreedom);
+				valuesX, integrator, covariances, extraVariance,
+				degreesOfFreedom);
 
 		if (errorDiffResults.containsKey(function)) {
 			return errorDiffResults.get(function);
@@ -285,7 +288,7 @@ public class Evaluator {
 			executor.execute(new DiffDerivThread(parserConstants, functions,
 					initValues, initParameters, conditionLists,
 					dependentVariable, independentVariables, varX, valuesX,
-					param, deriv));
+					integrator, param, deriv));
 			derivValues.put(param, deriv);
 		}
 
@@ -448,13 +451,14 @@ public class Evaluator {
 		private Map<String, Double> independentVariables;
 		private String varX;
 		private double[] valuesX;
+		private IntegratorFactory integrator;
 
 		public DiffFunctionConf(Map<String, Double> parserConstants,
 				Map<String, String> functions, Map<String, Double> initValues,
 				Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
 				Map<String, Double> independentVariables, String varX,
-				double[] valuesX) {
+				double[] valuesX, IntegratorFactory integrator) {
 			this.parserConstants = parserConstants;
 			this.functions = functions;
 			this.initValues = initValues;
@@ -464,6 +468,7 @@ public class Evaluator {
 			this.independentVariables = independentVariables;
 			this.varX = varX;
 			this.valuesX = valuesX;
+			this.integrator = integrator;
 		}
 
 		@Override
@@ -480,6 +485,7 @@ public class Evaluator {
 			result = prime * result + independentVariables.hashCode();
 			result = prime * result + varX.hashCode();
 			result = prime * result + Arrays.hashCode(valuesX);
+			result = prime * result + integrator.hashCode();
 
 			return result;
 		}
@@ -500,7 +506,8 @@ public class Evaluator {
 							.equals(convert(f.conditionLists))
 					&& dependentVariable.equals(f.dependentVariable)
 					&& independentVariables.equals(f.independentVariables)
-					&& varX.equals(f.varX) && Arrays.equals(valuesX, f.valuesX);
+					&& varX.equals(f.varX) && Arrays.equals(valuesX, f.valuesX)
+					&& integrator.equals(f.integrator);
 		}
 
 		private static Map<String, List<Double>> convert(
@@ -526,11 +533,12 @@ public class Evaluator {
 				Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
 				Map<String, Double> independentVariables, String varX,
-				double[] valuesX, Map<String, Map<String, Double>> covariances,
+				double[] valuesX, IntegratorFactory integrator,
+				Map<String, Map<String, Double>> covariances,
 				double extraVariance, int degreesOfFreedom) {
 			super(parserConstants, functions, initValues, initParameters,
 					conditionLists, dependentVariable, independentVariables,
-					varX, valuesX);
+					varX, valuesX, integrator);
 			this.covariances = covariances;
 			this.extraVariance = extraVariance;
 			this.degreesOfFreedom = degreesOfFreedom;
@@ -574,6 +582,7 @@ public class Evaluator {
 		private Map<String, Double> independentVariables;
 		private String varX;
 		private double[] valuesX;
+		private IntegratorFactory integrator;
 		private String param;
 		private double[] deriv;
 
@@ -582,7 +591,8 @@ public class Evaluator {
 				Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
 				Map<String, Double> independentVariables, String varX,
-				double[] valuesX, String param, double[] deriv) {
+				double[] valuesX, IntegratorFactory integrator, String param,
+				double[] deriv) {
 			this.parserConstants = parserConstants;
 			this.functions = functions;
 			this.initValues = initValues;
@@ -592,6 +602,7 @@ public class Evaluator {
 			this.independentVariables = independentVariables;
 			this.varX = varX;
 			this.valuesX = valuesX;
+			this.integrator = integrator;
 			this.param = param;
 			this.deriv = deriv;
 		}
@@ -613,10 +624,12 @@ public class Evaluator {
 			try {
 				valuesMinus = getDiffPoints(constantsMinus, functions,
 						initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX);
+						dependentVariable, independentVariables, varX, valuesX,
+						integrator);
 				valuesPlus = getDiffPoints(constantsPlus, functions,
 						initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX);
+						dependentVariable, independentVariables, varX, valuesX,
+						integrator);
 			} catch (ParseException e) {
 			}
 

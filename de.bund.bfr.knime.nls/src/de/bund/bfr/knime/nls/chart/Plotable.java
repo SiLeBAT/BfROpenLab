@@ -31,6 +31,7 @@ import java.util.Map;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.Evaluator;
+import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
 
@@ -356,9 +357,12 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
+		IntegratorFactory integrator = new IntegratorFactory(
+				IntegratorFactory.Type.RUNGE_KUTTA, 0.01);
 		double[] convertedYs = Evaluator.getDiffPoints(parserConstants,
 				functions, initValues, initParameters, conditionLists,
-				dependentVariable, independentVariables, varX, convertedXs);
+				dependentVariable, independentVariables, varX, convertedXs,
+				integrator);
 
 		if (convertedYs == null) {
 			return null;
@@ -406,10 +410,13 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
+		IntegratorFactory integrator = new IntegratorFactory(
+				IntegratorFactory.Type.RUNGE_KUTTA, 0.01);
 		double[] convertedYs = Evaluator.getDiffErrors(parserConstants,
 				functions, initValues, initParameters, conditionLists,
 				dependentVariable, independentVariables, varX, convertedXs,
-				covariances, prediction ? mse : 0.0, degreesOfFreedom);
+				integrator, covariances, prediction ? mse : 0.0,
+				degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;

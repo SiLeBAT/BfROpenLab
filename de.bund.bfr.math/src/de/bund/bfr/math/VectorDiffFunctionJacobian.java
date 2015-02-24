@@ -34,7 +34,7 @@ import org.nfunk.jep.ParseException;
 
 public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
-	private static final double EPSILON = 0.00001;
+	private static final double EPSILON = 1e-6;
 	private static final int MAX_THREADS = 8;
 
 	private VectorDiffFunction[] diffFunctions;

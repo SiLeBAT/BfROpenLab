@@ -68,4 +68,27 @@ public class IntegratorFactory {
 
 		return null;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp = Double.doubleToLongBits(step);
+
+		result = prime * result + type.hashCode();
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof IntegratorFactory)) {
+			return false;
+		}
+
+		IntegratorFactory factory = (IntegratorFactory) obj;
+
+		return type == factory.type && step == factory.step;
+	}
 }
