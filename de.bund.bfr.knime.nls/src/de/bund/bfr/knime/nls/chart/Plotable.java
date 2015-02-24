@@ -350,15 +350,15 @@ public class Plotable {
 
 		double[] xs = new double[functionSteps];
 		double[] convertedXs = new double[functionSteps];
+		double stepSize = (maxX - minX) / (functionSteps - 1);
 
 		for (int i = 0; i < functionSteps; i++) {
-			xs[i] = minX + (double) i / (double) (functionSteps - 1)
-					* (maxX - minX);
+			xs[i] = minX + i * stepSize;
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(
-				IntegratorFactory.Type.RUNGE_KUTTA, 0.01);
+				IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
 		double[] convertedYs = Evaluator.getDiffPoints(parserConstants,
 				functions, initValues, initParameters, conditionLists,
 				dependentVariable, independentVariables, varX, convertedXs,
@@ -403,15 +403,15 @@ public class Plotable {
 
 		double[] xs = new double[functionSteps];
 		double[] convertedXs = new double[functionSteps];
+		double stepSize = (maxX - minX) / (functionSteps - 1);
 
 		for (int i = 0; i < functionSteps; i++) {
-			xs[i] = minX + (double) i / (double) (functionSteps - 1)
-					* (maxX - minX);
+			xs[i] = minX + i * stepSize;
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(
-				IntegratorFactory.Type.RUNGE_KUTTA, 0.01);
+				IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
 		double[] convertedYs = Evaluator.getDiffErrors(parserConstants,
 				functions, initValues, initParameters, conditionLists,
 				dependentVariable, independentVariables, varX, convertedXs,
