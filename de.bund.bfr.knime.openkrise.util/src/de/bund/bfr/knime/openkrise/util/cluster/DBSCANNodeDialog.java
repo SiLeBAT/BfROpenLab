@@ -151,7 +151,7 @@ public class DBSCANNodeDialog extends NodeDialogPane implements ActionListener,
 					new JLabel("Max Neighborhood Distance (km):")), Arrays
 					.asList(minPointsField, maxDistField)));
 		} else if (model.equals(DBSCANNSettings.MODEL_K_MEANS)) {
-			panel.add(UI.createOptionsPanel("Options",
+			panel.add(UI.createOptionsPanel("Algorithm Options",
 					Arrays.asList(new JLabel("Number of Clusters")),
 					Arrays.asList(numClustersField)));
 		}
