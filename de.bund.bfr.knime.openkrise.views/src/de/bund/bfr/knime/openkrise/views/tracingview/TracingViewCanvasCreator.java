@@ -64,23 +64,24 @@ public class TracingViewCanvasCreator {
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private BufferedDataTable tracingTable;
 	private BufferedDataTable shapeTable;
-	private HashMap<Integer, MyDelivery> deliveries;
 	private TracingViewSettings set;
 
 	private NodePropertySchema nodeSchema;
 	private EdgePropertySchema edgeSchema;
 
 	private Set<RowKey> skippedEdgeRows;
+	private Set<RowKey> skippedTracingRows;
 	private Set<RowKey> skippedShapeRows;
 
 	public TracingViewCanvasCreator(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, BufferedDataTable shapeTable,
-			HashMap<Integer, MyDelivery> tracing, TracingViewSettings set) {
+			BufferedDataTable edgeTable, BufferedDataTable tracingTable,
+			BufferedDataTable shapeTable, TracingViewSettings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
+		this.tracingTable = tracingTable;
 		this.shapeTable = shapeTable;
-		this.deliveries = tracing;
 		this.set = set;
 
 		Map<String, Class<?>> nodeProperties = TracingUtils
@@ -145,6 +146,7 @@ public class TracingViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		skippedEdgeRows = new LinkedHashSet<>();
+		skippedTracingRows = new LinkedHashSet<>();
 		skippedShapeRows = new LinkedHashSet<>();
 	}
 
@@ -154,7 +156,8 @@ public class TracingViewCanvasCreator {
 				nodeSchema, shapeTable != null, new LinkedHashSet<RowKey>());
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
-
+		HashMap<Integer, MyDelivery> deliveries = TracingUtils.getDeliveries(
+				tracingTable, edges, skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
@@ -202,6 +205,8 @@ public class TracingViewCanvasCreator {
 
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
+		HashMap<Integer, MyDelivery> deliveries = TracingUtils.getDeliveries(
+				tracingTable, edges, skippedTracingRows);
 		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
@@ -221,6 +226,10 @@ public class TracingViewCanvasCreator {
 
 	public Set<RowKey> getSkippedEdgeRows() {
 		return skippedEdgeRows;
+	}
+
+	public Set<RowKey> getSkippedTracingRows() {
+		return skippedTracingRows;
 	}
 
 	public Set<RowKey> getSkippedShapeRows() {

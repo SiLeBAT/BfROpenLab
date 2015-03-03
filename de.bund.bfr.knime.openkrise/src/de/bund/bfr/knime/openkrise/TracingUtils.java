@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -510,14 +511,13 @@ public class TracingUtils {
 		return column;
 	}
 
-	public static HashMap<Integer, MyDelivery> getDeliveries(
-			BufferedDataTable dataTable, BufferedDataTable edgeTable)
-			throws NotConfigurableException {
-		DataTableSpec dataSpec = dataTable.getSpec();
-		DataTableSpec edgeSpec = edgeTable.getSpec();
+	public static <V extends Node> HashMap<Integer, MyDelivery> getDeliveries(
+			BufferedDataTable tracingTable, Collection<Edge<V>> edges,
+			Set<RowKey> skippedRows) throws NotConfigurableException {
+		DataTableSpec dataSpec = tracingTable.getSpec();
 
-		if (dataTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
-				|| dataTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
+		if (tracingTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
+				|| tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
 			throw new NotConfigurableException(
 					"Tracing Data Model cannot be read."
 							+ " Try reexecuting the Supply Chain Reader or"
@@ -526,31 +526,31 @@ public class TracingUtils {
 
 		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
 
-		for (DataRow row : edgeTable) {
-			int id = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingColumns.ID))));
-			int from = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingColumns.FROM))));
-			int to = Integer.parseInt(IO.getToString(row.getCell(edgeSpec
-					.findColumnIndex(TracingColumns.TO))));
-			String date = IO.getString(row.getCell(edgeSpec
-					.findColumnIndex(TracingColumns.DELIVERY_DATE)));
+		for (Edge<V> edge : edges) {
+			int id = Integer.parseInt(edge.getId());
+			int from = Integer.parseInt(edge.getFrom().getId());
+			int to = Integer.parseInt(edge.getTo().getId());
+			String date = (String) edge.getProperties().get(
+					TracingColumns.DELIVERY_DATE);
 			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
 					getMonth(date), getYear(date));
 
 			deliveries.put(id, delivery);
 		}
 
-		for (DataRow row : dataTable) {
+		for (DataRow row : tracingTable) {
 			int id = IO.getInt(row.getCell(dataSpec
 					.findColumnIndex(TracingColumns.ID)));
 			int next = IO.getInt(row.getCell(dataSpec
 					.findColumnIndex(TracingColumns.NEXT)));
 
-			if (deliveries.containsKey(id) && deliveries.containsKey(next)) {
-				deliveries.get(id).getAllNextIDs().add(next);
-				deliveries.get(next).getAllPreviousIDs().add(id);
+			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
+				skippedRows.add(row.getKey());
+				continue;
 			}
+
+			deliveries.get(id).getAllNextIDs().add(next);
+			deliveries.get(next).getAllPreviousIDs().add(id);
 		}
 
 		return deliveries;

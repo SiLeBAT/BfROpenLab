@@ -97,7 +97,8 @@ public class TracingParametersNodeModel extends NodeModel {
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, new LinkedHashSet<RowKey>());
 		MyNewTracing tracing = new MyNewTracing(TracingUtils.getDeliveries(
-				inData[2], edgeTable), new LinkedHashMap<Integer, Double>(),
+				inData[2], edges, new LinkedHashSet<RowKey>()),
+				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0);
 

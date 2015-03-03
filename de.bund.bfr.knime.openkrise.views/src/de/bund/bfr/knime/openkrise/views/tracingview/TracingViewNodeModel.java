@@ -22,7 +22,6 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +55,7 @@ import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
-import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 
 /**
@@ -91,11 +88,10 @@ public class TracingViewNodeModel extends NodeModel {
 			throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		HashMap<Integer, MyDelivery> tracing = TracingUtils.getDeliveries(
-				(BufferedDataTable) inObjects[2], edgeTable);
+		BufferedDataTable tracingTable = (BufferedDataTable) inObjects[2];
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[3];
 		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable,
-				edgeTable, shapeTable, tracing, set);
+				edgeTable, tracingTable, shapeTable, set);
 
 		int index = 0;
 		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
@@ -190,7 +186,7 @@ public class TracingViewNodeModel extends NodeModel {
 		edgeContainer.close();
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, shapeTable, tracing, set);
+				nodeTable, edgeTable, tracingTable, shapeTable, set);
 		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(),
 				creator.createGraphCanvas());
 		ImagePortObject gisImage = shapeTable != null ? CanvasUtils.getImage(
@@ -199,6 +195,11 @@ public class TracingViewNodeModel extends NodeModel {
 
 		for (RowKey key : creator.getSkippedEdgeRows()) {
 			setWarningMessage("Delivery Table: Row " + key.getString()
+					+ " skipped");
+		}
+
+		for (RowKey key : creator.getSkippedTracingRows()) {
+			setWarningMessage("Tracing Table: Row " + key.getString()
 					+ " skipped");
 		}
 
@@ -360,15 +361,14 @@ public class TracingViewNodeModel extends NodeModel {
 
 	private static TracingGraphCanvas createAllEdgesCanvas(
 			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
-			BufferedDataTable shapeTable,
-			HashMap<Integer, MyDelivery> deliveries, TracingViewSettings set)
-			throws NotConfigurableException {
+			BufferedDataTable tracingTable, BufferedDataTable shapeTable,
+			TracingViewSettings set) throws NotConfigurableException {
 		boolean joinEdges = set.isJoinEdges();
 
 		set.setJoinEdges(false);
 
 		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable,
-				edgeTable, shapeTable, deliveries, set).createGraphCanvas();
+				edgeTable, tracingTable, shapeTable, set).createGraphCanvas();
 
 		set.setJoinEdges(joinEdges);
 

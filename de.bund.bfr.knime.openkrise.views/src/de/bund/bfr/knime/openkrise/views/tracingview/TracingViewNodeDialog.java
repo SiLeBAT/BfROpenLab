@@ -25,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,8 +43,6 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
-import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
 /**
@@ -63,8 +60,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
+	private BufferedDataTable tracingTable;
 	private BufferedDataTable shapeTable;
-	private HashMap<Integer, MyDelivery> deliveries;
 
 	private TracingViewSettings set;
 
@@ -111,8 +108,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
-		deliveries = TracingUtils.getDeliveries((BufferedDataTable) input[2],
-				edgeTable);
+		tracingTable = (BufferedDataTable) input[2];
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
 
@@ -211,17 +207,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, shapeTable, deliveries, set);
+				nodeTable, edgeTable, tracingTable, shapeTable, set);
 
 		canvas = set.isShowGis() ? creator.createGisCanvas() : creator
 				.createGraphCanvas();
 		switchButton
 				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 
+		String warningTable = null;
+
+		if (!creator.getSkippedEdgeRows().isEmpty()
+				&& !creator.getSkippedTracingRows().isEmpty()) {
+			warningTable = "the delivery table and the tracing table";
+		} else if (!creator.getSkippedEdgeRows().isEmpty()) {
+			warningTable = "the delivery table";
+		} else if (!creator.getSkippedTracingRows().isEmpty()) {
+			warningTable = "the tracing table";
+		}
+
 		String warning = null;
 
-		if (!creator.getSkippedEdgeRows().isEmpty()) {
-			warning = "Some rows from the delivery table could not be imported."
+		if (warningTable != null) {
+			warning = "Some rows from " + warningTable
+					+ " could not be imported."
 					+ " Execute the Tracing View for more information.";
 		}
 
