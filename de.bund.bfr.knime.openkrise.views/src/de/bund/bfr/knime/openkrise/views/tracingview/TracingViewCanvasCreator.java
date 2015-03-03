@@ -153,10 +153,10 @@ public class TracingViewCanvasCreator {
 	public TracingGraphCanvas createGraphCanvas()
 			throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, shapeTable != null, new LinkedHashSet<RowKey>());
+				nodeSchema, shapeTable != null);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
-		HashMap<Integer, MyDelivery> deliveries = TracingUtils.getDeliveries(
+		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
 				tracingTable, edges, skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
@@ -205,7 +205,7 @@ public class TracingViewCanvasCreator {
 
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
-		HashMap<Integer, MyDelivery> deliveries = TracingUtils.getDeliveries(
+		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
 				tracingTable, edges, skippedTracingRows);
 		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,

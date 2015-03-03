@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.util.tracing;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 
@@ -33,6 +34,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
+import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
@@ -104,9 +106,10 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, false, new LinkedHashSet<RowKey>());
+				nodeSchema, false);
+		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, new LinkedHashSet<RowKey>());
+				edgeSchema, nodes, skippedEdgeRows);
 
 		nodeWeightPanel.update(nodes.values(), nodeSchema,
 				set.getNodeWeights(), set.getNodeWeightCondition(),
@@ -130,6 +133,14 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				set.getObservedEdgesCondition(),
 				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
+
+		if (!skippedEdgeRows.isEmpty()) {
+			String warning = "Some rows from the delivery table could not be imported."
+					+ " Execute the Tracing View for more information.";
+
+			new Thread(new NodeDialogWarningThread(enforceTempBox, warning))
+					.start();
+		}
 	}
 
 	@Override

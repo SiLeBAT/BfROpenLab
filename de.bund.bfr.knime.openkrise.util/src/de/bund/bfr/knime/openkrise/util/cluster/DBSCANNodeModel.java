@@ -110,7 +110,7 @@ public class DBSCANNodeModel extends NodeModel {
 				TracingUtils.getTableColumns(nodeTable.getSpec()),
 				TracingColumns.ID);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, false, new LinkedHashSet<RowKey>());
+				nodeSchema, false);
 		Set<String> filteredOut = new LinkedHashSet<>();
 
 		if (set.getFilter() != null) {

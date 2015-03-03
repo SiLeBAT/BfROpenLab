@@ -99,81 +99,9 @@ public class TracingUtils {
 		return tableColumns;
 	}
 
-	public static <V extends Node> List<Edge<V>> readEdges(
-			BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
-			Map<String, V> nodes, Set<RowKey> skippedRows)
-			throws NotConfigurableException {
-		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int fromIndex = edgeTable.getSpec()
-				.findColumnIndex(TracingColumns.FROM);
-		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
-
-		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID
-					+ "\" is missing");
-		}
-
-		if (fromIndex == -1) {
-			throw new NotConfigurableException("Column \""
-					+ TracingColumns.FROM + "\" is missing");
-		}
-
-		if (toIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.TO
-					+ "\" is missing");
-		}
-
-		List<Edge<V>> edges = new ArrayList<>();
-		Set<String> ids = new LinkedHashSet<>();
-
-		edgeSchema.getMap().put(TracingColumns.ID, String.class);
-		edgeSchema.getMap().put(TracingColumns.FROM, String.class);
-		edgeSchema.getMap().put(TracingColumns.TO, String.class);
-
-		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
-
-			if (id == null) {
-				throw new NotConfigurableException("Missing value in "
-						+ TracingColumns.ID + " column");
-			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in "
-						+ TracingColumns.ID + " column: " + id);
-			}
-
-			String from = IO.getToCleanString(row.getCell(fromIndex));
-			String to = IO.getToCleanString(row.getCell(toIndex));
-			V node1 = nodes.get(from);
-			V node2 = nodes.get(to);
-
-			if (node1 == null || node2 == null) {
-				skippedRows.add(row.getKey());
-				continue;
-			}
-
-			Map<String, Object> properties = new LinkedHashMap<>();
-
-			TracingUtils
-					.addToProperties(properties, edgeSchema, edgeTable, row);
-			properties.put(TracingColumns.ID, id);
-			properties.put(TracingColumns.FROM, from);
-			properties.put(TracingColumns.TO, to);
-			replaceNullsInInputProperties(properties, edgeSchema);
-			edges.add(new Edge<>(id, properties, node1, node2));
-		}
-
-		if (edges.isEmpty()) {
-			throw new NotConfigurableException(
-					"No valid edges contained in table");
-		}
-
-		return edges;
-	}
-
 	public static Map<String, GraphNode> readGraphNodes(
 			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			boolean useGis, Set<RowKey> skippedRows)
-			throws NotConfigurableException {
+			boolean useGis) throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
@@ -333,6 +261,122 @@ public class TracingUtils {
 		return nodes;
 	}
 
+	public static <V extends Node> List<Edge<V>> readEdges(
+			BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
+			Map<String, V> nodes, Set<RowKey> skippedRows)
+			throws NotConfigurableException {
+		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
+		int fromIndex = edgeTable.getSpec()
+				.findColumnIndex(TracingColumns.FROM);
+		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
+
+		if (idIndex == -1) {
+			throw new NotConfigurableException("Column \"" + TracingColumns.ID
+					+ "\" is missing");
+		}
+
+		if (fromIndex == -1) {
+			throw new NotConfigurableException("Column \""
+					+ TracingColumns.FROM + "\" is missing");
+		}
+
+		if (toIndex == -1) {
+			throw new NotConfigurableException("Column \"" + TracingColumns.TO
+					+ "\" is missing");
+		}
+
+		List<Edge<V>> edges = new ArrayList<>();
+		Set<String> ids = new LinkedHashSet<>();
+
+		edgeSchema.getMap().put(TracingColumns.ID, String.class);
+		edgeSchema.getMap().put(TracingColumns.FROM, String.class);
+		edgeSchema.getMap().put(TracingColumns.TO, String.class);
+
+		for (DataRow row : edgeTable) {
+			String id = IO.getToCleanString(row.getCell(idIndex));
+
+			if (id == null) {
+				throw new NotConfigurableException("Missing value in "
+						+ TracingColumns.ID + " column");
+			} else if (!ids.add(id)) {
+				throw new NotConfigurableException("Duplicate value in "
+						+ TracingColumns.ID + " column: " + id);
+			}
+
+			String from = IO.getToCleanString(row.getCell(fromIndex));
+			String to = IO.getToCleanString(row.getCell(toIndex));
+			V node1 = nodes.get(from);
+			V node2 = nodes.get(to);
+
+			if (node1 == null || node2 == null) {
+				skippedRows.add(row.getKey());
+				continue;
+			}
+
+			Map<String, Object> properties = new LinkedHashMap<>();
+
+			TracingUtils
+					.addToProperties(properties, edgeSchema, edgeTable, row);
+			properties.put(TracingColumns.ID, id);
+			properties.put(TracingColumns.FROM, from);
+			properties.put(TracingColumns.TO, to);
+			replaceNullsInInputProperties(properties, edgeSchema);
+			edges.add(new Edge<>(id, properties, node1, node2));
+		}
+
+		if (edges.isEmpty()) {
+			throw new NotConfigurableException(
+					"No valid edges contained in table");
+		}
+
+		return edges;
+	}
+
+	public static <V extends Node> HashMap<Integer, MyDelivery> readDeliveries(
+			BufferedDataTable tracingTable, Collection<Edge<V>> edges,
+			Set<RowKey> skippedRows) throws NotConfigurableException {
+		DataTableSpec dataSpec = tracingTable.getSpec();
+
+		if (tracingTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
+				|| tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
+			throw new NotConfigurableException(
+					"Tracing Data Model cannot be read."
+							+ " Try reexecuting the Supply Chain Reader or"
+							+ " downloading an up-to-date workflow.");
+		}
+
+		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
+
+		for (Edge<V> edge : edges) {
+			int id = Integer.parseInt(edge.getId());
+			int from = Integer.parseInt(edge.getFrom().getId());
+			int to = Integer.parseInt(edge.getTo().getId());
+			String date = (String) edge.getProperties().get(
+					TracingColumns.DELIVERY_DATE);
+			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
+					getMonth(date), getYear(date));
+
+			deliveries.put(id, delivery);
+		}
+
+		for (DataRow row : tracingTable) {
+			int id = IO.getInt(row.getCell(dataSpec
+					.findColumnIndex(TracingColumns.ID)));
+			int next = IO.getInt(row.getCell(dataSpec
+					.findColumnIndex(TracingColumns.NEXT)));
+
+			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
+				skippedRows.add(row.getKey());
+				continue;
+			}
+
+			deliveries.get(id).getAllNextIDs().add(next);
+			deliveries.get(next).getAllPreviousIDs().add(id);
+		}
+
+		return deliveries;
+	}
+
 	public static List<RegionNode> readRegions(BufferedDataTable shapeTable,
 			Set<RowKey> skippedRows) throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
@@ -433,6 +477,82 @@ public class TracingUtils {
 		}
 	}
 
+	private static Integer getYear(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String year = null;
+
+		if (date.contains(".")) {
+			year = date.substring(date.lastIndexOf('.') + 1);
+		} else if (date.contains("-")) {
+			year = date.substring(0, date.indexOf('-'));
+		} else {
+			year = date;
+		}
+
+		try {
+			return Integer.parseInt(year);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	private static Integer getMonth(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String month = null;
+
+		if (date.contains(".")) {
+			int i1 = date.indexOf('.');
+			int i2 = date.lastIndexOf('.');
+
+			if (i1 == i2) {
+				month = date.substring(0, i1);
+			} else {
+				month = date.substring(i1 + 1, i2);
+			}
+		} else if (date.contains("-")) {
+			int i1 = date.indexOf('-');
+			int i2 = date.lastIndexOf('-');
+
+			if (i1 == i2) {
+				month = date.substring(i1 + 1);
+			} else {
+				month = date.substring(i1 + 1, i2);
+			}
+		}
+
+		try {
+			return Integer.parseInt(month);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	private static Integer getDay(String date) {
+		if (date == null) {
+			return null;
+		}
+
+		String day = null;
+
+		if (date.contains(".")) {
+			day = date.substring(0, date.indexOf('.'));
+		} else if (date.contains("-")) {
+			day = date.substring(date.lastIndexOf('-') + 1);
+		}
+
+		try {
+			return Integer.parseInt(day);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
 	public static HighlightConditionList renameColumns(
 			HighlightConditionList list, Set<String> columns) {
 		HighlightConditionList newList = new HighlightConditionList(list);
@@ -509,126 +629,5 @@ public class TracingUtils {
 		}
 
 		return column;
-	}
-
-	public static <V extends Node> HashMap<Integer, MyDelivery> getDeliveries(
-			BufferedDataTable tracingTable, Collection<Edge<V>> edges,
-			Set<RowKey> skippedRows) throws NotConfigurableException {
-		DataTableSpec dataSpec = tracingTable.getSpec();
-
-		if (tracingTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
-				|| tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
-			throw new NotConfigurableException(
-					"Tracing Data Model cannot be read."
-							+ " Try reexecuting the Supply Chain Reader or"
-							+ " downloading an up-to-date workflow.");
-		}
-
-		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
-
-		for (Edge<V> edge : edges) {
-			int id = Integer.parseInt(edge.getId());
-			int from = Integer.parseInt(edge.getFrom().getId());
-			int to = Integer.parseInt(edge.getTo().getId());
-			String date = (String) edge.getProperties().get(
-					TracingColumns.DELIVERY_DATE);
-			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
-					getMonth(date), getYear(date));
-
-			deliveries.put(id, delivery);
-		}
-
-		for (DataRow row : tracingTable) {
-			int id = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingColumns.ID)));
-			int next = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingColumns.NEXT)));
-
-			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
-				skippedRows.add(row.getKey());
-				continue;
-			}
-
-			deliveries.get(id).getAllNextIDs().add(next);
-			deliveries.get(next).getAllPreviousIDs().add(id);
-		}
-
-		return deliveries;
-	}
-
-	private static Integer getYear(String date) {
-		if (date == null) {
-			return null;
-		}
-
-		String year = null;
-
-		if (date.contains(".")) {
-			year = date.substring(date.lastIndexOf('.') + 1);
-		} else if (date.contains("-")) {
-			year = date.substring(0, date.indexOf('-'));
-		} else {
-			year = date;
-		}
-
-		try {
-			return Integer.parseInt(year);
-		} catch (NumberFormatException | NullPointerException e) {
-			return null;
-		}
-	}
-
-	private static Integer getMonth(String date) {
-		if (date == null) {
-			return null;
-		}
-
-		String month = null;
-
-		if (date.contains(".")) {
-			int i1 = date.indexOf('.');
-			int i2 = date.lastIndexOf('.');
-
-			if (i1 == i2) {
-				month = date.substring(0, i1);
-			} else {
-				month = date.substring(i1 + 1, i2);
-			}
-		} else if (date.contains("-")) {
-			int i1 = date.indexOf('-');
-			int i2 = date.lastIndexOf('-');
-
-			if (i1 == i2) {
-				month = date.substring(i1 + 1);
-			} else {
-				month = date.substring(i1 + 1, i2);
-			}
-		}
-
-		try {
-			return Integer.parseInt(month);
-		} catch (NumberFormatException | NullPointerException e) {
-			return null;
-		}
-	}
-
-	private static Integer getDay(String date) {
-		if (date == null) {
-			return null;
-		}
-
-		String day = null;
-
-		if (date.contains(".")) {
-			day = date.substring(0, date.indexOf('.'));
-		} else if (date.contains("-")) {
-			day = date.substring(date.lastIndexOf('-') + 1);
-		}
-
-		try {
-			return Integer.parseInt(day);
-		} catch (NumberFormatException | NullPointerException e) {
-			return null;
-		}
 	}
 }

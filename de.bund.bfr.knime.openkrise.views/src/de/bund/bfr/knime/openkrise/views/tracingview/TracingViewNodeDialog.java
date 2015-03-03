@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -28,7 +27,6 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -40,6 +38,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -123,31 +122,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resized = false;
 		panel.addComponentListener(this);
 
-		final String warning = updateCanvas();
-		Thread thread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (true) {
-					Window window = SwingUtilities.getWindowAncestor(panel);
-
-					if (window != null && window.isActive()) {
-						JOptionPane.showMessageDialog(panel, warning,
-								"Warning", JOptionPane.WARNING_MESSAGE);
-						break;
-					}
-
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
+		String warning = updateCanvas();
 
 		if (warning != null) {
-			thread.start();
+			new Thread(new NodeDialogWarningThread(panel, warning)).start();
 		}
 	}
 

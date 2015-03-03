@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
@@ -86,21 +88,36 @@ public class TracingParametersNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
+		BufferedDataTable tracingTable = inData[2];
 		NodePropertySchema nodeSchema = new NodePropertySchema(
 				TracingUtils.getTableColumns(nodeTable.getSpec()),
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(
 				TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
+		Set<RowKey> skippedTracingRows = new LinkedHashSet<>();
+
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, false, new LinkedHashSet<RowKey>());
+				nodeSchema, false);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, new LinkedHashSet<RowKey>());
-		MyNewTracing tracing = new MyNewTracing(TracingUtils.getDeliveries(
-				inData[2], edges, new LinkedHashSet<RowKey>()),
+				edgeSchema, nodes, skippedEdgeRows);
+		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
+				tracingTable, edges, skippedTracingRows);
+		MyNewTracing tracing = new MyNewTracing(deliveries,
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0);
+
+		for (RowKey key : skippedEdgeRows) {
+			setWarningMessage("Delivery Table: Row " + key.getString()
+					+ " skipped");
+		}
+
+		for (RowKey key : skippedTracingRows) {
+			setWarningMessage("Tracing Table: Row " + key.getString()
+					+ " skipped");
+		}
 
 		Map<String, Double> nodeWeights = new LinkedHashMap<>();
 		Map<String, Double> edgeWeights = new LinkedHashMap<>();
