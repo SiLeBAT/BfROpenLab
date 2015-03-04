@@ -510,7 +510,7 @@ public class FittingNodeModel extends NodeModel implements
 					function.getDependentVariable(),
 					function.getTimeVariable(), argumentArrays,
 					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
-							0.01));
+							set.getStepSize()));
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());

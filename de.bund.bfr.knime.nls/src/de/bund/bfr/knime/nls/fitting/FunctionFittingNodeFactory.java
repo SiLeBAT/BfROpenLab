@@ -69,7 +69,7 @@ public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new FittingNodeDialog();
+		return new FittingNodeDialog(false);
 	}
 
 }

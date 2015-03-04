@@ -21,9 +21,14 @@ package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -35,7 +40,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
-import de.bund.bfr.knime.nls.chart.ChartAllPanel;
+import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartUtils;
@@ -44,6 +49,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.view.DiffFunctionReader;
 import de.bund.bfr.knime.nls.view.FunctionReader;
 import de.bund.bfr.knime.nls.view.Reader;
+import de.bund.bfr.knime.ui.DoubleTextField;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
@@ -65,6 +71,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	private ChartCreator chartCreator;
 	private ChartConfigPanel configPanel;
+	private DoubleTextField stepSizeField;
+	private JCheckBox enforceLimitsBox;
 
 	private FunctionPortObject functionObject;
 	private BufferedDataTable varTable;
@@ -109,11 +117,14 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.setStartValues(configPanel.getParamValues());
 		set.setMinStartValues(configPanel.getMinValues());
 		set.setMaxStartValues(configPanel.getMaxValues());
-		set.setEnforceLimits(configPanel.isEnforceLimits());
+		set.setEnforceLimits(enforceLimitsBox.isSelected());
+		set.setStepSize(isDiff ? stepSizeField.getValue() : Double.NaN);
 		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
+		enforceLimitsBox = new JCheckBox("Enforce Limits");
+		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		configPanel = new ChartConfigPanel(false, false, true);
 		configPanel.init(
 				reader.getDepVar(),
@@ -124,7 +135,6 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 						.getMaxStartValues());
 		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamValues(set.getStartValues());
-		configPanel.setEnforceLimits(set.isEnforceLimits());
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());
@@ -133,7 +143,38 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		chartCreator.addZoomListener(this);
 		createChart();
 
-		return new ChartAllPanel(chartCreator, configPanel);
+		JPanel regressionPanel;
+
+		if (isDiff) {
+			stepSizeField = new DoubleTextField(false, 8);
+			stepSizeField.setMinValue(Double.MIN_NORMAL);
+			stepSizeField.setValue(set.getStepSize());
+			regressionPanel = UI.createOptionsPanel("Regression", Arrays
+					.asList(new JLabel("Integration Step Size"),
+							enforceLimitsBox), Arrays.asList(stepSizeField,
+					new JLabel()));
+		} else {
+			regressionPanel = UI.createOptionsPanel("Regression",
+					Arrays.asList(enforceLimitsBox),
+					Arrays.asList(new JLabel()));
+		}
+
+		JPanel rightPanel = new JPanel();
+
+		rightPanel.setLayout(new BorderLayout());
+		rightPanel.add(new JScrollPane(configPanel,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.CENTER);
+		rightPanel.add(regressionPanel, BorderLayout.SOUTH);
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(chartCreator, BorderLayout.CENTER);
+		panel.add(rightPanel, BorderLayout.EAST);
+
+		return panel;
 	}
 
 	private void createChart() {

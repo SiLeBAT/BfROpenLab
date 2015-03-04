@@ -56,15 +56,6 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 		add(splitPane, BorderLayout.CENTER);
 	}
 
-	public ChartAllPanel(ChartCreator chartCreator, ChartConfigPanel configPanel) {
-		setLayout(new BorderLayout());
-		add(chartCreator, BorderLayout.CENTER);
-		add(new JScrollPane(configPanel,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.EAST);
-	}
-
 	public int getDividerLocation() {
 		return splitPane.getDividerLocation();
 	}

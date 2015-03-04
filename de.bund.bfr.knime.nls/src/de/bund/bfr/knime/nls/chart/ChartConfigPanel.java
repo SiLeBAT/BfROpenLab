@@ -78,7 +78,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 	private JPanel outerParameterPanel;
 	private VariablePanel parameterPanel;
-	private JCheckBox enforceLimitsBox;
 
 	public ChartConfigPanel(boolean allowConfidence, boolean allowExport,
 			boolean allowParameters) {
@@ -229,14 +228,11 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 					new LinkedHashMap<String, List<Double>>(),
 					new LinkedHashMap<String, Double>(),
 					new LinkedHashMap<String, Double>(), false, true, true);
-			enforceLimitsBox = new JCheckBox("Enforce Limits");
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory
 					.createTitledBorder("Parameters"));
 			outerParameterPanel.setLayout(new BorderLayout());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
-			outerParameterPanel.add(UI.createWestPanel(enforceLimitsBox),
-					BorderLayout.SOUTH);
 			mainPanel.add(outerParameterPanel);
 		}
 
@@ -455,14 +451,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 	public void setParamValues(Map<String, Double> paramValues) {
 		parameterPanel.setValues(paramValues);
-	}
-
-	public boolean isEnforceLimits() {
-		return enforceLimitsBox.isSelected();
-	}
-
-	public void setEnforceLimits(boolean enforceLimits) {
-		enforceLimitsBox.setSelected(enforceLimits);
 	}
 
 	public Map<String, Double> getMinValues() {

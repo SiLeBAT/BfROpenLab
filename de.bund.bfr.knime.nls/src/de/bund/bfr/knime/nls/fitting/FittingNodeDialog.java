@@ -24,6 +24,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -66,12 +67,14 @@ import de.bund.bfr.knime.ui.IntTextField;
 public class FittingNodeDialog extends NodeDialogPane implements ActionListener {
 
 	private FittingSettings set;
+	private boolean isDiff;
 
 	private JPanel mainPanel;
 	private JPanel expertPanel;
 
 	private JCheckBox expertBox;
 
+	private DoubleTextField stepSizeField;
 	private IntTextField nParamSpaceField;
 	private IntTextField nLevenbergField;
 	private JCheckBox stopWhenSuccessBox;
@@ -83,7 +86,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	/**
 	 * New pane for configuring the DiffFunctionFitting node.
 	 */
-	protected FittingNodeDialog() {
+	protected FittingNodeDialog(boolean isDiff) {
+		this.isDiff = isDiff;
 		set = new FittingSettings();
 		expertBox = new JCheckBox("Expert Settings");
 		expertBox.addActionListener(this);
@@ -109,6 +113,10 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		if (isDiff && !stepSizeField.isValid()) {
+			throw new InvalidSettingsException("");
+		}
+
 		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()
 				|| minimumFields == null || maximumFields == null) {
 			throw new InvalidSettingsException("");
@@ -122,6 +130,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			maxStartValues.put(param, maximumFields.get(param).getValue());
 		}
 
+		set.setStepSize(isDiff ? stepSizeField.getValue() : Double.NaN);
 		set.setnParameterSpace(nParamSpaceField.getValue());
 		set.setnLevenberg(nLevenbergField.getValue());
 		set.setEnforceLimits(limitsBox.isSelected());
@@ -170,35 +179,23 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
 
-		JPanel leftRegressionPanel = new JPanel();
+		List<JComponent> leftComps = new ArrayList<JComponent>(Arrays.asList(
+				new JLabel("Maximal Evaluations to Find Start Values"),
+				new JLabel("Maximal Executions of the Levenberg Algorithm"),
+				stopWhenSuccessBox));
+		List<JComponent> rightComps = new ArrayList<JComponent>(Arrays.asList(
+				nParamSpaceField, nLevenbergField, new JLabel()));
 
-		leftRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
-				5));
-		leftRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		leftRegressionPanel.add(new JLabel(
-				"Maximal Evaluations to Find Start Values"));
-		leftRegressionPanel.add(new JLabel(
-				"Maximal Executions of the Levenberg Algorithm"));
-		leftRegressionPanel.add(stopWhenSuccessBox);
+		if (isDiff) {
+			stepSizeField = new DoubleTextField(false, 8);
+			stepSizeField.setMinValue(Double.MIN_NORMAL);
+			stepSizeField.setValue(set.getStepSize());
+			leftComps.add(0, new JLabel("Integration Step Size"));
+			rightComps.add(0, stepSizeField);
+		}
 
-		JPanel rightRegressionPanel = new JPanel();
-
-		rightRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
-				5));
-		rightRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		rightRegressionPanel.add(nParamSpaceField);
-		rightRegressionPanel.add(nLevenbergField);
-		rightRegressionPanel.add(new JLabel());
-
-		JPanel regressionPanel = new JPanel();
-
-		regressionPanel.setBorder(new TitledBorder(
-				"Nonlinear Regression Parameters"));
-		regressionPanel.setLayout(new BorderLayout());
-		regressionPanel.add(leftRegressionPanel, BorderLayout.WEST);
-		regressionPanel.add(rightRegressionPanel, BorderLayout.EAST);
-
-		return regressionPanel;
+		return UI.createOptionsPanel("Nonlinear Regression Parameters",
+				leftComps, rightComps);
 	}
 
 	private JComponent createRangePanel(FunctionPortObjectSpec spec) {

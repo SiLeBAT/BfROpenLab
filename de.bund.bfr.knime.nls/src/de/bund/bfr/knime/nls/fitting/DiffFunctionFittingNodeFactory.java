@@ -70,7 +70,7 @@ public class DiffFunctionFittingNodeFactory extends
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new FittingNodeDialog();
+		return new FittingNodeDialog(true);
 	}
 
 }

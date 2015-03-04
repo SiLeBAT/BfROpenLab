@@ -38,6 +38,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_MIN_START_VALUES = "MinStartValues";
 	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
 	private static final String CFG_START_VALUES = "StartValues";
+	private static final String CFG_STEP_SIZE = "StepSize";
 
 	private boolean expertSettings;
 	private int nParameterSpace;
@@ -47,6 +48,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
 	private Map<String, Double> startValues;
+	private double stepSize;
 
 	public FittingSettings() {
 		expertSettings = false;
@@ -98,6 +100,11 @@ public class FittingSettings extends NlsNodeSettings {
 					.getString(CFG_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			stepSize = settings.getDouble(CFG_STEP_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -116,6 +123,7 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addString(CFG_MAX_START_VALUES,
 				SERIALIZER.toXml(maxStartValues));
 		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
+		settings.addDouble(CFG_STEP_SIZE, stepSize);
 	}
 
 	public boolean isExpertSettings() {
@@ -182,6 +190,14 @@ public class FittingSettings extends NlsNodeSettings {
 		this.startValues = startValues;
 	}
 
+	public double getStepSize() {
+		return stepSize;
+	}
+
+	public void setStepSize(double stepSize) {
+		this.stepSize = stepSize;
+	}
+
 	private void setExpertParametersToDefault() {
 		nParameterSpace = 10000;
 		nLevenberg = 10;
@@ -190,5 +206,6 @@ public class FittingSettings extends NlsNodeSettings {
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();
 		startValues = new LinkedHashMap<>();
+		stepSize = 0.01;
 	}
 }
