@@ -1151,11 +1151,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {
+		nodeSchema.getPossibleValues().clear();
+		nodeSchema.getPossibleValues().putAll(
+				CanvasUtils.getPossibleValues(nodeSaveMap.values()));
 		return new HighlightListDialog(this, nodeSchema,
 				nodeHighlightConditions);
 	}
 
 	protected HighlightListDialog openEdgeHighlightDialog() {
+		edgeSchema.getPossibleValues().clear();
+		edgeSchema.getPossibleValues().putAll(
+				CanvasUtils.getPossibleValues(edgeSaveMap.values()));
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema,
 				edgeHighlightConditions);
 

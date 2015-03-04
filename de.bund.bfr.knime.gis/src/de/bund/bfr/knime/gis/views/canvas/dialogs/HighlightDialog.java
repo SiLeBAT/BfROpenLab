@@ -25,9 +25,12 @@ import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -59,9 +62,10 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import de.bund.bfr.knime.ui.AutoSuggestField;
 
 public class HighlightDialog extends JDialog implements ActionListener,
-		DocumentListener {
+		DocumentListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -122,7 +126,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
 	private List<JComboBox<String>> logicalPropertyBoxes;
 	private List<JComboBox<String>> logicalTypeBoxes;
-	private List<JTextField> logicalValueFields;
+	private List<AutoSuggestField> logicalValueFields;
 	private List<JButton> logicalAddButtons;
 	private List<JButton> logicalRemoveButtons;
 
@@ -370,6 +374,19 @@ public class HighlightDialog extends JDialog implements ActionListener,
 	}
 
 	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (logicalPropertyBoxes.contains(e.getSource())) {
+			int index = logicalPropertyBoxes.indexOf(e.getSource());
+			JComboBox<String> propertyBox = logicalPropertyBoxes.get(index);
+			AutoSuggestField valueField = logicalValueFields.get(index);
+			Set<String> possibleValues = schema.getPossibleValues().get(
+					propertyBox.getSelectedItem());
+
+			valueField.setPossibleValues(possibleValues);
+		}
+	}
+
+	@Override
 	public void changedUpdate(DocumentEvent e) {
 		updateOptionsPanel();
 	}
@@ -452,13 +469,17 @@ public class HighlightDialog extends JDialog implements ActionListener,
 						schema.getMap().keySet()));
 				JComboBox<String> typeBox = new JComboBox<>(
 						LogicalHighlightCondition.TYPES);
-				JTextField valueField = new JTextField(20);
+				AutoSuggestField valueField = new AutoSuggestField();
+				Set<String> possibleValues = schema.getPossibleValues().get(
+						cond.getProperty());
 				JButton addButton = new JButton("Add");
 				JButton removeButton = new JButton("Remove");
 
 				propertyBox.setSelectedItem(cond.getProperty());
+				propertyBox.addItemListener(this);
 				typeBox.setSelectedItem(cond.getType());
-				valueField.setText(cond.getValue() + "");
+				valueField.setPossibleValues(possibleValues);
+				valueField.setSelectedItem(cond.getValue());
 
 				addButton.addActionListener(this);
 				removeButton.addActionListener(this);
@@ -612,7 +633,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 			String property = (String) logicalPropertyBoxes.get(i)
 					.getSelectedItem();
 			String type = (String) logicalTypeBoxes.get(i).getSelectedItem();
-			String value = logicalValueFields.get(i).getText();
+			String value = (String) logicalValueFields.get(i).getSelectedItem();
 
 			andList.add(new LogicalHighlightCondition(property, type, value));
 		}

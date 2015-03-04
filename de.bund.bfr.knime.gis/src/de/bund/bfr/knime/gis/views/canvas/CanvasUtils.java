@@ -393,6 +393,32 @@ public class CanvasUtils {
 		return result;
 	}
 
+	public static Map<String, Set<String>> getPossibleValues(
+			Collection<? extends Element> elements) {
+		Map<String, Set<String>> values = new LinkedHashMap<>();
+
+		for (Element e : elements) {
+			for (Map.Entry<String, Object> entry : e.getProperties().entrySet()) {
+				if (entry.getValue() == null) {
+					continue;
+				}
+
+				if (!values.containsKey(entry.getKey())) {
+					values.put(entry.getKey(), new LinkedHashSet<String>());
+				}
+
+				if (entry.getValue() instanceof Boolean) {
+					values.get(entry.getKey()).add(Boolean.FALSE.toString());
+					values.get(entry.getKey()).add(Boolean.TRUE.toString());
+				} else {
+					values.get(entry.getKey()).add(entry.getValue().toString());
+				}
+			}
+		}
+
+		return values;
+	}
+
 	public static Double getMeanValue(Collection<? extends Element> elements,
 			String property) {
 		List<Double> values = new ArrayList<>();
