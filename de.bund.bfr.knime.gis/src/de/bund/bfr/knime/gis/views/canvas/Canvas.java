@@ -754,6 +754,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectNodesItemClicked() {
+		nodeSchema.getPossibleValues().clear();
+		nodeSchema.getPossibleValues().putAll(
+				CanvasUtils.getPossibleValues(nodeSaveMap.values()));
+
 		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
 				nodeSchema, null);
 
@@ -767,6 +771,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void selectEdgesItemClicked() {
+		edgeSchema.getPossibleValues().clear();
+		edgeSchema.getPossibleValues().putAll(
+				CanvasUtils.getPossibleValues(edgeSaveMap.values()));
+
 		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
 				edgeSchema, null);
 
@@ -1154,6 +1162,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(
 				CanvasUtils.getPossibleValues(nodeSaveMap.values()));
+
 		return new HighlightListDialog(this, nodeSchema,
 				nodeHighlightConditions);
 	}
@@ -1162,6 +1171,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		edgeSchema.getPossibleValues().clear();
 		edgeSchema.getPossibleValues().putAll(
 				CanvasUtils.getPossibleValues(edgeSaveMap.values()));
+
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema,
 				edgeHighlightConditions);
 

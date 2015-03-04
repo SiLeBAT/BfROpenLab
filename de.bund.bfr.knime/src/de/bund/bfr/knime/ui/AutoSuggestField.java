@@ -40,7 +40,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 	private List<String> list;
 	private boolean shouldHide;
 
-	public AutoSuggestField() {
+	public AutoSuggestField(int columns) {
 		list = new ArrayList<>();
 		shouldHide = false;
 
@@ -51,6 +51,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 
 		field.setText("");
 		field.addKeyListener(this);
+		field.setColumns(columns);
 	}
 
 	public void setPossibleValues(Set<String> possibleValues) {

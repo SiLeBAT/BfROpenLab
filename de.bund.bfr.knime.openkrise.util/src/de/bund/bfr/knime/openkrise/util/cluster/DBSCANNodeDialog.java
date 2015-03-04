@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -31,18 +32,21 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.RowKey;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
+import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
@@ -58,11 +62,11 @@ import de.bund.bfr.knime.ui.IntTextField;
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends NodeDialogPane implements ActionListener,
-		ItemListener {
+public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
+		ActionListener, ItemListener {
 
 	private DBSCANNSettings set;
-	private PropertySchema schema;
+	private NodePropertySchema schema;
 
 	private JComboBox<String> modelBox;
 	private JButton filterButton;
@@ -96,8 +100,13 @@ public class DBSCANNodeDialog extends NodeDialogPane implements ActionListener,
 
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
-			final DataTableSpec[] specs) throws NotConfigurableException {
-		schema = new PropertySchema(TracingUtils.getTableColumns(specs[0]));
+			final BufferedDataTable[] input) throws NotConfigurableException {
+		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0]
+				.getSpec()), TracingColumns.ID);
+		schema.getPossibleValues().putAll(
+				CanvasUtils.getPossibleValues(TracingUtils.readLocationNodes(
+						input[0], schema, new LinkedHashSet<RowKey>(), false)
+						.values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());

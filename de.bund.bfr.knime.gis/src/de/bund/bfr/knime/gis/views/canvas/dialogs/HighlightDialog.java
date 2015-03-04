@@ -469,7 +469,7 @@ public class HighlightDialog extends JDialog implements ActionListener,
 						schema.getMap().keySet()));
 				JComboBox<String> typeBox = new JComboBox<>(
 						LogicalHighlightCondition.TYPES);
-				AutoSuggestField valueField = new AutoSuggestField();
+				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(
 						cond.getProperty());
 				JButton addButton = new JButton("Add");
