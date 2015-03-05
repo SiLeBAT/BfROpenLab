@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 2.11 TP" sequenceNumber="15">
+<?pde version="3.8"?><target name="KNIME 2.11 TP" sequenceNumber="17">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -11,8 +11,8 @@
 <repository location="http://dist.springsource.org/release/GRECLIPSE/e3.7/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.m2e.feature.feature.group" version="1.5.0.20140606-0033"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.1.v20140901-1055"/>
+<unit id="org.eclipse.m2e.feature.feature.group" version="1.5.1.20150109-1820"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.2.v20150123-0452"/>
 <repository location="http://download.eclipse.org/releases/luna"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
