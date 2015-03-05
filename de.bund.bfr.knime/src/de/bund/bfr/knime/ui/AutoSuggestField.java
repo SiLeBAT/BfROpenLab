@@ -109,7 +109,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_RIGHT:
 			for (String s : list) {
-				if (s.startsWith(text)) {
+				if (s.toLowerCase().startsWith(text.toLowerCase())) {
 					textField.setText(s);
 					return;
 				}
@@ -150,7 +150,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 		DefaultComboBoxModel<String> m = new DefaultComboBoxModel<>();
 
 		for (String s : list) {
-			if (s.startsWith(text)) {
+			if (s.toLowerCase().startsWith(text.toLowerCase())) {
 				m.addElement(s);
 			}
 		}
