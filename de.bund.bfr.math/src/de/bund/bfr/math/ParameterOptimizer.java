@@ -306,7 +306,8 @@ public class ParameterOptimizer {
 					optimizerFunction.value(values)));
 
 			for (int i = n; i >= 0; i--) {
-				if (i == 0 || error >= bestError.get(i - 1)) {
+				if (i == 0 || error >= bestError.get(i - 1)
+						|| Double.isNaN(error)) {
 					if (i != n) {
 						bestError.add(i, error);
 						bestChoices.add(i, values);
