@@ -129,8 +129,10 @@ public class MyNewTracing {
 					}
 				}
 			}
+			if (caseStations.containsKey(id)) sum += caseStations.get(id);
 			return sum / caseSum;
 		}
+		if (caseSum > 0 && caseStations.containsKey(id)) return caseStations.get(id) / caseSum;
 		return -1.0;
 	}
 	public Double getDeliveryScore(int id) {
