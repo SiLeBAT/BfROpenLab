@@ -21,6 +21,7 @@ package de.bund.bfr.math;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,10 +172,10 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<double[]> startValueChoices = createStartValueChoices(paramMin,
+		List<StartValues> startValuesList = createStartValuesList(paramMin,
 				paramStepCount, paramStepSize, nLevenberg);
 
-		optimize(startValueChoices, stopWhenSuccessful);
+		optimize(startValuesList, stopWhenSuccessful);
 	}
 
 	public boolean isSuccessful() {
@@ -225,16 +226,17 @@ public class ParameterOptimizer {
 		return degreesOfFreedom;
 	}
 
-	private void optimize(List<double[]> startValueChoices,
+	private void optimize(List<StartValues> startValuesList,
 			boolean stopWhenSuccessful) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 
 		successful = false;
 
-		for (double[] startValues : startValueChoices) {
+		for (StartValues startValues : startValuesList) {
 			try {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
-						.optimize(createLeastSquaresProblem(startValues));
+						.optimize(createLeastSquaresProblem(startValues
+								.getValues()));
 				double cost = optimizerResults.getCost();
 
 				if (!successful || cost * cost < sse) {
@@ -264,17 +266,15 @@ public class ParameterOptimizer {
 		}
 	}
 
-	private List<double[]> createStartValueChoices(double[] paramMin,
+	private List<StartValues> createStartValuesList(double[] paramMin,
 			int[] paramStepCount, double[] paramStepSize, int n) {
-		List<double[]> bestChoices = new ArrayList<>();
-		List<Double> bestError = new ArrayList<>();
+		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			double[] v = new double[parameters.length];
+			double[] values = new double[parameters.length];
 
-			Arrays.fill(v, i + 1.0);
-			bestChoices.add(v);
-			bestError.add(Double.POSITIVE_INFINITY);
+			Arrays.fill(values, i + 1.0);
+			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
 		}
 
 		RealVector targetVector = new ArrayRealVector(targetValues);
@@ -305,18 +305,8 @@ public class ParameterOptimizer {
 			double error = targetVector.getDistance(new ArrayRealVector(
 					optimizerFunction.value(values)));
 
-			for (int i = n; i >= 0; i--) {
-				if (i == 0 || error >= bestError.get(i - 1)
-						|| Double.isNaN(error)) {
-					if (i != n) {
-						bestError.add(i, error);
-						bestChoices.add(i, values);
-						bestError.remove(n);
-						bestChoices.remove(n);
-					}
-
-					break;
-				}
+			if (!Double.isNaN(error)) {
+				valuesList.add(new StartValues(values, error));
 			}
 
 			for (int i = 0;; i++) {
@@ -335,7 +325,9 @@ public class ParameterOptimizer {
 			}
 		}
 
-		return bestChoices;
+		Collections.sort(valuesList);
+
+		return valuesList.subList(0, n);
 	}
 
 	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues) {
@@ -447,6 +439,26 @@ public class ParameterOptimizer {
 
 		for (String param : parameters) {
 			covariances.put(param, new LinkedHashMap<String, Double>());
+		}
+	}
+
+	private static class StartValues implements Comparable<StartValues> {
+
+		private double[] values;
+		private double error;
+
+		public StartValues(double[] values, double error) {
+			this.values = values;
+			this.error = error;
+		}
+
+		public double[] getValues() {
+			return values;
+		}
+
+		@Override
+		public int compareTo(StartValues o) {
+			return Double.compare(error, o.error);
 		}
 	}
 
