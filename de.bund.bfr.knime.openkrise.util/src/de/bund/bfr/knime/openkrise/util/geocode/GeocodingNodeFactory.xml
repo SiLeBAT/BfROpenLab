@@ -22,7 +22,7 @@
 			<option name="Address">
 				The address that should be geocoded.
 			</option>
-			<option name="Delay between Request">
+			<option name="Delay between Request (ms)">
 				Some services enforce a request rate for the Geocoding. To satisfy this rate,
 				the user can specify the delay between two request.
 			</option>

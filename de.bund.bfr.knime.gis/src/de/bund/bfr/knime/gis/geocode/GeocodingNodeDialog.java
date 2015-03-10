@@ -162,7 +162,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request:"), new JLabel(
+					new JLabel("Delay between Request (ms):"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
 					delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)) {
@@ -170,7 +170,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					new JLabel("Address:"), new JLabel("Country Code:")),
 					Arrays.asList(addressBox, countryCodeBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request:"), new JLabel(
+					new JLabel("Delay between Request (ms):"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
 					delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
@@ -179,7 +179,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					Arrays.asList(addressBox, countryCodeBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
 					new JLabel("Server Address:"), new JLabel(
-							"Delay between Request:"), new JLabel(
+							"Delay between Request (ms):"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
 					serverField, delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_BKG)) {
@@ -187,7 +187,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 					Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
 			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request:"), new JLabel(
+					new JLabel("Delay between Request (ms):"), new JLabel(
 							"When multiple Results:")), Arrays.asList(
 					delayField, multipleBox)));
 		}
