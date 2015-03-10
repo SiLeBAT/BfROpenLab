@@ -893,20 +893,43 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void collapseByPropertyItemClicked() {
+		Set<String> selectedIds = CanvasUtils.getElementIds(getSelectedNodes());
+
+		if (!selectedIds.isEmpty()) {
+			if (JOptionPane.showConfirmDialog(this, "Use only the selected "
+					+ naming.nodes() + " for collapsing?", "Confirm",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+				selectedIds.clear();
+			}
+		}
+
+		for (String id : selectedIds) {
+			if (collapsedNodes.keySet().contains(id)) {
+				JOptionPane.showMessageDialog(this, "Some of the selected "
+						+ naming.nodes() + " are already collapsed", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+
+		Set<String> ids = !selectedIds.isEmpty() ? selectedIds : CanvasUtils
+				.getElementIds(allNodes);
 		Map<Object, Set<V>> nodesByProperty = CanvasUtils
 				.openCollapseByPropertyDialog(this, nodeSchema.getMap()
-						.keySet(), CanvasUtils.getElementIds(allNodes),
-						nodeSaveMap);
+						.keySet(), ids, nodeSaveMap);
+		Set<String> newCollapsedIds = new LinkedHashSet<>();
 
 		if (nodesByProperty.isEmpty()) {
 			return;
 		}
 
-		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
-		}
+		if (selectedIds.isEmpty()) {
+			for (String id : collapsedNodes.keySet()) {
+				nodeSaveMap.remove(id);
+			}
 
-		collapsedNodes.clear();
+			collapsedNodes.clear();
+		}
 
 		for (Map.Entry<Object, Set<V>> entry : nodesByProperty.entrySet()) {
 			String newId = KnimeUtils.createNewValue(entry.getKey().toString(),
@@ -914,11 +937,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			collapsedNodes.put(newId,
 					CanvasUtils.getElementIds(entry.getValue()));
+			newCollapsedIds.add(newId);
 		}
 
 		applyChanges();
 		fireCollapsedNodesChanged();
-		setSelectedNodeIds(collapsedNodes.keySet());
+		setSelectedNodeIds(newCollapsedIds);
 	}
 
 	@Override
