@@ -500,10 +500,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
 
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			transformer.scale(1 / 1.1f, 1 / 1.1f, center);
+			transformer.scale(1.1, 1.1, center);
 			viewer.repaint();
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			transformer.scale(1.1f, 1.1f, center);
+			transformer.scale(1 / 1.1, 1 / 1.1, center);
 			viewer.repaint();
 		}
 	}

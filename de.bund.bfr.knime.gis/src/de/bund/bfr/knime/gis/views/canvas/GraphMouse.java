@@ -34,7 +34,7 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin) {
-		super(1.1f, 1 / 1.1f);
+		super(1 / 1.1f, 1.1f);
 
 		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(),
 				0, in, out);
