@@ -111,14 +111,18 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			//if (doAnonymize) doAnonymizeHard(conn);
 		
 
-			System.err.println("Starting Plausibility Checks...");
+			String warningMessage = "Starting Plausibility Checks...";
+			System.err.println(warningMessage);
+			boolean warningsThere = false;
 			// Date_In <= Date_Out???
 			String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"ID\" AS \"ID_In\", \"L2\".\"ID\" AS \"ID_Out\", \"L1\".\"dd_day\" AS \"Day_In\",\"L2\".\"dd_day\" AS \"Day_Out\", \"L1\".\"dd_month\" AS \"Month_In\",\"L2\".\"dd_month\" AS \"Month_Out\", \"L1\".\"dd_year\" AS \"Year_In\",\"L2\".\"dd_year\" AS \"Year_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND (\"L2\".\"dd_year\" < \"L1\".\"dd_year\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" < \"L1\".\"dd_month\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" = \"L1\".\"dd_month\" AND \"L2\".\"dd_day\" < \"L1\".\"dd_day\")";
 			ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
 			if (rsp != null && rsp.first()) {
 				do {
-					System.err.println("Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In")
-							+ ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")");
+					warningMessage = "Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In")
+							+ ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")";
+					System.err.println(warningMessage); this.setWarningMessage(warningMessage);
+					warningsThere = true;
 				} while (rsp.next());
 			}
 			// Sum(In) <=> Sum(Out)???
@@ -129,12 +133,16 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
 						double in = rsp.getDouble("Amount_In");
 						double out = rsp.getDouble("Amount_Out");
-						if (in > out * 1.1 || out > in * 1.1) {
-							System.err.println("Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + " kg) vs. Out: " + rsp.getString("ids_out") + " (" + out + ")");
+						if (in > out * 2 || out > in * 2) { // 1.1
+							warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
+							System.err.println(warningMessage); this.setWarningMessage(warningMessage);
+							warningsThere = true;
 						}
 					}
 				} while (rsp.next());
 			}
+			if (warningsThere) this.setWarningMessage("Look into the console - there are plausibility issues...");
+			System.err.println("Plausibility Checks - Fin!");
 
 			System.err.println("Starting Tracing...");
 			MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
