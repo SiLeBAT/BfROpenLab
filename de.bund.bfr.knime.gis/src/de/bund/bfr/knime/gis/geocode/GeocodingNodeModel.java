@@ -389,6 +389,7 @@ public class GeocodingNodeModel extends NodeModel {
 			if (e.getMessage().startsWith("Server returned HTTP response code: 403 for URL")) {
 				return new GeocodingResult();
 			}
+			else throw e;
 		}
 		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
 		List<String> streets = new ArrayList<>();
