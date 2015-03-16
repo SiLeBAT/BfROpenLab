@@ -368,6 +368,7 @@ public class GeocodingNodeModel extends NodeModel {
 		if (address == null || countryCode == null) {
 			return new GeocodingResult();
 		}
+
 		try {
 			String server = set.getServiceProvider().equals(
 					GeocodingSettings.PROVIDER_GISGRAPHY) ? set
@@ -379,7 +380,8 @@ public class GeocodingNodeModel extends NodeModel {
 					+ "&country=" + countryCode + "&postal=true", null);
 			String url = uri.toASCIIString();
 			URLConnection yc = new URL(url).openConnection();
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+					.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(yc.getInputStream());
 			int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
@@ -390,10 +392,10 @@ public class GeocodingNodeModel extends NodeModel {
 			List<String> postalCodes = new ArrayList<>();
 			List<Double> latitudes = new ArrayList<>();
 			List<Double> longitudes = new ArrayList<>();
-	
+
 			for (int i = 0; i < n; i++) {
 				String location = "/results/result[" + (i + 1) + "]";
-	
+
 				streets.add(evaluateXPath(doc, location + "/streetName"));
 				cities.add(evaluateXPath(doc, location + "/city"));
 				states.add(evaluateXPath(doc, location + "/state"));
@@ -404,27 +406,27 @@ public class GeocodingNodeModel extends NodeModel {
 				longitudes.add(Double.parseDouble(evaluateXPath(doc, location
 						+ "/lng")));
 			}
-	
+
 			List<String> choices = new ArrayList<>();
-	
+
 			for (int i = 0; i < n; i++) {
 				choices.add(getAddress(streets.get(i), cities.get(i), null,
 						states.get(i), countryCodes.get(i), postalCodes.get(i)));
 			}
-	
+
 			int index = getIndex(address + ", " + countryCode, choices);
-	
+
 			if (index == -1) {
 				return new GeocodingResult(url);
 			}
-	
-			return new GeocodingResult(url, streets.get(index), cities.get(index),
-					null, states.get(index), countryCodes.get(index),
-					postalCodes.get(index), latitudes.get(index),
-					longitudes.get(index));
+
+			return new GeocodingResult(url, streets.get(index),
+					cities.get(index), null, states.get(index),
+					countryCodes.get(index), postalCodes.get(index),
+					latitudes.get(index), longitudes.get(index));
+		} catch (Exception e) {
+			return new GeocodingResult();
 		}
-		catch (Exception e) {}
-		return new GeocodingResult();
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
