@@ -119,7 +119,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		resized = false;
+		resized = set.getCanvasSize() == null;
 		panel.addComponentListener(this);
 
 		String warning = updateCanvas();

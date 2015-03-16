@@ -105,7 +105,7 @@ public class TracingViewSettings extends NodeSettings {
 		arrowInMiddle = false;
 		showLegend = false;
 		editingMode = Mode.PICKING;
-		canvasSize = new Dimension(400, 600);
+		canvasSize = null;
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
@@ -337,11 +337,14 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
 		canvas.setShowLegend(showLegend);
-		canvas.setCanvasSize(canvasSize);
 		canvas.setEditingMode(editingMode);
 		canvas.setJoinEdges(joinEdges);
 		canvas.setArrowInMiddle(arrowInMiddle);
 		canvas.setLabel(label);
+
+		if (canvasSize != null) {
+			canvas.setCanvasSize(canvasSize);
+		}
 
 		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
 
