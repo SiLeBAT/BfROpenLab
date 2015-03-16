@@ -36,7 +36,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
       <import plugin="org.knime.ext.svg"/>
       <import plugin="org.apache.commons.math3"/>
-      <import plugin="com.google.guava"/>
+      <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
