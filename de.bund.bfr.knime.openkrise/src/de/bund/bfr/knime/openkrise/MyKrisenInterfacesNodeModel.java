@@ -298,8 +298,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			return null;
 		}
 
-		return s.replaceAll("\\p{C}", "").replace("\u00A0", "")
-				.replace("\t", " ").replace("\n", " ").trim();
+		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "")
+				.replace("\t", " ").trim();
 	}
 	private String getISO3166_2(String country, String bl) {
 		Locale locale = Locale.ENGLISH;//Locale.GERMAN;
