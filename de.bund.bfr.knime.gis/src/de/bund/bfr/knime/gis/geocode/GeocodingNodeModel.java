@@ -683,6 +683,7 @@ public class GeocodingNodeModel extends NodeModel {
 			pack();
 			setResizable(false);
 			setLocationRelativeTo(getOwner());
+			setAlwaysOnTop(true);
 
 			isCanceled = true;
 			result = -1;
