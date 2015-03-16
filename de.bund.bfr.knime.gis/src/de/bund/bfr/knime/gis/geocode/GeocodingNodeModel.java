@@ -381,7 +381,15 @@ public class GeocodingNodeModel extends NodeModel {
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(yc.getInputStream());
+		Document doc = null;
+		try {
+			doc = dBuilder.parse(yc.getInputStream());
+		}
+		catch (Exception e) {
+			if (e.getMessage().startsWith("Server returned HTTP response code: 403 for URL")) {
+				return new GeocodingResult();
+			}
+		}
 		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
 		List<String> streets = new ArrayList<>();
 		List<String> cities = new ArrayList<>();
@@ -418,10 +426,11 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		return new GeocodingResult(url, streets.get(index), cities.get(index),
+		GeocodingResult gcr = new GeocodingResult(url, streets.get(index), cities.get(index),
 				null, states.get(index), countryCodes.get(index),
 				postalCodes.get(index), latitudes.get(index),
 				longitudes.get(index));
+		return gcr;
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
