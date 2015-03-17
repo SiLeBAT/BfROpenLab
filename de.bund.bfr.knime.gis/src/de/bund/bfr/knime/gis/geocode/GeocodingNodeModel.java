@@ -156,6 +156,11 @@ public class GeocodingNodeModel extends NodeModel {
 						+ set.getServiceProvider());
 			}
 
+			if (result.getLatitude() == null || result.getLongitude() == null) {
+				setWarningMessage("Geocoding failed for row "
+						+ row.getKey().getString());
+			}
+
 			cells[outSpec.findColumnIndex(URL_COLUMN)] = IO.createCell(result
 					.getUrl());
 			cells[outSpec.findColumnIndex(STREET_COLUMN)] = IO
@@ -382,15 +387,18 @@ public class GeocodingNodeModel extends NodeModel {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = null;
+
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
-		}
-		catch (Exception e) {
-			if (e.getMessage().startsWith("Server returned HTTP response code: 403 for URL")) {
+		} catch (Exception e) {
+			if (e.getMessage().startsWith(
+					"Server returned HTTP response code: 403 for URL")) {
 				return new GeocodingResult();
+			} else {
+				throw e;
 			}
-			else throw e;
 		}
+
 		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
 		List<String> streets = new ArrayList<>();
 		List<String> cities = new ArrayList<>();
@@ -427,11 +435,10 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		GeocodingResult gcr = new GeocodingResult(url, streets.get(index), cities.get(index),
+		return new GeocodingResult(url, streets.get(index), cities.get(index),
 				null, states.get(index), countryCodes.get(index),
 				postalCodes.get(index), latitudes.get(index),
 				longitudes.get(index));
-		return gcr;
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
