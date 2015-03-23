@@ -148,39 +148,24 @@ public class MyNewTracing {
 		}
 		return -1.0;
 	}
-	@SuppressWarnings("unchecked")
 	private LinkedHashMap<Integer, HashSet<Integer>> getScores(boolean doStations) {
 		// getForwardStationsWithCases counts for each delivery. But: it might be the case that a station delivers into "different" directions (deliveries), and all of them have cases!!!
 		// Therefore, we sum here based on the suppliers (supplierSum), not on the deliveries!!!
 		HashMap<Integer, HashSet<Integer>> supplierSum = new HashMap<>(); 
 		HashMap<Integer, HashSet<Integer>> deliverySum = new HashMap<>(); 
 		for (MyDelivery md : allDeliveries.values()) {
-			HashSet<Integer> fswc = getForwardStationsWithCases(md);
-			if (supplierSum.containsKey(md.getSupplierID())) {
-				HashSet<Integer> hi = supplierSum.get(md.getSupplierID());
-				for (Integer i : fswc) {
-					hi.add(i);
-				}
-				supplierSum.put(md.getSupplierID(), hi);
-			}
-			else {
-				supplierSum.put(md.getSupplierID(), (HashSet<Integer>) fswc.clone());
-			}
-			deliverySum.put(md.getId(), (HashSet<Integer>) fswc.clone());
+			HashSet<Integer> fwc = new HashSet<>();
 			
-			// now the scores for the delivery cases
-			HashSet<Integer> fdwc = getForwardDeliveriesWithCases(md);
+			fwc.addAll(getForwardStationsWithCases(md));
+			fwc.addAll(getForwardDeliveriesWithCases(md));
+			
 			if (supplierSum.containsKey(md.getSupplierID())) {
-				HashSet<Integer> hi = supplierSum.get(md.getSupplierID());
-				for (Integer i : fdwc) {
-					hi.add(i);
-				}
-				supplierSum.put(md.getSupplierID(), hi);
+				supplierSum.get(md.getSupplierID()).addAll(fwc);
+			} else {
+				supplierSum.put(md.getSupplierID(), new HashSet<>(fwc));
 			}
-			else {
-				supplierSum.put(md.getSupplierID(), (HashSet<Integer>) fdwc.clone());
-			}
-			deliverySum.put(md.getId(), (HashSet<Integer>) fdwc.clone());
+			
+			deliverySum.put(md.getId(), new HashSet<>(fwc));
 		}
 		
 		sortedStations = sortByValues(supplierSum);
