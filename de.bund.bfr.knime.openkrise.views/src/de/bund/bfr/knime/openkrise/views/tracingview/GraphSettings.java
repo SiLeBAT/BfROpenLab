@@ -118,11 +118,12 @@ public class GraphSettings extends NodeSettings {
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
-		canvas.setNodePositions(nodePositions);
 
 		if (transform.isValid()) {
 			canvas.setTransform(transform);
 		}
+
+		canvas.setNodePositions(nodePositions);
 	}
 
 	public Transform getTransform() {
