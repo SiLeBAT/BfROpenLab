@@ -41,6 +41,7 @@ import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -248,6 +249,31 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		viewer.setGraphLayout(layout);
+
+		if (layout instanceof IterativeContext) {
+			final IterativeContext layoutProcess = (IterativeContext) layout;
+
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					while (true) {
+						if (layoutProcess.done()) {
+							setNodePositions(getNodePositions());
+							break;
+						}
+
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}).start();
+		} else {
+			setNodePositions(getNodePositions());
+		}
 	}
 
 	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
