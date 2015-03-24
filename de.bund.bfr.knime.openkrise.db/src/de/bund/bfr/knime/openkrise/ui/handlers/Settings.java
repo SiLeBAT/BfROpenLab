@@ -31,20 +31,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.ui.handlers;
+package de.bund.bfr.knime.openkrise.ui.handlers;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.hsh.bfr.db.DBKernel;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
+public class Settings extends AbstractHandler {
+	public Settings() {
 	}
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
+		SettingsDialog sd = new SettingsDialog();
+		sd.setVisible(true);
 		return null;
 	}
 }

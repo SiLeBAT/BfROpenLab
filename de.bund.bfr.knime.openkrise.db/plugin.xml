@@ -4,29 +4,29 @@
    <extension
          point="org.eclipse.ui.commands">
       <category
-            id="de.bund.bfr.knime.pmm.ui.commands.category"
-            name="PMM-Lab">
+            id="de.bund.bfr.knime.openkrise.ui.commands.category"
+            name="FoodChain-Lab">
       </category>
       <command
-            categoryId="de.bund.bfr.knime.pmm.ui.commands.category"
-            id="de.bund.bfr.knime.pmm.ui.commands.openDBGUI"
+            categoryId="de.bund.bfr.knime.openkrise.ui.commands.category"
+            id="de.bund.bfr.knime.openkrise.ui.commands.openDBGUI"
             name="Open DB Gui...">
       </command>
       <command
-            categoryId="de.bund.bfr.knime.pmm.ui.commands.category"
-            id="de.bund.bfr.knime.pmm.ui.commands.settings"
+            categoryId="de.bund.bfr.knime.openkrise.ui.commands.category"
+            id="de.bund.bfr.knime.openkrise.ui.commands.settings"
             name="Settings...">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="de.bund.bfr.knime.pmm.ui.handlers.OpenDBGUI"
-            commandId="de.bund.bfr.knime.pmm.ui.commands.openDBGUI">
+            class="de.bund.bfr.knime.openkrise.ui.handlers.OpenDBGUI"
+            commandId="de.bund.bfr.knime.openkrise.ui.commands.openDBGUI">
       </handler>
       <handler
-            class="de.bund.bfr.knime.pmm.ui.handlers.Settings"
-            commandId="de.bund.bfr.knime.pmm.ui.commands.settings">
+            class="de.bund.bfr.knime.openkrise.ui.handlers.Settings"
+            commandId="de.bund.bfr.knime.openkrise.ui.commands.settings">
       </handler>
    </extension>
    <extension
@@ -35,17 +35,17 @@
             allPopups="false"
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
-               id="de.bund.bfr.knime.pmm.ui.menus.masterdata"
+               id="de.bund.bfr.knime.openkrise.ui.menus.masterdata"
                label="Food-Lab"
                mnemonic="M">
             <command
-                  commandId="de.bund.bfr.knime.pmm.ui.commands.openDBGUI"
-                  id="de.bund.bfr.knime.pmm.ui.menus.openDBGUI"
+                  commandId="de.bund.bfr.knime.openkrise.ui.commands.openDBGUI"
+                  id="de.bund.bfr.knime.openkrise.ui.menus.openDBGUI"
                   style="push">
             </command>
             <command
-                  commandId="de.bund.bfr.knime.pmm.ui.commands.settings"
-                  id="de.bund.bfr.knime.pmm.ui.menus.settings"
+                  commandId="de.bund.bfr.knime.openkrise.ui.commands.settings"
+                  id="de.bund.bfr.knime.openkrise.ui.menus.settings"
                   style="push">
             </command>
          </menu>

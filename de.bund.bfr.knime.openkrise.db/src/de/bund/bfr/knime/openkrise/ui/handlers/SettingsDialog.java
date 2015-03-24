@@ -35,7 +35,7 @@
  * Created by JFormDesigner on Tue Dec 18 15:46:21 CET 2012
  */
 
-package de.bund.bfr.knime.pmm.ui.handlers;
+package de.bund.bfr.knime.openkrise.ui.handlers;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
