@@ -25,9 +25,9 @@
 <config key="nodeAnnotation">
 <entry key="text" type="xstring" value="Stations Reference"/>
 <entry key="bgcolor" type="xint" value="16777215"/>
-<entry key="x-coordinate" type="xint" value="39"/>
+<entry key="x-coordinate" type="xint" value="40"/>
 <entry key="y-coordinate" type="xint" value="280"/>
-<entry key="width" type="xint" value="102"/>
+<entry key="width" type="xint" value="101"/>
 <entry key="height" type="xint" value="15"/>
 <entry key="alignment" type="xstring" value="CENTER"/>
 <config key="styles"/>
@@ -39,7 +39,7 @@
 <entry key="node-bundle-name" type="xstring" value="KNIME Base Nodes"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.base"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="2.11.1.0045704"/>
+<entry key="node-bundle-version" type="xstring" value="2.11.2.0046096"/>
 <config key="factory_settings"/>
 <entry key="name" type="xstring" value="Table Reader"/>
 <entry key="hasContent" type="xboolean" value="true"/>
@@ -55,6 +55,6 @@
 </config>
 <config key="filestores">
 <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-<entry key="file_store_id" type="xstring" value="9078d918-de10-4cc5-8535-5da2f1f1e74e"/>
+<entry key="file_store_id" type="xstring" value="41132b4b-c458-4c89-a6ed-f640ecd85f92"/>
 </config>
 </config>
