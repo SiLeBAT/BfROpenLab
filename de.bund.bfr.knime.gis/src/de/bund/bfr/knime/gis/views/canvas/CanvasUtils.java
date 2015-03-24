@@ -750,7 +750,7 @@ public class CanvasUtils {
 
 		double max = Collections.max(values);
 
-		if (max == 0.0) {
+		if (max == 0.0 || max == Double.MIN_VALUE) {
 			return 1.0;
 		}
 
