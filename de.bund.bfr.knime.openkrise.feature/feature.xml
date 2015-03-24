@@ -30,26 +30,19 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
    </license>
 
    <requires>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.apache.poi"/>
-      <import plugin="org.knime.ext.jfreechart"/>
-      <import plugin="org.knime.ext.jep"/>
       <import plugin="org.knime.workbench.core"/>
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
       <import plugin="org.knime.ext.svg"/>
-      <import plugin="org.knime.core"/>
       <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.apache.poi"/>
+      <import plugin="org.knime.ext.jfreechart"/>
+      <import plugin="org.knime.ext.jep"/>
       <import plugin="org.knime.quickform.nodes"/>
    </requires>
-
-   <plugin
-         id="org.hsh.bfr.db"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.openkrise"
@@ -91,18 +84,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.bfrdbiface.lib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.jgoodies"
          download-size="0"
          install-size="0"
@@ -116,12 +97,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="de.bund.bfr.knime.openkrise.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.jdom2"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -155,5 +130,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.openkrise.db"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

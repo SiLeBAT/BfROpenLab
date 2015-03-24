@@ -1,0 +1,529 @@
+- Einheiten: in der DB gibt es derzeit folgende Feldertypen, die Einheiten benötigen: Zeit, Preis, Menge, Geschwindigkeit, Durchsatz.
+ADV codes (ADV: 017.doc) und auch andere Einheitentabellen ( http://aurora.regenstrief.org/~ucum/ucum.html) geben da nicht immer was passendes her:
+Zeit: Sekunde, Tag! OK?
+Preis: gibts nicht, also € und $! OK?
+Menge: ??? gewicht
+Durchsatz, Geschwindigkeit: gibts nicht???
+
+-> Menge: t, g, kg, mg (ADV: 018.doc)
+-> Rücksprache mit Hr. Stolp 
+BALVI fragen!!!
+
+abgespeichert werden nur Sekunden!
+
+Ralf Barth (Windows): 0451 - 70280-13
+Christian Schneider (Java, .NET): 0451 - 70280-19
+Fr. Behrendt (Zentrale): 0451 - 70280-0
+
+---------------2do/discuss-------------------------------
+
+Userverwaltung:
+- (wichtig für gesperrte Felder: nie, Krise, immer), ABER: ist doch erst notwendig in der finalen Version von BALVI?!?
+
+Gemerkt:
+- Für das Feld Branche in der Tabelle "Produzent" brauchen wir noch einen Katalog - muss ich allerdings nachreichen
+
+	
+Datenbank:
+- Double to VARCHAR für die Tabelle Messwerte in der TenazitätsDB. Z.B. soll folgendes möglich sein: (1,3*10^4)  (< 0.01)  (n.d.) Wie macht das denn eigentlich die Combase????
+	- Messwerte: LogC	Konzentration des Erregers (10er Logarithmus) - Entweder sind die absoluten Konzentrationen hier einzutragen ODER die Konzentrationsänderugnen in den Delta LogC-Feldern	DOUBLE		"Konzentration des Erregers (10er Logarithmus) - Entweder ist die absolute Konzentration bzw. der Mittelwert bei Mehrfachmessungen hier einzutragen ODER die Konzentrationsänderung in den Delta LogC-Feldern
+	Anmerkung: 
+	(1) Hier soll doch immer nur ein wert eingetragen werden oder ?
+	(2) hier würde ich ein Beispiel einfügen, da das echte Probleme macht. Beispiel: 1,3 * 10^4 wie soll das eingetragen werden? [Beispiel aus einem konkreten Fall: Good example: ""1.2 x 103 = 1200"",""0"" (0 means no colonies detected =less than 10 cfu/g)]."
+- Sind wirklich alle logc_units aus der Combase Measured_Values log cell pro g??????
+
+- Plausibilität:
+	- ist GS1 als Matrix ausgewählt?
+
+MatthiasMail:
+- In gleicher Tabelle sollte vielleicht die Möglichkeit gegeben werden eine Literaturstelle (an Stelle einer SOP) einzufügen. Im Feld Beschreibung hat man immer das Problem, dass beim Kopieren aus einer PDF Artefakte entstehen und die DB dann mit einigen dieser Zeichen nicht klar kommt.
+- darüber hinaus hatte ich in der Spalte "Beschreibung" mehrfach den Fall, dass Text, den ich eingefügt hatte, nicht gespeichert wurde (evtl. wegen Feldlänge oder der PDF-Zeichen?)
+- Im Kuchta Paper wurde eine Unterscheidung zwischen lebenden Salmonellen und toten Salmonellen gemacht, d.h. man müsste theoretisch in der Agenzien-Tabelle auch noch die Option lebend / tot zu jedem Mikroorganismus anbieten? (mittelfristig). Als Kurzfristlösung könnten die es ja in das Kommentarfeld rein schreiben.
+
+
+- verschiedene User nochmal testen, ob alles klappt. Bleiben die Passwörter erhalten????
+- Netzwerk DB: klappt wirklich alles, beim Umstieg auf HSQLServer? z.B. undo/redo? oder was auch immer? auf jeden Fall: uri in DBPath checken, falls IP Adresse
+- Undo/Redo, Print checken
+- Generierung einer automatischen "TOP-Liste". Je nach den zuletzt gewählten (z.B. Matrices) sollten diese auch wieder zuerst angeboten werden.
+
+- TOP-Methoden fehlen noch
+- Unterpunkte für TOP-Matrices sollten wohl auch besser zu sehen sein...
+- evtl. Property von Combase Technical Description auch integrieren. "Für Agenzien"
+
+BUGS:
+- Irgendwo war es komisch mit der Reihenfolge beim Editieren... der Zellen. Die Reihenfolge wurde dauernd automatisch abgeändert...
+
+
+- Logfiles zusendbar machen!
+- rote Warnmeldung !!!!!!! Kommunizieren in der Hilfe oder so!!!!!, falls doppelte Einträge, z.B. Codes-Matrices TOP 11 zweimal, fällt aber nicht auf... beforeUpdate: ja afterUpdate: nein
+- UNIQUE Felder
+- Doppelte Einträge für DB-Zusamenführungen und auch sonst vermeiden. Wie?!?
+
+
+Buschulte:
+- VET-Code und ICD10 hierarchisieren
+- Varchar einführen für DOUBLE Felder, z.B. < 60 Jahre zwischen 30-40 Jahren, 1,3*10^4
+	- im Zuge dessen alle Felder zu Pflichtfeldern machen!!! Wenn ein Feld nicht ausgefüllt ist, dann wird muss es noch befüllt werden!
+
+- Combase Import neu machen (python script...)
+- Stolp:
+	- Güte für Double-Werte: Anzahl eingegebener Nachkommastellen abspeichern und auch darstellen. Stichwort: nicht default ".0"  (Textfeld machen???)
+	
+- Endzusammenführung von Labor_Agens_Nachweis..., z.B. zwei verschiedene Methoden werden benötigt, um zu einem Endergebnis zu kommen. (Stichwort: Salmonellen 20, ... endgültiger Nachweis...)
+
+
+- Anmerkung: Zertifizierung für humane Diagnostik: Verfahren/Methoden müssen zertifiziert sein!
+
+
+- Prozessketten: Dokumentation Pflichtfelder (z.B. Produkt, Zutat <=> #Units)
+- Prozessketten: Ausgabe: XML File?
+
+
+- Eintrag zu TOP-Liste ergänzen  - z.B. rechte Maustaste und dann Option "zu TOP hinzufügen"
+- Verweis auf internationale Standard-Code-Liste z.B. von SDMX-Konsortium
+
+- Doubletten im Auge behalten und Kriterien sich überlegen ebensolche zu verhindern. Z.B. bei den Papern. Wie kann man den Partnern kommunizieren, daß ein anderer Partner ein Paper eingefügt hat, das bereits eingetragen war? Extra Spalte oder bilateral?
+
+- Funktioniert bei MN Verknüpfungen:
+	- kopieren
+	- Plausibilität wegen z.B. Eindeutigkeit
+
+- Tenazität:
+	- Ergebnistabelle für d-Wert, z-Wert, etc. anlegen
+	
+	
+- via Knopfdruck Daten für neuen XML Import übernehmen!
+- Plausibilitätstests überarbeiten!
+- Resultstabelle zur Tenazität
+	- D-Wert
+	- Z-Wert
+	- lag phase
+	- [J/m^2]
+	- LD50, LD90
+	- N0/N
+	- Modellparameter
+	- Fitparameter
+	- Regressionskoeffizienten
+	- Modellgüte
+	- Anwendungsbereich
+	- Geltungsbereich
+- Aggrgatzustand mit reinnehmen? Gewichtsverlust (für Prozessketten als Parameter für aw-Wert)?
+
+- Populationsmodell
+	- Metadaten, z.B. Berlin normal vs. Berlin panik
+
+- Prozessketten
+	- in KNIME angebbar welche Parameter! Aus der DB Standardwert abrufbar!
+	- Warenannahme zutatenspezifisch?
+	- Versand, z.B. LKW 20 Paletten mit °C und Dauer, etc?!?
+
+- Netzwerkversion
+	- gleichzeitiger Zugriff, was passiert da? Vor dem INSERT,UPDATE,DELETE nochmal abfragen, ob was geändert?
+	- nochmal alles testen: klappt die zentrale Version?
+
+- bei SyncDBs bitte auf Löschungen achten, z.B. bei Sonstiges (Stichwort: "pressure")
+
+- AJ: macht doch bitte auch Vorversuche rein!
+
+- IT-MRI: 09221-803236
+
+
+- Löschen eines Workflows: Sollen anhängigen Prozessdaten und Zutatendaten mitgelöscht werden?
+
+- Alternativanbieter Kits ermöglichen, d.h. Kits, die dasselbe tun verlinken
+- Fehlende Matrices, Agenzien im Forum diskutieren!
+- Glossar für AP6 erstellen (z.B. Parameter, Variable, ...)
+- BVL Zuarbeit? Checken, was gemacht wurde und ob es was taugt.
+- Was passiert, wenn 1 Prozessschritt ausfällt? In der Modellierung/Simulation berücksichtigen!
+- Zutatengruppen definieren können in Prozessketten-DB (Anforderung Almut)
+- Möglichkeit für automatische Prozessschrittparameterübernahme kommunizieren
+- Prozessketten-DB: Uni Bayreuth - Definition Lebensmittel (neue Professur?!? Hinweis im Gesamtverbundmeeting am 27.05.2011)
+- Dokumentation der Recherche! Suchbegriffe dokumentieren und ins FIS-VL einstellen (-> Katja, Christina, AKW).
+- Experten fragen wegen Recherche. Irgendwas wichtiges vergessen? (-> Katja, Christina, AKW)
+
+damits nicht vergessen wird:
+In den Anwendungsfällen steht: "...Benennung und Strukturierung der möglichen Methoden (z.B. Säulen, Immunomagnetische Verfahren etc.)..."
+Das wolltest du nochmal mit Anne klären. Soll sowas rein in die Aufbereitsungsverfahren? Wenn ja, wie?
+Ausserdem:
+- Komplexität oder erforderte Erfahrung (leicht, mittel, schwer), z.B. mobil, Amtslabor, Fachlabor, L3, L4
+- Kits und Co mit AJ besprechen, siehe Worddatei von AJ.
+
+
+	
+- Krankheitsbilder Spaltenköpfe
+- anderes Dateneingabeformat, z.B. ein Datensatz auf eine Seite, mehr nicht - i.e. keine Tabellenform
+- Import von Exceltabellen: Leerzeilen checken!
+
+- nächste DB Version:
+	- BrucellaBoillon zusammen mit Alex eintragen!!! -> eigenen SiLeBAT Katalog anlegen???
+	
+	
+	- Messwerte 1632 mal anklicken!
+	
+	- die anderen Messwerte und Co. von defad (13.07.) ebenso manuell korrigieren!
+	- ACHTUNG: Krankheitsbilder hat jetzt für folgende Felder ebenso DBL: Inzidenz, Mortalität, Morbidität -> MANUELL nachtragen!
+    - In die Datenbank wurden während des Imports von Excel-Dateien durch Löschaktionen und auch durch den Excel-Import leere Zeilen bzw. Zeilen ohne Bezug zu Versuchsbedingungen eingefügt, die gelöscht werden können: Messwerte 4918-5026, 5084-5102, 5160-5178, 5225, 5280, 5323, 5381-5399.
+    - Erforderliche Änderungen an Einträgen:
+    • Versuchsbedingungen
+        •   ID851, 856, 863: Matrix = Brucella-Bouillon
+        •   ID880: Butterfield’s Phosphate Buffer
+    •   Nachweisverfahren
+        •   ID37: Matrix = Brucella-Agar
+        •   ID38: Matrix = Brucella-Selektiv-Agar
+    •   Messwerte
+        •   ID5465-  und alle „log reduction“-Messwerte: Alle Mittelwerte mit negativem Vorzeichen versehen
+        •   Alle Messwerte mit „log10 CFU reduction“ (Mertens ab 23.6.11): Paper prüfen, Reduktion als log10 cfu/ml oder log10 cfu/g angeben.
+    Rechtschreibfehler und Schönheitskorrekturen
+    •   Messwerte 5470-5474 können gelöscht werden.
+    - Messwert 1669 habe ich korrigiert, bei den Messwerten 1663, 1670 und 1671 ist der unkorrekte Einzelwert noch vorhanden, Mittelwert und Standardabweichung stimmen.
+    - In den folgenden Messwerten gibt es noch einige doppelt angezeigte Werte, von denen beim Doppelklick darauf nur noch einer angezeigt wird:
+    - Einzelwerte doppelt angezeigt: 1635, 1650-1657, 1662, 1670
+    - Minimum/maximum doppelt angezeigt: 1751-1753, 1755-1758, 1761-1762
+    - @Anja: 0.7 einfügen, der Wert ist verschütt gegangen!!!!
+        	
+- SOP/LA: die sind ja eher TopSecret - wie verbergen? Nur dem Dateneingeber den Zugriff erlauben?
+- mehrere Referenzen erlauben bei Aufbereitungsverfahren - oder auch woanders???
+- DBKernel.scrolling auch bei Key Events auf der Scrollbar auf true setzen (Stichwort: Page Up/Down)
+- Tenazität in Prozessketten-DB: Zeitangabe fehlt noch, wann die Messung gemacht wurde
+- Plausibilitätscheck (Änderung aus Versehen?) NICHT machen, wenn der Eintrag vorher leer (NULL) war!
+- Zeit und Zeiteinheit und Konzentration müssen bei Messwerten IMMER angegeben sein -> Plausibilitätstests!
+
+    - Versuchsbedingungen 60/62 checken!!! Messwert 580 muss in die 60 rein!!!
+    - was ist denn mit den Zeiten in 584, 585 passiert?
+    
+-------------------------------------------------------
+
+
+- "Einzelwert" und "Mittelwert und "Median" zusammenfassen zu einer Spalte "Wert", dann in einer weiteren Spalte angeben, worum es sich handelt
+- Frentzel als User einfügen
+-"Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit" ... überall Luftfeuchtigkeit als Standard einfügen!!!
+-10^n noch übertragen!!!!!
+-MyNewDoubleEditor überarbeiten
+-Tabellennamenchanges in Dateispeicher und in DoubleKennzahlen und in ChangeLog und in ???? checken!!!!!!!!!
+-updateChangeLog("DoubleKennzahlen", 15, false); etc. nochmal checken!!!
+-"Kennzahlen" in MergeDBs ??????? ok?!?
+-refreshFKs notwendig überall?
+-2.2.6 einbinden
+-neue Modelltabellen einfügen
+-Prozess_Workflow vs. Prozessdaten-Workflow
+-import von Basis-Agenzien_New und andere checken...
+-Francisella einsortieren, wo? Struktur?ist updateChangeLog korrekt???? checken!!!!
+-Die Tabelle "DoubleKennzahlen" hat X Datensätze mit denselben Werten. (1313x)
+-Die Tabelle "Versuchsbedingungen_Sonstiges" hat X Datensätze mit denselben Werten. (1x)
+-Die Tabelle "Messerte_Sonstiges" hat X Datensätze mit denselben Werten. (8x)
+-<Alt>-Enter benutzen, um das Fremdfenster zu schliessen (anstelle des OK Knopfes) 
+- Auge drücken, dann Frage: alles? Tabelle? ID Bereich? selektierer Eintrag?
+- Das Ergebnis sortiert ausgeben (z.B.: alle Messwerte nach IDs, dann aller Versuchsbedingungen nach IDs, usw.)
+- Dann aber alles prüfen - auch Messwerte (Fremdtabellen)!
+- Agens ID != UND Agens ID 11 sind falsch !!!!! ÄNDERN!!!! Hat die schon mal jemand benutzt???? Hammerl? - ok, scheint doch ok zu sein... was n da los?
+- PERFORMANCE!!!
+- Passwörter wieder ohne MD5 verschlüsseln, ist ja jetzt in HSQLDB drin!
+- Messwerte ID3: 7.21 eintragen!!!! ist verschwunden...
+- defad Passwort auf ohne md5 umstellen! und im DB.script "74be16979710d4c4e7c6647856088456" ändern in "d41d8cd98f00b204e9800998ecf8427e" - niederberger auch mal checken und ändern!
+
+
+---------------------------------------
+
+Die Tabelle "Resistenz" hat 2 Datensätze mit denselben Werten (1x)
+
+2) Bei einigen Versuchsbedingungs-IDs wurde eine Matrix angegeben, aber die wichtige Zusatzinformation, dass ein Desinfektionsmittel beigemischt worden war,
+nur ins Feld Matrix_Detail. Dort wo ich es finde, könnte ich den Text aus Matrix_Detail in "Sonstiges" verlegen (lassen)... wenn es für die Modell-Erstellung denn einen Unterschied machen würde.
+Am besten wäre es, wenn bei der Modellerstellung eine Prüfung der Felder "Matrix_Detail" und "Sonstiges" für jede Versuchsbedingung verlangt würde, so dass man entsprechend manuell Parameter anpassen
+oder als überflüssig deklarieren könnte. Ansonsten könnte es zu seltsamen Modellen kommen, wenn in Milch bei 25°C plötzlich Bakterien sterben, anstatt sich wunderbar zu vermehren.
+
+- Plausibility Tests machen (z.B. wieder pH etc. (Kennzahlen) einbinden)!!!
+- Filter checken, damit username spezifische Ansicht fehlerfrei funktioniert, das betrifft vor allem die Suche, Sort, ...?
+- Prozess-ID für Sonstige... Mail von Niederberger...
+- Beispieldatensätze von Stat-Up:
+    - Achtung bei:
+        - Modell_Referenz", new String[]{"Modell","Literatur" (hat nur 4 Einträge), immer die 1!
+INSERT INTO "Literatur" VALUES(1,'BVL',2010,'Methodensammlung BVL, Amtl. Sammlung \u00ba 64 LFGB',NULL,NULL,NULL,NULL,NULL,NULL,'http://www.methodensammlung-bvl.de',NULL,NULL,NULL)
+        - GeschaetzteModelle", new String[]{"Versuchsbedingung" (hat nur 4 Einträge), 1,1,2,4 -->> 991,991,992,994
+INSERT INTO "Versuchsbedingungen" VALUES(1,6,85,NULL,8825,NULL,NULL,1,1.0E0,2.0E0,3.0E0,NULL,NULL,'in',1,NULL,NULL,'ActiaTT07','Bacillus cereus','Sauce/Dressing (In: hollandaise sauce)','Sauce/Dressing','hollandaise sauce',NULL,NULL,NULL)
+INSERT INTO "Versuchsbedingungen" VALUES(2,6,85,NULL,8825,NULL,NULL,2,4.0E0,5.0E0,6.0E0,NULL,NULL,'in',2,NULL,NULL,'ActiaTT08','Bacillus cereus','Sauce/Dressing (In: hollandaise sauce)','Sauce/Dressing','hollandaise sauce',NULL,NULL,NULL)
+INSERT INTO "Versuchsbedingungen" VALUES(3,6,85,NULL,8825,NULL,NULL,3,7.0E0,8.0E0,9.0E0,NULL,NULL,'in',3,NULL,NULL,'ActiaTT09','Bacillus cereus','Sauce/Dressing (In: hollandaise sauce)','Sauce/Dressing','hollandaise sauce',NULL,NULL,NULL)
+INSERT INTO "Versuchsbedingungen" VALUES(4,6,85,NULL,8825,NULL,NULL,4,10.0E0,11.0E0,12.0E0,NULL,NULL,'in',4,NULL,NULL,'ActiaTT10','Bacillus cereus','Sauce/Dressing (In: hollandaise sauce)','Sauce/Dressing','hollandaise sauce',NULL,NULL,NULL)
+        - GeschaetztesModell_Referenz", new String[]{"GeschaetztesModell","Literatur"}, (ohne Eintrag)
+- combase importieren!
+- Wie kann ich vermeiden, dass Versuchsbedingungen doppelt von der Combase importiert werden???? CB_ID????? Müsste gehen!
+- Servermodus:
+    - ChangeLog...
+    - CREATE FUNCTION LD... oder war das ne andere Funktion?
+    - servermodul - ServerBackup - Wecker
+    - Log Files schreiben!
+    - wo wird überall getdefaultadmin benutzt?
+    - DBKernel.getUsername() erscheint problematisch, da ich keinen Zugriff auf die Connection habe, wer macht die Änderung????
+    - getDefaultConnection checken, ob ok
+
+
+alle Booleanfelder zu Ja/Nein/NULL machen!
+den Kram oben checken und ggf. löschen!
+
+
+- MESSWERTE ID 18: Einheit wurde aus Versehen von Böhnlein geändert - wieder rückgängig machen! ok.
+- Messwerte ID 8188: StdAbw = 0!!! erledigt!
+- Alex: Messwerte ID 1668 + die drei davor: falsche Einheit? KBE/ml => Sporen/ml! erledigt!
+- Wese: 9.5 * 10^3 log KBE... Messwerte ID=8201 Vibrio Cholerae/Säuglingsanfangsnahrung [0 9.5]  [4 5.4](8202) ok.
+
+- Servermodus:
+    - refresh problem
+    - Versionsupgrade für den Client
+    - ...
+    
+Wer hat Änderungen  gemacht sind nicht zu sehen, wenn DoubleKennzahlen geändert werden...., das ist doof - nagut, laSSEN wir erstmal so, im Gesamttest ist es ja sichtbar
+Plausibility Tests erweitern  und Doppelte vermeiden stärken!
+
+- Wese & Co.: bitte auch die Combase immer als potentielle Quelle durchschauen 
+- Aran01 mal anschauen - das hat Mertens eingegeben... ist auch in der Combase...
+    
+- beim nächsten Mal die LOGs von Katja checken. Klappt das auch alles mit dem Kopieren von DoubleKennzahlen usw., Stichwort: newfID. Die Dateien liegen unter Desktop\LOGs2Check
+
+
+- Meeting:
+    - Tierkram von Katja
+    - alle bitte die Combase checken!
+    - bitte alle Plausibilitätschecks ausdenken!
+    - bitte alle Ausprägungen eintragen!
+    
+- die Tabellen von Stat-Up müssen angepasst werden an meine M:N Logik, d.h. es müssen ggf. Spalten ergänzt werden.
+
+
+- Combase nochmal durchlaufen lassen - einige Messwerte waren NULL...
+- CombaseImport wieder korrekt integrieren
+
+- fehlerhafte Prozessketten abfangen (Zutaten sind Teil der Kette... siehe wese, Salami luftgetrocknet mit Schimmel.PEX)
+- Was ist da im Changelog von der Mertens passiert????? Logs checken!!!!- wie hast du die Literatur eingegeben??? Via Import? Wieso ist dann im Alteintrag ein Wert ala null,null,null...??? Versteh ich nicht...
+- vor MergeDBs mit Mertens' Data, DBVersion auf 1.3.7 zurücksetzen
+- Was ist das fürn Scheiß mit DoubleKennzahlen nicht korrekt duplizieren? Und dann Messwerte in die ID 1 reinschmeissen??? War wohl was mit Filter & Sorter...
+- Hammerl Änderungen für Nachweise... NachweisKits?
+
+- Wese: Verpackungen integrieren!
+- ich benötige in den DBS extra Combasefelder (wie in Versuchsbedingungn auch in Literatur! In Kommentar schreiben ist gefährlich... da löscht mal wieder einer einfach was.)
+    - wie wärs mit einer einfachen extra Tabelle: ID | CombaseID | LiteraturID?!!! 
+- Plausibilitätstests der Krankheitsbilder von Anja umsetzen (G:\Abteilung-4\BT-Aktivitaeten\Tools\Info\Krankheitsbilder_Beschreibung_20120209.xls)
+- Plausitests checken, auch als nicht-admin!
+Unbedingt Beispiel einfügen!!!! für doFinalizingThings!!!!! Brauch ich das denn wirklich? In welcher Situation? - keine Ahnung, müsste auch ohne gehen...
+- Katjas Tabelle ...CovVar bereinigen, sonst ewiger Fehlerwurf
+- Überprüfen, ob das Mergen geklappt hat... am Beispiel der Kits und am Beispiel der Prozessketten - Stichwort: updateChangeLog - habe ich da die Columns korrekt gesetzt???
+
+- Nachweiseverfahren ID 66 ud 116, MatrixID: 6 -> 26!!! (bei Mertens nachfragen, verglichen mit Hammerl hat sich da einiges geändert.... wieso? Vor allem: welche Matrix ist da gemeint??? Geht das Nachweisverfahren nur mit dieser einen Matrix? Ist das nicht vielleicht allgemeiner?? Auf jeden Fall eher Matrix ID 26??? Aber wieso wurde der Eintrag komplett okkupiert?)
+- Böhnlein, was hast du getan mit den Combase IDs 1 und 2??? Selber korrigieren=vID auf NULL setzen!   Aber später auch nochmal checken: 5353-5382 (vID 1) und 4818-4847 (vID 2)
+- Alle Tabellen mal bereinigen, z.B. leere Messwerte (Versuchsbedingungen) und Workflows (Prozessdaten)
+
+MERTENS:
+Agens: immer Bacillus cereus - sollte drin sein  
+J113_BC, Aran 2001: "sous-vide beef goulash" -> 3885
+J180_BC, Beuchat 1997: "broth" -> 17832; "beef gravy" -> 3223 aber NUR für Beuchat_97!!!
+M263_BC, Grant 1993: "cooked roast beef" -> 5888
+BÖHNLEINs Datei checken:
+Aran_01: "sous-vide beef goulash" -> 3885 (Mertens), 5884 (Böhnlein), Agens: 132
+Bradshaw_77: Matrix ID 19988 culture medium, Matrix ID 8819  beef gravy, Agens ID 120            
+etc.
+
+- bzgl. 1.5 Mayer-Scholl nochmnal fragen:
+    - 1. hat sie Bock die fehlenden Divisionen zu übersetzen?
+    - 2. bitte nochmal bei der Tierübersetzung draufschauen, Beispiel: Ziege/Schaf... - was soll ich da nehmen???
+    - 3. auch die Datei 1.52look4.txt überprüfen - liegt aufm Labby Desktop 
+
+- ImportedCombaseData-Abfrage muss vor der nächsten Version umgestellt werden in MySQLImporter
+
++ bitte bei MergeDBs die neuen IDs der Versuchsbedingungen hinterlegen, damit da versehentlich Änderungen auffallen: 1847 - 2264 (|| (tablename.equals("Versuchsbedingungen") &&    (tID < 4 || tID >= 1847 && tID <= 2264)) // das sind Combase Einträge, da sollte nix geändert werden...)
++ die Leute bitten die Literatur sauber einzutragen
+
+---------------
+
+- Welcher beschissene Fehler sorgt für die Matrixänderungen? Stichwort: Fruchtjoghurt oder so steht da plötzlich drin anstatt verwestes Fleisch, oder so...
+- MNs gerade biegen in den Statup Tabellen! Dadurch funken manche Dinge nicht korrekt.
+- in Tabelle "Geschätzte Parameter" drei Spalten ergänzen: "BezugModellvariable", "Gueltig_von", "Gueltig_bis" einbauen! + PMML in Tabelle "EstimatedModels" eine Spalte "PMML"
+- Der Sorter ist ein grosses Problem, weil in der Regel nach "row" selektiert wird, das geht dann aber zuweilen schief, das Resultat ist, das falsch abgespeichert wird!!!!
+    Daher: sorter ausgeschaltet!!! Alternativ muss alles umgestellt werden auf ID-Selektion!
+
+-------------------------------
+
+- Burchardi:
+    - Pfeil einbauen
+    - MultiLiteratur
+    - Löschen verhindern
+    
+ - myDB.setTable(myT); getauscht in MyList:
+   public void valueChanged(TreeSelectionEvent event) {
+   ...
+   ...nachher:
+            myDB.setTable(myT);
+            myDB.getMyDBPanel().setLeftComponent(myT);
+  ...vorher:
+            myDB.getMyDBPanel().setLeftComponent(myT);
+              myDB.setTable(myT);
+...irgendwelche Probleme???  
+   
+- Trigger wieder einbauen!!!! siehe in DBKernel (if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz")) {)
+- if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz")) { kann wieder getriggert werden, oder? Mal testen!
+
+- ComBaseImport darf jetzt auch gemerged werden, oder? In MergeDBs bei den Ausnahmen ändern, oder?
+   
+		    		/*
+		    		 * Böhnlein
+							importierte Combase Einträge sollten besser nicht deleted werden, oder?
+		    		 * Hammerl
+							verschieden:	8	7	24	Aufbereitungs_Nachweisverfahren	Aufbereitungsverfahren
+
+  - Hammerl nochmal special checken, der hat ja noch nicht mal die letzte DB genutzt...
+
+Datum: 04.06.2012 15:30:19.175
+	not merged: Q:/BfR/DBs/141_wese/	Matrices	3
+ Datum: 04.06.2012 15:34:34.633
+	not merged: Q:/BfR/DBs/141_mertens/	Matrices	1207
+ Datum: 04.06.2012 15:32:07.572
+	not merged: Q:/BfR/DBs/141_mertens/	Matrices	5789
+Datum: 08.07.2012 15:47:57.624
+	not merged: Q:/BfR/DBs/141_wese/	Matrices	2284
+ 
+Datum: 04.06.2012 15:34:16.825
+	not merged: Q:/BfR/DBs/141_mertens/	Agenzien	26
+26	Unknown
+	Salmonella	null	null	null	null	null	null	null	null	null	null	null	null	null	null	26	null
+mertens	16.05.2012 15:21:52
+	Salmonella enterica enterica	null	null	null	null	null	null	null	null	null	null	null	null	null	null	26	null
+
+Aufbereitsungsverfahren 33: 26 -> 256
+Nachweisverfahren 244: 26 -> 256
+Nachweisverfahren 206: 26 -> 256
+Nachweisverfahren 240: 26 -> 256
+
+ - alle "not merged" nochmal durchgehen!!!! Hat auch keiner aus Versehen das Falsche ausgewählt???
+
+ - Einheiten: ID 100 löschen!
+- Vor DB-Übergabe:
+    - delete SonstigeParamter 121, 124!!!
+
+        // geht irgendwie nicht... hier manuell nachhelfen!!!!!
+//      DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ChangeLog") +
+    //          " ALTER COLUMN " + DBKernel.delimitL("ID") + " INTEGER GENERATED BY DEFAULT AS SEQUENCE " + DBKernel.delimitL("ChangeLogSEQ") + " PRIMARY KEY", false);
+
+- Literatur ID 1 wieder korrigieren!
+
+- SonstigeParameter 4 - wieder zu scorbic acid machen!!! und andere auch!!!! 1, 2, 5, 6
+1	Unknown
+	moisture	alta fermentation product in the environment
+1	mertens	23.03.2012 15:16:41
+	H2O2	alta fermentation product in the environment
+1	wese	07.05.2012 11:32:00
+	H2O2	starter culture with streptococcus cremoris, Strep. lactis, Strep. diacetylactis and Leuconostoc cremoris
+1	defad	08.07.2012 19:42:58
+	H2O2	alta fermentation product in the environment
+1	defad	08.07.2012 19:43:02
+	ALTA	alta fermentation product in the environment
+
+2	Unknown
+	acetic_acid	acetic acid (possibly as salt) in the environment
+wese	15.05.2012 14:06:40
+	acetic_acid	starter culture with streptococcus cremoris, Strep. lactis, Strep. diacetylactis and Leuconostoc cremoris
+
+4	Unknown
+	ascorbic_acid	ascorbic acid (possibly as salt) in the environment
+böhnlein	25.07.2011 15:31:47
+	protein	ascorbic acid (possibly as salt) in the environment
+
+5	Unknown
+	benzoic_acid	benzoic acid (possibly as salt) in the environment
+wese	12.04.2012 11:01:51
+	Lyophilized	benzoic acid (possibly as salt) in the environment
+
+6	Unknown
+	citric_acid	citric acid (possibly as salt) in the environment
+wese	12.04.2012 11:01:58
+	Lyophilized	citric acid (possibly as salt) in the environment
+
+
+
+64	defad	13.07.2011 10:50:35
+	null	null
+64	defad	13.07.2011 10:51:50
+	water hot	null
+64	defad	13.07.2011 10:51:56
+	water hot	water pH 7.2, 72°C
+64	böhnlein	25.07.2011 10:42:24
+	moisture	water pH 7.2, 72°C
+
+73	mertens	25.05.2011 14:54:16
+	null	null
+73	mertens	25.05.2011 14:55:18
+	CO_2	carbon dioxide in the environment
+73	mertens	22.06.2011 11:31:49
+	null	null
+73	mertens	28.06.2011 11:55:59
+	OTR (1)	Oxygen transmission rate/ccm-2
+73	mertens	28.06.2011 11:56:43
+	null	null
+73	mertens	05.07.2011 13:06:39
+	stationary	not agitated or stirred
+
+131	wese	07.05.2012 13:12:18
+	null	null
+131	wese	07.05.2012 13:13:31
+	Point type	null
+131	wese	07.05.2012 13:13:51
+	null	null
+131	wese	15.05.2012 14:36:12
+	TCA	Tomato-extract medium
+
+    	- ID  in Methodiken, mikroskopisch????? ... 62... hat keine Auswirkungen auf Nachweisverfahren oder andere DB-Einträge!
+
+checkIfOthersAlreadyEditedUpdates...  Messwerte
+2017, 2018
+
+		    		 * Wese
+checkIfOthersAlreadyEditedUpdates...  Versuchsbedingungen
+418, 424, 435, 437, 439, 441, 443, 450, 451, 453, 455, 457, 459, 471, 484, 483, 485,
+493, 510, 512, 518, 516, 526, 532, 541, 544, 564, 567, 618
+
+		    		 * Mertens
+checkIfOthersAlreadyEditedUpdates...  Versuchsbedingungen
+86, 88, 87, 89, 90 (war immer falenski drin, ist wohl ok)
+
+                     * Mertens
+checkIfOthersAlreadyEditedUpdates...  Nachweisverfahren
+        93 (z.B. Methode), 95 (Methode, Literatur, Matrix), 111 (Methode, MatrixDetail),
+        114 (Methode, MatrixDetail, Literatur), 116 (MatrixDetail, Literatur), 117, 118,
+        119 (Methode, MatrixDetail, Literatur), 120 (Methode, MatrixDetail, Literatur),
+        134 (Literatur)
+19, 20, 22, 23, 24, 25, 26, 27, 28, (oft die Änderung: immunologisch -> mikrobiologisch) 42, 63, 67, 68, 70, 71, 72, 77, 81, 94 (oft Literatur)
+32, 33, 34
+        Änderungen sind z.B. Referenz, Methode
+
+        - Mail: "falsche Bezeichnung: 1, 3, 6, 7, 13, 84, 98"       
+Done: 1, 3, 38, 49, 55, 74, 84, 98
+Nachweisverfahren -> Aufbereitungs_Nachweisverfahren -> 38 -> 10; 1 -> 2
+Done, aber bitte checken: 5, 6, 7, 13, 170
+
+----------------------------------
+
+- Noch besorgen aus der CB: Juneja_08, 
+- Log/Fehlermeldungen im MyProzessXMLImporter wieder beseitigen
+
+- Überprüfen, ob die "not null" Felder raus können!
+
+- Ausprägung ebenso einfügen in die Doku, analog Anja!
+
+- PlausibilityChecker muss mal wieder angeschaltet werden für DoubleKennzahlen!
+
++ die Leute bitten die Literatur sauber einzutragen
+
+- niederberger Prozessketten teilweise korrigieren.... mehrere Prozessketten unter demselben Workflow...
+   	
+ - Editierbarkeit der Kataloge hinterfragen!!!!! Lieber abschaffen?????
+ - alle doppelten (identischen String-) Einträge checken!! Aus Versehen Copy/Paste-Gefahr bzw. Sort/Filter-Gefahr
+ - alle Änderungen von defad-Neueinträgen checken!
+ - checkIfOthersAlreadyEditedUpdates mal für alle ChangeLog-Einträge durchlaufen lassen!!!!!
+ 
+ - es gibt einige unerwartete Leerfelder, z.B. Literatur für Aufbereitungs_Nachweisverfahren, IDs 9 und 10. Wieso hat Falenski 437 und 438 gelöscht?
+  
+- Nachweisverfahren: ist bei ID32 die Bezeichnung rausgenommen worden von Katja?
+
+- StatupInserts.sql anpassen/ersetzen an Lars' Kram
+
+- Agens- und Matrix-Detail in AGENZEIN_MATRICES 
+
+MiscXml:
+- IDs und "Name" und "Unit" von Misc muss noch korrekt in die DB geschrieben werden inkl. checkIDs
+- Welcher "Name" soll für misc vergeben werden?

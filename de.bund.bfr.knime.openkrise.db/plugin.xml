@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="de.bund.bfr.knime.pmm.ui.commands.category"
+            name="PMM-Lab">
+      </category>
+      <command
+            categoryId="de.bund.bfr.knime.pmm.ui.commands.category"
+            id="de.bund.bfr.knime.pmm.ui.commands.openDBGUI"
+            name="Open DB Gui...">
+      </command>
+      <command
+            categoryId="de.bund.bfr.knime.pmm.ui.commands.category"
+            id="de.bund.bfr.knime.pmm.ui.commands.settings"
+            name="Settings...">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="de.bund.bfr.knime.pmm.ui.handlers.OpenDBGUI"
+            commandId="de.bund.bfr.knime.pmm.ui.commands.openDBGUI">
+      </handler>
+      <handler
+            class="de.bund.bfr.knime.pmm.ui.handlers.Settings"
+            commandId="de.bund.bfr.knime.pmm.ui.commands.settings">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="de.bund.bfr.knime.pmm.ui.menus.masterdata"
+               label="Food-Lab"
+               mnemonic="M">
+            <command
+                  commandId="de.bund.bfr.knime.pmm.ui.commands.openDBGUI"
+                  id="de.bund.bfr.knime.pmm.ui.menus.openDBGUI"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.bund.bfr.knime.pmm.ui.commands.settings"
+                  id="de.bund.bfr.knime.pmm.ui.menus.settings"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+
+</plugin>

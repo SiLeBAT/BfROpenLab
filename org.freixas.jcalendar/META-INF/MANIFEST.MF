@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JCalendar
+Bundle-SymbolicName: org.freixas.jcalendar
+Bundle-Version: 1.1.1
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: lib/jcalendar.jar
+Export-Package: org.freixas.jcalendar
+Bundle-Vendor: JCalendar

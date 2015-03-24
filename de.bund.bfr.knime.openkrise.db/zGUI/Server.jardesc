@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="C:/Dokumente und Einstellungen/Weiser/Server_1.7.9.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/org.hsh.bfr.db/zGUI/Server.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{MainKernel.java[MainKernel" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{Wecker.java"/>
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{Users.java"/>
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{MyTrigger.java"/>
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{MainKernel.java"/>
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{Levenshtein.java"/>
+        <javaElement handleIdentifier="=org.hsh.bfr.db/src&lt;org.hsh.bfr.db{MyLogger.java"/>
+    </selectedElements>
+</jardesc>
