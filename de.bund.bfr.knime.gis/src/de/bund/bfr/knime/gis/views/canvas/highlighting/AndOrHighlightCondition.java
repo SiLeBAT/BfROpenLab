@@ -73,6 +73,16 @@ public class AndOrHighlightCondition implements HighlightCondition,
 		this.conditions = conditions;
 	}
 
+	public int getConditionCount() {
+		int n = 0;
+
+		for (List<LogicalHighlightCondition> c : conditions) {
+			n += c.size();
+		}
+
+		return n;
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -179,7 +189,9 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	@Override
 	public String toString() {
-		return getName() != null ? getName() : "Logical Condition";
-	}
+		String type = getConditionCount() == 0 ? "Apply To All"
+				: "Logical Condition";
 
+		return getName() != null ? getName() : type;
+	}
 }
