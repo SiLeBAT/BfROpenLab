@@ -1106,10 +1106,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
 			}
 
-			if (from == to && metaNodes.contains(from)) {
-				continue;
-			}
-
 			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
 
 			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
