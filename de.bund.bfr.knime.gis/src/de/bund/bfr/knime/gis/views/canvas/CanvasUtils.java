@@ -81,6 +81,8 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class CanvasUtils {
 
+	public static final Color LEGEND_BACKGROUND = new Color(230, 230, 230);
+
 	private static final int TEXTURE_SIZE = 3;
 
 	private CanvasUtils() {

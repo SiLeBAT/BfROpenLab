@@ -29,12 +29,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -93,10 +90,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements
-		ChangeListener, ItemListener, KeyListener, MouseListener,
+		ChangeListener, ItemListener, MouseListener,
 		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener,
 		ICanvas<V> {
 
@@ -155,7 +151,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer = new VisualizationViewer<>(new StaticLayout<>(
 				new DirectedSparseMultigraph<V, Edge<V>>()));
 		viewer.setBackground(Color.WHITE);
-		viewer.addKeyListener(this);
 		viewer.addMouseListener(this);
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
@@ -173,6 +168,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
+		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 
@@ -182,6 +178,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
 
 		viewer.setGraphMouse(graphMouse);
+
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 	}
@@ -486,30 +483,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			fireEdgeSelectionChanged();
 		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		Point2D center = viewer.getRenderContext().getMultiLayerTransformer()
-				.inverseTransform(Layer.VIEW, viewer.getCenter());
-		MutableTransformer transformer = viewer.getRenderContext()
-				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			transformer.scale(1.1, 1.1, center);
-			viewer.repaint();
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			transformer.scale(1 / 1.1, 1 / 1.1, center);
-			viewer.repaint();
-		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
 	}
 
 	@Override
@@ -1208,6 +1181,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return new PickingPlugin();
 	}
 
+	protected ZoomingPaintable createZoomingPaintable() {
+		return new ZoomingPaintable(this, 0);
+	}
+
 	protected abstract void applyTransform();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
@@ -1369,7 +1346,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			int sw = (int) font.getStringBounds(getLabel(),
 					((Graphics2D) g).getFontRenderContext()).getWidth();
 
-			g.setColor(new Color(230, 230, 230));
+			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
 			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
 			g.setColor(Color.BLACK);
 			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);

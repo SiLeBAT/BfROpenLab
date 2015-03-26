@@ -27,6 +27,7 @@ import java.util.Map;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.ZoomingPaintable;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -174,6 +175,11 @@ public class TracingGraphCanvas extends GraphCanvas implements
 		server.prependPostRenderPaintable(new Tracing.PostPaintable(this));
 
 		return server;
+	}
+
+	@Override
+	protected ZoomingPaintable createZoomingPaintable() {
+		return new ZoomingPaintable(this, Tracing.PostPaintable.HEIGHT);
 	}
 
 	@Override

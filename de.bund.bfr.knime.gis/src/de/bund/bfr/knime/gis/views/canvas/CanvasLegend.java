@@ -157,7 +157,7 @@ public class CanvasLegend<V extends Node> {
 		int yNode = yStart + LEGEND_DY;
 		int yEdge = yStart + LEGEND_DY;
 
-		g.setColor(new Color(230, 230, 230));
+		g.setColor(CanvasUtils.LEGEND_BACKGROUND);
 		g.fillRect(-1, yStart, xEnd, height - yStart);
 		g.setColor(Color.BLACK);
 		g.drawRect(-1, yStart, xEnd, height - yStart);
