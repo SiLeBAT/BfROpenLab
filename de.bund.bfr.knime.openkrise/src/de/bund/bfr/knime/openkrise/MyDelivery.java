@@ -25,6 +25,7 @@ public class MyDelivery {
 
 	private int id;
 	private int supplierID, recipientID;
+	private Integer mergedSupplierID, mergedRecipientID;
 	private Integer deliveryDay;
 	private Integer deliveryMonth;
 	private Integer deliveryYear;
@@ -39,6 +40,8 @@ public class MyDelivery {
 		this.id = id;
 		this.supplierID = supplierID;
 		this.recipientID = recipientID;
+		this.mergedSupplierID = null;
+		this.mergedRecipientID = null;
 		this.deliveryDay = deliveryDay;
 		this.deliveryMonth = deliveryMonth;
 		this.deliveryYear = deliveryYear;
@@ -78,6 +81,21 @@ public class MyDelivery {
 
 	public int getRecipientID() {
 		return recipientID;
+	}
+	public Integer getMergedSupplierID() {
+		return mergedSupplierID;
+	}
+
+	public void setMergedSupplierID(Integer mergedSupplierID) {
+		this.mergedSupplierID = mergedSupplierID;
+	}
+
+	public Integer getMergedRecipientID() {
+		return mergedRecipientID;
+	}
+
+	public void setMergedRecipientID(Integer mergedRecipientID) {
+		this.mergedRecipientID = mergedRecipientID;
 	}
 	public int getId() {
 		return id;

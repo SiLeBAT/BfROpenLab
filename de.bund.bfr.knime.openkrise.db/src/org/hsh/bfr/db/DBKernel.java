@@ -687,7 +687,7 @@ public class DBKernel {
 
 	private static Connection getNewConnection(final String dbUsername, final String dbPassword, final String path, final boolean suppressWarnings) throws Exception {
 		// Sicherheitshalber erstmal alles wieder auf Read/Write Access setzen!
-		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", false);
+		DBKernel.prefs.putBoolean("FC_LAB_SETTINGS_DB_RO", false);
 		DBKernel.prefs.prefsFlush();
 		if (isServerConnection) {
 			return getNewServerConnection(dbUsername, dbPassword, path, suppressWarnings);
@@ -1465,12 +1465,12 @@ public class DBKernel {
 	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate) {
 		Connection result = null;
 		//try {
-		String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
+		String internalPath = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PATH", DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath()));
 		CRC32 crc32 = new CRC32();
 		crc32.update(internalPath.getBytes());
 		long crc32Out = crc32.getValue();
-		String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA");
-		String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "");
+		String username = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_USERNAME" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA"));
+		String password = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PASSWORD" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, ""));
 
 		try {
 			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
@@ -1860,7 +1860,7 @@ public class DBKernel {
 	}
 
 	public static boolean isReadOnly() {
-		return DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false) || !DBKernel.isKNIME && DBKernel.prefs.getBoolean("DB_READONLY", true);
+		return DBKernel.isKNIME && DBKernel.prefs.getBoolean("FC_LAB_SETTINGS_DB_RO", DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false)) || !DBKernel.isKNIME && DBKernel.prefs.getBoolean("DB_READONLY", true);
 	}
 
 	private static void setDBUUID(Connection conn, final String uuid) throws SQLException {

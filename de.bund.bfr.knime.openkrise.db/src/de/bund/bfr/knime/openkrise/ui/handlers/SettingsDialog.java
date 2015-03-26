@@ -65,14 +65,14 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void fillFields() {
-		String idbp = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath());
+		String idbp = DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PATH", DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath()));
 		dbPath.setText(idbp);
 		CRC32 crc32 = new CRC32();
 		crc32.update(idbp.getBytes());
 		long crc32Out = crc32.getValue();
-		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA"));
-		password.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, ""));
-		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false));
+		username.setText(DBKernel.prefs.get("FC_LAB_SETTINGS_DB_USERNAME" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "SA")));
+		password.setText(DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PASSWORD" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "")));
+		readOnly.setSelected(DBKernel.prefs.getBoolean("FC_LAB_SETTINGS_DB_RO" + crc32Out, DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false)));
 		username.setEnabled(false);
 		password.setEnabled(false);
 	}
@@ -98,13 +98,13 @@ public class SettingsDialog extends JFrame {
 			dbt += System.getProperty("file.separator");
 		}
 		if (hasChanged(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected())) {
-			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
+			DBKernel.prefs.put("FC_LAB_SETTINGS_DB_PATH", dbt);
 			CRC32 crc32 = new CRC32();
 			crc32.update(dbt.getBytes());
 			long crc32Out = crc32.getValue();
-			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, username.getText());
-			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, String.valueOf(password.getPassword()));
-			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, readOnly.isSelected());
+			DBKernel.prefs.put("FC_LAB_SETTINGS_DB_USERNAME" + crc32Out, username.getText());
+			DBKernel.prefs.put("FC_LAB_SETTINGS_DB_PASSWORD" + crc32Out, String.valueOf(password.getPassword()));
+			DBKernel.prefs.putBoolean("FC_LAB_SETTINGS_DB_RO" + crc32Out, readOnly.isSelected());
 			DBKernel.prefs.prefsFlush();
 			DBKernel.closeDBConnections(true);
 
@@ -136,9 +136,9 @@ public class SettingsDialog extends JFrame {
 		CRC32 crc32 = new CRC32();
 		crc32.update(dbt.getBytes());
 		long crc32Out = crc32.getValue();
-		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "").equals(username)
-				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "").equals(password)
-				|| DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false) != isRO;
+		return !DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PATH", DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "")).equals(dbt) || !DBKernel.prefs.get("FC_LAB_SETTINGS_DB_USERNAME" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME" + crc32Out, "")).equals(username)
+				|| !DBKernel.prefs.get("FC_LAB_SETTINGS_DB_PASSWORD" + crc32Out, DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD" + crc32Out, "")).equals(password)
+				|| DBKernel.prefs.getBoolean("FC_LAB_SETTINGS_DB_RO" + crc32Out, DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO" + crc32Out, false)) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {

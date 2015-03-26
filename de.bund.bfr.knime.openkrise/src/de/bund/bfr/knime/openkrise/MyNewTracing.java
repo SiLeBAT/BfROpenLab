@@ -62,8 +62,10 @@ public class MyNewTracing {
 		if (allIncoming == null) {
 			allIncoming = new HashMap<>();
 			for (MyDelivery d : allDeliveries.values()) {
-				if (!allIncoming.containsKey(d.getRecipientID())) allIncoming.put(d.getRecipientID(), new HashSet<Integer>());
-				allIncoming.get(d.getRecipientID()).add(d.getId());
+				int rid = d.getRecipientID();
+				//if (d.getMergedRecipientID() != null) rid = d.getMergedRecipientID(); 
+				if (!allIncoming.containsKey(rid)) allIncoming.put(rid, new HashSet<Integer>());
+				allIncoming.get(rid).add(d.getId());
 			}
 		}
 		return allIncoming;
@@ -73,8 +75,10 @@ public class MyNewTracing {
 		if (allOutgoing == null) {
 			allOutgoing = new HashMap<>();
 			for (MyDelivery d : allDeliveries.values()) {
-				if (!allOutgoing.containsKey(d.getSupplierID())) allOutgoing.put(d.getSupplierID(), new HashSet<Integer>());
-				allOutgoing.get(d.getSupplierID()).add(d.getId());
+				int sid = d.getSupplierID();
+				//if (d.getMergedSupplierID() != null) sid = d.getMergedSupplierID(); 
+				if (!allOutgoing.containsKey(sid)) allOutgoing.put(sid, new HashSet<Integer>());
+				allOutgoing.get(sid).add(d.getId());
 			}
 		}
 		return allOutgoing;
@@ -272,31 +276,6 @@ public class MyNewTracing {
 		return b;
 	}
 
-//	public static XStream getXStream() {
-//		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyNewTracing.class.getClassLoader()));
-////		xstream.setClassLoader(Activator.class.getClassLoader());
-//		//xstream.alias("mynewtracing", MyNewTracing.class);
-//		xstream.omitField(MyNewTracing.class, "caseStations");
-//		xstream.omitField(MyNewTracing.class, "caseDeliveries");
-//		xstream.omitField(MyNewTracing.class, "caseSum");
-//		xstream.omitField(MyNewTracing.class, "ccStations");
-//		xstream.omitField(MyNewTracing.class, "ccDeliveries");
-//		xstream.omitField(MyNewTracing.class, "enforceTemporalOrder");
-//		xstream.omitField(MyNewTracing.class, "sortedStations");
-//		xstream.omitField(MyNewTracing.class, "sortedDeliveries");
-//		xstream.omitField(MyNewTracing.class, "allIncoming");
-//		xstream.omitField(MyNewTracing.class, "allOutgoing");
-//		
-//		xstream.omitField(MyDelivery.class, "forwardDeliveries");
-//		xstream.omitField(MyDelivery.class, "backwardDeliveries");
-//		xstream.omitField(MyDelivery.class, "supplierID");
-//		xstream.omitField(MyDelivery.class, "recipientID");
-//		xstream.omitField(MyDelivery.class, "deliveryDay");
-//		xstream.omitField(MyDelivery.class, "deliveryMonth");
-//		xstream.omitField(MyDelivery.class, "deliveryYear");
-//
-//		return xstream;
-//	}
 	public void fillDeliveries(boolean enforceTemporalOrder) {
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		allIncoming = null; allOutgoing = null;
@@ -433,8 +412,14 @@ public class MyNewTracing {
 		if (toBeMerged != null && toBeMerged.size() > 0) {
 			for (Integer key : allDeliveries.keySet()) {
 				MyDelivery md = allDeliveries.get(key);
-				if (toBeMerged.contains(md.getSupplierID())) md.setSupplierID(mergedStationID);
-				if (toBeMerged.contains(md.getRecipientID())) md.setRecipientID(mergedStationID);
+				if (toBeMerged.contains(md.getSupplierID())) {
+					md.setSupplierID(mergedStationID);
+					//md.setMergedSupplierID(mergedStationID);
+				}
+				if (toBeMerged.contains(md.getRecipientID())) {
+					md.setRecipientID(mergedStationID);
+					//md.setMergedRecipientID(mergedStationID);
+				}
 				allDeliveries.put(key, md);							
 			}
 		}	
@@ -517,6 +502,7 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getSupplierID());
+					if (mdn.getMergedSupplierID() != null) result.add(mdn.getMergedSupplierID());
 				}
 			}
 		}
@@ -532,6 +518,7 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getRecipientID());
+					if (mdn.getMergedRecipientID() != null) result.add(mdn.getMergedRecipientID());
 				}
 			}
 		}
@@ -546,6 +533,7 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					if (caseStations.containsKey(mdn.getRecipientID())) result.add(mdn.getRecipientID());
+					if (mdn.getMergedRecipientID() != null && caseStations.containsKey(mdn.getMergedRecipientID())) result.add(mdn.getMergedRecipientID());
 				}
 			}
 		}
