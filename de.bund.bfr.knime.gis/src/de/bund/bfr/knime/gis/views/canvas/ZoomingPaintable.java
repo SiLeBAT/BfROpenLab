@@ -23,6 +23,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -83,6 +84,9 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 		g.setColor(Color.BLACK);
 		g.drawRect(xPlus, yPlus, SIZE, SIZE);
 		g.drawRect(xMinus, yMinus, SIZE, SIZE);
+
+		Stroke currentStroke = ((Graphics2D) g).getStroke();
+
 		((Graphics2D) g).setStroke(new BasicStroke(lineWidth));
 		g.drawLine(xPlus + lineD, yPlus + SIZE / 2, xPlus + SIZE - lineD, yPlus
 				+ SIZE / 2);
@@ -90,6 +94,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 				+ SIZE - lineD);
 		g.drawLine(xMinus + lineD, yMinus + SIZE / 2, xMinus + SIZE - lineD,
 				yMinus + SIZE / 2);
+		((Graphics2D) g).setStroke(currentStroke);
 	}
 
 	@Override
@@ -116,6 +121,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 		minusFocused = newMinusFocused;
 
 		if (changed) {
+			GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) canvas.getViewer()
+					.getGraphMouse();
+
+			graphMouse.setPickingDeactivated(plusFocused || minusFocused);
 			canvas.getViewer().repaint();
 		}
 	}
@@ -132,10 +141,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 					.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
 
 			if (plusFocused) {
-				transformer.scale(1.1, 1.1, center);
+				transformer.scale(1.2, 1.2, center);
 				viewer.repaint();
 			} else if (minusFocused) {
-				transformer.scale(1 / 1.1, 1 / 1.1, center);
+				transformer.scale(1 / 1.2, 1 / 1.2, center);
 				viewer.repaint();
 			}
 		}

@@ -29,6 +29,8 @@ import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 
 public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
+	private boolean pickingDeactivated;
+
 	public GraphMouse() {
 		this(new PickingGraphMousePlugin<V, E>());
 	}
@@ -41,6 +43,8 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 		translatingPlugin = new TranslatingGraphMousePlugin(
 				InputEvent.BUTTON1_MASK);
 		this.pickingPlugin = pickingPlugin;
+		pickingDeactivated = false;
+		add(scalingPlugin);
 	}
 
 	@Override
@@ -49,15 +53,33 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	@Override
 	protected void setPickingMode() {
-		remove(scalingPlugin);
 		remove(translatingPlugin);
-		add(pickingPlugin);
+
+		if (!pickingDeactivated) {
+			add(pickingPlugin);
+		}
 	}
 
 	@Override
 	protected void setTransformingMode() {
 		remove(pickingPlugin);
-		add(scalingPlugin);
 		add(translatingPlugin);
+	}
+
+	public boolean isPickingDeactivated() {
+		return pickingDeactivated;
+	}
+
+	public void setPickingDeactivated(boolean pickingDeactivated) {
+		if (pickingDeactivated != this.pickingDeactivated
+				&& mode == Mode.PICKING) {
+			if (pickingDeactivated) {
+				remove(pickingPlugin);
+			} else {
+				add(pickingPlugin);
+			}
+
+			this.pickingDeactivated = pickingDeactivated;
+		}
 	}
 }
