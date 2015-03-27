@@ -867,41 +867,44 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void collapseByPropertyItemClicked() {
 		Set<String> selectedIds = CanvasUtils.getElementIds(getSelectedNodes());
+		Set<String> idsToCollapse;
 
-		if (!selectedIds.isEmpty()) {
-			if (JOptionPane.showConfirmDialog(this, "Use only the selected "
-					+ naming.nodes() + " for collapsing?", "Confirm",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
-				selectedIds.clear();
-			}
+		if (!selectedIds.isEmpty()
+				&& JOptionPane.showConfirmDialog(this, "Use only the selected "
+						+ naming.nodes() + " for collapsing?", "Confirm",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			idsToCollapse = selectedIds;
+		} else {
+			idsToCollapse = CanvasUtils.getElementIds(getNodes());
 		}
 
-		for (String id : selectedIds) {
+		for (String id : idsToCollapse) {
 			if (collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ naming.nodes() + " are already collapsed", "Error",
+				String message;
+
+				if (idsToCollapse == selectedIds) {
+					message = "Some of the selected " + naming.nodes()
+							+ " are already collapsed.";
+				} else {
+					message = "Some of the "
+							+ naming.nodes()
+							+ " are already collapsed. You have to clear all collapsed "
+							+ naming.nodes() + " before.";
+				}
+
+				JOptionPane.showMessageDialog(this, message, "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 
-		Set<String> ids = !selectedIds.isEmpty() ? selectedIds : CanvasUtils
-				.getElementIds(allNodes);
 		Map<Object, Set<V>> nodesByProperty = CanvasUtils
 				.openCollapseByPropertyDialog(this, nodeSchema.getMap()
-						.keySet(), ids, nodeSaveMap);
+						.keySet(), idsToCollapse, nodeSaveMap);
 		Set<String> newCollapsedIds = new LinkedHashSet<>();
 
 		if (nodesByProperty.isEmpty()) {
 			return;
-		}
-
-		if (selectedIds.isEmpty()) {
-			for (String id : collapsedNodes.keySet()) {
-				nodeSaveMap.remove(id);
-			}
-
-			collapsedNodes.clear();
 		}
 
 		for (Map.Entry<Object, Set<V>> entry : nodesByProperty.entrySet()) {
@@ -920,14 +923,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
-		}
+		if (JOptionPane.showConfirmDialog(
+				this,
+				"Do you really want to uncollapse all collapsed "
+						+ naming.nodes() + "?", "Please Confirm",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			for (String id : collapsedNodes.keySet()) {
+				nodeSaveMap.remove(id);
+			}
 
-		collapsedNodes.clear();
-		applyChanges();
-		fireCollapsedNodesChanged();
-		viewer.getPickedVertexState().clear();
+			collapsedNodes.clear();
+			applyChanges();
+			fireCollapsedNodesChanged();
+			viewer.getPickedVertexState().clear();
+		}
 	}
 
 	@Override
