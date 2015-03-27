@@ -61,6 +61,10 @@ public interface ICanvas<V extends Node> {
 
 	public abstract void setSkipEdgelessNodes(boolean skipEdgelessNodes);
 
+	public abstract boolean isShowEdgesInMetaNode();
+
+	public abstract void setShowEdgesInMetaNode(boolean showEdgesInMetaNode);
+
 	public abstract int getFontSize();
 
 	public abstract void setFontSize(int fontSize);
@@ -148,6 +152,8 @@ public interface ICanvas<V extends Node> {
 	public abstract void applyJoinEdgesAndSkipEdgeless();
 
 	public abstract void applyHighlights();
+
+	public abstract void applyShowEdgesInMetaNode();
 
 	public abstract Component getComponent();
 

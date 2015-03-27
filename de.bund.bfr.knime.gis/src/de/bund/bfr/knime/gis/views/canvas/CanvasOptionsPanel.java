@@ -55,6 +55,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	public static final boolean DEFAULT_SHOW_LEGEND = false;
 	public static final boolean DEFAULT_JOIN_EDGES = false;
 	public static final boolean DEFAULT_SKIP_EDGELESS_NODES = false;
+	public static final boolean DEFAULT_SHOW_EDGES_IN_META_NODE = false;
 	public static final int DEFAULT_FONT_SIZE = 12;
 	public static final boolean DEFAULT_FONT_BOLD = false;
 	public static final int DEFAULT_NODE_SIZE = 10;
@@ -72,6 +73,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 	private JCheckBox showLegendBox;
 	private JCheckBox joinEdgesBox;
 	private JCheckBox skipEdgelessNodesBox;
+	private JCheckBox showEdgesInMetaNodeBox;
 	private int fontSize;
 	private JComboBox<Integer> fontSizeBox;
 	private JCheckBox fontBoldBox;
@@ -113,6 +115,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel("Skip Unconnected "
 					+ owner.getNaming().Nodes(), skipEdgelessNodesBox));
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Show " + owner.getNaming().Edges()
+					+ " in Meta " + owner.getNaming().Node(),
+					showEdgesInMetaNodeBox));
 		}
 
 		if (allowNodeResize) {
@@ -177,6 +183,14 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
+	}
+
+	public boolean isShowEdgesInMetaNode() {
+		return showEdgesInMetaNodeBox.isSelected();
+	}
+
+	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
+		showEdgesInMetaNodeBox.setSelected(showEdgesInMetaNode);
 	}
 
 	public int getFontSize() {
@@ -269,6 +283,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 			for (ChangeListener l : listeners) {
 				l.skipEdgelessNodesChanged();
 			}
+		} else if (e.getSource() == showEdgesInMetaNodeBox) {
+			for (ChangeListener l : listeners) {
+				l.showEdgesInMetaNodeChanged();
+			}
 		} else if (e.getSource() == fontSizeBox
 				&& e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = fontSizeBox.getSelectedItem();
@@ -332,6 +350,9 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
 		skipEdgelessNodesBox.addItemListener(this);
+		showEdgesInMetaNodeBox = new JCheckBox("Activate");
+		showEdgesInMetaNodeBox.setSelected(DEFAULT_SHOW_EDGES_IN_META_NODE);
+		showEdgesInMetaNodeBox.addItemListener(this);
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent())
@@ -392,6 +413,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		public void joinEdgesChanged();
 
 		public void skipEdgelessNodesChanged();
+
+		public void showEdgesInMetaNodeChanged();
 
 		public void fontChanged();
 

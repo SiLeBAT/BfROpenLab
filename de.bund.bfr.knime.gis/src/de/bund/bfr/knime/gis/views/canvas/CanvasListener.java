@@ -33,5 +33,7 @@ public interface CanvasListener {
 
 	public void skipEdgelessChanged(Canvas<?> source);
 
+	public void showEdgesInMetaNodeChanged(Canvas<?> source);
+
 	public void collapsedNodesChanged(Canvas<?> source);
 }

@@ -183,6 +183,21 @@ public class LocationToLocationVisualizerNodeDialog extends
 	}
 
 	@Override
+	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setShowEdgesInMetaNode(graphCanvas
+					.isShowEdgesInMetaNode());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setShowEdgesInMetaNode(gisCanvas
+					.isShowEdgesInMetaNode());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
+	@Override
 	public void collapsedNodesChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

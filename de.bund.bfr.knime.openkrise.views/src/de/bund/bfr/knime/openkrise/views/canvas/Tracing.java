@@ -360,6 +360,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		canvas.applyJoinEdgesAndSkipEdgeless();
 		applyTracing();
 		canvas.applyHighlights();
+		canvas.applyShowEdgesInMetaNode();
 		canvas.getViewer()
 				.getGraphLayout()
 				.setGraph(

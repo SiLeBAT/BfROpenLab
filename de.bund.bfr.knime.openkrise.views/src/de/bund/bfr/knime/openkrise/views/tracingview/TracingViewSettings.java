@@ -49,6 +49,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_GIS = "ShowGis";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
+	private static final String CFG_SHOW_EDGES_IN_META_NODE = "ShowEdgesInMetaNode";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
@@ -73,6 +74,7 @@ public class TracingViewSettings extends NodeSettings {
 	private boolean showGis;
 	private boolean exportAsSvg;
 	private boolean skipEdgelessNodes;
+	private boolean showEdgesInMetaNode;
 	private boolean joinEdges;
 	private boolean arrowInMiddle;
 	private boolean showLegend;
@@ -101,6 +103,7 @@ public class TracingViewSettings extends NodeSettings {
 		showGis = false;
 		exportAsSvg = false;
 		skipEdgelessNodes = true;
+		showEdgesInMetaNode = false;
 		joinEdges = true;
 		arrowInMiddle = false;
 		showLegend = false;
@@ -141,6 +144,12 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showEdgesInMetaNode = settings
+					.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -261,6 +270,7 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addBoolean(CFG_SHOW_GIS, showGis);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
+		settings.addBoolean(CFG_SHOW_EDGES_IN_META_NODE, showEdgesInMetaNode);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
@@ -302,6 +312,7 @@ public class TracingViewSettings extends NodeSettings {
 		joinEdges = canvas.isJoinEdges();
 		arrowInMiddle = canvas.isArrowInMiddle();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
 
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
@@ -361,6 +372,7 @@ public class TracingViewSettings extends NodeSettings {
 				edgeHighlightConditions, canvas.getEdgeSchema().getMap()
 						.keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
 
@@ -396,6 +408,14 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		this.skipEdgelessNodes = skipEdgelessNodes;
+	}
+
+	public boolean isShowEdgesInMetaNode() {
+		return showEdgesInMetaNode;
+	}
+
+	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
+		this.showEdgesInMetaNode = showEdgesInMetaNode;
 	}
 
 	public boolean isJoinEdges() {

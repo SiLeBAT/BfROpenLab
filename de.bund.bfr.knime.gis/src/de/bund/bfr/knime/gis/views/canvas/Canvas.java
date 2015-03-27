@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -256,6 +257,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		optionsPanel.setSkipEdgelessNodes(skipEdgelessNodes);
+	}
+
+	@Override
+	public boolean isShowEdgesInMetaNode() {
+		return optionsPanel.isShowEdgesInMetaNode();
+	}
+
+	@Override
+	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
+		optionsPanel.setShowEdgesInMetaNode(showEdgesInMetaNode);
 	}
 
 	@Override
@@ -967,6 +978,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
+	public void showEdgesInMetaNodeChanged() {
+		applyChanges();
+		fireShowEdgesInMetaNodeChanged();
+	}
+
+	@Override
 	public void fontChanged() {
 		viewer.getRenderContext().setVertexFontTransformer(
 				new FontTransformer<V>(optionsPanel.getFontSize(), optionsPanel
@@ -1054,6 +1071,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
 		applyHighlights();
+		applyShowEdgesInMetaNode();
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 
 		setSelectedNodeIds(selectedNodeIds);
@@ -1160,6 +1178,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				edgeHighlightConditions);
 	}
 
+	@Override
+	public void applyShowEdgesInMetaNode() {
+		if (!isShowEdgesInMetaNode()) {
+			for (Iterator<Edge<V>> iterator = edges.iterator(); iterator
+					.hasNext();) {
+				Edge<V> edge = iterator.next();
+
+				if (edge.getFrom() == edge.getTo()
+						&& collapsedNodes.containsKey(edge.getFrom().getId())) {
+					iterator.remove();
+				}
+			}
+		}
+	}
+
 	protected HighlightListDialog openNodeHighlightDialog() {
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(
@@ -1227,6 +1260,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	private void fireSkipEdgelessChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.skipEdgelessChanged(this);
+		}
+	}
+
+	private void fireShowEdgesInMetaNodeChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.showEdgesInMetaNodeChanged(this);
 		}
 	}
 

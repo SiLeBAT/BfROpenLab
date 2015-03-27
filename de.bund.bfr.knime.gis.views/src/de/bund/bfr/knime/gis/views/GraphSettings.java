@@ -45,6 +45,7 @@ public class GraphSettings extends Settings {
 	private static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
 	private static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
+	private static final String CFG_SHOW_EDGES_IN_META_NODE = "ShowEdgesInMetaNode";
 	private static final String CFG_JOIN_EDGES = "JoinEdges";
 	private static final String CFG_ARROW_IN_MIDDLE = "ArrowInMiddle";
 	private static final String CFG_SHOW_LEGEND = "GraphShowLegend";
@@ -69,6 +70,7 @@ public class GraphSettings extends Settings {
 	private String edgeFromColumn;
 	private String edgeToColumn;
 	private boolean skipEdgelessNodes;
+	private boolean showEdgesInMetaNode;
 	private boolean joinEdges;
 	private boolean arrowInMiddle;
 	private boolean showLegend;
@@ -91,6 +93,7 @@ public class GraphSettings extends Settings {
 		edgeFromColumn = null;
 		edgeToColumn = null;
 		skipEdgelessNodes = true;
+		showEdgesInMetaNode = false;
 		joinEdges = true;
 		arrowInMiddle = false;
 		showLegend = false;
@@ -129,6 +132,12 @@ public class GraphSettings extends Settings {
 
 		try {
 			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showEdgesInMetaNode = settings
+					.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -229,6 +238,7 @@ public class GraphSettings extends Settings {
 		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
+		settings.addBoolean(CFG_SHOW_EDGES_IN_META_NODE, showEdgesInMetaNode);
 		settings.addBoolean(CFG_JOIN_EDGES, joinEdges);
 		settings.addBoolean(CFG_ARROW_IN_MIDDLE, arrowInMiddle);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
@@ -268,6 +278,7 @@ public class GraphSettings extends Settings {
 		joinEdges = canvas.isJoinEdges();
 		arrowInMiddle = canvas.isArrowInMiddle();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
 
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
@@ -318,6 +329,7 @@ public class GraphSettings extends Settings {
 		canvas.setNodeHighlightConditions(nodeHighlightConditions);
 		canvas.setEdgeHighlightConditions(edgeHighlightConditions);
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
 
@@ -360,6 +372,14 @@ public class GraphSettings extends Settings {
 
 	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
 		this.skipEdgelessNodes = skipEdgelessNodes;
+	}
+
+	public boolean isShowEdgesInMetaNode() {
+		return showEdgesInMetaNode;
+	}
+
+	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
+		this.showEdgesInMetaNode = showEdgesInMetaNode;
 	}
 
 	public boolean isJoinEdges() {
