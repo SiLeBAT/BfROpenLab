@@ -59,6 +59,7 @@
       <plugin id="de.bund.bfr.knime.gis.views"/>
       <plugin id="de.bund.bfr.knime.nls"/>
       <plugin id="de.bund.bfr.knime.openkrise"/>
+      <plugin id="de.bund.bfr.knime.openkrise.db"/>
       <plugin id="de.bund.bfr.knime.openkrise.util"/>
       <plugin id="de.bund.bfr.knime.openkrise.views"/>
       <plugin id="de.bund.bfr.math"/>
@@ -67,8 +68,10 @@
       <plugin id="javax.ejb"/>
       <plugin id="javax.mail.glassfish"/>
       <plugin id="javax.servlet"/>
+      <plugin id="javax.transaction" fragment="true"/>
       <plugin id="javax.xml"/>
       <plugin id="javax.xml.rpc"/>
+      <plugin id="javax.xml.soap"/>
       <plugin id="net.sf.jabref"/>
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.batik.bridge"/>
@@ -102,6 +105,8 @@
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.apache.xmlbeans"/>
+      <plugin id="org.codehaus.jackson.core"/>
+      <plugin id="org.codehaus.jackson.mapper"/>
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.ant.optional.junit" fragment="true"/>
       <plugin id="org.eclipse.compare"/>
@@ -201,7 +206,6 @@
       <plugin id="org.geotools"/>
       <plugin id="org.graphstream"/>
       <plugin id="org.hamcrest.core"/>
-      <plugin id="org.hsh.bfr.db"/>
       <plugin id="org.junit"/>
       <plugin id="org.knime.base"/>
       <plugin id="org.knime.core"/>
@@ -215,6 +219,7 @@
       <plugin id="org.knime.ext.sun"/>
       <plugin id="org.knime.ext.svg"/>
       <plugin id="org.knime.jsnippets"/>
+      <plugin id="org.knime.quickform.nodes"/>
       <plugin id="org.knime.testing"/>
       <plugin id="org.knime.testing.headless" fragment="true"/>
       <plugin id="org.knime.testing.ui" fragment="true"/>
