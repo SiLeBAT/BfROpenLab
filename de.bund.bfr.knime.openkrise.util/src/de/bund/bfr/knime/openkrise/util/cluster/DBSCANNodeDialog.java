@@ -70,6 +70,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 
 	private JComboBox<String> modelBox;
 	private JButton filterButton;
+	private JButton removeFilterButton;
 	private IntTextField minPointsField;
 	private DoubleTextField maxDistField;
 	private IntTextField numClustersField;
@@ -86,6 +87,9 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 		modelBox.addItemListener(this);
 		filterButton = new JButton("Set Filter");
 		filterButton.addActionListener(this);
+		removeFilterButton = new JButton("Remove Filter");
+		removeFilterButton.setEnabled(false);
+		removeFilterButton.addActionListener(this);
 		minPointsField = new IntTextField(false, 5);
 		minPointsField.setMinValue(1);
 		maxDistField = new DoubleTextField(false, 5);
@@ -113,6 +117,8 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 		minPointsField.setValue(set.getMinPoints());
 		maxDistField.setValue(set.getMaxDistance());
 		numClustersField.setValue(set.getNumClusters());
+		removeFilterButton.setEnabled(set.getFilter() != null);
+
 		updatePanel();
 	}
 
@@ -152,7 +158,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 		panel.removeAll();
 		panel.add(UI.createOptionsPanel("Options",
 				Arrays.asList(new JLabel("Cluster Algorithm:"), filterButton),
-				Arrays.asList(modelBox, new JLabel())));
+				Arrays.asList(modelBox, UI.createWestPanel(removeFilterButton))));
 
 		if (model.equals(DBSCANNSettings.MODEL_DBSCAN)) {
 			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(
@@ -181,7 +187,11 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 				set.setFilter((AndOrHighlightCondition) dialog
 						.getHighlightCondition());
 			}
+		} else if (e.getSource() == removeFilterButton) {
+			set.setFilter(null);
 		}
+
+		removeFilterButton.setEnabled(set.getFilter() != null);
 	}
 
 	@Override

@@ -79,6 +79,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	private JPanel tablePanel;
 
 	private JButton filterButton;
+	private JButton removeFilterButton;
 	private JButton clearButton;
 	private JCheckBox setAllBox;
 	private JTextField setAllField;
@@ -105,6 +106,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		this.values = values;
 		this.condition = condition;
 
+		removeFilterButton.setEnabled(condition != null);
 		tablePanel.removeAll();
 		tablePanel.add(createInputPanel(filterElements(elements, condition)),
 				BorderLayout.CENTER);
@@ -175,6 +177,12 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 				tablePanel.revalidate();
 				updateSetAll(setAllBox.isSelected());
 			}
+		} else if (e.getSource() == removeFilterButton) {
+			condition = null;
+			tablePanel.removeAll();
+			tablePanel.add(createInputPanel(elements), BorderLayout.CENTER);
+			tablePanel.revalidate();
+			updateSetAll(setAllBox.isSelected());
 		} else if (e.getSource() == clearButton) {
 			if (setAllBox.isSelected()) {
 				setAllBox.setSelected(false);
@@ -187,6 +195,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		} else if (e.getSource() == setAllBox) {
 			updateSetAll(setAllBox.isSelected());
 		}
+
+		removeFilterButton.setEnabled(condition != null);
 	}
 
 	@Override
@@ -244,8 +254,11 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	}
 
 	private JComponent createOptionsPanel() {
-		filterButton = new JButton("Filter");
+		filterButton = new JButton("Set Filter");
 		filterButton.addActionListener(this);
+		removeFilterButton = new JButton("Remove Filter");
+		removeFilterButton.setEnabled(false);
+		removeFilterButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
 		setAllBox = new JCheckBox("Set All");
@@ -255,10 +268,10 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		if (classType == Boolean.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					clearButton, setAllBox));
+					removeFilterButton, clearButton, setAllBox));
 		} else if (classType == Double.class) {
 			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					clearButton, setAllBox, setAllField));
+					removeFilterButton, clearButton, setAllBox, setAllField));
 		}
 
 		return null;
