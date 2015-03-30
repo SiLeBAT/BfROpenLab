@@ -89,6 +89,8 @@ public class StartApp {
 	  		}
 
     	  	DBKernel.mainFrame.getMyList().getMyDBTable().setTable();
+    	  	
+    	  	DBKernel.mainFrame.setTitle("internal DB    [in '" + DBKernel.HSHDB_PATH + "']");
 
     	  	DBKernel.mainFrame.toFront();	    
     	  	DBKernel.mainFrame.setVisible(true);
