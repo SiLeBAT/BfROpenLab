@@ -9,6 +9,7 @@ Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
+ org.knime.quickform.nodes,
  org.knime.base;bundle-version="2.10.0",
  org.graphstream,
  de.bund.bfr.knime.openkrise.db,
