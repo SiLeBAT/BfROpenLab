@@ -30,16 +30,20 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -53,9 +57,24 @@ import de.bund.bfr.knime.gis.shapecell.ShapeValue;
  */
 public class GisUtils {
 
-	public static final MathTransform LATLON_TO_VIZ = readTransformFromFile();
+	private static final MathTransform LATLON_TO_VIZ = readTransformFromFile();
+	private static final GeometryFactory FACTORY = new GeometryFactory();
 
 	private GisUtils() {
+	}
+
+	public static Point2D latLonToViz(double lat, double lon)
+			throws MismatchedDimensionException, TransformException {
+		Point p = (Point) JTS.transform(
+				FACTORY.createPoint(new Coordinate(lat, lon)),
+				GisUtils.LATLON_TO_VIZ);
+
+		return new Point2D.Double(p.getX(), p.getY());
+	}
+
+	public static MultiPolygon latLonToViz(MultiPolygon poly)
+			throws MismatchedDimensionException, TransformException {
+		return (MultiPolygon) JTS.transform(poly, GisUtils.LATLON_TO_VIZ);
 	}
 
 	public static ShapefileDataStore getDataStore(String shpFile)

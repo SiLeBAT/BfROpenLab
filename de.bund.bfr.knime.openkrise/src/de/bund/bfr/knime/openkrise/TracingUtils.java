@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.geotools.geometry.jts.JTS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -43,11 +42,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
@@ -200,7 +196,6 @@ public class TracingUtils {
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
-		GeometryFactory factory = new GeometryFactory();
 		boolean hasCoordinates = false;
 
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
@@ -218,15 +213,11 @@ public class TracingUtils {
 						+ TracingColumns.ID + " column: " + id);
 			}
 
-			Point2D.Double center = null;
+			Point2D center = null;
 
 			if (lat != null && lon != null) {
 				try {
-					Point p = (Point) JTS.transform(
-							factory.createPoint(new Coordinate(lat, lon)),
-							GisUtils.LATLON_TO_VIZ);
-
-					center = new Point2D.Double(p.getX(), p.getY());
+					center = GisUtils.latLonToViz(lat, lon);
 					hasCoordinates = true;
 				} catch (MismatchedDimensionException | TransformException e) {
 					throw new NotConfigurableException(e.getMessage());
@@ -401,8 +392,8 @@ public class TracingUtils {
 
 			try {
 				nodes.add(new RegionNode(index + "",
-						new LinkedHashMap<String, Object>(), (MultiPolygon) JTS
-								.transform(shape, GisUtils.LATLON_TO_VIZ)));
+						new LinkedHashMap<String, Object>(), GisUtils
+								.latLonToViz((MultiPolygon) shape)));
 				index++;
 			} catch (MismatchedDimensionException | TransformException e) {
 				throw new NotConfigurableException(e.getMessage());
