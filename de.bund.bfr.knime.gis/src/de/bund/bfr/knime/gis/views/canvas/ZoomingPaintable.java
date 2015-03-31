@@ -41,6 +41,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 
 	private ICanvas<?> canvas;
 	private int dy;
+	private double zoomFactor;
 
 	private int xPlus;
 	private int yPlus;
@@ -50,9 +51,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 	private boolean plusFocused;
 	private boolean minusFocused;
 
-	public ZoomingPaintable(ICanvas<?> canvas, int dy) {
+	public ZoomingPaintable(ICanvas<?> canvas, int dy, double zoomFactor) {
 		this.canvas = canvas;
 		this.dy = dy;
+		this.zoomFactor = zoomFactor;
 		xPlus = -1;
 		yPlus = -1;
 		xMinus = -1;
@@ -141,10 +143,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 					.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
 
 			if (plusFocused) {
-				transformer.scale(1.2, 1.2, center);
+				transformer.scale(zoomFactor, zoomFactor, center);
 				viewer.repaint();
 			} else if (minusFocused) {
-				transformer.scale(1 / 1.2, 1 / 1.2, center);
+				transformer.scale(1 / zoomFactor, 1 / zoomFactor, center);
 				viewer.repaint();
 			}
 		}

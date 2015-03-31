@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="16.0.0",
  org.geotools;visibility:=reexport,
  edu.uci.ics.jung;visibility:=reexport,
+ org.openstreetmap.josm;visibility:=reexport,
  de.bund.bfr.knime;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.gis,

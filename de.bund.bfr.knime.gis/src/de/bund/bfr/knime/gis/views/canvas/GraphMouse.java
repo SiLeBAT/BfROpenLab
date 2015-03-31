@@ -31,12 +31,9 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	private boolean pickingDeactivated;
 
-	public GraphMouse() {
-		this(new PickingGraphMousePlugin<V, E>());
-	}
-
-	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin) {
-		super(1 / 1.1f, 1.1f);
+	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin,
+			double zoomingFactor) {
+		super((float) (1 / zoomingFactor), (float) zoomingFactor);
 
 		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(),
 				0, in, out);

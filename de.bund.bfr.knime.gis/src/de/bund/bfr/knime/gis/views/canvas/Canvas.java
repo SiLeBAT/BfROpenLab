@@ -173,8 +173,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.getGraphLayout().setGraph(
 				CanvasUtils.createGraph(this.nodes, this.edges));
 
-		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(
-				createPickingPlugin());
+		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
 
@@ -952,8 +951,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void editingModeChanged() {
-		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(
-				createPickingPlugin());
+		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 
 		graphMouse.setMode(optionsPanel.getEditingMode());
 
@@ -1215,12 +1213,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		return dialog;
 	}
 
-	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new PickingPlugin();
+	protected GraphMouse<V, Edge<V>> createGraphMouse() {
+		return new GraphMouse<>(new PickingPlugin(), 1.1);
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 0);
+		return new ZoomingPaintable(this, 0, 1.2);
 	}
 
 	protected abstract void applyTransform();
