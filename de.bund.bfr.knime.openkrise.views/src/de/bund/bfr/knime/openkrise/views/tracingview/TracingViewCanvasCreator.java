@@ -19,12 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +45,6 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 
 public class TracingViewCanvasCreator {
-
-	private static final double BORDER = 0.1;
 
 	private BufferedDataTable nodeTable;
 	private BufferedDataTable edgeTable;
@@ -165,33 +159,6 @@ public class TracingViewCanvasCreator {
 				nodeTable, nodeSchema, invalidRows, false, true);
 		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
 				skippedShapeRows);
-		Rectangle2D invalidArea = null;
-
-		if (!invalidRows.isEmpty()) {
-			Rectangle2D bounds = getBounds(nodes.values());
-			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * BORDER;
-
-			if (d == 0.0) {
-				d = 1.0;
-			}
-
-			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-					bounds.getMaxY() + 2 * d);
-			Map<String, LocationNode> invalidNodes = new LinkedHashMap<>();
-
-			for (LocationNode node : nodes.values()) {
-				if (node.getCenter() == null) {
-					invalidNodes.put(node.getId(),
-							new LocationNode(node.getId(),
-									node.getProperties(), p));
-				}
-			}
-
-			nodes.putAll(invalidNodes);
-			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
-					bounds.getMaxY() + d, 2 * d, 2 * d);
-		}
-
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
@@ -200,7 +167,6 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeSchema, edgeSchema, regions,
 				deliveries);
 
-		canvas.setInvalidArea(invalidArea);
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
@@ -213,33 +179,6 @@ public class TracingViewCanvasCreator {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
 				nodeTable, nodeSchema, invalidRows, false, false);
-		Rectangle2D invalidArea = null;
-
-		if (!invalidRows.isEmpty()) {
-			Rectangle2D bounds = getBounds(nodes.values());
-			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * BORDER;
-
-			if (d == 0.0) {
-				d = 1.0;
-			}
-
-			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-					bounds.getMaxY() + 2 * d);
-			Map<String, LocationNode> invalidNodes = new LinkedHashMap<>();
-
-			for (LocationNode node : nodes.values()) {
-				if (node.getCenter() == null) {
-					invalidNodes.put(node.getId(),
-							new LocationNode(node.getId(),
-									node.getProperties(), p));
-				}
-			}
-
-			nodes.putAll(invalidNodes);
-			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
-					bounds.getMaxY() + d, 2 * d, 2 * d);
-		}
-
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
@@ -247,7 +186,6 @@ public class TracingViewCanvasCreator {
 		TracingOsmCanvas canvas = new TracingOsmCanvas(new ArrayList<>(
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
-		canvas.setInvalidArea(invalidArea);
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
 		set.getOsmSettings().setToCanvas(canvas);
@@ -266,26 +204,5 @@ public class TracingViewCanvasCreator {
 
 	public Set<RowKey> getSkippedShapeRows() {
 		return skippedShapeRows;
-	}
-
-	private static Rectangle2D getBounds(Collection<LocationNode> nodes) {
-		Rectangle2D bounds = null;
-
-		for (LocationNode node : nodes) {
-			if (node.getCenter() == null) {
-				continue;
-			}
-
-			Rectangle2D r = new Rectangle2D.Double(node.getCenter().getX(),
-					node.getCenter().getY(), 0, 0);
-
-			if (bounds == null) {
-				bounds = r;
-			} else {
-				bounds = bounds.createUnion(r);
-			}
-		}
-
-		return bounds;
 	}
 }

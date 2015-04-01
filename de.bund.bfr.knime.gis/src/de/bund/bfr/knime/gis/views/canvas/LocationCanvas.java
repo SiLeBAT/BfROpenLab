@@ -19,8 +19,14 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +45,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	private static final long serialVersionUID = 1L;
 
 	private List<RegionNode> regions;
+	private Rectangle2D invalidArea;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(),
@@ -67,6 +74,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			List<RegionNode> regions, boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		this.regions = regions;
+		invalidArea = null;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
@@ -74,14 +82,58 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 
+		List<Point2D> validPoints = new ArrayList<>();
+
 		for (LocationNode node : this.nodes) {
-			viewer.getGraphLayout().setLocation(node, node.getCenter());
+			if (node.getCenter() != null) {
+				validPoints.add(node.getCenter());
+				viewer.getGraphLayout().setLocation(node, node.getCenter());
+			}
+		}
+
+		if (validPoints.size() != this.nodes.size()) {
+			Rectangle2D bounds = CanvasUtils.getBounds(validPoints);
+			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.1;
+
+			if (d == 0.0) {
+				d = 1.0;
+			}
+
+			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
+					bounds.getMaxY() + 2 * d);
+
+			for (LocationNode node : this.nodes) {
+				if (node.getCenter() == null) {
+					viewer.getGraphLayout().setLocation(node, p);
+				}
+			}
+
+			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
+					bounds.getMaxY() + d, 2 * d, 2 * d);
 		}
 	}
 
 	@Override
 	public Collection<RegionNode> getRegions() {
 		return regions;
+	}
+
+	@Override
+	protected void paintGis(Graphics g, boolean toSvg) {
+		super.paintGis(g, toSvg);
+
+		if (invalidArea != null) {
+			Rectangle transformed = transform.apply(invalidArea);
+
+			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
+					Arrays.asList(Color.RED, Color.WHITE),
+					Arrays.asList(1.0, 1.0)));
+			g.fillRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
+			g.setColor(Color.BLACK);
+			g.drawRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
+		}
 	}
 
 	@Override

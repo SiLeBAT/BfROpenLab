@@ -22,12 +22,9 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -101,20 +98,6 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 					g.drawPolygon(part);
 				}
 			}
-		}
-
-		if (getInvalidArea() != null) {
-			Rectangle transformed = transform.apply(getInvalidArea());
-
-			System.out.println(transformed);
-			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
-					Arrays.asList(Color.RED, Color.WHITE),
-					Arrays.asList(1.0, 1.0)));
-			g.fillRect(transformed.x, transformed.y, transformed.width,
-					transformed.height);
-			g.setColor(Color.BLACK);
-			g.drawRect(transformed.x, transformed.y, transformed.width,
-					transformed.height);
 		}
 	}
 

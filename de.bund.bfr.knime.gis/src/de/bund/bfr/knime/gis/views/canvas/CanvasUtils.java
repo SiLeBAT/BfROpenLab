@@ -28,6 +28,7 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.ByteArrayOutputStream;
@@ -86,6 +87,22 @@ public class CanvasUtils {
 	private static final int TEXTURE_SIZE = 3;
 
 	private CanvasUtils() {
+	}
+
+	public static Rectangle2D getBounds(Collection<Point2D> points) {
+		Rectangle2D bounds = null;
+
+		for (Point2D p : points) {
+			Rectangle2D r = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
+
+			if (bounds == null) {
+				bounds = r;
+			} else {
+				bounds = bounds.createUnion(r);
+			}
+		}
+
+		return bounds;
 	}
 
 	@SuppressWarnings("unchecked")
