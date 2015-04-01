@@ -100,7 +100,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			}
 
 			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-					bounds.getMinY() - 2 * d);
+					bounds.getMaxY() + 2 * d);
 
 			for (LocationNode node : this.nodes) {
 				if (node.getCenter() == null) {
@@ -110,7 +110,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			}
 
 			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
-					bounds.getMinY() - 3 * d, 2 * d, 2 * d);
+					bounds.getMaxY() + d, 2 * d, 2 * d);
 		}
 	}
 

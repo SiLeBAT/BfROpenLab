@@ -45,8 +45,19 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
+		setTileSource(new OsmTileSource.Mapnik());
+	}
 
-		tileSource = new OsmTileSource.Mapnik();
+	public TileSource getTileSource() {
+		return tileSource;
+	}
+
+	public void setTileSource(TileSource tileSource) {
+		if (tileController != null) {
+			tileController.cancelOutstandingJobs();
+		}
+
+		this.tileSource = tileSource;
 		tileController = new TileController(tileSource, new MemoryTileCache(),
 				this);
 	}

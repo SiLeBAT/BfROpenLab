@@ -24,9 +24,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -37,6 +40,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
+import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
@@ -47,6 +52,7 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -54,7 +60,7 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener, ComponentListener {
+		ActionListener, ItemListener, ComponentListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -72,8 +78,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
 	private JCheckBox exportAsSvgBox;
-	private JButton gisSwitchButton;
-	private JButton osmSwitchButton;
+	private JButton switchButton;
+	private JComboBox<TracingViewSettings.GisType> gisBox;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -88,10 +94,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetFilterButton = new JButton("Reset Observed");
 		resetFilterButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
-		gisSwitchButton = new JButton();
-		gisSwitchButton.addActionListener(this);
-		osmSwitchButton = new JButton();
-		osmSwitchButton.addActionListener(this);
+		switchButton = new JButton();
+		switchButton.addActionListener(this);
+		gisBox = new JComboBox<>(TracingViewSettings.GisType.values());
+		gisBox.addItemListener(this);
 
 		JPanel northPanel = new JPanel();
 
@@ -99,8 +105,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		northPanel.add(UI.createHorizontalPanel(resetWeightsButton,
 				resetCrossButton, resetFilterButton, exportAsSvgBox),
 				BorderLayout.WEST);
-		northPanel.add(
-				UI.createHorizontalPanel(gisSwitchButton, osmSwitchButton),
+		northPanel.add(UI.createHorizontalPanel(switchButton, gisBox),
 				BorderLayout.EAST);
 
 		panel = new JPanel();
@@ -119,13 +124,19 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
 
+		gisBox.removeItemListener(this);
+
 		if (shapeTable == null) {
-			set.setShowGis(false);
-			gisSwitchButton.setEnabled(false);
-		} else {
-			gisSwitchButton.setEnabled(true);
+			if (set.getGisType() == TracingViewSettings.GisType.SHAPEFILE) {
+				set.setGisType(TracingViewSettings.GisType.MAPNIK);
+			}
+
+			gisBox.removeItem(TracingViewSettings.GisType.SHAPEFILE);
 		}
 
+		gisBox.setSelectedItem(set.getGisType());
+		gisBox.addItemListener(this);
+		gisBox.setEnabled(set.isShowGis());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = set.getCanvasSize() == null;
 		panel.addComponentListener(this);
@@ -157,18 +168,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else if (e.getSource() == resetFilterButton) {
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
-		} else if (e.getSource() == gisSwitchButton) {
+		} else if (e.getSource() == switchButton) {
 			set.setShowGis(!set.isShowGis());
-			set.setShowOsm(false);
-		} else if (e.getSource() == osmSwitchButton) {
-			set.setShowOsm(!set.isShowOsm());
-			set.setShowGis(false);
+			gisBox.setEnabled(set.isShowGis());
 		}
 
 		try {
 			updateCanvas();
 		} catch (NotConfigurableException ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == gisBox && e.getStateChange() == ItemEvent.SELECTED) {
+			updateSettings();
+			set.setGisType((GisType) gisBox.getSelectedItem());
+
+			try {
+				updateCanvas();
+			} catch (NotConfigurableException ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -200,17 +222,23 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 				nodeTable, edgeTable, tracingTable, shapeTable, set);
 
 		if (set.isShowGis()) {
-			canvas = creator.createGisCanvas();
-		} else if (set.isShowOsm()) {
-			canvas = creator.createOsmCanvas();
+			switch (set.getGisType()) {
+			case SHAPEFILE:
+				canvas = creator.createGisCanvas();
+				break;
+			case MAPNIK:
+				canvas = creator.createOsmCanvas(new OsmTileSource.Mapnik());
+				break;
+			case BING:
+				canvas = creator.createOsmCanvas(new BingAerialTileSource());
+				break;
+			}
 		} else {
 			canvas = creator.createGraphCanvas();
 		}
 
-		gisSwitchButton.setText("Switch to "
-				+ (set.isShowGis() ? "Graph" : "GIS"));
-		osmSwitchButton.setText("Switch to "
-				+ (set.isShowOsm() ? "Graph" : "OSM"));
+		switchButton
+				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 
 		String warningTable = null;
 
@@ -249,5 +277,4 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getOsmSettings().setFromCanvas((LocationOsmCanvas) canvas);
 		}
 	}
-
 }

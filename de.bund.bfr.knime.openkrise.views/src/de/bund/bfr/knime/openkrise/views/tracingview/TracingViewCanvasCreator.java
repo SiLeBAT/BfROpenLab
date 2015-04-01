@@ -29,6 +29,7 @@ import java.util.Set;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
+import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -175,7 +176,8 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 
-	public TracingOsmCanvas createOsmCanvas() throws NotConfigurableException {
+	public TracingOsmCanvas createOsmCanvas(TileSource tileSource)
+			throws NotConfigurableException {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
 				nodeTable, nodeSchema, invalidRows, false, false);
@@ -187,6 +189,7 @@ public class TracingViewCanvasCreator {
 				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 
 		canvas.setPerformTracing(false);
+		canvas.setTileSource(tileSource);
 		set.setToCanvas(canvas);
 		set.getOsmSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);

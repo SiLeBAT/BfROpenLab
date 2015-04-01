@@ -43,11 +43,26 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
 
+	public enum GisType {
+		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), BING("Bing");
+
+		private String name;
+
+		private GisType(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());
 
 	private static final String CFG_SHOW_GIS = "ShowGis";
-	private static final String CFG_SHOW_OSM = "ShowOsm";
+	private static final String CFG_GIS_TYPE = "GisType";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_SHOW_EDGES_IN_META_NODE = "ShowEdgesInMetaNode";
@@ -73,7 +88,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
 	private boolean showGis;
-	private boolean showOsm;
+	private GisType gisType;
 	private boolean exportAsSvg;
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
@@ -104,7 +119,7 @@ public class TracingViewSettings extends NodeSettings {
 
 	public TracingViewSettings() {
 		showGis = false;
-		showOsm = false;
+		gisType = GisType.SHAPEFILE;
 		exportAsSvg = false;
 		skipEdgelessNodes = true;
 		showEdgesInMetaNode = false;
@@ -143,8 +158,8 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			showOsm = settings.getBoolean(CFG_SHOW_OSM);
-		} catch (InvalidSettingsException e) {
+			gisType = GisType.valueOf(settings.getString(CFG_GIS_TYPE));
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
 		}
 
 		try {
@@ -279,7 +294,7 @@ public class TracingViewSettings extends NodeSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addBoolean(CFG_SHOW_GIS, showGis);
-		settings.addBoolean(CFG_SHOW_OSM, showOsm);
+		settings.addString(CFG_GIS_TYPE, gisType.name());
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_SHOW_EDGES_IN_META_NODE, showEdgesInMetaNode);
@@ -407,12 +422,12 @@ public class TracingViewSettings extends NodeSettings {
 		this.showGis = showGis;
 	}
 
-	public boolean isShowOsm() {
-		return showOsm;
+	public GisType getGisType() {
+		return gisType;
 	}
 
-	public void setShowOsm(boolean showOsm) {
-		this.showOsm = showOsm;
+	public void setGisType(GisType gisType) {
+		this.gisType = gisType;
 	}
 
 	public boolean isExportAsSvg() {
