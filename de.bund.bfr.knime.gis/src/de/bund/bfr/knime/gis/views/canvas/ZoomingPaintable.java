@@ -127,7 +127,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 					.getGraphMouse();
 
 			graphMouse.setPickingDeactivated(plusFocused || minusFocused);
-			canvas.getViewer().repaint();
+			paint(canvas.getViewer().getGraphics());
 		}
 	}
 

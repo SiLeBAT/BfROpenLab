@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.List;
 
@@ -107,5 +108,11 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 						* tileSize + dy);
 			}
 		}
+
+		int size = (int) (Math.pow(2.0, zoom) * tileSize);
+
+		g.setColor(Color.BLACK);
+		g.drawRect((int) transform.getTranslationX(),
+				(int) transform.getTranslationY(), size, size);
 	}
 }
