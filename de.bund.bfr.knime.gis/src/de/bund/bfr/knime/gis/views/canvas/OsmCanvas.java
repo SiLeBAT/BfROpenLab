@@ -116,17 +116,29 @@ public abstract class OsmCanvas<V extends Node> extends Canvas<V> implements
 	}
 
 	protected void paintGis(Graphics g, boolean toSvg) {
-		// TODO: Convert my zoom level to OSM zoom
-		// TODO: Get enough tiles to cover whole screen
-		// TODO: paint tiles
-
+		int w = getCanvasSize().width;
+		int h = getCanvasSize().height;
+		int tileSize = tileSource.getTileSize();
 		int zoom = (int) Math.round(Math.log(transform.getScaleX())
 				/ Math.log(2.0));
-		int x = (int) Math.round(transform.getTranslationX());
-		int y = (int) Math.round(transform.getTranslationY());
-		Tile tile = tileController.getTile(x, y, zoom);
+		double x = -transform.getTranslationX();
+		double y = -transform.getTranslationY();
+		int startX = Math.max(0, (int) x / tileSize);
+		int startY = Math.max(0, (int) y / tileSize);
+		int dx = (int) Math.round(startX * tileSize - x);
+		int dy = (int) Math.round(startY * tileSize - y);
+		int max = (int) Math.round(Math.pow(2.0, zoom)) - 1;
+		int maxX = Math.min(max, startX + (w - dx) / tileSize);
+		int maxY = Math.min(max, startY + (h - dy) / tileSize);
 
-		tile.paint(g, 0, 0);
+		for (int ix = startX; ix <= maxX; ix++) {
+			for (int iy = startY; iy <= maxY; iy++) {
+				Tile tile = tileController.getTile(ix, iy, zoom);
+
+				tile.paint(g, (ix - startX) * tileSize + dx, (iy - startY)
+						* tileSize + dy);
+			}
+		}
 	}
 
 	private void paintGisImage(Graphics g) {
