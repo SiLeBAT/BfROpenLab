@@ -44,7 +44,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 public class TracingViewSettings extends NodeSettings {
 
 	public enum GisType {
-		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), BING("Bing");
+		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), CYCLE_MAP("Cycle Map"), BING_AERIAL(
+				"Bing Aerial"), MAPQUEST("MapQuest"), MAPQUEST_AERIAL(
+				"MapQuest Aerial");
 
 		private String name;
 
