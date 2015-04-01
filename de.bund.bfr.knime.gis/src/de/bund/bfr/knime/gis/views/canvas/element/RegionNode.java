@@ -19,16 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisUtils;
@@ -67,25 +64,7 @@ public class RegionNode extends Node {
 	}
 
 	public void setTransform(Transform transform) {
-		transformedPolygon = new ArrayList<>();
-
-		for (int index = 0; index < polygon.getNumGeometries(); index++) {
-			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
-					.getGeometryN(index);
-			Coordinate[] points = part.getExteriorRing().getCoordinates();
-			int n = points.length;
-			int[] xs = new int[n];
-			int[] ys = new int[n];
-
-			for (int i = 0; i < n; i++) {
-				Point p = transform.apply(points[i].x, points[i].y);
-
-				xs[i] = p.x;
-				ys[i] = p.y;
-			}
-
-			transformedPolygon.add(new Polygon(xs, ys, n));
-		}
+		transformedPolygon = transform.apply(polygon);
 	}
 
 	public boolean containsPoint(Point2D point) {

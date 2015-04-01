@@ -47,6 +47,7 @@ public class TracingViewSettings extends NodeSettings {
 			Activator.class.getClassLoader());
 
 	private static final String CFG_SHOW_GIS = "ShowGis";
+	private static final String CFG_SHOW_OSM = "ShowOsm";
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	private static final String CFG_SHOW_EDGES_IN_META_NODE = "ShowEdgesInMetaNode";
@@ -72,6 +73,7 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
 
 	private boolean showGis;
+	private boolean showOsm;
 	private boolean exportAsSvg;
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
@@ -98,9 +100,11 @@ public class TracingViewSettings extends NodeSettings {
 
 	private GraphSettings graphSettings;
 	private GisSettings gisSettings;
+	private OsmSettings osmSettings;
 
 	public TracingViewSettings() {
 		showGis = false;
+		showOsm = false;
 		exportAsSvg = false;
 		skipEdgelessNodes = true;
 		showEdgesInMetaNode = false;
@@ -127,6 +131,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings = new GraphSettings();
 		gisSettings = new GisSettings();
+		osmSettings = new OsmSettings();
 	}
 
 	@Override
@@ -134,6 +139,11 @@ public class TracingViewSettings extends NodeSettings {
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
 			showGis = settings.getBoolean(CFG_SHOW_GIS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showOsm = settings.getBoolean(CFG_SHOW_OSM);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -263,11 +273,13 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.loadSettings(settings);
 		gisSettings.loadSettings(settings);
+		osmSettings.loadSettings(settings);
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addBoolean(CFG_SHOW_GIS, showGis);
+		settings.addBoolean(CFG_SHOW_OSM, showOsm);
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addBoolean(CFG_SHOW_EDGES_IN_META_NODE, showEdgesInMetaNode);
@@ -299,6 +311,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
+		osmSettings.saveSettings(settings);
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
@@ -392,6 +405,14 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setShowGis(boolean showGis) {
 		this.showGis = showGis;
+	}
+
+	public boolean isShowOsm() {
+		return showOsm;
+	}
+
+	public void setShowOsm(boolean showOsm) {
+		this.showOsm = showOsm;
 	}
 
 	public boolean isExportAsSvg() {
@@ -589,5 +610,13 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setGisSettings(GisSettings gisSettings) {
 		this.gisSettings = gisSettings;
+	}
+
+	public OsmSettings getOsmSettings() {
+		return osmSettings;
+	}
+
+	public void setOsmSettings(OsmSettings osmSettings) {
+		this.osmSettings = osmSettings;
 	}
 }

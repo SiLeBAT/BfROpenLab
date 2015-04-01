@@ -19,10 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
+import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.Tile;
 import org.openstreetmap.gui.jmapviewer.TileController;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
@@ -106,6 +112,24 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 				tile.paint(g, (ix - startX) * tileSize + dx, (iy - startY)
 						* tileSize + dy);
 			}
+		}
+
+		if (getInvalidArea() != null) {
+			double x1 = OsmMercator.LonToX(getInvalidArea().getX(), 0);
+			double y1 = OsmMercator.LatToY(getInvalidArea().getY(), 0);
+			double x2 = OsmMercator.LonToX(getInvalidArea().getMaxX(), 0);
+			double y2 = OsmMercator.LatToY(getInvalidArea().getMaxY(), 0);
+			Rectangle transformed = transform.apply(new Rectangle2D.Double(x1,
+					y1, x2 - x1, y2 - y1));
+
+			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
+					Arrays.asList(Color.RED, Color.WHITE),
+					Arrays.asList(1.0, 1.0)));
+			g.fillRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
+			g.setColor(Color.BLACK);
+			g.drawRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
 		}
 	}
 }

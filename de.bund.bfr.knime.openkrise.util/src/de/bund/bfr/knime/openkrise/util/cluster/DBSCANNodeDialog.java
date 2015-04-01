@@ -109,8 +109,8 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 				.getSpec()), TracingColumns.ID);
 		schema.getPossibleValues().putAll(
 				CanvasUtils.getPossibleValues(TracingUtils.readLocationNodes(
-						input[0], schema, new LinkedHashSet<RowKey>(), false)
-						.values()));
+						input[0], schema, new LinkedHashSet<RowKey>(), false,
+						true).values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());

@@ -20,8 +20,16 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.MultiPolygon;
 
 public class Transform {
 
@@ -84,5 +92,37 @@ public class Transform {
 	public Point2D applyInverse(int x, int y) {
 		return new Point2D.Double((x - translationX) / scaleX,
 				(y - translationY) / scaleY);
+	}
+
+	public List<Polygon> apply(MultiPolygon polygon) {
+		List<Polygon> transformedPolygon = new ArrayList<>();
+
+		for (int index = 0; index < polygon.getNumGeometries(); index++) {
+			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
+					.getGeometryN(index);
+			Coordinate[] points = part.getExteriorRing().getCoordinates();
+			int n = points.length;
+			int[] xs = new int[n];
+			int[] ys = new int[n];
+
+			for (int i = 0; i < n; i++) {
+				Point p = apply(points[i].x, points[i].y);
+
+				xs[i] = p.x;
+				ys[i] = p.y;
+			}
+
+			transformedPolygon.add(new Polygon(xs, ys, n));
+		}
+
+		return transformedPolygon;
+	}
+
+	public Rectangle apply(Rectangle2D rect) {
+		Point p1 = apply(rect.getX(), rect.getY());
+		Point p2 = apply(rect.getMaxX(), rect.getMaxY());
+
+		return new Rectangle(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y),
+				Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y));
 	}
 }

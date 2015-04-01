@@ -23,14 +23,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -40,24 +39,13 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, Paint> regionFillPaints;
-
 	public ShapefileCanvas(List<V> nodes, List<Edge<V>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-		regionFillPaints = new LinkedHashMap<>();
 	}
 
 	public abstract Collection<RegionNode> getRegions();
-
-	public Map<String, Paint> getRegionFillPaints() {
-		return regionFillPaints;
-	}
-
-	public void setRegionFillPaints(Map<String, Paint> regionFillPaints) {
-		this.regionFillPaints = regionFillPaints;
-	}
 
 	@Override
 	public void setCanvasSize(Dimension canvasSize) {
@@ -90,20 +78,6 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
-		for (RegionNode node : getRegions()) {
-			Paint paint = regionFillPaints.get(node.getId());
-
-			if (paint == null) {
-				continue;
-			}
-
-			((Graphics2D) g).setPaint(paint);
-
-			for (Polygon part : node.getTransformedPolygon()) {
-				g.fillPolygon(part);
-			}
-		}
-
 		if (!toSvg) {
 			BufferedImage borderImage = new BufferedImage(
 					getCanvasSize().width, getCanvasSize().height,
@@ -127,6 +101,20 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 					g.drawPolygon(part);
 				}
 			}
+		}
+
+		if (getInvalidArea() != null) {
+			Rectangle transformed = transform.apply(getInvalidArea());
+
+			System.out.println(transformed);
+			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
+					Arrays.asList(Color.RED, Color.WHITE),
+					Arrays.asList(1.0, 1.0)));
+			g.fillRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
+			g.setColor(Color.BLACK);
+			g.drawRect(transformed.x, transformed.y, transformed.width,
+					transformed.height);
 		}
 	}
 

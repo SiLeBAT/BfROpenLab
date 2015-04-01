@@ -42,7 +42,11 @@ import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -68,7 +72,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
 	private JCheckBox exportAsSvgBox;
-	private JButton switchButton;
+	private JButton gisSwitchButton;
+	private JButton osmSwitchButton;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -83,8 +88,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		resetFilterButton = new JButton("Reset Observed");
 		resetFilterButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
-		switchButton = new JButton();
-		switchButton.addActionListener(this);
+		gisSwitchButton = new JButton();
+		gisSwitchButton.addActionListener(this);
+		osmSwitchButton = new JButton();
+		osmSwitchButton.addActionListener(this);
 
 		JPanel northPanel = new JPanel();
 
@@ -92,7 +99,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		northPanel.add(UI.createHorizontalPanel(resetWeightsButton,
 				resetCrossButton, resetFilterButton, exportAsSvgBox),
 				BorderLayout.WEST);
-		northPanel.add(UI.createHorizontalPanel(switchButton),
+		northPanel.add(
+				UI.createHorizontalPanel(gisSwitchButton, osmSwitchButton),
 				BorderLayout.EAST);
 
 		panel = new JPanel();
@@ -113,9 +121,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (shapeTable == null) {
 			set.setShowGis(false);
-			switchButton.setEnabled(false);
+			gisSwitchButton.setEnabled(false);
 		} else {
-			switchButton.setEnabled(true);
+			gisSwitchButton.setEnabled(true);
 		}
 
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
@@ -149,8 +157,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else if (e.getSource() == resetFilterButton) {
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
-		} else if (e.getSource() == switchButton) {
+		} else if (e.getSource() == gisSwitchButton) {
 			set.setShowGis(!set.isShowGis());
+			set.setShowOsm(false);
+		} else if (e.getSource() == osmSwitchButton) {
+			set.setShowOsm(!set.isShowOsm());
+			set.setShowGis(false);
 		}
 
 		try {
@@ -187,10 +199,18 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, tracingTable, shapeTable, set);
 
-		canvas = set.isShowGis() ? creator.createGisCanvas() : creator
-				.createGraphCanvas();
-		switchButton
-				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
+		if (set.isShowGis()) {
+			canvas = creator.createGisCanvas();
+		} else if (set.isShowOsm()) {
+			canvas = creator.createOsmCanvas();
+		} else {
+			canvas = creator.createGraphCanvas();
+		}
+
+		gisSwitchButton.setText("Switch to "
+				+ (set.isShowGis() ? "Graph" : "GIS"));
+		osmSwitchButton.setText("Switch to "
+				+ (set.isShowOsm() ? "Graph" : "OSM"));
 
 		String warningTable = null;
 
@@ -221,10 +241,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.setFromCanvas(canvas, resized);
 
-		if (canvas instanceof GraphCanvas) {
+		if (canvas instanceof TracingGraphCanvas) {
 			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
-		} else if (canvas instanceof LocationCanvas) {
+		} else if (canvas instanceof TracingGisCanvas) {
 			set.getGisSettings().setFromCanvas((LocationCanvas) canvas);
+		} else if (canvas instanceof TracingOsmCanvas) {
+			set.getOsmSettings().setFromCanvas((LocationOsmCanvas) canvas);
 		}
 	}
 

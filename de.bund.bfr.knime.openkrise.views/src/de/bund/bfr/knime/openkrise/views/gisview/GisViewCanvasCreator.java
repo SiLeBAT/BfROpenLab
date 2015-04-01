@@ -58,7 +58,7 @@ public class GisViewCanvasCreator {
 
 		List<LocationNode> nodes = new ArrayList<>(TracingUtils
 				.readLocationNodes(nodeTable, nodeSchema,
-						new LinkedHashSet<RowKey>(), true).values());
+						new LinkedHashSet<RowKey>(), true, true).values());
 		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
 				new LinkedHashSet<RowKey>());
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema,

@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -35,13 +36,24 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private BufferedImage image;
 
+	private Rectangle2D invalidArea;
+
 	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		image = null;
+		invalidArea = null;
 
 		viewer.addPreRenderPaintable(new PrePaintable(false));
+	}
+
+	public Rectangle2D getInvalidArea() {
+		return invalidArea;
+	}
+
+	public void setInvalidArea(Rectangle2D invalidArea) {
+		this.invalidArea = invalidArea;
 	}
 
 	@Override

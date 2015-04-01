@@ -171,8 +171,8 @@ public class TracingUtils {
 
 	public static Map<String, LocationNode> readLocationNodes(
 			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			Set<RowKey> invalidRows, boolean skipInvalid)
-			throws NotConfigurableException {
+			Set<RowKey> invalidRows, boolean skipInvalid,
+			boolean transformLatLonToViz) throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
@@ -216,11 +216,16 @@ public class TracingUtils {
 			Point2D center = null;
 
 			if (lat != null && lon != null) {
-				try {
-					center = GisUtils.latLonToViz(lat, lon);
+				if (transformLatLonToViz) {
+					try {
+						center = GisUtils.latLonToViz(lat, lon);
+						hasCoordinates = true;
+					} catch (MismatchedDimensionException | TransformException e) {
+						throw new NotConfigurableException(e.getMessage());
+					}
+				} else {
+					center = new Point2D.Double(lon, lat);
 					hasCoordinates = true;
-				} catch (MismatchedDimensionException | TransformException e) {
-					throw new NotConfigurableException(e.getMessage());
 				}
 			} else {
 				invalidRows.add(row.getKey());
