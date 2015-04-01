@@ -66,7 +66,9 @@ import com.google.common.primitives.Doubles;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeArrowTransformer;
@@ -89,16 +91,31 @@ public class CanvasUtils {
 	private CanvasUtils() {
 	}
 
-	public static Rectangle2D getBounds(Collection<Point2D> points) {
+	public static Rectangle2D getLocationBounds(Collection<LocationNode> nodes) {
 		Rectangle2D bounds = null;
 
-		for (Point2D p : points) {
-			Rectangle2D r = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
+		for (LocationNode node : nodes) {
+			Rectangle2D r = new Rectangle2D.Double(node.getCenter().getX(),
+					node.getCenter().getY(), 0, 0);
 
 			if (bounds == null) {
 				bounds = r;
 			} else {
 				bounds = bounds.createUnion(r);
+			}
+		}
+
+		return bounds;
+	}
+
+	public static Rectangle2D getRegionBounds(Collection<RegionNode> nodes) {
+		Rectangle2D bounds = null;
+
+		for (RegionNode node : nodes) {
+			if (bounds == null) {
+				bounds = node.getBoundingBox();
+			} else {
+				bounds = bounds.createUnion(node.getBoundingBox());
 			}
 		}
 

@@ -37,6 +37,10 @@ public class LocationNode extends Node {
 		return center;
 	}
 
+	public void updateCenter(Point2D center) {
+		this.center = center;
+	}
+
 	@Override
 	public LocationNode copy() {
 		return new LocationNode(getId(), new LinkedHashMap<>(getProperties()),

@@ -77,19 +77,22 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 
-		List<Point2D> validPoints = new ArrayList<>();
+		List<LocationNode> validNodes = new ArrayList<>();
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
-				Point2D p = convertLatLonToPos(node.getCenter());
+				Point2D center = new Point2D.Double(OsmMercator.LonToX(node
+						.getCenter().getX(), 0), OsmMercator.LatToY(node
+						.getCenter().getY(), 0));
 
-				validPoints.add(p);
-				viewer.getGraphLayout().setLocation(node, p);
+				node.updateCenter(center);
+				viewer.getGraphLayout().setLocation(node, center);
+				validNodes.add(node);
 			}
 		}
 
-		if (validPoints.size() != this.nodes.size()) {
-			Rectangle2D bounds = CanvasUtils.getBounds(validPoints);
+		if (validNodes.size() != this.nodes.size()) {
+			Rectangle2D bounds = CanvasUtils.getLocationBounds(validNodes);
 			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.1;
 
 			if (d == 0.0) {
@@ -101,12 +104,24 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 			for (LocationNode node : this.nodes) {
 				if (node.getCenter() == null) {
+					node.updateCenter(p);
 					viewer.getGraphLayout().setLocation(node, p);
 				}
 			}
 
 			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
 					bounds.getMinY() - 3 * d, 2 * d, 2 * d);
+		}
+	}
+
+	@Override
+	public void resetLayoutItemClicked() {
+		Rectangle2D bounds = CanvasUtils.getLocationBounds(nodes);
+
+		if (bounds != null) {
+			zoomTo(bounds, 2.0, false);
+		} else {
+			super.resetLayoutItemClicked();
 		}
 	}
 
@@ -140,16 +155,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		properties.put(nodeSchema.getId(), id);
 		properties.put(metaNodeProperty, true);
-
-		if (nodeSchema.getLatitude() != null) {
-			properties.put(nodeSchema.getLatitude(),
-					CanvasUtils.getMeanValue(nodes, nodeSchema.getLatitude()));
-		}
-
-		if (nodeSchema.getLongitude() != null) {
-			properties.put(nodeSchema.getLongitude(),
-					CanvasUtils.getMeanValue(nodes, nodeSchema.getLongitude()));
-		}
+		properties.put(nodeSchema.getLatitude(), null);
+		properties.put(nodeSchema.getLongitude(), null);
 
 		List<Double> xList = new ArrayList<Double>();
 		List<Double> yList = new ArrayList<Double>();
@@ -164,14 +171,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		LocationNode newNode = new LocationNode(id, properties,
 				new Point2D.Double(x, y));
 
-		viewer.getGraphLayout().setLocation(newNode,
-				convertLatLonToPos(newNode.getCenter()));
+		viewer.getGraphLayout().setLocation(newNode, newNode.getCenter());
 
 		return newNode;
-	}
-
-	private static Point2D convertLatLonToPos(Point2D latLon) {
-		return new Point2D.Double(OsmMercator.LonToX(latLon.getX(), 0),
-				OsmMercator.LatToY(latLon.getY(), 0));
 	}
 }

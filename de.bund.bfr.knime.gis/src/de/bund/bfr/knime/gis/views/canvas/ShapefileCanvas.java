@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
@@ -45,14 +44,14 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	public abstract Collection<RegionNode> getRegions();
 
 	@Override
-	public void setCanvasSize(Dimension canvasSize) {
-		super.setCanvasSize(canvasSize);
-		computeTransform(canvasSize);
-	}
-
-	@Override
 	public void resetLayoutItemClicked() {
-		computeTransform(viewer.getSize());
+		Rectangle2D bounds = CanvasUtils.getRegionBounds(getRegions());
+
+		if (bounds != null) {
+			zoomTo(bounds, null, true);
+		} else {
+			super.resetLayoutItemClicked();
+		}
 	}
 
 	@Override
@@ -64,7 +63,11 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	@Override
 	protected void applyTransform() {
 		flushImage();
-		computeTransformedShapes();
+
+		for (RegionNode node : getRegions()) {
+			node.setTransform(transform);
+		}
+
 		viewer.repaint();
 	}
 
@@ -99,48 +102,5 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 				}
 			}
 		}
-	}
-
-	private void computeTransform(Dimension canvasSize) {
-		Rectangle2D polygonsBounds = getPolygonsBounds();
-
-		if (polygonsBounds != null) {
-			double widthRatio = canvasSize.width / polygonsBounds.getWidth();
-			double heightRatio = canvasSize.height / polygonsBounds.getHeight();
-			double canvasCenterX = canvasSize.width / 2.0;
-			double canvasCenterY = canvasSize.height / 2.0;
-			double polygonCenterX = polygonsBounds.getCenterX();
-			double polygonCenterY = polygonsBounds.getCenterY();
-
-			double scaleX = Math.min(widthRatio, heightRatio);
-			double scaleY = -scaleX;
-			double translationX = canvasCenterX - polygonCenterX * scaleX;
-			double translationY = canvasCenterY - polygonCenterY * scaleY;
-
-			setTransform(new Transform(scaleX, scaleY, translationX,
-					translationY));
-		} else {
-			setTransform(Transform.IDENTITY_TRANSFORM);
-		}
-	}
-
-	private void computeTransformedShapes() {
-		for (RegionNode node : getRegions()) {
-			node.setTransform(transform);
-		}
-	}
-
-	private Rectangle2D getPolygonsBounds() {
-		Rectangle2D bounds = null;
-
-		for (RegionNode node : getRegions()) {
-			if (bounds == null) {
-				bounds = node.getBoundingBox();
-			} else {
-				bounds = bounds.createUnion(node.getBoundingBox());
-			}
-		}
-
-		return bounds;
 	}
 }

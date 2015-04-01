@@ -156,16 +156,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		properties.put(nodeSchema.getId(), id);
 		properties.put(metaNodeProperty, true);
-
-		if (nodeSchema.getLatitude() != null) {
-			properties.put(nodeSchema.getLatitude(),
-					CanvasUtils.getMeanValue(nodes, nodeSchema.getLatitude()));
-		}
-
-		if (nodeSchema.getLongitude() != null) {
-			properties.put(nodeSchema.getLongitude(),
-					CanvasUtils.getMeanValue(nodes, nodeSchema.getLongitude()));
-		}
+		properties.put(nodeSchema.getLatitude(), null);
+		properties.put(nodeSchema.getLongitude(), null);
 
 		GraphNode newNode = new GraphNode(id, properties, null);
 

@@ -32,6 +32,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -216,6 +217,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void setCanvasSize(Dimension canvasSize) {
 		viewer.setPreferredSize(canvasSize);
+		resetLayoutItemClicked();
 	}
 
 	@Override
@@ -528,6 +530,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void resetLayoutItemClicked() {
+		setTransform(Transform.IDENTITY_TRANSFORM);
 	}
 
 	@Override
@@ -1219,6 +1226,32 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected ZoomingPaintable createZoomingPaintable() {
 		return new ZoomingPaintable(this, 0, 1.2);
+	}
+
+	protected void zoomTo(Rectangle2D polygonsBounds, Double zoomStep,
+			boolean yAxisInverted) {
+		Dimension canvasSize = getCanvasSize();
+		double widthRatio = canvasSize.width / polygonsBounds.getWidth();
+		double heightRatio = canvasSize.height / polygonsBounds.getHeight();
+		double canvasCenterX = canvasSize.width / 2.0;
+		double canvasCenterY = canvasSize.height / 2.0;
+		double polygonCenterX = polygonsBounds.getCenterX();
+		double polygonCenterY = polygonsBounds.getCenterY();
+
+		double scale = Math.min(widthRatio, heightRatio);
+
+		if (zoomStep != null) {
+			int zoom = (int) (Math.log(scale) / Math.log(zoomStep));
+
+			scale = Math.pow(zoomStep, zoom);
+		}
+
+		double scaleX = scale;
+		double scaleY = yAxisInverted ? -scale : scale;
+		double translationX = canvasCenterX - polygonCenterX * scaleX;
+		double translationY = canvasCenterY - polygonCenterY * scaleY;
+
+		setTransform(new Transform(scaleX, scaleY, translationX, translationY));
 	}
 
 	protected abstract void applyTransform();
