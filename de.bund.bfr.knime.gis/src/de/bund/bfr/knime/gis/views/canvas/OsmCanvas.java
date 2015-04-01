@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
@@ -33,15 +31,11 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public abstract class OsmCanvas<V extends Node> extends Canvas<V> implements
+public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		TileLoaderListener {
 
 	private static final long serialVersionUID = 1L;
-
-	private BufferedImage image;
 
 	private TileSource tileSource;
 	private TileController tileController;
@@ -50,40 +44,20 @@ public abstract class OsmCanvas<V extends Node> extends Canvas<V> implements
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-		image = null;
 
 		tileSource = new OsmTileSource.Mapnik();
 		tileController = new TileController(tileSource, new MemoryTileCache(),
 				this);
+	}
 
-		viewer.addPreRenderPaintable(new PrePaintable(false));
+	@Override
+	public void borderAlphaChanged() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void resetLayoutItemClicked() {
 		setTransform(Transform.IDENTITY_TRANSFORM);
-	}
-
-	@Override
-	public void layoutItemClicked(LayoutType layoutType) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void borderAlphaChanged() {
-		flushImage();
-		viewer.repaint();
-	}
-
-	@Override
-	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			final boolean toSvg) {
-		VisualizationImageServer<V, Edge<V>> server = super
-				.getVisualizationServer(toSvg);
-
-		server.addPreRenderPaintable(new PrePaintable(toSvg));
-
-		return server;
 	}
 
 	@Override
@@ -108,13 +82,7 @@ public abstract class OsmCanvas<V extends Node> extends Canvas<V> implements
 		return new ZoomingPaintable(this, 0, 2.0);
 	}
 
-	protected void flushImage() {
-		if (image != null) {
-			image.flush();
-			image = null;
-		}
-	}
-
+	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
 		int w = getCanvasSize().width;
 		int h = getCanvasSize().height;
@@ -137,54 +105,6 @@ public abstract class OsmCanvas<V extends Node> extends Canvas<V> implements
 
 				tile.paint(g, (ix - startX) * tileSize + dx, (iy - startY)
 						* tileSize + dy);
-			}
-		}
-	}
-
-	private void paintGisImage(Graphics g) {
-		int width = getCanvasSize().width;
-		int height = getCanvasSize().height;
-
-		if (image == null || image.getWidth() != width
-				|| image.getHeight() != height) {
-			flushImage();
-			image = new BufferedImage(width, height,
-					BufferedImage.TYPE_INT_ARGB);
-			paintGis(image.getGraphics(), false);
-		}
-
-		g.drawImage(image, 0, 0, null);
-	}
-
-	protected class GisPickingPlugin extends PickingPlugin {
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			if (vertex == null) {
-				super.mouseDragged(e);
-			}
-		}
-	}
-
-	private class PrePaintable implements Paintable {
-
-		private boolean toSvg;
-
-		public PrePaintable(boolean toSvg) {
-			this.toSvg = toSvg;
-		}
-
-		@Override
-		public boolean useTransform() {
-			return false;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			if (toSvg) {
-				paintGis(g, true);
-			} else {
-				paintGisImage(g);
 			}
 		}
 	}

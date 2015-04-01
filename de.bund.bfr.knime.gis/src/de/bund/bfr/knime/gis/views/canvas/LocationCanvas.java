@@ -34,7 +34,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 
-public class LocationCanvas extends GisCanvas<LocationNode> {
+public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 

@@ -45,7 +45,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 /**
  * @author Christian Thoens
  */
-public class RegionCanvas extends GisCanvas<RegionNode> {
+public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 

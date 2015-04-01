@@ -63,17 +63,14 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 
 		for (LocationNode node : this.nodes) {
-			viewer.getGraphLayout().setLocation(
-					node,
-					new Point2D.Double(OsmMercator.LonToX(node.getCenter()
-							.getX(), 0), OsmMercator.LatToY(node.getCenter()
-							.getY(), 0)));
+			viewer.getGraphLayout().setLocation(node,
+					convertLatLonToPos(node.getCenter()));
 		}
 	}
 
@@ -113,8 +110,14 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		LocationNode newNode = new LocationNode(id, properties,
 				new Point2D.Double(x, y));
 
-		viewer.getGraphLayout().setLocation(newNode, newNode.getCenter());
+		viewer.getGraphLayout().setLocation(newNode,
+				convertLatLonToPos(newNode.getCenter()));
 
 		return newNode;
+	}
+
+	private static Point2D convertLatLonToPos(Point2D latLon) {
+		return new Point2D.Double(OsmMercator.LonToX(latLon.getX(), 0),
+				OsmMercator.LatToY(latLon.getY(), 0));
 	}
 }
