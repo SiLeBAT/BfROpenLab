@@ -115,8 +115,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 				showForwardBox);
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
-		canvas.getViewer()
-				.prependPostRenderPaintable(new PostPaintable(canvas));
+		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));
 	}
 
 	public Map<String, Double> getNodeWeights() {
