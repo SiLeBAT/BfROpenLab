@@ -41,10 +41,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
-import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
@@ -221,32 +217,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, tracingTable, shapeTable, set);
 
-		if (set.isShowGis()) {
-			switch (set.getGisType()) {
-			case SHAPEFILE:
-				canvas = creator.createGisCanvas();
-				break;
-			case MAPNIK:
-				canvas = creator.createOsmCanvas(new OsmTileSource.Mapnik());
-				break;
-			case CYCLE_MAP:
-				canvas = creator.createOsmCanvas(new OsmTileSource.CycleMap());
-				break;
-			case BING_AERIAL:
-				canvas = creator.createOsmCanvas(new BingAerialTileSource());
-				break;
-			case MAPQUEST:
-				canvas = creator.createOsmCanvas(new MapQuestOsmTileSource());
-				break;
-			case MAPQUEST_AERIAL:
-				canvas = creator
-						.createOsmCanvas(new MapQuestOpenAerialTileSource());
-				break;
-			}
-		} else {
-			canvas = creator.createGraphCanvas();
-		}
-
+		canvas = set.isShowGis() ? creator.createGisCanvas() : creator
+				.createGraphCanvas();
 		switchButton
 				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 

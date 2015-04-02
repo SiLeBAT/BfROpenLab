@@ -30,6 +30,10 @@ import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -41,9 +45,11 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 public class TracingViewCanvasCreator {
 
@@ -154,45 +160,59 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 
-	public TracingGisCanvas createGisCanvas() throws NotConfigurableException {
+	public ITracingCanvas<?> createGisCanvas() throws NotConfigurableException {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, invalidRows, false, true);
-		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
-				skippedShapeRows);
+				nodeTable, nodeSchema, invalidRows, false,
+				set.getGisType() == GisType.SHAPEFILE);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
 				tracingTable, edges, skippedTracingRows);
-		TracingGisCanvas canvas = new TracingGisCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeSchema, edgeSchema, regions,
-				deliveries);
+		ITracingCanvas<?> canvas;
 
-		canvas.setPerformTracing(false);
-		set.setToCanvas(canvas);
-		set.getGisSettings().setToCanvas(canvas);
-		canvas.setPerformTracing(true);
+		if (set.getGisType() == GisType.SHAPEFILE) {
+			List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
+					skippedShapeRows);
 
-		return canvas;
-	}
+			canvas = new TracingGisCanvas(new ArrayList<>(nodes.values()),
+					edges, nodeSchema, edgeSchema, regions, deliveries);
+			canvas.setPerformTracing(false);
+			set.setToCanvas(canvas);
+			set.getGisSettings().setToCanvas((TracingGisCanvas) canvas);
+			canvas.setPerformTracing(true);
+		} else {
+			TileSource tileSource;
 
-	public TracingOsmCanvas createOsmCanvas(TileSource tileSource)
-			throws NotConfigurableException {
-		Set<RowKey> invalidRows = new LinkedHashSet<>();
-		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, invalidRows, false, false);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, skippedEdgeRows);
-		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(
-				tracingTable, edges, skippedTracingRows);
-		TracingOsmCanvas canvas = new TracingOsmCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
+			switch (set.getGisType()) {
+			case MAPNIK:
+				tileSource = new OsmTileSource.Mapnik();
+				break;
+			case CYCLE_MAP:
+				tileSource = new OsmTileSource.CycleMap();
+				break;
+			case BING_AERIAL:
+				tileSource = new BingAerialTileSource();
+				break;
+			case MAPQUEST:
+				tileSource = new MapQuestOsmTileSource();
+				break;
+			case MAPQUEST_AERIAL:
+				tileSource = new MapQuestOpenAerialTileSource();
+				break;
+			default:
+				throw new IllegalArgumentException();
+			}
 
-		canvas.setPerformTracing(false);
-		canvas.setTileSource(tileSource);
-		set.setToCanvas(canvas);
-		set.getOsmSettings().setToCanvas(canvas);
-		canvas.setPerformTracing(true);
+			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()),
+					edges, nodeSchema, edgeSchema, deliveries);
+
+			canvas.setPerformTracing(false);
+			((TracingOsmCanvas) canvas).setTileSource(tileSource);
+			set.setToCanvas(canvas);
+			set.getOsmSettings().setToCanvas((TracingOsmCanvas) canvas);
+			canvas.setPerformTracing(true);
+		}
 
 		return canvas;
 	}

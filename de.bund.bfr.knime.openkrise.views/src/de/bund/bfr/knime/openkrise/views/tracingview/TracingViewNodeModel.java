@@ -56,7 +56,10 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 /**
  * This is the model implementation of TracingVisualizer.
@@ -185,13 +188,22 @@ public class TracingViewNodeModel extends NodeModel {
 
 		edgeContainer.close();
 
+		if (set.getGisType() == GisType.SHAPEFILE && shapeTable == null) {
+			set.setGisType(GisType.MAPNIK);
+		}
+
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
 				nodeTable, edgeTable, tracingTable, shapeTable, set);
 		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(),
 				creator.createGraphCanvas());
-		ImagePortObject gisImage = shapeTable != null ? CanvasUtils.getImage(
-				set.isExportAsSvg(), creator.createGisCanvas()) : CanvasUtils
-				.getImage(set.isExportAsSvg());
+		ITracingCanvas<?> gisCanvas = creator.createGisCanvas();
+
+		if (gisCanvas instanceof TracingOsmCanvas) {
+			((TracingOsmCanvas) gisCanvas).loadAllTiles();
+		}
+
+		ImagePortObject gisImage = CanvasUtils.getImage(set.isExportAsSvg(),
+				gisCanvas);
 
 		for (RowKey key : creator.getSkippedEdgeRows()) {
 			setWarningMessage("Delivery Table: Row " + key.getString()
