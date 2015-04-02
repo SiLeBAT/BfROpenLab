@@ -146,7 +146,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		g.setColor(Color.BLACK);
 		g.drawRect((int) transform.getTranslationX(),
 				(int) transform.getTranslationY(), size, size);
-
 	}
 
 	private Map<Point, Tile> getTiles(boolean waitForLoading) {
@@ -239,12 +238,16 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 				startY += h + d;
 				textRect = new Rectangle(0, 0, w + 2 * d, h);
+			} else {
+				textRect = null;
 			}
 
 			if (img != null) {
 				g.drawImage(img, 0, startY, null);
 				imgRect = new Rectangle(0, startY, img.getWidth(null),
 						img.getHeight(null));
+			} else {
+				imgRect = null;
 			}
 		}
 
