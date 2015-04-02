@@ -22,6 +22,7 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -73,5 +74,21 @@ public class ImageFileChooser extends JFileChooser {
 		}
 
 		return null;
+	}
+
+	@Override
+	public void approveSelection() {
+		File f = getSelectedFile();
+		String message = "The file " + f.getName()
+				+ " already exists. Do you want to overwrite it?";
+
+		if (f.exists()
+				&& getDialogType() == SAVE_DIALOG
+				&& JOptionPane.showConfirmDialog(this, message,
+						"Existing file", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+			return;
+		}
+
+		super.approveSelection();
 	}
 }
