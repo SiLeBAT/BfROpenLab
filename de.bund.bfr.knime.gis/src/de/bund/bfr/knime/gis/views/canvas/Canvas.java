@@ -542,7 +542,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		ImageFileChooser chooser = new ImageFileChooser();
 
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-			if (chooser.getFileFormat() == ImageFileChooser.Format.PNG_FORMAT) {
+			if (chooser.getFileFilter() == ImageFileChooser.PNG_FILTER) {
 				try {
 					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(false);
 					BufferedImage img = new BufferedImage(viewer.getWidth(),
@@ -555,7 +555,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 							"Error saving png file", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
-			} else if (chooser.getFileFormat() == ImageFileChooser.Format.SVG_FORMAT) {
+			} else if (chooser.getFileFilter() == ImageFileChooser.SVG_FILTER) {
 				try {
 					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(true);
 					DOMImplementation domImpl = GenericDOMImplementation

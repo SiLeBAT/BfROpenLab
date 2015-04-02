@@ -28,52 +28,33 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageFileChooser extends JFileChooser {
 
-	public static enum Format {
-		PNG_FORMAT, SVG_FORMAT
-	}
+	public static final FileFilter PNG_FILTER = new FileNameExtensionFilter(
+			"Portable Network Graphics (*.png)", "png");
+	public static final FileFilter SVG_FILTER = new FileNameExtensionFilter(
+			"SVG Vector Graphic (*.svg)", "svg");
 
 	private static final long serialVersionUID = 1L;
 
-	private FileFilter pngFilter;
-	private FileFilter svgFilter;
-
 	public ImageFileChooser() {
-		pngFilter = new FileNameExtensionFilter(
-				"Portable Network Graphics (*.png)", "png");
-		svgFilter = new FileNameExtensionFilter("SVG Vector Graphic (*.svg)",
-				"svg");
-
 		setAcceptAllFileFilterUsed(false);
-		addChoosableFileFilter(pngFilter);
-		addChoosableFileFilter(svgFilter);
+		addChoosableFileFilter(PNG_FILTER);
+		addChoosableFileFilter(SVG_FILTER);
 	}
 
 	public File getImageFile() {
 		File file = getSelectedFile();
 
-		if (getFileFormat() == Format.PNG_FORMAT) {
+		if (getFileFilter() == PNG_FILTER) {
 			if (!file.getName().toLowerCase().endsWith(".png")) {
 				file = new File(file.getAbsolutePath() + ".png");
 			}
-		} else if (getFileFormat() == Format.SVG_FORMAT) {
+		} else if (getFileFilter() == SVG_FILTER) {
 			if (!file.getName().toLowerCase().endsWith(".svg")) {
 				file = new File(file.getAbsolutePath() + ".svg");
 			}
 		}
 
 		return file;
-	}
-
-	public Format getFileFormat() {
-		FileFilter filter = getFileFilter();
-
-		if (filter == pngFilter) {
-			return Format.PNG_FORMAT;
-		} else if (filter == svgFilter) {
-			return Format.SVG_FORMAT;
-		}
-
-		return null;
 	}
 
 	@Override
