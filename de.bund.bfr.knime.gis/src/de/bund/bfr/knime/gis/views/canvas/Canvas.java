@@ -1026,7 +1026,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			final boolean toSvg) {
+			boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
 				viewer.getGraphLayout(), viewer.getSize());
 
@@ -1225,7 +1225,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 0, 1.2);
+		return new ZoomingPaintable(this, 1.2);
 	}
 
 	protected void zoomTo(Rectangle2D polygonsBounds, Double zoomStep,

@@ -20,10 +20,15 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.util.List;
 
+import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
+import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.Tile;
 import org.openstreetmap.gui.jmapviewer.TileController;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
@@ -32,6 +37,8 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
 public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		TileLoaderListener {
@@ -41,11 +48,19 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	private TileSource tileSource;
 	private TileController tileController;
 
+	private Integer lastZoom;
+	private Coordinate lastTopLeft;
+	private Coordinate lastBottomRight;
+
 	public OsmCanvas(List<V> nodes, List<Edge<V>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		setTileSource(new OsmTileSource.Mapnik());
+		viewer.addPostRenderPaintable(new PostPaintable());
+
+		lastZoom = null;
+
 	}
 
 	public TileSource getTileSource() {
@@ -79,6 +94,17 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	}
 
 	@Override
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
+			boolean toSvg) {
+		VisualizationImageServer<V, Edge<V>> server = super
+				.getVisualizationServer(toSvg);
+
+		server.addPostRenderPaintable(new PostPaintable());
+
+		return server;
+	}
+
+	@Override
 	protected void applyTransform() {
 		flushImage();
 		viewer.repaint();
@@ -91,7 +117,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 	@Override
 	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 0, 2.0);
+		return new ZoomingPaintable(this, 2.0);
 	}
 
 	@Override
@@ -125,5 +151,49 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		g.setColor(Color.BLACK);
 		g.drawRect((int) transform.getTranslationX(),
 				(int) transform.getTranslationY(), size, size);
+
+		lastZoom = zoom;
+		lastTopLeft = new Coordinate(
+				OsmMercator.YToLat(startY * tileSize, zoom),
+				OsmMercator.XToLon(startY * tileSize, zoom));
+		lastBottomRight = new Coordinate(OsmMercator.YToLat((maxY + 1)
+				* tileSize, zoom), OsmMercator.XToLon((maxX + 1) * tileSize,
+				zoom));
+	}
+
+	private class PostPaintable implements Paintable {
+
+		@Override
+		public void paint(Graphics g) {
+			String text = tileSource.getAttributionText(lastZoom, lastTopLeft,
+					lastBottomRight);
+			Image img = tileSource.getAttributionImage();
+			int startY = 0;
+
+			if (text != null) {
+				Font font = new Font("Default", Font.PLAIN, 9);
+				int w = (int) font.getStringBounds(text,
+						((Graphics2D) g).getFontRenderContext()).getWidth();
+				int h = g.getFontMetrics(font).getHeight();
+				int d = 3;
+
+				g.setColor(CanvasUtils.LEGEND_BACKGROUND);
+				g.fillRect(-1, -1, w + 2 * d + 1, h + 1);
+				g.setColor(Color.BLACK);
+				g.drawRect(-1, -1, w + 2 * d + 1, h + 1);
+				g.setFont(font);
+				g.drawString(text, d, g.getFontMetrics(font).getAscent());
+				startY += h;
+			}
+
+			if (img != null) {
+				g.drawImage(img, 0, startY, null);
+			}
+		}
+
+		@Override
+		public boolean useTransform() {
+			return false;
+		}
 	}
 }

@@ -40,7 +40,6 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 	private static final int SIZE = 30;
 
 	private ICanvas<?> canvas;
-	private int dy;
 	private double zoomFactor;
 
 	private int xPlus;
@@ -51,9 +50,8 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 	private boolean plusFocused;
 	private boolean minusFocused;
 
-	public ZoomingPaintable(ICanvas<?> canvas, int dy, double zoomFactor) {
+	public ZoomingPaintable(ICanvas<?> canvas, double zoomFactor) {
 		this.canvas = canvas;
-		this.dy = dy;
 		this.zoomFactor = zoomFactor;
 		xPlus = -1;
 		yPlus = -1;
@@ -75,9 +73,9 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 		int lineWidth = 4;
 
 		xPlus = w - d - SIZE;
-		yPlus = h - dy - d - 2 * SIZE;
+		yPlus = h - SIZE - d - 2 * SIZE;
 		xMinus = xPlus;
-		yMinus = h - dy - d - SIZE;
+		yMinus = h - SIZE - d - SIZE;
 
 		g.setColor(plusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
 		g.fillRect(xPlus, yPlus, SIZE, SIZE);

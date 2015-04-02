@@ -51,7 +51,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			final boolean toSvg) {
+			boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = super
 				.getVisualizationServer(toSvg);
 

@@ -671,8 +671,6 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 	public static class PostPaintable implements Paintable {
 
-		public static final int HEIGHT = 28;
-
 		private ICanvas<?> canvas;
 
 		public PostPaintable(ICanvas<?> canvas) {
@@ -691,11 +689,12 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 			Font font = new Font("Default", Font.BOLD, 20);
 
+			int height = 28;
 			int fontHeight = g.getFontMetrics(font).getHeight();
 			int fontAscent = g.getFontMetrics(font).getAscent();
-			int dFont = (HEIGHT - fontHeight) / 2;
+			int dFont = (height - fontHeight) / 2;
 			int logoHeight = 18;
-			int dLogo = (HEIGHT - logoHeight) / 2;
+			int dLogo = (height - logoHeight) / 2;
 
 			int dx = 10;
 			String s1 = "Created with";
@@ -710,11 +709,11 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
 
 			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
-			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - HEIGHT, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, HEIGHT);
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - HEIGHT, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, HEIGHT);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
+					+ iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setFont(font);
 			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight
 					- dFont + fontAscent);
