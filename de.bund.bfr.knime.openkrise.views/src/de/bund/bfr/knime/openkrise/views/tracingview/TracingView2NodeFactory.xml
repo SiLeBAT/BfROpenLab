@@ -59,13 +59,15 @@
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
 			</option>
-			<option name="Switch to OSM/Graph">
-				This button can be used to switch between the usual graph view and a
-				geographical view based on OpenStreetMap.
-			</option>
 			<option name="Switch to GIS/Graph">
-				If a shape table is provided to the optional input port, this button can be
-				used to switch between the usual graph view and a geographical view.
+				This button can be used to switch between the usual graph view and a
+				geographical view.
+			</option>
+			<option name="GIS Type">
+				Here the use can choose between different GIS visualizations. If a shape
+				table is provided to the optional input port, the type "Shapefile" is also available. All types
+				other types than "Shapefile" require an internet connection, since data downloaded from
+				OpenStreetMap, ...
 			</option>
 		</tab>
 		<tab name="Options Bar">

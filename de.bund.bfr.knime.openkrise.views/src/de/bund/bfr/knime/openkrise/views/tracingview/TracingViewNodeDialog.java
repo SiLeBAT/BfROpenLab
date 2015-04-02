@@ -30,6 +30,7 @@ import java.awt.event.ItemListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -47,9 +48,6 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
-import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
@@ -107,8 +105,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		northPanel.add(UI.createHorizontalPanel(resetWeightsButton,
 				resetCrossButton, resetFilterButton, exportAsSvgBox),
 				BorderLayout.WEST);
-		northPanel.add(UI.createHorizontalPanel(switchButton, gisBox),
-				BorderLayout.EAST);
+		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel(
+				"GIS Type:"), gisBox), BorderLayout.EAST);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -282,11 +280,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setFromCanvas(canvas, resized);
 
 		if (canvas instanceof TracingGraphCanvas) {
-			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
+			set.getGraphSettings().setFromCanvas((TracingGraphCanvas) canvas);
 		} else if (canvas instanceof TracingGisCanvas) {
-			set.getGisSettings().setFromCanvas((LocationCanvas) canvas);
+			set.getGisSettings().setFromCanvas((TracingGisCanvas) canvas);
 		} else if (canvas instanceof TracingOsmCanvas) {
-			set.getOsmSettings().setFromCanvas((LocationOsmCanvas) canvas);
+			set.getOsmSettings().setFromCanvas((TracingOsmCanvas) canvas);
 		}
 	}
 }
