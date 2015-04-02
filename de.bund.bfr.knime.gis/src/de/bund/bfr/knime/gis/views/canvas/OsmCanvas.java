@@ -24,9 +24,14 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.FeatureAdapter;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.Tile;
@@ -161,7 +166,24 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 				zoom));
 	}
 
-	private class PostPaintable implements Paintable {
+	private class PostPaintable implements Paintable, MouseMotionListener,
+			MouseListener {
+
+		private Rectangle textRect;
+		private Rectangle imgRect;
+
+		private boolean textFocused;
+		private boolean imgFocused;
+
+		public PostPaintable() {
+			textRect = null;
+			imgRect = null;
+			textFocused = false;
+			imgFocused = false;
+
+			getViewer().addMouseMotionListener(this);
+			getViewer().addMouseListener(this);
+		}
 
 		@Override
 		public void paint(Graphics g) {
@@ -181,19 +203,79 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 				g.fillRect(-1, -1, w + 2 * d + 1, h + 1);
 				g.setColor(Color.BLACK);
 				g.drawRect(-1, -1, w + 2 * d + 1, h + 1);
+				g.setColor(textFocused ? Color.BLUE : Color.BLACK);
 				g.setFont(font);
 				g.drawString(text, d, g.getFontMetrics(font).getAscent());
-				startY += h;
+
+				startY += h + d;
+				textRect = new Rectangle(0, 0, w + 2 * d, h);
 			}
 
 			if (img != null) {
 				g.drawImage(img, 0, startY, null);
+				imgRect = new Rectangle(0, startY, img.getWidth(null),
+						img.getHeight(null));
 			}
 		}
 
 		@Override
 		public boolean useTransform() {
 			return false;
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			boolean newTextFocused = textRect != null
+					&& textRect.contains(e.getPoint());
+			boolean newImgFocused = imgRect != null
+					&& imgRect.contains(e.getPoint());
+			boolean changed = newTextFocused != textFocused
+					|| newImgFocused != imgFocused;
+
+			textFocused = newTextFocused;
+			imgFocused = newImgFocused;
+
+			if (changed) {
+				GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) getViewer()
+						.getGraphMouse();
+
+				graphMouse.setPickingDeactivated(textFocused || imgFocused);
+				paint(getViewer().getGraphics());
+			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			String textLink = tileSource.getAttributionLinkURL();
+			String imgLink = tileSource.getAttributionImageURL();
+
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				if (textFocused && textLink != null) {
+					FeatureAdapter.openLink(textLink);
+				} else if (imgFocused && imgLink != null) {
+					FeatureAdapter.openLink(imgLink);
+				}
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
 		}
 	}
 }
