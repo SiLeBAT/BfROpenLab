@@ -55,7 +55,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 	private TileController tileController;
 
-	private Integer lastZoom;
+	private int lastZoom;
 	private Coordinate lastTopLeft;
 	private Coordinate lastBottomRight;
 
@@ -65,7 +65,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		tileController = new TileController(new OsmTileSource.Mapnik(),
 				new MemoryTileCache(), this);
-		lastZoom = null;
+		lastZoom = -1;
 		lastTopLeft = null;
 		lastBottomRight = null;
 		viewer.addPostRenderPaintable(new PostPaintable());
@@ -174,6 +174,10 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 		Map<Point, Tile> tiles = new LinkedHashMap<>();
 
+		if (zoom < 0) {
+			return tiles;
+		}
+
 		for (int ix = startX; ix <= maxX; ix++) {
 			for (int iy = startY; iy <= maxY; iy++) {
 				Tile tile = tileController.getTile(ix, iy, zoom);
@@ -216,12 +220,19 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 		@Override
 		public void paint(Graphics g) {
+			textRect = null;
+			imgRect = null;
+
+			if (lastZoom < 0) {
+				return;
+			}
+
 			String text = tileController.getTileSource().getAttributionText(
 					lastZoom, lastTopLeft, lastBottomRight);
 			Image img = tileController.getTileSource().getAttributionImage();
 			int startY = 0;
 
-			if (text != null) {
+			if (text != null && !text.isEmpty()) {
 				Font font = new Font("Default", Font.PLAIN, 9);
 				int w = (int) font.getStringBounds(text,
 						((Graphics2D) g).getFontRenderContext()).getWidth();
@@ -238,16 +249,12 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 				startY += h + d;
 				textRect = new Rectangle(0, 0, w + 2 * d, h);
-			} else {
-				textRect = null;
 			}
 
 			if (img != null) {
 				g.drawImage(img, 0, startY, null);
 				imgRect = new Rectangle(0, startY, img.getWidth(null),
 						img.getHeight(null));
-			} else {
-				imgRect = null;
 			}
 		}
 

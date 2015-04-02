@@ -23,6 +23,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -37,15 +38,11 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public class ZoomingPaintable implements Paintable, MouseMotionListener,
 		MouseListener {
 
-	private static final int SIZE = 30;
-
 	private ICanvas<?> canvas;
 	private double zoomFactor;
 
-	private int xPlus;
-	private int yPlus;
-	private int xMinus;
-	private int yMinus;
+	private Rectangle plusRect;
+	private Rectangle minusRect;
 
 	private boolean plusFocused;
 	private boolean minusFocused;
@@ -53,10 +50,8 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 	public ZoomingPaintable(ICanvas<?> canvas, double zoomFactor) {
 		this.canvas = canvas;
 		this.zoomFactor = zoomFactor;
-		xPlus = -1;
-		yPlus = -1;
-		xMinus = -1;
-		yMinus = -1;
+		plusRect = null;
+		minusRect = null;
 		plusFocused = false;
 		minusFocused = false;
 
@@ -68,32 +63,35 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 	public void paint(Graphics g) {
 		int w = canvas.getCanvasSize().width;
 		int h = canvas.getCanvasSize().height;
+		int size = 30;
 		int d = 10;
 		int lineD = 8;
 		int lineWidth = 4;
 
-		xPlus = w - d - SIZE;
-		yPlus = h - SIZE - d - 2 * SIZE;
-		xMinus = xPlus;
-		yMinus = h - SIZE - d - SIZE;
+		int xPlus = w - d - size;
+		int yPlus = h - size - d - 2 * size;
+		int xMinus = xPlus;
+		int yMinus = h - size - d - size;
 
 		g.setColor(plusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
-		g.fillRect(xPlus, yPlus, SIZE, SIZE);
+		g.fillRect(xPlus, yPlus, size, size);
 		g.setColor(minusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
-		g.fillRect(xMinus, yMinus, SIZE, SIZE);
+		g.fillRect(xMinus, yMinus, size, size);
 		g.setColor(Color.BLACK);
-		g.drawRect(xPlus, yPlus, SIZE, SIZE);
-		g.drawRect(xMinus, yMinus, SIZE, SIZE);
+		g.drawRect(xPlus, yPlus, size, size);
+		g.drawRect(xMinus, yMinus, size, size);
+		plusRect = new Rectangle(xPlus, yPlus, size, size);
+		minusRect = new Rectangle(xMinus, yMinus, size, size);
 
 		Stroke currentStroke = ((Graphics2D) g).getStroke();
 
 		((Graphics2D) g).setStroke(new BasicStroke(lineWidth));
-		g.drawLine(xPlus + lineD, yPlus + SIZE / 2, xPlus + SIZE - lineD, yPlus
-				+ SIZE / 2);
-		g.drawLine(xPlus + SIZE / 2, yPlus + lineD, xPlus + SIZE / 2, yPlus
-				+ SIZE - lineD);
-		g.drawLine(xMinus + lineD, yMinus + SIZE / 2, xMinus + SIZE - lineD,
-				yMinus + SIZE / 2);
+		g.drawLine(xPlus + lineD, yPlus + size / 2, xPlus + size - lineD, yPlus
+				+ size / 2);
+		g.drawLine(xPlus + size / 2, yPlus + lineD, xPlus + size / 2, yPlus
+				+ size - lineD);
+		g.drawLine(xMinus + lineD, yMinus + size / 2, xMinus + size - lineD,
+				yMinus + size / 2);
 		((Graphics2D) g).setStroke(currentStroke);
 	}
 
@@ -108,12 +106,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		int x = e.getX();
-		int y = e.getY();
-		boolean newPlusFocused = x > xPlus && x < xPlus + SIZE && y > yPlus
-				&& y < yPlus + SIZE;
-		boolean newMinusFocused = x > xMinus && x < xMinus + SIZE && y > yMinus
-				&& y < yMinus + SIZE;
+		boolean newPlusFocused = plusRect != null
+				&& plusRect.contains(e.getPoint());
+		boolean newMinusFocused = minusRect != null
+				&& minusRect.contains(e.getPoint());
 		boolean changed = newPlusFocused != plusFocused
 				|| newMinusFocused != minusFocused;
 
