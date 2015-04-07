@@ -23,10 +23,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-class FixContentJar {
+class RemoveFeatureFromContentJar {
 
 	static String CATEGORY = "bfropenlab"
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
+	static String FEATURE = "de.bund.bfr.knime.sbml.feature.feature.group"
 
 	static String CONTENT_JAR = "content.jar"
 	static String CONTENT_XML = "content.xml"
@@ -42,11 +43,15 @@ class FixContentJar {
 			}
 		}
 		
-		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))
+		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))		
 		
-		root.units.unit.find{ it.@id == CATEGORY }.requires.required.each { 
-			s -> s.@range = "0.0.0"
+		root.units.unit.findAll{ it.@id == FEATURE }.each {
+			it.parent().remove(it)
 		}
+		
+		def inCategory = root.units.unit.find{ it.@id == CATEGORY }.requires.required.find{ it.@name == FEATURE }
+		
+		inCategory.parent().remove(inCategory)
 
 		def out = new ZipOutputStream(new FileOutputStream(contentJar))
 
