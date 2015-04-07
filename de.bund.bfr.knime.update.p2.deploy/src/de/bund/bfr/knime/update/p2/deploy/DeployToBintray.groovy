@@ -38,7 +38,6 @@ class DeployToBintray {
 
 	static String SUBJECT = "silebat"
 	static String REPO = "generic"
-	//	static String REPO = "other"
 	static String PACKAGE = "update"
 
 	static String ARTIFACTS_JAR = "artifacts.jar"
@@ -47,7 +46,6 @@ class DeployToBintray {
 	static String PLUGINS = "plugins"
 
 	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
-	//	static String UPDATE_SITE = "../../Other/de.bund.bfr.knime.flink.update.p2"
 
 	static main(args) {
 		def artifactsFile = new File("${UPDATE_SITE}/${ARTIFACTS_JAR}")
