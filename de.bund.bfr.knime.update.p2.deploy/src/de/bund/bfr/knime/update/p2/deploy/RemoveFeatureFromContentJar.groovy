@@ -43,15 +43,17 @@ class RemoveFeatureFromContentJar {
 			}
 		}
 		
-		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))		
+		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))
+		def features = root.units.unit.findAll{ it.@id == FEATURE }
 		
-		root.units.unit.findAll{ it.@id == FEATURE }.each {
-			it.parent().remove(it)
-		}
+		features.each { it.parent().remove(it) }
+		root.units.@size = root.units.unit.size()
 		
-		def inCategory = root.units.unit.find{ it.@id == CATEGORY }.requires.required.find{ it.@name == FEATURE }
+		def category = root.units.unit.find{ it.@id == CATEGORY }
+		def featureInCategory = category.requires.required.find{ it.@name == FEATURE }
 		
-		inCategory.parent().remove(inCategory)
+		featureInCategory.parent().remove(featureInCategory)
+		category.requires.@size = category.requires.required.size()
 
 		def out = new ZipOutputStream(new FileOutputStream(contentJar))
 
