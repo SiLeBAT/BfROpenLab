@@ -33,6 +33,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.knime.workbench.core"/>
       <import plugin="org.knime.workbench.repository"/>
+      <import plugin="org.knime.quickform.nodes"/>
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
       <import plugin="org.knime.ext.svg"/>
       <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
@@ -41,7 +42,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
-      <import plugin="org.knime.quickform.nodes"/>
+      <import plugin="org.openstreetmap.josm"/>
    </requires>
 
    <plugin
