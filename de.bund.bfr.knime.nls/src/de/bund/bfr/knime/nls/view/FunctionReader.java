@@ -58,7 +58,7 @@ public class FunctionReader implements Reader {
 			qualityColumns = new ArrayList<>();
 		}
 
-		if (indep == null) {
+		if (indep == null || !f.getIndependentVariables().contains(indep)) {
 			indep = f.getIndependentVariables().get(0);
 		}
 

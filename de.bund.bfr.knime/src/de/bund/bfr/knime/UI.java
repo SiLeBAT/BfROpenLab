@@ -52,13 +52,28 @@ public class UI {
 	private UI() {
 	}
 
-	public static void select(JComboBox<?> box, Object item) {
-		box.setSelectedItem(item);
-
-		if (box.getSelectedItem() != null
-				&& !box.getSelectedItem().equals(item)) {
+	public static <V> void select(JComboBox<V> box, V item) {
+		if (hasItem(box, item)) {
+			box.setSelectedItem(item);
+		} else {
 			box.setSelectedItem(null);
 		}
+	}
+
+	public static <V> boolean hasItem(JComboBox<V> box, V item) {
+		for (int i = 0; i < box.getItemCount(); i++) {
+			if (item == null) {
+				if (box.getItemAt(i) == null) {
+					return true;
+				}
+			} else {
+				if (item.equals(box.getItemAt(i))) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public static void adjustDialog(JDialog dialog, double widthFraction,

@@ -357,10 +357,12 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	}
 
 	public void setVarX(String varX) {
-		if (varX != null) {
+		if (UI.hasItem(xBox, varX)) {
 			xBox.setSelectedItem(varX);
 		} else if (xBox.getItemCount() != 0) {
 			xBox.setSelectedIndex(0);
+		} else {
+			xBox.setSelectedItem(null);
 		}
 	}
 
