@@ -69,8 +69,10 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeArrowTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
@@ -87,8 +89,56 @@ public class CanvasUtils {
 	public static final Color LEGEND_BACKGROUND = new Color(230, 230, 230);
 
 	private static final int TEXTURE_SIZE = 3;
+	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85),
+			new Color(85, 85, 255), new Color(85, 255, 85),
+			new Color(255, 85, 255), new Color(85, 255, 255),
+			new Color(255, 175, 175), new Color(128, 128, 128),
+			new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
+			new Color(192, 192, 0), new Color(192, 0, 192),
+			new Color(0, 192, 192), new Color(64, 64, 64),
+			new Color(255, 64, 64), new Color(64, 64, 255),
+			new Color(64, 255, 64), new Color(255, 64, 255),
+			new Color(64, 255, 255), new Color(192, 192, 192),
+			new Color(128, 0, 0), new Color(0, 0, 128), new Color(0, 128, 0),
+			new Color(128, 128, 0), new Color(128, 0, 128),
+			new Color(0, 128, 128), new Color(255, 128, 128),
+			new Color(128, 128, 255), new Color(128, 255, 128),
+			new Color(255, 128, 255), new Color(128, 255, 255) };
 
 	private CanvasUtils() {
+	}
+
+	public static List<HighlightCondition> createCategorialHighlighting(
+			Collection<? extends Element> elements, String property) {
+		Set<Object> categories = new LinkedHashSet<>();
+
+		for (Element element : elements) {
+			Object value = element.getProperties().get(property);
+
+			if (value != null) {
+				categories.add(value);
+			}
+		}
+
+		List<Object> categoryList = new ArrayList<>(categories);
+
+		sortObjectList(categoryList);
+
+		List<HighlightCondition> conditions = new ArrayList<>();
+		int index = 0;
+
+		for (Object category : categoryList) {
+			Color color = COLORS[index % COLORS.length];
+			LogicalHighlightCondition condition = new LogicalHighlightCondition(
+					property, LogicalHighlightCondition.EQUAL_TYPE,
+					category.toString());
+
+			conditions.add(new AndOrHighlightCondition(condition, property
+					+ " = " + category, true, color, false, false, null));
+			index++;
+		}
+
+		return conditions;
 	}
 
 	public static Rectangle2D getLocationBounds(Collection<LocationNode> nodes) {
@@ -194,23 +244,7 @@ public class CanvasUtils {
 
 		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
 
-		Collections.sort(propertyList, new Comparator<Object>() {
-
-			@Override
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof String && o2 instanceof String) {
-					return ((String) o1).compareTo((String) o2);
-				} else if (o1 instanceof Integer && o2 instanceof Integer) {
-					return ((Integer) o1).compareTo((Integer) o2);
-				} else if (o1 instanceof Double && o2 instanceof Double) {
-					return ((Double) o1).compareTo((Double) o2);
-				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
-					return ((Boolean) o1).compareTo((Boolean) o2);
-				}
-
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
+		sortObjectList(propertyList);
 
 		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent,
 				propertyList);
@@ -872,5 +906,25 @@ public class CanvasUtils {
 		}
 
 		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
+	}
+
+	private static void sortObjectList(List<Object> list) {
+		Collections.sort(list, new Comparator<Object>() {
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof String && o2 instanceof String) {
+					return ((String) o1).compareTo((String) o2);
+				} else if (o1 instanceof Integer && o2 instanceof Integer) {
+					return ((Integer) o1).compareTo((Integer) o2);
+				} else if (o1 instanceof Double && o2 instanceof Double) {
+					return ((Double) o1).compareTo((Double) o2);
+				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+					return ((Boolean) o1).compareTo((Boolean) o2);
+				}
+
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
 	}
 }

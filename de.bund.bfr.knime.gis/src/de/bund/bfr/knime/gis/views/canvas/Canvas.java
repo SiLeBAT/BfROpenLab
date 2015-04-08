@@ -743,6 +743,24 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
+	public void highlightNodeCategoriesItemClicked() {
+		String[] properties = nodeSchema.getMap().keySet()
+				.toArray(new String[0]);
+		String result = (String) JOptionPane.showInputDialog(this,
+				"Select Property with Categories?", "Highlight Categories",
+				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+
+		if (result != null) {
+			HighlightConditionList newHighlighting = new HighlightConditionList(
+					nodeHighlightConditions);
+
+			newHighlighting.getConditions().addAll(
+					CanvasUtils.createCategorialHighlighting(nodes, result));
+			setNodeHighlightConditions(newHighlighting);
+		}
+	}
+
+	@Override
 	public void selectNodesItemClicked() {
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(

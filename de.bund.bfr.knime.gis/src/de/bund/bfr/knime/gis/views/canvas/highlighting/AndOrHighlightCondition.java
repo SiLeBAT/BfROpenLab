@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,12 +45,20 @@ public class AndOrHighlightCondition implements HighlightCondition,
 	private String labelProperty;
 
 	public AndOrHighlightCondition() {
-		this(null, null, true, null, false, false, null);
+		this((LogicalHighlightCondition) null, null, true, null, false, false,
+				null);
 	}
 
 	public AndOrHighlightCondition(AndOrHighlightCondition c) {
 		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible,
 				c.useThickness, c.labelProperty);
+	}
+
+	public AndOrHighlightCondition(LogicalHighlightCondition condition,
+			String name, boolean showInLegend, Color color, boolean invisible,
+			boolean useThickness, String labelProperty) {
+		this(asList(asList(condition)), name, showInLegend, color, invisible,
+				useThickness, labelProperty);
 	}
 
 	public AndOrHighlightCondition(
@@ -193,5 +202,10 @@ public class AndOrHighlightCondition implements HighlightCondition,
 				: "Logical Condition";
 
 		return getName() != null ? getName() : type;
+	}
+
+	@SafeVarargs
+	private static <T> List<T> asList(T... a) {
+		return new ArrayList<>(Arrays.asList(a));
 	}
 }

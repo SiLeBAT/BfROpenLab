@@ -58,6 +58,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	private JMenuItem clearHighlightedEdgesItem;
 	private JMenuItem selectHighlightedNodesItem;
 	private JMenuItem selectHighlightedEdgesItem;
+	private JMenuItem highlightNodeCategoriesItem;
 	private JMenuItem selectNodesItem;
 	private JMenuItem selectEdgesItem;
 	private JMenuItem nodePropertiesItem;
@@ -115,6 +116,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
 			nodeHighlightMenu.add(selectHighlightedNodesItem);
+			nodeHighlightMenu.add(highlightNodeCategoriesItem);
 
 			edgeHighlightMenu.add(highlightEdgesItem);
 			edgeHighlightMenu.add(clearHighlightedEdgesItem);
@@ -135,6 +137,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			nodeHighlightMenu.add(highlightNodesItem);
 			nodeHighlightMenu.add(clearHighlightedNodesItem);
 			nodeHighlightMenu.add(selectHighlightedNodesItem);
+			nodeHighlightMenu.add(highlightNodeCategoriesItem);
 
 			add(nodeHighlightMenu);
 			add(selectNodesItem);
@@ -229,6 +232,10 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			for (ClickListener l : listeners) {
 				l.selectHighlightedEdgesItemClicked();
 			}
+		} else if (e.getSource() == highlightNodeCategoriesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightNodeCategoriesItemClicked();
+			}
 		} else if (e.getSource() == selectNodesItem) {
 			for (ClickListener l : listeners) {
 				l.selectNodesItemClicked();
@@ -320,6 +327,8 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearHighlightedNodesItem.addActionListener(this);
 		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedNodesItem.addActionListener(this);
+		highlightNodeCategoriesItem = new JMenuItem("Add Category Highlighting");
+		highlightNodeCategoriesItem.addActionListener(this);
 
 		highlightEdgesItem = new JMenuItem("Edit");
 		highlightEdgesItem.addActionListener(this);
@@ -388,6 +397,8 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		public void selectHighlightedNodesItemClicked();
 
 		public void selectHighlightedEdgesItemClicked();
+
+		public void highlightNodeCategoriesItemClicked();
 
 		public void selectNodesItemClicked();
 

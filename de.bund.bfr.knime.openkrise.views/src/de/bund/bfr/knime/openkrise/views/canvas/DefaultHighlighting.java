@@ -21,7 +21,6 @@ package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -64,8 +63,8 @@ public class DefaultHighlighting {
 				TracingColumns.WEIGHT, LogicalHighlightCondition.GREATER_TYPE,
 				"0");
 
-		return new AndOrHighlightCondition(asList(asList(weight)), "Outbreak",
-				true, Color.RED, false, false, null);
+		return new AndOrHighlightCondition(weight, "Outbreak", true, Color.RED,
+				false, false, null);
 	}
 
 	private static HighlightCondition createObservedCondition() {
@@ -73,8 +72,8 @@ public class DefaultHighlighting {
 				TracingColumns.OBSERVED, LogicalHighlightCondition.EQUAL_TYPE,
 				"1");
 
-		return new AndOrHighlightCondition(asList(asList(observed)),
-				"Observed", true, Color.GREEN, false, false, null);
+		return new AndOrHighlightCondition(observed, "Observed", true,
+				Color.GREEN, false, false, null);
 	}
 
 	private static HighlightCondition createForwardCondition() {
@@ -82,8 +81,8 @@ public class DefaultHighlighting {
 				TracingColumns.FORWARD, LogicalHighlightCondition.EQUAL_TYPE,
 				"1");
 
-		return new AndOrHighlightCondition(asList(asList(forward)),
-				"Forward Trace", true, Color.ORANGE, false, false, null);
+		return new AndOrHighlightCondition(forward, "Forward Trace", true,
+				Color.ORANGE, false, false, null);
 	}
 
 	private static HighlightCondition createBackwardCondition() {
@@ -91,8 +90,8 @@ public class DefaultHighlighting {
 				TracingColumns.BACKWARD, LogicalHighlightCondition.EQUAL_TYPE,
 				"1");
 
-		return new AndOrHighlightCondition(asList(asList(backward)),
-				"Backward Trace", true, Color.MAGENTA, false, false, null);
+		return new AndOrHighlightCondition(backward, "Backward Trace", true,
+				Color.MAGENTA, false, false, null);
 	}
 
 	private static HighlightCondition createCrossContaminationCondition() {
@@ -100,7 +99,7 @@ public class DefaultHighlighting {
 				TracingColumns.CROSS_CONTAMINATION,
 				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(asList(asList(crossContamination)),
+		return new AndOrHighlightCondition(crossContamination,
 				"Cross Contamination", true, Color.BLACK, false, false, null);
 	}
 
@@ -108,18 +107,13 @@ public class DefaultHighlighting {
 		LogicalHighlightCondition commonLink = new LogicalHighlightCondition(
 				TracingColumns.SCORE, LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(asList(asList(commonLink)),
-				"Common Link", true, Color.YELLOW, false, false, null);
+		return new AndOrHighlightCondition(commonLink, "Common Link", true,
+				Color.YELLOW, false, false, null);
 	}
 
 	private static HighlightCondition createScoreCondition() {
 		return new ValueHighlightCondition(TracingColumns.SCORE,
 				ValueHighlightCondition.VALUE_TYPE, true, "Score", false, null,
 				false, true, null);
-	}
-
-	@SafeVarargs
-	private static <T> List<T> asList(T... a) {
-		return new ArrayList<>(Arrays.asList(a));
 	}
 }
