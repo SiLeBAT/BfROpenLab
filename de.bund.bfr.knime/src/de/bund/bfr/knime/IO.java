@@ -120,7 +120,9 @@ public class IO {
 			return null;
 		}
 
-		return s.replaceAll("\\p{C}", "").replace("\u00A0", "")
+		String cleaned = s.replaceAll("\\p{C}", "").replace("\u00A0", "")
 				.replace("\t", " ").replace("\n", " ").trim();
+
+		return cleaned.isEmpty() ? null : cleaned;
 	}
 }

@@ -98,7 +98,9 @@ public class LogicalHighlightCondition implements Serializable {
 			doubleValue = null;
 		}
 
-		if (value.equalsIgnoreCase("true") || value.equals("1")) {
+		if (value == null) {
+			booleanValue = null;
+		} else if (value.equalsIgnoreCase("true") || value.equals("1")) {
 			booleanValue = true;
 		} else if (value.equalsIgnoreCase("false") || value.equals("0")) {
 			booleanValue = false;
@@ -138,7 +140,9 @@ public class LogicalHighlightCondition implements Serializable {
 			return ((Number) nodeValue).doubleValue() == doubleValue;
 		} else if (nodeValue instanceof String && value != null) {
 			return ((String) nodeValue).equalsIgnoreCase(value);
-		} else if (nodeValue == null) {
+		} else if (nodeValue == null
+				|| (nodeValue instanceof String && ((String) nodeValue)
+						.isEmpty())) {
 			return value == null || value.isEmpty();
 		} else {
 			return false;
