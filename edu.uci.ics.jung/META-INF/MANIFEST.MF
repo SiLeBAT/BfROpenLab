@@ -1,10 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Jung
+Bundle-Name: JUNG
 Bundle-SymbolicName: edu.uci.ics.jung
-Bundle-Version: 2.0.1.20140807
-Bundle-Vendor: Jung Developement Team
-Export-Package: edu.uci.ics.jung.algorithms.blockmodel,
+Bundle-Version: 2.0.1.20150409
+Bundle-Activator: edu.uci.ics.jung.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/collections-generic-4.01.jar,
+ lib/colt-1.2.0.jar,
+ lib/concurrent-1.3.4.jar,
+ lib/stax-api-1.0.1.jar,
+ lib/wstx-asl-3.2.6.jar
+Export-Package: edu.uci.ics.jung,
+ edu.uci.ics.jung.algorithms.blockmodel,
  edu.uci.ics.jung.algorithms.cluster,
  edu.uci.ics.jung.algorithms.filters,
  edu.uci.ics.jung.algorithms.flows,
@@ -26,12 +36,10 @@ Export-Package: edu.uci.ics.jung.algorithms.blockmodel,
  edu.uci.ics.jung.io,
  edu.uci.ics.jung.io.graphml,
  edu.uci.ics.jung.io.graphml.parser,
- edu.uci.ics.jung.samples,
  edu.uci.ics.jung.visualization,
  edu.uci.ics.jung.visualization.annotations,
  edu.uci.ics.jung.visualization.control,
  edu.uci.ics.jung.visualization.decorators,
- edu.uci.ics.jung.visualization.jai,
  edu.uci.ics.jung.visualization.layout,
  edu.uci.ics.jung.visualization.picking,
  edu.uci.ics.jung.visualization.renderers,
@@ -52,17 +60,3 @@ Export-Package: edu.uci.ics.jung.algorithms.blockmodel,
  org.apache.commons.collections15.map,
  org.apache.commons.collections15.multimap,
  org.apache.commons.collections15.set
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: lib/colt-1.2.0.jar,
- lib/concurrent-1.3.4.jar,
- lib/jung-algorithms-2.0.1.jar,
- lib/jung-api-2.0.1.jar,
- lib/jung-graph-impl-2.0.1.jar,
- lib/jung-io-2.0.1.jar,
- lib/jung-jai-2.0.1.jar,
- lib/jung-jai-samples-2.0.1.jar,
- lib/jung-samples-2.0.1.jar,
- lib/jung-visualization-2.0.1.jar,
- lib/stax-api-1.0.1.jar,
- lib/wstx-asl-3.2.6.jar,
- lib/collections-generic-4.01.jar
