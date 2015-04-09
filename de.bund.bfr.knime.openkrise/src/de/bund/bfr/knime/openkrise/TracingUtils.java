@@ -96,34 +96,17 @@ public class TracingUtils {
 	}
 
 	public static Map<String, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			boolean useGis) throws NotConfigurableException {
+			BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
+			throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int latIndex = nodeTable.getSpec().findColumnIndex(
-				GeocodingNodeModel.LATITUDE_COLUMN);
-		int lonIndex = nodeTable.getSpec().findColumnIndex(
-				GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		if (idIndex == -1) {
 			throw new NotConfigurableException("Column \"" + TracingColumns.ID
 					+ "\" is missing");
 		}
 
-		if (useGis) {
-			if (latIndex == -1) {
-				throw new NotConfigurableException("Column \""
-						+ GeocodingNodeModel.LATITUDE_COLUMN + "\" is missing");
-			}
-
-			if (lonIndex == -1) {
-				throw new NotConfigurableException("Column \""
-						+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
-			}
-		}
-
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
-		boolean hasCoordinates = false;
 
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
@@ -138,15 +121,6 @@ public class TracingUtils {
 						+ TracingColumns.ID + " column: " + id);
 			}
 
-			if (useGis) {
-				Double lat = IO.getDouble(row.getCell(latIndex));
-				Double lon = IO.getDouble(row.getCell(lonIndex));
-
-				if (lat != null && lon != null) {
-					hasCoordinates = true;
-				}
-			}
-
 			Map<String, Object> properties = new LinkedHashMap<>();
 
 			TracingUtils
@@ -159,11 +133,6 @@ public class TracingUtils {
 		if (nodes.isEmpty()) {
 			throw new NotConfigurableException(
 					"No valid nodes contained in table");
-		}
-
-		if (useGis && !hasCoordinates) {
-			throw new NotConfigurableException(
-					"No geographic coordinates contained in table");
 		}
 
 		return nodes;

@@ -99,7 +99,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Set<RowKey> skippedTracingRows = new LinkedHashSet<>();
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, false);
+				nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(

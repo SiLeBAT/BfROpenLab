@@ -221,6 +221,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 				.createGraphCanvas();
 		switchButton
 				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
+		switchButton.setEnabled(creator.hasGisCoordinates());
 
 		String warningTable = null;
 

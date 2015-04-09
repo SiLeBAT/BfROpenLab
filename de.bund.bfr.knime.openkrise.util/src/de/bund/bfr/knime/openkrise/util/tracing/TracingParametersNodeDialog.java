@@ -107,7 +107,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema, false);
+				nodeSchema);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);

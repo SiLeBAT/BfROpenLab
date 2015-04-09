@@ -188,6 +188,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 		edgeContainer.close();
 
+		GisType originalGisType = set.getGisType();
+
 		if (set.getGisType() == GisType.SHAPEFILE && shapeTable == null) {
 			set.setGisType(GisType.MAPNIK);
 		}
@@ -196,14 +198,21 @@ public class TracingViewNodeModel extends NodeModel {
 				nodeTable, edgeTable, tracingTable, shapeTable, set);
 		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(),
 				creator.createGraphCanvas());
-		ITracingCanvas<?> gisCanvas = creator.createGisCanvas();
+		ImagePortObject gisImage;
 
-		if (gisCanvas instanceof TracingOsmCanvas) {
-			((TracingOsmCanvas) gisCanvas).loadAllTiles();
+		if (creator.hasGisCoordinates()) {
+			ITracingCanvas<?> gisCanvas = creator.createGisCanvas();
+
+			if (gisCanvas instanceof TracingOsmCanvas) {
+				((TracingOsmCanvas) gisCanvas).loadAllTiles();
+			}
+
+			gisImage = CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas);
+		} else {
+			gisImage = CanvasUtils.getImage(set.isExportAsSvg());
 		}
 
-		ImagePortObject gisImage = CanvasUtils.getImage(set.isExportAsSvg(),
-				gisCanvas);
+		set.setGisType(originalGisType);
 
 		for (RowKey key : creator.getSkippedEdgeRows()) {
 			setWarningMessage("Delivery Table: Row " + key.getString()
