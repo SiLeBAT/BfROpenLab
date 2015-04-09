@@ -30,6 +30,8 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.TransformException;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
@@ -37,6 +39,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
@@ -157,8 +160,11 @@ public class TracingViewCanvasCreator {
 			Double lat = IO.getDouble(row.getCell(latIndex));
 			Double lon = IO.getDouble(row.getCell(lonIndex));
 
-			if (lat != null && lon != null) {
+			try {
+				GisUtils.latLonToViz(lat, lon);
 				return true;
+			} catch (MismatchedDimensionException | TransformException
+					| NullPointerException e) {
 			}
 		}
 
