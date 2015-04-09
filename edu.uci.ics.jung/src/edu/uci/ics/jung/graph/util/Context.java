@@ -6,9 +6,6 @@ package edu.uci.ics.jung.graph.util;
  */
 public class Context<G,E> 
 {
-	@SuppressWarnings("unchecked")
-	private static Context instance = new Context();
-	
 	/**
 	 * The graph element which defines this context.
 	 */
@@ -19,6 +16,11 @@ public class Context<G,E>
 	 */
 	public E element;
 	
+	public Context(G graph, E element) {
+		this.graph = graph;
+		this.element = element;
+	}
+	
 	/**
 	 * Returns an instance of this type for the specified graph and element.
 	 * @param <G> the graph type
@@ -26,9 +28,7 @@ public class Context<G,E>
 	 */
 	@SuppressWarnings("unchecked")
 	public static <G,E> Context<G,E> getInstance(G graph, E element) {
-		instance.graph = graph;
-		instance.element = element;
-		return instance;
+		return new Context<>(graph, element);
 	}
 	
 	@Override
