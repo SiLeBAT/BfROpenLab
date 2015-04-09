@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.regionvisualizer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
@@ -64,7 +65,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
 		updateGisCanvas(false);
-		resized = false;
+		resized = set.getGisSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 			}
 		} catch (InvalidSettingsException e) {
 			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);
-			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",

@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -83,7 +84,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 		set.loadSettings(settings);
 
 		updateSplitPane(false);
-		resized = false;
+		resized = set.getGraphSettings().getCanvasSize() == null
+				|| set.getGisSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -299,9 +301,9 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 			}
 		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
-			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			graphCanvas.setCanvasSize(new Dimension(400, 600));
 			gisCanvas = new RegionCanvas(true, Naming.DEFAULT_NAMING);
-			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel,

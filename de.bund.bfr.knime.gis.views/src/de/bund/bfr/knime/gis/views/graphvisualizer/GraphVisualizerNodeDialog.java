@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
@@ -65,7 +66,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 		set.getGraphSettings().loadSettings(settings);
 
 		updateCanvas(false);
-		resized = false;
+		resized = set.getGraphSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 			canvas = creator.createGraphCanvas();
 		} catch (InvalidSettingsException e) {
 			canvas = new GraphCanvas(true, Naming.DEFAULT_NAMING);
-			canvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",

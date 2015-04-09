@@ -103,7 +103,7 @@ public class GraphSettings extends Settings {
 		fontSize = 12;
 		fontBold = false;
 		editingMode = Mode.PICKING;
-		canvasSize = new Dimension(400, 600);
+		canvasSize = null;
 		selectedNodes = new ArrayList<>();
 		selectedEdges = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
@@ -309,7 +309,6 @@ public class GraphSettings extends Settings {
 
 	public void setToCanvas(Canvas<?> canvas) {
 		canvas.setShowLegend(showLegend);
-		canvas.setCanvasSize(canvasSize);
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
@@ -332,6 +331,10 @@ public class GraphSettings extends Settings {
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+
+		if (canvasSize != null) {
+			canvas.setCanvasSize(canvasSize);
+		}
 
 		if (transform.isValid()) {
 			canvas.setTransform(transform);

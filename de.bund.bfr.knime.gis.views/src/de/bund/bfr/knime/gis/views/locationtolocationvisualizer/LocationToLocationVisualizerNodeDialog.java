@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
@@ -74,7 +75,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 		set.loadSettings(settings);
 
 		updateSplitPane(false);
-		resized = false;
+		resized = set.getGraphSettings().getCanvasSize() == null
+				|| set.getGisSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -225,9 +227,9 @@ public class LocationToLocationVisualizerNodeDialog extends
 			gisCanvas.addCanvasListener(this);
 		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
-			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			graphCanvas.setCanvasSize(new Dimension(400, 600));
 			gisCanvas = new LocationCanvas(true, Naming.DEFAULT_NAMING);
-			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
