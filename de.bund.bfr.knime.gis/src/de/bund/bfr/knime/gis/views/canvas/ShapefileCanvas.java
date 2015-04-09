@@ -35,10 +35,13 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 
+	private boolean regionsTransformed;
+
 	public ShapefileCanvas(List<V> nodes, List<Edge<V>> edges,
 			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
+		regionsTransformed = false;
 	}
 
 	public abstract Collection<RegionNode> getRegions();
@@ -63,11 +66,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	@Override
 	protected void applyTransform() {
 		flushImage();
-
-		for (RegionNode node : getRegions()) {
-			node.setTransform(transform);
-		}
-
+		regionsTransformed = false;
 		viewer.repaint();
 	}
 
@@ -78,6 +77,14 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
+		if (!regionsTransformed) {
+			for (RegionNode node : getRegions()) {
+				node.setTransform(transform);
+			}
+
+			regionsTransformed = true;
+		}
+
 		if (!toSvg) {
 			BufferedImage borderImage = new BufferedImage(
 					getCanvasSize().width, getCanvasSize().height,

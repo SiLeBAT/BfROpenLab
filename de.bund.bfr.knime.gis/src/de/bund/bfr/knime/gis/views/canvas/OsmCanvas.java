@@ -97,11 +97,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	}
 
 	@Override
-	public void resetLayoutItemClicked() {
-		setTransform(Transform.IDENTITY_TRANSFORM);
-	}
-
-	@Override
 	public void tileLoadingFinished(Tile tile, boolean success) {
 		flushImage();
 		viewer.repaint();

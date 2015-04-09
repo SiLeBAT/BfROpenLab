@@ -78,7 +78,7 @@ public class GisSettings extends NodeSettings {
 		editingMode = Mode.PICKING;
 		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
-		canvasSize = new Dimension(400, 600);
+		canvasSize = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -181,7 +181,6 @@ public class GisSettings extends NodeSettings {
 	public void setToCanvas(Canvas<?> canvas,
 			boolean applySelectionAndHighlighting) {
 		canvas.setShowLegend(showLegend);
-		canvas.setCanvasSize(canvasSize);
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
@@ -193,6 +192,12 @@ public class GisSettings extends NodeSettings {
 					nodeHighlightConditions, canvas.getNodeSchema().getMap()
 							.keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
+		}
+
+		if (canvasSize != null) {
+			canvas.setCanvasSize(canvasSize);
+		} else {
+			canvas.setCanvasSize(new Dimension(400, 600));
 		}
 
 		if (transform.isValid()) {

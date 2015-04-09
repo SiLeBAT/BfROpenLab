@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.gisgraphview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -235,9 +236,9 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 			gisCanvas.addCanvasListener(this);
 		} catch (NotConfigurableException e) {
 			graphCanvas = new GraphCanvas(false, TracingUtils.NAMING);
-			graphCanvas.setCanvasSize(set.getGraphSettings().getCanvasSize());
+			graphCanvas.setCanvasSize(new Dimension(400, 600));
 			gisCanvas = new LocationCanvas(true, TracingUtils.NAMING);
-			gisCanvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",

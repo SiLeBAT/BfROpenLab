@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.gisview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -110,7 +111,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 			canvas = creator.createCanvas();
 		} catch (NotConfigurableException e) {
 			canvas = new LocationCanvas(false, TracingUtils.NAMING);
-			canvas.setCanvasSize(set.getGisSettings().getCanvasSize());
+			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
 				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
