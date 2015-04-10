@@ -36,8 +36,6 @@ import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
 import org.hsh.bfr.db.imports.MyImporter;
 import org.hsh.bfr.db.imports.custom.LieferkettenImporterEFSA;
-import org.hsh.bfr.db.imports.custom.MyProzessXMLImporter;
-import org.hsh.bfr.db.imports.custom.MyRisImporter;
 
 /**
  * @author Armin
@@ -61,12 +59,8 @@ public class ImportAction extends AbstractAction {
   public void actionPerformed(ActionEvent e) {
   	String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
 	  JFileChooser fc = new JFileChooser(lastOutDir);
-//	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  
-	  fc.addChoosableFileFilter(new MyProzessXMLImporter());
-	  MyRisImporter myRis = new MyRisImporter();
-	  fc.addChoosableFileFilter(myRis);
-	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME
-	  fc.setFileFilter(myRis);
+//	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
+	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
 	  if (DBKernel.isKrise) {LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);}
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  

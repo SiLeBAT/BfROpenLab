@@ -12,9 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.knime.ext.jep,
  com.jgoodies,
  com.thoughtworks.xstream,
- net.sf.jabref,
- quick.dbtable,
- org.freixas.jcalendar
+ quick.dbtable
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.hsh.bfr.db,
