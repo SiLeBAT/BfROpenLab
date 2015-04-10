@@ -6,4 +6,3 @@ Bundle-Version: 2.0.5
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/quicktable2swing11.jar
 Export-Package: quick.dbtable
-Bundle-Vendor: Quicktable

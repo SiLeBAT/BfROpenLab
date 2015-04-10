@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Graphstream
 Bundle-SymbolicName: org.graphstream
 Bundle-Version: 1.2
-Bundle-Vendor: GraphStream Team
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/gs-algo-1.2.jar,
  lib/gs-core-1.2.jar

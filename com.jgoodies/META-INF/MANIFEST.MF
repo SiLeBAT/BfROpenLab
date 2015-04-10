@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JGoodies
 Bundle-SymbolicName: com.jgoodies
 Bundle-Version: 1.4.0
-Bundle-Vendor: JGoodies
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/jgoodies-common-1.4.0.jar,
  lib/jgoodies-forms-1.6.0.jar,
