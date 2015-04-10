@@ -26,7 +26,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.hsh.bfr.db.DBKernel;
@@ -62,19 +64,21 @@ import de.bund.bfr.knime.IO;
  */
 public class MyKrisenInterfacesNodeModel extends NodeModel {
 
-	
-	static final String PARAM_FILENAME = "filename"; static final String
-	PARAM_LOGIN = "login"; static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_FILENAME = "filename";
+	static final String PARAM_LOGIN = "login";
+	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
-	 
+
 	static final String PARAM_ANONYMIZE = "anonymize";
 	static final String PARAM_RANDOM = "randomgenerator";
 	static final String PARAM_RANDOMNODES = "randomgeneratornodes";
 	static final String PARAM_RANDOMLINKING = "randomgeneratorlinking";
-	
-	private String filename; private String login; private String passwd;
+
+	private String filename;
+	private String login;
+	private String passwd;
 	private boolean override;
-	
+
 	private boolean doAnonymize;
 	private boolean randomGen;
 	private int randomGenNodes, randomGenLinking;
@@ -90,26 +94,29 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		DBKernel.getLocalConn(false);
 		return null;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec) throws Exception {
-	
-		BufferedDataContainer output33Nodes = exec.createDataContainer(getSpec33Nodes());
-		BufferedDataContainer output33Links = exec.createDataContainer(getSpec33Links());
+
+		BufferedDataContainer output33Nodes = null;
+		BufferedDataContainer output33Links = null;
 		BufferedDataContainer deliveryDelivery = exec.createDataContainer(getDataModelSpec());
-				
+
 		if (randomGen) {
 			RandomNetworkGenerator rng = new RandomNetworkGenerator(randomGenNodes, randomGenLinking);
+			output33Nodes = exec.createDataContainer(getSpec33Nodes(null));
+			output33Links = exec.createDataContainer(getSpec33Links(null));
 			rng.getNodes(output33Nodes);
 			rng.getLinks(output33Links);
 			rng.getDeliveryDelivery(deliveryDelivery);
-		}
-		else {
+		} else {
 			Connection conn = override ? getNewLocalConnection(login, passwd, filename) : getLocalConn();
+			output33Nodes = exec.createDataContainer(getSpec33Nodes(conn));
+			output33Links = exec.createDataContainer(getSpec33Links(conn));
 			//if (doAnonymize) doAnonymizeHard(conn);
-		
 
 			String warningMessage = "Starting Plausibility Checks...";
 			System.err.println(warningMessage);
@@ -121,7 +128,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				do {
 					warningMessage = "Dates correct?? In: " + rsp.getInt("ID_In") + " (" + rsp.getInt("Day_In") + "." + rsp.getInt("Month_In") + "." + rsp.getInt("Year_In")
 							+ ") vs. Out: " + rsp.getInt("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out") + "." + rsp.getInt("Year_Out") + ")";
-					System.err.println(warningMessage); this.setWarningMessage(warningMessage);
+					System.err.println(warningMessage);
+					this.setWarningMessage(warningMessage);
 					warningsThere = true;
 				} while (rsp.next());
 			}
@@ -135,7 +143,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 						double out = rsp.getDouble("Amount_Out");
 						if (in > out * 2 || out > in * 2) { // 1.1
 							warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
-							System.err.println(warningMessage); this.setWarningMessage(warningMessage);
+							System.err.println(warningMessage);
+							this.setWarningMessage(warningMessage);
 							warningsThere = true;
 						}
 					}
@@ -148,13 +157,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
 			System.err.println("Starting Nodes33...");
-			//HashSet<Integer> toBeMerged = new HashSet<Integer>();
-			//LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>();
-			// Alle Stationen -> Nodes33
 			ResultSet rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Station"), false);
 			if (rs != null && rs.first()) {
 				int rowNumber = 0;
 				boolean isBVLFormat = false;
+				DataTableSpec spec = output33Nodes.getTableSpec();
 				do {
 					int stationID = rs.getInt("ID");
 					String district = null;
@@ -167,46 +174,44 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					if (isBVLFormat) {
 						district = bll;
 						bll = country;
-						if (zip != null && zip.length() == 4) country = "BE"; else country = "DE";
+						if (zip != null && zip.length() == 4) country = "BE";
+						else country = "DE";
 					}
 					String bl = getBL(bll);
-					String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country) : clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
+					String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country)
+							: clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
 					//if (rs.getObject("Land") != null && clean(rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 					//id2Code.put(stationID, company);
 					RowKey key = RowKey.createRowKey(rowNumber);
-					DataCell[] cells = new DataCell[19];
-					cells[0] = new IntCell(stationID);
-					cells[1] = new StringCell(company);
-					//cells[2] = new StringCell("square"); // circle, square, triangle
-					//cells[3] = new DoubleCell(1.5);
-					//cells[4] = new StringCell("yellow"); // red, yellow
-					cells[2] = (doAnonymize || rs.getObject("Strasse") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Strasse")));
-					cells[3] = (doAnonymize || rs.getObject("Hausnummer") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Hausnummer")));
-					cells[4] = (zip == null) ? DataType.getMissingCell() : new StringCell(zip);
-					cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Ort")));
-					cells[6] = (doAnonymize || district == null) ? DataType.getMissingCell() : new StringCell(district);
-					cells[7] = (doAnonymize || bll == null) ? DataType.getMissingCell() : new StringCell(bll);
-					cells[8] = (doAnonymize || country == null) ? DataType.getMissingCell() : new StringCell(country);
-					cells[9] = (doAnonymize || rs.getObject("VATnumber") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("VATnumber")));
-					cells[10] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Betriebsart")));
+					DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-					cells[11] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle")); // DataType.getMissingCell()
-					cells[12] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumBeginn")));
-					cells[13] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumHoehepunkt")));
-					cells[14] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("DatumEnde")));
+					fillCell(spec, cells, TracingColumns.ID, new IntCell(stationID));
 
-					cells[15] = (rs.getObject("Serial") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Serial")));
-					//if (cp != null) cells[14] = new StringCell(""+cp.intValue());
-					cells[16] = mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-		            cells[17] = mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
-		            cells[18] = mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE;
+					fillCell(spec, cells, TracingColumns.STATION_NODE, new StringCell(company));
+					fillCell(spec, cells, TracingColumns.STATION_NAME, new StringCell(company));
+					fillCell(spec, cells, TracingColumns.STATION_STREET, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Strasse"));
+					fillCell(spec, cells, TracingColumns.STATION_HOUSENO, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Hausnummer"));
+					fillCell(spec, cells, TracingColumns.STATION_ZIP, zip == null ? DataType.getMissingCell() : new StringCell(zip));
+					fillCell(spec, cells, TracingColumns.STATION_CITY, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Ort"));
+					fillCell(spec, cells, TracingColumns.STATION_DISTRICT, doAnonymize || district == null ? DataType.getMissingCell() : new StringCell(district));
+					fillCell(spec, cells, TracingColumns.STATION_COUNTY, doAnonymize || bll == null ? DataType.getMissingCell() : new StringCell(bll));
+					fillCell(spec, cells, TracingColumns.STATION_COUNTRY, doAnonymize || country == null ? DataType.getMissingCell() : new StringCell(country));
+
+					fillCell(spec, cells, TracingColumns.STATION_VAT, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "VATnumber"));
+					fillCell(spec, cells, TracingColumns.STATION_TOB, getDataStringCell(rs, "Betriebsart"));
+					fillCell(spec, cells, TracingColumns.STATION_NUMCASES, getDataIntCell(rs, "AnzahlFaelle"));
+					fillCell(spec, cells, TracingColumns.STATION_DATESTART, getDataStringCell(rs, "DatumBeginn"));
+					fillCell(spec, cells, TracingColumns.STATION_DATEPEAK, getDataStringCell(rs, "DatumHoehepunkt"));
+					fillCell(spec, cells, TracingColumns.STATION_DATEEND, getDataStringCell(rs, "DatumEnde"));
+					fillCell(spec, cells, TracingColumns.STATION_SERIAL, getDataStringCell(rs, "Serial"));
+					fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER, mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADEND, mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
 
 					DataRow outputRow = new DefaultRow(key, cells);
 
 					output33Nodes.addRowToTable(outputRow);
-					//}
 					exec.checkCanceled();
-					//exec.setProgress(rowNumber / 10000, "Adding row " + rowNumber);
 
 					rowNumber++;
 				} while (rs.next());
@@ -218,72 +223,70 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			System.err.println("Starting Links33...");
 			// Alle Lieferungen -> Links33
-			rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen")
-					+ "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog")
-					+ " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID")
-					+ " ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"), false);
+			rs = DBKernel.getResultSet(
+					conn,
+					"SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Lieferungen") + "."
+							+ DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + " LEFT JOIN "
+							+ DBKernel.delimitL("Produktkatalog") + " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "="
+							+ DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + " ORDER BY " + DBKernel.delimitL("Produktkatalog") + "."
+							+ DBKernel.delimitL("ID"), false);
 			if (rs != null && rs.first()) {
 				int rowNumber = 0;
+				DataTableSpec spec = output33Links.getTableSpec();
 				do {
 					int lieferID = rs.getInt("Lieferungen.ID");
 					int id1 = rs.getInt("Produktkatalog.Station");
 					int id2 = rs.getInt("Lieferungen.Empfänger");
-					//if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
-					int from = id1;//id2Code.get(id1);
-					int to = id2;//id2Code.get(id2);
+					int from = id1;
+					int to = id2;
 					RowKey key = RowKey.createRowKey(rowNumber);
-					DataCell[] cells = new DataCell[20];
-					cells[0] = new IntCell(lieferID);
-					cells[1] = new IntCell(from);
-					cells[2] = new IntCell(to);
-					//cells[3] = new StringCell("black"); // black
-					cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Artikelnummer")));
-					cells[4] = (rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Bezeichnung")));
-					cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Prozessierung")));
-					cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("IntendedUse")));
-					cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("ChargenNr")));
-					String mhd = sdfFormat(clean(rs.getString("MHD_day")), clean(rs.getString("MHD_month")), clean(rs.getString("MHD_year")));
-					cells[8] = (mhd == null) ? DataType.getMissingCell() : new StringCell(mhd);
-					String pd = sdfFormat(clean(rs.getString("pd_day")), clean(rs.getString("pd_month")), clean(rs.getString("pd_year")));
-					cells[9] = (pd == null) ? DataType.getMissingCell() : new StringCell(pd);
+					DataCell[] cells = new DataCell[spec.getNumColumns()];
+
+					fillCell(spec, cells, TracingColumns.ID, new IntCell(lieferID));
+					fillCell(spec, cells, TracingColumns.FROM, new IntCell(from));
+					fillCell(spec, cells, TracingColumns.TO, new IntCell(to));
+
+					fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNAME, getDataStringCell(rs, "Bezeichnung"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNUM, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Artikelnummer"));
 					String dd = sdfFormat(clean(rs.getString("Lieferungen.dd_day")), clean(rs.getString("Lieferungen.dd_month")), clean(rs.getString("Lieferungen.dd_year")));
-					cells[10] = (dd == null) ? DataType.getMissingCell() : new StringCell(dd);
+					fillCell(spec, cells, TracingColumns.DELIVERY_DATE, dd == null ? DataType.getMissingCell() : new StringCell(dd));
+					fillCell(spec, cells, TracingColumns.DELIVERY_SERIAL, getDataStringCell(rs, "Lieferungen.Serial"));
+
+					fillCell(spec, cells, TracingColumns.DELIVERY_PROCESSING, getDataStringCell(rs, "Prozessierung"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_USAGE, getDataStringCell(rs, "IntendedUse"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "ChargenNr"));
+					String mhd = sdfFormat(clean(rs.getString("MHD_day")), clean(rs.getString("MHD_month")), clean(rs.getString("MHD_year")));
+					fillCell(spec, cells, TracingColumns.DELIVERY_DATEEXP, mhd == null ? DataType.getMissingCell() : new StringCell(mhd));
+					String pd = sdfFormat(clean(rs.getString("pd_day")), clean(rs.getString("pd_month")), clean(rs.getString("pd_year")));
+					fillCell(spec, cells, TracingColumns.DELIVERY_DATEMANU, pd == null ? DataType.getMissingCell() : new StringCell(pd));
 					Double menge = calcMenge(rs.getObject("Unitmenge"), rs.getObject("UnitEinheit"));
-					cells[11] = menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0); // Menge [kg]
-					cells[12] = new StringCell("Row" + rowNumber);
-
-					cells[13] = (rs.getObject("Lieferungen.Serial") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.Serial")));
-					cells[14] = (rs.getObject("Chargen.OriginCountry") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Chargen.OriginCountry")));
-
-					cells[15] = (rs.getObject("Lieferungen.EndChain") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.EndChain")));
-					cells[16] = (rs.getObject("Lieferungen.Explanation_EndChain") == null) ? DataType.getMissingCell() : new StringCell(
-							clean(rs.getString("Lieferungen.Explanation_EndChain")));
-					cells[17] = (rs.getObject("Lieferungen.Contact_Questions_Remarks") == null) ? DataType.getMissingCell() : new StringCell(
-							clean(rs.getString("Lieferungen.Contact_Questions_Remarks")));
-					cells[18] = (rs.getObject("Lieferungen.Further_Traceback") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Lieferungen.Further_Traceback")));
-					cells[19] = (rs.getObject("Chargen.MicrobioSample") == null) ? DataType.getMissingCell() : new StringCell(clean(rs.getString("Chargen.MicrobioSample")));
+					fillCell(spec, cells, TracingColumns.DELIVERY_AMOUNT, menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ORIGIN, getDataStringCell(rs, "Chargen.OriginCountry"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ENDCHAIN, getDataStringCell(rs, "Lieferungen.EndChain"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ENDCHAINWHY, getDataStringCell(rs, "Lieferungen.Explanation_EndChain"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_REMARKS, getDataStringCell(rs, "Lieferungen.Contact_Questions_Remarks"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_FURTHERTB, getDataStringCell(rs, "Lieferungen.Further_Traceback"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_MICROSAMPLE, getDataStringCell(rs, "Chargen.MicrobioSample"));
 
 					DataRow outputRow = new DefaultRow(key, cells);
 
 					output33Links.addRowToTable(outputRow);
 					rowNumber++;
-					//}
 					exec.checkCanceled();
-					//exec.setProgress(rowNumber / (double)inData[0].getRowCount(), "Adding row " + rowNumber);
 				} while (rs.next());
 			}
 			rs.close();
-			
+
 			int i = 0;
 
 			for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
 				for (int next : delivery.getAllNextIDs()) {
-					deliveryDelivery.addRowToTable(new DefaultRow(i+"", IO.createCell(delivery.getId()), IO.createCell(next)));
+					deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));
 					i++;
 				}
 			}
 		}
-				
+
 		output33Nodes.close();
 		output33Links.close();
 		deliveryDelivery.close();
@@ -293,14 +296,27 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return new BufferedDataTable[] { output33Nodes.getTable(), output33Links.getTable(), deliveryDelivery.getTable() }; // outputWordle.getTable(), outputBurow.getTable(), outputBurowNew.getTable(),
 	}
 
+	private DataCell getDataStringCell(ResultSet rs, String columnname) throws SQLException {
+		return rs.getObject(columnname) == null ? DataType.getMissingCell() : new StringCell(clean(rs.getString(columnname)));
+	}
+
+	private DataCell getDataIntCell(ResultSet rs, String columnname) throws SQLException {
+		return rs.getObject(columnname) == null ? DataType.getMissingCell() : new IntCell(rs.getInt(columnname));
+	}
+
+	private void fillCell(DataTableSpec spec, DataCell[] cells, String columnname, DataCell value) {
+		int index = spec.findColumnIndex(columnname);
+		if (index >= 0) cells[index] = value;
+	}
+
 	private String clean(String s) {
 		if (s == null || s.equalsIgnoreCase("null")) {
 			return null;
 		}
 
-		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "")
-				.replace("\t", " ").trim();
+		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").trim();
 	}
+
 	private String getISO3166_2(String country, String bl) {
 		Locale locale = Locale.ENGLISH;//Locale.GERMAN;
 		for (String code : Locale.getISOCountries()) {
@@ -333,7 +349,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			return year + "-" + month;
 		}
 		return year + "-" + month + "-" + day; // day + "." + month + "." + 
-	}	
+	}
 
 	private Double calcMenge(Object u3, Object bu3) {
 		Double result = null;
@@ -350,64 +366,84 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private DataTableSpec getDataModelSpec() {
 		DataColumnSpec[] spec = new DataColumnSpec[2];
 		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator(TracingColumns.NEXT, IntCell.TYPE).createSpec();		
+		spec[1] = new DataColumnSpecCreator(TracingColumns.NEXT, IntCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
 	}
 
-	/*
-	 * private DataTableSpec getSpecWordle() { DataColumnSpec[] spec = new
-	 * DataColumnSpec[2]; spec[0] = new DataColumnSpecCreator("Words",
-	 * StringCell.TYPE).createSpec(); spec[1] = new
-	 * DataColumnSpecCreator("Weight", IntCell.TYPE).createSpec(); return new
-	 * DataTableSpec(spec); }
-	 */
-	private DataTableSpec getSpec33Nodes() {
-		DataColumnSpec[] spec = new DataColumnSpec[19];
-		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
-		spec[2] = new DataColumnSpecCreator("Street", StringCell.TYPE).createSpec();
-		spec[3] = new DataColumnSpecCreator("HouseNumber", StringCell.TYPE).createSpec();
-		spec[4] = new DataColumnSpecCreator("ZIP", StringCell.TYPE).createSpec();
-		spec[5] = new DataColumnSpecCreator("City", StringCell.TYPE).createSpec();
-		spec[6] = new DataColumnSpecCreator("District", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator("County", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator("Country", StringCell.TYPE).createSpec();
-		spec[9] = new DataColumnSpecCreator("VAT", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator("type of business", StringCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator("Number Cases", IntCell.TYPE).createSpec();
-		spec[12] = new DataColumnSpecCreator("Date start", StringCell.TYPE).createSpec();
-		spec[13] = new DataColumnSpecCreator("Date peak", StringCell.TYPE).createSpec();
-		spec[14] = new DataColumnSpecCreator("Date end", StringCell.TYPE).createSpec();
-		spec[15] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
-	    spec[16] = new DataColumnSpecCreator("SimpleSupplier", BooleanCell.TYPE).createSpec();
-	    spec[17] = new DataColumnSpecCreator("DeadStart", BooleanCell.TYPE).createSpec();
-	    spec[18] = new DataColumnSpecCreator("DeadEnd", BooleanCell.TYPE).createSpec();
-		return new DataTableSpec(spec);
+	private DataTableSpec getSpec33Nodes(Connection conn) {
+		List<DataColumnSpec> columns = new ArrayList<>();
+		columns.add(new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NODE, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_HOUSENO, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_ZIP, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_CITY, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DISTRICT, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTY, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTRY, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SERIAL, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SIMPLESUPPLIER, BooleanCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DEADSTART, BooleanCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DEADEND, BooleanCell.TYPE).createSpec());
+
+		if (containsValues(conn, "Station", "VATnumber")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_VAT, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "Betriebsart")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_TOB, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "AnzahlFaelle")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NUMCASES, IntCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "DatumBeginn")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATESTART, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "DatumHoehepunkt")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEPEAK, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "DatumEnde")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEEND, StringCell.TYPE).createSpec());
+
+		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
-	private DataTableSpec getSpec33Links() {
-		DataColumnSpec[] spec = new DataColumnSpec[20];
-		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator(TracingColumns.FROM, IntCell.TYPE).createSpec();
-		spec[2] = new DataColumnSpecCreator(TracingColumns.TO, IntCell.TYPE).createSpec();
-		spec[3] = new DataColumnSpecCreator("Item Number", StringCell.TYPE).createSpec();
-		spec[4] = new DataColumnSpecCreator("Name", StringCell.TYPE).createSpec();
-		spec[5] = new DataColumnSpecCreator("Processing", StringCell.TYPE).createSpec();
-		spec[6] = new DataColumnSpecCreator("IntendedUse", StringCell.TYPE).createSpec();
-		spec[7] = new DataColumnSpecCreator("Charge Number", StringCell.TYPE).createSpec();
-		spec[8] = new DataColumnSpecCreator("Date Expiration", StringCell.TYPE).createSpec();
-		spec[9] = new DataColumnSpecCreator("Date Manufactoring", StringCell.TYPE).createSpec();
-		spec[10] = new DataColumnSpecCreator(TracingColumns.DELIVERY_DATE, StringCell.TYPE).createSpec();
-		spec[11] = new DataColumnSpecCreator("Amount [kg]", DoubleCell.TYPE).createSpec();
-		spec[12] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
-		spec[13] = new DataColumnSpecCreator("Serial", StringCell.TYPE).createSpec();
-		spec[14] = new DataColumnSpecCreator("OriginCountry", StringCell.TYPE).createSpec();
-		spec[15] = new DataColumnSpecCreator("EndChain", StringCell.TYPE).createSpec();
-		spec[16] = new DataColumnSpecCreator("ExplanationEndChain", StringCell.TYPE).createSpec();
-		spec[17] = new DataColumnSpecCreator("Contact_Questions_Remarks", StringCell.TYPE).createSpec();
-		spec[18] = new DataColumnSpecCreator("FurtherTB", StringCell.TYPE).createSpec();
-		spec[19] = new DataColumnSpecCreator("MicroSample", StringCell.TYPE).createSpec();
-		return new DataTableSpec(spec);
+	private DataTableSpec getSpec33Links(Connection conn) {
+		List<DataColumnSpec> columns = new ArrayList<>();
+		columns.add(new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.TO, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNUM, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATE, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
+
+		if (containsValues(conn, "Produktkatalog", "Prozessierung")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_PROCESSING, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Produktkatalog", "IntendedUse")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_USAGE, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Chargen", "ChargenNr")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Chargen", new String[] { "MHD_day", "MHD_month", "MHD_year" })) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEEXP,
+				StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Chargen", new String[] { "pd_day", "pd_month", "pd_year" })) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEMANU,
+				StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "Unitmenge")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE).createSpec());
+		if (containsValues(conn, "Chargen", "OriginCountry")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "Explanation_EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "Contact_Questions_Remarks")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "Further_Traceback")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Chargen", "MicrobioSample")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
+
+		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
+	}
+
+	private boolean containsValues(Connection conn, String tablename, String columnname) {
+		return containsValues(conn, tablename, new String[] { columnname });
+	}
+
+	private boolean containsValues(Connection conn, String tablename, String[] columnnames) {
+		boolean result = false;
+		if (conn != null) {
+			try {
+				String count = "COUNT(DISTINCT " + DBKernel.delimitL(columnnames[0]) + ")";
+				for (int i = 1; i < columnnames.length; i++) {
+					count += "+COUNT(DISTINCT " + DBKernel.delimitL(columnnames[i]) + ")";
+				}
+				ResultSet rs = DBKernel.getResultSet(conn, "SELECT (" + count + ") FROM " + DBKernel.delimitL(tablename), false);
+				if (rs != null && rs.first() && rs.getInt(1) > 0) result = true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
 	}
 
 	private String getBL(String bl) {
@@ -446,6 +482,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			e.printStackTrace();
 		}
 	}
+
 	private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
 		Connection result = null;
 		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
@@ -474,7 +511,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		//DBKernel.convertEHEC2NewDB("Samen");
 		// evtl. auch: else if (DBKernel.isKrise) { ... nochmal auskommentieren
 		//DBKernel.convertEHEC2NewDB("Cluster");
-		return new DataTableSpec[] { getSpec33Nodes(), getSpec33Links(), getDataModelSpec() }; // getSpecBurow(), null, getSpecWordle(),
+		Connection conn = null;
+		if (!randomGen) {
+			if (override) {
+				try {
+					conn = getNewLocalConnection(login, passwd, filename);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else conn = getLocalConn();
+		}
+		return new DataTableSpec[] { getSpec33Nodes(conn), getSpec33Links(conn), getDataModelSpec() }; // getSpecBurow(), null, getSpecWordle(),
 	}
 
 	/**
@@ -482,14 +529,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-	
+
 		settings.addString(PARAM_FILENAME, filename);
 		settings.addString(PARAM_LOGIN, login);
 		settings.addString(PARAM_PASSWD, passwd);
 		settings.addBoolean(PARAM_OVERRIDE, override);
-		
+
 		settings.addBoolean(PARAM_ANONYMIZE, doAnonymize);
-		
+
 		settings.addBoolean(PARAM_RANDOM, randomGen);
 		settings.addInt(PARAM_RANDOMNODES, randomGenNodes);
 		settings.addInt(PARAM_RANDOMLINKING, randomGenLinking);
@@ -500,12 +547,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-	
-		filename = settings.getString(PARAM_FILENAME); login =
-		settings.getString(PARAM_LOGIN); passwd =
-		settings.getString(PARAM_PASSWD); override =
-		settings.getBoolean(PARAM_OVERRIDE);
-		
+
+		filename = settings.getString(PARAM_FILENAME);
+		login = settings.getString(PARAM_LOGIN);
+		passwd = settings.getString(PARAM_PASSWD);
+		override = settings.getBoolean(PARAM_OVERRIDE);
+
 		doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
 
 		randomGen = settings.getBoolean(PARAM_RANDOM, false);

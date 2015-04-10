@@ -39,5 +39,41 @@ public interface TracingColumns {
 	public static final String CLUSTER_ID = "ClusterID";
 
 	public static final String DELIVERY_DATE = "Date Delivery";
+	
+	
+	public static final String STATION_NODE = "node";
+	public static final String STATION_NAME = "Name";
+	public static final String STATION_STREET = "Street";
+	public static final String STATION_HOUSENO = "HouseNumber";
+	public static final String STATION_ZIP = "ZIP";
+	public static final String STATION_CITY = "City";
+	public static final String STATION_DISTRICT = "District";
+	public static final String STATION_COUNTY = "County";
+	public static final String STATION_COUNTRY = "Country";
+	public static final String STATION_VAT = "VAT";
+	public static final String STATION_TOB = "type of business";
+	public static final String STATION_NUMCASES = "Number Cases";
+	public static final String STATION_DATESTART = "Date start";
+	public static final String STATION_DATEPEAK = "Date peak";
+	public static final String STATION_DATEEND = "Date end";
+	public static final String STATION_SERIAL = "Serial";
+	public static final String STATION_SIMPLESUPPLIER = "SimpleSupplier";
+	public static final String STATION_DEADSTART = "DeadStart";
+	public static final String STATION_DEADEND = "DeadEnd";
 
+	public static final String DELIVERY_ITEMNUM = "Item Number";
+	public static final String DELIVERY_ITEMNAME = "Name";
+	public static final String DELIVERY_PROCESSING = "Processing";
+	public static final String DELIVERY_USAGE = "IntendedUse";
+	public static final String DELIVERY_LOTNUM = "Charge Number";
+	public static final String DELIVERY_DATEEXP = "Date Expiration";
+	public static final String DELIVERY_DATEMANU = "Date Manufactoring";
+	public static final String DELIVERY_AMOUNT = "Amount [kg]";
+	public static final String DELIVERY_SERIAL = "Serial";
+	public static final String DELIVERY_ORIGIN = "OriginCountry";
+	public static final String DELIVERY_ENDCHAIN = "EndChain";
+	public static final String DELIVERY_ENDCHAINWHY = "ExplanationEndChain";
+	public static final String DELIVERY_REMARKS = "Contact_Questions_Remarks";
+	public static final String DELIVERY_FURTHERTB = "FurtherTB";
+	public static final String DELIVERY_MICROSAMPLE = "MicroSample";
 }
