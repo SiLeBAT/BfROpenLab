@@ -19,8 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -65,6 +67,31 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 			image.flush();
 			image = null;
 		}
+	}
+
+	protected void zoomTo(Rectangle2D polygonsBounds, Double zoomStep) {
+		Dimension canvasSize = getCanvasSize();
+		double widthRatio = canvasSize.width / polygonsBounds.getWidth();
+		double heightRatio = canvasSize.height / polygonsBounds.getHeight();
+		double canvasCenterX = canvasSize.width / 2.0;
+		double canvasCenterY = canvasSize.height / 2.0;
+		double polygonCenterX = polygonsBounds.getCenterX();
+		double polygonCenterY = polygonsBounds.getCenterY();
+
+		double scale = Math.min(widthRatio, heightRatio);
+
+		if (zoomStep != null) {
+			int zoom = (int) (Math.log(scale) / Math.log(zoomStep));
+
+			scale = Math.pow(zoomStep, zoom);
+		}
+
+		double scaleX = scale;
+		double scaleY = scale;
+		double translationX = canvasCenterX - polygonCenterX * scaleX;
+		double translationY = canvasCenterY - polygonCenterY * scaleY;
+
+		setTransform(new Transform(scaleX, scaleY, translationX, translationY));
 	}
 
 	protected abstract void paintGis(Graphics g, boolean toSvg);

@@ -24,22 +24,18 @@ import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
-import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
+import org.openstreetmap.gui.jmapviewer.OsmMercator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -59,7 +55,6 @@ import de.bund.bfr.knime.gis.shapecell.ShapeValue;
  */
 public class GisUtils {
 
-	private static final MathTransform LATLON_TO_VIZ = readTransformFromFile();
 	private static final GeometryFactory FACTORY = new GeometryFactory();
 
 	private GisUtils() {
@@ -86,18 +81,44 @@ public class GisUtils {
 				FACTORY);
 	}
 
-	public static Point2D latLonToViz(double lat, double lon)
-			throws MismatchedDimensionException, TransformException {
-		Point p = (Point) JTS.transform(
-				FACTORY.createPoint(new Coordinate(lat, lon)),
-				GisUtils.LATLON_TO_VIZ);
-
-		return new Point2D.Double(p.getX(), p.getY());
+	public static Point2D latLonToViz(double lat, double lon) {
+		return new Point2D.Double(OsmMercator.LonToX(lon, 0),
+				OsmMercator.LatToY(lat, 0));
 	}
 
-	public static MultiPolygon latLonToViz(MultiPolygon poly)
-			throws MismatchedDimensionException, TransformException {
-		return (MultiPolygon) JTS.transform(poly, GisUtils.LATLON_TO_VIZ);
+	public static MultiPolygon latLonToViz(MultiPolygon polygon) {
+		List<Polygon> transformed = new ArrayList<>();
+
+		for (int i = 0; i < polygon.getNumGeometries(); i++) {
+			Polygon poly = (Polygon) polygon.getGeometryN(i);
+			LinearRing exterior = new LinearRing(new CoordinateArraySequence(
+					latLonToViz(poly.getExteriorRing().getCoordinates())),
+					FACTORY);
+			LinearRing[] interior = new LinearRing[poly.getNumInteriorRing()];
+
+			for (int j = 0; j < poly.getNumInteriorRing(); j++) {
+				interior[j] = new LinearRing(
+						new CoordinateArraySequence(latLonToViz(poly
+								.getInteriorRingN(j).getCoordinates())),
+						FACTORY);
+			}
+
+			transformed.add(new Polygon(exterior, interior, FACTORY));
+		}
+
+		return new MultiPolygon(transformed.toArray(new Polygon[0]), FACTORY);
+	}
+
+	private static Coordinate[] latLonToViz(Coordinate[] coordinates) {
+		Coordinate[] transformed = new Coordinate[coordinates.length];
+
+		for (int i = 0; i < coordinates.length; i++) {
+			transformed[i] = new Coordinate(OsmMercator.LonToX(
+					coordinates[i].y, 0), OsmMercator.LatToY(coordinates[i].x,
+					0));
+		}
+
+		return transformed;
 	}
 
 	public static ShapefileDataStore getDataStore(String shpFile)
@@ -245,31 +266,5 @@ public class GisUtils {
 		result[n] = v[0];
 
 		return result;
-	}
-
-	/*
-	 * Is used instead of createTransform, since using createTransform during
-	 * load of node settings resulted in an error on OS X.
-	 */
-	private static MathTransform readTransformFromFile() {
-		try (ObjectInputStream in = new ObjectInputStream(
-				Activator.class
-						.getResourceAsStream("/de/bund/bfr/knime/gis/transform.bin"))) {
-			return (MathTransform) in.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private static MathTransform createTransform() {
-		try {
-			return CRS.findMathTransform(CRS.decode("EPSG:4326"),
-					CRS.decode("EPSG:3857"), true);
-		} catch (FactoryException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 }

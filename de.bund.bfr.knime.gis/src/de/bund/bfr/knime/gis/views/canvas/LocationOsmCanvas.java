@@ -212,7 +212,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		Rectangle2D bounds = CanvasUtils.getLocationBounds(nodes);
 
 		if (bounds != null) {
-			zoomTo(bounds, 2.0, false);
+			zoomTo(bounds, 2.0);
 		} else {
 			super.resetLayoutItemClicked();
 		}

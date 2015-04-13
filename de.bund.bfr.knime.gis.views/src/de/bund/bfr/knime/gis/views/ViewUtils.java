@@ -35,8 +35,6 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -129,14 +127,8 @@ public class ViewUtils {
 			String region = IO.getToCleanString(row.getCell(shapeRegionIndex));
 
 			if (region != null && shape instanceof MultiPolygon) {
-				try {
-					polygonMap.put(region,
-							GisUtils.latLonToViz((MultiPolygon) shape));
-				} catch (MismatchedDimensionException e) {
-					e.printStackTrace();
-				} catch (TransformException e) {
-					e.printStackTrace();
-				}
+				polygonMap.put(region,
+						GisUtils.latLonToViz((MultiPolygon) shape));
 			}
 		}
 
@@ -203,14 +195,10 @@ public class ViewUtils {
 			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
-				try {
-					nodes.add(new RegionNode(index + "",
-							new LinkedHashMap<String, Object>(), GisUtils
-									.latLonToViz((MultiPolygon) shape)));
-					index++;
-				} catch (MismatchedDimensionException | TransformException e) {
-					e.printStackTrace();
-				}
+				nodes.add(new RegionNode(index + "",
+						new LinkedHashMap<String, Object>(), GisUtils
+								.latLonToViz((MultiPolygon) shape)));
+				index++;
 			}
 		}
 
@@ -324,15 +312,7 @@ public class ViewUtils {
 				continue;
 			}
 
-			Point2D p = null;
-
-			try {
-				p = GisUtils.latLonToViz(lat, lon);
-			} catch (MismatchedDimensionException | TransformException e) {
-				e.printStackTrace();
-				continue;
-			}
-
+			Point2D p = GisUtils.latLonToViz(lat, lon);
 			Map<String, Object> properties = new LinkedHashMap<>();
 
 			ViewUtils.addToProperties(properties, nodeProperties, nodeTable,

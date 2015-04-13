@@ -198,7 +198,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 					.hasNext();) {
 				LocationNode node = iterator.next();
 				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-						bounds.getMaxY() + 2 * d);
+						bounds.getMaxY() - 2 * d);
 
 				node.updateCenter(p);
 				viewer.getGraphLayout().setLocation(node, p);
@@ -217,7 +217,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		Rectangle2D bounds = CanvasUtils.getLocationBounds(nodes);
 
 		if (bounds != null) {
-			zoomTo(bounds, null, true);
+			zoomTo(bounds, null);
 		} else {
 			super.resetLayoutItemClicked();
 		}

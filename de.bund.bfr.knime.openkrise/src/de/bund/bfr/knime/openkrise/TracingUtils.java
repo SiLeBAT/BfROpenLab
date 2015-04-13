@@ -39,8 +39,6 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -186,12 +184,8 @@ public class TracingUtils {
 
 			if (lat != null && lon != null) {
 				if (transformLatLonToViz) {
-					try {
-						center = GisUtils.latLonToViz(lat, lon);
-						hasCoordinates = true;
-					} catch (MismatchedDimensionException | TransformException e) {
-						throw new NotConfigurableException(e.getMessage());
-					}
+					center = GisUtils.latLonToViz(lat, lon);
+					hasCoordinates = true;
 				} else {
 					center = new Point2D.Double(lon, lat);
 					hasCoordinates = true;
@@ -364,14 +358,10 @@ public class TracingUtils {
 				continue;
 			}
 
-			try {
-				nodes.add(new RegionNode(index + "",
-						new LinkedHashMap<String, Object>(), GisUtils
-								.latLonToViz((MultiPolygon) shape)));
-				index++;
-			} catch (MismatchedDimensionException | TransformException e) {
-				throw new NotConfigurableException(e.getMessage());
-			}
+			nodes.add(new RegionNode(index + "",
+					new LinkedHashMap<String, Object>(), GisUtils
+							.latLonToViz((MultiPolygon) shape)));
+			index++;
 		}
 
 		if (nodes.isEmpty()) {
