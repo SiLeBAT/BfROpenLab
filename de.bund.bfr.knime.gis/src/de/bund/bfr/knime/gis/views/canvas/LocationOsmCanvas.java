@@ -22,21 +22,25 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
 
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
@@ -45,7 +49,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Rectangle2D invalidArea;
+	private com.vividsolutions.jts.geom.Polygon invalidArea;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(),
@@ -78,6 +82,9 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 						new LinkedHashMap<LocationNode, Double>()));
 
 		List<LocationNode> validNodes = new ArrayList<>();
+		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
+		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
+		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
@@ -88,29 +95,115 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 				node.updateCenter(center);
 				viewer.getGraphLayout().setLocation(node, center);
 				validNodes.add(node);
+			} else {
+				invalidNodes.add(node);
+				invalidToValid.put(node, new LinkedHashSet<LocationNode>());
+				invalidToInvalid.put(node, new LinkedHashSet<LocationNode>());
 			}
 		}
 
-		if (validNodes.size() != this.nodes.size()) {
+		for (Edge<LocationNode> edge : this.edges) {
+			if (edge.getFrom() == edge.getTo()) {
+				continue;
+			}
+
+			if (invalidNodes.contains(edge.getFrom())) {
+				if (invalidNodes.contains(edge.getTo())) {
+					invalidToInvalid.get(edge.getFrom()).add(edge.getTo());
+				} else {
+					invalidToValid.get(edge.getFrom()).add(edge.getTo());
+				}
+			}
+
+			if (invalidNodes.contains(edge.getTo())) {
+				if (invalidNodes.contains(edge.getFrom())) {
+					invalidToInvalid.get(edge.getTo()).add(edge.getFrom());
+				} else {
+					invalidToValid.get(edge.getTo()).add(edge.getFrom());
+				}
+			}
+		}
+
+		if (!invalidNodes.isEmpty()) {
 			Rectangle2D bounds = CanvasUtils.getLocationBounds(validNodes);
-			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.1;
+			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.02;
 
 			if (d == 0.0) {
 				d = 1.0;
 			}
 
-			Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-					bounds.getMinY() - 2 * d);
+			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(
+					bounds.getX() - d, bounds.getY() - d, bounds.getWidth() + 2
+							* d, bounds.getHeight() + 2 * d), 2 * d);
 
-			for (LocationNode node : this.nodes) {
-				if (node.getCenter() == null) {
+			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - 2 * d,
+					bounds.getY() - 2 * d, bounds.getWidth() + 4 * d,
+					bounds.getHeight() + 4 * d);
+			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
+
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+					.hasNext();) {
+				LocationNode node = iterator.next();
+				Set<LocationNode> validConnections = invalidToValid.get(node);
+
+				if (!validConnections.isEmpty()) {
+					List<Point2D> points = new ArrayList<>();
+
+					for (LocationNode n : validConnections) {
+						points.add(n.getCenter());
+					}
+
+					Point2D p = CanvasUtils.getClosestPointOnRect(
+							CanvasUtils.getCenter(points), rect);
+
 					node.updateCenter(p);
 					viewer.getGraphLayout().setLocation(node, p);
+					iterator.remove();
 				}
 			}
 
-			invalidArea = new Rectangle2D.Double(bounds.getMinX() - 3 * d,
-					bounds.getMinY() - 3 * d, 2 * d, 2 * d);
+			while (true) {
+				boolean nothingChanged = true;
+
+				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+						.hasNext();) {
+					LocationNode node = iterator.next();
+					Set<LocationNode> inValidConnections = invalidToInvalid
+							.get(node);
+					List<Point2D> points = new ArrayList<>();
+
+					for (LocationNode n : inValidConnections) {
+						if (n.getCenter() != null) {
+							points.add(n.getCenter());
+						}
+					}
+
+					if (!points.isEmpty()) {
+						Point2D p = CanvasUtils.getClosestPointOnRect(
+								CanvasUtils.getCenter(points), rect);
+
+						node.updateCenter(p);
+						viewer.getGraphLayout().setLocation(node, p);
+						iterator.remove();
+						nothingChanged = false;
+					}
+				}
+
+				if (nothingChanged) {
+					break;
+				}
+			}
+
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+					.hasNext();) {
+				LocationNode node = iterator.next();
+				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
+						bounds.getMaxY() - 2 * d);
+
+				node.updateCenter(p);
+				viewer.getGraphLayout().setLocation(node, p);
+				iterator.remove();
+			}
 		}
 	}
 
@@ -130,16 +223,14 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		super.paintGis(g, toSvg);
 
 		if (invalidArea != null) {
-			Rectangle transformed = transform.apply(invalidArea);
+			Polygon transformed = transform.apply(invalidArea, true);
 
 			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
 					Arrays.asList(Color.RED, Color.WHITE),
 					Arrays.asList(1.0, 1.0)));
-			g.fillRect(transformed.x, transformed.y, transformed.width,
-					transformed.height);
+			g.fillPolygon(transformed);
 			g.setColor(Color.BLACK);
-			g.drawRect(transformed.x, transformed.y, transformed.width,
-					transformed.height);
+			g.drawPolygon(transformed);
 		}
 	}
 

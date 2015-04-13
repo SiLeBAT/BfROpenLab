@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -285,6 +286,27 @@ public class CanvasUtils {
 		y /= points.size();
 
 		return new Point2D.Double(x, y);
+	}
+
+	public static Point2D getClosestPointOnRect(Point2D pointInRect,
+			Rectangle2D rect) {
+		Double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
+		Double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
+		Double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
+		Double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
+		Double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
+
+		if (dx1 == min) {
+			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
+		} else if (dx2 == min) {
+			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
+		} else if (dy1 == min) {
+			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
+		} else if (dy2 == min) {
+			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
+		}
+
+		throw new RuntimeException("This should not happen");
 	}
 
 	public static String toRangeString(Point2D p) {

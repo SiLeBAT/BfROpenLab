@@ -44,9 +44,11 @@ import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -61,6 +63,27 @@ public class GisUtils {
 	private static final GeometryFactory FACTORY = new GeometryFactory();
 
 	private GisUtils() {
+	}
+
+	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
+		CoordinateArraySequence outerRing = new CoordinateArraySequence(
+				new Coordinate[] {
+						new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
+						new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
+						new Coordinate(rect.getMaxX() + d, rect.getMaxY() + d),
+						new Coordinate(rect.getMinX() - d, rect.getMaxY() + d),
+						new Coordinate(rect.getMinX() - d, rect.getMinY() - d) });
+		CoordinateArraySequence innerRing = new CoordinateArraySequence(
+				new Coordinate[] {
+						new Coordinate(rect.getMinX(), rect.getMinY()),
+						new Coordinate(rect.getMaxX(), rect.getMinY()),
+						new Coordinate(rect.getMaxX(), rect.getMaxY()),
+						new Coordinate(rect.getMinX(), rect.getMaxY()),
+						new Coordinate(rect.getMinX(), rect.getMinY()) });
+
+		return new Polygon(new LinearRing(outerRing, FACTORY),
+				new LinearRing[] { new LinearRing(innerRing, FACTORY) },
+				FACTORY);
 	}
 
 	public static Point2D latLonToViz(double lat, double lon)

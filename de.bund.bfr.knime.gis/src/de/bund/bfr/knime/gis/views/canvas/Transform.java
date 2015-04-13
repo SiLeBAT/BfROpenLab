@@ -21,10 +21,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,36 +98,34 @@ public class Transform {
 		for (int index = 0; index < polygon.getNumGeometries(); index++) {
 			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
 					.getGeometryN(index);
-			Coordinate[] points;
 
-			if (withHoles) {
-				points = part.getCoordinates();
-			} else {
-				points = part.getExteriorRing().getCoordinates();
-			}
-
-			int n = points.length;
-			int[] xs = new int[n];
-			int[] ys = new int[n];
-
-			for (int i = 0; i < n; i++) {
-				Point p = apply(points[i].x, points[i].y);
-
-				xs[i] = p.x;
-				ys[i] = p.y;
-			}
-
-			transformedPolygon.add(new Polygon(xs, ys, n));
+			transformedPolygon.add(apply(part, withHoles));
 		}
 
 		return transformedPolygon;
 	}
 
-	public Rectangle apply(Rectangle2D rect) {
-		Point p1 = apply(rect.getX(), rect.getY());
-		Point p2 = apply(rect.getMaxX(), rect.getMaxY());
+	public Polygon apply(com.vividsolutions.jts.geom.Polygon part,
+			boolean withHoles) {
+		Coordinate[] points;
 
-		return new Rectangle(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y),
-				Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y));
+		if (withHoles) {
+			points = part.getCoordinates();
+		} else {
+			points = part.getExteriorRing().getCoordinates();
+		}
+
+		int n = points.length;
+		int[] xs = new int[n];
+		int[] ys = new int[n];
+
+		for (int i = 0; i < n; i++) {
+			Point p = apply(points[i].x, points[i].y);
+
+			xs[i] = p.x;
+			ys[i] = p.y;
+		}
+
+		return new Polygon(xs, ys, n);
 	}
 }
