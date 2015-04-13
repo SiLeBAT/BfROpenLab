@@ -37,6 +37,7 @@ import java.net.URLConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.StringTokenizer;
@@ -1288,6 +1289,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						ib.setVisible(true);
 					}
 				} catch (Exception e) {
+					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e) + "\n\n";
 					MyLogger.handleException(e);
 				}
 				System.err.println("Importing - Fin");
@@ -1299,9 +1301,20 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
+			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e) + "\n\n";
 			MyLogger.handleException(e);
 		}
 		return "";
+	}
+	private String getST(Exception e) {
+		StackTraceElement[] ste = e.getStackTrace();
+		String strs = "";
+		if (ste != null) {
+			for (StackTraceElement stres : ste) {
+				strs += stres + "\n";
+			}
+		}
+		return strs;
 	}
 
 	private boolean is1SurelyNewer(int deliveryId1, int deliveryId2) {
