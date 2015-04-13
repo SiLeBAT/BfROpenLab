@@ -38,6 +38,7 @@ public class RegionNode extends Node {
 	private Rectangle2D boundingBox;
 
 	private List<Polygon> transformedPolygon;
+	private List<Polygon> transformedPolygonWithHoles;
 
 	public RegionNode(String id, Map<String, Object> properties,
 			MultiPolygon polygon) {
@@ -45,6 +46,8 @@ public class RegionNode extends Node {
 		this.polygon = polygon;
 		center = GisUtils.getCenter(polygon);
 		boundingBox = GisUtils.getBoundingBox(polygon);
+		transformedPolygon = null;
+		transformedPolygonWithHoles = null;
 	}
 
 	public MultiPolygon getPolygon() {
@@ -63,8 +66,16 @@ public class RegionNode extends Node {
 		return transformedPolygon;
 	}
 
-	public void setTransform(Transform transform) {
-		transformedPolygon = transform.apply(polygon);
+	public List<Polygon> getTransformedPolygonWithHoles() {
+		return transformedPolygonWithHoles;
+	}
+
+	public void createTransformedPolygons(Transform transform) {
+		transformedPolygon = transform.apply(polygon, false);
+	}
+
+	public void createTransformedPolygonsWithHoles(Transform transform) {
+		transformedPolygonWithHoles = transform.apply(polygon, true);
 	}
 
 	public boolean containsPoint(Point2D point) {

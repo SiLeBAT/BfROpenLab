@@ -94,13 +94,20 @@ public class Transform {
 				(y - translationY) / scaleY);
 	}
 
-	public List<Polygon> apply(MultiPolygon polygon) {
+	public List<Polygon> apply(MultiPolygon polygon, boolean withHoles) {
 		List<Polygon> transformedPolygon = new ArrayList<>();
 
 		for (int index = 0; index < polygon.getNumGeometries(); index++) {
 			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
 					.getGeometryN(index);
-			Coordinate[] points = part.getExteriorRing().getCoordinates();
+			Coordinate[] points;
+
+			if (withHoles) {
+				points = part.getCoordinates();
+			} else {
+				points = part.getExteriorRing().getCoordinates();
+			}
+
 			int n = points.length;
 			int[] xs = new int[n];
 			int[] ys = new int[n];

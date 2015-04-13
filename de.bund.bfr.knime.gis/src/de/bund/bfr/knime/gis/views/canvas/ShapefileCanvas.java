@@ -65,7 +65,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		flushImage();
 
 		for (RegionNode node : getRegions()) {
-			node.setTransform(transform);
+			node.createTransformedPolygons(transform);
 		}
 
 		viewer.repaint();

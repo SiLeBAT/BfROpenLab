@@ -105,6 +105,15 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	}
 
 	@Override
+	protected void applyTransform() {
+		for (RegionNode node : getRegions()) {
+			node.createTransformedPolygonsWithHoles(transform);
+		}
+
+		super.applyTransform();
+	}
+
+	@Override
 	public void applyChanges() {
 		flushImage();
 		super.applyChanges();
@@ -128,7 +137,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		for (RegionNode node : viewer.getPickedVertexState().getPicked()) {
 			g.setColor(Color.BLUE);
 
-			for (Polygon part : node.getTransformedPolygon()) {
+			for (Polygon part : node.getTransformedPolygonWithHoles()) {
 				g.fillPolygon(part);
 			}
 		}
@@ -167,7 +176,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 					&& !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);
 
-				for (Polygon part : node.getTransformedPolygon()) {
+				for (Polygon part : node.getTransformedPolygonWithHoles()) {
 					g.fillPolygon(part);
 				}
 			}
