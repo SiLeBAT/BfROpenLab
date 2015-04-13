@@ -75,7 +75,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	private JButton resetFilterButton;
 	private JCheckBox exportAsSvgBox;
 	private JButton switchButton;
-	private JComboBox<TracingViewSettings.GisType> gisBox;
+	private JComboBox<GisType> gisBox;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -92,7 +92,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		switchButton = new JButton();
 		switchButton.addActionListener(this);
-		gisBox = new JComboBox<>(TracingViewSettings.GisType.values());
+		gisBox = new JComboBox<>();
 		gisBox.addItemListener(this);
 
 		JPanel northPanel = new JPanel();
@@ -121,13 +121,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.loadSettings(settings);
 
 		gisBox.removeItemListener(this);
+		gisBox.removeAllItems();
 
-		if (shapeTable == null) {
-			if (set.getGisType() == TracingViewSettings.GisType.SHAPEFILE) {
-				set.setGisType(TracingViewSettings.GisType.MAPNIK);
+		for (GisType type : TracingViewSettings.GisType.values()) {
+			if (shapeTable != null || type != GisType.SHAPEFILE) {
+				gisBox.addItem(type);
 			}
+		}
 
-			gisBox.removeItem(TracingViewSettings.GisType.SHAPEFILE);
+		if (shapeTable == null && set.getGisType() == GisType.SHAPEFILE) {
+			set.setGisType(GisType.MAPNIK);
 		}
 
 		gisBox.setSelectedItem(set.getGisType());
