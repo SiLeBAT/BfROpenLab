@@ -63,7 +63,9 @@ import org.w3c.dom.svg.SVGDocument;
 import com.google.common.base.Joiner;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
+import com.vividsolutions.jts.geom.Polygon;
 
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -80,6 +82,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -107,6 +110,189 @@ public class CanvasUtils {
 			new Color(255, 128, 255), new Color(128, 255, 255) };
 
 	private CanvasUtils() {
+	}
+
+	public static Polygon placeLocationNodes(Collection<LocationNode> nodes,
+			Collection<Edge<LocationNode>> edges,
+			Layout<LocationNode, Edge<LocationNode>> layout) {
+		Polygon invalidArea = null;
+
+		Set<LocationNode> validNodes = new LinkedHashSet<>();
+		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
+		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
+		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
+
+		for (LocationNode node : nodes) {
+			if (node.getCenter() != null) {
+				layout.setLocation(node, node.getCenter());
+				validNodes.add(node);
+			} else {
+				invalidNodes.add(node);
+				invalidToValid.put(node, new LinkedHashSet<LocationNode>());
+				invalidToInvalid.put(node, new LinkedHashSet<LocationNode>());
+			}
+		}
+
+		for (Edge<LocationNode> edge : edges) {
+			if (edge.getFrom() == edge.getTo()) {
+				continue;
+			}
+
+			if (invalidNodes.contains(edge.getFrom())) {
+				if (invalidNodes.contains(edge.getTo())) {
+					invalidToInvalid.get(edge.getFrom()).add(edge.getTo());
+				} else {
+					invalidToValid.get(edge.getFrom()).add(edge.getTo());
+				}
+			}
+
+			if (invalidNodes.contains(edge.getTo())) {
+				if (invalidNodes.contains(edge.getFrom())) {
+					invalidToInvalid.get(edge.getTo()).add(edge.getFrom());
+				} else {
+					invalidToValid.get(edge.getTo()).add(edge.getFrom());
+				}
+			}
+		}
+
+		if (!invalidNodes.isEmpty()) {
+			Rectangle2D bounds = CanvasUtils.getLocationBounds(validNodes);
+			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.02;
+
+			if (d == 0.0) {
+				d = 1.0;
+			}
+
+			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(
+					bounds.getX() - d, bounds.getY() - d, bounds.getWidth() + 2
+							* d, bounds.getHeight() + 2 * d), 2 * d);
+
+			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - 2 * d,
+					bounds.getY() - 2 * d, bounds.getWidth() + 4 * d,
+					bounds.getHeight() + 4 * d);
+			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
+
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+					.hasNext();) {
+				LocationNode node = iterator.next();
+				Set<LocationNode> validConnections = invalidToValid.get(node);
+
+				if (!validConnections.isEmpty()) {
+					List<Point2D> points = new ArrayList<>();
+
+					for (LocationNode n : validConnections) {
+						points.add(n.getCenter());
+					}
+
+					Point2D p = CanvasUtils.getClosestPointOnRect(
+							CanvasUtils.getCenter(points), rect);
+
+					node.updateCenter(p);
+					layout.setLocation(node, p);
+					iterator.remove();
+				}
+			}
+
+			while (true) {
+				boolean nothingChanged = true;
+
+				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+						.hasNext();) {
+					LocationNode node = iterator.next();
+					Set<LocationNode> inValidConnections = invalidToInvalid
+							.get(node);
+					List<Point2D> points = new ArrayList<>();
+
+					for (LocationNode n : inValidConnections) {
+						if (n.getCenter() != null) {
+							points.add(n.getCenter());
+						}
+					}
+
+					if (!points.isEmpty()) {
+						Point2D p = CanvasUtils.getClosestPointOnRect(
+								CanvasUtils.getCenter(points), rect);
+
+						node.updateCenter(p);
+						layout.setLocation(node, p);
+						iterator.remove();
+						nothingChanged = false;
+					}
+				}
+
+				if (nothingChanged) {
+					break;
+				}
+			}
+
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
+					.hasNext();) {
+				LocationNode node = iterator.next();
+				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
+						bounds.getMaxY() - 2 * d);
+
+				node.updateCenter(p);
+				layout.setLocation(node, p);
+				iterator.remove();
+			}
+		}
+
+		return invalidArea;
+	}
+
+	public static void paintNonLatLonArea(Graphics g, int w, int h,
+			java.awt.Polygon invalidArea) {
+		BufferedImage invalidAreaImage = new BufferedImage(w, h,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics imgGraphics = invalidAreaImage.getGraphics();
+
+		((Graphics2D) imgGraphics)
+				.setPaint(CanvasUtils.mixColors(Color.WHITE,
+						Arrays.asList(Color.RED, Color.WHITE),
+						Arrays.asList(1.0, 1.0)));
+		imgGraphics.fillPolygon(invalidArea);
+		imgGraphics.setColor(Color.BLACK);
+		imgGraphics.drawPolygon(invalidArea);
+
+		float[] edgeScales = { 1f, 1f, 1f, 0.3f };
+		float[] edgeOffsets = new float[4];
+
+		((Graphics2D) g).drawImage(invalidAreaImage, new RescaleOp(edgeScales,
+				edgeOffsets, null), 0, 0);
+	}
+
+	public static LocationNode createLocationMetaNode(String id,
+			Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
+			String metaNodeProperty,
+			Layout<LocationNode, Edge<LocationNode>> layout) {
+		Map<String, Object> properties = new LinkedHashMap<>();
+
+		for (LocationNode node : nodes) {
+			CanvasUtils.addMapToMap(properties, nodeSchema,
+					node.getProperties());
+		}
+
+		properties.put(nodeSchema.getId(), id);
+		properties.put(metaNodeProperty, true);
+		properties.put(nodeSchema.getLatitude(), null);
+		properties.put(nodeSchema.getLongitude(), null);
+
+		List<Double> xList = new ArrayList<Double>();
+		List<Double> yList = new ArrayList<Double>();
+
+		for (LocationNode node : nodes) {
+			xList.add(node.getCenter().getX());
+			yList.add(node.getCenter().getY());
+		}
+
+		double x = DoubleMath.mean(Doubles.toArray(xList));
+		double y = DoubleMath.mean(Doubles.toArray(yList));
+		LocationNode newNode = new LocationNode(id, properties,
+				new Point2D.Double(x, y));
+
+		layout.setLocation(newNode, newNode.getCenter());
+
+		return newNode;
 	}
 
 	public static List<HighlightCondition> createCategorialHighlighting(
