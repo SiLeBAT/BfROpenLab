@@ -81,9 +81,9 @@ public class GisUtils {
 				FACTORY);
 	}
 
-	public static Point2D latLonToViz(double lat, double lon) {
-		return new Point2D.Double(OsmMercator.LonToX(lon, 0),
-				OsmMercator.LatToY(lat, 0));
+	public static Point2D latLonToViz(Point2D latLon) {
+		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0),
+				OsmMercator.LatToY(latLon.getX(), 0));
 	}
 
 	public static MultiPolygon latLonToViz(MultiPolygon polygon) {

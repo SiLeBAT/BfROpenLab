@@ -30,7 +30,7 @@ public class LocationNode extends Node {
 	public LocationNode(String id, Map<String, Object> properties,
 			Point2D center) {
 		super(id, properties);
-		this.center = center;
+		updateCenter(center);
 	}
 
 	public Point2D getCenter() {

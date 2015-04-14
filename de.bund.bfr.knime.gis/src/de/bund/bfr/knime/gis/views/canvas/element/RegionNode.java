@@ -43,15 +43,19 @@ public class RegionNode extends Node {
 	public RegionNode(String id, Map<String, Object> properties,
 			MultiPolygon polygon) {
 		super(id, properties);
+		updatePolygon(polygon);
+	}
+
+	public MultiPolygon getPolygon() {
+		return polygon;
+	}
+
+	public void updatePolygon(MultiPolygon polygon) {
 		this.polygon = polygon;
 		center = GisUtils.getCenter(polygon);
 		boundingBox = GisUtils.getBoundingBox(polygon);
 		transformedPolygon = null;
 		transformedPolygonWithHoles = null;
-	}
-
-	public MultiPolygon getPolygon() {
-		return polygon;
 	}
 
 	public Point2D getCenter() {

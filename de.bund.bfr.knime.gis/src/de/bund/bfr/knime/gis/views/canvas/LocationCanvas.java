@@ -88,6 +88,16 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 
+		for (LocationNode node : this.nodes) {
+			if (node.getCenter() != null) {
+				node.updateCenter(GisUtils.latLonToViz(node.getCenter()));
+			}
+		}
+
+		for (RegionNode region : this.regions) {
+			region.updatePolygon(GisUtils.latLonToViz(region.getPolygon()));
+		}
+
 		Set<LocationNode> validNodes = new LinkedHashSet<>();
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
 		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();

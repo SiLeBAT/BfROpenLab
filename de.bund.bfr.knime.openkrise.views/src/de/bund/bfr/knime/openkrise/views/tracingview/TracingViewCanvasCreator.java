@@ -188,8 +188,7 @@ public class TracingViewCanvasCreator {
 	public ITracingCanvas<?> createGisCanvas() throws NotConfigurableException {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, invalidRows, false,
-				set.getGisType() == GisType.SHAPEFILE);
+				nodeTable, nodeSchema, invalidRows, false);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(

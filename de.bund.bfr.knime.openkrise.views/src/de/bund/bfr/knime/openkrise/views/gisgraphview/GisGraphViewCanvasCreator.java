@@ -91,7 +91,7 @@ public class GisGraphViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, new LinkedHashSet<RowKey>(), true, true);
+				nodeTable, nodeSchema, new LinkedHashSet<RowKey>(), true);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
 				edgeSchema, nodes, new LinkedHashSet<RowKey>());
 		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,

@@ -138,8 +138,8 @@ public class TracingUtils {
 
 	public static Map<String, LocationNode> readLocationNodes(
 			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			Set<RowKey> invalidRows, boolean skipInvalid,
-			boolean transformLatLonToViz) throws NotConfigurableException {
+			Set<RowKey> invalidRows, boolean skipInvalid)
+			throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int latIndex = nodeTable.getSpec().findColumnIndex(
 				GeocodingNodeModel.LATITUDE_COLUMN);
@@ -183,13 +183,8 @@ public class TracingUtils {
 			Point2D center = null;
 
 			if (lat != null && lon != null) {
-				if (transformLatLonToViz) {
-					center = GisUtils.latLonToViz(lat, lon);
-					hasCoordinates = true;
-				} else {
-					center = new Point2D.Double(lon, lat);
-					hasCoordinates = true;
-				}
+				center = new Point2D.Double(lat, lon);
+				hasCoordinates = true;
 			} else {
 				invalidRows.add(row.getKey());
 
@@ -359,8 +354,7 @@ public class TracingUtils {
 			}
 
 			nodes.add(new RegionNode(index + "",
-					new LinkedHashMap<String, Object>(), GisUtils
-							.latLonToViz((MultiPolygon) shape)));
+					new LinkedHashMap<String, Object>(), (MultiPolygon) shape));
 			index++;
 		}
 

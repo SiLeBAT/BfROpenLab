@@ -127,8 +127,7 @@ public class ViewUtils {
 			String region = IO.getToCleanString(row.getCell(shapeRegionIndex));
 
 			if (region != null && shape instanceof MultiPolygon) {
-				polygonMap.put(region,
-						GisUtils.latLonToViz((MultiPolygon) shape));
+				polygonMap.put(region, (MultiPolygon) shape);
 			}
 		}
 
@@ -196,8 +195,8 @@ public class ViewUtils {
 
 			if (shape instanceof MultiPolygon) {
 				nodes.add(new RegionNode(index + "",
-						new LinkedHashMap<String, Object>(), GisUtils
-								.latLonToViz((MultiPolygon) shape)));
+						new LinkedHashMap<String, Object>(),
+						(MultiPolygon) shape));
 				index++;
 			}
 		}
@@ -312,13 +311,13 @@ public class ViewUtils {
 				continue;
 			}
 
-			Point2D p = GisUtils.latLonToViz(lat, lon);
 			Map<String, Object> properties = new LinkedHashMap<>();
 
 			ViewUtils.addToProperties(properties, nodeProperties, nodeTable,
 					row);
 			properties.put(nodeIdColumn, id);
-			nodes.put(id, new LocationNode(id, properties, p));
+			nodes.put(id, new LocationNode(id, properties, new Point2D.Double(
+					lat, lon)));
 		}
 
 		return nodes;

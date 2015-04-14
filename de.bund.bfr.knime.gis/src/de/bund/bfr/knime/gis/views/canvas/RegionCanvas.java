@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -83,6 +84,10 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 				new InvisibleTransformer<RegionNode>());
 		viewer.getRenderer().getVertexLabelRenderer()
 				.setPosition(Position.CNTR);
+
+		for (RegionNode node : this.nodes) {
+			node.updatePolygon(GisUtils.latLonToViz(node.getPolygon()));
+		}
 
 		for (RegionNode node : this.nodes) {
 			viewer.getGraphLayout().setLocation(node, node.getCenter());

@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openstreetmap.gui.jmapviewer.OsmMercator;
-
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
@@ -83,19 +81,20 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 				new NodeShapeTransformer<>(getNodeSize(),
 						new LinkedHashMap<LocationNode, Double>()));
 
-		List<LocationNode> validNodes = new ArrayList<>();
+		for (LocationNode node : this.nodes) {
+			if (node.getCenter() != null) {
+				node.updateCenter(GisUtils.latLonToViz(node.getCenter()));
+			}
+		}
+
+		Set<LocationNode> validNodes = new LinkedHashSet<>();
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
 		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
 		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
-				Point2D center = new Point2D.Double(OsmMercator.LonToX(node
-						.getCenter().getX(), 0), OsmMercator.LatToY(node
-						.getCenter().getY(), 0));
-
-				node.updateCenter(center);
-				viewer.getGraphLayout().setLocation(node, center);
+				viewer.getGraphLayout().setLocation(node, node.getCenter());
 				validNodes.add(node);
 			} else {
 				invalidNodes.add(node);
