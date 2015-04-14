@@ -571,7 +571,7 @@ public class ChartCreator extends ChartPanel {
 
 	public static interface ZoomListener {
 
-		public void zoomChanged();
+		void zoomChanged();
 	}
 
 }

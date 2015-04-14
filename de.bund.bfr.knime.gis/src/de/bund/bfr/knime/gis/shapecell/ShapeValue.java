@@ -25,5 +25,5 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public interface ShapeValue extends DataValue {
 
-	public abstract Geometry getShape();
+	Geometry getShape();
 }

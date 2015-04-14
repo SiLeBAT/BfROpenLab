@@ -33,128 +33,125 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public interface ICanvas<V extends Node> {
 
-	public abstract void addCanvasListener(CanvasListener listener);
+	void addCanvasListener(CanvasListener listener);
 
-	public abstract void removeCanvasListener(CanvasListener listener);
+	void removeCanvasListener(CanvasListener listener);
 
-	public abstract Set<V> getNodes();
+	Set<V> getNodes();
 
-	public abstract Set<Edge<V>> getEdges();
+	Set<Edge<V>> getEdges();
 
-	public abstract Dimension getCanvasSize();
+	Dimension getCanvasSize();
 
-	public abstract void setCanvasSize(Dimension canvasSize);
+	void setCanvasSize(Dimension canvasSize);
 
-	public abstract Mode getEditingMode();
+	Mode getEditingMode();
 
-	public abstract void setEditingMode(Mode editingMode);
+	void setEditingMode(Mode editingMode);
 
-	public abstract boolean isShowLegend();
+	boolean isShowLegend();
 
-	public abstract void setShowLegend(boolean showLegend);
+	void setShowLegend(boolean showLegend);
 
-	public abstract boolean isJoinEdges();
+	boolean isJoinEdges();
 
-	public abstract void setJoinEdges(boolean joinEdges);
+	void setJoinEdges(boolean joinEdges);
 
-	public abstract boolean isSkipEdgelessNodes();
+	boolean isSkipEdgelessNodes();
 
-	public abstract void setSkipEdgelessNodes(boolean skipEdgelessNodes);
+	void setSkipEdgelessNodes(boolean skipEdgelessNodes);
 
-	public abstract boolean isShowEdgesInMetaNode();
+	boolean isShowEdgesInMetaNode();
 
-	public abstract void setShowEdgesInMetaNode(boolean showEdgesInMetaNode);
+	void setShowEdgesInMetaNode(boolean showEdgesInMetaNode);
 
-	public abstract int getFontSize();
+	int getFontSize();
 
-	public abstract void setFontSize(int fontSize);
+	void setFontSize(int fontSize);
 
-	public abstract boolean isFontBold();
+	boolean isFontBold();
 
-	public abstract void setFontBold(boolean fontBold);
+	void setFontBold(boolean fontBold);
 
-	public abstract int getNodeSize();
+	int getNodeSize();
 
-	public abstract void setNodeSize(int nodeSize);
+	void setNodeSize(int nodeSize);
 
-	public abstract boolean isArrowInMiddle();
+	boolean isArrowInMiddle();
 
-	public abstract void setArrowInMiddle(boolean arrowInMiddle);
+	void setArrowInMiddle(boolean arrowInMiddle);
 
-	public abstract String getLabel();
+	String getLabel();
 
-	public abstract void setLabel(String label);
+	void setLabel(String label);
 
-	public abstract int getBorderAlpha();
+	int getBorderAlpha();
 
-	public abstract void setBorderAlpha(int borderAlpha);
+	void setBorderAlpha(int borderAlpha);
 
-	public abstract NodePropertySchema getNodeSchema();
+	NodePropertySchema getNodeSchema();
 
-	public abstract EdgePropertySchema getEdgeSchema();
+	EdgePropertySchema getEdgeSchema();
 
-	public abstract Naming getNaming();
+	Naming getNaming();
 
-	public abstract Set<V> getSelectedNodes();
+	Set<V> getSelectedNodes();
 
-	public abstract void setSelectedNodes(Set<V> selectedNodes);
+	void setSelectedNodes(Set<V> selectedNodes);
 
-	public abstract Set<Edge<V>> getSelectedEdges();
+	Set<Edge<V>> getSelectedEdges();
 
-	public abstract void setSelectedEdges(Set<Edge<V>> selectedEdges);
+	void setSelectedEdges(Set<Edge<V>> selectedEdges);
 
-	public abstract Set<String> getSelectedNodeIds();
+	Set<String> getSelectedNodeIds();
 
-	public abstract void setSelectedNodeIds(Set<String> selectedNodeIds);
+	void setSelectedNodeIds(Set<String> selectedNodeIds);
 
-	public abstract Set<String> getSelectedEdgeIds();
+	Set<String> getSelectedEdgeIds();
 
-	public abstract void setSelectedEdgeIds(Set<String> selectedEdgeIds);
+	void setSelectedEdgeIds(Set<String> selectedEdgeIds);
 
-	public abstract HighlightConditionList getNodeHighlightConditions();
+	HighlightConditionList getNodeHighlightConditions();
 
-	public abstract void setNodeHighlightConditions(
+	void setNodeHighlightConditions(
 			HighlightConditionList nodeHighlightConditions);
 
-	public abstract HighlightConditionList getEdgeHighlightConditions();
+	HighlightConditionList getEdgeHighlightConditions();
 
-	public abstract void setEdgeHighlightConditions(
+	void setEdgeHighlightConditions(
 			HighlightConditionList edgeHighlightConditions);
 
-	public abstract Map<String, Set<String>> getCollapsedNodes();
+	Map<String, Set<String>> getCollapsedNodes();
 
-	public abstract void setCollapsedNodes(
-			Map<String, Set<String>> collapsedNodes);
+	void setCollapsedNodes(Map<String, Set<String>> collapsedNodes);
 
-	public abstract Transform getTransform();
+	Transform getTransform();
 
-	public abstract void setTransform(Transform transform);
+	void setTransform(Transform transform);
 
-	public abstract VisualizationViewer<V, Edge<V>> getViewer();
+	VisualizationViewer<V, Edge<V>> getViewer();
 
-	public abstract VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			boolean toSvg);
+	VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg);
 
-	public abstract CanvasOptionsPanel getOptionsPanel();
+	CanvasOptionsPanel getOptionsPanel();
 
-	public abstract void setOptionsPanel(CanvasOptionsPanel optionsPanel);
+	void setOptionsPanel(CanvasOptionsPanel optionsPanel);
 
-	public abstract CanvasPopupMenu getPopupMenu();
+	CanvasPopupMenu getPopupMenu();
 
-	public abstract void setPopupMenu(CanvasPopupMenu popup);
+	void setPopupMenu(CanvasPopupMenu popup);
 
-	public abstract void applyChanges();
+	void applyChanges();
 
-	public abstract void applyNodeCollapse();
+	void applyNodeCollapse();
 
-	public abstract void applyInvisibility();
+	void applyInvisibility();
 
-	public abstract void applyJoinEdgesAndSkipEdgeless();
+	void applyJoinEdgesAndSkipEdgeless();
 
-	public abstract void applyHighlights();
+	void applyHighlights();
 
-	public abstract void applyShowEdgesInMetaNode();
+	void applyShowEdgesInMetaNode();
 
-	public abstract Component getComponent();
-
+	Component getComponent();
 }

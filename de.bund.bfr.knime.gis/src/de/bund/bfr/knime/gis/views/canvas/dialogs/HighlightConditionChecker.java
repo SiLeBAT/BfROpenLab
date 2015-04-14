@@ -23,5 +23,5 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 
 public interface HighlightConditionChecker {
 
-	public String findError(HighlightCondition condition);
+	String findError(HighlightCondition condition);
 }

@@ -275,7 +275,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 	public static interface SelectionListener {
 
-		public void selectionChanged();
+		void selectionChanged();
 	}
 
 	private static class SelectTableModel extends AbstractTableModel {

@@ -28,20 +28,19 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public interface HighlightCondition {
 
-	public abstract String getName();
+	String getName();
 
-	public abstract boolean isShowInLegend();
+	boolean isShowInLegend();
 
-	public abstract Color getColor();
+	Color getColor();
 
-	public abstract boolean isInvisible();
+	boolean isInvisible();
 
-	public abstract boolean isUseThickness();
+	boolean isUseThickness();
 
-	public abstract String getLabelProperty();
+	String getLabelProperty();
 
-	public abstract <T extends Element> Map<T, Double> getValues(
-			Collection<T> elements);
+	<T extends Element> Map<T, Double> getValues(Collection<T> elements);
 
-	public abstract Point2D getValueRange(Collection<? extends Element> elements);
+	Point2D getValueRange(Collection<? extends Element> elements);
 }

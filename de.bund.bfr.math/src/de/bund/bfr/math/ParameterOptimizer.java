@@ -464,6 +464,6 @@ public class ParameterOptimizer {
 
 	public static interface ProgressListener {
 
-		public void progressChanged(double progress);
+		void progressChanged(double progress);
 	}
 }

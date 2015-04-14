@@ -26,42 +26,39 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
 public interface ITracingCanvas<V extends Node> extends ICanvas<V> {
 
-	public abstract Map<String, Double> getNodeWeights();
+	Map<String, Double> getNodeWeights();
 
-	public abstract void setNodeWeights(Map<String, Double> nodeWeights);
+	void setNodeWeights(Map<String, Double> nodeWeights);
 
-	public abstract Map<String, Double> getEdgeWeights();
+	Map<String, Double> getEdgeWeights();
 
-	public abstract void setEdgeWeights(Map<String, Double> edgeWeights);
+	void setEdgeWeights(Map<String, Double> edgeWeights);
 
-	public abstract Map<String, Boolean> getNodeCrossContaminations();
+	Map<String, Boolean> getNodeCrossContaminations();
 
-	public abstract void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations);
+	void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations);
 
-	public abstract Map<String, Boolean> getEdgeCrossContaminations();
+	Map<String, Boolean> getEdgeCrossContaminations();
 
-	public abstract void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations);
+	void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations);
 
-	public abstract Map<String, Boolean> getObservedNodes();
+	Map<String, Boolean> getObservedNodes();
 
-	public abstract void setObservedNodes(Map<String, Boolean> observedNodes);
+	void setObservedNodes(Map<String, Boolean> observedNodes);
 
-	public abstract Map<String, Boolean> getObservedEdges();
+	Map<String, Boolean> getObservedEdges();
 
-	public abstract void setObservedEdges(Map<String, Boolean> observedEdges);
+	void setObservedEdges(Map<String, Boolean> observedEdges);
 
-	public abstract boolean isEnforceTemporalOrder();
+	boolean isEnforceTemporalOrder();
 
-	public abstract void setEnforceTemporalOrder(boolean enforceTemporalOrder);
+	void setEnforceTemporalOrder(boolean enforceTemporalOrder);
 
-	public abstract boolean isShowForward();
+	boolean isShowForward();
 
-	public abstract void setShowForward(boolean showForward);
+	void setShowForward(boolean showForward);
 
-	public abstract boolean isPerformTracing();
+	boolean isPerformTracing();
 
-	public abstract void setPerformTracing(boolean performTracing);
-
+	void setPerformTracing(boolean performTracing);
 }

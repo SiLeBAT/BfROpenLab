@@ -528,6 +528,6 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 	public static interface ConfigListener {
 
-		public void configChanged();
+		void configChanged();
 	}
 }

@@ -26,15 +26,15 @@ import de.bund.bfr.knime.nls.chart.Plotable;
 
 public interface Reader {
 
-	public List<String> getIds();
+	List<String> getIds();
 
-	public String getDepVar();
+	String getDepVar();
 
-	public Map<String, List<String>> getStringColumns();
+	Map<String, List<String>> getStringColumns();
 
-	public Map<String, List<Double>> getDoubleColumns();
+	Map<String, List<Double>> getDoubleColumns();
 
-	public Map<String, Plotable> getPlotables();
+	Map<String, Plotable> getPlotables();
 
-	public Map<String, String> getLegend();
+	Map<String, String> getLegend();
 }

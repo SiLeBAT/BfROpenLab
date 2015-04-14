@@ -406,24 +406,24 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	public static interface ChangeListener {
 
-		public void editingModeChanged();
+		void editingModeChanged();
 
-		public void showLegendChanged();
+		void showLegendChanged();
 
-		public void joinEdgesChanged();
+		void joinEdgesChanged();
 
-		public void skipEdgelessNodesChanged();
+		void skipEdgelessNodesChanged();
 
-		public void showEdgesInMetaNodeChanged();
+		void showEdgesInMetaNodeChanged();
 
-		public void fontChanged();
+		void fontChanged();
 
-		public void nodeSizeChanged();
+		void nodeSizeChanged();
 
-		public void arrowInMiddleChanged();
+		void arrowInMiddleChanged();
 
-		public void labelChanged();
+		void labelChanged();
 
-		public void borderAlphaChanged();
+		void borderAlphaChanged();
 	}
 }

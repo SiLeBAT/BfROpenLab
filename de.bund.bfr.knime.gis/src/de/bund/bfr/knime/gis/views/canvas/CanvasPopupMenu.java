@@ -366,59 +366,58 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 
 	public static interface ClickListener {
 
-		public void resetLayoutItemClicked();
+		void resetLayoutItemClicked();
 
-		public void saveAsItemClicked();
+		void saveAsItemClicked();
 
-		public void layoutItemClicked(LayoutType layoutType);
+		void layoutItemClicked(LayoutType layoutType);
 
-		public void selectConnectionsItemClicked();
+		void selectConnectionsItemClicked();
 
-		public void selectIncomingItemClicked();
+		void selectIncomingItemClicked();
 
-		public void selectOutgoingItemClicked();
+		void selectOutgoingItemClicked();
 
-		public void clearSelectedNodesItemClicked();
+		void clearSelectedNodesItemClicked();
 
-		public void clearSelectedEdgesItemClicked();
+		void clearSelectedEdgesItemClicked();
 
-		public void highlightSelectedNodesItemClicked();
+		void highlightSelectedNodesItemClicked();
 
-		public void highlightSelectedEdgesItemClicked();
+		void highlightSelectedEdgesItemClicked();
 
-		public void highlightNodesItemClicked();
+		void highlightNodesItemClicked();
 
-		public void highlightEdgesItemClicked();
+		void highlightEdgesItemClicked();
 
-		public void clearHighlightedNodesItemClicked();
+		void clearHighlightedNodesItemClicked();
 
-		public void clearHighlightedEdgesItemClicked();
+		void clearHighlightedEdgesItemClicked();
 
-		public void selectHighlightedNodesItemClicked();
+		void selectHighlightedNodesItemClicked();
 
-		public void selectHighlightedEdgesItemClicked();
+		void selectHighlightedEdgesItemClicked();
 
-		public void highlightNodeCategoriesItemClicked();
+		void highlightNodeCategoriesItemClicked();
 
-		public void selectNodesItemClicked();
+		void selectNodesItemClicked();
 
-		public void selectEdgesItemClicked();
+		void selectEdgesItemClicked();
 
-		public void nodePropertiesItemClicked();
+		void nodePropertiesItemClicked();
 
-		public void nodeAllPropertiesItemClicked();
+		void nodeAllPropertiesItemClicked();
 
-		public void edgePropertiesItemClicked();
+		void edgePropertiesItemClicked();
 
-		public void edgeAllPropertiesItemClicked();
+		void edgeAllPropertiesItemClicked();
 
-		public void collapseToNodeItemClicked();
+		void collapseToNodeItemClicked();
 
-		public void expandFromNodeItemClicked();
+		void expandFromNodeItemClicked();
 
-		public void collapseByPropertyItemClicked();
+		void collapseByPropertyItemClicked();
 
-		public void clearCollapsedNodesItemClicked();
-
+		void clearCollapsedNodesItemClicked();
 	}
 }

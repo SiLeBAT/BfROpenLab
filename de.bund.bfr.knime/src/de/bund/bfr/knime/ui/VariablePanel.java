@@ -511,6 +511,6 @@ public class VariablePanel extends JPanel implements ActionListener,
 
 	public static interface ValueListener {
 
-		public abstract void valuesChanged();
+		void valuesChanged();
 	}
 }
