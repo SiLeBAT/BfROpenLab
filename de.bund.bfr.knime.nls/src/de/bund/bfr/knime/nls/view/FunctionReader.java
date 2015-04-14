@@ -41,14 +41,13 @@ public class FunctionReader implements Reader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionReader(FunctionPortObject functionObject,
-			BufferedDataTable varTable, String indep) {
+	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable,
+			String indep) {
 		this(functionObject, null, varTable, null, indep);
 	}
 
-	public FunctionReader(FunctionPortObject functionObject,
-			BufferedDataTable paramTable, BufferedDataTable varTable,
-			BufferedDataTable covarianceTable, String indep) {
+	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
+			BufferedDataTable varTable, BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns;
 
@@ -82,10 +81,8 @@ public class FunctionReader implements Reader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : NlsUtils.getIds(paramTable != null ? paramTable
-				: varTable)) {
-			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(
-					varTable, id, f, indep)) {
+		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
+			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(varTable, id, f, indep)) {
 				String newId = id;
 
 				if (!fixed.isEmpty()) {
@@ -95,8 +92,7 @@ public class FunctionReader implements Reader {
 				Map<String, Double> qualityValues;
 
 				if (paramTable != null) {
-					qualityValues = NlsUtils.getQualityValues(paramTable, id,
-							qualityColumns);
+					qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 				} else {
 					qualityValues = new LinkedHashMap<>();
 				}
@@ -121,15 +117,12 @@ public class FunctionReader implements Reader {
 				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
 				plotable.setDependentVariable(f.getDependentVariable());
 				plotable.getIndependentVariables().putAll(variables);
-				plotable.getValueLists().putAll(
-						NlsUtils.getVariableValues(varTable, id, f, fixed));
+				plotable.getValueLists().putAll(NlsUtils.getVariableValues(varTable, id, f, fixed));
 
 				if (paramTable != null) {
-					plotable.getParameters().putAll(
-							NlsUtils.getParameters(paramTable, id, f));
+					plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
 				} else {
-					plotable.getParameters().putAll(
-							NlsUtils.createZeroMap(f.getParameters()));
+					plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
 				}
 
 				if (covarianceTable != null) {
@@ -142,12 +135,10 @@ public class FunctionReader implements Reader {
 				}
 
 				if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
-					plotable.setDegreesOfFreedom(qualityValues.get(
-							NlsUtils.DOF_COLUMN).intValue());
+					plotable.setDegreesOfFreedom(qualityValues.get(NlsUtils.DOF_COLUMN).intValue());
 				}
 
-				stringColumns.get(ChartUtils.STATUS).add(
-						plotable.getStatus().toString());
+				stringColumns.get(ChartUtils.STATUS).add(plotable.getStatus().toString());
 				plotables.put(newId, plotable);
 			}
 		}

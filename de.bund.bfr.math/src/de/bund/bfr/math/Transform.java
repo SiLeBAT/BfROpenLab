@@ -20,9 +20,8 @@
 package de.bund.bfr.math;
 
 public enum Transform {
-	NO_TRANSFORM(""), SQRT_TRANSFORM("sqrt"), LOG_TRANSFORM("log"), LOG10_TRANSFORM(
-			"log10"), EXP_TRANSFORM("exp"), EXP10_TRANSFORM("10^x"), KELVIN_TO_CELSIUS(
-			"K->C°");
+	NO_TRANSFORM(""), SQRT_TRANSFORM("sqrt"), LOG_TRANSFORM("log"), LOG10_TRANSFORM("log10"), EXP_TRANSFORM(
+			"exp"), EXP10_TRANSFORM("10^x"), KELVIN_TO_CELSIUS("K->C°");
 
 	private String name;
 

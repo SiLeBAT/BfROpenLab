@@ -35,8 +35,7 @@ import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
-public class TracingGraphCanvas extends GraphCanvas implements
-		ITracingCanvas<GraphNode> {
+public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -48,14 +47,11 @@ public class TracingGraphCanvas extends GraphCanvas implements
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
-	public TracingGraphCanvas(List<GraphNode> nodes,
-			List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties,
+	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
+			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties,
-				TracingUtils.NAMING, true);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
-				deliveries);
+		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, true);
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
 	@Override
@@ -84,8 +80,7 @@ public class TracingGraphCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	public void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations) {
+	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
 		tracing.setNodeCrossContaminations(nodeCrossContaminations);
 	}
 
@@ -95,8 +90,7 @@ public class TracingGraphCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	public void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations) {
+	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
 	}
 
@@ -166,8 +160,7 @@ public class TracingGraphCanvas extends GraphCanvas implements
 	}
 
 	@Override
-	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(
-			boolean toSvg) {
+	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
 				.getVisualizationServer(toSvg);
 

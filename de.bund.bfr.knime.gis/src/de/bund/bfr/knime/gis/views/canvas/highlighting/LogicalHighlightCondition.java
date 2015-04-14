@@ -38,9 +38,9 @@ public class LogicalHighlightCondition implements Serializable {
 	public static final String REGEX_NOT_EQUAL_TYPE = "!= (Regex)";
 	public static final String REGEX_EQUAL_IGNORE_CASE_TYPE = "== (Regex Ignore Case)";
 	public static final String REGEX_NOT_EQUAL_IGNORE_CASE_TYPE = "!= (Regex Ignore Case)";
-	public static final String[] TYPES = { EQUAL_TYPE, NOT_EQUAL_TYPE,
-			GREATER_TYPE, LESS_TYPE, REGEX_EQUAL_TYPE, REGEX_NOT_EQUAL_TYPE,
-			REGEX_EQUAL_IGNORE_CASE_TYPE, REGEX_NOT_EQUAL_IGNORE_CASE_TYPE };
+	public static final String[] TYPES = { EQUAL_TYPE, NOT_EQUAL_TYPE, GREATER_TYPE, LESS_TYPE,
+			REGEX_EQUAL_TYPE, REGEX_NOT_EQUAL_TYPE, REGEX_EQUAL_IGNORE_CASE_TYPE,
+			REGEX_NOT_EQUAL_IGNORE_CASE_TYPE };
 
 	private static final long serialVersionUID = 1L;
 
@@ -141,8 +141,7 @@ public class LogicalHighlightCondition implements Serializable {
 		} else if (nodeValue instanceof String && value != null) {
 			return ((String) nodeValue).equalsIgnoreCase(value);
 		} else if (nodeValue == null
-				|| (nodeValue instanceof String && ((String) nodeValue)
-						.isEmpty())) {
+				|| (nodeValue instanceof String && ((String) nodeValue).isEmpty())) {
 			return value == null || value.isEmpty();
 		} else {
 			return false;
@@ -168,8 +167,7 @@ public class LogicalHighlightCondition implements Serializable {
 	private boolean isEqualRegex(Object nodeValue, boolean ignoreCase) {
 		if (nodeValue instanceof String && value != null) {
 			int flags = ignoreCase ? Pattern.CASE_INSENSITIVE : 0;
-			Matcher matcher = Pattern.compile(value, flags).matcher(
-					(String) nodeValue);
+			Matcher matcher = Pattern.compile(value, flags).matcher((String) nodeValue);
 
 			return matcher.matches();
 		} else if (nodeValue == null) {

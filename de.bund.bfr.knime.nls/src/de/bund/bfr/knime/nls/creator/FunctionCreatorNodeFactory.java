@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeFactory extends
-		NodeFactory<FunctionCreatorNodeModel> {
+public class FunctionCreatorNodeFactory extends NodeFactory<FunctionCreatorNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -52,8 +51,8 @@ public class FunctionCreatorNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FunctionCreatorNodeModel> createNodeView(
-			final int viewIndex, final FunctionCreatorNodeModel nodeModel) {
+	public NodeView<FunctionCreatorNodeModel> createNodeView(final int viewIndex,
+			final FunctionCreatorNodeModel nodeModel) {
 		return null;
 	}
 

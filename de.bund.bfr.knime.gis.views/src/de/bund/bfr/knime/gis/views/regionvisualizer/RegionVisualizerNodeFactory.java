@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class RegionVisualizerNodeFactory extends
-		NodeFactory<RegionVisualizerNodeModel> {
+public class RegionVisualizerNodeFactory extends NodeFactory<RegionVisualizerNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -52,8 +51,8 @@ public class RegionVisualizerNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<RegionVisualizerNodeModel> createNodeView(
-			final int viewIndex, final RegionVisualizerNodeModel nodeModel) {
+	public NodeView<RegionVisualizerNodeModel> createNodeView(final int viewIndex,
+			final RegionVisualizerNodeModel nodeModel) {
 		return null;
 	}
 

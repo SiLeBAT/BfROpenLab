@@ -65,8 +65,8 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
-		ActionListener, TextListener, ItemListener {
+public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements ActionListener,
+		TextListener, ItemListener {
 
 	private DiffFunctionCreatorSettings set;
 	private List<String> usedIndeps;
@@ -104,15 +104,15 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(functionPanel, BorderLayout.NORTH);
-		mainPanel.add(UI.createWestPanel(UI.createHorizontalPanel(addButton,
-				removeButton)), BorderLayout.SOUTH);
+		mainPanel.add(UI.createWestPanel(UI.createHorizontalPanel(addButton, removeButton)),
+				BorderLayout.SOUTH);
 
 		addTab("Options", mainPanel);
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
+			throws NotConfigurableException {
 		set.loadSettings(settings);
 		mainPanel.remove(functionPanel);
 		functionPanel = createFunctionPanel(Math.max(set.getTerms().size(), 1));
@@ -122,8 +122,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		updateFunction();
 
 		for (StringTextField depVarField : depVarFields) {
@@ -169,8 +168,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		if (depVarFields.contains(source)) {
 			int index = depVarFields.indexOf(source);
 
-			set.getDependentVariables().set(index,
-					depVarFields.get(index).getValue());
+			set.getDependentVariables().set(index, depVarFields.get(index).getValue());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel(set.getTerms().size());
@@ -180,8 +178,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		} else if (termFields.contains(source)) {
 			StringTextArea termField = (StringTextArea) source;
 
-			set.getTerms().set(termFields.indexOf(termField),
-					termField.getText());
+			set.getTerms().set(termFields.indexOf(termField), termField.getText());
 			mainPanel.remove(functionPanel);
 			updateFunction();
 			functionPanel = createFunctionPanel(set.getTerms().size());
@@ -225,15 +222,13 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		editPanel.setLayout(new GridBagLayout());
 
 		for (int i = 0; i < n; i++) {
-			editPanel.add(new JLabel("Equation " + (i + 1) + ":"),
-					UI.westConstraints(0, i));
+			editPanel.add(new JLabel("Equation " + (i + 1) + ":"), UI.westConstraints(0, i));
 			editPanel.add(createFormulaPanel(i), UI.westConstraints(1, i));
 		}
 
 		editPanel.add(new JLabel("Diff Variable:"), UI.westConstraints(0, n));
 		editPanel.add(createDiffVarPanel(), UI.westConstraints(1, n));
-		editPanel.add(new JLabel("Independent Variables:"),
-				UI.westConstraints(0, n + 1));
+		editPanel.add(new JLabel("Independent Variables:"), UI.westConstraints(0, n + 1));
 		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, n + 1));
 
 		JPanel panel = new JPanel();
@@ -248,18 +243,15 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	private JPanel createFormulaPanel(int i) {
 		StringTextField depVarField = depVarFields.get(i);
 
-		if (depVarField == null
-				|| depVarField.getValue() == null
-				|| !depVarField.getValue().equals(
-						set.getDependentVariables().get(i))) {
+		if (depVarField == null || depVarField.getValue() == null
+				|| !depVarField.getValue().equals(set.getDependentVariables().get(i))) {
 			depVarField = new StringTextField(false, 5);
 			depVarField.setValue(set.getDependentVariables().get(i));
 			depVarField.addTextListener(this);
 		}
 
 		JPanel depVarPanel = new JPanel();
-		String diffVar = set.getDiffVariable() != null ? set.getDiffVariable()
-				: "?";
+		String diffVar = set.getDiffVariable() != null ? set.getDiffVariable() : "?";
 		JLabel openLabel = new JLabel("(");
 		JLabel closeLabel = new JLabel(")");
 
@@ -298,8 +290,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		JPanel initialPanel = new JPanel();
 		JLabel initialLabel = new JLabel("Initial Value");
 
-		initialLabel.setPreferredSize(new Dimension(depVarPanel
-				.getPreferredSize().width,
+		initialLabel.setPreferredSize(new Dimension(depVarPanel.getPreferredSize().width,
 				initialLabel.getPreferredSize().height));
 		initialPanel.setLayout(new BoxLayout(initialPanel, BoxLayout.X_AXIS));
 		initialPanel.add(initialLabel);
@@ -321,8 +312,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set
-				.getTerms()));
+		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set.getTerms()));
 
 		elements.removeAll(set.getDependentVariables());
 		elements.remove(set.getDiffVariable());
@@ -362,8 +352,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set
-				.getTerms()));
+		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set.getTerms()));
 
 		symbols.removeAll(set.getDependentVariables());
 		symbols.remove(set.getDiffVariable());
@@ -371,8 +360,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements
 		List<String> indeps = new ArrayList<>();
 
 		for (String symbol : symbols) {
-			if (set.getIndependentVariables().contains(symbol)
-					|| usedIndeps.contains(symbol)) {
+			if (set.getIndependentVariables().contains(symbol) || usedIndeps.contains(symbol)) {
 				indeps.add(symbol);
 			}
 		}

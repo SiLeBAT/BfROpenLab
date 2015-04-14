@@ -32,16 +32,15 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 public class Transform {
 
 	public static final Transform IDENTITY_TRANSFORM = new Transform(1, 1, 0, 0);
-	public static final Transform INVALID_TRANSFORM = new Transform(Double.NaN,
-			Double.NaN, Double.NaN, Double.NaN);
+	public static final Transform INVALID_TRANSFORM = new Transform(Double.NaN, Double.NaN,
+			Double.NaN, Double.NaN);
 
 	private double scaleX;
 	private double scaleY;
 	private double translationX;
 	private double translationY;
 
-	public Transform(double scaleX, double scaleY, double translationX,
-			double translationY) {
+	public Transform(double scaleX, double scaleY, double translationX, double translationY) {
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
 		this.translationX = translationX;
@@ -49,8 +48,8 @@ public class Transform {
 	}
 
 	public Transform(AffineTransform transform) {
-		this(transform.getScaleX(), transform.getScaleY(), transform
-				.getTranslateX(), transform.getTranslateY());
+		this(transform.getScaleX(), transform.getScaleY(), transform.getTranslateX(), transform
+				.getTranslateY());
 	}
 
 	public double getScaleX() {
@@ -70,26 +69,22 @@ public class Transform {
 	}
 
 	public boolean isValid() {
-		return !Double.isNaN(scaleX) && !Double.isNaN(scaleY)
-				&& !Double.isNaN(translationX) && !Double.isNaN(translationY)
-				&& !Double.isInfinite(scaleX) && !Double.isInfinite(scaleY)
-				&& !Double.isInfinite(translationX)
+		return !Double.isNaN(scaleX) && !Double.isNaN(scaleY) && !Double.isNaN(translationX)
+				&& !Double.isNaN(translationY) && !Double.isInfinite(scaleX)
+				&& !Double.isInfinite(scaleY) && !Double.isInfinite(translationX)
 				&& !Double.isInfinite(translationY);
 	}
 
 	public AffineTransform toAffineTransform() {
-		return new AffineTransform(scaleX, 0, 0, scaleY, translationX,
-				translationY);
+		return new AffineTransform(scaleX, 0, 0, scaleY, translationX, translationY);
 	}
 
 	public Point apply(double x, double y) {
-		return new Point((int) (x * scaleX + translationX),
-				(int) (y * scaleY + translationY));
+		return new Point((int) (x * scaleX + translationX), (int) (y * scaleY + translationY));
 	}
 
 	public Point2D applyInverse(int x, int y) {
-		return new Point2D.Double((x - translationX) / scaleX,
-				(y - translationY) / scaleY);
+		return new Point2D.Double((x - translationX) / scaleX, (y - translationY) / scaleY);
 	}
 
 	public List<Polygon> apply(MultiPolygon polygon, boolean withHoles) {
@@ -105,8 +100,7 @@ public class Transform {
 		return transformedPolygon;
 	}
 
-	public Polygon apply(com.vividsolutions.jts.geom.Polygon part,
-			boolean withHoles) {
+	public Polygon apply(com.vividsolutions.jts.geom.Polygon part, boolean withHoles) {
 		Coordinate[] points;
 
 		if (withHoles) {

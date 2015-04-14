@@ -55,8 +55,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
  * 
  * @author Christian Thoens
  */
-public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
-		implements CanvasListener {
+public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog implements
+		CanvasListener {
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
@@ -89,8 +89,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
 		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 		set.saveSettings(settings);
@@ -99,8 +98,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		RegionToRegionVisualizerInputDialog dialog = new RegionToRegionVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(),
-				nodeTable.getSpec(), edgeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(),
+				edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -116,8 +115,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedNodeIds(RegionToRegionVisualizerCanvasCreator
-					.getSelectedGisNodeIds(gisCanvas.getNodes(),
-							graphCanvas.getSelectedNodes()));
+					.getSelectedGisNodeIds(gisCanvas.getNodes(), graphCanvas.getSelectedNodes()));
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
@@ -126,16 +124,14 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 
 			for (GraphNode graphNode : graphCanvas.getNodes()) {
 				if (!graphNodesByRegion.containsKey(graphNode.getRegion())) {
-					graphNodesByRegion.put(graphNode.getRegion(),
-							new ArrayList<GraphNode>());
+					graphNodesByRegion.put(graphNode.getRegion(), new ArrayList<GraphNode>());
 				}
 
 				graphNodesByRegion.get(graphNode.getRegion()).add(graphNode);
 			}
 
 			for (RegionNode gisNode : gisCanvas.getSelectedNodes()) {
-				List<GraphNode> graphNodes = graphNodesByRegion.get(gisNode
-						.getId());
+				List<GraphNode> graphNodes = graphNodesByRegion.get(gisNode.getId());
 
 				if (graphNodes != null) {
 					selectedGraphNodes.addAll(graphNodes);
@@ -153,9 +149,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedEdgeIds(RegionToRegionVisualizerCanvasCreator
-					.getSelectedGisEdgeIds(gisCanvas.getEdges(), graphCanvas
-							.getSelectedEdges(), set.getGraphSettings()
-							.isJoinEdges()));
+					.getSelectedGisEdgeIds(gisCanvas.getEdges(), graphCanvas.getSelectedEdges(),
+							set.getGraphSettings().isJoinEdges()));
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
@@ -179,19 +174,16 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 					String toRegion = graphEdge.getTo().getRegion();
 
 					if (!graphEdgesByRegion.containsKey(fromRegion)) {
-						graphEdgesByRegion
-								.put(fromRegion,
-										new LinkedHashMap<String, List<Edge<GraphNode>>>());
+						graphEdgesByRegion.put(fromRegion,
+								new LinkedHashMap<String, List<Edge<GraphNode>>>());
 					}
 
-					if (!graphEdgesByRegion.get(fromRegion).containsKey(
-							toRegion)) {
+					if (!graphEdgesByRegion.get(fromRegion).containsKey(toRegion)) {
 						graphEdgesByRegion.get(fromRegion).put(toRegion,
 								new ArrayList<Edge<GraphNode>>());
 					}
 
-					graphEdgesByRegion.get(fromRegion).get(toRegion)
-							.add(graphEdge);
+					graphEdgesByRegion.get(fromRegion).get(toRegion).add(graphEdge);
 				}
 
 				for (Edge<RegionNode> gisEdge : gisCanvas.getSelectedEdges()) {
@@ -199,8 +191,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 					String toRegion = gisEdge.getTo().getId();
 
 					if (graphEdgesByRegion.containsKey(fromRegion)) {
-						List<Edge<GraphNode>> graphEdges = graphEdgesByRegion
-								.get(fromRegion).get(toRegion);
+						List<Edge<GraphNode>> graphEdges = graphEdgesByRegion.get(fromRegion).get(
+								toRegion);
 
 						if (graphEdges != null) {
 							selectedGraphEdges.addAll(graphEdges);
@@ -223,13 +215,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 	public void edgeHighlightingChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setEdgeHighlightConditions(graphCanvas
-					.getEdgeHighlightConditions());
+			gisCanvas.setEdgeHighlightConditions(graphCanvas.getEdgeHighlightConditions());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setEdgeHighlightConditions(gisCanvas
-					.getEdgeHighlightConditions());
+			graphCanvas.setEdgeHighlightConditions(gisCanvas.getEdgeHighlightConditions());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -264,13 +254,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setShowEdgesInMetaNode(graphCanvas
-					.isShowEdgesInMetaNode());
+			gisCanvas.setShowEdgesInMetaNode(graphCanvas.isShowEdgesInMetaNode());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setShowEdgesInMetaNode(gisCanvas
-					.isShowEdgesInMetaNode());
+			graphCanvas.setShowEdgesInMetaNode(gisCanvas.isShowEdgesInMetaNode());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -295,9 +283,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
-						"Some regions from the table are not contained"
-								+ " in the shapefile", "Warning",
-						JOptionPane.WARNING_MESSAGE);
+						"Some regions from the table are not contained" + " in the shapefile",
+						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
@@ -306,16 +293,14 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel,
-						"Error reading nodes and edges", "Error",
+				JOptionPane.showMessageDialog(panel, "Error reading nodes and edges", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 
 		graphCanvas.addComponentListener(this);
 		gisCanvas.addComponentListener(this);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas,
-				gisCanvas);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas, gisCanvas);
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();

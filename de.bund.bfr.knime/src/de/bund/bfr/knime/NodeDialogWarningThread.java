@@ -41,8 +41,7 @@ public class NodeDialogWarningThread implements Runnable {
 			Window window = SwingUtilities.getWindowAncestor(c);
 
 			if (window != null && window.isActive()) {
-				JOptionPane.showMessageDialog(c, warning, "Warning",
-						JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(c, warning, "Warning", JOptionPane.WARNING_MESSAGE);
 				break;
 			}
 

@@ -35,27 +35,23 @@ import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
-public class TracingOsmCanvas extends LocationOsmCanvas implements
-		ITracingCanvas<LocationNode> {
+public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
 	private Tracing<LocationNode> tracing;
 
 	public TracingOsmCanvas() {
-		this(new ArrayList<LocationNode>(),
-				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(),
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
+				new NodePropertySchema(), new EdgePropertySchema(),
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
-	public TracingOsmCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties,
+	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
 			Map<Integer, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
-				deliveries);
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
 	@Override
@@ -84,8 +80,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements
 	}
 
 	@Override
-	public void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations) {
+	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
 		tracing.setNodeCrossContaminations(nodeCrossContaminations);
 	}
 
@@ -95,8 +90,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements
 	}
 
 	@Override
-	public void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations) {
+	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
 	}
 

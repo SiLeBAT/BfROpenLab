@@ -32,8 +32,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import edu.uci.ics.jung.visualization.RenderContext;
 
-public class NodeFillTransformer<V extends Node> implements
-		Transformer<V, Paint> {
+public class NodeFillTransformer<V extends Node> implements Transformer<V, Paint> {
 
 	private RenderContext<V, Edge<V>> renderContext;
 	private Map<V, Paint> nodeColors;
@@ -44,8 +43,8 @@ public class NodeFillTransformer<V extends Node> implements
 		nodeColors = new LinkedHashMap<>();
 
 		for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
-			nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE,
-					colors, entry.getValue()));
+			nodeColors.put(entry.getKey(),
+					CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue()));
 		}
 	}
 

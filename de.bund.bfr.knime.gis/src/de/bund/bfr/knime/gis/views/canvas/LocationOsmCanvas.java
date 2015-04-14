@@ -38,34 +38,32 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	private com.vividsolutions.jts.geom.Polygon invalidArea;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(),
-				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, allowEdges);
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
+				new NodePropertySchema(), new EdgePropertySchema(), naming, allowEdges);
 	}
 
-	public LocationOsmCanvas(List<LocationNode> nodes,
-			NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema,
-				new EdgePropertySchema(), naming, false);
+	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
+		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(),
+				naming, false);
 	}
 
-	public LocationOsmCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming) {
+	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
 
-	private LocationOsmCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges) {
+	private LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
+			boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		invalidArea = null;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<>(getNodeSize(),
-						new LinkedHashMap<LocationNode, Double>()));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(
+						new NodeShapeTransformer<>(getNodeSize(),
+								new LinkedHashMap<LocationNode, Double>()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
@@ -93,15 +91,14 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		super.paintGis(g, toSvg);
 
 		if (invalidArea != null) {
-			CanvasUtils.paintNonLatLonArea(g, getCanvasSize().width,
-					getCanvasSize().height, transform.apply(invalidArea, true));
+			CanvasUtils.paintNonLatLonArea(g, getCanvasSize().width, getCanvasSize().height,
+					transform.apply(invalidArea, true));
 		}
 	}
 
 	@Override
-	protected LocationNode createMetaNode(String id,
-			Collection<LocationNode> nodes) {
-		return CanvasUtils.createLocationMetaNode(id, nodes, nodeSchema,
-				metaNodeProperty, viewer.getGraphLayout());
+	protected LocationNode createMetaNode(String id, Collection<LocationNode> nodes) {
+		return CanvasUtils.createLocationMetaNode(id, nodes, nodeSchema, metaNodeProperty,
+				viewer.getGraphLayout());
 	}
 }

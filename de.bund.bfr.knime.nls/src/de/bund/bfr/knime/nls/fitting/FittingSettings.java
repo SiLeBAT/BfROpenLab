@@ -118,10 +118,8 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
 		settings.addBoolean(CFG_STOP_WHEN_SUCCESSFUL, stopWhenSuccessful);
 		settings.addBoolean(CFG_ENFORCE_LIMITS, enforceLimits);
-		settings.addString(CFG_MIN_START_VALUES,
-				SERIALIZER.toXml(minStartValues));
-		settings.addString(CFG_MAX_START_VALUES,
-				SERIALIZER.toXml(maxStartValues));
+		settings.addString(CFG_MIN_START_VALUES, SERIALIZER.toXml(minStartValues));
+		settings.addString(CFG_MAX_START_VALUES, SERIALIZER.toXml(maxStartValues));
 		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
 		settings.addDouble(CFG_STEP_SIZE, stepSize);
 	}

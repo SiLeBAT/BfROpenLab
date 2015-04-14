@@ -64,13 +64,11 @@ public class KnimeUtils {
 		return doubleList;
 	}
 
-	public static File getFile(String fileName) throws InvalidPathException,
-			MalformedURLException {
+	public static File getFile(String fileName) throws InvalidPathException, MalformedURLException {
 		return FileUtil.getFileFromURL(FileUtil.toURL(fileName));
 	}
 
-	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
-			DataType... types) {
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec, DataType... types) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {

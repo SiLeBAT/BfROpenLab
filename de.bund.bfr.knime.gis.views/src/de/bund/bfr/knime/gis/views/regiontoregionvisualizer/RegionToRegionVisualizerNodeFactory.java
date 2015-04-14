@@ -52,8 +52,7 @@ public class RegionToRegionVisualizerNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<RegionToRegionVisualizerNodeModel> createNodeView(
-			final int viewIndex,
+	public NodeView<RegionToRegionVisualizerNodeModel> createNodeView(final int viewIndex,
 			final RegionToRegionVisualizerNodeModel nodeModel) {
 		return null;
 	}

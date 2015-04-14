@@ -46,8 +46,8 @@ import de.bund.bfr.knime.gis.views.canvas.Naming;
  * 
  * @author Christian Thoens
  */
-public class LocationToLocationVisualizerNodeDialog extends
-		VisualizerNodeDialog implements CanvasListener {
+public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog implements
+		CanvasListener {
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
@@ -80,8 +80,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.getGraphSettings().setFromCanvas(graphCanvas, resized);
 		set.getGisSettings().setFromCanvas(gisCanvas, resized);
 		set.saveSettings(settings);
@@ -90,8 +89,8 @@ public class LocationToLocationVisualizerNodeDialog extends
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		LocationToLocationVisualizerInputDialog dialog = new LocationToLocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(),
-				nodeTable.getSpec(), edgeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(),
+				edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -132,13 +131,11 @@ public class LocationToLocationVisualizerNodeDialog extends
 	public void nodeHighlightingChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setNodeHighlightConditions(graphCanvas
-					.getNodeHighlightConditions());
+			gisCanvas.setNodeHighlightConditions(graphCanvas.getNodeHighlightConditions());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setNodeHighlightConditions(gisCanvas
-					.getNodeHighlightConditions());
+			graphCanvas.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -147,13 +144,11 @@ public class LocationToLocationVisualizerNodeDialog extends
 	public void edgeHighlightingChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setEdgeHighlightConditions(graphCanvas
-					.getEdgeHighlightConditions());
+			gisCanvas.setEdgeHighlightConditions(graphCanvas.getEdgeHighlightConditions());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setEdgeHighlightConditions(gisCanvas
-					.getEdgeHighlightConditions());
+			graphCanvas.setEdgeHighlightConditions(gisCanvas.getEdgeHighlightConditions());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -188,13 +183,11 @@ public class LocationToLocationVisualizerNodeDialog extends
 	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setShowEdgesInMetaNode(graphCanvas
-					.isShowEdgesInMetaNode());
+			gisCanvas.setShowEdgesInMetaNode(graphCanvas.isShowEdgesInMetaNode());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setShowEdgesInMetaNode(gisCanvas
-					.isShowEdgesInMetaNode());
+			graphCanvas.setShowEdgesInMetaNode(gisCanvas.isShowEdgesInMetaNode());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -239,8 +232,7 @@ public class LocationToLocationVisualizerNodeDialog extends
 
 		graphCanvas.addComponentListener(this);
 		gisCanvas.addComponentListener(this);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas,
-				gisCanvas);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas, gisCanvas);
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();

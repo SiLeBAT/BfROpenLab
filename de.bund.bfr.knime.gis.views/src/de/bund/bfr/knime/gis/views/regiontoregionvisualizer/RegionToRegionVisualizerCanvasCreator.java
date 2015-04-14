@@ -63,69 +63,53 @@ public class RegionToRegionVisualizerCanvasCreator {
 	}
 
 	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
-		Map<String, Class<?>> nodeProperties = ViewUtils
-				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtils
-				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
-				nodeProperties, set.getGraphSettings().getNodeIdColumn(), set
-						.getGisSettings().getNodeRegionColumn());
-		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
-				edgeProperties, nodes, null, set.getGraphSettings()
-						.getEdgeFromColumn(), set.getGraphSettings()
+		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
+		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties, set
+				.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeRegionColumn());
+		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes, null,
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
-				edgeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
-				set.getGraphSettings().getNodeIdColumn());
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
-				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn());
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING, false);
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges, edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set
+				.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty, set
+				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, Naming.DEFAULT_NAMING, false);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
 		return canvas;
 	}
 
-	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas)
-			throws InvalidSettingsException {
-		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(
-				nodeTable, set.getGraphSettings().getNodeIdColumn(), set
-						.getGisSettings().getNodeRegionColumn());
-		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(
-				shapeTable, set.getGisSettings().getShapeColumn(), set
-						.getGisSettings().getShapeRegionColumn());
-		Map<String, Class<?>> nodeProperties = ViewUtils
-				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtils
-				.getTableColumns(edgeTable.getSpec());
-		Map<String, RegionNode> nodes = ViewUtils.readRegionNodes(nodeTable,
-				nodeProperties, polygonMap, idToRegionMap, set
-						.getGraphSettings().getNodeIdColumn(),
+	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
+		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable, set
+				.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeRegionColumn());
+		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set
+				.getGisSettings().getShapeColumn(), set.getGisSettings().getShapeRegionColumn());
+		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
+		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
+		Map<String, RegionNode> nodes = ViewUtils.readRegionNodes(nodeTable, nodeProperties,
+				polygonMap, idToRegionMap, set.getGraphSettings().getNodeIdColumn(),
 				nonExistingRegions);
-		List<Edge<RegionNode>> edges = ViewUtils.readEdges(edgeTable,
-				edgeProperties, nodes, idToRegionMap, set.getGraphSettings()
-						.getEdgeFromColumn(), set.getGraphSettings()
+		List<Edge<RegionNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes,
+				idToRegionMap, set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
-				edgeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
-				set.getGraphSettings().getNodeIdColumn());
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
-				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn());
-		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING);
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges, edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set
+				.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty, set
+				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
+		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, Naming.DEFAULT_NAMING);
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
 		canvas.setSelectedNodeIds(getSelectedGisNodeIds(canvas.getNodes(),
 				graphCanvas.getSelectedNodes()));
 		canvas.setSelectedEdgeIds(getSelectedGisEdgeIds(canvas.getEdges(),
-				graphCanvas.getSelectedEdges(), set.getGraphSettings()
-						.isJoinEdges()));
+				graphCanvas.getSelectedEdges(), set.getGraphSettings().isJoinEdges()));
 
 		return canvas;
 	}
@@ -154,14 +138,12 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return selectedGisNodeIds;
 	}
 
-	public static Set<String> getSelectedGisEdgeIds(
-			Set<Edge<RegionNode>> gisEdges,
+	public static Set<String> getSelectedGisEdgeIds(Set<Edge<RegionNode>> gisEdges,
 			Set<Edge<GraphNode>> graphSelectedEdges, boolean joinEdges) {
 		Set<String> selectedGisEdgeIds = new LinkedHashSet<>();
 
 		if (!joinEdges) {
-			selectedGisEdgeIds.addAll(CanvasUtils
-					.getElementIds(graphSelectedEdges));
+			selectedGisEdgeIds.addAll(CanvasUtils.getElementIds(graphSelectedEdges));
 		} else {
 			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<>();
 
@@ -170,8 +152,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				String toRegion = gisEdge.getTo().getId();
 
 				if (!gisEdgesByRegion.containsKey(fromRegion)) {
-					gisEdgesByRegion.put(fromRegion,
-							new LinkedHashMap<String, Edge<RegionNode>>());
+					gisEdgesByRegion.put(fromRegion, new LinkedHashMap<String, Edge<RegionNode>>());
 				}
 
 				gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
@@ -182,8 +163,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 				String toRegion = graphEdge.getTo().getRegion();
 
 				if (gisEdgesByRegion.containsKey(fromRegion)) {
-					Edge<RegionNode> gisEdge = gisEdgesByRegion.get(fromRegion)
-							.get(toRegion);
+					Edge<RegionNode> gisEdge = gisEdgesByRegion.get(fromRegion).get(toRegion);
 
 					if (gisEdge != null) {
 						selectedGisEdgeIds.add(gisEdge.getId());

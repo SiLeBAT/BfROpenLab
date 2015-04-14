@@ -61,29 +61,26 @@ public class GisUtils {
 	}
 
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
-		CoordinateArraySequence outerRing = new CoordinateArraySequence(
-				new Coordinate[] {
-						new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
-						new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
-						new Coordinate(rect.getMaxX() + d, rect.getMaxY() + d),
-						new Coordinate(rect.getMinX() - d, rect.getMaxY() + d),
-						new Coordinate(rect.getMinX() - d, rect.getMinY() - d) });
-		CoordinateArraySequence innerRing = new CoordinateArraySequence(
-				new Coordinate[] {
-						new Coordinate(rect.getMinX(), rect.getMinY()),
-						new Coordinate(rect.getMaxX(), rect.getMinY()),
-						new Coordinate(rect.getMaxX(), rect.getMaxY()),
-						new Coordinate(rect.getMinX(), rect.getMaxY()),
-						new Coordinate(rect.getMinX(), rect.getMinY()) });
+		CoordinateArraySequence outerRing = new CoordinateArraySequence(new Coordinate[] {
+				new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
+				new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
+				new Coordinate(rect.getMaxX() + d, rect.getMaxY() + d),
+				new Coordinate(rect.getMinX() - d, rect.getMaxY() + d),
+				new Coordinate(rect.getMinX() - d, rect.getMinY() - d) });
+		CoordinateArraySequence innerRing = new CoordinateArraySequence(new Coordinate[] {
+				new Coordinate(rect.getMinX(), rect.getMinY()),
+				new Coordinate(rect.getMaxX(), rect.getMinY()),
+				new Coordinate(rect.getMaxX(), rect.getMaxY()),
+				new Coordinate(rect.getMinX(), rect.getMaxY()),
+				new Coordinate(rect.getMinX(), rect.getMinY()) });
 
-		return new Polygon(new LinearRing(outerRing, FACTORY),
-				new LinearRing[] { new LinearRing(innerRing, FACTORY) },
-				FACTORY);
+		return new Polygon(new LinearRing(outerRing, FACTORY), new LinearRing[] { new LinearRing(
+				innerRing, FACTORY) }, FACTORY);
 	}
 
 	public static Point2D latLonToViz(Point2D latLon) {
-		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0),
-				OsmMercator.LatToY(latLon.getX(), 0));
+		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0), OsmMercator.LatToY(
+				latLon.getX(), 0));
 	}
 
 	public static MultiPolygon latLonToViz(MultiPolygon polygon) {
@@ -91,16 +88,13 @@ public class GisUtils {
 
 		for (int i = 0; i < polygon.getNumGeometries(); i++) {
 			Polygon poly = (Polygon) polygon.getGeometryN(i);
-			LinearRing exterior = new LinearRing(new CoordinateArraySequence(
-					latLonToViz(poly.getExteriorRing().getCoordinates())),
-					FACTORY);
+			LinearRing exterior = new LinearRing(new CoordinateArraySequence(latLonToViz(poly
+					.getExteriorRing().getCoordinates())), FACTORY);
 			LinearRing[] interior = new LinearRing[poly.getNumInteriorRing()];
 
 			for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-				interior[j] = new LinearRing(
-						new CoordinateArraySequence(latLonToViz(poly
-								.getInteriorRingN(j).getCoordinates())),
-						FACTORY);
+				interior[j] = new LinearRing(new CoordinateArraySequence(latLonToViz(poly
+						.getInteriorRingN(j).getCoordinates())), FACTORY);
 			}
 
 			transformed.add(new Polygon(exterior, interior, FACTORY));
@@ -113,25 +107,21 @@ public class GisUtils {
 		Coordinate[] transformed = new Coordinate[coordinates.length];
 
 		for (int i = 0; i < coordinates.length; i++) {
-			transformed[i] = new Coordinate(OsmMercator.LonToX(
-					coordinates[i].y, 0), OsmMercator.LatToY(coordinates[i].x,
-					0));
+			transformed[i] = new Coordinate(OsmMercator.LonToX(coordinates[i].y, 0),
+					OsmMercator.LatToY(coordinates[i].x, 0));
 		}
 
 		return transformed;
 	}
 
-	public static ShapefileDataStore getDataStore(String shpFile)
-			throws IOException {
-		return new ShapefileDataStore(KnimeUtils.getFile(shpFile).toURI()
-				.toURL());
+	public static ShapefileDataStore getDataStore(String shpFile) throws IOException {
+		return new ShapefileDataStore(KnimeUtils.getFile(shpFile).toURI().toURL());
 	}
 
-	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile)
-			throws IOException, FactoryException {
+	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile) throws IOException,
+			FactoryException {
 		try (BufferedReader reader = new BufferedReader(new FileReader(
-				KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile)
-						+ ".prj")))) {
+				KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj")))) {
 			StringBuilder wkt = new StringBuilder();
 			String line;
 
@@ -177,8 +167,7 @@ public class GisUtils {
 			}
 		}
 
-		return center != null ? new Point2D.Double(center.getX(), center.getY())
-				: null;
+		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
 	}
 
 	public static double getArea(MultiPolygon poly) {
@@ -237,8 +226,7 @@ public class GisUtils {
 					}
 				} else {
 					if (y > Math.min(y1, y2) && y < Math.max(y1, y2)) {
-						double xProjection = (x2 - x1) / (y2 - y1) * (y - y1)
-								+ x1;
+						double xProjection = (x2 - x1) / (y2 - y1) * (y - y1) + x1;
 
 						if (x < xProjection) {
 							hits++;

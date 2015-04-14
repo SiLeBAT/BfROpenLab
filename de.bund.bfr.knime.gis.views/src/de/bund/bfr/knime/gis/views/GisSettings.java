@@ -92,8 +92,7 @@ public class GisSettings extends Settings {
 
 		try {
 			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
 					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
@@ -125,14 +124,13 @@ public class GisSettings extends Settings {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			canvasSize = (Dimension) SERIALIZER.fromXml(settings
-					.getString(CFG_CANVAS_SIZE));
+			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -155,8 +153,7 @@ public class GisSettings extends Settings {
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
-		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(nodeHighlightConditions));
+		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 		settings.addString(CFG_LABEL, label);
 	}
@@ -275,8 +272,7 @@ public class GisSettings extends Settings {
 		return nodeHighlightConditions;
 	}
 
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
+	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 	}
 

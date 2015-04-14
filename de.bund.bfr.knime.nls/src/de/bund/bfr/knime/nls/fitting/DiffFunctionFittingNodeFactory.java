@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionFittingNodeFactory extends
-		NodeFactory<FittingNodeModel> {
+public class DiffFunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
 
 	/**
 	 * {@inheritDoc}

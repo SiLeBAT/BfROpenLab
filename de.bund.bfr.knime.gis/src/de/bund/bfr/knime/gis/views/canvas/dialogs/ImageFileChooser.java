@@ -65,8 +65,8 @@ public class ImageFileChooser extends JFileChooser {
 
 		if (f.exists()
 				&& getDialogType() == SAVE_DIALOG
-				&& JOptionPane.showConfirmDialog(this, message,
-						"Existing file", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+				&& JOptionPane.showConfirmDialog(this, message, "Existing file",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
 			return;
 		}
 

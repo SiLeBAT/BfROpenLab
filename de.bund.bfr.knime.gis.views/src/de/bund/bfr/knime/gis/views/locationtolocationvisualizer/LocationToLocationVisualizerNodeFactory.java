@@ -52,8 +52,7 @@ public class LocationToLocationVisualizerNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<LocationToLocationVisualizerNodeModel> createNodeView(
-			final int viewIndex,
+	public NodeView<LocationToLocationVisualizerNodeModel> createNodeView(final int viewIndex,
 			final LocationToLocationVisualizerNodeModel nodeModel) {
 		return null;
 	}

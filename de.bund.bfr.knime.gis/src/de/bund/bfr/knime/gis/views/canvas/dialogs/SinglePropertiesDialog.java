@@ -43,19 +43,15 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	public SinglePropertiesDialog(Component parent, Element element,
-			PropertySchema schema) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties",
-				DEFAULT_MODALITY_TYPE);
+	public SinglePropertiesDialog(Component parent, Element element, PropertySchema schema) {
+		super(SwingUtilities.getWindowAncestor(parent), "Properties", DEFAULT_MODALITY_TYPE);
 
 		JPanel centerPanel = new JPanel();
 		JPanel leftCenterPanel = new JPanel();
 		JPanel rightCenterPanel = new JPanel();
 
-		leftCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5,
-				5));
-		rightCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5,
-				5));
+		leftCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5, 5));
+		rightCenterPanel.setLayout(new GridLayout(schema.getMap().size(), 1, 5, 5));
 
 		for (String property : schema.getMap().keySet()) {
 			JTextField field = new JTextField();
@@ -63,9 +59,8 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 
 			if (value != null) {
 				field.setText(value.toString());
-				field.setPreferredSize(new Dimension(
-						field.getPreferredSize().width + 5, field
-								.getPreferredSize().height));
+				field.setPreferredSize(new Dimension(field.getPreferredSize().width + 5, field
+						.getPreferredSize().height));
 			}
 
 			field.setEditable(false);
@@ -83,10 +78,8 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 		okButton.addActionListener(this);
 
 		setLayout(new BorderLayout());
-		add(new JScrollPane(UI.createNorthPanel(centerPanel)),
-				BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)),
-				BorderLayout.SOUTH);
+		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this, 0.5, 1.0);

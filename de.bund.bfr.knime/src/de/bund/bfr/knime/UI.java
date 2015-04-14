@@ -76,8 +76,7 @@ public class UI {
 		return false;
 	}
 
-	public static void adjustDialog(JDialog dialog, double widthFraction,
-			double heightFraction) {
+	public static void adjustDialog(JDialog dialog, double widthFraction, double heightFraction) {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
 				dialog.getGraphicsConfiguration());
@@ -92,10 +91,8 @@ public class UI {
 		int maxX = screenSize.width - insets.right - dialog.getWidth();
 		int maxY = screenSize.height - insets.bottom - dialog.getHeight();
 
-		dialog.setLocation(Math.max(dialog.getX(), minX),
-				Math.max(dialog.getY(), minY));
-		dialog.setLocation(Math.min(dialog.getX(), maxX),
-				Math.min(dialog.getY(), maxY));
+		dialog.setLocation(Math.max(dialog.getX(), minX), Math.max(dialog.getY(), minY));
+		dialog.setLocation(Math.min(dialog.getX(), maxX), Math.min(dialog.getY(), maxY));
 	}
 
 	public static void adjustDialog(JDialog dialog) {
@@ -103,8 +100,7 @@ public class UI {
 	}
 
 	public static Dimension getMaxDimension(Dimension d1, Dimension d2) {
-		return new Dimension(Math.max(d1.width, d2.width), Math.max(d1.height,
-				d2.height));
+		return new Dimension(Math.max(d1.width, d2.width), Math.max(d1.height, d2.height));
 	}
 
 	public static JPanel createTitledPanel(JComponent comp, String title) {
@@ -169,8 +165,7 @@ public class UI {
 		return buttonPanel;
 	}
 
-	public static JPanel createOptionsPanel(String name,
-			List<? extends JComponent> leftComponents,
+	public static JPanel createOptionsPanel(String name, List<? extends JComponent> leftComponents,
 			List<? extends JComponent> rightComponents) {
 		int n = leftComponents.size();
 
@@ -209,9 +204,8 @@ public class UI {
 		JPanel p = new JPanel();
 
 		p.setLayout(new GridBagLayout());
-		p.add(comp, new GridBagConstraints(0, 0, 1, 1, 0, 0,
-				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
-				new Insets(0, 0, 0, 0), 0, 0));
+		p.add(comp, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START,
+				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 		return p;
 	}
@@ -225,17 +219,14 @@ public class UI {
 			}
 
 			TableCellRenderer renderer = col.getHeaderRenderer();
-			Component comp = table
-					.getTableHeader()
-					.getDefaultRenderer()
-					.getTableCellRendererComponent(table, col.getHeaderValue(),
-							false, false, 0, 0);
+			Component comp = table.getTableHeader().getDefaultRenderer()
+					.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
 			int width = comp.getPreferredSize().width + 20;
 
 			for (int r = 0; r < table.getRowCount(); r++) {
 				renderer = table.getCellRenderer(r, c);
-				comp = renderer.getTableCellRendererComponent(table,
-						table.getValueAt(r, c), false, false, r, c);
+				comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, c), false,
+						false, r, c);
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
@@ -258,14 +249,12 @@ public class UI {
 	}
 
 	public static void setFontSize(Component c, int fontSize) {
-		c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle(),
-				fontSize));
+		c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle(), fontSize));
 	}
 
 	public static GridBagConstraints centerConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						2, 2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, 1, 1, 0, 0, GridBagConstraints.CENTER,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static GridBagConstraints westConstraints(int x, int y) {
@@ -273,15 +262,13 @@ public class UI {
 	}
 
 	public static GridBagConstraints westConstraints(int x, int y, int w, int h) {
-		return new GridBagConstraints(x, y, w, h, 0, 0,
-				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2,
-						2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, w, h, 0, 0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static GridBagConstraints fillConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 1, 0,
-				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, 1, 1, 1, 0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static JPanel createTablePanel(JTable table) {
@@ -316,9 +303,8 @@ public class UI {
 			String clipboardContent = null;
 
 			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit()
-						.getSystemClipboard().getContents(table)
-						.getTransferData(DataFlavor.stringFlavor);
+				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
+						.getContents(table).getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
 				return;
@@ -333,16 +319,13 @@ public class UI {
 					int row = startRow + i;
 					int col = startCol + j;
 
-					if (row >= table.getRowCount()
-							|| col >= table.getColumnCount()
+					if (row >= table.getRowCount() || col >= table.getColumnCount()
 							|| !table.isCellEditable(row, col)) {
 						continue;
 					}
 
 					try {
-						table.setValueAt(
-								Double.parseDouble(cells[j].replace(",", ".")),
-								row, col);
+						table.setValueAt(Double.parseDouble(cells[j].replace(",", ".")), row, col);
 					} catch (NumberFormatException ex) {
 					}
 				}
@@ -362,9 +345,8 @@ public class UI {
 			String clipboardContent = null;
 
 			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit()
-						.getSystemClipboard().getContents(table)
-						.getTransferData(DataFlavor.stringFlavor);
+				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
+						.getContents(table).getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
 				return;
@@ -379,8 +361,7 @@ public class UI {
 					int row = startRow + i;
 					int col = startCol + j;
 
-					if (row >= table.getRowCount()
-							|| col >= table.getColumnCount()
+					if (row >= table.getRowCount() || col >= table.getColumnCount()
 							|| !table.isCellEditable(row, col)) {
 						continue;
 					}

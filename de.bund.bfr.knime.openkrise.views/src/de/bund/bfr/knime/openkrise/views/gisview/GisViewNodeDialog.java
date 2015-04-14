@@ -73,8 +73,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)),
-				BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)), BorderLayout.NORTH);
 
 		addTab("Options", panel, false);
 	}
@@ -92,8 +91,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.getGisSettings().setFromCanvas(canvas, listener.isResized());
 		set.saveSettings(settings);
@@ -104,8 +102,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 			panel.remove(canvas);
 		}
 
-		GisViewCanvasCreator creator = new GisViewCanvasCreator(shapeTable,
-				nodeTable, set);
+		GisViewCanvasCreator creator = new GisViewCanvasCreator(shapeTable, nodeTable, set);
 
 		try {
 			canvas = creator.createCanvas();

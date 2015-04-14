@@ -32,8 +32,7 @@ import com.vividsolutions.jts.io.WKBWriter;
 public class ShapeBlobSerializer implements DataCellSerializer<ShapeBlobCell> {
 
 	@Override
-	public void serialize(ShapeBlobCell cell, DataCellDataOutput output)
-			throws IOException {
+	public void serialize(ShapeBlobCell cell, DataCellDataOutput output) throws IOException {
 		WKBWriter writer = new WKBWriter();
 		byte[] bytes = writer.write(cell.getShape());
 
@@ -42,8 +41,7 @@ public class ShapeBlobSerializer implements DataCellSerializer<ShapeBlobCell> {
 	}
 
 	@Override
-	public ShapeBlobCell deserialize(DataCellDataInput input)
-			throws IOException {
+	public ShapeBlobCell deserialize(DataCellDataInput input) throws IOException {
 		byte[] bytes = new byte[input.readInt()];
 
 		input.readFully(bytes);

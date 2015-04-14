@@ -82,32 +82,26 @@ public class ParameterOptimizer {
 		resetResults();
 	}
 
-	public ParameterOptimizer(String formula, String[] parameters,
-			double[] targetValues, Map<String, double[]> variableValues)
-			throws ParseException {
+	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
+			Map<String, double[]> variableValues) throws ParseException {
 		this(parameters, targetValues);
-		optimizerFunction = new VectorFunction(formula, parameters,
-				variableValues);
-		optimizerFunctionJacobian = new VectorFunctionJacobian(formula,
-				parameters, variableValues);
+		optimizerFunction = new VectorFunction(formula, parameters, variableValues);
+		optimizerFunctionJacobian = new VectorFunctionJacobian(formula, parameters, variableValues);
 
 	}
 
-	public ParameterOptimizer(String[] formulas, String[] dependentVariables,
-			Double[] initValues, String[] initParameters, String[] parameters,
-			double[] timeValues, double[] targetValues,
-			String dependentVariable, String timeVariable,
+	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
+			String[] initParameters, String[] parameters, double[] timeValues,
+			double[] targetValues, String dependentVariable, String timeVariable,
 			Map<String, double[]> variableValues, IntegratorFactory integrator)
 			throws ParseException {
 		this(parameters, targetValues);
-		optimizerFunction = new VectorDiffFunction(formulas,
-				dependentVariables, initValues, initParameters, parameters,
-				variableValues, timeValues, dependentVariable, timeVariable,
-				integrator);
-		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas,
-				dependentVariables, initValues, initParameters, parameters,
-				variableValues, timeValues, dependentVariable, timeVariable,
-				integrator);
+		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues,
+				initParameters, parameters, variableValues, timeValues, dependentVariable,
+				timeVariable, integrator);
+		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas, dependentVariables,
+				initValues, initParameters, parameters, variableValues, timeValues,
+				dependentVariable, timeVariable, integrator);
 	}
 
 	public Map<String, Double> getMinValues() {
@@ -126,9 +120,8 @@ public class ParameterOptimizer {
 		progressListeners.remove(listener);
 	}
 
-	public void optimize(int nParameterSpace, int nLevenberg,
-			boolean stopWhenSuccessful, Map<String, Double> minStartValues,
-			Map<String, Double> maxStartValues) {
+	public void optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
+			Map<String, Double> minStartValues, Map<String, Double> maxStartValues) {
 		double[] paramMin = new double[parameters.length];
 		int[] paramStepCount = new int[parameters.length];
 		double[] paramStepSize = new double[parameters.length];
@@ -145,8 +138,7 @@ public class ParameterOptimizer {
 		}
 
 		if (paramsWithRange != 0) {
-			maxStepCount = (int) Math.pow(nParameterSpace,
-					1.0 / paramsWithRange);
+			maxStepCount = (int) Math.pow(nParameterSpace, 1.0 / paramsWithRange);
 		}
 
 		for (int i = 0; i < parameters.length; i++) {
@@ -172,8 +164,8 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<StartValues> startValuesList = createStartValuesList(paramMin,
-				paramStepCount, paramStepSize, nLevenberg);
+		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount,
+				paramStepSize, nLevenberg);
 
 		optimize(startValuesList, stopWhenSuccessful);
 	}
@@ -226,8 +218,7 @@ public class ParameterOptimizer {
 		return degreesOfFreedom;
 	}
 
-	private void optimize(List<StartValues> startValuesList,
-			boolean stopWhenSuccessful) {
+	private void optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 
 		successful = false;
@@ -235,8 +226,7 @@ public class ParameterOptimizer {
 		for (StartValues startValues : startValuesList) {
 			try {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
-						.optimize(createLeastSquaresProblem(startValues
-								.getValues()));
+						.optimize(createLeastSquaresProblem(startValues.getValues()));
 				double cost = optimizerResults.getCost();
 
 				if (!successful || cost * cost < sse) {
@@ -266,8 +256,8 @@ public class ParameterOptimizer {
 		}
 	}
 
-	private List<StartValues> createStartValuesList(double[] paramMin,
-			int[] paramStepCount, double[] paramStepSize, int n) {
+	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount,
+			double[] paramStepSize, int n) {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -302,8 +292,8 @@ public class ParameterOptimizer {
 				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
 			}
 
-			double error = targetVector.getDistance(new ArrayRealVector(
-					optimizerFunction.value(values)));
+			double error = targetVector.getDistance(new ArrayRealVector(optimizerFunction
+					.value(values)));
 
 			if (!Double.isNaN(error)) {
 				valuesList.add(new StartValues(values, error));
@@ -332,9 +322,8 @@ public class ParameterOptimizer {
 
 	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder()
-				.model(optimizerFunction, optimizerFunctionJacobian)
-				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL)
-				.target(targetValues).start(startValues);
+				.model(optimizerFunction, optimizerFunctionJacobian).maxEvaluations(MAX_EVAL)
+				.maxIterations(MAX_EVAL).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder = builder.parameterValidator(new ParameterValidator() {
@@ -376,8 +365,7 @@ public class ParameterOptimizer {
 		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
 
 		for (int i = 0; i < parameters.length; i++) {
-			parameterValues.put(parameters[i], optimizerResults.getPoint()
-					.getEntry(i));
+			parameterValues.put(parameters[i], optimizerResults.getPoint().getEntry(i));
 		}
 
 		if (degreesOfFreedom <= 0) {
@@ -390,8 +378,7 @@ public class ParameterOptimizer {
 		double[][] covMatrix;
 
 		try {
-			covMatrix = optimizerResults.getCovariances(COV_THRESHOLD)
-					.getData();
+			covMatrix = optimizerResults.getCovariances(COV_THRESHOLD).getData();
 		} catch (SingularMatrixException e) {
 			return;
 		}
@@ -409,8 +396,7 @@ public class ParameterOptimizer {
 			double tValue = optimizerResults.getPoint().getEntry(i) / error;
 
 			parameterTValues.put(parameters[i], tValue);
-			parameterPValues.put(parameters[i],
-					MathUtils.getPValue(tValue, degreesOfFreedom));
+			parameterPValues.put(parameters[i], MathUtils.getPValue(tValue, degreesOfFreedom));
 		}
 
 		for (int i = 0; i < parameters.length; i++) {

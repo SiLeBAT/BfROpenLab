@@ -92,10 +92,9 @@ import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel implements
-		ChangeListener, ItemListener, MouseListener,
-		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener,
-		ICanvas<V> {
+public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener,
+		ItemListener, MouseListener, CanvasPopupMenu.ClickListener,
+		CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -125,9 +124,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	private List<CanvasListener> canvasListeners;
 
-	public Canvas(List<V> nodes, List<Edge<V>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming) {
+	public Canvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming) {
 		this.nodeSchema = nodeSchema;
 		this.edgeSchema = edgeSchema;
 		this.naming = naming;
@@ -145,8 +143,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		edgeSaveMap = CanvasUtils.getElementsById(this.edges);
 		joinMap = new LinkedHashMap<>();
 		collapsedNodes = new LinkedHashMap<>();
-		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE, nodeSchema
-				.getMap().keySet());
+		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE, nodeSchema.getMap().keySet());
 		nodeSchema.getMap().put(metaNodeProperty, Boolean.class);
 
 		viewer = new VisualizationViewer<>(new StaticLayout<>(
@@ -157,21 +154,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
 				new NodeFillTransformer<>(viewer.getRenderContext(),
-						new LinkedHashMap<V, List<Double>>(),
-						new ArrayList<Color>()));
+						new LinkedHashMap<V, List<Double>>(), new ArrayList<Color>()));
 		viewer.getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
 				new EdgeDrawTransformer<>(viewer.getRenderContext(),
-						new LinkedHashMap<Edge<V>, List<Double>>(),
-						new ArrayList<Color>()));
-		((MutableAffineTransformer) viewer.getRenderContext()
-				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.addChangeListener(this);
+						new LinkedHashMap<Edge<V>, List<Double>>(), new ArrayList<Color>()));
+		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
+				.getTransformer(Layer.LAYOUT)).addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
-		viewer.getGraphLayout().setGraph(
-				CanvasUtils.createGraph(this.nodes, this.edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
 
 		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 
@@ -346,8 +339,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public Set<V> getSelectedNodes() {
-		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState()
-				.getPicked());
+		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState().getPicked());
 
 		selected.retainAll(nodes);
 
@@ -367,8 +359,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public Set<Edge<V>> getSelectedEdges() {
-		Set<Edge<V>> selected = new LinkedHashSet<>(viewer.getPickedEdgeState()
-				.getPicked());
+		Set<Edge<V>> selected = new LinkedHashSet<>(viewer.getPickedEdgeState().getPicked());
 
 		selected.retainAll(edges);
 
@@ -412,8 +403,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
+	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		applyChanges();
 		fireNodeHighlightingChanged();
@@ -425,8 +415,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public void setEdgeHighlightConditions(
-			HighlightConditionList edgeHighlightConditions) {
+	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
 		fireEdgeHighlightingChanged();
@@ -453,18 +442,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	public void setTransform(Transform transform) {
 		this.transform = transform;
 
-		((MutableAffineTransformer) viewer.getRenderContext()
-				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.setTransform(transform.toAffineTransform());
+		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
+				.getTransformer(Layer.LAYOUT)).setTransform(transform.toAffineTransform());
 		applyTransform();
 		viewer.repaint();
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		AffineTransform transform = ((MutableAffineTransformer) viewer
-				.getRenderContext().getMultiLayerTransformer()
-				.getTransformer(Layer.LAYOUT)).getTransform();
+		AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext()
+				.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).getTransform();
 
 		if (transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0) {
 			this.transform = new Transform(transform);
@@ -506,8 +493,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				break;
 			case PICKING:
 				setEditingMode(Mode.TRANSFORMING);
-				viewer.setCursor(Cursor
-						.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				viewer.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				break;
 			default:
 				break;
@@ -544,36 +530,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			if (chooser.getFileFilter() == ImageFileChooser.PNG_FILTER) {
 				try {
 					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(false);
-					BufferedImage img = new BufferedImage(viewer.getWidth(),
-							viewer.getHeight(), BufferedImage.TYPE_INT_RGB);
+					BufferedImage img = new BufferedImage(viewer.getWidth(), viewer.getHeight(),
+							BufferedImage.TYPE_INT_RGB);
 
 					server.paint(img.getGraphics());
 					ImageIO.write(img, "png", chooser.getImageFile());
 				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(this,
-							"Error saving png file", "Error",
+					JOptionPane.showMessageDialog(this, "Error saving png file", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			} else if (chooser.getFileFilter() == ImageFileChooser.SVG_FILTER) {
 				try {
 					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(true);
-					DOMImplementation domImpl = GenericDOMImplementation
-							.getDOMImplementation();
-					Document document = domImpl.createDocument(null, "svg",
-							null);
+					DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+					Document document = domImpl.createDocument(null, "svg", null);
 					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-					Writer outsvg = new OutputStreamWriter(
-							new FileOutputStream(chooser.getImageFile()),
-							StandardCharsets.UTF_8);
+					Writer outsvg = new OutputStreamWriter(new FileOutputStream(
+							chooser.getImageFile()), StandardCharsets.UTF_8);
 
-					svgGenerator.setSVGCanvasSize(new Dimension(viewer
-							.getWidth(), viewer.getHeight()));
+					svgGenerator.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer
+							.getHeight()));
 					server.paint(svgGenerator);
 					svgGenerator.stream(outsvg, true);
 					outsvg.close();
 				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(this,
-							"Error saving svg file", "Error",
+					JOptionPane.showMessageDialog(this, "Error saving svg file", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -585,8 +566,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		Set<V> selected = getSelectedNodes();
 
 		for (Edge<V> edge : edges) {
-			if (selected.contains(edge.getFrom())
-					&& selected.contains(edge.getTo())) {
+			if (selected.contains(edge.getFrom()) && selected.contains(edge.getTo())) {
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
@@ -630,15 +610,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : getSelectedNodeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					nodeSchema.getId(), LogicalHighlightCondition.EQUAL_TYPE,
-					id);
+			LogicalHighlightCondition c = new LogicalHighlightCondition(nodeSchema.getId(),
+					LogicalHighlightCondition.EQUAL_TYPE, id);
 
 			conditions.add(Arrays.asList(c));
 		}
 
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(conditions, null, false,
+				Color.RED, false, false, null);
 
 		dialog.setAutoAddCondition(condition);
 		dialog.setVisible(true);
@@ -654,15 +633,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : getSelectedEdgeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(
-					edgeSchema.getId(), LogicalHighlightCondition.EQUAL_TYPE,
-					id);
+			LogicalHighlightCondition c = new LogicalHighlightCondition(edgeSchema.getId(),
+					LogicalHighlightCondition.EQUAL_TYPE, id);
 
 			conditions.add(Arrays.asList(c));
 		}
 
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(
-				conditions, null, false, Color.RED, false, false, null);
+		AndOrHighlightCondition condition = new AndOrHighlightCondition(conditions, null, false,
+				Color.RED, false, false, null);
 
 		dialog.setAutoAddCondition(condition);
 		dialog.setVisible(true);
@@ -696,20 +674,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void clearHighlightedNodesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all " + naming.node()
-						+ " highlight conditions?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		if (JOptionPane.showConfirmDialog(this, "Do you really want to remove all " + naming.node()
+				+ " highlight conditions?", "Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			setNodeHighlightConditions(new HighlightConditionList());
 		}
 	}
 
 	@Override
 	public void clearHighlightedEdgesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all " + naming.edge()
-						+ " highlight conditions?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		if (JOptionPane.showConfirmDialog(this, "Do you really want to remove all " + naming.edge()
+				+ " highlight conditions?", "Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			setEdgeHighlightConditions(new HighlightConditionList());
 		}
 	}
@@ -743,8 +717,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void highlightNodeCategoriesItemClicked() {
-		String[] properties = nodeSchema.getMap().keySet()
-				.toArray(new String[0]);
+		String[] properties = nodeSchema.getMap().keySet().toArray(new String[0]);
 		String result = (String) JOptionPane.showInputDialog(this,
 				"Select Property with Categories?", "Highlight Categories",
 				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
@@ -762,11 +735,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void selectNodesItemClicked() {
 		nodeSchema.getPossibleValues().clear();
-		nodeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(nodeSaveMap.values()));
+		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodeSaveMap.values()));
 
-		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
-				nodeSchema, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, nodeSchema, null);
 
 		dialog.setVisible(true);
 
@@ -779,11 +750,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void selectEdgesItemClicked() {
 		edgeSchema.getPossibleValues().clear();
-		edgeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(edgeSaveMap.values()));
+		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edgeSaveMap.values()));
 
-		HighlightDialog dialog = HighlightDialog.createFilterDialog(this,
-				edgeSchema, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, edgeSchema, null);
 
 		dialog.setVisible(true);
 
@@ -795,16 +764,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void nodePropertiesItemClicked() {
-		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
-				getSelectedNodes(), nodeSchema, true);
+		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this, getSelectedNodes(),
+				nodeSchema, true);
 
 		dialog.setVisible(true);
 	}
 
 	@Override
 	public void edgePropertiesItemClicked() {
-		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this,
-				getSelectedEdges(), edgeSchema, true);
+		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this, getSelectedEdges(),
+				edgeSchema, true);
 
 		dialog.setVisible(true);
 	}
@@ -823,8 +792,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 
-		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this,
-				pickedAll, nodeSchema, false);
+		PropertiesDialog<V> dialog = PropertiesDialog.createNodeDialog(this, pickedAll, nodeSchema,
+				false);
 
 		dialog.setVisible(true);
 	}
@@ -841,8 +810,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			}
 		}
 
-		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this,
-				allPicked, edgeSchema, false);
+		PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(this, allPicked, edgeSchema,
+				false);
 
 		dialog.setVisible(true);
 	}
@@ -853,15 +822,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		for (String id : selectedIds) {
 			if (collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ naming.nodes() + " are already collapsed", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes()
+						+ " are already collapsed", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 
-		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(),
-				naming.Node());
+		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(), naming.Node());
 
 		if (newId == null) {
 			return;
@@ -879,9 +846,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		for (String id : selectedIds) {
 			if (!collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected "
-						+ naming.nodes() + " are not collapsed", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes()
+						+ " are not collapsed", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
@@ -904,9 +870,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		Set<String> idsToCollapse;
 
 		if (!selectedIds.isEmpty()
-				&& JOptionPane.showConfirmDialog(this, "Use only the selected "
-						+ naming.nodes() + " for collapsing?", "Confirm",
-						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				&& JOptionPane.showConfirmDialog(this, "Use only the selected " + naming.nodes()
+						+ " for collapsing?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			idsToCollapse = selectedIds;
 		} else {
 			idsToCollapse = CanvasUtils.getElementIds(getNodes());
@@ -917,24 +882,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				String message;
 
 				if (idsToCollapse == selectedIds) {
-					message = "Some of the selected " + naming.nodes()
-							+ " are already collapsed.";
+					message = "Some of the selected " + naming.nodes() + " are already collapsed.";
 				} else {
-					message = "Some of the "
-							+ naming.nodes()
+					message = "Some of the " + naming.nodes()
 							+ " are already collapsed. You have to clear all collapsed "
 							+ naming.nodes() + " before.";
 				}
 
-				JOptionPane.showMessageDialog(this, message, "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		}
 
-		Map<Object, Set<V>> nodesByProperty = CanvasUtils
-				.openCollapseByPropertyDialog(this, nodeSchema.getMap()
-						.keySet(), idsToCollapse, nodeSaveMap);
+		Map<Object, Set<V>> nodesByProperty = CanvasUtils.openCollapseByPropertyDialog(this,
+				nodeSchema.getMap().keySet(), idsToCollapse, nodeSaveMap);
 		Set<String> newCollapsedIds = new LinkedHashSet<>();
 
 		if (nodesByProperty.isEmpty()) {
@@ -945,8 +906,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			String newId = KnimeUtils.createNewValue(entry.getKey().toString(),
 					nodeSaveMap.keySet());
 
-			collapsedNodes.put(newId,
-					CanvasUtils.getElementIds(entry.getValue()));
+			collapsedNodes.put(newId, CanvasUtils.getElementIds(entry.getValue()));
 			newCollapsedIds.add(newId);
 		}
 
@@ -957,11 +917,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		if (JOptionPane.showConfirmDialog(
-				this,
-				"Do you really want to uncollapse all collapsed "
-						+ naming.nodes() + "?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+		if (JOptionPane.showConfirmDialog(this, "Do you really want to uncollapse all collapsed "
+				+ naming.nodes() + "?", "Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			for (String id : collapsedNodes.keySet()) {
 				nodeSaveMap.remove(id);
 			}
@@ -1008,11 +965,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	@Override
 	public void fontChanged() {
 		viewer.getRenderContext().setVertexFontTransformer(
-				new FontTransformer<V>(optionsPanel.getFontSize(), optionsPanel
-						.isFontBold()));
-		viewer.getRenderContext().setEdgeFontTransformer(
-				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(),
-						optionsPanel.isFontBold()));
+				new FontTransformer<V>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
+		viewer.getRenderContext()
+				.setEdgeFontTransformer(
+						new FontTransformer<Edge<V>>(optionsPanel.getFontSize(), optionsPanel
+								.isFontBold()));
 		viewer.repaint();
 	}
 
@@ -1042,8 +999,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 	}
 
 	@Override
-	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			boolean toSvg) {
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = new VisualizationImageServer<>(
 				viewer.getGraphLayout(), viewer.getSize());
 
@@ -1131,8 +1087,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			V newNode = nodeSaveMap.get(newId);
 
 			if (newNode == null) {
-				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap,
-						collapsedNodes.get(newId));
+				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(newId));
 
 				newNode = createMetaNode(newId, nodes);
 				nodeSaveMap.put(newId, newNode);
@@ -1158,8 +1113,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
 
 			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
-				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(),
-						from, to);
+				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(), from, to);
 				newEdge.getProperties().put(edgeSchema.getFrom(), from.getId());
 				newEdge.getProperties().put(edgeSchema.getTo(), to.getId());
 				edgeSaveMap.put(newEdge.getId(), newEdge);
@@ -1194,17 +1148,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	@Override
 	public void applyHighlights() {
-		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes,
-				nodeHighlightConditions, getNodeSize());
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges,
-				edgeHighlightConditions);
+		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions,
+				getNodeSize());
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions);
 	}
 
 	@Override
 	public void applyShowEdgesInMetaNode() {
 		if (!isShowEdgesInMetaNode()) {
-			for (Iterator<Edge<V>> iterator = edges.iterator(); iterator
-					.hasNext();) {
+			for (Iterator<Edge<V>> iterator = edges.iterator(); iterator.hasNext();) {
 				Edge<V> edge = iterator.next();
 
 				if (edge.getFrom() == edge.getTo()
@@ -1217,17 +1169,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 	protected HighlightListDialog openNodeHighlightDialog() {
 		nodeSchema.getPossibleValues().clear();
-		nodeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(nodeSaveMap.values()));
+		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodeSaveMap.values()));
 
-		return new HighlightListDialog(this, nodeSchema,
-				nodeHighlightConditions);
+		return new HighlightListDialog(this, nodeSchema, nodeHighlightConditions);
 	}
 
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		edgeSchema.getPossibleValues().clear();
-		edgeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(edgeSaveMap.values()));
+		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edgeSaveMap.values()));
 
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema,
 				edgeHighlightConditions);
@@ -1302,19 +1251,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				V node = viewer.getPickSupport().getVertex(
-						viewer.getGraphLayout(), e.getX(), e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(
-						viewer.getGraphLayout(), e.getX(), e.getY());
+				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(),
+						e.getY());
+				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(),
+						e.getY());
 
 				if (node != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-							e.getComponent(), node, nodeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
+							node, nodeSchema);
 
 					dialog.setVisible(true);
 				} else if (edge != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-							e.getComponent(), edge, edgeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
+							edge, edgeSchema);
 
 					dialog.setVisible(true);
 				}
@@ -1326,8 +1275,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			String error = "The column \""
-					+ edgeSchema.getId()
+			String error = "The column \"" + edgeSchema.getId()
 					+ "\" cannot be used with \"Invisible\" option as it is used as "
 					+ naming.edge() + " ID";
 
@@ -1347,8 +1295,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 				}
 
 				if (logicalCondition != null) {
-					for (List<LogicalHighlightCondition> cc : logicalCondition
-							.getConditions()) {
+					for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
 						for (LogicalHighlightCondition c : cc) {
 							if (edgeSchema.getId().equals(c.getProperty())) {
 								return error;
@@ -1389,15 +1336,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 
 			if (optionsPanel.isShowLegend()) {
 				new CanvasLegend<>(Canvas.this, nodeHighlightConditions, nodes,
-						edgeHighlightConditions, edges).paint(g,
-						getCanvasSize().width, getCanvasSize().height,
-						optionsPanel.getFontSize(), optionsPanel.isFontBold());
+						edgeHighlightConditions, edges).paint(g, getCanvasSize().width,
+						getCanvasSize().height, optionsPanel.getFontSize(),
+						optionsPanel.isFontBold());
 			}
 
 			if (toImage) {
 				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, getCanvasSize().width - 1,
-						getCanvasSize().height - 1);
+				g.drawRect(0, 0, getCanvasSize().width - 1, getCanvasSize().height - 1);
 			}
 		}
 
@@ -1409,8 +1355,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements
 			int dy = 2;
 
 			int dx = 5;
-			int sw = (int) font.getStringBounds(getLabel(),
-					((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw = (int) font
+					.getStringBounds(getLabel(), ((Graphics2D) g).getFontRenderContext())
+					.getWidth();
 
 			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
 			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);

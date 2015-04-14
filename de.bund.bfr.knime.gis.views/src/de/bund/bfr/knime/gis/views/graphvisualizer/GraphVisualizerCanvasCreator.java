@@ -40,33 +40,28 @@ public class GraphVisualizerCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private GraphVisualizerSettings set;
 
-	public GraphVisualizerCanvasCreator(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, GraphVisualizerSettings set) {
+	public GraphVisualizerCanvasCreator(BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			GraphVisualizerSettings set) {
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
 		this.set = set;
 	}
 
 	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
-		Map<String, Class<?>> nodeProperties = ViewUtils
-				.getTableColumns(nodeTable.getSpec());
-		Map<String, Class<?>> edgeProperties = ViewUtils
-				.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable,
-				nodeProperties, set.getGraphSettings().getNodeIdColumn(), null);
-		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable,
-				edgeProperties, nodes, null, set.getGraphSettings()
-						.getEdgeFromColumn(), set.getGraphSettings()
+		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
+		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties, set
+				.getGraphSettings().getNodeIdColumn(), null);
+		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes, null,
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
 						.getEdgeToColumn());
-		String edgeIdProperty = ViewUtils.createNewIdProperty(edges,
-				edgeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
-				set.getGraphSettings().getNodeIdColumn());
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties,
-				edgeIdProperty, set.getGraphSettings().getEdgeFromColumn(), set
-						.getGraphSettings().getEdgeToColumn());
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, Naming.DEFAULT_NAMING, true);
+		String edgeIdProperty = ViewUtils.createNewIdProperty(edges, edgeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set
+				.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty, set
+				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, Naming.DEFAULT_NAMING, true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 

@@ -80,8 +80,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 
 				if (text.isEmpty()) {
 					String[] array = list.toArray(new String[list.size()]);
-					ComboBoxModel<String> m = new DefaultComboBoxModel<String>(
-							array);
+					ComboBoxModel<String> m = new DefaultComboBoxModel<String>(array);
 
 					setSuggestionModel(AutoSuggestField.this, m, "");
 					hidePopup();
@@ -120,8 +119,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 			if (!list.contains(text)) {
 				list.add(text);
 				Collections.sort(list);
-				setSuggestionModel(AutoSuggestField.this,
-						getSuggestedModel(list, text), text);
+				setSuggestionModel(AutoSuggestField.this, getSuggestedModel(list, text), text);
 			}
 
 			shouldHide = true;
@@ -138,15 +136,14 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 	}
 
-	private static void setSuggestionModel(JComboBox<String> comboBox,
-			ComboBoxModel<String> mdl, String str) {
+	private static void setSuggestionModel(JComboBox<String> comboBox, ComboBoxModel<String> mdl,
+			String str) {
 		comboBox.setModel(mdl);
 		comboBox.setSelectedIndex(-1);
 		((JTextField) comboBox.getEditor().getEditorComponent()).setText(str);
 	}
 
-	private static ComboBoxModel<String> getSuggestedModel(List<String> list,
-			String text) {
+	private static ComboBoxModel<String> getSuggestedModel(List<String> list, String text) {
 		DefaultComboBoxModel<String> m = new DefaultComboBoxModel<>();
 
 		for (String s : list) {

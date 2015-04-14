@@ -41,12 +41,10 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 	private int nParams;
 	private int nValues;
 
-	public VectorDiffFunctionJacobian(String[] formulas,
-			String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters,
-			Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable,
-			IntegratorFactory integrator) throws ParseException {
+	public VectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables,
+			Double[] initValues, String[] initParameters, String[] parameters,
+			Map<String, double[]> variableValues, double[] timeValues, String dependentVariable,
+			String timeVariable, IntegratorFactory integrator) throws ParseException {
 		nParams = parameters.length;
 		nValues = timeValues.length;
 
@@ -66,11 +64,10 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 				functions[j] = parser.parse(formulas[j]);
 			}
 
-			diffFunctions[i] = new VectorDiffFunction(parser, functions,
-					dependentVariables, initValues, initParameters, parameters,
-					variableValues, timeValues, Arrays.asList(
-							dependentVariables).indexOf(dependentVariable),
-					timeVariable, integrator);
+			diffFunctions[i] = new VectorDiffFunction(parser, functions, dependentVariables,
+					initValues, initParameters, parameters, variableValues, timeValues, Arrays
+							.asList(dependentVariables).indexOf(dependentVariable), timeVariable,
+					integrator);
 		}
 	}
 

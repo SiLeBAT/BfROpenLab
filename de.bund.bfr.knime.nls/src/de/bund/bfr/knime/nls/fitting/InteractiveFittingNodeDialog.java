@@ -62,8 +62,8 @@ import de.bund.bfr.knime.ui.DoubleTextField;
  * 
  * @author Christian Thoens
  */
-public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
-		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
+public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane implements
+		ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private boolean isDiff;
 	private Reader reader;
@@ -100,11 +100,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		if (isDiff) {
 			conditionTable = (BufferedDataTable) input[2];
-			reader = new DiffFunctionReader(functionObject, varTable,
-					conditionTable);
+			reader = new DiffFunctionReader(functionObject, varTable, conditionTable);
 		} else {
-			reader = new FunctionReader(functionObject, varTable, set
-					.getViewSettings().getVarX());
+			reader = new FunctionReader(functionObject, varTable, set.getViewSettings().getVarX());
 		}
 
 		((JPanel) getTab("Options")).removeAll();
@@ -112,8 +110,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setStartValues(configPanel.getParamValues());
 		set.setMinStartValues(configPanel.getMinValues());
 		set.setMaxStartValues(configPanel.getMaxValues());
@@ -126,17 +123,13 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		configPanel = new ChartConfigPanel(false, false, true);
-		configPanel.init(
-				reader.getDepVar(),
-				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
-						.values())),
-				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables()
-						.values())), set.getMinStartValues(), set
-						.getMaxStartValues());
+		configPanel.init(reader.getDepVar(),
+				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
+				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables().values())),
+				set.getMinStartValues(), set.getMaxStartValues());
 		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamValues(set.getStartValues());
-		chartCreator = new ChartCreator(reader.getPlotables(),
-				reader.getLegend());
+		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());
 
 		configPanel.addConfigListener(this);
@@ -149,23 +142,19 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			stepSizeField = new DoubleTextField(false, 8);
 			stepSizeField.setMinValue(Double.MIN_NORMAL);
 			stepSizeField.setValue(set.getStepSize());
-			regressionPanel = UI.createOptionsPanel("Regression", Arrays
-					.asList(new JLabel("Integration Step Size"),
-							enforceLimitsBox), Arrays.asList(stepSizeField,
-					new JLabel()));
-		} else {
 			regressionPanel = UI.createOptionsPanel("Regression",
-					Arrays.asList(enforceLimitsBox),
+					Arrays.asList(new JLabel("Integration Step Size"), enforceLimitsBox),
+					Arrays.asList(stepSizeField, new JLabel()));
+		} else {
+			regressionPanel = UI.createOptionsPanel("Regression", Arrays.asList(enforceLimitsBox),
 					Arrays.asList(new JLabel()));
 		}
 
 		JPanel rightPanel = new JPanel();
 
 		rightPanel.setLayout(new BorderLayout());
-		rightPanel.add(new JScrollPane(configPanel,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.CENTER);
+		rightPanel.add(new JScrollPane(configPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		rightPanel.add(regressionPanel, BorderLayout.SOUTH);
 
 		JPanel panel = new JPanel();
@@ -199,11 +188,10 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			set.getViewSettings().setFromConfigPanel(configPanel);
 
 			if (isDiff) {
-				reader = new DiffFunctionReader(functionObject, varTable,
-						conditionTable);
+				reader = new DiffFunctionReader(functionObject, varTable, conditionTable);
 			} else {
-				reader = new FunctionReader(functionObject, varTable, set
-						.getViewSettings().getVarX());
+				reader = new FunctionReader(functionObject, varTable, set.getViewSettings()
+						.getVarX());
 			}
 
 			((JPanel) getTab("Options")).removeAll();

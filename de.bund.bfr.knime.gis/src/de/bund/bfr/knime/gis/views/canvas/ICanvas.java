@@ -113,13 +113,11 @@ public interface ICanvas<V extends Node> {
 
 	HighlightConditionList getNodeHighlightConditions();
 
-	void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions);
+	void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions);
 
 	HighlightConditionList getEdgeHighlightConditions();
 
-	void setEdgeHighlightConditions(
-			HighlightConditionList edgeHighlightConditions);
+	void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions);
 
 	Map<String, Set<String>> getCollapsedNodes();
 

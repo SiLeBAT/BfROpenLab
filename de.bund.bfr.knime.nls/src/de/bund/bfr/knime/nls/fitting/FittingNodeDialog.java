@@ -99,8 +99,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			PortObjectSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
+			throws NotConfigurableException {
 		set.loadSettings(settings);
 
 		expertBox.removeActionListener(this);
@@ -111,8 +111,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		if (isDiff && !stepSizeField.isValid()) {
 			throw new InvalidSettingsException("");
 		}
@@ -179,12 +178,11 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
 
-		List<JComponent> leftComps = new ArrayList<JComponent>(Arrays.asList(
-				new JLabel("Maximal Evaluations to Find Start Values"),
-				new JLabel("Maximal Executions of the Levenberg Algorithm"),
-				stopWhenSuccessBox));
-		List<JComponent> rightComps = new ArrayList<JComponent>(Arrays.asList(
-				nParamSpaceField, nLevenbergField, new JLabel()));
+		List<JComponent> leftComps = new ArrayList<JComponent>(Arrays.asList(new JLabel(
+				"Maximal Evaluations to Find Start Values"), new JLabel(
+				"Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox));
+		List<JComponent> rightComps = new ArrayList<JComponent>(Arrays.asList(nParamSpaceField,
+				nLevenbergField, new JLabel()));
 
 		if (isDiff) {
 			stepSizeField = new DoubleTextField(false, 8);
@@ -194,8 +192,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			rightComps.add(0, stepSizeField);
 		}
 
-		return UI.createOptionsPanel("Nonlinear Regression Parameters",
-				leftComps, rightComps);
+		return UI.createOptionsPanel("Nonlinear Regression Parameters", leftComps, rightComps);
 	}
 
 	private JComponent createRangePanel(FunctionPortObjectSpec spec) {
@@ -208,8 +205,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 		JPanel northRangePanel = new JPanel();
 
-		northRangePanel.setLayout(new BoxLayout(northRangePanel,
-				BoxLayout.Y_AXIS));
+		northRangePanel.setLayout(new BoxLayout(northRangePanel, BoxLayout.Y_AXIS));
 
 		JPanel modelPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
@@ -261,8 +257,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		panel.setBorder(BorderFactory
 				.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton,
-				limitsBox)), BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton, limitsBox)),
+				BorderLayout.NORTH);
 		panel.add(new JScrollPane(rangePanel), BorderLayout.CENTER);
 
 		return panel;

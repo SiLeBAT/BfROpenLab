@@ -42,8 +42,7 @@ public class MathUtils {
 	}
 
 	public static boolean isValidDouble(Object o) {
-		return o instanceof Double && !((Double) o).isNaN()
-				&& !((Double) o).isInfinite();
+		return o instanceof Double && !((Double) o).isNaN() && !((Double) o).isInfinite();
 	}
 
 	public static boolean containsInvalidDouble(Collection<Double> values) {
@@ -56,8 +55,7 @@ public class MathUtils {
 		return false;
 	}
 
-	public static String replaceVariable(String formula, String var,
-			String newVar) {
+	public static String replaceVariable(String formula, String var, String newVar) {
 		if (var.equals(newVar)) {
 			return formula;
 		}
@@ -69,15 +67,12 @@ public class MathUtils {
 			foundReplacement = false;
 
 			for (int i = 1; i < newFormular.length() - var.length(); i++) {
-				boolean matches = newFormular.substring(i, i + var.length())
-						.equals(var);
+				boolean matches = newFormular.substring(i, i + var.length()).equals(var);
 				boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
-				boolean end = !isVariableCharacter(newFormular.charAt(i
-						+ var.length()));
+				boolean end = !isVariableCharacter(newFormular.charAt(i + var.length()));
 
 				if (matches && start && end) {
-					String orginal = newFormular.substring(i - 1,
-							i + var.length() + 1);
+					String orginal = newFormular.substring(i - 1, i + var.length() + 1);
 					String replacement = newFormular.charAt(i - 1) + newVar
 							+ newFormular.charAt(i + var.length());
 
@@ -131,8 +126,7 @@ public class MathUtils {
 		double targetTotalSumOfSquares = 0.0;
 
 		for (int i = 0; i < targetValues.length; i++) {
-			targetTotalSumOfSquares += Math.pow(targetValues[i] - targetMean,
-					2.0);
+			targetTotalSumOfSquares += Math.pow(targetValues[i] - targetMean, 2.0);
 		}
 
 		double rSquared = 1 - sse / targetTotalSumOfSquares;
@@ -145,9 +139,8 @@ public class MathUtils {
 			return null;
 		}
 
-		return numSample * Math.log(sse / numSample) + 2.0 * (numParam + 1.0)
-				+ 2.0 * (numParam + 1.0) * (numParam + 2.0)
-				/ (numSample - numParam - 2.0);
+		return numSample * Math.log(sse / numSample) + 2.0 * (numParam + 1.0) + 2.0
+				* (numParam + 1.0) * (numParam + 2.0) / (numSample - numParam - 2.0);
 	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
@@ -174,13 +167,10 @@ public class MathUtils {
 
 		try {
 			parser.removeFunction("log");
-			parser.addFunction("log", new MacroFunction("log", 1, "ln(x)",
-					parser));
+			parser.addFunction("log", new MacroFunction("log", 1, "ln(x)", parser));
 			parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
-			parser.addFunction("log10", new MacroFunction("log10", 1,
-					"ln(x)/ln(10)", parser));
-			parser.addDiffRule(new MacroDiffRules(parser, "log10",
-					"1/(x*ln(10))"));
+			parser.addFunction("log10", new MacroFunction("log10", 1, "ln(x)/ln(10)", parser));
+			parser.addDiffRule(new MacroDiffRules(parser, "log10", "1/(x*ln(10))"));
 
 			parser.addDiffRule(new ZeroDiffRule("<"));
 			parser.addDiffRule(new ZeroDiffRule(">"));
@@ -218,8 +208,8 @@ public class MathUtils {
 		}
 
 		@Override
-		public Node differentiate(ASTFunNode node, String var, Node[] children,
-				Node[] dchildren, DJep djep) throws ParseException {
+		public Node differentiate(ASTFunNode node, String var, Node[] children, Node[] dchildren,
+				DJep djep) throws ParseException {
 			return djep.getNodeFactory().buildConstantNode(0.0);
 		}
 

@@ -91,8 +91,7 @@ public class GisSettings extends NodeSettings {
 
 		try {
 			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
 					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
@@ -129,14 +128,13 @@ public class GisSettings extends NodeSettings {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			canvasSize = (Dimension) SERIALIZER.fromXml(settings
-					.getString(CFG_CANVAS_SIZE));
+			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -154,8 +152,7 @@ public class GisSettings extends NodeSettings {
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
-		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(nodeHighlightConditions));
+		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 	}
 
@@ -178,8 +175,7 @@ public class GisSettings extends NodeSettings {
 		}
 	}
 
-	public void setToCanvas(Canvas<?> canvas,
-			boolean applySelectionAndHighlighting) {
+	public void setToCanvas(Canvas<?> canvas, boolean applySelectionAndHighlighting) {
 		canvas.setShowLegend(showLegend);
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
@@ -188,9 +184,8 @@ public class GisSettings extends NodeSettings {
 		canvas.setEditingMode(editingMode);
 
 		if (applySelectionAndHighlighting) {
-			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-					nodeHighlightConditions, canvas.getNodeSchema().getMap()
-							.keySet()));
+			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
+					canvas.getNodeSchema().getMap().keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		}
 
@@ -281,8 +276,7 @@ public class GisSettings extends NodeSettings {
 		return nodeHighlightConditions;
 	}
 
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
+	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 	}
 }

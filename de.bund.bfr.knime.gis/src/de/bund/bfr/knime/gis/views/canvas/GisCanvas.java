@@ -37,9 +37,8 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	private BufferedImage image;
 
-	public GisCanvas(List<V> nodes, List<Edge<V>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming) {
+	public GisCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		image = null;
 
@@ -51,10 +50,8 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 	}
 
 	@Override
-	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			boolean toSvg) {
-		VisualizationImageServer<V, Edge<V>> server = super
-				.getVisualizationServer(toSvg);
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg) {
+		VisualizationImageServer<V, Edge<V>> server = super.getVisualizationServer(toSvg);
 
 		server.addPreRenderPaintable(new PrePaintable(toSvg));
 
@@ -106,11 +103,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
-		if (image == null || image.getWidth() != width
-				|| image.getHeight() != height) {
+		if (image == null || image.getWidth() != width || image.getHeight() != height) {
 			flushImage();
-			image = new BufferedImage(width, height,
-					BufferedImage.TYPE_INT_ARGB);
+			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			paintGis(image.getGraphics(), false);
 		}
 

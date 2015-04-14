@@ -32,8 +32,7 @@ import de.bund.bfr.knime.gis.shapefilereader.ShapefileReaderNodeModel;
  * 
  * @author Christian Thoens
  */
-public class ShapefileReaderNodeFactory extends
-		NodeFactory<ShapefileReaderNodeModel> {
+public class ShapefileReaderNodeFactory extends NodeFactory<ShapefileReaderNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -55,8 +54,8 @@ public class ShapefileReaderNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<ShapefileReaderNodeModel> createNodeView(
-			final int viewIndex, final ShapefileReaderNodeModel nodeModel) {
+	public NodeView<ShapefileReaderNodeModel> createNodeView(final int viewIndex,
+			final ShapefileReaderNodeModel nodeModel) {
 		return null;
 	}
 

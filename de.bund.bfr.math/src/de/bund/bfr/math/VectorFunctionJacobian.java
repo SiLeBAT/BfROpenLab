@@ -51,8 +51,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtils.createParser(Sets.union(
-				new LinkedHashSet<>(Arrays.asList(parameters)),
+		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)),
 				variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
@@ -80,8 +79,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 			for (int i = 0; i < dimension; i++) {
 				for (int j = 0; j < parameters.length; j++) {
-					retValue[i][j] = evalWithSingularityCheck(parameters[j],
-							paramValues, i);
+					retValue[i][j] = evalWithSingularityCheck(parameters[j], paramValues, i);
 				}
 			}
 		} catch (ParseException e) {
@@ -91,8 +89,8 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return retValue;
 	}
 
-	private double evalWithSingularityCheck(String param,
-			Map<String, Double> paramValues, int index) throws ParseException {
+	private double evalWithSingularityCheck(String param, Map<String, Double> paramValues, int index)
+			throws ParseException {
 		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
 			parser.setVarValue(entry.getKey(), entry.getValue());
 		}
@@ -122,8 +120,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 			Object number2 = parser.evaluate(function);
 
-			if (MathUtils.isValidDouble(number1)
-					&& MathUtils.isValidDouble(number2)) {
+			if (MathUtils.isValidDouble(number1) && MathUtils.isValidDouble(number2)) {
 				return ((Double) number2 - (Double) number1) / (2 * EPSILON);
 			}
 		}

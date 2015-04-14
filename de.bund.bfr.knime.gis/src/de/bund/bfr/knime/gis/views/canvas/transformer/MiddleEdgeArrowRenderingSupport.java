@@ -29,19 +29,17 @@ import java.awt.geom.Point2D;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport;
 
-public class MiddleEdgeArrowRenderingSupport<V, E> implements
-		EdgeArrowRenderingSupport<V, E> {
+public class MiddleEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingSupport<V, E> {
 
 	@Override
-	public AffineTransform getArrowTransform(RenderContext<V, E> rc,
-			Shape edgeShape, Shape vertexShape) {
+	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
+			Shape vertexShape) {
 		GeneralPath path = new GeneralPath(edgeShape);
 		float[] seg = new float[6];
 		Point2D first = null;
 		Point2D last = null;
 
-		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i
-				.next()) {
+		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i.next()) {
 			i.currentSegment(seg);
 
 			if (first == null) {
@@ -54,8 +52,7 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements
 		Point2D p1 = null;
 		Point2D p2 = null;
 
-		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i
-				.next()) {
+		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i.next()) {
 			int ret = i.currentSegment(seg);
 
 			if (ret == PathIterator.SEG_MOVETO) {
@@ -66,14 +63,11 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements
 
 				if (p2.distance(last) < p2.distance(first)) {
 					Line2D ortho = getOrthogonal(new Line2D.Float(first, last));
-					Point2D pp1 = getIntersection(new Line2D.Float(p1, p2),
-							ortho);
-					Point2D pp2 = new Point2D.Float((float) (pp1.getX()
-							+ p1.getX() - p2.getX()), (float) (pp1.getY()
-							+ p1.getY() - p2.getY()));
+					Point2D pp1 = getIntersection(new Line2D.Float(p1, p2), ortho);
+					Point2D pp2 = new Point2D.Float((float) (pp1.getX() + p1.getX() - p2.getX()),
+							(float) (pp1.getY() + p1.getY() - p2.getY()));
 
-					return getArrowTransform(rc, new Line2D.Float(pp1, pp2),
-							null);
+					return getArrowTransform(rc, new Line2D.Float(pp1, pp2), null);
 				}
 			}
 		}
@@ -82,12 +76,12 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements
 	}
 
 	@Override
-	public AffineTransform getArrowTransform(RenderContext<V, E> rc,
-			Line2D edgeShape, Shape vertexShape) {
+	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Line2D edgeShape,
+			Shape vertexShape) {
 		float dx = (float) (edgeShape.getX1() - edgeShape.getX2());
 		float dy = (float) (edgeShape.getY1() - edgeShape.getY2());
-		AffineTransform at = AffineTransform.getTranslateInstance(
-				edgeShape.getX1(), edgeShape.getY1());
+		AffineTransform at = AffineTransform.getTranslateInstance(edgeShape.getX1(),
+				edgeShape.getY1());
 
 		at.rotate(-Math.atan2(dx, dy) + Math.PI / 2);
 
@@ -95,14 +89,14 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements
 	}
 
 	@Override
-	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc,
-			Shape edgeShape, Shape vertexShape) {
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
+			Shape vertexShape) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc,
-			Shape edgeShape, Shape vertexShape, boolean passedGo) {
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
+			Shape vertexShape, boolean passedGo) {
 		throw new UnsupportedOperationException();
 	}
 

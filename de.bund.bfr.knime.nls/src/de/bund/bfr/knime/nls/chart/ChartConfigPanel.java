@@ -46,8 +46,8 @@ import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.knime.ui.VariablePanel;
 import de.bund.bfr.math.Transform;
 
-public class ChartConfigPanel extends JPanel implements ItemListener,
-		TextListener, MouseListener, VariablePanel.ValueListener {
+public class ChartConfigPanel extends JPanel implements ItemListener, TextListener, MouseListener,
+		VariablePanel.ValueListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,8 +79,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 	private JPanel outerParameterPanel;
 	private VariablePanel parameterPanel;
 
-	public ChartConfigPanel(boolean allowConfidence, boolean allowExport,
-			boolean allowParameters) {
+	public ChartConfigPanel(boolean allowConfidence, boolean allowExport, boolean allowParameters) {
 		configListeners = new ArrayList<>();
 
 		drawLinesBox = new JCheckBox("Draw Lines");
@@ -103,8 +102,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 
 		JPanel resolutionPanel = new JPanel();
 
-		resolutionPanel.setLayout(new BoxLayout(resolutionPanel,
-				BoxLayout.X_AXIS));
+		resolutionPanel.setLayout(new BoxLayout(resolutionPanel, BoxLayout.X_AXIS));
 		resolutionPanel.add(new JLabel("Resolution:"));
 		resolutionPanel.add(Box.createHorizontalStrut(5));
 		resolutionPanel.add(resolutionSlider);
@@ -113,34 +111,29 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		JPanel displayOptionsPanel = new JPanel();
 		int row = 0;
 
-		displayOptionsPanel.setLayout(new BoxLayout(displayOptionsPanel,
-				BoxLayout.Y_AXIS));
+		displayOptionsPanel.setLayout(new BoxLayout(displayOptionsPanel, BoxLayout.Y_AXIS));
 		displayOptionsPanel.setLayout(new GridBagLayout());
 		displayOptionsPanel.add(showLegendBox, UI.westConstraints(0, row));
 		displayOptionsPanel.add(drawLinesBox, UI.westConstraints(1, row));
 		row++;
 
 		if (allowConfidence && allowExport) {
-			displayOptionsPanel.add(showConfidenceBox,
-					UI.westConstraints(0, row));
+			displayOptionsPanel.add(showConfidenceBox, UI.westConstraints(0, row));
 			displayOptionsPanel.add(exportAsSvgBox, UI.westConstraints(1, row));
 			row++;
 		} else if (allowConfidence) {
-			displayOptionsPanel.add(showConfidenceBox,
-					UI.westConstraints(0, row));
+			displayOptionsPanel.add(showConfidenceBox, UI.westConstraints(0, row));
 			row++;
 		} else if (allowExport) {
 			displayOptionsPanel.add(exportAsSvgBox, UI.westConstraints(0, row));
 			row++;
 		}
 
-		displayOptionsPanel.add(resolutionPanel,
-				UI.westConstraints(0, row, 2, 1));
+		displayOptionsPanel.add(resolutionPanel, UI.westConstraints(0, row, 2, 1));
 
 		JPanel outerDisplayOptionsPanel = new JPanel();
 
-		outerDisplayOptionsPanel.setBorder(BorderFactory
-				.createTitledBorder("Display Options"));
+		outerDisplayOptionsPanel.setBorder(BorderFactory.createTitledBorder("Display Options"));
 		outerDisplayOptionsPanel.setLayout(new BorderLayout());
 		outerDisplayOptionsPanel.add(displayOptionsPanel, BorderLayout.WEST);
 
@@ -202,17 +195,14 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		variablesPanel.add(xBox, UI.westConstraints(1, 0, 1, 1));
 		variablesPanel.add(new JLabel("Y:"), UI.westConstraints(2, 0, 1, 1));
 		variablesPanel.add(yBox, UI.westConstraints(3, 0, 1, 1));
-		variablesPanel.add(new JLabel("X Transform:"),
-				UI.westConstraints(0, 1, 1, 1));
+		variablesPanel.add(new JLabel("X Transform:"), UI.westConstraints(0, 1, 1, 1));
 		variablesPanel.add(xTransBox, UI.westConstraints(1, 1, 1, 1));
-		variablesPanel.add(new JLabel("Y Transform:"),
-				UI.westConstraints(2, 1, 1, 1));
+		variablesPanel.add(new JLabel("Y Transform:"), UI.westConstraints(2, 1, 1, 1));
 		variablesPanel.add(yTransBox, UI.westConstraints(3, 1, 1, 1));
 
 		JPanel outerVariablesPanel = new JPanel();
 
-		outerVariablesPanel.setBorder(BorderFactory
-				.createTitledBorder("Variables"));
+		outerVariablesPanel.setBorder(BorderFactory.createTitledBorder("Variables"));
 		outerVariablesPanel.setLayout(new BorderLayout());
 		outerVariablesPanel.add(variablesPanel, BorderLayout.WEST);
 
@@ -224,13 +214,11 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		mainPanel.add(outerVariablesPanel);
 
 		if (allowParameters) {
-			parameterPanel = new VariablePanel(
-					new LinkedHashMap<String, List<Double>>(),
-					new LinkedHashMap<String, Double>(),
-					new LinkedHashMap<String, Double>(), false, true, true);
+			parameterPanel = new VariablePanel(new LinkedHashMap<String, List<Double>>(),
+					new LinkedHashMap<String, Double>(), new LinkedHashMap<String, Double>(),
+					false, true, true);
 			outerParameterPanel = new JPanel();
-			outerParameterPanel.setBorder(BorderFactory
-					.createTitledBorder("Parameters"));
+			outerParameterPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
 			outerParameterPanel.setLayout(new BorderLayout());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 			mainPanel.add(outerParameterPanel);
@@ -386,9 +374,8 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public void init(String varY, List<String> variablesX,
-			List<String> parameters, Map<String, Double> minValues,
-			Map<String, Double> maxValues) {
+	public void init(String varY, List<String> variablesX, List<String> parameters,
+			Map<String, Double> minValues, Map<String, Double> maxValues) {
 		if (variablesX == null) {
 			variablesX = new ArrayList<>();
 		}
@@ -429,8 +416,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener,
 			}
 
 			outerParameterPanel.remove(parameterPanel);
-			parameterPanel = new VariablePanel(paramMap, minValues, maxValues,
-					false, true, true);
+			parameterPanel = new VariablePanel(paramMap, minValues, maxValues, false, true, true);
 			parameterPanel.addValueListener(this);
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 

@@ -29,8 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class DoubleTextField extends JTextField implements DocumentListener,
-		FocusListener {
+public class DoubleTextField extends JTextField implements DocumentListener, FocusListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -128,8 +127,7 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 
 	@Override
 	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null
-				&& getText().trim().isEmpty()) {
+		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
 			return Color.RED;
 		}
 

@@ -35,21 +35,18 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 	private JSplitPane splitPane;
 	private boolean adjusted;
 
-	public ChartAllPanel(ChartCreator chartCreator,
-			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel) {
+	public ChartAllPanel(ChartCreator chartCreator, ChartSelectionPanel selectionPanel,
+			ChartConfigPanel configPanel) {
 		adjusted = false;
 
 		JPanel upperPanel = new JPanel();
 
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(chartCreator, BorderLayout.CENTER);
-		upperPanel.add(new JScrollPane(configPanel,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.EAST);
+		upperPanel.add(new JScrollPane(configPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
-				selectionPanel);
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel, selectionPanel);
 		splitPane.addComponentListener(this);
 
 		setLayout(new BorderLayout());

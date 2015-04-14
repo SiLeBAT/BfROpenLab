@@ -42,14 +42,14 @@ public class DiffFunctionReader implements Reader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public DiffFunctionReader(FunctionPortObject functionObject,
-			BufferedDataTable varTable, BufferedDataTable conditionTable) {
+	public DiffFunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable,
+			BufferedDataTable conditionTable) {
 		this(functionObject, null, varTable, conditionTable, null);
 	}
 
-	public DiffFunctionReader(FunctionPortObject functionObject,
-			BufferedDataTable paramTable, BufferedDataTable varTable,
-			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
+	public DiffFunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
+			BufferedDataTable varTable, BufferedDataTable conditionTable,
+			BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns;
 
@@ -73,13 +73,11 @@ public class DiffFunctionReader implements Reader {
 			doubleColumns.put(column, new ArrayList<Double>());
 		}
 
-		for (String id : NlsUtils.getIds(paramTable != null ? paramTable
-				: varTable)) {
+		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
 			Map<String, Double> qualityValues;
 
 			if (paramTable != null) {
-				qualityValues = NlsUtils.getQualityValues(paramTable, id,
-						qualityColumns);
+				qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 			} else {
 				qualityValues = new LinkedHashMap<>();
 			}
@@ -101,22 +99,17 @@ public class DiffFunctionReader implements Reader {
 			plotable.setDiffVariable(f.getTimeVariable());
 			plotable.getIndependentVariables().putAll(
 					NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
-			plotable.getValueLists().putAll(
-					NlsUtils.getDiffVariableValues(varTable, id, f));
-			plotable.getConditionLists().putAll(
-					NlsUtils.getConditionValues(conditionTable, id, f));
+			plotable.getValueLists().putAll(NlsUtils.getDiffVariableValues(varTable, id, f));
+			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
 
 			if (paramTable != null) {
-				plotable.getParameters().putAll(
-						NlsUtils.getParameters(paramTable, id, f));
+				plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
 			} else {
-				plotable.getParameters().putAll(
-						NlsUtils.createZeroMap(f.getParameters()));
+				plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
 			}
 
 			if (covarianceTable != null) {
-				plotable.getCovariances().putAll(
-						NlsUtils.getCovariances(covarianceTable, id, f));
+				plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
 			}
 
 			if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
@@ -124,12 +117,10 @@ public class DiffFunctionReader implements Reader {
 			}
 
 			if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
-				plotable.setDegreesOfFreedom(qualityValues.get(
-						NlsUtils.DOF_COLUMN).intValue());
+				plotable.setDegreesOfFreedom(qualityValues.get(NlsUtils.DOF_COLUMN).intValue());
 			}
 
-			stringColumns.get(ChartUtils.STATUS).add(
-					plotable.getStatus().toString());
+			stringColumns.get(ChartUtils.STATUS).add(plotable.getStatus().toString());
 			plotables.put(id, plotable);
 		}
 	}

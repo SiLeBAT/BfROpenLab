@@ -98,12 +98,10 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected BufferedDataTable[] execute(BufferedDataTable[] inData,
-			ExecutionContext exec) throws Exception {
-		ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile
-				.getStringValue());
-		ContentFeatureCollection collection = dataStore.getFeatureSource()
-				.getFeatures();
+	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec)
+			throws Exception {
+		ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile.getStringValue());
+		ContentFeatureCollection collection = dataStore.getFeatureSource().getFeatures();
 
 		DataTableSpec spec = createSpec(collection.getSchema());
 		BufferedDataContainer container = exec.createDataContainer(spec);
@@ -151,10 +149,8 @@ public class ShapefileReaderNodeModel extends NodeModel {
 
 			Point2D p = GisUtils.getCenter((MultiPolygon) shape);
 
-			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p
-					.getX());
-			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p
-					.getY());
+			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p.getX());
+			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p.getY());
 			cells[spec.findColumnIndex(areaColumn)] = IO.createCell(GisUtils
 					.getArea((MultiPolygon) shape));
 
@@ -179,8 +175,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected DataTableSpec[] configure(DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		if (shpFile.getStringValue() == null) {
 			throw new InvalidSettingsException("No file name specified");
 		}
@@ -188,11 +183,9 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		DataTableSpec[] result = null;
 
 		try {
-			ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile
-					.getStringValue());
+			ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile.getStringValue());
 
-			result = new DataTableSpec[] { createSpec(dataStore
-					.getFeatureSource().getSchema()) };
+			result = new DataTableSpec[] { createSpec(dataStore.getFeatureSource().getSchema()) };
 			dataStore.dispose();
 		} catch (IOException e) {
 			throw new InvalidSettingsException(e.getMessage());
@@ -222,8 +215,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 		shpFile.validateSettings(settings);
 	}
 
@@ -231,18 +223,16 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	private DataTableSpec createSpec(SimpleFeatureType type) {
@@ -259,37 +249,27 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			}
 
 			if (t == type.getGeometryDescriptor().getType()) {
-				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE)
-						.createSpec());
+				columns.add(new DataColumnSpecCreator(name, ShapeBlobCell.TYPE).createSpec());
 			} else if (t.getBinding() == Integer.class) {
-				columns.add(new DataColumnSpecCreator(name, IntCell.TYPE)
-						.createSpec());
+				columns.add(new DataColumnSpecCreator(name, IntCell.TYPE).createSpec());
 			} else if (t.getBinding() == Double.class) {
-				columns.add(new DataColumnSpecCreator(name, DoubleCell.TYPE)
-						.createSpec());
+				columns.add(new DataColumnSpecCreator(name, DoubleCell.TYPE).createSpec());
 			} else if (t.getBinding() == Boolean.class) {
-				columns.add(new DataColumnSpecCreator(name, BooleanCell.TYPE)
-						.createSpec());
+				columns.add(new DataColumnSpecCreator(name, BooleanCell.TYPE).createSpec());
 			} else {
-				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE)
-						.createSpec());
+				columns.add(new DataColumnSpecCreator(name, StringCell.TYPE).createSpec());
 			}
 
 			columnNames.add(name);
 		}
 
-		latitudeColumn = KnimeUtils
-				.createNewValue(LATITUDE_COLUMN, columnNames);
-		longitudeColumn = KnimeUtils.createNewValue(LONGITUDE_COLUMN,
-				columnNames);
+		latitudeColumn = KnimeUtils.createNewValue(LATITUDE_COLUMN, columnNames);
+		longitudeColumn = KnimeUtils.createNewValue(LONGITUDE_COLUMN, columnNames);
 		areaColumn = KnimeUtils.createNewValue(AREA_COLUMN, columnNames);
 
-		columns.add(new DataColumnSpecCreator(latitudeColumn, DoubleCell.TYPE)
-				.createSpec());
-		columns.add(new DataColumnSpecCreator(longitudeColumn, DoubleCell.TYPE)
-				.createSpec());
-		columns.add(new DataColumnSpecCreator(areaColumn, DoubleCell.TYPE)
-				.createSpec());
+		columns.add(new DataColumnSpecCreator(latitudeColumn, DoubleCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(longitudeColumn, DoubleCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(areaColumn, DoubleCell.TYPE).createSpec());
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}

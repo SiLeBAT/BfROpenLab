@@ -35,7 +35,6 @@ public class DoubleCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public void setValue(Object value) {
-		setText(value == null ? "" : NumberFormat.getInstance(Locale.US)
-				.format(value));
+		setText(value == null ? "" : NumberFormat.getInstance(Locale.US).format(value));
 	}
 }

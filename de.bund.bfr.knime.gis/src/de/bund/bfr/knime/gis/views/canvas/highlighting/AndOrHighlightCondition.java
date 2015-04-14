@@ -31,8 +31,7 @@ import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
-public class AndOrHighlightCondition implements HighlightCondition,
-		Serializable {
+public class AndOrHighlightCondition implements HighlightCondition, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,26 +44,24 @@ public class AndOrHighlightCondition implements HighlightCondition,
 	private String labelProperty;
 
 	public AndOrHighlightCondition() {
-		this((LogicalHighlightCondition) null, null, true, null, false, false,
-				null);
+		this((LogicalHighlightCondition) null, null, true, null, false, false, null);
 	}
 
 	public AndOrHighlightCondition(AndOrHighlightCondition c) {
-		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible,
-				c.useThickness, c.labelProperty);
+		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible, c.useThickness,
+				c.labelProperty);
 	}
 
-	public AndOrHighlightCondition(LogicalHighlightCondition condition,
-			String name, boolean showInLegend, Color color, boolean invisible,
-			boolean useThickness, String labelProperty) {
-		this(asList(asList(condition)), name, showInLegend, color, invisible,
-				useThickness, labelProperty);
+	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name,
+			boolean showInLegend, Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
+		this(asList(asList(condition)), name, showInLegend, color, invisible, useThickness,
+				labelProperty);
 	}
 
-	public AndOrHighlightCondition(
-			List<List<LogicalHighlightCondition>> conditions, String name,
-			boolean showInLegend, Color color, boolean invisible,
-			boolean useThickness, String labelProperty) {
+	public AndOrHighlightCondition(List<List<LogicalHighlightCondition>> conditions, String name,
+			boolean showInLegend, Color color, boolean invisible, boolean useThickness,
+			String labelProperty) {
 		setConditions(conditions);
 		setName(name);
 		setShowInLegend(showInLegend);
@@ -198,8 +195,7 @@ public class AndOrHighlightCondition implements HighlightCondition,
 
 	@Override
 	public String toString() {
-		String type = getConditionCount() == 0 ? "Apply To All"
-				: "Logical Condition";
+		String type = getConditionCount() == 0 ? "Apply To All" : "Logical Condition";
 
 		return getName() != null ? getName() : type;
 	}

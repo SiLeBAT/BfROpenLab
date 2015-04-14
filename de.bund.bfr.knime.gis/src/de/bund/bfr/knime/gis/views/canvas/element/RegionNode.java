@@ -40,8 +40,7 @@ public class RegionNode extends Node {
 	private List<Polygon> transformedPolygon;
 	private List<Polygon> transformedPolygonWithHoles;
 
-	public RegionNode(String id, Map<String, Object> properties,
-			MultiPolygon polygon) {
+	public RegionNode(String id, Map<String, Object> properties, MultiPolygon polygon) {
 		super(id, properties);
 		updatePolygon(polygon);
 	}
@@ -83,13 +82,11 @@ public class RegionNode extends Node {
 	}
 
 	public boolean containsPoint(Point2D point) {
-		return boundingBox.contains(point)
-				&& GisUtils.containsPoint(polygon, point);
+		return boundingBox.contains(point) && GisUtils.containsPoint(polygon, point);
 	}
 
 	@Override
 	public RegionNode copy() {
-		return new RegionNode(getId(), new LinkedHashMap<>(getProperties()),
-				polygon);
+		return new RegionNode(getId(), new LinkedHashMap<>(getProperties()), polygon);
 	}
 }

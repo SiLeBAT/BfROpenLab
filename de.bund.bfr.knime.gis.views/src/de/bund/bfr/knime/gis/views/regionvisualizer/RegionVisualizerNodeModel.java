@@ -52,8 +52,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected RegionVisualizerNodeModel() {
-		super(
-				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new RegionVisualizerSettings();
 	}
@@ -62,21 +61,18 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable table = (BufferedDataTable) inObjects[1];
-		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
-				shapeTable, table, set);
+		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable,
+				table, set);
 		RegionCanvas gisCanvas = creator.createCanvas();
 
 		for (String id : creator.getNonExistingRegions()) {
-			setWarningMessage("Region \"" + id
-					+ "\" is not contained in the shapefile");
+			setWarningMessage("Region \"" + id + "\" is not contained in the shapefile");
 		}
 
-		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
-				gisCanvas) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas) };
 	}
 
 	/**
@@ -90,10 +86,8 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
-		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set
-				.isExportAsSvg()) };
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
@@ -117,26 +111,23 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

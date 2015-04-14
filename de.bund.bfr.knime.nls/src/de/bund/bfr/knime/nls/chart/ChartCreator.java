@@ -73,8 +73,7 @@ public class ChartCreator extends ChartPanel {
 	private boolean showConfidenceInterval;
 	private int resolution;
 
-	public ChartCreator(Map<String, Plotable> plotables,
-			Map<String, String> legend) {
+	public ChartCreator(Map<String, Plotable> plotables, Map<String, String> legend) {
 		super(new JFreeChart(new XYPlot()));
 		this.plotables = plotables;
 		this.legend = legend;
@@ -114,8 +113,7 @@ public class ChartCreator extends ChartPanel {
 
 	public JFreeChart createChart() throws ParseException {
 		if (varX == null || varY == null) {
-			return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT,
-					new XYPlot(), showLegend);
+			return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, new XYPlot(), showLegend);
 		}
 
 		List<String> idsToPaint;
@@ -132,8 +130,7 @@ public class ChartCreator extends ChartPanel {
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
 		int index = 0;
-		ColorAndShapeCreator colorAndShapeCreator = new ColorAndShapeCreator(
-				idsToPaint.size());
+		ColorAndShapeCreator colorAndShapeCreator = new ColorAndShapeCreator(idsToPaint.size());
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -145,8 +142,7 @@ public class ChartCreator extends ChartPanel {
 			if (plotable.getType() == Plotable.Type.DATA
 					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
-				double[][] points = plotable.getDataPoints(varX, varY,
-						transformX, transformY);
+				double[][] points = plotable.getDataPoints(varX, varY, transformX, transformY);
 
 				if (points != null) {
 					for (int i = 0; i < points[0].length; i++) {
@@ -159,10 +155,8 @@ public class ChartCreator extends ChartPanel {
 			if (plotable.getType() == Plotable.Type.FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_FUNCTION
 					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
-				Double minArg = transformX
-						.to(plotable.getMinValues().get(varX));
-				Double maxArg = transformX
-						.to(plotable.getMaxValues().get(varX));
+				Double minArg = transformX.to(plotable.getMinValues().get(varX));
+				Double maxArg = transformX.to(plotable.getMaxValues().get(varX));
 
 				if (minArg != null) {
 					usedMinX = Math.min(usedMinX, minArg);
@@ -208,24 +202,21 @@ public class ChartCreator extends ChartPanel {
 
 			switch (plotable.getType()) {
 			case DATA:
-				plotDataSet(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index));
+				plotDataSet(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
+						colorAndShapeCreator.getShapeList().get(index));
 				break;
 			case FUNCTION:
-				plotFunction(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
+				plotFunction(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
+						colorAndShapeCreator.getShapeList().get(index), usedMinX, usedMaxX);
 				break;
 			case DATA_FUNCTION:
-				plotDataFunction(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
+				plotDataFunction(plot, plotable, id,
+						colorAndShapeCreator.getColorList().get(index), colorAndShapeCreator
+								.getShapeList().get(index), usedMinX, usedMaxX);
 				break;
 			case DATA_DIFF:
-				plotDataDiff(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
+				plotDataDiff(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
+						colorAndShapeCreator.getShapeList().get(index), usedMinX, usedMaxX);
 				break;
 			}
 
@@ -244,8 +235,7 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(0.0, yRange.getUpperBound()));
 		}
 
-		return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,
-				showLegend);
+		return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot, showLegend);
 	}
 
 	public void setVarX(String varX) {
@@ -342,47 +332,41 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape) {
+	private void plotDataSet(XYPlot plot, Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape) {
 		XYDataset dataSet = createDataSet(plotable, id);
-		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
-				defaultShape);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor, defaultShape);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 
-	private void plotFunction(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX)
-			throws ParseException {
+	private void plotFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape, double minX, double maxX) throws ParseException {
 		XYDataset dataSet = createFunctionDataSet(plotable, id, minX, maxX);
-		XYItemRenderer renderer = createFunctionRenderer(plotable, id,
-				defaultColor, defaultShape, dataSet);
+		XYItemRenderer renderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape,
+				dataSet);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
 		}
 	}
 
-	private void plotDataFunction(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX)
-			throws ParseException {
-		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX,
-				maxX);
-		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id,
-				defaultColor, defaultShape, functionDataSet);
+	private void plotDataFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape, double minX, double maxX) throws ParseException {
+		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX, maxX);
+		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id, defaultColor,
+				defaultShape, functionDataSet);
 		XYDataset dataSet = createDataSet(plotable, id);
-		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
-				defaultShape);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor, defaultShape);
 
 		if (functionDataSet != null && functionRenderer != null) {
 			if (dataSet != null && renderer != null) {
 				functionRenderer.setBaseSeriesVisibleInLegend(false);
 			}
 
-			ChartUtils
-					.addDataSetToPlot(plot, functionDataSet, functionRenderer);
+			ChartUtils.addDataSetToPlot(plot, functionDataSet, functionRenderer);
 		}
 
 		if (dataSet != null && renderer != null) {
@@ -390,15 +374,13 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataDiff(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX)
-			throws ParseException {
+	private void plotDataDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape, double minX, double maxX) throws ParseException {
 		XYDataset diffDataSet = createDiffDataSet(plotable, id, minX, maxX);
-		XYItemRenderer diffRenderer = createFunctionRenderer(plotable, id,
-				defaultColor, defaultShape, diffDataSet);
+		XYItemRenderer diffRenderer = createFunctionRenderer(plotable, id, defaultColor,
+				defaultShape, diffDataSet);
 		XYDataset dataSet = createDataSet(plotable, id);
-		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor,
-				defaultShape);
+		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor, defaultShape);
 
 		if (diffDataSet != null && diffRenderer != null) {
 			if (dataSet != null && renderer != null) {
@@ -414,8 +396,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private XYDataset createDataSet(Plotable plotable, String id) {
-		double[][] points = plotable.getDataPoints(varX, varY, transformX,
-				transformY);
+		double[][] points = plotable.getDataPoints(varX, varY, transformX, transformY);
 		String leg = legend.get(id);
 
 		if (points != null) {
@@ -429,8 +410,8 @@ public class ChartCreator extends ChartPanel {
 		return null;
 	}
 
-	private XYItemRenderer createRenderer(Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape) {
+	private XYItemRenderer createRenderer(Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape) {
 		Color color = colors.get(id);
 		Shape shape = shapes.get(id);
 
@@ -442,8 +423,7 @@ public class ChartCreator extends ChartPanel {
 			shape = defaultShape;
 		}
 
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines,
-				true);
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines, true);
 
 		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 		renderer.setSeriesPaint(0, color);
@@ -452,16 +432,14 @@ public class ChartCreator extends ChartPanel {
 		return renderer;
 	}
 
-	private XYDataset createFunctionDataSet(Plotable plotable, String id,
-			double minX, double maxX) throws ParseException {
-		double[][] points = plotable.getFunctionPoints(varX, transformX,
-				transformY, minX, maxX);
+	private XYDataset createFunctionDataSet(Plotable plotable, String id, double minX, double maxX)
+			throws ParseException {
+		double[][] points = plotable.getFunctionPoints(varX, transformX, transformY, minX, maxX);
 		double[][] errors = null;
 		String leg = legend.get(id);
 
 		if (showConfidenceInterval) {
-			errors = plotable.getFunctionErrors(varX, transformX, transformY,
-					minX, maxX, false);
+			errors = plotable.getFunctionErrors(varX, transformX, transformY, minX, maxX, false);
 		}
 
 		if (points != null) {
@@ -470,11 +448,10 @@ public class ChartCreator extends ChartPanel {
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
-					double error = Double.isNaN(errors[1][j]) ? 0.0
-							: errors[1][j];
+					double error = Double.isNaN(errors[1][j]) ? 0.0 : errors[1][j];
 
-					series.add(points[0][j], points[1][j],
-							points[1][j] - error, points[1][j] + error);
+					series.add(points[0][j], points[1][j], points[1][j] - error, points[1][j]
+							+ error);
 				}
 
 				functionDataset.addSeries(series);
@@ -492,8 +469,8 @@ public class ChartCreator extends ChartPanel {
 		return null;
 	}
 
-	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, XYDataset dataSet) {
+	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id, Color defaultColor,
+			Shape defaultShape, XYDataset dataSet) {
 		Color color = colors.get(id);
 		Shape shape = shapes.get(id);
 
@@ -506,22 +483,18 @@ public class ChartCreator extends ChartPanel {
 		}
 
 		if (dataSet instanceof YIntervalSeriesCollection) {
-			DeviationRenderer functionRenderer = new DeviationRenderer(true,
-					false);
+			DeviationRenderer functionRenderer = new DeviationRenderer(true, false);
 
-			functionRenderer
-					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+			functionRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 			functionRenderer.setSeriesPaint(0, color);
 			functionRenderer.setSeriesFillPaint(0, color);
 			functionRenderer.setSeriesShape(0, shape);
 
 			return functionRenderer;
 		} else {
-			XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
-					true, false);
+			XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(true, false);
 
-			functionRenderer
-					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+			functionRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 			functionRenderer.setSeriesPaint(0, color);
 			functionRenderer.setSeriesShape(0, shape);
 
@@ -529,16 +502,14 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private XYDataset createDiffDataSet(Plotable plotable, String id,
-			double minX, double maxX) throws ParseException {
-		double[][] points = plotable.getDiffPoints(varX, transformX,
-				transformY, minX, maxX);
+	private XYDataset createDiffDataSet(Plotable plotable, String id, double minX, double maxX)
+			throws ParseException {
+		double[][] points = plotable.getDiffPoints(varX, transformX, transformY, minX, maxX);
 		double[][] errors = null;
 		String leg = legend.get(id);
 
 		if (showConfidenceInterval) {
-			errors = plotable.getDiffErrors(varX, transformX, transformY, minX,
-					maxX, false);
+			errors = plotable.getDiffErrors(varX, transformX, transformY, minX, maxX, false);
 		}
 
 		if (points != null) {
@@ -547,11 +518,10 @@ public class ChartCreator extends ChartPanel {
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
-					double error = Double.isNaN(errors[1][j]) ? 0.0
-							: errors[1][j];
+					double error = Double.isNaN(errors[1][j]) ? 0.0 : errors[1][j];
 
-					series.add(points[0][j], points[1][j],
-							points[1][j] - error, points[1][j] + error);
+					series.add(points[0][j], points[1][j], points[1][j] - error, points[1][j]
+							+ error);
 				}
 
 				functionDataset.addSeries(series);

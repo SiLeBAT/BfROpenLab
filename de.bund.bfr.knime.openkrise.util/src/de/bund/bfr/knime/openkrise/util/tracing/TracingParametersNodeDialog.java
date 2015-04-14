@@ -66,92 +66,68 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	 */
 	protected TracingParametersNodeDialog() {
 		set = new TracingParametersSettings();
-		nodeWeightPanel = new TableInputPanel<>(Double.class,
-				TableInputPanel.Type.NODE);
-		edgeWeightPanel = new TableInputPanel<>(Double.class,
-				TableInputPanel.Type.EDGE);
-		nodeContaminationPanel = new TableInputPanel<>(Boolean.class,
-				TableInputPanel.Type.NODE);
-		edgeContaminationPanel = new TableInputPanel<>(Boolean.class,
-				TableInputPanel.Type.EDGE);
-		nodeFilterPanel = new TableInputPanel<>(Boolean.class,
-				TableInputPanel.Type.NODE);
-		edgeFilterPanel = new TableInputPanel<>(Boolean.class,
-				TableInputPanel.Type.EDGE);
+		nodeWeightPanel = new TableInputPanel<>(Double.class, TableInputPanel.Type.NODE);
+		edgeWeightPanel = new TableInputPanel<>(Double.class, TableInputPanel.Type.EDGE);
+		nodeContaminationPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.NODE);
+		edgeContaminationPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
+		nodeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.NODE);
+		edgeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
-		addTab("Options",
-				UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
+		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
 		addTab(TracingUtils.NAMING.Node() + " Weights", nodeWeightPanel);
 		addTab(TracingUtils.NAMING.Edge() + " Weights", edgeWeightPanel);
-		addTab(TracingUtils.NAMING.Node() + " Cross Contaminations",
-				nodeContaminationPanel);
-		addTab(TracingUtils.NAMING.Edge() + " Cross Contaminations",
-				edgeContaminationPanel);
+		addTab(TracingUtils.NAMING.Node() + " Cross Contaminations", nodeContaminationPanel);
+		addTab(TracingUtils.NAMING.Edge() + " Cross Contaminations", edgeContaminationPanel);
 		addTab("Observed " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
 		addTab("Observed " + TracingUtils.NAMING.Edges(), edgeFilterPanel);
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			BufferedDataTable[] input) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, BufferedDataTable[] input)
+			throws NotConfigurableException {
 		BufferedDataTable nodeTable = input[0];
 		BufferedDataTable edgeTable = input[1];
 
 		set.loadSettings(settings);
 
 		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()),
-				TracingColumns.ID);
+				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(
-				TracingUtils.getTableColumns(edgeTable.getSpec()),
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema);
+				TracingUtils.getTableColumns(edgeTable.getSpec()), TracingColumns.ID,
+				TracingColumns.FROM, TracingColumns.TO);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, skippedEdgeRows);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
+				skippedEdgeRows);
 
-		nodeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(nodes.values()));
-		edgeSchema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(edges));
+		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodes.values()));
+		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edges));
 
-		nodeWeightPanel.update(nodes.values(), nodeSchema,
-				set.getNodeWeights(), set.getNodeWeightCondition(),
-				set.getNodeWeightConditionValue());
-		edgeWeightPanel
-				.update(edges, edgeSchema, set.getEdgeWeights(),
-						set.getEdgeWeightCondition(),
-						set.getEdgeWeightConditionValue());
-		nodeContaminationPanel.update(nodes.values(), nodeSchema,
-				set.getNodeCrossContaminations(),
-				set.getNodeContaminationCondition(),
-				set.getNodeContaminationConditionValue());
-		edgeContaminationPanel.update(edges, edgeSchema,
-				set.getEdgeCrossContaminations(),
-				set.getEdgeContaminationCondition(),
-				set.getEdgeContaminationConditionValue());
-		nodeFilterPanel.update(nodes.values(), nodeSchema,
-				set.getObservedNodes(), set.getObservedNodesCondition(),
-				set.getObservedNodesConditionValue());
+		nodeWeightPanel.update(nodes.values(), nodeSchema, set.getNodeWeights(),
+				set.getNodeWeightCondition(), set.getNodeWeightConditionValue());
+		edgeWeightPanel.update(edges, edgeSchema, set.getEdgeWeights(),
+				set.getEdgeWeightCondition(), set.getEdgeWeightConditionValue());
+		nodeContaminationPanel.update(nodes.values(), nodeSchema, set.getNodeCrossContaminations(),
+				set.getNodeContaminationCondition(), set.getNodeContaminationConditionValue());
+		edgeContaminationPanel.update(edges, edgeSchema, set.getEdgeCrossContaminations(),
+				set.getEdgeContaminationCondition(), set.getEdgeContaminationConditionValue());
+		nodeFilterPanel.update(nodes.values(), nodeSchema, set.getObservedNodes(),
+				set.getObservedNodesCondition(), set.getObservedNodesConditionValue());
 		edgeFilterPanel.update(edges, edgeSchema, set.getObservedEdges(),
-				set.getObservedEdgesCondition(),
-				set.getObservedEdgesConditionValue());
+				set.getObservedEdgesCondition(), set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 
 		if (!skippedEdgeRows.isEmpty()) {
 			String warning = "Some rows from the delivery table could not be imported."
 					+ " Execute the Tracing View for more information.";
 
-			new Thread(new NodeDialogWarningThread(enforceTempBox, warning))
-					.start();
+			new Thread(new NodeDialogWarningThread(enforceTempBox, warning)).start();
 		}
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setNodeWeights(nodeWeightPanel.getValues());
 		set.setNodeWeightCondition(nodeWeightPanel.getCondition());
 		set.setNodeWeightConditionValue(nodeWeightPanel.getValueForAll());
@@ -162,13 +138,11 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		set.setNodeCrossContaminations(nodeContaminationPanel.getValues());
 		set.setNodeContaminationCondition(nodeContaminationPanel.getCondition());
-		set.setNodeContaminationConditionValue(nodeContaminationPanel
-				.getValueForAll());
+		set.setNodeContaminationConditionValue(nodeContaminationPanel.getValueForAll());
 
 		set.setEdgeCrossContaminations(edgeContaminationPanel.getValues());
 		set.setEdgeContaminationCondition(edgeContaminationPanel.getCondition());
-		set.setEdgeContaminationConditionValue(edgeContaminationPanel
-				.getValueForAll());
+		set.setEdgeContaminationConditionValue(edgeContaminationPanel.getValueForAll());
 
 		set.setObservedNodes(nodeFilterPanel.getValues());
 		set.setObservedNodesCondition(nodeFilterPanel.getCondition());

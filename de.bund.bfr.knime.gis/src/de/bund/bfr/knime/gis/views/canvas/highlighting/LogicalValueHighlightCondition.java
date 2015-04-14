@@ -31,8 +31,7 @@ import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
-public class LogicalValueHighlightCondition implements HighlightCondition,
-		Serializable {
+public class LogicalValueHighlightCondition implements HighlightCondition, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,8 +46,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 		this(c.valueCondition, c.logicalCondition);
 	}
 
-	public LogicalValueHighlightCondition(
-			ValueHighlightCondition valueCondition,
+	public LogicalValueHighlightCondition(ValueHighlightCondition valueCondition,
 			AndOrHighlightCondition logicalCondition) {
 		this.valueCondition = valueCondition;
 		this.logicalCondition = logicalCondition;
@@ -172,10 +170,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition,
 
 		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
 
-		Map<? extends Element, Double> valueValues = valueCondition
-				.getValues(elements);
-		Map<? extends Element, Double> logicalValues = logicalCondition
-				.getValues(elements);
+		Map<? extends Element, Double> valueValues = valueCondition.getValues(elements);
+		Map<? extends Element, Double> logicalValues = logicalCondition.getValues(elements);
 
 		valueCondition.setType(type);
 

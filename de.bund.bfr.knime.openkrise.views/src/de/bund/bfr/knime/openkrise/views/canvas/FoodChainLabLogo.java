@@ -50,8 +50,7 @@ public class FoodChainLabLogo implements Icon {
 	 *            Graphics context.
 	 */
 	public void paint(Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		origAlpha = 1.0f;
 		Composite origComposite = g.getComposite();
 		if (origComposite instanceof AlphaComposite) {
@@ -73,12 +72,10 @@ public class FoodChainLabLogo implements Icon {
 		shape0.moveTo(136.92783, 5.9065394);
 		shape0.lineTo(139.65106, 3.7286522);
 		shape0.lineTo(177.78453, 47.699604);
-		shape0.curveTo(180.48882, 45.029335, 181.70534, 42.31828, 182.83008,
-				38.624413);
+		shape0.curveTo(180.48882, 45.029335, 181.70534, 42.31828, 182.83008, 38.624413);
 		shape0.lineTo(194.2451, 68.427505);
 		shape0.lineTo(166.20186, 53.15586);
-		shape0.curveTo(170.32632, 52.722122, 172.76506, 51.714848, 174.9594,
-				50.016376);
+		shape0.curveTo(170.32632, 52.722122, 172.76506, 51.714848, 174.9594, 50.016376);
 		shape0.closePath();
 		g.setPaint(new Color(0, 0, 0, 255));
 		g.fill(shape0);
@@ -91,12 +88,10 @@ public class FoodChainLabLogo implements Icon {
 		shape1.moveTo(98.4309, 53.394676);
 		shape1.lineTo(99.69409, 56.64484);
 		shape1.lineTo(46.32699, 79.87323);
-		shape1.curveTo(48.06568, 83.25264, 50.288486, 85.22467, 53.476532,
-				87.40321);
+		shape1.curveTo(48.06568, 83.25264, 50.288486, 85.22467, 53.476532, 87.40321);
 		shape1.lineTo(21.623245, 89.37698);
 		shape1.lineTo(44.58671, 67.18857);
-		shape1.curveTo(43.766384, 71.25383, 43.99774, 73.88223, 44.961758,
-				76.48427);
+		shape1.curveTo(43.766384, 71.25383, 43.99774, 73.88223, 44.961758, 76.48427);
 		shape1.closePath();
 		g.fill(shape1);
 		g.draw(shape1);
@@ -107,12 +102,10 @@ public class FoodChainLabLogo implements Icon {
 		shape2.moveTo(97.68401, 54.253216);
 		shape2.lineTo(95.88808, 57.242165);
 		shape2.lineTo(44.843964, 29.276014);
-		shape2.curveTo(43.237022, 32.720028, 43.03917, 35.68492, 43.26914,
-				39.539375);
+		shape2.curveTo(43.237022, 32.720028, 43.03917, 35.68492, 43.26914, 39.539375);
 		shape2.lineTo(22.202745, 15.565757);
 		shape2.lineTo(53.806404, 20.132504);
-		shape2.curveTo(50.09018, 21.973421, 48.153915, 23.76588, 46.687157,
-				26.121412);
+		shape2.curveTo(50.09018, 21.973421, 48.153915, 23.76588, 46.687157, 26.121412);
 		shape2.closePath();
 		g.fill(shape2);
 		g.draw(shape2);
@@ -123,12 +116,10 @@ public class FoodChainLabLogo implements Icon {
 		shape3.moveTo(92.17194, 60.3726);
 		shape3.lineTo(94.54836, 62.07096);
 		shape3.lineTo(86.55017, 72.297935);
-		shape3.curveTo(88.04435, 73.36192, 88.59966, 73.201515, 90.448814,
-				73.427345);
+		shape3.curveTo(88.04435, 73.36192, 88.59966, 73.201515, 90.448814, 73.427345);
 		shape3.lineTo(77.23551, 81.36407);
 		shape3.lineTo(82.15823, 66.72679);
-		shape3.curveTo(82.707924, 68.65471, 83.10947, 69.66006, 84.09936,
-				70.56267);
+		shape3.curveTo(82.707924, 68.65471, 83.10947, 69.66006, 84.09936, 70.56267);
 		shape3.closePath();
 		g.fill(shape3);
 		g.setStroke(new BasicStroke(0.19999999f, 0, 0, 4.0f, null, 0.0f));
@@ -424,14 +415,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_5(Graphics2D g) {
 		GeneralPath shape5 = new GeneralPath();
 		shape5.moveTo(199.84685, 365.67957);
-		shape5.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape5.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape5.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape5.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape5.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape5.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape5.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape5.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape5.closePath();
 		g.setPaint(new Color(230, 230, 230, 255));
 		g.fill(shape5);
@@ -443,14 +430,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_6(Graphics2D g) {
 		GeneralPath shape6 = new GeneralPath();
 		shape6.moveTo(199.84685, 365.67957);
-		shape6.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape6.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape6.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape6.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape6.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape6.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape6.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape6.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape6.closePath();
 		g.setPaint(new Color(230, 230, 230, 255));
 		g.fill(shape6);
@@ -461,14 +444,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_7(Graphics2D g) {
 		GeneralPath shape7 = new GeneralPath();
 		shape7.moveTo(199.84685, 365.67957);
-		shape7.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape7.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape7.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape7.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape7.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape7.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape7.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape7.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape7.closePath();
 		g.setPaint(new Color(230, 230, 230, 255));
 		g.fill(shape7);
@@ -479,14 +458,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_8(Graphics2D g) {
 		GeneralPath shape8 = new GeneralPath();
 		shape8.moveTo(199.84685, 365.67957);
-		shape8.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape8.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape8.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape8.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape8.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape8.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape8.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape8.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape8.closePath();
 		g.setPaint(new Color(230, 230, 230, 255));
 		g.fill(shape8);
@@ -497,14 +472,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_9(Graphics2D g) {
 		GeneralPath shape9 = new GeneralPath();
 		shape9.moveTo(199.84685, 365.67957);
-		shape9.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape9.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape9.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape9.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape9.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape9.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape9.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape9.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape9.closePath();
 		g.setPaint(new Color(128, 128, 128, 255));
 		g.fill(shape9);
@@ -515,14 +486,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_10(Graphics2D g) {
 		GeneralPath shape10 = new GeneralPath();
 		shape10.moveTo(199.84685, 365.67957);
-		shape10.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape10.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape10.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape10.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape10.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape10.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape10.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape10.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape10.closePath();
 		g.setPaint(new Color(128, 128, 128, 255));
 		g.fill(shape10);
@@ -535,12 +502,10 @@ public class FoodChainLabLogo implements Icon {
 		shape11.moveTo(101.79908, 52.63894);
 		shape11.lineTo(99.47955, 50.035275);
 		shape11.lineTo(114.45359, 37.131035);
-		shape11.curveTo(111.64339, 34.572468, 108.87152, 33.501724, 105.12311,
-				32.57486);
+		shape11.curveTo(111.64339, 34.572468, 108.87152, 33.501724, 105.12311, 32.57486);
 		shape11.lineTo(134.27753, 19.592314);
 		shape11.lineTo(120.5176, 48.407417);
-		shape11.curveTo(119.86531, 44.311836, 118.72987, 41.930065, 116.9172,
-				39.829086);
+		shape11.curveTo(119.86531, 44.311836, 118.72987, 41.930065, 116.9172, 39.829086);
 		shape11.closePath();
 		g.fill(shape11);
 		g.setStroke(new BasicStroke(0.20000002f, 0, 0, 4.0f, null, 0.0f));
@@ -552,12 +517,10 @@ public class FoodChainLabLogo implements Icon {
 		shape12.moveTo(101.7846, 60.97994);
 		shape12.lineTo(103.74752, 58.097893);
 		shape12.lineTo(132.45154, 76.01947);
-		shape12.curveTo(134.25163, 72.672356, 134.61768, 69.723495, 134.60713,
-				65.862206);
+		shape12.curveTo(134.25163, 72.672356, 134.61768, 69.723495, 134.60713, 65.862206);
 		shape12.lineTo(154.27692, 90.99439);
 		shape12.lineTo(122.983894, 84.63882);
-		shape12.curveTo(126.79875, 83.012085, 128.83376, 81.33257, 130.43202,
-				79.06421);
+		shape12.curveTo(126.79875, 83.012085, 128.83376, 81.33257, 130.43202, 79.06421);
 		shape12.closePath();
 		g.fill(shape12);
 		g.draw(shape12);
@@ -566,14 +529,10 @@ public class FoodChainLabLogo implements Icon {
 	private void paintShapeNode_0_0_13(Graphics2D g) {
 		GeneralPath shape13 = new GeneralPath();
 		shape13.moveTo(199.84685, 365.67957);
-		shape13.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241,
-				425.134);
-		shape13.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965,
-				365.67957);
-		shape13.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241,
-				306.22513);
-		shape13.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685,
-				365.67957);
+		shape13.curveTo(199.84685, 398.51535, 173.2282, 425.134, 140.39241, 425.134);
+		shape13.curveTo(107.556625, 425.134, 80.937965, 398.51535, 80.937965, 365.67957);
+		shape13.curveTo(80.937965, 332.84378, 107.556625, 306.22513, 140.39241, 306.22513);
+		shape13.curveTo(173.2282, 306.22513, 199.84685, 332.84378, 199.84685, 365.67957);
 		shape13.closePath();
 		g.setPaint(new Color(230, 230, 230, 255));
 		g.fill(shape13);
@@ -610,38 +569,38 @@ public class FoodChainLabLogo implements Icon {
 		g.setTransform(trans_0_0_4);
 		// _0_0_5
 		AffineTransform trans_0_0_5 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, -12.638666152954102f, 35.61139678955078f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				-12.638666152954102f, 35.61139678955078f));
 		paintShapeNode_0_0_5(g);
 		g.setTransform(trans_0_0_5);
 		// _0_0_6
 		AffineTransform trans_0_0_6 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, 47.6943473815918f, 31.508752822875977f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				47.6943473815918f, 31.508752822875977f));
 		paintShapeNode_0_0_6(g);
 		g.setTransform(trans_0_0_6);
 		// _0_0_7
 		AffineTransform trans_0_0_7 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, 141.08985900878906f, 34.88740158081055f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				141.08985900878906f, 34.88740158081055f));
 		paintShapeNode_0_0_7(g);
 		g.setTransform(trans_0_0_7);
 		// _0_0_8
 		AffineTransform trans_0_0_8 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, 119.36997985839844f, -50.30281448364258f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				119.36997985839844f, -50.30281448364258f));
 		paintShapeNode_0_0_8(g);
 		g.setTransform(trans_0_0_8);
 		// _0_0_9
 		AffineTransform trans_0_0_9 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, -11.914666175842285f, -50.54414749145508f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				-11.914666175842285f, -50.54414749145508f));
 		paintShapeNode_0_0_9(g);
 		g.setTransform(trans_0_0_9);
 		// _0_0_10
 		AffineTransform trans_0_0_10 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, 178.9476318359375f, 16.99625015258789f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				178.9476318359375f, 16.99625015258789f));
 		paintShapeNode_0_0_10(g);
 		g.setTransform(trans_0_0_10);
 		// _0_0_11
@@ -656,8 +615,8 @@ public class FoodChainLabLogo implements Icon {
 		g.setTransform(trans_0_0_12);
 		// _0_0_13
 		AffineTransform trans_0_0_13 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f,
-				0.1682351529598236f, 73.03421783447266f, -6.380380630493164f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
+				73.03421783447266f, -6.380380630493164f));
 		paintShapeNode_0_0_13(g);
 		g.setTransform(trans_0_0_13);
 	}

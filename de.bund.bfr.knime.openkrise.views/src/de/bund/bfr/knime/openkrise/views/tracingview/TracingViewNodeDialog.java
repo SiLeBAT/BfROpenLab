@@ -56,8 +56,8 @@ import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener, ItemListener, ComponentListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ActionListener,
+		ItemListener, ComponentListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -99,11 +99,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
-		northPanel.add(UI.createHorizontalPanel(resetWeightsButton,
-				resetCrossButton, resetFilterButton, exportAsSvgBox),
-				BorderLayout.WEST);
-		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel(
-				"GIS Type:"), gisBox), BorderLayout.EAST);
+		northPanel.add(UI.createHorizontalPanel(resetWeightsButton, resetCrossButton,
+				resetFilterButton, exportAsSvgBox), BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox),
+				BorderLayout.EAST);
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -149,8 +148,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		updateSettings();
 		set.saveSettings(settings);
 	}
@@ -218,19 +216,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 			panel.remove(canvas.getComponent());
 		}
 
-		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(
-				nodeTable, edgeTable, tracingTable, shapeTable, set);
+		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable,
+				tracingTable, shapeTable, set);
 
-		canvas = set.isShowGis() ? creator.createGisCanvas() : creator
-				.createGraphCanvas();
-		switchButton
-				.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
+		canvas = set.isShowGis() ? creator.createGisCanvas() : creator.createGraphCanvas();
+		switchButton.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 		switchButton.setEnabled(creator.hasGisCoordinates());
 
 		String warningTable = null;
 
-		if (!creator.getSkippedEdgeRows().isEmpty()
-				&& !creator.getSkippedTracingRows().isEmpty()) {
+		if (!creator.getSkippedEdgeRows().isEmpty() && !creator.getSkippedTracingRows().isEmpty()) {
 			warningTable = "the delivery table and the tracing table";
 		} else if (!creator.getSkippedEdgeRows().isEmpty()) {
 			warningTable = "the delivery table";
@@ -241,8 +236,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 		String warning = null;
 
 		if (warningTable != null) {
-			warning = "Some rows from " + warningTable
-					+ " could not be imported."
+			warning = "Some rows from " + warningTable + " could not be imported."
 					+ " Execute the Tracing View for more information.";
 		}
 
@@ -258,8 +252,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (canvas instanceof TracingGraphCanvas) {
 			set.getGraphSettings().setFromCanvas((TracingGraphCanvas) canvas);
-		} else if (canvas instanceof TracingGisCanvas
-				|| canvas instanceof TracingOsmCanvas) {
+		} else if (canvas instanceof TracingGisCanvas || canvas instanceof TracingOsmCanvas) {
 			set.getGisSettings().setFromCanvas((GisCanvas<?>) canvas);
 		}
 	}

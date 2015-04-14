@@ -44,8 +44,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
-public class RegionToRegionVisualizerInputDialog extends JDialog implements
-		ActionListener {
+public class RegionToRegionVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,37 +61,29 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 	private boolean approved;
 	private RegionToRegionVisualizerSettings set;
 
-	public RegionToRegionVisualizerInputDialog(JComponent owner,
-			DataTableSpec shapeSpec, DataTableSpec nodeSpec,
-			DataTableSpec edgeSpec, RegionToRegionVisualizerSettings set) {
-		super(SwingUtilities.getWindowAncestor(owner), "Input",
-				DEFAULT_MODALITY_TYPE);
+	public RegionToRegionVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec,
+			DataTableSpec nodeSpec, DataTableSpec edgeSpec, RegionToRegionVisualizerSettings set) {
+		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
-		shapeBox = new ColumnComboBox(false,
-				GisUtils.getShapeColumns(shapeSpec));
+		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				shapeSpec, StringCell.TYPE, IntCell.TYPE));
-		shapeRegionBox.setSelectedColumnName(set.getGisSettings()
-				.getShapeRegionColumn());
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec,
+		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec,
 				StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
-				.getNodeIdColumn());
-		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				nodeSpec, StringCell.TYPE, IntCell.TYPE));
-		nodeRegionBox.setSelectedColumnName(set.getGisSettings()
-				.getNodeRegionColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
-				StringCell.TYPE, IntCell.TYPE));
-		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
-				.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
-				StringCell.TYPE, IntCell.TYPE));
-		edgeToBox.setSelectedColumnName(set.getGraphSettings()
-				.getEdgeToColumn());
+		shapeRegionBox.setSelectedColumnName(set.getGisSettings().getShapeRegionColumn());
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		nodeIdBox.setSelectedColumnName(set.getGraphSettings().getNodeIdColumn());
+		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		nodeRegionBox.setSelectedColumnName(set.getGisSettings().getNodeRegionColumn());
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		edgeFromBox.setSelectedColumnName(set.getGraphSettings().getEdgeFromColumn());
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -103,19 +94,17 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(UI.createOptionsPanel("Shape Table", Arrays.asList(
-				new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
+		mainPanel.add(UI.createOptionsPanel("Shape Table",
+				Arrays.asList(new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
 				Arrays.asList(shapeBox, shapeRegionBox)));
 		mainPanel.add(UI.createOptionsPanel("Node Table",
-				Arrays.asList(new JLabel("Node ID column:"), new JLabel(
-						"Region ID column:")), Arrays.asList(nodeIdBox,
-						nodeRegionBox)));
-		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
-				new JLabel("Source Node ID Column:"), new JLabel(
-						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
-				edgeToBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
-				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
+				Arrays.asList(new JLabel("Node ID column:"), new JLabel("Region ID column:")),
+				Arrays.asList(nodeIdBox, nodeRegionBox)));
+		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(new JLabel(
+				"Source Node ID Column:"), new JLabel("Target Node ID Column:")), Arrays.asList(
+				edgeFromBox, edgeToBox)));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
+				Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
@@ -133,43 +122,34 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
-			DataColumnSpec shapeRegionColumn = shapeRegionBox
-					.getSelectedColumn();
+			DataColumnSpec shapeRegionColumn = shapeRegionBox.getSelectedColumn();
 			DataColumnSpec nodeIdColumn = nodeIdBox.getSelectedColumn();
 			DataColumnSpec nodeRegionColumn = nodeRegionBox.getSelectedColumn();
 			DataColumnSpec edgeFromColumn = edgeFromBox.getSelectedColumn();
 			DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
 
-			if (shapeColumn == null || shapeRegionColumn == null
-					|| nodeIdColumn == null || nodeRegionColumn == null
-					|| edgeFromColumn == null || edgeToColumn == null) {
+			if (shapeColumn == null || shapeRegionColumn == null || nodeIdColumn == null
+					|| nodeRegionColumn == null || edgeFromColumn == null || edgeToColumn == null) {
 				String error = "\"Shape\", all \"Region ID\" and all \"Node ID\""
 						+ " columns must be selected";
 
-				JOptionPane.showMessageDialog(this, error, "Error",
-						JOptionPane.ERROR_MESSAGE);
-			} else if (shapeRegionColumn.getType() != nodeRegionColumn
-					.getType()) {
+				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+			} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
 				String error = "All \"Region ID\" columns must have the same type";
 
-				JOptionPane.showMessageDialog(this, error, "Type Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
 				String error = "All \"Node ID\" columns must have the same type";
 
-				JOptionPane.showMessageDialog(this, error, "Type Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
 				set.getGisSettings().setShapeColumn(shapeColumn.getName());
-				set.getGisSettings().setShapeRegionColumn(
-						shapeRegionColumn.getName());
+				set.getGisSettings().setShapeRegionColumn(shapeRegionColumn.getName());
 				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
-				set.getGisSettings().setNodeRegionColumn(
-						nodeRegionColumn.getName());
-				set.getGraphSettings().setEdgeFromColumn(
-						edgeFromColumn.getName());
+				set.getGisSettings().setNodeRegionColumn(nodeRegionColumn.getName());
+				set.getGraphSettings().setEdgeFromColumn(edgeFromColumn.getName());
 				set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();

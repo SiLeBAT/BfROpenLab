@@ -38,9 +38,8 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private int lastIndex;
 
-	public DiffFunction(DJep parser, Node[] functions,
-			String[] dependentVariables, Map<String, double[]> variableValues,
-			String timeVariable) {
+	public DiffFunction(DJep parser, Node[] functions, String[] dependentVariables,
+			Map<String, double[]> variableValues, String timeVariable) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;

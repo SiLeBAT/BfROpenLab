@@ -36,28 +36,23 @@ import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
-public class TracingGisCanvas extends LocationCanvas implements
-		ITracingCanvas<LocationNode> {
+public class TracingGisCanvas extends LocationCanvas implements ITracingCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
 	private Tracing<LocationNode> tracing;
 
 	public TracingGisCanvas() {
-		this(new ArrayList<LocationNode>(),
-				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(), new ArrayList<RegionNode>(),
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
+				new NodePropertySchema(), new EdgePropertySchema(), new ArrayList<RegionNode>(),
 				new LinkedHashMap<Integer, MyDelivery>());
 	}
 
-	public TracingGisCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
-			EdgePropertySchema edgeProperties, List<RegionNode> regions,
-			Map<Integer, MyDelivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties,
-				TracingUtils.NAMING, regions);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap,
-				deliveries);
+	public TracingGisCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
+			List<RegionNode> regions, Map<Integer, MyDelivery> deliveries) {
+		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, regions);
+		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
 	@Override
@@ -86,8 +81,7 @@ public class TracingGisCanvas extends LocationCanvas implements
 	}
 
 	@Override
-	public void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations) {
+	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
 		tracing.setNodeCrossContaminations(nodeCrossContaminations);
 	}
 
@@ -97,8 +91,7 @@ public class TracingGisCanvas extends LocationCanvas implements
 	}
 
 	@Override
-	public void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations) {
+	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		tracing.setEdgeCrossContaminations(edgeCrossContaminations);
 	}
 

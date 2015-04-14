@@ -44,10 +44,8 @@ public class EdgeArrowTransformer<V extends Node> implements
 
 	@Override
 	public Shape transform(Context<Graph<V, Edge<V>>, Edge<V>> edge) {
-		int t1 = (int) Math.round(thicknessValues.get(edge.element) / denom
-				* 20.0);
-		int t2 = (int) Math.round(thicknessValues.get(edge.element) / denom
-				* 10.0);
+		int t1 = (int) Math.round(thicknessValues.get(edge.element) / denom * 20.0);
+		int t2 = (int) Math.round(thicknessValues.get(edge.element) / denom * 10.0);
 
 		return ArrowFactory.getNotchedArrow(t1 + 8, t2 + 10, 4);
 	}

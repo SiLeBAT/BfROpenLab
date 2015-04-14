@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class GraphVisualizerNodeFactory extends
-		NodeFactory<GraphVisualizerNodeModel> {
+public class GraphVisualizerNodeFactory extends NodeFactory<GraphVisualizerNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -52,8 +51,8 @@ public class GraphVisualizerNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<GraphVisualizerNodeModel> createNodeView(
-			final int viewIndex, final GraphVisualizerNodeModel nodeModel) {
+	public NodeView<GraphVisualizerNodeModel> createNodeView(final int viewIndex,
+			final GraphVisualizerNodeModel nodeModel) {
 		return null;
 	}
 

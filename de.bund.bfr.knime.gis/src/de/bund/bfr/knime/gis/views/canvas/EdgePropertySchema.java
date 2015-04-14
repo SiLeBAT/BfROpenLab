@@ -32,8 +32,7 @@ public class EdgePropertySchema extends PropertySchema {
 		this(new LinkedHashMap<String, Class<?>>(), null, null, null);
 	}
 
-	public EdgePropertySchema(Map<String, Class<?>> map, String id,
-			String from, String to) {
+	public EdgePropertySchema(Map<String, Class<?>> map, String id, String from, String to) {
 		super(map);
 		this.id = id;
 		this.from = from;

@@ -64,22 +64,16 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
-		DiffFunctionReader reader = new DiffFunctionReader(
-				(FunctionPortObject) inObjects[0],
-				(BufferedDataTable) inObjects[1],
-				(BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3],
-				(BufferedDataTable) inObjects[4]);
-		ChartCreator creator = new ChartCreator(reader.getPlotables(),
-				reader.getLegend());
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+		DiffFunctionReader reader = new DiffFunctionReader((FunctionPortObject) inObjects[0],
+				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2],
+				(BufferedDataTable) inObjects[3], (BufferedDataTable) inObjects[4]);
+		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 
 		creator.setVarY(reader.getDepVar());
 		set.setToChartCreator(creator);
 
-		return new PortObject[] { ChartUtils.getImage(creator.createChart(),
-				set.isExportAsSvg()) };
+		return new PortObject[] { ChartUtils.getImage(creator.createChart(), set.isExportAsSvg()) };
 	}
 
 	/**
@@ -93,10 +87,8 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
-		return new PortObjectSpec[] { ChartUtils.getImageSpec(set
-				.isExportAsSvg()) };
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { ChartUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
@@ -120,26 +112,23 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

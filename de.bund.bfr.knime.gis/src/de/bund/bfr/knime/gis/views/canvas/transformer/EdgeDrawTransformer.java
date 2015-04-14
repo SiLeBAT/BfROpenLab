@@ -32,8 +32,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import edu.uci.ics.jung.visualization.RenderContext;
 
-public class EdgeDrawTransformer<V extends Node> implements
-		Transformer<Edge<V>, Paint> {
+public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>, Paint> {
 
 	private RenderContext<V, Edge<V>> renderContext;
 	private Map<Edge<V>, Paint> edgeColors;
@@ -44,8 +43,8 @@ public class EdgeDrawTransformer<V extends Node> implements
 		edgeColors = new LinkedHashMap<>();
 
 		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
-			edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK,
-					colors, entry.getValue()));
+			edgeColors.put(entry.getKey(),
+					CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue()));
 		}
 	}
 

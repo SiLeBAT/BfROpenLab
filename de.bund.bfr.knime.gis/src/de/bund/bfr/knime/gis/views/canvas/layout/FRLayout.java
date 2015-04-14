@@ -34,8 +34,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class FRLayout<V, E> extends AbstractLayout<V, E> implements
-		IterativeContext {
+public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeContext {
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -89,8 +88,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements
 		currentIteration = 0;
 		temperature = d.getWidth() / 10;
 
-		forceConstant = Math.sqrt(d.getHeight() * d.getWidth()
-				/ graph.getVertexCount());
+		forceConstant = Math.sqrt(d.getHeight() * d.getWidth() / graph.getVertexCount());
 
 		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
 		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
@@ -102,8 +100,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements
 	 */
 	@Override
 	public boolean done() {
-		if (currentIteration > MAX_ITERATIONS
-				|| temperature < 1.0 / max_dimension) {
+		if (currentIteration > MAX_ITERATIONS || temperature < 1.0 / max_dimension) {
 			return true;
 		}
 		return false;
@@ -170,16 +167,14 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements
 
 		Point2D xyd = transform(v);
 		double deltaLength = Math.max(EPSILON, fvd.norm());
-		double newXDisp = fvd.getX() / deltaLength
-				* Math.min(deltaLength, temperature);
+		double newXDisp = fvd.getX() / deltaLength * Math.min(deltaLength, temperature);
 
 		if (Double.isNaN(newXDisp)) {
 			throw new IllegalArgumentException(
 					"Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
 		}
 
-		double newYDisp = fvd.getY() / deltaLength
-				* Math.min(deltaLength, temperature);
+		double newYDisp = fvd.getY() / deltaLength * Math.min(deltaLength, temperature);
 
 		xyd.setLocation(xyd.getX() + newXDisp, xyd.getY() + newYDisp);
 	}
@@ -205,8 +200,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements
 
 		double xDelta = p1.getX() - p2.getX();
 		double yDelta = p1.getY() - p2.getY();
-		double deltaLength = Math.max(EPSILON,
-				Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
+		double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 		double force = (deltaLength * deltaLength) / attraction_constant;
 
 		if (Double.isNaN(force)) {
@@ -253,16 +247,14 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements
 				double deltaLength = Math.max(EPSILON,
 						Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 
-				double force = (repulsion_constant * repulsion_constant)
-						/ deltaLength;
+				double force = (repulsion_constant * repulsion_constant) / deltaLength;
 
 				if (Double.isNaN(force)) {
 					throw new RuntimeException(
 							"Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
 				}
 
-				fvd1.offset((xDelta / deltaLength) * force,
-						(yDelta / deltaLength) * force);
+				fvd1.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
 			}
 		} catch (ConcurrentModificationException cme) {
 			calcRepulsion(v1);

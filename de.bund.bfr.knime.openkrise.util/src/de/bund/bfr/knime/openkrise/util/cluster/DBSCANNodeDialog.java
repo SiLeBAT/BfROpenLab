@@ -62,8 +62,8 @@ import de.bund.bfr.knime.ui.IntTextField;
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener, ItemListener {
+public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionListener,
+		ItemListener {
 
 	private DBSCANNSettings set;
 	private NodePropertySchema schema;
@@ -103,14 +103,13 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	protected void loadSettingsFrom(final NodeSettingsRO settings,
-			final BufferedDataTable[] input) throws NotConfigurableException {
-		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0]
-				.getSpec()), TracingColumns.ID);
+	protected void loadSettingsFrom(final NodeSettingsRO settings, final BufferedDataTable[] input)
+			throws NotConfigurableException {
+		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0].getSpec()),
+				TracingColumns.ID);
 		schema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(TracingUtils.readLocationNodes(
-						input[0], schema, new LinkedHashSet<RowKey>(), false)
-						.values()));
+				CanvasUtils.getPossibleValues(TracingUtils.readLocationNodes(input[0], schema,
+						new LinkedHashSet<RowKey>(), false).values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());
@@ -123,27 +122,23 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setModel((String) modelBox.getSelectedItem());
 
 		if (set.getModel().equals(DBSCANNSettings.MODEL_DBSCAN)) {
 			if (!minPointsField.isValueValid()) {
-				throw new InvalidSettingsException(
-						"Invalid: Min Number of Points per Cluster");
+				throw new InvalidSettingsException("Invalid: Min Number of Points per Cluster");
 			}
 
 			if (!maxDistField.isValueValid()) {
-				throw new InvalidSettingsException(
-						"Invalid: Max Neighborhood Distance (km)");
+				throw new InvalidSettingsException("Invalid: Max Neighborhood Distance (km)");
 			}
 
 			set.setMinPoints(minPointsField.getValue());
 			set.setMaxDistance(maxDistField.getValue());
 		} else if (set.getModel().equals(DBSCANNSettings.MODEL_K_MEANS)) {
 			if (!numClustersField.isValueValid()) {
-				throw new InvalidSettingsException(
-						"Invalid: Number of Clusters");
+				throw new InvalidSettingsException("Invalid: Number of Clusters");
 			}
 
 			set.setNumClusters(numClustersField.getValue());
@@ -161,9 +156,9 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 				Arrays.asList(modelBox, UI.createWestPanel(removeFilterButton))));
 
 		if (model.equals(DBSCANNSettings.MODEL_DBSCAN)) {
-			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(
-					new JLabel("Min Number of Points per Cluster:"),
-					new JLabel("Max Neighborhood Distance (km):")), Arrays
+			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(new JLabel(
+					"Min Number of Points per Cluster:"), new JLabel(
+					"Max Neighborhood Distance (km):")), Arrays
 					.asList(minPointsField, maxDistField)));
 		} else if (model.equals(DBSCANNSettings.MODEL_K_MEANS)) {
 			panel.add(UI.createOptionsPanel("Algorithm Options",
@@ -177,15 +172,14 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(
-					filterButton, schema, set.getFilter());
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema,
+					set.getFilter());
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
-				set.setFilter((AndOrHighlightCondition) dialog
-						.getHighlightCondition());
+				set.setFilter((AndOrHighlightCondition) dialog.getHighlightCondition());
 			}
 		} else if (e.getSource() == removeFilterButton) {
 			set.setFilter(null);

@@ -40,8 +40,8 @@ public class FunctionPortObjectSpecSerializer extends
 	}
 
 	@Override
-	public FunctionPortObjectSpec loadPortObjectSpec(
-			PortObjectSpecZipInputStream in) throws IOException {
+	public FunctionPortObjectSpec loadPortObjectSpec(PortObjectSpecZipInputStream in)
+			throws IOException {
 		ObjectInputStream objectIn = new ObjectInputStream(in);
 		FunctionPortObjectSpec portObject;
 

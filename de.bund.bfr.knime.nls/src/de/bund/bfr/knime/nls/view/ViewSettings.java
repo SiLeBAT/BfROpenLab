@@ -176,20 +176,17 @@ public class ViewSettings extends NlsNodeSettings {
 		}
 
 		try {
-			selectedIDs = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_IDS));
+			selectedIDs = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_IDS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			colors = (Map<String, Color>) SERIALIZER.fromXml(settings
-					.getString(CFG_COLORS));
+			colors = (Map<String, Color>) SERIALIZER.fromXml(settings.getString(CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			shapes = (Map<String, Shape>) SERIALIZER.fromXml(settings
-					.getString(CFG_SHAPES));
+			shapes = (Map<String, Shape>) SERIALIZER.fromXml(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 		}
 	}

@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionViewNodeFactory extends
-		NodeFactory<DiffFunctionViewNodeModel> {
+public class DiffFunctionViewNodeFactory extends NodeFactory<DiffFunctionViewNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -52,8 +51,8 @@ public class DiffFunctionViewNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<DiffFunctionViewNodeModel> createNodeView(
-			final int viewIndex, final DiffFunctionViewNodeModel nodeModel) {
+	public NodeView<DiffFunctionViewNodeModel> createNodeView(final int viewIndex,
+			final DiffFunctionViewNodeModel nodeModel) {
 		return null;
 	}
 

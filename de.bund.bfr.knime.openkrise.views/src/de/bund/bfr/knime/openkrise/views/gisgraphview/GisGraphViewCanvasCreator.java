@@ -47,9 +47,8 @@ public class GisGraphViewCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private GisGraphViewSettings set;
 
-	public GisGraphViewCanvasCreator(BufferedDataTable shapeTable,
-			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
-			GisGraphViewSettings set) {
+	public GisGraphViewCanvasCreator(BufferedDataTable shapeTable, BufferedDataTable nodeTable,
+			BufferedDataTable edgeTable, GisGraphViewSettings set) {
 		this.shapeTable = shapeTable;
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
@@ -58,21 +57,19 @@ public class GisGraphViewCanvasCreator {
 
 	public GraphCanvas createGraphCanvas() throws NotConfigurableException {
 		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()),
-				TracingColumns.ID);
+				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(
-				TracingUtils.getTableColumns(edgeTable.getSpec()),
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+				TracingUtils.getTableColumns(edgeTable.getSpec()), TracingColumns.ID,
+				TracingColumns.FROM, TracingColumns.TO);
 
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable,
-				nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, new LinkedHashSet<RowKey>());
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()),
-				edges, nodeSchema, edgeSchema, TracingUtils.NAMING, false);
+		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
+				new LinkedHashSet<RowKey>());
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, TracingUtils.NAMING, false);
 
 		set.getGraphSettings().setToCanvas(canvas, true);
 
@@ -81,24 +78,22 @@ public class GisGraphViewCanvasCreator {
 
 	public LocationCanvas createGisCanvas() throws NotConfigurableException {
 		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()),
-				TracingColumns.ID);
+				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(
-				TracingUtils.getTableColumns(edgeTable.getSpec()),
-				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+				TracingUtils.getTableColumns(edgeTable.getSpec()), TracingColumns.ID,
+				TracingColumns.FROM, TracingColumns.TO);
 
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(
-				nodeTable, nodeSchema, new LinkedHashSet<RowKey>(), true);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable,
-				edgeSchema, nodes, new LinkedHashSet<RowKey>());
-		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema,
+				new LinkedHashSet<RowKey>(), true);
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				new LinkedHashSet<RowKey>());
-		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(
-				nodes.values()), edges, nodeSchema, edgeSchema,
-				TracingUtils.NAMING, regions);
+		List<RegionNode> regions = TracingUtils
+				.readRegions(shapeTable, new LinkedHashSet<RowKey>());
+		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(nodes.values()), edges,
+				nodeSchema, edgeSchema, TracingUtils.NAMING, regions);
 
 		set.getGraphSettings().setToCanvas(canvas, true);
 		set.getGisSettings().setToCanvas(canvas, false);

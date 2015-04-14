@@ -119,8 +119,7 @@ public class GraphSettings extends NodeSettings {
 		}
 
 		try {
-			showEdgesInMetaNode = settings
-					.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
+			showEdgesInMetaNode = settings.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -141,8 +140,7 @@ public class GraphSettings extends NodeSettings {
 
 		try {
 			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
 					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
@@ -174,8 +172,7 @@ public class GraphSettings extends NodeSettings {
 		}
 
 		try {
-			canvasSize = (Dimension) SERIALIZER.fromXml(settings
-					.getString(CFG_CANVAS_SIZE));
+			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -192,20 +189,20 @@ public class GraphSettings extends NodeSettings {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+			edgeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
-					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
+			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER.fromXml(settings
+					.getString(CFG_COLLAPSED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -234,12 +231,9 @@ public class GraphSettings extends NodeSettings {
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
-		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(nodeHighlightConditions));
-		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(edgeHighlightConditions));
-		settings.addString(CFG_COLLAPSED_NODES,
-				SERIALIZER.toXml(collapsedNodes));
+		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
+		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(edgeHighlightConditions));
+		settings.addString(CFG_COLLAPSED_NODES, SERIALIZER.toXml(collapsedNodes));
 		settings.addString(CFG_LABEL, label);
 	}
 
@@ -271,8 +265,7 @@ public class GraphSettings extends NodeSettings {
 
 		collapsedNodes = new LinkedHashMap<>();
 
-		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes()
-				.entrySet()) {
+		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
 			Map<String, Point2D> ids = new LinkedHashMap<>();
 
 			for (String id : entry.getValue()) {
@@ -305,12 +298,10 @@ public class GraphSettings extends NodeSettings {
 
 		canvas.setCollapsedNodes(collapsed);
 
-		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, canvas.getNodeSchema().getMap()
-						.keySet()));
-		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, canvas.getEdgeSchema().getMap()
-						.keySet()));
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
+				canvas.getNodeSchema().getMap().keySet()));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(edgeHighlightConditions,
+				canvas.getEdgeSchema().getMap().keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
@@ -447,8 +438,7 @@ public class GraphSettings extends NodeSettings {
 		return nodeHighlightConditions;
 	}
 
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
+	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 	}
 
@@ -456,8 +446,7 @@ public class GraphSettings extends NodeSettings {
 		return edgeHighlightConditions;
 	}
 
-	public void setEdgeHighlightConditions(
-			HighlightConditionList edgeHighlightConditions) {
+	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 	}
 
@@ -465,8 +454,7 @@ public class GraphSettings extends NodeSettings {
 		return collapsedNodes;
 	}
 
-	public void setCollapsedNodes(
-			Map<String, Map<String, Point2D>> collapsedNodes) {
+	public void setCollapsedNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
 

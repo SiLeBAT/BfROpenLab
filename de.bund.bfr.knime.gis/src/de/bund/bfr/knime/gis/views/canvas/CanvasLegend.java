@@ -48,33 +48,27 @@ public class CanvasLegend<V extends Node> {
 	private Map<String, Image> nodeLegend;
 	private Map<String, Image> edgeLegend;
 
-	public CanvasLegend(Canvas<V> owner,
-			HighlightConditionList nodeHighlightConditions,
-			Collection<V> nodes,
-			HighlightConditionList edgeHighlightConditions,
+	public CanvasLegend(Canvas<V> owner, HighlightConditionList nodeHighlightConditions,
+			Collection<V> nodes, HighlightConditionList edgeHighlightConditions,
 			Collection<Edge<V>> edges) {
 		this.owner = owner;
 		nodeLegend = new LinkedHashMap<>();
 		edgeLegend = new LinkedHashMap<>();
 
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
+		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (condition.isShowInLegend() && name != null && !name.isEmpty()
-					&& color != null) {
+			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
 				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH,
 						LEGEND_COLOR_BOX_WIDTH, BufferedImage.TYPE_INT_RGB);
 				Graphics g = image.getGraphics();
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " ["
-							+ CanvasUtils.toRangeString(condition
-									.getValueRange(nodes)) + "]";
-					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
-							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+					name += " [" + CanvasUtils.toRangeString(condition.getValueRange(nodes)) + "]";
+					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE,
+							LEGEND_COLOR_BOX_WIDTH, 0, color));
 				} else {
 					g.setColor(color);
 				}
@@ -84,24 +78,20 @@ public class CanvasLegend<V extends Node> {
 			}
 		}
 
-		for (HighlightCondition condition : edgeHighlightConditions
-				.getConditions()) {
+		for (HighlightCondition condition : edgeHighlightConditions.getConditions()) {
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (condition.isShowInLegend() && name != null && !name.isEmpty()
-					&& color != null) {
+			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
 				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH,
 						LEGEND_COLOR_BOX_WIDTH, BufferedImage.TYPE_INT_RGB);
 				Graphics g = image.getGraphics();
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " ["
-							+ CanvasUtils.toRangeString(condition
-									.getValueRange(edges)) + "]";
-					((Graphics2D) g).setPaint(new GradientPaint(0, 0,
-							Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+					name += " [" + CanvasUtils.toRangeString(condition.getValueRange(edges)) + "]";
+					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE,
+							LEGEND_COLOR_BOX_WIDTH, 0, color));
 				} else {
 					g.setColor(color);
 				}
@@ -112,29 +102,26 @@ public class CanvasLegend<V extends Node> {
 		}
 	}
 
-	public void paint(Graphics g, int width, int height, int fontSize,
-			boolean fontBold) {
+	public void paint(Graphics g, int width, int height, int fontSize, boolean fontBold) {
 		if (nodeLegend.isEmpty() && edgeLegend.isEmpty()) {
 			return;
 		}
 
-		FontRenderContext fontRenderContext = ((Graphics2D) g)
-				.getFontRenderContext();
+		FontRenderContext fontRenderContext = ((Graphics2D) g).getFontRenderContext();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
-		Font legendFont = new Font("Default",
-				fontBold ? Font.BOLD : Font.PLAIN, fontSize);
-		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD
-				| Font.ITALIC : Font.BOLD, fontSize);
+		Font legendFont = new Font("Default", fontBold ? Font.BOLD : Font.PLAIN, fontSize);
+		Font legendHeadFont = new Font("Default", fontBold ? Font.BOLD | Font.ITALIC : Font.BOLD,
+				fontSize);
 
 		for (String name : nodeLegend.keySet()) {
-			maxNodeWidth = Math.max(maxNodeWidth, (int) legendFont
-					.getStringBounds(name, fontRenderContext).getWidth());
+			maxNodeWidth = Math.max(maxNodeWidth,
+					(int) legendFont.getStringBounds(name, fontRenderContext).getWidth());
 		}
 
 		for (String name : edgeLegend.keySet()) {
-			maxEdgeWidth = Math.max(maxEdgeWidth, (int) legendFont
-					.getStringBounds(name, fontRenderContext).getWidth());
+			maxEdgeWidth = Math.max(maxEdgeWidth,
+					(int) legendFont.getStringBounds(name, fontRenderContext).getWidth());
 		}
 
 		int legendHeight = g.getFontMetrics(legendFont).getHeight();
@@ -146,8 +133,7 @@ public class CanvasLegend<V extends Node> {
 		int xNodeName = xNodeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
 		int xNodeEnd = xNodeName + maxNodeWidth + LEGEND_DX;
 
-		int xEdgeColor = nodeLegend.isEmpty() ? LEGEND_DX : xNodeEnd
-				+ LEGEND_DX;
+		int xEdgeColor = nodeLegend.isEmpty() ? LEGEND_DX : xNodeEnd + LEGEND_DX;
 		int xEdgeName = xEdgeColor + LEGEND_COLOR_BOX_WIDTH + LEGEND_DX;
 		int xEdgeEnd = xEdgeName + maxEdgeWidth + LEGEND_DX;
 
@@ -164,22 +150,20 @@ public class CanvasLegend<V extends Node> {
 		g.setFont(legendHeadFont);
 
 		if (!nodeLegend.isEmpty()) {
-			g.drawString(owner.getNaming().Nodes(), xNodeColor, yNode
-					+ headFontAcent);
+			g.drawString(owner.getNaming().Nodes(), xNodeColor, yNode + headFontAcent);
 			yNode += legendHeadHeight + LEGEND_DY;
 		}
 
 		if (!edgeLegend.isEmpty()) {
-			g.drawString(owner.getNaming().Edges(), xEdgeColor, yEdge
-					+ headFontAcent);
+			g.drawString(owner.getNaming().Edges(), xEdgeColor, yEdge + headFontAcent);
 			yEdge += legendHeadHeight + LEGEND_DY;
 		}
 
 		g.setFont(legendFont);
 
 		for (String name : nodeLegend.keySet()) {
-			g.drawImage(nodeLegend.get(name), xNodeColor, yNode,
-					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
+			g.drawImage(nodeLegend.get(name), xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH,
+					legendHeight, null);
 			g.setColor(Color.BLACK);
 			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(name, xNodeName, yNode + fontAscent);
@@ -187,8 +171,8 @@ public class CanvasLegend<V extends Node> {
 		}
 
 		for (String name : edgeLegend.keySet()) {
-			g.drawImage(edgeLegend.get(name), xEdgeColor, yEdge,
-					LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
+			g.drawImage(edgeLegend.get(name), xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH,
+					legendHeight, null);
 			g.setColor(Color.BLACK);
 			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(name, xEdgeName, yEdge + fontAscent);

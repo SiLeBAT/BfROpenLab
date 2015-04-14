@@ -53,20 +53,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), naming,
-				allowCollapse);
+				new NodePropertySchema(), new EdgePropertySchema(), naming, allowCollapse);
 	}
 
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming, boolean allowCollapse) {
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
+			boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<>(getNodeSize(),
-						new LinkedHashMap<GraphNode, Double>()));
+				new NodeShapeTransformer<>(getNodeSize(), new LinkedHashMap<GraphNode, Double>()));
 		applyLayout(LayoutType.FR_LAYOUT, null);
 	}
 
@@ -87,11 +85,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer
-				.getGraphLayout().getGraph());
+		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout()
+				.getGraph());
 		Point2D upperLeft = transform.applyInverse(0, 0);
-		Point2D upperRight = transform.applyInverse(
-				viewer.getPreferredSize().width, 0);
+		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width, 0);
 		double x1 = upperLeft.getX();
 		double x2 = upperRight.getX();
 		double y = upperLeft.getY();
@@ -149,8 +146,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema,
-					node.getProperties());
+			CanvasUtils.addMapToMap(properties, nodeSchema, node.getProperties());
 		}
 
 		properties.put(nodeSchema.getId(), id);
@@ -171,15 +167,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			selectedNodes = new LinkedHashSet<>();
 		}
 
-		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout()
-				.getGraph();
+		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this, layoutType
-					+ " cannot be applied on a subset of " + naming.nodes()
-					+ ". Apply " + layoutType + " on all " + naming.nodes()
-					+ "?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					+ " cannot be applied on a subset of " + naming.nodes() + ". Apply "
+					+ layoutType + " on all " + naming.nodes() + "?", "Confirm",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				selectedNodes = new LinkedHashSet<>();
 			} else {
 				return;
@@ -203,37 +198,33 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			layout = new KKLayout<>(graph);
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown LayoutType: "
-					+ layoutType);
+			throw new IllegalArgumentException("Unknown LayoutType: " + layoutType);
 		}
 
 		if (!selectedNodes.isEmpty()) {
-			Point2D move = new Point2D.Double(transform.getTranslationX()
-					/ transform.getScaleX(), transform.getTranslationY()
-					/ transform.getScaleY());
+			Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
+					transform.getTranslationY() / transform.getScaleY());
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(viewer
-							.getGraphLayout().transform(node), move));
+					layout.setLocation(node,
+							CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
 
-			layout.setSize(new Dimension(
-					(int) (viewer.getSize().width / transform.getScaleX()),
+			layout.setSize(new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
 					(int) (viewer.getSize().height / transform.getScaleY())));
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(viewer
-							.getGraphLayout().transform(node), move));
+					layout.setLocation(node,
+							CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
 
-			setTransform(new Transform(transform.getScaleX(),
-					transform.getScaleY(), 0, 0));
+			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
 		} else {
 			layout.setSize(viewer.getSize());
 			setTransform(Transform.IDENTITY_TRANSFORM);
@@ -290,15 +281,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap,
 					collapsedNodes.get(id));
-			Point2D oldCenter = CanvasUtils
-					.getCenter(getNodePositions(newNodes).values());
-			Point2D newCenter = viewer.getGraphLayout().transform(
-					nodeSaveMap.get(id));
+			Point2D oldCenter = CanvasUtils.getCenter(getNodePositions(newNodes).values());
+			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(id));
 			Point2D diff = CanvasUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {
-				Point2D newPos = CanvasUtils.addPoints(viewer.getGraphLayout()
-						.transform(newNode), diff);
+				Point2D newPos = CanvasUtils.addPoints(viewer.getGraphLayout().transform(newNode),
+						diff);
 
 				viewer.getGraphLayout().setLocation(newNode, newPos);
 			}

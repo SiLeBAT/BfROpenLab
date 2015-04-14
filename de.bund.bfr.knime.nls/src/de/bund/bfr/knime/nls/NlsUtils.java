@@ -77,8 +77,7 @@ public class NlsUtils {
 		return ids;
 	}
 
-	public static List<String> getQualityColumns(BufferedDataTable table,
-			Function f) {
+	public static List<String> getQualityColumns(BufferedDataTable table, Function f) {
 		List<String> columns = new ArrayList<>();
 
 		for (DataColumnSpec spec : table.getSpec()) {
@@ -91,14 +90,13 @@ public class NlsUtils {
 		return columns;
 	}
 
-	public static Map<String, Double> getQualityValues(BufferedDataTable table,
-			String id, List<String> columns) {
+	public static Map<String, Double> getQualityValues(BufferedDataTable table, String id,
+			List<String> columns) {
 		Map<String, Double> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				for (String column : columns) {
 					DataCell cell = row.getCell(spec.findColumnIndex(column));
 
@@ -118,17 +116,14 @@ public class NlsUtils {
 		return values;
 	}
 
-	public static Map<String, Double> getParameters(BufferedDataTable table,
-			String id, Function f) {
+	public static Map<String, Double> getParameters(BufferedDataTable table, String id, Function f) {
 		Map<String, Double> params = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				for (String param : f.getParameters()) {
-					params.put(param, IO.getDouble(row.getCell(spec
-							.findColumnIndex(param))));
+					params.put(param, IO.getDouble(row.getCell(spec.findColumnIndex(param))));
 				}
 
 				break;
@@ -138,21 +133,19 @@ public class NlsUtils {
 		return params;
 	}
 
-	public static Map<String, Map<String, Double>> getCovariances(
-			BufferedDataTable table, String id, Function f) {
+	public static Map<String, Map<String, Double>> getCovariances(BufferedDataTable table,
+			String id, Function f) {
 		Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> cov = new LinkedHashMap<>();
 				String param1 = IO.getString(row.getCell(spec
 						.findColumnIndex(NlsUtils.PARAM_COLUMN)));
 
 				for (String param2 : f.getParameters()) {
-					cov.put(param2, IO.getDouble(row.getCell(spec
-							.findColumnIndex(param2))));
+					cov.put(param2, IO.getDouble(row.getCell(spec.findColumnIndex(param2))));
 				}
 
 				covariances.put(param1, cov);
@@ -162,8 +155,8 @@ public class NlsUtils {
 		return covariances;
 	}
 
-	public static Map<String, double[]> getConditionValues(
-			BufferedDataTable table, String id, Function f) {
+	public static Map<String, double[]> getConditionValues(BufferedDataTable table, String id,
+			Function f) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
@@ -172,13 +165,11 @@ public class NlsUtils {
 		}
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getIndependentVariables()) {
-					v.put(var, IO.getDouble(row.getCell(spec
-							.findColumnIndex(var))));
+					v.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 				}
 
 				if (MathUtils.containsInvalidDouble(v.values())) {
@@ -200,20 +191,18 @@ public class NlsUtils {
 		return result;
 	}
 
-	public static List<Map<String, Double>> getFixedVariables(
-			BufferedDataTable table, String id, Function f, String indep) {
+	public static List<Map<String, Double>> getFixedVariables(BufferedDataTable table, String id,
+			Function f, String indep) {
 		List<Map<String, Double>> values = new ArrayList<>();
 		DataTableSpec spec = table.getSpec();
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getIndependentVariables()) {
 					if (!var.equals(indep)) {
-						v.put(var, IO.getDouble(row.getCell(spec
-								.findColumnIndex(var))));
+						v.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 					}
 				}
 
@@ -226,9 +215,8 @@ public class NlsUtils {
 		return values;
 	}
 
-	public static Map<String, double[]> getVariableValues(
-			BufferedDataTable table, String id, Function f,
-			Map<String, Double> fixed) {
+	public static Map<String, double[]> getVariableValues(BufferedDataTable table, String id,
+			Function f, Map<String, Double> fixed) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
@@ -237,13 +225,11 @@ public class NlsUtils {
 		}
 
 		loop: for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getVariables()) {
-					v.put(var, IO.getDouble(row.getCell(spec
-							.findColumnIndex(var))));
+					v.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 				}
 
 				for (Map.Entry<String, Double> entry : fixed.entrySet()) {
@@ -271,8 +257,8 @@ public class NlsUtils {
 		return result;
 	}
 
-	public static Map<String, double[]> getDiffVariableValues(
-			BufferedDataTable table, String id, Function f) {
+	public static Map<String, double[]> getDiffVariableValues(BufferedDataTable table, String id,
+			Function f) {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
@@ -280,15 +266,12 @@ public class NlsUtils {
 		values.put(f.getDependentVariable(), new ArrayList<Double>());
 
 		for (DataRow row : table) {
-			if (id.equals(IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN))))) {
-				Double time = IO.getDouble(row.getCell(spec.findColumnIndex(f
-						.getTimeVariable())));
+			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
+				Double time = IO.getDouble(row.getCell(spec.findColumnIndex(f.getTimeVariable())));
 				Double target = IO.getDouble(row.getCell(spec.findColumnIndex(f
 						.getDependentVariable())));
 
-				if (!MathUtils.isValidDouble(time)
-						|| !MathUtils.isValidDouble(target)) {
+				if (!MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
 					continue;
 				}
 

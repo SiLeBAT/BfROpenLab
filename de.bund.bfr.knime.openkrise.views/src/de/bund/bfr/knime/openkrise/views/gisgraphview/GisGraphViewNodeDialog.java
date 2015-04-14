@@ -55,8 +55,7 @@ import de.bund.bfr.knime.openkrise.views.gisview.ResizeListener;
  * 
  * @author Christian Thoens
  */
-public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
-		CanvasListener {
+public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener {
 
 	private JPanel panel;
 	private JSplitPane splitPane;
@@ -82,8 +81,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)),
-				BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(exportAsSvgBox)), BorderLayout.NORTH);
 
 		addTab("Options", panel, false);
 	}
@@ -103,8 +101,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setExportAsSvg(exportAsSvgBox.isSelected());
 		set.getGraphSettings().setFromCanvas(graphCanvas, listener.isResized());
 		set.getGisSettings().setFromCanvas(gisCanvas, listener.isResized());
@@ -141,13 +138,11 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void nodeHighlightingChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setNodeHighlightConditions(graphCanvas
-					.getNodeHighlightConditions());
+			gisCanvas.setNodeHighlightConditions(graphCanvas.getNodeHighlightConditions());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setNodeHighlightConditions(gisCanvas
-					.getNodeHighlightConditions());
+			graphCanvas.setNodeHighlightConditions(gisCanvas.getNodeHighlightConditions());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -156,13 +151,11 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void edgeHighlightingChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setEdgeHighlightConditions(graphCanvas
-					.getEdgeHighlightConditions());
+			gisCanvas.setEdgeHighlightConditions(graphCanvas.getEdgeHighlightConditions());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setEdgeHighlightConditions(gisCanvas
-					.getEdgeHighlightConditions());
+			graphCanvas.setEdgeHighlightConditions(gisCanvas.getEdgeHighlightConditions());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -197,13 +190,11 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setShowEdgesInMetaNode(graphCanvas
-					.isShowEdgesInMetaNode());
+			gisCanvas.setShowEdgesInMetaNode(graphCanvas.isShowEdgesInMetaNode());
 			gisCanvas.addCanvasListener(this);
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
-			graphCanvas.setShowEdgesInMetaNode(gisCanvas
-					.isShowEdgesInMetaNode());
+			graphCanvas.setShowEdgesInMetaNode(gisCanvas.isShowEdgesInMetaNode());
 			graphCanvas.addCanvasListener(this);
 		}
 	}
@@ -226,8 +217,8 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 			panel.remove(splitPane);
 		}
 
-		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(
-				shapeTable, nodeTable, edgeTable, set);
+		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(shapeTable, nodeTable,
+				edgeTable, set);
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
@@ -248,8 +239,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		graphCanvas.addComponentListener(listener);
 		gisCanvas.addComponentListener(listener);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas,
-				gisCanvas);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, graphCanvas, gisCanvas);
 		splitPane.setResizeWeight(0.5);
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.revalidate();

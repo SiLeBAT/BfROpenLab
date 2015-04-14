@@ -42,11 +42,9 @@ public class XmlConverter {
 		}
 
 		Thread currentThread = Thread.currentThread();
-		ClassLoader currentLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		XMLEncoder encoder = new XMLEncoder(out, StandardCharsets.UTF_8.name(),
-				true, 0);
+		XMLEncoder encoder = new XMLEncoder(out, StandardCharsets.UTF_8.name(), true, 0);
 
 		currentThread.setContextClassLoader(loader);
 		encoder.writeObject(obj);
@@ -67,10 +65,8 @@ public class XmlConverter {
 		}
 
 		Thread currentThread = Thread.currentThread();
-		ClassLoader currentLoader = Thread.currentThread()
-				.getContextClassLoader();
-		XMLDecoder decoder = new XMLDecoder(
-				new InputSource(new StringReader(s)));
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
+		XMLDecoder decoder = new XMLDecoder(new InputSource(new StringReader(s)));
 		Object obj;
 
 		currentThread.setContextClassLoader(loader);

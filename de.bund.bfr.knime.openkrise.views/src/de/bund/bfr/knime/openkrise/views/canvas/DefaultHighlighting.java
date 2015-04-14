@@ -59,61 +59,54 @@ public class DefaultHighlighting {
 	}
 
 	private static HighlightCondition createOutbreakCondition() {
-		LogicalHighlightCondition weight = new LogicalHighlightCondition(
-				TracingColumns.WEIGHT, LogicalHighlightCondition.GREATER_TYPE,
-				"0");
+		LogicalHighlightCondition weight = new LogicalHighlightCondition(TracingColumns.WEIGHT,
+				LogicalHighlightCondition.GREATER_TYPE, "0");
 
-		return new AndOrHighlightCondition(weight, "Outbreak", true, Color.RED,
-				false, false, null);
+		return new AndOrHighlightCondition(weight, "Outbreak", true, Color.RED, false, false, null);
 	}
 
 	private static HighlightCondition createObservedCondition() {
-		LogicalHighlightCondition observed = new LogicalHighlightCondition(
-				TracingColumns.OBSERVED, LogicalHighlightCondition.EQUAL_TYPE,
-				"1");
+		LogicalHighlightCondition observed = new LogicalHighlightCondition(TracingColumns.OBSERVED,
+				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(observed, "Observed", true,
-				Color.GREEN, false, false, null);
+		return new AndOrHighlightCondition(observed, "Observed", true, Color.GREEN, false, false,
+				null);
 	}
 
 	private static HighlightCondition createForwardCondition() {
-		LogicalHighlightCondition forward = new LogicalHighlightCondition(
-				TracingColumns.FORWARD, LogicalHighlightCondition.EQUAL_TYPE,
-				"1");
+		LogicalHighlightCondition forward = new LogicalHighlightCondition(TracingColumns.FORWARD,
+				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(forward, "Forward Trace", true,
-				Color.ORANGE, false, false, null);
+		return new AndOrHighlightCondition(forward, "Forward Trace", true, Color.ORANGE, false,
+				false, null);
 	}
 
 	private static HighlightCondition createBackwardCondition() {
-		LogicalHighlightCondition backward = new LogicalHighlightCondition(
-				TracingColumns.BACKWARD, LogicalHighlightCondition.EQUAL_TYPE,
-				"1");
+		LogicalHighlightCondition backward = new LogicalHighlightCondition(TracingColumns.BACKWARD,
+				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(backward, "Backward Trace", true,
-				Color.MAGENTA, false, false, null);
+		return new AndOrHighlightCondition(backward, "Backward Trace", true, Color.MAGENTA, false,
+				false, null);
 	}
 
 	private static HighlightCondition createCrossContaminationCondition() {
 		LogicalHighlightCondition crossContamination = new LogicalHighlightCondition(
-				TracingColumns.CROSS_CONTAMINATION,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				TracingColumns.CROSS_CONTAMINATION, LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(crossContamination,
-				"Cross Contamination", true, Color.BLACK, false, false, null);
+		return new AndOrHighlightCondition(crossContamination, "Cross Contamination", true,
+				Color.BLACK, false, false, null);
 	}
 
 	private static HighlightCondition createCommonLinkCondition() {
-		LogicalHighlightCondition commonLink = new LogicalHighlightCondition(
-				TracingColumns.SCORE, LogicalHighlightCondition.EQUAL_TYPE, "1");
+		LogicalHighlightCondition commonLink = new LogicalHighlightCondition(TracingColumns.SCORE,
+				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(commonLink, "Common Link", true,
-				Color.YELLOW, false, false, null);
+		return new AndOrHighlightCondition(commonLink, "Common Link", true, Color.YELLOW, false,
+				false, null);
 	}
 
 	private static HighlightCondition createScoreCondition() {
 		return new ValueHighlightCondition(TracingColumns.SCORE,
-				ValueHighlightCondition.VALUE_TYPE, true, "Score", false, null,
-				false, true, null);
+				ValueHighlightCondition.VALUE_TYPE, true, "Score", false, null, false, true, null);
 	}
 }

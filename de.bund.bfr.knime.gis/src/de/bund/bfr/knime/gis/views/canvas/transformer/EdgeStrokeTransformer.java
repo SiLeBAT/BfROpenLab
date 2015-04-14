@@ -39,8 +39,7 @@ public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
 	@Override
 	public Stroke transform(E edge) {
-		int thickness = (int) Math.round(thicknessValues.get(edge) / denom
-				* 10.0) + 1;
+		int thickness = (int) Math.round(thicknessValues.get(edge) / denom * 10.0) + 1;
 
 		return new BasicStroke(thickness);
 	}

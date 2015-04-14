@@ -53,8 +53,7 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 	private JButton cancelButton;
 
 	public ListFilterDialog(Component parent, List<T> elements) {
-		super(SwingUtilities.getWindowAncestor(parent), "Filter",
-				DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(parent), "Filter", DEFAULT_MODALITY_TYPE);
 		this.elements = elements;
 
 		allBox = new JCheckBox("Select All");
@@ -69,10 +68,8 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(allBox), BorderLayout.NORTH);
-		add(new JScrollPane(list,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.CENTER);
+		add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
 				BorderLayout.SOUTH);
 		pack();

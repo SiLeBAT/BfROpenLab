@@ -48,8 +48,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
-		TileLoaderListener {
+public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements TileLoaderListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,12 +58,10 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	private Coordinate lastTopLeft;
 	private Coordinate lastBottomRight;
 
-	public OsmCanvas(List<V> nodes, List<Edge<V>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming) {
+	public OsmCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
-		tileController = new TileController(new OsmTileSource.Mapnik(),
-				new MemoryTileCache(), this);
+		tileController = new TileController(new OsmTileSource.Mapnik(), new MemoryTileCache(), this);
 		lastZoom = -1;
 		lastTopLeft = null;
 		lastBottomRight = null;
@@ -84,8 +81,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		int tileSize = tileController.getTileSource().getTileSize();
 		int maxTiles = (getCanvasSize().width / tileSize + 2)
 				* (getCanvasSize().height / tileSize + 2);
-		MemoryTileCache tileCache = (MemoryTileCache) tileController
-				.getTileCache();
+		MemoryTileCache tileCache = (MemoryTileCache) tileController.getTileCache();
 
 		tileCache.setCacheSize(Math.max(tileCache.getCacheSize(), maxTiles));
 		getTiles(true);
@@ -102,10 +98,8 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	}
 
 	@Override
-	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(
-			boolean toSvg) {
-		VisualizationImageServer<V, Edge<V>> server = super
-				.getVisualizationServer(toSvg);
+	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg) {
+		VisualizationImageServer<V, Edge<V>> server = super.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new PostPaintable());
 
@@ -124,20 +118,17 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 			entry.getValue().paint(g, entry.getKey().x, entry.getKey().y);
 		}
 
-		int size = (int) (Math.pow(2.0, lastZoom) * tileController
-				.getTileSource().getTileSize());
+		int size = (int) (Math.pow(2.0, lastZoom) * tileController.getTileSource().getTileSize());
 
 		g.setColor(Color.BLACK);
-		g.drawRect((int) transform.getTranslationX(),
-				(int) transform.getTranslationY(), size, size);
+		g.drawRect((int) transform.getTranslationX(), (int) transform.getTranslationY(), size, size);
 	}
 
 	private Map<Point, Tile> getTiles(boolean waitForLoading) {
 		int w = getCanvasSize().width;
 		int h = getCanvasSize().height;
 		int tileSize = tileController.getTileSource().getTileSize();
-		int zoom = (int) Math.round(Math.log(transform.getScaleX())
-				/ Math.log(2.0));
+		int zoom = (int) Math.round(Math.log(transform.getScaleX()) / Math.log(2.0));
 		double x = -transform.getTranslationX();
 		double y = -transform.getTranslationY();
 		int startX = Math.max(0, (int) x / tileSize);
@@ -149,12 +140,10 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 		int maxY = Math.min(max, startY + (h - dy) / tileSize);
 
 		lastZoom = zoom;
-		lastTopLeft = new Coordinate(
-				OsmMercator.YToLat(startY * tileSize, zoom),
+		lastTopLeft = new Coordinate(OsmMercator.YToLat(startY * tileSize, zoom),
 				OsmMercator.XToLon(startY * tileSize, zoom));
-		lastBottomRight = new Coordinate(OsmMercator.YToLat((maxY + 1)
-				* tileSize, zoom), OsmMercator.XToLon((maxX + 1) * tileSize,
-				zoom));
+		lastBottomRight = new Coordinate(OsmMercator.YToLat((maxY + 1) * tileSize, zoom),
+				OsmMercator.XToLon((maxX + 1) * tileSize, zoom));
 
 		Map<Point, Tile> tiles = new LinkedHashMap<>();
 
@@ -175,16 +164,15 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 					}
 				}
 
-				tiles.put(new Point((ix - startX) * tileSize + dx,
-						(iy - startY) * tileSize + dy), tile);
+				tiles.put(new Point((ix - startX) * tileSize + dx, (iy - startY) * tileSize + dy),
+						tile);
 			}
 		}
 
 		return tiles;
 	}
 
-	private class PostPaintable implements Paintable, MouseMotionListener,
-			MouseListener {
+	private class PostPaintable implements Paintable, MouseMotionListener, MouseListener {
 
 		private Rectangle textRect;
 		private Rectangle imgRect;
@@ -211,15 +199,15 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 				return;
 			}
 
-			String text = tileController.getTileSource().getAttributionText(
-					lastZoom, lastTopLeft, lastBottomRight);
+			String text = tileController.getTileSource().getAttributionText(lastZoom, lastTopLeft,
+					lastBottomRight);
 			Image img = tileController.getTileSource().getAttributionImage();
 			int startY = 0;
 
 			if (text != null && !text.isEmpty()) {
 				Font font = new Font("Default", Font.PLAIN, 9);
-				int w = (int) font.getStringBounds(text,
-						((Graphics2D) g).getFontRenderContext()).getWidth();
+				int w = (int) font.getStringBounds(text, ((Graphics2D) g).getFontRenderContext())
+						.getWidth();
 				int h = g.getFontMetrics(font).getHeight();
 				int d = 3;
 
@@ -237,8 +225,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 			if (img != null) {
 				g.drawImage(img, 0, startY, null);
-				imgRect = new Rectangle(0, startY, img.getWidth(null),
-						img.getHeight(null));
+				imgRect = new Rectangle(0, startY, img.getWidth(null), img.getHeight(null));
 			}
 		}
 
@@ -253,19 +240,15 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			boolean newTextFocused = textRect != null
-					&& textRect.contains(e.getPoint());
-			boolean newImgFocused = imgRect != null
-					&& imgRect.contains(e.getPoint());
-			boolean changed = newTextFocused != textFocused
-					|| newImgFocused != imgFocused;
+			boolean newTextFocused = textRect != null && textRect.contains(e.getPoint());
+			boolean newImgFocused = imgRect != null && imgRect.contains(e.getPoint());
+			boolean changed = newTextFocused != textFocused || newImgFocused != imgFocused;
 
 			textFocused = newTextFocused;
 			imgFocused = newImgFocused;
 
 			if (changed) {
-				GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) getViewer()
-						.getGraphMouse();
+				GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) getViewer().getGraphMouse();
 
 				graphMouse.setPickingDeactivated(textFocused || imgFocused);
 				paint(getViewer().getGraphics());
@@ -274,10 +257,8 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			String textLink = tileController.getTileSource()
-					.getAttributionLinkURL();
-			String imgLink = tileController.getTileSource()
-					.getAttributionImageURL();
+			String textLink = tileController.getTileSource().getAttributionLinkURL();
+			String imgLink = tileController.getTileSource().getAttributionImageURL();
 
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				if (textFocused && textLink != null) {

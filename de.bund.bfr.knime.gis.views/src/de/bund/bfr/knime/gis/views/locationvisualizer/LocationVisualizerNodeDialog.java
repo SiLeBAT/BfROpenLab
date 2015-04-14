@@ -69,8 +69,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.getGisSettings().setFromCanvas(canvas, resized);
 		set.saveSettings(settings);
 	}
@@ -78,8 +77,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(),
-				nodeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -94,8 +92,8 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(
-				shapeTable, nodeTable, set);
+		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(shapeTable,
+				nodeTable, set);
 
 		try {
 			canvas = creator.createCanvas();

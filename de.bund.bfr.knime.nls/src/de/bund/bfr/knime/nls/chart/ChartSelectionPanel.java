@@ -60,8 +60,7 @@ import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.UI;
 
-public class ChartSelectionPanel extends JPanel implements ItemListener,
-		CellEditorListener {
+public class ChartSelectionPanel extends JPanel implements ItemListener, CellEditorListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,8 +72,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 	private int selectColumnWidth;
 
-	public ChartSelectionPanel(List<String> ids,
-			Map<String, List<String>> stringValues,
+	public ChartSelectionPanel(List<String> ids, Map<String, List<String>> stringValues,
 			Map<String, List<Double>> doubleValues) {
 		listeners = new ArrayList<>();
 		colorAndShapes = new ColorAndShapeCreator(ids.size());
@@ -83,36 +81,26 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		selectAllBox.setSelected(false);
 		selectAllBox.addItemListener(this);
 
-		selectTable = new JTable(new SelectTableModel(ids, stringValues,
-				doubleValues, colorAndShapes.getColorList(),
-				colorAndShapes.getShapeNameList()));
+		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
+				colorAndShapes.getColorList(), colorAndShapes.getShapeNameList()));
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
+		selectTable.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable
-				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
-		selectTable.setRowSorter(new SelectTableRowSorter(
-				(SelectTableModel) selectTable.getModel()));
+				.setRowSorter(new SelectTableRowSorter((SelectTableModel) selectTable.getModel()));
 		selectTable.getColumn(ChartUtils.ID).setMinWidth(0);
 		selectTable.getColumn(ChartUtils.ID).setMaxWidth(0);
 		selectTable.getColumn(ChartUtils.ID).setPreferredWidth(0);
-		selectTable.getColumn(ChartUtils.SELECTED).setCellEditor(
-				new CheckBoxEditor());
-		selectTable.getColumn(ChartUtils.SELECTED).setCellRenderer(
-				new CheckBoxRenderer());
-		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor()
-				.addCellEditorListener(this);
-		selectTable.getColumn(ChartUtils.COLOR)
-				.setCellEditor(new ColorEditor());
-		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(
-				new ColorRenderer());
+		selectTable.getColumn(ChartUtils.SELECTED).setCellEditor(new CheckBoxEditor());
+		selectTable.getColumn(ChartUtils.SELECTED).setCellRenderer(new CheckBoxRenderer());
+		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor().addCellEditorListener(this);
+		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(new ColorEditor());
+		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(new ColorRenderer());
 		selectTable.getColumn(ChartUtils.SHAPE).setCellEditor(
-				new DefaultCellEditor(new JComboBox<>(
-						ColorAndShapeCreator.SHAPE_NAMES)));
-		selectTable.getColumn(ChartUtils.COLOR).getCellEditor()
-				.addCellEditorListener(this);
-		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor()
-				.addCellEditorListener(this);
+				new DefaultCellEditor(new JComboBox<>(ColorAndShapeCreator.SHAPE_NAMES)));
+		selectTable.getColumn(ChartUtils.COLOR).getCellEditor().addCellEditorListener(this);
+		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor().addCellEditorListener(this);
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		for (int c = 0; c < selectTable.getColumnCount(); c++) {
@@ -126,8 +114,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			Component comp = selectTable
 					.getTableHeader()
 					.getDefaultRenderer()
-					.getTableCellRendererComponent(selectTable,
-							col.getHeaderValue(), false, false, 0, 0);
+					.getTableCellRendererComponent(selectTable, col.getHeaderValue(), false, false,
+							0, 0);
 			int width = comp.getPreferredSize().width;
 
 			for (int r = 0; r < selectTable.getRowCount(); r++) {
@@ -140,15 +128,12 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			col.setPreferredWidth(width + 10);
 		}
 
-		selectColumnWidth = selectTable.getColumn(ChartUtils.SELECTED)
-				.getPreferredWidth();
+		selectColumnWidth = selectTable.getColumn(ChartUtils.SELECTED).getPreferredWidth();
 
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(selectAllBox), BorderLayout.NORTH);
-		add(new JScrollPane(selectTable,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED),
-				BorderLayout.CENTER);
+		add(new JScrollPane(selectTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 	}
 
 	public boolean isSelectAll() {
@@ -186,12 +171,10 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public Map<String, Color> getColors() {
-		Map<String, Color> paints = new LinkedHashMap<>(
-				selectTable.getRowCount());
+		Map<String, Color> paints = new LinkedHashMap<>(selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
-			paints.put((String) selectTable.getValueAt(i, 0),
-					(Color) selectTable.getValueAt(i, 2));
+			paints.put((String) selectTable.getValueAt(i, 0), (Color) selectTable.getValueAt(i, 2));
 		}
 
 		return paints;
@@ -208,8 +191,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 	}
 
 	public Map<String, Shape> getShapes() {
-		Map<String, Shape> shapes = new LinkedHashMap<>(
-				selectTable.getRowCount());
+		Map<String, Shape> shapes = new LinkedHashMap<>(selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -253,12 +235,9 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(0);
 			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(0);
 		} else {
-			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(
-					selectColumnWidth);
-			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(
-					selectColumnWidth);
-			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(
-					selectColumnWidth);
+			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(selectColumnWidth);
+			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(selectColumnWidth);
+			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(selectColumnWidth);
 		}
 
 		fireSelectionChanged();
@@ -299,10 +278,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		private Map<Integer, String> stringByIndex;
 		private Map<Integer, String> doubleByIndex;
 
-		public SelectTableModel(List<String> ids,
-				Map<String, List<String>> stringColumns,
-				Map<String, List<Double>> doubleColumns, List<Color> colors,
-				List<String> shapes) {
+		public SelectTableModel(List<String> ids, Map<String, List<String>> stringColumns,
+				Map<String, List<Double>> doubleColumns, List<Color> colors, List<String> shapes) {
 			if (stringColumns == null) {
 				stringColumns = new LinkedHashMap<>();
 			}
@@ -419,13 +396,11 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return column == selectedIndex || column == colorIndex
-					|| column == shapeIndex;
+			return column == selectedIndex || column == colorIndex || column == shapeIndex;
 		}
 	}
 
-	private static class ColorRenderer extends JLabel implements
-			TableCellRenderer {
+	private static class ColorRenderer extends JLabel implements TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
@@ -434,17 +409,15 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object color, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object color,
+				boolean isSelected, boolean hasFocus, int row, int column) {
 			setBackground((Color) color);
 
 			return this;
 		}
 	}
 
-	private static class ColorEditor extends AbstractCellEditor implements
-			TableCellEditor {
+	private static class ColorEditor extends AbstractCellEditor implements TableCellEditor {
 
 		private static final long serialVersionUID = 1L;
 
@@ -456,8 +429,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					Color newColor = JColorChooser.showDialog(colorButton,
-							"Choose Color", colorButton.getBackground());
+					Color newColor = JColorChooser.showDialog(colorButton, "Choose Color",
+							colorButton.getBackground());
 
 					if (newColor != null) {
 						colorButton.setBackground(newColor);
@@ -470,8 +443,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value,
+				boolean isSelected, int row, int column) {
 			colorButton.setBackground((Color) value);
 
 			return colorButton;
@@ -484,8 +457,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 	}
 
-	private static class CheckBoxRenderer extends JCheckBox implements
-			TableCellRenderer {
+	private static class CheckBoxRenderer extends JCheckBox implements TableCellRenderer {
 
 		private static final long serialVersionUID = -8337460338388283099L;
 
@@ -496,9 +468,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column) {
 			int statusColumn = -1;
 
 			for (int i = 0; i < table.getColumnCount(); i++) {
@@ -509,8 +480,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 			}
 
 			if (statusColumn != -1) {
-				String statusValue = (String) table.getValueAt(row,
-						statusColumn);
+				String statusValue = (String) table.getValueAt(row, statusColumn);
 
 				if (statusValue.equals(Plotable.Status.OK.toString())) {
 					if (isSelected) {
@@ -520,12 +490,10 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 						setForeground(table.getForeground());
 						setBackground(table.getBackground());
 					}
-				} else if (statusValue
-						.equals(Plotable.Status.FAILED.toString())) {
+				} else if (statusValue.equals(Plotable.Status.FAILED.toString())) {
 					setForeground(Color.RED);
 					setBackground(Color.RED);
-				} else if (statusValue.equals(Plotable.Status.NO_COVARIANCE
-						.toString())) {
+				} else if (statusValue.equals(Plotable.Status.NO_COVARIANCE.toString())) {
 					setForeground(Color.YELLOW);
 					setBackground(Color.YELLOW);
 				}
@@ -557,13 +525,11 @@ public class ChartSelectionPanel extends JPanel implements ItemListener,
 
 		public CheckBoxEditor() {
 			super(new JCheckBox());
-			((JCheckBox) getComponent())
-					.setHorizontalAlignment(SwingConstants.CENTER);
+			((JCheckBox) getComponent()).setHorizontalAlignment(SwingConstants.CENTER);
 		}
 	}
 
-	private static class SelectTableRowSorter extends
-			TableRowSorter<SelectTableModel> {
+	private static class SelectTableRowSorter extends TableRowSorter<SelectTableModel> {
 
 		public SelectTableRowSorter(SelectTableModel model) {
 			super(model);

@@ -86,8 +86,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	private JMenuItem defaultHighlightItem;
 
 	public Tracing(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
-			Map<String, Edge<V>> edgeSaveMap,
-			Map<Edge<V>, Set<Edge<V>>> joinMap,
+			Map<String, Edge<V>> edgeSaveMap, Map<Edge<V>, Set<Edge<V>>> joinMap,
 			Map<Integer, MyDelivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
@@ -108,10 +107,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		defaultHighlightItem = new JMenuItem("Set default Highlighting");
 		defaultHighlightItem.addActionListener(this);
 
-		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
-				enforceTemporalOrderBox);
-		canvas.getOptionsPanel().addOption(
-				"Show Cross Contaminated " + canvas.getNaming().Edges(),
+		canvas.getOptionsPanel().addOption("Enforce Temporal Order", enforceTemporalOrderBox);
+		canvas.getOptionsPanel().addOption("Show Cross Contaminated " + canvas.getNaming().Edges(),
 				showForwardBox);
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
@@ -122,8 +119,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Double> nodeWeights = new LinkedHashMap<>();
 
 		for (V node : nodeSaveMap.values()) {
-			nodeWeights.put(node.getId(),
-					(Double) node.getProperties().get(TracingColumns.WEIGHT));
+			nodeWeights.put(node.getId(), (Double) node.getProperties().get(TracingColumns.WEIGHT));
 		}
 
 		return nodeWeights;
@@ -146,8 +142,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Double> edgeWeights = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edgeSaveMap.values()) {
-			edgeWeights.put(edge.getId(),
-					(Double) edge.getProperties().get(TracingColumns.WEIGHT));
+			edgeWeights.put(edge.getId(), (Double) edge.getProperties().get(TracingColumns.WEIGHT));
 		}
 
 		return edgeWeights;
@@ -170,15 +165,14 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
 
 		for (V node : nodeSaveMap.values()) {
-			nodeCrossContaminations.put(node.getId(), (Boolean) node
-					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
+			nodeCrossContaminations.put(node.getId(),
+					(Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
 
 		return nodeCrossContaminations;
 	}
 
-	public void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations) {
+	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
 		for (V node : nodeSaveMap.values()) {
 			if (nodeCrossContaminations.containsKey(node.getId())) {
 				node.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
@@ -195,15 +189,14 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edgeSaveMap.values()) {
-			edgeCrossContaminations.put(edge.getId(), (Boolean) edge
-					.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
+			edgeCrossContaminations.put(edge.getId(),
+					(Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
 		}
 
 		return edgeCrossContaminations;
 	}
 
-	public void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations) {
+	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		for (Edge<V> edge : edgeSaveMap.values()) {
 			if (edgeCrossContaminations.containsKey(edge.getId())) {
 				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
@@ -220,10 +213,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
 
 		for (V node : nodeSaveMap.values()) {
-			observedNodes
-					.put(node.getId(),
-							(Boolean) node.getProperties().get(
-									TracingColumns.OBSERVED));
+			observedNodes.put(node.getId(),
+					(Boolean) node.getProperties().get(TracingColumns.OBSERVED));
 		}
 
 		return observedNodes;
@@ -246,10 +237,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edgeSaveMap.values()) {
-			observedEdges
-					.put(edge.getId(),
-							(Boolean) edge.getProperties().get(
-									TracingColumns.OBSERVED));
+			observedEdges.put(edge.getId(),
+					(Boolean) edge.getProperties().get(TracingColumns.OBSERVED));
 		}
 
 		return observedEdges;
@@ -297,9 +286,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	}
 
 	public void nodePropertiesItemClicked() {
-		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
-				.createNodeDialog(canvas, canvas.getSelectedNodes(),
-						canvas.getNodeSchema(), true);
+		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog.createNodeDialog(canvas,
+				canvas.getSelectedNodes(), canvas.getNodeSchema(), true);
 
 		dialog.setVisible(true);
 
@@ -310,15 +298,13 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 	public void edgePropertiesItemClicked() {
 		if (canvas.isJoinEdges()) {
-			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(
-					canvas, canvas.getSelectedEdges(), canvas.getEdgeSchema(),
-					true);
+			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(canvas,
+					canvas.getSelectedEdges(), canvas.getEdgeSchema(), true);
 
 			dialog.setVisible(true);
 		} else {
-			EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
-					.createEdgeDialog(canvas, canvas.getSelectedEdges(),
-							canvas.getEdgeSchema(), true);
+			EditablePropertiesDialog<V> dialog = EditablePropertiesDialog.createEdgeDialog(canvas,
+					canvas.getSelectedEdges(), canvas.getEdgeSchema(), true);
 
 			dialog.setVisible(true);
 
@@ -339,9 +325,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			}
 		}
 
-		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog
-				.createEdgeDialog(canvas, allPicked, canvas.getEdgeSchema(),
-						false);
+		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog.createEdgeDialog(canvas,
+				allPicked, canvas.getEdgeSchema(), false);
 
 		dialog.setVisible(true);
 
@@ -360,11 +345,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		applyTracing();
 		canvas.applyHighlights();
 		canvas.applyShowEdgesInMetaNode();
-		canvas.getViewer()
-				.getGraphLayout()
-				.setGraph(
-						CanvasUtils.createGraph(canvas.getNodes(),
-								canvas.getEdges()));
+		canvas.getViewer().getGraphLayout()
+				.setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
 
 		canvas.setSelectedNodeIds(selectedNodeIds);
 		canvas.setSelectedEdgeIds(selectedEdgeIds);
@@ -377,8 +359,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 					canvas.getNodeHighlightConditions());
 			CanvasUtils.removeInvisibleElements(canvas.getEdges(),
 					canvas.getEdgeHighlightConditions());
-			CanvasUtils.removeNodelessEdges(canvas.getEdges(),
-					canvas.getNodes());
+			CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes());
 			return;
 		}
 
@@ -386,23 +367,19 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		MyNewTracing tracingWithoutCC = createTracing(canvas.getEdges(), false);
 		Set<Edge<V>> removedEdges = new LinkedHashSet<>();
 
-		CanvasUtils.removeInvisibleElements(canvas.getNodes(),
-				canvas.getNodeHighlightConditions());
-		removedEdges.addAll(CanvasUtils.removeInvisibleElements(
-				canvas.getEdges(), canvas.getEdgeHighlightConditions()));
-		removedEdges.addAll(CanvasUtils.removeNodelessEdges(canvas.getEdges(),
-				canvas.getNodes()));
+		CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
+		removedEdges.addAll(CanvasUtils.removeInvisibleElements(canvas.getEdges(),
+				canvas.getEdgeHighlightConditions()));
+		removedEdges.addAll(CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes()));
 
 		Set<Integer> forwardEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.addAll(tracingWithCC
-					.getForwardDeliveries2(getIntegerId(edge)));
+			forwardEdges.addAll(tracingWithCC.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.removeAll(tracingWithoutCC
-					.getForwardDeliveries2(getIntegerId(edge)));
+			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveries2(getIntegerId(edge)));
 		}
 
 		for (Edge<V> edge : removedEdges) {
@@ -419,12 +396,10 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		if (e.getSource() == defaultHighlightItem) {
 			if (JOptionPane.showConfirmDialog(canvas.getComponent(),
 					"All current highlight conditions will be replaced "
-							+ "by default hightlight conditions?",
-					"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				canvas.setNodeHighlightConditions(DefaultHighlighting
-						.createNodeHighlighting());
-				canvas.setEdgeHighlightConditions(DefaultHighlighting
-						.createEdgeHighlighting());
+							+ "by default hightlight conditions?", "Please Confirm",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
+				canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
 			}
 		}
 	}
@@ -442,18 +417,15 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		}
 	}
 
-	private MyNewTracing createTracing(Set<Edge<V>> edges,
-			boolean useCrossContamination) {
+	private MyNewTracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
 		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
 
 		for (Edge<V> id : edges) {
-			activeDeliveries.put(getIntegerId(id),
-					deliveries.get(getIntegerId(id)));
+			activeDeliveries.put(getIntegerId(id), deliveries.get(getIntegerId(id)));
 		}
 
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
-				new LinkedHashMap<Integer, Double>(),
-				new LinkedHashMap<Integer, Double>(),
+				new LinkedHashMap<Integer, Double>(), new LinkedHashMap<Integer, Double>(),
 				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
 
 		for (String id : canvas.getCollapsedNodes().keySet()) {
@@ -469,8 +441,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		for (V node : canvas.getNodes()) {
 			int id = getIntegerId(node, canvas.getCollapsedNodes());
-			Double caseValue = (Double) node.getProperties().get(
-					TracingColumns.WEIGHT);
+			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
@@ -491,8 +462,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		for (Edge<V> edge : edges) {
 			int id = getIntegerId(edge);
-			Double caseValue = (Double) edge.getProperties().get(
-					TracingColumns.WEIGHT);
+			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) edge.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
@@ -504,8 +474,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 			if (useCrossContamination) {
 				if (contaminationValue != null) {
-					tracing.setCrossContaminationDelivery(id,
-							contaminationValue);
+					tracing.setCrossContaminationDelivery(id, contaminationValue);
 				} else {
 					tracing.setCrossContaminationDelivery(id, false);
 				}
@@ -541,8 +510,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		for (V node : canvas.getNodes()) {
 			int id = getIntegerId(node, canvas.getCollapsedNodes());
-			Boolean value = (Boolean) node.getProperties().get(
-					TracingColumns.OBSERVED);
+			Boolean value = (Boolean) node.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
 				backwardNodes.addAll(tracing.getBackwardStations(id));
@@ -554,8 +522,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		for (Edge<V> edge : canvas.getEdges()) {
 			int id = getIntegerId(edge);
-			Boolean value = (Boolean) edge.getProperties().get(
-					TracingColumns.OBSERVED);
+			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
 				backwardNodes.addAll(tracing.getBackwardStations2(id));
@@ -568,23 +535,17 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		for (V node : canvas.getNodes()) {
 			int id = getIntegerId(node, canvas.getCollapsedNodes());
 
-			node.getProperties().put(TracingColumns.SCORE,
-					tracing.getStationScore(id));
-			node.getProperties().put(TracingColumns.BACKWARD,
-					backwardNodes.contains(id));
-			node.getProperties().put(TracingColumns.FORWARD,
-					forwardNodes.contains(id));
+			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(id));
+			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(id));
+			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(id));
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
 			int id = getIntegerId(edge);
 
-			edge.getProperties().put(TracingColumns.SCORE,
-					tracing.getDeliveryScore(id));
-			edge.getProperties().put(TracingColumns.BACKWARD,
-					backwardEdges.contains(id));
-			edge.getProperties().put(TracingColumns.FORWARD,
-					forwardEdges.contains(id));
+			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(id));
+			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(id));
+			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(id));
 		}
 
 		if (canvas.isJoinEdges()) {
@@ -605,8 +566,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		return value == null ? false : value;
 	}
 
-	private static <V extends Node> int getIntegerId(V node,
-			Map<String, Set<String>> collapsedNodes) {
+	private static <V extends Node> int getIntegerId(V node, Map<String, Set<String>> collapsedNodes) {
 		if (collapsedNodes.containsKey(node.getId())) {
 			return createId(collapsedNodes.get(node.getId()));
 		} else {
@@ -647,8 +607,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 				}
 
 				if (logicalCondition != null) {
-					for (List<LogicalHighlightCondition> cc : logicalCondition
-							.getConditions()) {
+					for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
 						for (LogicalHighlightCondition c : cc) {
 							if (tracingColumns.contains(c.getProperty())) {
 								return error;
@@ -697,37 +656,34 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 			int dx = 10;
 			String s1 = "Created with";
-			int sw1 = (int) font.getStringBounds(s1,
-					((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw1 = (int) font.getStringBounds(s1, ((Graphics2D) g).getFontRenderContext())
+					.getWidth();
 			String s2 = "by";
-			int sw2 = (int) font.getStringBounds(s2,
-					((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw2 = (int) font.getStringBounds(s2, ((Graphics2D) g).getFontRenderContext())
+					.getWidth();
 			FoodChainLabLogo logo1 = new FoodChainLabLogo();
 			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
 			BfrLogo logo2 = new BfrLogo();
 			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
 
 			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
-			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5
+					* dx, height);
 			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1
-					+ iw1 + sw2 + iw2 + 5 * dx, height);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5
+					* dx, height);
 			g.setFont(font);
-			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight
-					- dFont + fontAscent);
-			logo1.setDimension(new Dimension(iw1, logoHeight));
-			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h
-					- logoHeight - dLogo);
-			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont
+			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight - dFont
 					+ fontAscent);
+			logo1.setDimension(new Dimension(iw1, logoHeight));
+			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h - logoHeight - dLogo);
+			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont + fontAscent);
 			logo2.setDimension(new Dimension(iw2, logoHeight));
 			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
 		}
 	}
 
-	public static class PickingPlugin<V extends Node> extends
-			PickingGraphMousePlugin<V, Edge<V>> {
+	public static class PickingPlugin<V extends Node> extends PickingGraphMousePlugin<V, Edge<V>> {
 
 		private ICanvas<V> canvas;
 
@@ -740,15 +696,14 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
 
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				V node = viewer.getPickSupport().getVertex(
-						viewer.getGraphLayout(), e.getX(), e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(
-						viewer.getGraphLayout(), e.getX(), e.getY());
+				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(),
+						e.getY());
+				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(),
+						e.getY());
 
 				if (node != null) {
 					EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-							e.getComponent(), node, canvas.getNodeSchema()
-									.getMap());
+							e.getComponent(), node, canvas.getNodeSchema().getMap());
 
 					dialog.setVisible(true);
 
@@ -758,8 +713,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 				} else if (edge != null) {
 					if (!canvas.isJoinEdges()) {
 						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-								e.getComponent(), edge, canvas.getEdgeSchema()
-										.getMap());
+								e.getComponent(), edge, canvas.getEdgeSchema().getMap());
 
 						dialog.setVisible(true);
 

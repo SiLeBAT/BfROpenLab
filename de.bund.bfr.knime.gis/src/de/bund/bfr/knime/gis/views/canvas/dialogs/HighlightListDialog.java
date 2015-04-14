@@ -49,8 +49,8 @@ import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
-public class HighlightListDialog extends JDialog implements ActionListener,
-		MouseListener, WindowListener {
+public class HighlightListDialog extends JDialog implements ActionListener, MouseListener,
+		WindowListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -78,13 +78,12 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 	public HighlightListDialog(Component parent, PropertySchema schema,
 			HighlightConditionList highlightConditions) {
-		super(SwingUtilities.getWindowAncestor(parent),
-				"Highlight Condition List", DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition List",
+				DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
 		this.schema = schema;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
-				highlightConditions.getConditions()),
-				highlightConditions.isPrioritizeColors());
+				highlightConditions.getConditions()), highlightConditions.isPrioritizeColors());
 		allowInvisible = DEFAULT_ALLOW_INVISIBLE;
 		allowThickness = DEFAULT_ALLOW_THICKNESS;
 		checkers = new ArrayList<>();
@@ -92,8 +91,7 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		approved = false;
 
 		list = new JList<>();
-		list.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
+		list.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());
 		list.addMouseListener(this);
 		updateList();
@@ -132,16 +130,13 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 
 		southPanel.setLayout(new BorderLayout());
 		southPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-		southPanel.add(new JSeparator(SwingConstants.HORIZONTAL),
-				BorderLayout.CENTER);
+		southPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
 
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(new JScrollPane(list,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		mainPanel.add(eastPanel, BorderLayout.EAST);
 		mainPanel.add(southPanel, BorderLayout.SOUTH);
 
@@ -243,15 +238,14 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 		int i = list.getSelectedIndex();
 
 		if (e.getClickCount() == 2 && i != -1) {
-			HighlightDialog dialog = HighlightDialog.createHighlightDialog(
-					this, schema, allowInvisible, allowThickness,
-					highlightConditions.getConditions().get(i), checkers);
+			HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema,
+					allowInvisible, allowThickness, highlightConditions.getConditions().get(i),
+					checkers);
 
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
-				highlightConditions.getConditions().set(i,
-						dialog.getHighlightCondition());
+				highlightConditions.getConditions().set(i, dialog.getHighlightCondition());
 				updateList();
 			}
 		}
@@ -305,21 +299,19 @@ public class HighlightListDialog extends JDialog implements ActionListener,
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this,
-				schema, allowInvisible, allowThickness, condition, checkers);
+		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema,
+				allowInvisible, allowThickness, condition, checkers);
 
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			highlightConditions.getConditions().add(
-					dialog.getHighlightCondition());
+			highlightConditions.getConditions().add(dialog.getHighlightCondition());
 			updateList();
 		}
 	}
 
 	private void updateList() {
-		list.setListData(highlightConditions.getConditions().toArray(
-				new HighlightCondition[0]));
+		list.setListData(highlightConditions.getConditions().toArray(new HighlightCondition[0]));
 	}
 
 }

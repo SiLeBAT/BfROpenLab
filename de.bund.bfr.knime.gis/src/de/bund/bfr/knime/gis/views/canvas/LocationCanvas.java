@@ -40,29 +40,25 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	private com.vividsolutions.jts.geom.Polygon invalidArea;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(),
-				new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, new ArrayList<RegionNode>(),
-				allowEdges);
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
+				new NodePropertySchema(), new EdgePropertySchema(), naming,
+				new ArrayList<RegionNode>(), allowEdges);
 	}
 
-	public LocationCanvas(List<LocationNode> nodes,
-			NodePropertySchema nodeSchema, Naming naming,
+	public LocationCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming,
 			List<RegionNode> regions) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema,
-				new EdgePropertySchema(), naming, regions, false);
+		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(),
+				naming, regions, false);
 	}
 
-	public LocationCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming,
+	public LocationCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
 			List<RegionNode> regions) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, regions, true);
 	}
 
-	private LocationCanvas(List<LocationNode> nodes,
-			List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming,
+	private LocationCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
 			List<RegionNode> regions, boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		this.regions = regions;
@@ -70,9 +66,10 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<>(getNodeSize(),
-						new LinkedHashMap<LocationNode, Double>()));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(
+						new NodeShapeTransformer<>(getNodeSize(),
+								new LinkedHashMap<LocationNode, Double>()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
@@ -109,15 +106,14 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		super.paintGis(g, toSvg);
 
 		if (invalidArea != null) {
-			CanvasUtils.paintNonLatLonArea(g, getCanvasSize().width,
-					getCanvasSize().height, transform.apply(invalidArea, true));
+			CanvasUtils.paintNonLatLonArea(g, getCanvasSize().width, getCanvasSize().height,
+					transform.apply(invalidArea, true));
 		}
 	}
 
 	@Override
-	protected LocationNode createMetaNode(String id,
-			Collection<LocationNode> nodes) {
-		return CanvasUtils.createLocationMetaNode(id, nodes, nodeSchema,
-				metaNodeProperty, viewer.getGraphLayout());
+	protected LocationNode createMetaNode(String id, Collection<LocationNode> nodes) {
+		return CanvasUtils.createLocationMetaNode(id, nodes, nodeSchema, metaNodeProperty,
+				viewer.getGraphLayout());
 	}
 }

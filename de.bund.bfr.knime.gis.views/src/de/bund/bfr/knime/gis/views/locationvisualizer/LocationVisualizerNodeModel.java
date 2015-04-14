@@ -51,8 +51,7 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected LocationVisualizerNodeModel() {
-		super(
-				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new LocationVisualizerSettings();
 	}
@@ -61,15 +60,13 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
-		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(
-				shapeTable, nodeTable, set);
+		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(shapeTable,
+				nodeTable, set);
 
-		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
-				creator.createCanvas()) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), creator.createCanvas()) };
 	}
 
 	/**
@@ -83,10 +80,8 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
-		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set
-				.isExportAsSvg()) };
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
@@ -110,26 +105,23 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 }

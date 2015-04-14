@@ -65,8 +65,7 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			initValues = KnimeUtils.stringToDoubleList(settings
-					.getString(CFG_INIT_VALUES));
+			initValues = KnimeUtils.stringToDoubleList(settings.getString(CFG_INIT_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -84,12 +83,10 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_DEPENDENT_VARIABLES,
-				KnimeUtils.listToString(dependentVariables));
+		settings.addString(CFG_DEPENDENT_VARIABLES, KnimeUtils.listToString(dependentVariables));
 		settings.addString(CFG_TERMS, KnimeUtils.listToString(terms));
 		settings.addString(CFG_INIT_VALUES, KnimeUtils.listToString(initValues));
-		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtils.listToString(independentVariables));
+		settings.addString(CFG_INDEPENDENT_VARIABLES, KnimeUtils.listToString(independentVariables));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
 	}
 

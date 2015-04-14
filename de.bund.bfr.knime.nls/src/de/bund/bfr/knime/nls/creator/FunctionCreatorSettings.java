@@ -68,8 +68,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
 		settings.addString(CFG_TERM, term);
-		settings.addString(CFG_INDEPENDENT_VARIABLES,
-				KnimeUtils.listToString(independentVariables));
+		settings.addString(CFG_INDEPENDENT_VARIABLES, KnimeUtils.listToString(independentVariables));
 	}
 
 	public String getDependentVariable() {

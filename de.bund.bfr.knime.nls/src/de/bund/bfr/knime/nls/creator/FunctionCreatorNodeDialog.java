@@ -51,8 +51,7 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeDialog extends NodeDialogPane implements
-		TextListener, ItemListener {
+public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextListener, ItemListener {
 
 	private FunctionCreatorSettings set;
 	private List<String> usedIndeps;
@@ -80,8 +79,8 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
+			throws NotConfigurableException {
 		set.loadSettings(settings);
 		mainPanel.remove(functionPanel);
 		functionPanel = createFunctionPanel();
@@ -91,8 +90,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		updateFunction();
 
 		if (!depVarField.isValueValid()) {
@@ -150,8 +148,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 		editPanel.setLayout(new GridBagLayout());
 		editPanel.add(new JLabel("Term:"), UI.westConstraints(0, 0));
 		editPanel.add(createFormulaPanel(), UI.westConstraints(1, 0));
-		editPanel.add(new JLabel("Independent Variable:"),
-				UI.westConstraints(0, 1));
+		editPanel.add(new JLabel("Independent Variable:"), UI.westConstraints(0, 1));
 		editPanel.add(createIndepBoxPanel(), UI.westConstraints(1, 1));
 
 		JPanel panel = new JPanel();
@@ -186,8 +183,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set
-				.getTerm()));
+		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set.getTerm()));
 
 		Collections.sort(elements);
 
@@ -214,14 +210,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateFunction() {
-		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set
-				.getTerm()));
+		List<String> symbols = new ArrayList<>(MathUtils.getSymbols(set.getTerm()));
 
 		List<String> indeps = new ArrayList<>();
 
 		for (String symbol : symbols) {
-			if (set.getIndependentVariables().contains(symbol)
-					|| usedIndeps.contains(symbol)) {
+			if (set.getIndependentVariables().contains(symbol) || usedIndeps.contains(symbol)) {
 				indeps.add(symbol);
 			}
 		}

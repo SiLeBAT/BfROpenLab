@@ -48,8 +48,7 @@ import com.google.common.primitives.Ints;
 import de.bund.bfr.knime.UI;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
-		ItemListener {
+public class CanvasOptionsPanel extends JScrollPane implements ActionListener, ItemListener {
 
 	public static final Mode DEFAULT_MODE = Mode.TRANSFORMING;
 	public static final boolean DEFAULT_SHOW_LEGEND = false;
@@ -89,8 +88,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	private List<ChangeListener> listeners;
 
-	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges,
-			boolean allowNodeResize, boolean allowPolygons) {
+	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges, boolean allowNodeResize,
+			boolean allowPolygons) {
 		init();
 
 		panel = new JPanel();
@@ -105,32 +104,28 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 		if (allowEdges) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Join " + owner.getNaming().Edges(),
-					joinEdgesBox));
+			panel.add(getOptionPanel("Join " + owner.getNaming().Edges(), joinEdgesBox));
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel("Arrow in Middle", arrowInMiddleBox));
 		}
 
 		if (allowEdges && allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Skip Unconnected "
-					+ owner.getNaming().Nodes(), skipEdgelessNodesBox));
+			panel.add(getOptionPanel("Skip Unconnected " + owner.getNaming().Nodes(),
+					skipEdgelessNodesBox));
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Show " + owner.getNaming().Edges()
-					+ " in Meta " + owner.getNaming().Node(),
-					showEdgesInMetaNodeBox));
+			panel.add(getOptionPanel("Show " + owner.getNaming().Edges() + " in Meta "
+					+ owner.getNaming().Node(), showEdgesInMetaNodeBox));
 		}
 
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Node() + " Size",
-					nodeSizeBox));
+			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", nodeSizeBox));
 		}
 
 		if (allowPolygons) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Border Alpha", borderAlphaSlider,
-					borderAlphaButton));
+			panel.add(getOptionPanel("Border Alpha", borderAlphaSlider, borderAlphaButton));
 		}
 
 		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
@@ -266,8 +261,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == editingModeBox
-				&& e.getStateChange() == ItemEvent.SELECTED) {
+		if (e.getSource() == editingModeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			for (ChangeListener l : listeners) {
 				l.editingModeChanged();
 			}
@@ -287,8 +281,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 			for (ChangeListener l : listeners) {
 				l.showEdgesInMetaNodeChanged();
 			}
-		} else if (e.getSource() == fontSizeBox
-				&& e.getStateChange() == ItemEvent.SELECTED) {
+		} else if (e.getSource() == fontSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = fontSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
@@ -298,17 +291,15 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 					l.fontChanged();
 				}
 			} else {
-				JOptionPane.showMessageDialog(fontSizeBox, size
-						+ " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(fontSizeBox, size + " is not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
 				fontSizeBox.setSelectedItem(fontSize);
 			}
 		} else if (e.getSource() == fontBoldBox) {
 			for (ChangeListener l : listeners) {
 				l.fontChanged();
 			}
-		} else if (e.getSource() == nodeSizeBox
-				&& e.getStateChange() == ItemEvent.SELECTED) {
+		} else if (e.getSource() == nodeSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = nodeSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
@@ -318,9 +309,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 					l.nodeSizeChanged();
 				}
 			} else {
-				JOptionPane.showMessageDialog(nodeSizeBox, size
-						+ " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(nodeSizeBox, size + " is not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
 		} else if (e.getSource() == arrowInMiddleBox) {
@@ -337,8 +327,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		nodeSize = DEFAULT_NODE_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
-		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING,
-				Mode.PICKING });
+		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING, Mode.PICKING });
 		editingModeBox.setSelectedItem(DEFAULT_MODE);
 		editingModeBox.addItemListener(this);
 		showLegendBox = new JCheckBox("Activate");
@@ -355,8 +344,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		showEdgesInMetaNodeBox.addItemListener(this);
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
-		((JTextField) fontSizeBox.getEditor().getEditorComponent())
-				.setColumns(3);
+		((JTextField) fontSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		fontSizeBox.setSelectedItem(fontSize);
 		fontSizeBox.addItemListener(this);
 		fontBoldBox = new JCheckBox("Bold");
@@ -364,8 +352,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		fontBoldBox.addItemListener(this);
 		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
-		((JTextField) nodeSizeBox.getEditor().getEditorComponent())
-				.setColumns(3);
+		((JTextField) nodeSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
 		nodeSizeBox.addItemListener(this);
 		arrowInMiddleBox = new JCheckBox("Activate");
@@ -376,8 +363,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(this);
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
-		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
-				.getPreferredSize().height));
+		borderAlphaSlider.setPreferredSize(new Dimension(100,
+				borderAlphaSlider.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
 	}
@@ -397,8 +384,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener,
 			int titleWidth = border.getMinimumSize(components[0]).width;
 
 			components[0].setPreferredSize(new Dimension(Math.max(
-					components[0].getPreferredSize().width, titleWidth),
-					components[0].getPreferredSize().height));
+					components[0].getPreferredSize().width, titleWidth), components[0]
+					.getPreferredSize().height));
 		}
 
 		return panel;

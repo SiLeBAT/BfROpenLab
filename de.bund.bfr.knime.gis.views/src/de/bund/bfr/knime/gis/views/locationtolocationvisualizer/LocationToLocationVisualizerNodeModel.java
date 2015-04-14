@@ -52,8 +52,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 */
 	protected LocationToLocationVisualizerNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] {
-				ImagePortObject.TYPE, ImagePortObject.TYPE });
+				BufferedDataTable.TYPE }, new PortType[] { ImagePortObject.TYPE,
+				ImagePortObject.TYPE });
 		set = new LocationToLocationVisualizerSettings();
 	}
 
@@ -61,8 +61,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
@@ -70,10 +69,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 				shapeTable, nodeTable, edgeTable, set);
 
 		return new PortObject[] {
-				CanvasUtils.getImage(set.isExportAsSvg(),
-						creator.createGraphCanvas()),
-				CanvasUtils.getImage(set.isExportAsSvg(),
-						creator.createLocationCanvas()) };
+				CanvasUtils.getImage(set.isExportAsSvg(), creator.createGraphCanvas()),
+				CanvasUtils.getImage(set.isExportAsSvg(), creator.createLocationCanvas()) };
 	}
 
 	/**
@@ -87,10 +84,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
-		return new PortObjectSpec[] {
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
@@ -115,25 +110,22 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 }

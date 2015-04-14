@@ -39,32 +39,28 @@ public class LocationVisualizerCanvasCreator {
 	private BufferedDataTable nodeTable;
 	private LocationVisualizerSettings set;
 
-	public LocationVisualizerCanvasCreator(BufferedDataTable shapeTable,
-			BufferedDataTable table, LocationVisualizerSettings set) {
+	public LocationVisualizerCanvasCreator(BufferedDataTable shapeTable, BufferedDataTable table,
+			LocationVisualizerSettings set) {
 		this.shapeTable = shapeTable;
 		this.nodeTable = table;
 		this.set = set;
 	}
 
 	public LocationCanvas createCanvas() throws InvalidSettingsException {
-		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set
-				.getGisSettings().getShapeColumn());
-		Map<String, Class<?>> nodeProperties = ViewUtils
-				.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(
-				nodeTable, nodeProperties, null,
-				set.getGisSettings().getNodeLatitudeColumn(),
+		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings()
+				.getShapeColumn());
+		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
+		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(nodeTable,
+				nodeProperties, null, set.getGisSettings().getNodeLatitudeColumn(),
 				set.getGisSettings().getNodeLongitudeColumn()).values());
-		String nodeIdProperty = ViewUtils.createNewIdProperty(nodes,
-				nodeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
-				nodeIdProperty);
+		String nodeIdProperty = ViewUtils.createNewIdProperty(nodes, nodeProperties);
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, nodeIdProperty);
 
 		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
-		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema,
-				Naming.DEFAULT_NAMING, regions);
+		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING,
+				regions);
 
 		set.getGisSettings().setToCanvas(canvas);
 

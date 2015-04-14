@@ -65,11 +65,9 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
-		return new PortObject[] { new FunctionPortObject(createFunction(
-				set.getTerm(), set.getDependentVariable(),
-				set.getIndependentVariables())) };
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+		return new PortObject[] { new FunctionPortObject(createFunction(set.getTerm(),
+				set.getDependentVariable(), set.getIndependentVariables())) };
 	}
 
 	/**
@@ -83,16 +81,14 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		if (set.getTerm() == null || set.getDependentVariable() == null
 				|| set.getIndependentVariables().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
-		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				createFunction(set.getTerm(), set.getDependentVariable(),
-						set.getIndependentVariables())) };
+		return new PortObjectSpec[] { new FunctionPortObjectSpec(createFunction(set.getTerm(),
+				set.getDependentVariable(), set.getIndependentVariables())) };
 	}
 
 	/**
@@ -116,30 +112,27 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
-	private static Function createFunction(String term,
-			String dependentVariable, List<String> independentVariables) {
+	private static Function createFunction(String term, String dependentVariable,
+			List<String> independentVariables) {
 		Map<String, String> terms = new LinkedHashMap<>();
 
 		terms.put(dependentVariable, term);
@@ -150,8 +143,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 		Collections.sort(parameters);
 		Collections.sort(independentVariables);
 
-		return new Function(terms, dependentVariable, independentVariables,
-				parameters);
+		return new Function(terms, dependentVariable, independentVariables, parameters);
 	}
 
 }

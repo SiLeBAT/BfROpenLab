@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class TracingParametersNodeFactory extends
-		NodeFactory<TracingParametersNodeModel> {
+public class TracingParametersNodeFactory extends NodeFactory<TracingParametersNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -52,8 +51,8 @@ public class TracingParametersNodeFactory extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<TracingParametersNodeModel> createNodeView(
-			final int viewIndex, final TracingParametersNodeModel nodeModel) {
+	public NodeView<TracingParametersNodeModel> createNodeView(final int viewIndex,
+			final TracingParametersNodeModel nodeModel) {
 		return null;
 	}
 

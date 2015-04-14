@@ -69,8 +69,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.getGisSettings().setFromCanvas(canvas, resized);
 		set.saveSettings(settings);
 	}
@@ -78,8 +77,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		RegionVisualizerInputDialog dialog = new RegionVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(),
-				nodeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -94,17 +92,16 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(
-				shapeTable, nodeTable, set);
+		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable,
+				nodeTable, set);
 
 		try {
 			canvas = creator.createCanvas();
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
-						"Some regions from the table are not contained"
-								+ " in the shapefile", "Warning",
-						JOptionPane.WARNING_MESSAGE);
+						"Some regions from the table are not contained" + " in the shapefile",
+						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
 			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);

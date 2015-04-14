@@ -30,8 +30,8 @@ public class ShapefileReaderNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	public ShapefileReaderNodeDialog() {
 		DialogComponentFileChooser shpDialog = new DialogComponentFileChooser(
-				new SettingsModelString(ShapefileReaderNodeModel.SHP_FILE, null),
-				"ShpFileHistory", ".shp");
+				new SettingsModelString(ShapefileReaderNodeModel.SHP_FILE, null), "ShpFileHistory",
+				".shp");
 
 		shpDialog.setBorderTitle("SHP File");
 		addDialogComponent(shpDialog);

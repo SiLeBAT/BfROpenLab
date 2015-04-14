@@ -53,8 +53,8 @@ public class FunctionPortObjectView extends JComponent {
 			JLabel label;
 
 			if (f.getTimeVariable() != null) {
-				label = new JLabel("d" + entry.getKey() + "/d"
-						+ f.getTimeVariable() + " = " + entry.getValue());
+				label = new JLabel("d" + entry.getKey() + "/d" + f.getTimeVariable() + " = "
+						+ entry.getValue());
 			} else {
 				label = new JLabel(entry.getKey() + " = " + entry.getValue());
 			}
@@ -76,8 +76,7 @@ public class FunctionPortObjectView extends JComponent {
 			}
 
 			if (hasInitialValues) {
-				JLabel label = new JLabel("Initial Values: "
-						+ Joiner.on(", ").join(initValues));
+				JLabel label = new JLabel("Initial Values: " + Joiner.on(", ").join(initValues));
 
 				label.setAlignmentX(Component.LEFT_ALIGNMENT);
 				panel.add(label);
@@ -85,12 +84,10 @@ public class FunctionPortObjectView extends JComponent {
 			}
 		}
 
-		JLabel depVarLabel = new JLabel("Dependent Variable: "
-				+ f.getDependentVariable());
+		JLabel depVarLabel = new JLabel("Dependent Variable: " + f.getDependentVariable());
 		JLabel indepVarLabel = new JLabel("Independent Variables: "
 				+ Joiner.on(", ").join(f.getIndependentVariables()));
-		JLabel paramVarLabel = new JLabel("Parameters: "
-				+ Joiner.on(", ").join(f.getParameters()));
+		JLabel paramVarLabel = new JLabel("Parameters: " + Joiner.on(", ").join(f.getParameters()));
 
 		depVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		indepVarLabel.setAlignmentX(Component.LEFT_ALIGNMENT);

@@ -65,8 +65,7 @@ public class DBSCANNSettings extends NodeSettings {
 		}
 
 		try {
-			filter = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_FILTER));
+			filter = (AndOrHighlightCondition) SERIALIZER.fromXml(settings.getString(CFG_FILTER));
 		} catch (InvalidSettingsException e) {
 		}
 

@@ -70,17 +70,15 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.getGraphSettings().setFromCanvas(canvas, resized);
 		set.getGraphSettings().saveSettings(settings);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog(
-				(JButton) e.getSource(), nodeTable.getSpec(),
-				edgeTable.getSpec(), set);
+		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog((JButton) e.getSource(),
+				nodeTable.getSpec(), edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -95,8 +93,8 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(
-				nodeTable, edgeTable, set);
+		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable,
+				edgeTable, set);
 
 		try {
 			canvas = creator.createGraphCanvas();

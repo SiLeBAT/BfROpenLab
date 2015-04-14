@@ -65,11 +65,9 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
-		return new PortObject[] { new FunctionPortObject(createFunction(
-				set.getTerms(), set.getDependentVariables(),
-				set.getInitValues(), set.getIndependentVariables(),
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+		return new PortObject[] { new FunctionPortObject(createFunction(set.getTerms(),
+				set.getDependentVariables(), set.getInitValues(), set.getIndependentVariables(),
 				set.getDiffVariable())) };
 	}
 
@@ -84,16 +82,14 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		if (set.getTerms().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
-		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				createFunction(set.getTerms(), set.getDependentVariables(),
-						set.getInitValues(), set.getIndependentVariables(),
-						set.getDiffVariable())) };
+		return new PortObjectSpec[] { new FunctionPortObjectSpec(createFunction(set.getTerms(),
+				set.getDependentVariables(), set.getInitValues(), set.getIndependentVariables(),
+				set.getDiffVariable())) };
 	}
 
 	/**
@@ -117,31 +113,27 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
-	private static Function createFunction(List<String> terms,
-			List<String> dependentVariables, List<Double> initValues,
-			List<String> independentVariables, String diffVariable) {
+	private static Function createFunction(List<String> terms, List<String> dependentVariables,
+			List<Double> initValues, List<String> independentVariables, String diffVariable) {
 		Map<String, String> termsMap = new LinkedHashMap<>();
 		Map<String, String> initParameterMap = new LinkedHashMap<>();
 		Map<String, Double> initValueMap = new LinkedHashMap<>();
@@ -152,8 +144,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			if (initValues.get(i) != null) {
 				initValueMap.put(dependentVariables.get(i), initValues.get(i));
 			} else {
-				initParameterMap.put(dependentVariables.get(i),
-						dependentVariables.get(i) + "_0");
+				initParameterMap.put(dependentVariables.get(i), dependentVariables.get(i) + "_0");
 			}
 		}
 
@@ -168,7 +159,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		Collections.sort(parameters);
 		Collections.sort(indeps);
 
-		return new Function(termsMap, dependentVariables.get(0), indeps,
-				parameters, diffVariable, initParameterMap, initValueMap);
+		return new Function(termsMap, dependentVariables.get(0), indeps, parameters, diffVariable,
+				initParameterMap, initValueMap);
 	}
 }

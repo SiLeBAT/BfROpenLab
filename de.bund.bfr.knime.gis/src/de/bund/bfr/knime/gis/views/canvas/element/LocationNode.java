@@ -27,8 +27,7 @@ public class LocationNode extends Node {
 
 	private Point2D center;
 
-	public LocationNode(String id, Map<String, Object> properties,
-			Point2D center) {
+	public LocationNode(String id, Map<String, Object> properties, Point2D center) {
 		super(id, properties);
 		updateCenter(center);
 	}
@@ -43,7 +42,6 @@ public class LocationNode extends Node {
 
 	@Override
 	public LocationNode copy() {
-		return new LocationNode(getId(), new LinkedHashMap<>(getProperties()),
-				center);
+		return new LocationNode(getId(), new LinkedHashMap<>(getProperties()), center);
 	}
 }

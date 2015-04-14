@@ -44,9 +44,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 public class TracingViewSettings extends NodeSettings {
 
 	public enum GisType {
-		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), CYCLE_MAP("Cycle Map"), BING_AERIAL(
-				"Bing Aerial"), MAPQUEST("MapQuest"), MAPQUEST_AERIAL(
-				"MapQuest Aerial");
+		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), CYCLE_MAP("Cycle Map"), BING_AERIAL("Bing Aerial"), MAPQUEST(
+				"MapQuest"), MAPQUEST_AERIAL("MapQuest Aerial");
 
 		private String name;
 
@@ -173,8 +172,7 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			showEdgesInMetaNode = settings
-					.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
+			showEdgesInMetaNode = settings.getBoolean(CFG_SHOW_EDGES_IN_META_NODE);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -199,8 +197,7 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			canvasSize = (Dimension) SERIALIZER.fromXml(settings
-					.getString(CFG_CANVAS_SIZE));
+			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -217,20 +214,20 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+			edgeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
-					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
+			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER.fromXml(settings
+					.getString(CFG_COLLAPSED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -252,14 +249,14 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_CROSS_CONTAMINATIONS));
+			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
+			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -276,8 +273,7 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			enforeTemporalOrder = settings
-					.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
+			enforeTemporalOrder = settings.getBoolean(CFG_ENFORCE_TEMPORAL_ORDER);
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -304,20 +300,15 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_SELECTED_EDGES, SERIALIZER.toXml(selectedEdges));
-		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(nodeHighlightConditions));
-		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS,
-				SERIALIZER.toXml(edgeHighlightConditions));
-		settings.addString(CFG_COLLAPSED_NODES,
-				SERIALIZER.toXml(collapsedNodes));
+		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
+		settings.addString(CFG_EDGE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(edgeHighlightConditions));
+		settings.addString(CFG_COLLAPSED_NODES, SERIALIZER.toXml(collapsedNodes));
 		settings.addString(CFG_LABEL, label);
 
 		settings.addString(CFG_NODE_WEIGHTS, SERIALIZER.toXml(nodeWeights));
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
-		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS,
-				SERIALIZER.toXml(nodeCrossContaminations));
-		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS,
-				SERIALIZER.toXml(edgeCrossContaminations));
+		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS, SERIALIZER.toXml(nodeCrossContaminations));
+		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS, SERIALIZER.toXml(edgeCrossContaminations));
 		settings.addString(CFG_OBSERVED_NODES, SERIALIZER.toXml(observedNodes));
 		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
@@ -351,8 +342,7 @@ public class TracingViewSettings extends NodeSettings {
 
 		collapsedNodes = new LinkedHashMap<>();
 
-		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes()
-				.entrySet()) {
+		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
 			Map<String, Point2D> ids = new LinkedHashMap<>();
 
 			for (String id : entry.getValue()) {
@@ -391,12 +381,10 @@ public class TracingViewSettings extends NodeSettings {
 
 		canvas.setCollapsedNodes(collapsed);
 
-		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(
-				nodeHighlightConditions, canvas.getNodeSchema().getMap()
-						.keySet()));
-		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(
-				edgeHighlightConditions, canvas.getEdgeSchema().getMap()
-						.keySet()));
+		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
+				canvas.getNodeSchema().getMap().keySet()));
+		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(edgeHighlightConditions,
+				canvas.getEdgeSchema().getMap().keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
@@ -512,8 +500,7 @@ public class TracingViewSettings extends NodeSettings {
 		return nodeHighlightConditions;
 	}
 
-	public void setNodeHighlightConditions(
-			HighlightConditionList nodeHighlightConditions) {
+	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 	}
 
@@ -521,8 +508,7 @@ public class TracingViewSettings extends NodeSettings {
 		return edgeHighlightConditions;
 	}
 
-	public void setEdgeHighlightConditions(
-			HighlightConditionList edgeHighlightConditions) {
+	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 	}
 
@@ -530,8 +516,7 @@ public class TracingViewSettings extends NodeSettings {
 		return collapsedNodes;
 	}
 
-	public void setCollapsedNodes(
-			Map<String, Map<String, Point2D>> collapsedNodes) {
+	public void setCollapsedNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 	}
 
@@ -563,8 +548,7 @@ public class TracingViewSettings extends NodeSettings {
 		return nodeCrossContaminations;
 	}
 
-	public void setNodeCrossContaminations(
-			Map<String, Boolean> nodeCrossContaminations) {
+	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
 		this.nodeCrossContaminations = nodeCrossContaminations;
 	}
 
@@ -572,8 +556,7 @@ public class TracingViewSettings extends NodeSettings {
 		return edgeCrossContaminations;
 	}
 
-	public void setEdgeCrossContaminations(
-			Map<String, Boolean> edgeCrossContaminations) {
+	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		this.edgeCrossContaminations = edgeCrossContaminations;
 	}
 

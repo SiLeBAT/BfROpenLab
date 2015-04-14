@@ -52,38 +52,33 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	public RegionCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), naming,
-				allowEdges);
+				new NodePropertySchema(), new EdgePropertySchema(), naming, allowEdges);
 	}
 
-	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema,
-			Naming naming) {
-		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema,
-				new EdgePropertySchema(), naming, false);
+	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
+		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema, new EdgePropertySchema(),
+				naming, false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming) {
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
 
 	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
-			Naming naming, boolean allowEdges) {
+			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
+			boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<>(2,
-						new LinkedHashMap<RegionNode, Double>()));
+				new NodeShapeTransformer<>(2, new LinkedHashMap<RegionNode, Double>()));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
 		viewer.getRenderContext().setVertexFillPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
-		viewer.getRenderer().getVertexLabelRenderer()
-				.setPosition(Position.CNTR);
+		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
 		for (RegionNode node : this.nodes) {
 			node.updatePolygon(GisUtils.latLonToViz(node.getPolygon()));
@@ -126,10 +121,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	@Override
 	public void applyHighlights() {
-		CanvasUtils.applyNodeLabels(viewer.getRenderContext(), nodes,
-				nodeHighlightConditions);
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges,
-				edgeHighlightConditions);
+		CanvasUtils.applyNodeLabels(viewer.getRenderContext(), nodes, nodeHighlightConditions);
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions);
 	}
 
 	@Override
@@ -155,8 +148,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 			nodeAlphas.put(node, new ArrayList<Double>());
 		}
 
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
+		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
 			Map<RegionNode, Double> values = condition.getValues(nodes);
 
 			nodeColors.add(condition.getColor());
@@ -164,8 +156,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 			for (RegionNode node : nodes) {
 				List<Double> alphas = nodeAlphas.get(node);
 
-				if (!prioritize || alphas.isEmpty()
-						|| Collections.max(alphas) == 0.0) {
+				if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
 					alphas.add(values.get(node));
 				} else {
 					alphas.add(0.0);
@@ -174,11 +165,9 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		}
 
 		for (RegionNode node : nodes) {
-			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors,
-					nodeAlphas.get(node));
+			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node));
 
-			if (!color.equals(Color.WHITE)
-					&& !viewer.getPickedVertexState().isPicked(node)) {
+			if (!color.equals(Color.WHITE) && !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);
 
 				for (Polygon part : node.getTransformedPolygonWithHoles()) {
@@ -222,17 +211,15 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			RegionNode node = getContainingNode(e.getX(), e.getY());
-			Edge<RegionNode> edge = viewer.getPickSupport().getEdge(
-					viewer.getGraphLayout(), e.getX(), e.getY());
+			Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(),
+					e.getX(), e.getY());
 
-			if (e.getButton() == MouseEvent.BUTTON1 && node != null
-					&& edge == null) {
+			if (e.getButton() == MouseEvent.BUTTON1 && node != null && edge == null) {
 				if (!e.isShiftDown()) {
 					viewer.getPickedVertexState().clear();
 				}
 
-				if (e.isShiftDown()
-						&& viewer.getPickedVertexState().isPicked(node)) {
+				if (e.isShiftDown() && viewer.getPickedVertexState().isPicked(node)) {
 					viewer.getPickedVertexState().pick(node, false);
 				} else {
 					viewer.getPickedVertexState().pick(node, true);

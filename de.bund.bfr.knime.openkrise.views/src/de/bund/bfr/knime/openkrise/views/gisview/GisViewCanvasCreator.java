@@ -41,8 +41,8 @@ public class GisViewCanvasCreator {
 	private BufferedDataTable nodeTable;
 	private GisViewSettings set;
 
-	public GisViewCanvasCreator(BufferedDataTable shapeTable,
-			BufferedDataTable table, GisViewSettings set) {
+	public GisViewCanvasCreator(BufferedDataTable shapeTable, BufferedDataTable table,
+			GisViewSettings set) {
 		this.shapeTable = shapeTable;
 		this.nodeTable = table;
 		this.set = set;
@@ -50,19 +50,16 @@ public class GisViewCanvasCreator {
 
 	public LocationCanvas createCanvas() throws NotConfigurableException {
 		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()),
-				TracingColumns.ID);
+				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
 
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		List<LocationNode> nodes = new ArrayList<>(TracingUtils
-				.readLocationNodes(nodeTable, nodeSchema,
-						new LinkedHashSet<RowKey>(), true).values());
-		List<RegionNode> regions = TracingUtils.readRegions(shapeTable,
-				new LinkedHashSet<RowKey>());
-		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema,
-				TracingUtils.NAMING, regions);
+		List<LocationNode> nodes = new ArrayList<>(TracingUtils.readLocationNodes(nodeTable,
+				nodeSchema, new LinkedHashSet<RowKey>(), true).values());
+		List<RegionNode> regions = TracingUtils
+				.readRegions(shapeTable, new LinkedHashSet<RowKey>());
+		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, TracingUtils.NAMING, regions);
 
 		set.getGisSettings().setToCanvas(canvas, true);
 

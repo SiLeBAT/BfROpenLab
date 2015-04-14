@@ -52,16 +52,14 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 	private List<HighlightCondition> highlightConditions;
 	private boolean approved;
 
-	public HighlightSelectionDialog(Component parent,
-			List<HighlightCondition> highlightConditions) {
+	public HighlightSelectionDialog(Component parent, List<HighlightCondition> highlightConditions) {
 		super(SwingUtilities.getWindowAncestor(parent), "Highlight Conditions",
 				DEFAULT_MODALITY_TYPE);
 		this.highlightConditions = null;
 		approved = false;
 
 		list = new JList<>();
-		list.getSelectionModel().setSelectionMode(
-				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		list.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());
 		list.setListData(new Vector<>(highlightConditions));
 
@@ -74,16 +72,13 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 
 		southPanel.setLayout(new BorderLayout());
 		southPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-		southPanel.add(new JSeparator(SwingConstants.HORIZONTAL),
-				BorderLayout.CENTER);
+		southPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
 
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(new JScrollPane(list,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		mainPanel.add(southPanel, BorderLayout.SOUTH);
 
 		setLayout(new BorderLayout());

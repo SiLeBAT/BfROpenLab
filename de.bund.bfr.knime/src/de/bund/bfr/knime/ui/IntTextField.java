@@ -110,8 +110,7 @@ public class IntTextField extends JTextField implements DocumentListener {
 
 	@Override
 	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null
-				&& getText().trim().isEmpty()) {
+		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
 			return Color.RED;
 		}
 

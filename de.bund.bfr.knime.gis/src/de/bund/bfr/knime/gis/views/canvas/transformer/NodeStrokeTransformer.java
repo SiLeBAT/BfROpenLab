@@ -26,8 +26,7 @@ import org.apache.commons.collections15.Transformer;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 
-public class NodeStrokeTransformer<V extends Node> implements
-		Transformer<V, Stroke> {
+public class NodeStrokeTransformer<V extends Node> implements Transformer<V, Stroke> {
 
 	private String metaNodeProperty;
 
@@ -37,8 +36,7 @@ public class NodeStrokeTransformer<V extends Node> implements
 
 	@Override
 	public Stroke transform(V node) {
-		Boolean isMetaNode = (Boolean) node.getProperties().get(
-				metaNodeProperty);
+		Boolean isMetaNode = (Boolean) node.getProperties().get(metaNodeProperty);
 
 		if (isMetaNode != null && isMetaNode) {
 			return new BasicStroke(4.0f);

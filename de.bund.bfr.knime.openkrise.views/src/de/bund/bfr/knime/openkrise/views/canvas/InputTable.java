@@ -66,8 +66,7 @@ public class InputTable extends JTable {
 			}
 
 			if (e.getProperties().get(TracingColumns.OBSERVED) != null) {
-				observed = (Boolean) e.getProperties().get(
-						TracingColumns.OBSERVED);
+				observed = (Boolean) e.getProperties().get(TracingColumns.OBSERVED);
 			}
 
 			inputs.add(new Input(weight, crossContamination, observed));
@@ -117,8 +116,8 @@ public class InputTable extends JTable {
 
 		@Override
 		public String toString() {
-			return "Input [weight=" + weight + ", crossContamination="
-					+ crossContamination + ", observed=" + observed + "]";
+			return "Input [weight=" + weight + ", crossContamination=" + crossContamination
+					+ ", observed=" + observed + "]";
 		}
 	}
 
@@ -172,39 +171,36 @@ public class InputTable extends JTable {
 	private static class InputRenderer implements TableCellRenderer {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column) {
 			Input input = (Input) value;
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
 			panel.setLayout(new GridLayout(1, 3, 1, 0));
-			panel.add(getTableRendererComponent(input.getWeight(),
-					Double.class, isSelected, hasFocus));
-			panel.add(getTableRendererComponent(input.isCrossContamination(),
-					Boolean.class, isSelected, hasFocus));
-			panel.add(getTableRendererComponent(input.isObserved(),
-					Boolean.class, isSelected, hasFocus));
+			panel.add(getTableRendererComponent(input.getWeight(), Double.class, isSelected,
+					hasFocus));
+			panel.add(getTableRendererComponent(input.isCrossContamination(), Boolean.class,
+					isSelected, hasFocus));
+			panel.add(getTableRendererComponent(input.isObserved(), Boolean.class, isSelected,
+					hasFocus));
 
 			return panel;
 		}
 
-		private static Component getTableRendererComponent(Object value,
-				Class<?> columnClass, boolean isSelected, boolean hasFocus) {
-			JTable table = new JTable(new Object[][] { { value } },
-					new Object[] { "" });
+		private static Component getTableRendererComponent(Object value, Class<?> columnClass,
+				boolean isSelected, boolean hasFocus) {
+			JTable table = new JTable(new Object[][] { { value } }, new Object[] { "" });
 
 			table.setDefaultRenderer(Double.class, new DoubleCellRenderer());
 
-			return table.getDefaultRenderer(columnClass)
-					.getTableCellRendererComponent(table, value, isSelected,
-							hasFocus, 0, 0);
+			return table.getDefaultRenderer(columnClass).getTableCellRendererComponent(table,
+					value, isSelected, hasFocus, 0, 0);
 		}
 	}
 
-	private static class InputEditor extends AbstractCellEditor implements
-			TableCellEditor, CellEditorListener {
+	private static class InputEditor extends AbstractCellEditor implements TableCellEditor,
+			CellEditorListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -223,8 +219,7 @@ public class InputTable extends JTable {
 		@Override
 		public Object getCellEditorValue() {
 			try {
-				weightTable.setValueAt(
-						Double.parseDouble(weightField.getText()), 0, 0);
+				weightTable.setValueAt(Double.parseDouble(weightField.getText()), 0, 0);
 			} catch (NumberFormatException ex) {
 			}
 
@@ -251,14 +246,12 @@ public class InputTable extends JTable {
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value,
+				boolean isSelected, int row, int column) {
 			Input input = (Input) value;
-			TableCellEditor weightEditor = weightTable
-					.getDefaultEditor(Double.class);
+			TableCellEditor weightEditor = weightTable.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
-			TableCellEditor observedEditor = observedTable
-					.getDefaultEditor(Boolean.class);
+			TableCellEditor observedEditor = observedTable.getDefaultEditor(Boolean.class);
 
 			weightEditor.addCellEditorListener(this);
 			ccEditor.addCellEditorListener(this);
@@ -267,30 +260,27 @@ public class InputTable extends JTable {
 			weightTable.setValueAt(input.getWeight(), 0, 0);
 			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
 			observedTable.setValueAt(input.isObserved(), 0, 0);
-			weightField = (JTextField) weightEditor
-					.getTableCellEditorComponent(weightTable,
-							input.getWeight(), isSelected, 0, 0);
+			weightField = (JTextField) weightEditor.getTableCellEditorComponent(weightTable,
+					input.getWeight(), isSelected, 0, 0);
 
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
 			panel.setLayout(new GridLayout(1, 3, 1, 0));
 			panel.add(weightField);
-			panel.add(ccEditor.getTableCellEditorComponent(ccTable,
-					input.isCrossContamination(), isSelected, 0, 0));
-			panel.add(observedEditor.getTableCellEditorComponent(observedTable,
-					input.isObserved(), isSelected, 0, 0));
+			panel.add(ccEditor.getTableCellEditorComponent(ccTable, input.isCrossContamination(),
+					isSelected, 0, 0));
+			panel.add(observedEditor.getTableCellEditorComponent(observedTable, input.isObserved(),
+					isSelected, 0, 0));
 
 			return panel;
 		}
 
 		@Override
 		public void editingStopped(ChangeEvent e) {
-			TableCellEditor weightEditor = weightTable
-					.getDefaultEditor(Double.class);
+			TableCellEditor weightEditor = weightTable.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
-			TableCellEditor observedEditor = observedTable
-					.getDefaultEditor(Boolean.class);
+			TableCellEditor observedEditor = observedTable.getDefaultEditor(Boolean.class);
 
 			if (e.getSource() == weightEditor) {
 				weightTable.setValueAt(weightEditor.getCellEditorValue(), 0, 0);
@@ -301,8 +291,7 @@ public class InputTable extends JTable {
 			}
 
 			if (e.getSource() == observedEditor) {
-				observedTable.setValueAt(observedEditor.getCellEditorValue(),
-						0, 0);
+				observedTable.setValueAt(observedEditor.getCellEditorValue(), 0, 0);
 			}
 
 			stopCellEditing();

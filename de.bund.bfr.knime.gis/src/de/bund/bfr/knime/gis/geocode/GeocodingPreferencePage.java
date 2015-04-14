@@ -27,8 +27,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import de.bund.bfr.knime.gis.Activator;
 
-public class GeocodingPreferencePage extends FieldEditorPreferencePage
-		implements IWorkbenchPreferencePage {
+public class GeocodingPreferencePage extends FieldEditorPreferencePage implements
+		IWorkbenchPreferencePage {
 
 	public static final String MAPQUEST_KEY = "GeocodingMapQuestKey";
 	public static final String BKG_UUID = "GeocodingBkgUuid";
@@ -44,17 +44,15 @@ public class GeocodingPreferencePage extends FieldEditorPreferencePage
 
 	@Override
 	protected void createFieldEditors() {
-		addField(new TrimmingStringFieldEditor(MAPQUEST_KEY,
-				"MapQuest Application Key", getFieldEditorParent()));
-		addField(new TrimmingStringFieldEditor(BKG_UUID,
-				"\"Bundesamt für Kartographie und Geodäsie\" UUID",
+		addField(new TrimmingStringFieldEditor(MAPQUEST_KEY, "MapQuest Application Key",
 				getFieldEditorParent()));
+		addField(new TrimmingStringFieldEditor(BKG_UUID,
+				"\"Bundesamt für Kartographie und Geodäsie\" UUID", getFieldEditorParent()));
 	}
 
 	private static class TrimmingStringFieldEditor extends StringFieldEditor {
 
-		public TrimmingStringFieldEditor(String name, String labelText,
-				Composite parent) {
+		public TrimmingStringFieldEditor(String name, String labelText, Composite parent) {
 			super(name, labelText, UNLIMITED, VALIDATE_ON_FOCUS_LOST, parent);
 		}
 

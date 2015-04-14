@@ -37,7 +37,6 @@ public class GraphNode extends Node {
 
 	@Override
 	public GraphNode copy() {
-		return new GraphNode(getId(), new LinkedHashMap<>(getProperties()),
-				region);
+		return new GraphNode(getId(), new LinkedHashMap<>(getProperties()), region);
 	}
 }

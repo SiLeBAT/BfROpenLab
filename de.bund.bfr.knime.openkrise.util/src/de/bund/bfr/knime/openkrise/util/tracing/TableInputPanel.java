@@ -58,8 +58,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 
-public class TableInputPanel<T> extends JPanel implements ActionListener,
-		RowSorterListener, CellEditorListener, ListSelectionListener {
+public class TableInputPanel<T> extends JPanel implements ActionListener, RowSorterListener,
+		CellEditorListener, ListSelectionListener {
 
 	public static enum Type {
 		NODE, EDGE
@@ -98,9 +98,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		add(tablePanel, BorderLayout.CENTER);
 	}
 
-	public void update(Collection<? extends Element> elements,
-			PropertySchema schema, Map<String, T> values,
-			AndOrHighlightCondition condition, T valueForAll) {
+	public void update(Collection<? extends Element> elements, PropertySchema schema,
+			Map<String, T> values, AndOrHighlightCondition condition, T valueForAll) {
 		this.elements = elements;
 		this.schema = schema;
 		this.values = values;
@@ -108,8 +107,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		removeFilterButton.setEnabled(condition != null);
 		tablePanel.removeAll();
-		tablePanel.add(createInputPanel(filterElements(elements, condition)),
-				BorderLayout.CENTER);
+		tablePanel.add(createInputPanel(filterElements(elements, condition)), BorderLayout.CENTER);
 		updateSetAll(valueForAll != null);
 
 		if (valueForAll != null && classType == Double.class) {
@@ -161,18 +159,16 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(
-					filterButton, schema, condition);
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema,
+					condition);
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);
 
 			if (dialog.isApproved()) {
-				condition = (AndOrHighlightCondition) dialog
-						.getHighlightCondition();
+				condition = (AndOrHighlightCondition) dialog.getHighlightCondition();
 				tablePanel.removeAll();
-				tablePanel.add(
-						createInputPanel(filterElements(elements, condition)),
+				tablePanel.add(createInputPanel(filterElements(elements, condition)),
 						BorderLayout.CENTER);
 				tablePanel.revalidate();
 				updateSetAll(setAllBox.isSelected());
@@ -240,8 +236,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 			table.getSelectionModel().setSelectionInterval(i, i);
 			table.setVisible(false);
-			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0,
-					true)));
+			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
 			scrollPane.getHorizontalScrollBar().setValue(hScroll);
 			table.setVisible(true);
 		} else if (e.getSource() == table.getSelectionModel()) {
@@ -267,11 +262,11 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 		setAllField.setEnabled(false);
 
 		if (classType == Boolean.class) {
-			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					removeFilterButton, clearButton, setAllBox));
+			return UI.createWestPanel(UI.createHorizontalPanel(filterButton, removeFilterButton,
+					clearButton, setAllBox));
 		} else if (classType == Double.class) {
-			return UI.createWestPanel(UI.createHorizontalPanel(filterButton,
-					removeFilterButton, clearButton, setAllBox, setAllField));
+			return UI.createWestPanel(UI.createHorizontalPanel(filterButton, removeFilterButton,
+					clearButton, setAllBox, setAllField));
 		}
 
 		return null;
@@ -285,13 +280,12 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 			idColumns.add(TracingColumns.ID);
 			break;
 		case EDGE:
-			idColumns.addAll(Arrays.asList(TracingColumns.ID,
-					TracingColumns.FROM, TracingColumns.TO));
+			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM,
+					TracingColumns.TO));
 			break;
 		}
 
-		table = new PropertiesTable(new ArrayList<>(elements), schema,
-				idColumns);
+		table = new PropertiesTable(new ArrayList<>(elements), schema, idColumns);
 		inputTable = new InputTable(classType, table.getRowCount());
 
 		table.getRowSorter().addRowSorterListener(this);
@@ -307,8 +301,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 		JViewport rowHeader = scrollPane.getRowHeader();
 
-		rowHeader.setPreferredSize(new Dimension(100, rowHeader
-				.getPreferredSize().height));
+		rowHeader.setPreferredSize(new Dimension(100, rowHeader.getPreferredSize().height));
 
 		return scrollPane;
 	}
@@ -328,13 +321,12 @@ public class TableInputPanel<T> extends JPanel implements ActionListener,
 
 			JViewport rowHeader = scrollPane.getRowHeader();
 
-			rowHeader.setPreferredSize(new Dimension(100, rowHeader
-					.getPreferredSize().height));
+			rowHeader.setPreferredSize(new Dimension(100, rowHeader.getPreferredSize().height));
 		}
 	}
 
-	private static <T extends Element> Collection<T> filterElements(
-			Collection<T> nodes, AndOrHighlightCondition condition) {
+	private static <T extends Element> Collection<T> filterElements(Collection<T> nodes,
+			AndOrHighlightCondition condition) {
 		if (condition == null) {
 			return nodes;
 		}

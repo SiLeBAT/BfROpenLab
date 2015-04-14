@@ -71,14 +71,12 @@ import de.bund.bfr.math.ParameterOptimizer;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeModel extends NodeModel implements
-		ParameterOptimizer.ProgressListener {
+public class FittingNodeModel extends NodeModel implements ParameterOptimizer.ProgressListener {
 
-	private static final PortType[] INPUT_TYPE = new PortType[] {
-			FunctionPortObject.TYPE, BufferedDataTable.TYPE };
-	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] {
-			FunctionPortObject.TYPE, BufferedDataTable.TYPE,
+	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE,
 			BufferedDataTable.TYPE };
+	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE,
+			BufferedDataTable.TYPE, BufferedDataTable.TYPE };
 
 	private boolean isDiff;
 	private FittingSettings set;
@@ -88,8 +86,8 @@ public class FittingNodeModel extends NodeModel implements
 	 * Constructor for the node model.
 	 */
 	protected FittingNodeModel(boolean isDiff, FittingSettings set) {
-		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE });
+		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] { BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE });
 		this.isDiff = isDiff;
 		this.set = set;
 		currentExec = null;
@@ -99,8 +97,7 @@ public class FittingNodeModel extends NodeModel implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		currentExec = exec;
 
 		Function function = ((FunctionPortObject) inObjects[0]).getFunction();
@@ -120,8 +117,7 @@ public class FittingNodeModel extends NodeModel implements
 
 		DataTableSpec paramSpec = (DataTableSpec) outSpec[0];
 		DataTableSpec covSpec = (DataTableSpec) outSpec[1];
-		BufferedDataContainer paramContainer = exec
-				.createDataContainer(paramSpec);
+		BufferedDataContainer paramContainer = exec.createDataContainer(paramSpec);
 		BufferedDataContainer covContainer = exec.createDataContainer(covSpec);
 		int iParam = 0;
 		int iCov = 0;
@@ -132,52 +128,45 @@ public class FittingNodeModel extends NodeModel implements
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
 			for (String param1 : function.getParameters()) {
-				paramCells[paramSpec.findColumnIndex(param1)] = IO
-						.createCell(result.getParameterValues().get(param1));
+				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result
+						.getParameterValues().get(param1));
 
 				DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
 
-				covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO
-						.createCell(id);
-				covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO
-						.createCell(param1);
+				covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
+				covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO.createCell(param1);
 
 				for (String param2 : function.getParameters()) {
-					covCells[covSpec.findColumnIndex(param2)] = IO
-							.createCell(result.getCovariances().get(param1)
-									.get(param2));
+					covCells[covSpec.findColumnIndex(param2)] = IO.createCell(result
+							.getCovariances().get(param1).get(param2));
 				}
 
-				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov),
-						covCells));
+				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
 				iCov++;
 			}
 
-			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO
-					.createCell(id);
-			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO
-					.createCell(result.getSse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO
-					.createCell(result.getMse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO
-					.createCell(result.getRmse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO
-					.createCell(result.getR2());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO
-					.createCell(result.getAic());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
-					.createCell(result.getDegreesOfFreedom());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
+			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO.createCell(result
+					.getSse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO.createCell(result
+					.getMse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO.createCell(result
+					.getRmse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO.createCell(result
+					.getR2());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO.createCell(result
+					.getAic());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO.createCell(result
+					.getDegreesOfFreedom());
 
-			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam),
-					paramCells));
+			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam), paramCells));
 			iParam++;
 		}
 
 		paramContainer.close();
 		covContainer.close();
 
-		return new PortObject[] { paramContainer.getTable(),
-				covContainer.getTable() };
+		return new PortObject[] { paramContainer.getTable(), covContainer.getTable() };
 	}
 
 	/**
@@ -192,62 +181,54 @@ public class FittingNodeModel extends NodeModel implements
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
 		DataTableSpec dataSpec = (DataTableSpec) inSpecs[1];
-		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(dataSpec, StringValue.class));
-		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(dataSpec, DoubleValue.class));
+		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec,
+				StringValue.class));
+		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec,
+				DoubleValue.class));
 
 		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
-			throw new InvalidSettingsException(
-					"Data Table must contain String Column named \""
-							+ NlsUtils.ID_COLUMN + "\"");
+			throw new InvalidSettingsException("Data Table must contain String Column named \""
+					+ NlsUtils.ID_COLUMN + "\"");
 		}
 
 		if (isDiff) {
 			DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
-			List<String> conditionStringColumns = KnimeUtils
-					.getColumnNames(KnimeUtils.getColumns(conditionSpec,
-							StringValue.class));
-			List<String> conditionDoubleColumns = KnimeUtils
-					.getColumnNames(KnimeUtils.getColumns(conditionSpec,
-							DoubleValue.class));
+			List<String> conditionStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(
+					conditionSpec, StringValue.class));
+			List<String> conditionDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(
+					conditionSpec, DoubleValue.class));
 
 			if (!dataDoubleColumns.contains(function.getTimeVariable())) {
-				throw new InvalidSettingsException(
-						"Data Table must contain Double Column named \""
-								+ function.getTimeVariable() + "\"");
+				throw new InvalidSettingsException("Data Table must contain Double Column named \""
+						+ function.getTimeVariable() + "\"");
 			}
 
 			if (!dataDoubleColumns.contains(function.getDependentVariable())) {
-				throw new InvalidSettingsException(
-						"Data Table must contain Double Column named \""
-								+ function.getDependentVariable() + "\"");
+				throw new InvalidSettingsException("Data Table must contain Double Column named \""
+						+ function.getDependentVariable() + "\"");
 			}
 
 			if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
 				throw new InvalidSettingsException(
-						"Condition Table must contain String Column named \""
-								+ NlsUtils.ID_COLUMN + "\"");
+						"Condition Table must contain String Column named \"" + NlsUtils.ID_COLUMN
+								+ "\"");
 			}
 
 			for (String var : function.getVariables()) {
 				if (!var.equals(function.getDependentVariable())
 						&& !conditionDoubleColumns.contains(var)) {
 					throw new InvalidSettingsException(
-							"Condition Table must contain Double Column named \""
-									+ var + "\"");
+							"Condition Table must contain Double Column named \"" + var + "\"");
 				}
 			}
 		} else {
 			for (String var : function.getVariables()) {
 				if (!dataDoubleColumns.contains(var)) {
 					throw new InvalidSettingsException(
-							"Data Table must contain Double Column named \""
-									+ var + "\"");
+							"Data Table must contain Double Column named \"" + var + "\"");
 				}
 			}
 		}
@@ -255,35 +236,23 @@ public class FittingNodeModel extends NodeModel implements
 		List<DataColumnSpec> specs1 = new ArrayList<>();
 		List<DataColumnSpec> specs2 = new ArrayList<>();
 
-		specs1.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN,
-				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN,
-				StringCell.TYPE).createSpec());
-		specs2.add(new DataColumnSpecCreator(NlsUtils.PARAM_COLUMN,
-				StringCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN, StringCell.TYPE).createSpec());
+		specs2.add(new DataColumnSpecCreator(NlsUtils.ID_COLUMN, StringCell.TYPE).createSpec());
+		specs2.add(new DataColumnSpecCreator(NlsUtils.PARAM_COLUMN, StringCell.TYPE).createSpec());
 
 		for (String param : function.getParameters()) {
-			specs1.add(new DataColumnSpecCreator(param, DoubleCell.TYPE)
-					.createSpec());
-			specs2.add(new DataColumnSpecCreator(param, DoubleCell.TYPE)
-					.createSpec());
+			specs1.add(new DataColumnSpecCreator(param, DoubleCell.TYPE).createSpec());
+			specs2.add(new DataColumnSpecCreator(param, DoubleCell.TYPE).createSpec());
 		}
 
-		specs1.add(new DataColumnSpecCreator(NlsUtils.SSE_COLUMN,
-				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsUtils.MSE_COLUMN,
-				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsUtils.RMSE_COLUMN,
-				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsUtils.R2_COLUMN,
-				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsUtils.AIC_COLUMN,
-				DoubleCell.TYPE).createSpec());
-		specs1.add(new DataColumnSpecCreator(NlsUtils.DOF_COLUMN, IntCell.TYPE)
-				.createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.SSE_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.MSE_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.RMSE_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.R2_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.AIC_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.DOF_COLUMN, IntCell.TYPE).createSpec());
 
-		return new PortObjectSpec[] {
-				new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
+		return new PortObjectSpec[] { new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
 				new DataTableSpec(specs2.toArray(new DataColumnSpec[0])) };
 	}
 
@@ -308,30 +277,27 @@ public class FittingNodeModel extends NodeModel implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
+	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, ParameterOptimizer> doEstimation(Function function,
-			BufferedDataTable table) throws ParseException {
+	private Map<String, ParameterOptimizer> doEstimation(Function function, BufferedDataTable table)
+			throws ParseException {
 		if (function.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
 		}
@@ -342,13 +308,11 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
 		for (DataRow row : table) {
-			String id = IO.getString(row.getCell(spec
-					.findColumnIndex(NlsUtils.ID_COLUMN)));
+			String id = IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getVariables()) {
-				values.put(var,
-						IO.getDouble(row.getCell(spec.findColumnIndex(var))));
+				values.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
 			}
 
 			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
@@ -357,16 +321,14 @@ public class FittingNodeModel extends NodeModel implements
 
 			if (ids.add(id)) {
 				targetValues.put(id, new ArrayList<Double>());
-				argumentValues.put(id,
-						new LinkedHashMap<String, List<Double>>());
+				argumentValues.put(id, new LinkedHashMap<String, List<Double>>());
 
 				for (String indep : function.getIndependentVariables()) {
 					argumentValues.get(id).put(indep, new ArrayList<Double>());
 				}
 			}
 
-			targetValues.get(id).add(
-					values.get(function.getDependentVariable()));
+			targetValues.get(id).add(values.get(function.getDependentVariable()));
 
 			for (String indep : function.getIndependentVariables()) {
 				argumentValues.get(id).get(indep).add(values.get(indep));
@@ -378,16 +340,13 @@ public class FittingNodeModel extends NodeModel implements
 		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
-			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
-					.entrySet()) {
-				argumentArrays.put(entry.getKey(),
-						Doubles.toArray(entry.getValue()));
+			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id).entrySet()) {
+				argumentArrays.put(entry.getKey(), Doubles.toArray(entry.getValue()));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(function
-					.getTerms().get(function.getDependentVariable()), function
-					.getParameters().toArray(new String[0]),
-					Doubles.toArray(targetValues.get(id)), argumentArrays);
+			ParameterOptimizer optimizer = new ParameterOptimizer(function.getTerms().get(
+					function.getDependentVariable()), function.getParameters().toArray(
+					new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays);
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -395,14 +354,13 @@ public class FittingNodeModel extends NodeModel implements
 			}
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(),
-						set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getStartValues(),
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getStartValues(),
 						new LinkedHashMap<String, Double>());
 			} else {
-				optimizer.optimize(set.getnParameterSpace(),
-						set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getMinStartValues(), set.getMaxStartValues());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getMinStartValues(),
+						set.getMaxStartValues());
 			}
 
 			results.put(id, optimizer);
@@ -412,8 +370,7 @@ public class FittingNodeModel extends NodeModel implements
 	}
 
 	private Map<String, ParameterOptimizer> doEstimation(Function function,
-			BufferedDataTable dataTable, BufferedDataTable conditionTable)
-			throws ParseException {
+			BufferedDataTable dataTable, BufferedDataTable conditionTable) throws ParseException {
 		if (function.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
@@ -425,15 +382,13 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 
 		for (DataRow row : dataTable) {
-			String id = IO.getString(row.getCell(dataSpec
-					.findColumnIndex(NlsUtils.ID_COLUMN)));
-			Double time = IO.getDouble(row.getCell(dataSpec
-					.findColumnIndex(function.getTimeVariable())));
-			Double target = IO.getDouble(row.getCell(dataSpec
-					.findColumnIndex(function.getDependentVariable())));
+			String id = IO.getString(row.getCell(dataSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
+			Double time = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function
+					.getTimeVariable())));
+			Double target = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function
+					.getDependentVariable())));
 
-			if (id == null || !MathUtils.isValidDouble(time)
-					|| !MathUtils.isValidDouble(target)) {
+			if (id == null || !MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
 				continue;
 			}
 
@@ -449,13 +404,12 @@ public class FittingNodeModel extends NodeModel implements
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
 		for (DataRow row : conditionTable) {
-			String id = IO.getString(row.getCell(conditionSpec
-					.findColumnIndex(NlsUtils.ID_COLUMN)));
+			String id = IO
+					.getString(row.getCell(conditionSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getIndependentVariables()) {
-				values.put(var, IO.getDouble(row.getCell(conditionSpec
-						.findColumnIndex(var))));
+				values.put(var, IO.getDouble(row.getCell(conditionSpec.findColumnIndex(var))));
 			}
 
 			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
@@ -463,8 +417,7 @@ public class FittingNodeModel extends NodeModel implements
 			}
 
 			if (!argumentValues.containsKey(id)) {
-				argumentValues.put(id,
-						new LinkedHashMap<String, List<Double>>());
+				argumentValues.put(id, new LinkedHashMap<String, List<Double>>());
 
 				for (String indep : function.getIndependentVariables()) {
 					argumentValues.get(id).put(indep, new ArrayList<Double>());
@@ -481,10 +434,8 @@ public class FittingNodeModel extends NodeModel implements
 		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
-			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id)
-					.entrySet()) {
-				argumentArrays.put(entry.getKey(),
-						Doubles.toArray(entry.getValue()));
+			for (Map.Entry<String, List<Double>> entry : argumentValues.get(id).entrySet()) {
+				argumentArrays.put(entry.getKey(), Doubles.toArray(entry.getValue()));
 			}
 
 			int n = function.getTerms().size();
@@ -502,15 +453,11 @@ public class FittingNodeModel extends NodeModel implements
 				i++;
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(terms,
-					valueVariables, initValues, initParameters, function
-							.getParameters().toArray(new String[0]),
-					Doubles.toArray(timeValues.get(id)),
-					Doubles.toArray(targetValues.get(id)),
-					function.getDependentVariable(),
-					function.getTimeVariable(), argumentArrays,
-					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
-							set.getStepSize()));
+			ParameterOptimizer optimizer = new ParameterOptimizer(terms, valueVariables,
+					initValues, initParameters, function.getParameters().toArray(new String[0]),
+					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
+					function.getDependentVariable(), function.getTimeVariable(), argumentArrays,
+					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -520,14 +467,13 @@ public class FittingNodeModel extends NodeModel implements
 			optimizer.addProgressListener(this);
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(),
-						set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getStartValues(),
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getStartValues(),
 						new LinkedHashMap<String, Double>());
 			} else {
-				optimizer.optimize(set.getnParameterSpace(),
-						set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getMinStartValues(), set.getMaxStartValues());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getMinStartValues(),
+						set.getMaxStartValues());
 			}
 
 			results.put(id, optimizer);

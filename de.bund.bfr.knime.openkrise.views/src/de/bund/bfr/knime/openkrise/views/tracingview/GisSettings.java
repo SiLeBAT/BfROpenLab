@@ -61,8 +61,7 @@ public class GisSettings extends NodeSettings {
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
 			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y),
-					settings.getDouble(CFG_TRANSLATION_X),
+					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
 					settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}

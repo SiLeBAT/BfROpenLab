@@ -75,21 +75,18 @@ public class ViewUtils {
 		return tableColumns;
 	}
 
-	public static Map<String, String> getIdToRegionMap(
-			BufferedDataTable nodeTable, String nodeIdColumn,
-			String nodeRegionColumn) throws InvalidSettingsException {
+	public static Map<String, String> getIdToRegionMap(BufferedDataTable nodeTable,
+			String nodeIdColumn, String nodeRegionColumn) throws InvalidSettingsException {
 		Map<String, String> idToRegionMap = new LinkedHashMap<>();
 		int idIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int regionIndex = nodeTable.getSpec().findColumnIndex(nodeRegionColumn);
 
 		if (idIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + nodeIdColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + nodeIdColumn + "\" is missing");
 		}
 
 		if (regionIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + nodeRegionColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + nodeRegionColumn + "\" is missing");
 		}
 
 		for (DataRow row : nodeTable) {
@@ -104,22 +101,18 @@ public class ViewUtils {
 		return idToRegionMap;
 	}
 
-	public static Map<String, MultiPolygon> readPolygons(
-			BufferedDataTable shapeTable, String shapeColumn,
-			String shapeRegionColumn) throws InvalidSettingsException {
+	public static Map<String, MultiPolygon> readPolygons(BufferedDataTable shapeTable,
+			String shapeColumn, String shapeRegionColumn) throws InvalidSettingsException {
 		Map<String, MultiPolygon> polygonMap = new LinkedHashMap<>();
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumn);
-		int shapeRegionIndex = shapeTable.getSpec().findColumnIndex(
-				shapeRegionColumn);
+		int shapeRegionIndex = shapeTable.getSpec().findColumnIndex(shapeRegionColumn);
 
 		if (shapeIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + shapeColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + shapeColumn + "\" is missing");
 		}
 
 		if (shapeRegionIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + shapeRegionColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + shapeRegionColumn + "\" is missing");
 		}
 
 		for (DataRow row : shapeTable) {
@@ -134,18 +127,15 @@ public class ViewUtils {
 		return polygonMap;
 	}
 
-	public static Map<String, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			String nodeIdColumn, String nodeRegionColumn)
+	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable,
+			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String nodeRegionColumn)
 			throws InvalidSettingsException {
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
-		int nodeRegionIndex = nodeTable.getSpec().findColumnIndex(
-				nodeRegionColumn);
+		int nodeRegionIndex = nodeTable.getSpec().findColumnIndex(nodeRegionColumn);
 
 		if (nodeIdIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + nodeIdColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + nodeIdColumn + "\" is missing");
 		}
 
 		nodeProperties.put(nodeIdColumn, String.class);
@@ -154,8 +144,7 @@ public class ViewUtils {
 			nodeProperties.put(nodeRegionColumn, String.class);
 
 			if (nodeRegionIndex == -1) {
-				throw new InvalidSettingsException("Column \""
-						+ nodeRegionColumn + "\" is missing");
+				throw new InvalidSettingsException("Column \"" + nodeRegionColumn + "\" is missing");
 			}
 		}
 
@@ -168,8 +157,7 @@ public class ViewUtils {
 				region = IO.getToCleanString(row.getCell(nodeRegionIndex));
 			}
 
-			ViewUtils.addToProperties(properties, nodeProperties, nodeTable,
-					row);
+			ViewUtils.addToProperties(properties, nodeProperties, nodeTable, row);
 			properties.put(nodeIdColumn, id);
 			properties.put(nodeRegionColumn, region);
 			nodes.put(id, new GraphNode(id, properties, region));
@@ -178,24 +166,21 @@ public class ViewUtils {
 		return nodes;
 	}
 
-	public static List<RegionNode> readRegionNodes(
-			BufferedDataTable shapeTable, String shapeColumn)
+	public static List<RegionNode> readRegionNodes(BufferedDataTable shapeTable, String shapeColumn)
 			throws InvalidSettingsException {
 		List<RegionNode> nodes = new ArrayList<>();
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumn);
 		int index = 0;
 
 		if (shapeIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + shapeColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + shapeColumn + "\" is missing");
 		}
 
 		for (DataRow row : shapeTable) {
 			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
-				nodes.add(new RegionNode(index + "",
-						new LinkedHashMap<String, Object>(),
+				nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(),
 						(MultiPolygon) shape));
 				index++;
 			}
@@ -204,18 +189,16 @@ public class ViewUtils {
 		return nodes;
 	}
 
-	public static Map<String, RegionNode> readRegionNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			Map<String, MultiPolygon> polygonMap,
-			Map<String, String> idToRegionMap, String nodeIdColumn,
-			Set<String> nonExistingRegions) throws InvalidSettingsException {
+	public static Map<String, RegionNode> readRegionNodes(BufferedDataTable nodeTable,
+			Map<String, Class<?>> nodeProperties, Map<String, MultiPolygon> polygonMap,
+			Map<String, String> idToRegionMap, String nodeIdColumn, Set<String> nonExistingRegions)
+			throws InvalidSettingsException {
 		Map<String, RegionNode> nodes = new LinkedHashMap<>();
 		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 
 		if (nodeIdIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + nodeIdColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + nodeIdColumn + "\" is missing");
 		}
 
 		nodeProperties.put(nodeIdColumn, String.class);
@@ -265,10 +248,9 @@ public class ViewUtils {
 		return nodes;
 	}
 
-	public static Map<String, LocationNode> readLocationNodes(
-			BufferedDataTable nodeTable, Map<String, Class<?>> nodeProperties,
-			String nodeIdColumn, String latitudeColumn, String longitudeColumn)
-			throws InvalidSettingsException {
+	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
+			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String latitudeColumn,
+			String longitudeColumn) throws InvalidSettingsException {
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		int latIndex = nodeTable.getSpec().findColumnIndex(latitudeColumn);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(longitudeColumn);
@@ -276,21 +258,18 @@ public class ViewUtils {
 		int locationIndex = 0;
 
 		if (latIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + latitudeColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + latitudeColumn + "\" is missing");
 		}
 
 		if (lonIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + longitudeColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + longitudeColumn + "\" is missing");
 		}
 
 		if (nodeIdColumn != null) {
 			nodeProperties.put(nodeIdColumn, String.class);
 
 			if (nodeIdIndex == -1) {
-				throw new InvalidSettingsException("Column \"" + nodeIdColumn
-						+ "\" is missing");
+				throw new InvalidSettingsException("Column \"" + nodeIdColumn + "\" is missing");
 			}
 		}
 
@@ -313,33 +292,28 @@ public class ViewUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			ViewUtils.addToProperties(properties, nodeProperties, nodeTable,
-					row);
+			ViewUtils.addToProperties(properties, nodeProperties, nodeTable, row);
 			properties.put(nodeIdColumn, id);
-			nodes.put(id, new LocationNode(id, properties, new Point2D.Double(
-					lat, lon)));
+			nodes.put(id, new LocationNode(id, properties, new Point2D.Double(lat, lon)));
 		}
 
 		return nodes;
 	}
 
-	public static <V extends Node> List<Edge<V>> readEdges(
-			BufferedDataTable edgeTable, Map<String, Class<?>> edgeProperties,
-			Map<String, V> nodes, Map<String, String> idToRegionMap,
-			String edgeFromColumn, String edgeToColumn)
+	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable edgeTable,
+			Map<String, Class<?>> edgeProperties, Map<String, V> nodes,
+			Map<String, String> idToRegionMap, String edgeFromColumn, String edgeToColumn)
 			throws InvalidSettingsException {
 		List<Edge<V>> edges = new ArrayList<>();
 		int fromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
 		int toIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
 
 		if (fromIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + edgeFromColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + edgeFromColumn + "\" is missing");
 		}
 
 		if (toIndex == -1) {
-			throw new InvalidSettingsException("Column \"" + edgeToColumn
-					+ "\" is missing");
+			throw new InvalidSettingsException("Column \"" + edgeToColumn + "\" is missing");
 		}
 
 		edgeProperties.put(edgeFromColumn, String.class);
@@ -362,8 +336,7 @@ public class ViewUtils {
 			if (node1 != null && node2 != null) {
 				Map<String, Object> properties = new LinkedHashMap<>();
 
-				ViewUtils.addToProperties(properties, edgeProperties,
-						edgeTable, row);
+				ViewUtils.addToProperties(properties, edgeProperties, edgeTable, row);
 				properties.put(edgeFromColumn, from);
 				properties.put(edgeToColumn, to);
 				edges.add(new Edge<>(edgeIndex + "", properties, node1, node2));
@@ -388,19 +361,17 @@ public class ViewUtils {
 	}
 
 	private static void addToProperties(Map<String, Object> properties,
-			Map<String, Class<?>> propertyTypes, BufferedDataTable table,
-			DataRow row) {
+			Map<String, Class<?>> propertyTypes, BufferedDataTable table, DataRow row) {
 		for (Map.Entry<String, Class<?>> entry : propertyTypes.entrySet()) {
 			int column = table.getSpec().findColumnIndex(entry.getKey());
 			DataCell cell = row.getCell(column);
 
-			ViewUtils.addCellContentToMap(properties, entry.getKey(),
-					entry.getValue(), cell);
+			ViewUtils.addCellContentToMap(properties, entry.getKey(), entry.getValue(), cell);
 		}
 	}
 
-	private static void addCellContentToMap(Map<String, Object> map,
-			String property, Class<?> type, DataCell cell) {
+	private static void addCellContentToMap(Map<String, Object> map, String property,
+			Class<?> type, DataCell cell) {
 		Object obj = null;
 
 		if (type == String.class) {

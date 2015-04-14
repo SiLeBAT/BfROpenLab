@@ -48,8 +48,7 @@ public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 		for (int i = 0; i < nodes.size(); i++) {
 			double angle = (2 * Math.PI * i) / nodes.size();
 
-			transform(nodes.get(i)).setLocation(
-					Math.cos(angle) * radius + width / 2,
+			transform(nodes.get(i)).setLocation(Math.cos(angle) * radius + width / 2,
 					Math.sin(angle) * radius + height / 2);
 		}
 	}

@@ -82,15 +82,14 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		paramTable = (BufferedDataTable) input[1];
 		varTable = (BufferedDataTable) input[2];
 		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionReader(functionObject, paramTable, varTable,
-				covarianceTable, set.getVarX());
+		reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable,
+				set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setFromConfigPanel(configPanel);
 		set.setFromSelectionPanel(selectionPanel);
 		set.saveSettings(settings);
@@ -98,14 +97,12 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false);
-		configPanel.init(
-				reader.getDepVar(),
-				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables()
-						.values())), null, null, null);
-		selectionPanel = new ChartSelectionPanel(reader.getIds(),
-				reader.getStringColumns(), reader.getDoubleColumns());
-		chartCreator = new ChartCreator(reader.getPlotables(),
-				reader.getLegend());
+		configPanel.init(reader.getDepVar(),
+				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())), null,
+				null, null);
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(),
+				reader.getDoubleColumns());
+		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());
 
 		set.setToConfigPanel(configPanel);
@@ -140,8 +137,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionReader(functionObject, paramTable, varTable,
-					covarianceTable, set.getVarX());
+			reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable,
+					set.getVarX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

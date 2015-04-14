@@ -43,8 +43,7 @@ import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
-public class GraphVisualizerInputDialog extends JDialog implements
-		ActionListener {
+public class GraphVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -60,23 +59,19 @@ public class GraphVisualizerInputDialog extends JDialog implements
 
 	public GraphVisualizerInputDialog(JComponent owner, DataTableSpec nodeSpec,
 			DataTableSpec edgeSpec, GraphVisualizerSettings set) {
-		super(SwingUtilities.getWindowAncestor(owner), "Input",
-				DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec,
-				StringCell.TYPE, IntCell.TYPE));
-		nodeIdBox.setSelectedColumnName(set.getGraphSettings()
-				.getNodeIdColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
-				StringCell.TYPE, IntCell.TYPE));
-		edgeFromBox.setSelectedColumnName(set.getGraphSettings()
-				.getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec,
-				StringCell.TYPE, IntCell.TYPE));
-		edgeToBox.setSelectedColumnName(set.getGraphSettings()
-				.getEdgeToColumn());
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		nodeIdBox.setSelectedColumnName(set.getGraphSettings().getNodeIdColumn());
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		edgeFromBox.setSelectedColumnName(set.getGraphSettings().getEdgeFromColumn());
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
+				IntCell.TYPE));
+		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -88,14 +83,12 @@ public class GraphVisualizerInputDialog extends JDialog implements
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(UI.createOptionsPanel("Node Table",
-				Arrays.asList(new JLabel("Node ID column:")),
-				Arrays.asList(nodeIdBox)));
-		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(
-				new JLabel("Source Node ID Column:"), new JLabel(
-						"Target Node ID Column:")), Arrays.asList(edgeFromBox,
-				edgeToBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
-				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
+				Arrays.asList(new JLabel("Node ID column:")), Arrays.asList(nodeIdBox)));
+		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(new JLabel(
+				"Source Node ID Column:"), new JLabel("Target Node ID Column:")), Arrays.asList(
+				edgeFromBox, edgeToBox)));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
+				Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
@@ -116,23 +109,19 @@ public class GraphVisualizerInputDialog extends JDialog implements
 			DataColumnSpec edgeFromColumn = edgeFromBox.getSelectedColumn();
 			DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
 
-			if (nodeIdColumn == null || edgeFromColumn == null
-					|| edgeToColumn == null) {
+			if (nodeIdColumn == null || edgeFromColumn == null || edgeToColumn == null) {
 				String error = "All \"Node ID\" columns must be selected";
 
-				JOptionPane.showMessageDialog(this, error, "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
 				String error = "All \"Node ID\" columns must have the same type";
 
-				JOptionPane.showMessageDialog(this, error, "Type Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
 				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
-				set.getGraphSettings().setEdgeFromColumn(
-						edgeFromColumn.getName());
+				set.getGraphSettings().setEdgeFromColumn(edgeFromColumn.getName());
 				set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
 				dispose();

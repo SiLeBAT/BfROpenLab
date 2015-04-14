@@ -94,27 +94,22 @@ public class CanvasUtils {
 
 	private static final int TEXTURE_SIZE = 3;
 	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85),
-			new Color(85, 85, 255), new Color(85, 255, 85),
-			new Color(255, 85, 255), new Color(85, 255, 255),
-			new Color(255, 175, 175), new Color(128, 128, 128),
+			new Color(85, 85, 255), new Color(85, 255, 85), new Color(255, 85, 255),
+			new Color(85, 255, 255), new Color(255, 175, 175), new Color(128, 128, 128),
 			new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
-			new Color(192, 192, 0), new Color(192, 0, 192),
-			new Color(0, 192, 192), new Color(64, 64, 64),
-			new Color(255, 64, 64), new Color(64, 64, 255),
-			new Color(64, 255, 64), new Color(255, 64, 255),
-			new Color(64, 255, 255), new Color(192, 192, 192),
-			new Color(128, 0, 0), new Color(0, 0, 128), new Color(0, 128, 0),
-			new Color(128, 128, 0), new Color(128, 0, 128),
-			new Color(0, 128, 128), new Color(255, 128, 128),
-			new Color(128, 128, 255), new Color(128, 255, 128),
-			new Color(255, 128, 255), new Color(128, 255, 255) };
+			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192),
+			new Color(64, 64, 64), new Color(255, 64, 64), new Color(64, 64, 255),
+			new Color(64, 255, 64), new Color(255, 64, 255), new Color(64, 255, 255),
+			new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
+			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128),
+			new Color(0, 128, 128), new Color(255, 128, 128), new Color(128, 128, 255),
+			new Color(128, 255, 128), new Color(255, 128, 255), new Color(128, 255, 255) };
 
 	private CanvasUtils() {
 	}
 
 	public static Polygon placeLocationNodes(Collection<LocationNode> nodes,
-			Collection<Edge<LocationNode>> edges,
-			Layout<LocationNode, Edge<LocationNode>> layout) {
+			Collection<Edge<LocationNode>> edges, Layout<LocationNode, Edge<LocationNode>> layout) {
 		Polygon invalidArea = null;
 
 		Set<LocationNode> validNodes = new LinkedHashSet<>();
@@ -163,17 +158,15 @@ public class CanvasUtils {
 				d = 1.0;
 			}
 
-			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(
-					bounds.getX() - d, bounds.getY() - d, bounds.getWidth() + 2
-							* d, bounds.getHeight() + 2 * d), 2 * d);
+			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d,
+					bounds.getY() - d, bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d),
+					2 * d);
 
-			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - 2 * d,
-					bounds.getY() - 2 * d, bounds.getWidth() + 4 * d,
-					bounds.getHeight() + 4 * d);
+			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - 2 * d, bounds.getY() - 2 * d,
+					bounds.getWidth() + 4 * d, bounds.getHeight() + 4 * d);
 			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
 
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
-					.hasNext();) {
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
 				LocationNode node = iterator.next();
 				Set<LocationNode> validConnections = invalidToValid.get(node);
 
@@ -184,8 +177,8 @@ public class CanvasUtils {
 						points.add(n.getCenter());
 					}
 
-					Point2D p = CanvasUtils.getClosestPointOnRect(
-							CanvasUtils.getCenter(points), rect);
+					Point2D p = CanvasUtils.getClosestPointOnRect(CanvasUtils.getCenter(points),
+							rect);
 
 					node.updateCenter(p);
 					layout.setLocation(node, p);
@@ -196,11 +189,9 @@ public class CanvasUtils {
 			while (true) {
 				boolean nothingChanged = true;
 
-				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
-						.hasNext();) {
+				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
 					LocationNode node = iterator.next();
-					Set<LocationNode> inValidConnections = invalidToInvalid
-							.get(node);
+					Set<LocationNode> inValidConnections = invalidToInvalid.get(node);
 					List<Point2D> points = new ArrayList<>();
 
 					for (LocationNode n : inValidConnections) {
@@ -225,11 +216,9 @@ public class CanvasUtils {
 				}
 			}
 
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator
-					.hasNext();) {
+			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
 				LocationNode node = iterator.next();
-				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d,
-						bounds.getMaxY() - 2 * d);
+				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d, bounds.getMaxY() - 2 * d);
 
 				node.updateCenter(p);
 				layout.setLocation(node, p);
@@ -240,16 +229,12 @@ public class CanvasUtils {
 		return invalidArea;
 	}
 
-	public static void paintNonLatLonArea(Graphics g, int w, int h,
-			java.awt.Polygon invalidArea) {
-		BufferedImage invalidAreaImage = new BufferedImage(w, h,
-				BufferedImage.TYPE_INT_ARGB);
+	public static void paintNonLatLonArea(Graphics g, int w, int h, java.awt.Polygon invalidArea) {
+		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics imgGraphics = invalidAreaImage.getGraphics();
 
-		((Graphics2D) imgGraphics)
-				.setPaint(CanvasUtils.mixColors(Color.WHITE,
-						Arrays.asList(Color.RED, Color.WHITE),
-						Arrays.asList(1.0, 1.0)));
+		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE,
+				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0)));
 		imgGraphics.fillPolygon(invalidArea);
 		imgGraphics.setColor(Color.BLACK);
 		imgGraphics.drawPolygon(invalidArea);
@@ -257,19 +242,17 @@ public class CanvasUtils {
 		float[] edgeScales = { 1f, 1f, 1f, 0.3f };
 		float[] edgeOffsets = new float[4];
 
-		((Graphics2D) g).drawImage(invalidAreaImage, new RescaleOp(edgeScales,
-				edgeOffsets, null), 0, 0);
+		((Graphics2D) g).drawImage(invalidAreaImage, new RescaleOp(edgeScales, edgeOffsets, null),
+				0, 0);
 	}
 
-	public static LocationNode createLocationMetaNode(String id,
-			Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
-			String metaNodeProperty,
+	public static LocationNode createLocationMetaNode(String id, Collection<LocationNode> nodes,
+			NodePropertySchema nodeSchema, String metaNodeProperty,
 			Layout<LocationNode, Edge<LocationNode>> layout) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema,
-					node.getProperties());
+			CanvasUtils.addMapToMap(properties, nodeSchema, node.getProperties());
 		}
 
 		properties.put(nodeSchema.getId(), id);
@@ -287,8 +270,7 @@ public class CanvasUtils {
 
 		double x = DoubleMath.mean(Doubles.toArray(xList));
 		double y = DoubleMath.mean(Doubles.toArray(yList));
-		LocationNode newNode = new LocationNode(id, properties,
-				new Point2D.Double(x, y));
+		LocationNode newNode = new LocationNode(id, properties, new Point2D.Double(x, y));
 
 		layout.setLocation(newNode, newNode.getCenter());
 
@@ -316,12 +298,11 @@ public class CanvasUtils {
 
 		for (Object category : categoryList) {
 			Color color = COLORS[index % COLORS.length];
-			LogicalHighlightCondition condition = new LogicalHighlightCondition(
-					property, LogicalHighlightCondition.EQUAL_TYPE,
-					category.toString());
+			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
+					LogicalHighlightCondition.EQUAL_TYPE, category.toString());
 
-			conditions.add(new AndOrHighlightCondition(condition, property
-					+ " = " + category, true, color, false, false, null));
+			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category,
+					true, color, false, false, null));
 			index++;
 		}
 
@@ -361,8 +342,7 @@ public class CanvasUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes,
-			Collection<Edge<V>> edges, Collection<V> newNodes,
-			Collection<Edge<V>> newEdges) {
+			Collection<Edge<V>> edges, Collection<V> newNodes, Collection<Edge<V>> newEdges) {
 		Map<String, V> nodesById = new LinkedHashMap<>();
 
 		for (V node : nodes) {
@@ -373,36 +353,32 @@ public class CanvasUtils {
 		}
 
 		for (Edge<V> edge : edges) {
-			newEdges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge
-					.getProperties()), nodesById.get(edge.getFrom().getId()),
-					nodesById.get(edge.getTo().getId())));
+			newEdges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge.getProperties()),
+					nodesById.get(edge.getFrom().getId()), nodesById.get(edge.getTo().getId())));
 		}
 	}
 
-	public static String openNewIdDialog(Component parent, Set<String> usedIds,
-			String nodeName) {
+	public static String openNewIdDialog(Component parent, Set<String> usedIds, String nodeName) {
 		String newId = null;
 
 		while (true) {
-			newId = (String) JOptionPane.showInputDialog(parent,
-					"Specify ID for Meta " + nodeName, nodeName + " ID",
-					JOptionPane.QUESTION_MESSAGE, null, null, "");
+			newId = (String) JOptionPane.showInputDialog(parent, "Specify ID for Meta " + nodeName,
+					nodeName + " ID", JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 			if (newId == null || !usedIds.contains(newId)) {
 				break;
 			}
 
-			JOptionPane.showMessageDialog(parent,
-					"ID already exists, please specify different ID", "Error",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(parent, "ID already exists, please specify different ID",
+					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 		return newId;
 	}
 
 	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(
-			Component parent, Collection<String> nodeProperties,
-			Collection<String> uncollapsedIds, Map<String, V> nodes) {
+			Component parent, Collection<String> nodeProperties, Collection<String> uncollapsedIds,
+			Map<String, V> nodes) {
 		String[] properties = nodeProperties.toArray(new String[0]);
 		String result = (String) JOptionPane.showInputDialog(parent,
 				"Select Property for Collapse?", "Collapse by Property",
@@ -433,8 +409,7 @@ public class CanvasUtils {
 
 		sortObjectList(propertyList);
 
-		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent,
-				propertyList);
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent, propertyList);
 
 		dialog.setVisible(true);
 
@@ -474,8 +449,7 @@ public class CanvasUtils {
 		return new Point2D.Double(x, y);
 	}
 
-	public static Point2D getClosestPointOnRect(Point2D pointInRect,
-			Rectangle2D rect) {
+	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
 		Double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
 		Double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
 		Double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
@@ -501,9 +475,8 @@ public class CanvasUtils {
 		return format.format(p.getX()) + " -> " + format.format(p.getY());
 	}
 
-	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(
-			Collection<Edge<V>> edges, EdgePropertySchema properties,
-			Set<String> usedIds) {
+	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
+			EdgePropertySchema properties, Set<String> usedIds) {
 		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
@@ -527,14 +500,12 @@ public class CanvasUtils {
 		for (Map.Entry<V, Map<V, Set<Edge<V>>>> entry1 : edgeMap.entrySet()) {
 			V from = entry1.getKey();
 
-			for (Map.Entry<V, Set<Edge<V>>> entry2 : entry1.getValue()
-					.entrySet()) {
+			for (Map.Entry<V, Set<Edge<V>>> entry2 : entry1.getValue().entrySet()) {
 				V to = entry2.getKey();
 				Map<String, Object> prop = new LinkedHashMap<>();
 
 				for (Edge<V> edge : entry2.getValue()) {
-					CanvasUtils.addMapToMap(prop, properties,
-							edge.getProperties());
+					CanvasUtils.addMapToMap(prop, properties, edge.getProperties());
 				}
 
 				while (!usedIds.add(index + "")) {
@@ -544,30 +515,27 @@ public class CanvasUtils {
 				prop.put(properties.getId(), index + "");
 				prop.put(properties.getFrom(), from.getId());
 				prop.put(properties.getTo(), to.getId());
-				joined.put(new Edge<>(index + "", prop, from, to),
-						entry2.getValue());
+				joined.put(new Edge<>(index + "", prop, from, to), entry2.getValue());
 			}
 		}
 
 		return joined;
 	}
 
-	public static void addMapToMap(Map<String, Object> map,
-			PropertySchema schema, Map<String, Object> addMap) {
+	public static void addMapToMap(Map<String, Object> map, PropertySchema schema,
+			Map<String, Object> addMap) {
 		for (String property : schema.getMap().keySet()) {
-			addObjectToMap(map, property, schema.getMap().get(property),
-					addMap.get(property));
+			addObjectToMap(map, property, schema.getMap().get(property), addMap.get(property));
 		}
 	}
 
-	public static void addObjectToMap(Map<String, Object> map, String property,
-			Class<?> type, Object obj) {
+	public static void addObjectToMap(Map<String, Object> map, String property, Class<?> type,
+			Object obj) {
 		if (type == String.class) {
 			String value = (String) obj;
 
 			if (map.containsKey(property)) {
-				if (map.get(property) == null
-						|| !map.get(property).equals(value)) {
+				if (map.get(property) == null || !map.get(property).equals(value)) {
 					map.put(property, null);
 				}
 			} else {
@@ -597,8 +565,7 @@ public class CanvasUtils {
 			Boolean value = (Boolean) obj;
 
 			if (map.containsKey(property)) {
-				if (map.get(property) == null
-						|| !map.get(property).equals(value)) {
+				if (map.get(property) == null || !map.get(property).equals(value)) {
 					map.put(property, null);
 				}
 			} else {
@@ -607,13 +574,12 @@ public class CanvasUtils {
 		}
 	}
 
-	public static <T extends Element> Set<T> getHighlightedElements(
-			Collection<T> elements, List<HighlightCondition> highlightConditions) {
+	public static <T extends Element> Set<T> getHighlightedElements(Collection<T> elements,
+			List<HighlightCondition> highlightConditions) {
 		Set<T> highlightedElements = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions) {
-			for (Map.Entry<T, Double> entry : condition.getValues(elements)
-					.entrySet()) {
+			for (Map.Entry<T, Double> entry : condition.getValues(elements).entrySet()) {
 				if (entry.getValue() > 0.0) {
 					highlightedElements.add(entry.getKey());
 				}
@@ -623,8 +589,7 @@ public class CanvasUtils {
 		return highlightedElements;
 	}
 
-	public static Set<String> getElementIds(
-			Collection<? extends Element> elements) {
+	public static Set<String> getElementIds(Collection<? extends Element> elements) {
 		Set<String> ids = new LinkedHashSet<>();
 
 		for (Element element : elements) {
@@ -634,8 +599,8 @@ public class CanvasUtils {
 		return ids;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(
-			Collection<T> elements, Collection<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Collection<T> elements,
+			Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
@@ -647,8 +612,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Map<String, T> getElementsById(
-			Collection<T> elements) {
+	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
 		Map<String, T> result = new LinkedHashMap<>();
 
 		for (T element : elements) {
@@ -658,8 +622,8 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(
-			Map<String, T> elements, Collection<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Map<String, T> elements,
+			Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {
@@ -671,8 +635,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static Map<String, Set<String>> getPossibleValues(
-			Collection<? extends Element> elements) {
+	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
 		Map<String, Set<String>> values = new LinkedHashMap<>();
 
 		for (Element e : elements) {
@@ -697,8 +660,7 @@ public class CanvasUtils {
 		return values;
 	}
 
-	public static Double getMeanValue(Collection<? extends Element> elements,
-			String property) {
+	public static Double getMeanValue(Collection<? extends Element> elements, String property) {
 		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
@@ -719,15 +681,12 @@ public class CanvasUtils {
 	public static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions,
-				nodeSize, false);
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, false);
 	}
 
-	public static <V extends Node> void applyNodeLabels(
-			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0,
-				true);
+	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext,
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions) {
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, true);
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
@@ -744,8 +703,7 @@ public class CanvasUtils {
 			thicknessValues.put(edge, 0.0);
 		}
 
-		for (HighlightCondition condition : edgeHighlightConditions
-				.getConditions()) {
+		for (HighlightCondition condition : edgeHighlightConditions.getConditions()) {
 			if (condition.isInvisible()) {
 				continue;
 			}
@@ -758,8 +716,7 @@ public class CanvasUtils {
 				for (Edge<V> edge : edges) {
 					List<Double> alphas = alphaValues.get(edge);
 
-					if (!prioritize || alphas.isEmpty()
-							|| Collections.max(alphas) == 0.0) {
+					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
 						alphas.add(values.get(edge));
 					} else {
 						alphas.add(0.0);
@@ -769,8 +726,7 @@ public class CanvasUtils {
 
 			if (condition.isUseThickness()) {
 				for (Edge<V> edge : edges) {
-					thicknessValues.put(edge, thicknessValues.get(edge)
-							+ values.get(edge));
+					thicknessValues.put(edge, thicknessValues.get(edge) + values.get(edge));
 				}
 			}
 
@@ -778,14 +734,12 @@ public class CanvasUtils {
 				String property = condition.getLabelProperty();
 
 				for (Edge<V> edge : edges) {
-					if (values.get(edge) != 0.0
-							&& edge.getProperties().get(property) != null) {
+					if (values.get(edge) != 0.0 && edge.getProperties().get(property) != null) {
 						if (!labelLists.containsKey(edge)) {
 							labelLists.put(edge, new LinkedHashSet<String>());
 						}
 
-						labelLists.get(edge).add(
-								edge.getProperties().get(property).toString());
+						labelLists.get(edge).add(edge.getProperties().get(property).toString());
 					}
 				}
 			}
@@ -797,17 +751,14 @@ public class CanvasUtils {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
-		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(
-				renderContext, alphaValues, colors));
-		renderContext.setEdgeStrokeTransformer(new EdgeStrokeTransformer<>(
-				thicknessValues));
-		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(
-				thicknessValues));
+		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext,
+				alphaValues, colors));
+		renderContext.setEdgeStrokeTransformer(new EdgeStrokeTransformer<>(thicknessValues));
+		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(thicknessValues));
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
 	}
 
-	public static Paint mixColors(Color backgroundColor, List<Color> colors,
-			List<Double> alphas) {
+	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas) {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
@@ -817,12 +768,9 @@ public class CanvasUtils {
 			double alpha = alphas.get(i);
 
 			if (alpha > 0.0) {
-				double r = colors.get(i).getRed() / 255.0 * alpha + rb
-						* (1 - alpha);
-				double g = colors.get(i).getGreen() / 255.0 * alpha + gb
-						* (1 - alpha);
-				double b = colors.get(i).getBlue() / 255.0 * alpha + bb
-						* (1 - alpha);
+				double r = colors.get(i).getRed() / 255.0 * alpha + rb * (1 - alpha);
+				double g = colors.get(i).getGreen() / 255.0 * alpha + gb * (1 - alpha);
+				double b = colors.get(i).getBlue() / 255.0 * alpha + bb * (1 - alpha);
 
 				cs.add(new Color((float) r, (float) g, (float) b));
 			}
@@ -841,21 +789,18 @@ public class CanvasUtils {
 			img.setRGB(i, 0, cs.get(i / TEXTURE_SIZE).getRGB());
 		}
 
-		return new TexturePaint(img, new Rectangle(img.getWidth(),
-				img.getHeight()));
+		return new TexturePaint(img, new Rectangle(img.getWidth(), img.getHeight()));
 	}
 
-	public static void drawImageWithAlpha(Graphics g, BufferedImage img,
-			int alpha) {
+	public static void drawImageWithAlpha(Graphics g, BufferedImage img, int alpha) {
 		float[] edgeScales = { 1f, 1f, 1f, alpha / 255.0f };
 		float[] edgeOffsets = new float[4];
 
-		((Graphics2D) g).drawImage(img, new RescaleOp(edgeScales, edgeOffsets,
-				null), 0, 0);
+		((Graphics2D) g).drawImage(img, new RescaleOp(edgeScales, edgeOffsets, null), 0, 0);
 	}
 
-	public static <T extends Element> Set<T> removeInvisibleElements(
-			Set<T> elements, HighlightConditionList highlightConditions) {
+	public static <T extends Element> Set<T> removeInvisibleElements(Set<T> elements,
+			HighlightConditionList highlightConditions) {
 		Set<T> removed = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions.getConditions()) {
@@ -878,15 +823,13 @@ public class CanvasUtils {
 		return removed;
 	}
 
-	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(
-			Set<Edge<V>> edges, Set<V> nodes) {
+	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(Set<Edge<V>> edges, Set<V> nodes) {
 		Set<Edge<V>> removed = new LinkedHashSet<>();
 
 		for (Iterator<Edge<V>> iterator = edges.iterator(); iterator.hasNext();) {
 			Edge<V> edge = iterator.next();
 
-			if (!nodes.contains(edge.getFrom())
-					|| !nodes.contains(edge.getTo())) {
+			if (!nodes.contains(edge.getFrom()) || !nodes.contains(edge.getTo())) {
 				removed.add(edge);
 				iterator.remove();
 			}
@@ -895,8 +838,7 @@ public class CanvasUtils {
 		return removed;
 	}
 
-	public static <V extends Node> Set<V> removeEdgelessNodes(Set<V> nodes,
-			Set<Edge<V>> edges) {
+	public static <V extends Node> Set<V> removeEdgelessNodes(Set<V> nodes, Set<Edge<V>> edges) {
 		Set<V> nodesWithEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : edges) {
@@ -918,8 +860,8 @@ public class CanvasUtils {
 		return removed;
 	}
 
-	public static <V extends Node> Graph<V, Edge<V>> createGraph(
-			Collection<V> nodes, Collection<Edge<V>> edges) {
+	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes,
+			Collection<Edge<V>> edges) {
 		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
 		for (V node : nodes) {
@@ -945,14 +887,12 @@ public class CanvasUtils {
 		width = Math.max(width, 1);
 		height = Math.max(height, 1);
 
-		BufferedImage img = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_RGB);
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		int x = 0;
 
 		for (ICanvas<?> c : canvas) {
-			VisualizationImageServer<?, ?> server = c
-					.getVisualizationServer(false);
+			VisualizationImageServer<?, ?> server = c.getVisualizationServer(false);
 
 			g.translate(x, 0);
 			server.paint(g);
@@ -982,8 +922,7 @@ public class CanvasUtils {
 		g.setSVGCanvasSize(new Dimension(width, height));
 
 		for (ICanvas<?> c : canvas) {
-			VisualizationImageServer<?, ?> server = c
-					.getVisualizationServer(true);
+			VisualizationImageServer<?, ?> server = c.getVisualizationServer(true);
 
 			g.translate(x, 0);
 			server.paint(g);
@@ -996,11 +935,10 @@ public class CanvasUtils {
 		return (SVGDocument) document;
 	}
 
-	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas)
-			throws IOException {
+	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
 		if (asSvg) {
-			return new ImagePortObject(new SvgImageContent(
-					CanvasUtils.getSvgDocument(canvas), true),
+			return new ImagePortObject(
+					new SvgImageContent(CanvasUtils.getSvgDocument(canvas), true),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			BufferedImage img = CanvasUtils.getBufferedImage(canvas);
@@ -1037,8 +975,7 @@ public class CanvasUtils {
 
 	private static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize,
-			boolean labelsOnly) {
+			HighlightConditionList nodeHighlightConditions, int nodeSize, boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
@@ -1052,8 +989,7 @@ public class CanvasUtils {
 			}
 		}
 
-		for (HighlightCondition condition : nodeHighlightConditions
-				.getConditions()) {
+		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
 			if (condition.isInvisible()) {
 				continue;
 			}
@@ -1062,8 +998,7 @@ public class CanvasUtils {
 
 			if (!labelsOnly && condition.isUseThickness()) {
 				for (V node : nodes) {
-					thicknessValues.put(node, thicknessValues.get(node)
-							+ values.get(node));
+					thicknessValues.put(node, thicknessValues.get(node) + values.get(node));
 				}
 			}
 
@@ -1073,8 +1008,7 @@ public class CanvasUtils {
 				for (V node : nodes) {
 					List<Double> alphas = alphaValues.get(node);
 
-					if (!prioritize || alphas.isEmpty()
-							|| Collections.max(alphas) == 0.0) {
+					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
 						alphas.add(values.get(node));
 					} else {
 						alphas.add(0.0);
@@ -1086,14 +1020,12 @@ public class CanvasUtils {
 				String property = condition.getLabelProperty();
 
 				for (V node : nodes) {
-					if (values.get(node) != 0.0
-							&& node.getProperties().get(property) != null) {
+					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
 						if (!labelLists.containsKey(node)) {
 							labelLists.put(node, new LinkedHashSet<String>());
 						}
 
-						labelLists.get(node).add(
-								node.getProperties().get(property).toString());
+						labelLists.get(node).add(node.getProperties().get(property).toString());
 					}
 				}
 			}
@@ -1106,11 +1038,10 @@ public class CanvasUtils {
 		}
 
 		if (!labelsOnly) {
-			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(
-					nodeSize, thicknessValues));
-			renderContext
-					.setVertexFillPaintTransformer(new NodeFillTransformer<>(
-							renderContext, alphaValues, colors));
+			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize,
+					thicknessValues));
+			renderContext.setVertexFillPaintTransformer(new NodeFillTransformer<>(renderContext,
+					alphaValues, colors));
 		}
 
 		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));

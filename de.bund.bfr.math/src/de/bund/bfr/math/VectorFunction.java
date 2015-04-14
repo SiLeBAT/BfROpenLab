@@ -38,13 +38,12 @@ public class VectorFunction implements MultivariateVectorFunction {
 	private Map<String, double[]> variableValues;
 	private int dimension;
 
-	public VectorFunction(String formula, String[] parameters,
-			Map<String, double[]> variableValues) throws ParseException {
+	public VectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues)
+			throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = MathUtils.createParser(Sets.union(
-				new LinkedHashSet<>(Arrays.asList(parameters)),
+		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)),
 				variableValues.keySet()));
 		function = parser.parse(formula);
 
@@ -64,8 +63,7 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 		try {
 			for (int i = 0; i < dimension; i++) {
-				for (Map.Entry<String, double[]> entry : variableValues
-						.entrySet()) {
+				for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
 					parser.setVarValue(entry.getKey(), entry.getValue()[i]);
 				}
 

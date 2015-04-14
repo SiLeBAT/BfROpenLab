@@ -31,8 +31,7 @@ import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
-public class ValueHighlightCondition implements HighlightCondition,
-		Serializable {
+public class ValueHighlightCondition implements HighlightCondition, Serializable {
 
 	public static final String VALUE_TYPE = "Value";
 	public static final String LOG_VALUE_TYPE = "Log Value";
@@ -55,14 +54,13 @@ public class ValueHighlightCondition implements HighlightCondition,
 	}
 
 	public ValueHighlightCondition(ValueHighlightCondition c) {
-		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend,
-				c.color, c.invisible, c.useThickness, c.labelProperty);
+		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend, c.color, c.invisible,
+				c.useThickness, c.labelProperty);
 	}
 
-	public ValueHighlightCondition(String property, String type,
-			boolean zeroAsMinimum, String name, boolean showInLegend,
-			Color color, boolean invisible, boolean useThickness,
-			String labelProperty) {
+	public ValueHighlightCondition(String property, String type, boolean zeroAsMinimum,
+			String name, boolean showInLegend, Color color, boolean invisible,
+			boolean useThickness, String labelProperty) {
 		setProperty(property);
 		setType(type);
 		setZeroAsMinimum(zeroAsMinimum);
@@ -162,8 +160,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 			if (value instanceof Number) {
 				double doubleValue = ((Number) value).doubleValue();
 
-				if (!Double.isNaN(doubleValue)
-						&& !Double.isInfinite(doubleValue)
+				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue)
 						&& doubleValue >= 0.0) {
 					values.put(element, doubleValue);
 				} else {
@@ -221,8 +218,7 @@ public class ValueHighlightCondition implements HighlightCondition,
 			if (value instanceof Number) {
 				double doubleValue = ((Number) value).doubleValue();
 
-				if (!Double.isNaN(doubleValue)
-						&& !Double.isInfinite(doubleValue)
+				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue)
 						&& doubleValue >= 0.0) {
 					values.add(doubleValue);
 				} else {

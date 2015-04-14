@@ -31,14 +31,11 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	private boolean pickingDeactivated;
 
-	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin,
-			double zoomingFactor) {
+	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin, double zoomingFactor) {
 		super((float) (1 / zoomingFactor), (float) zoomingFactor);
 
-		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(),
-				0, in, out);
-		translatingPlugin = new TranslatingGraphMousePlugin(
-				InputEvent.BUTTON1_MASK);
+		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0, in, out);
+		translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
 		this.pickingPlugin = pickingPlugin;
 		pickingDeactivated = false;
 		add(scalingPlugin);
@@ -68,8 +65,7 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	public void setPickingDeactivated(boolean pickingDeactivated) {
-		if (pickingDeactivated != this.pickingDeactivated
-				&& mode == Mode.PICKING) {
+		if (pickingDeactivated != this.pickingDeactivated && mode == Mode.PICKING) {
 			if (pickingDeactivated) {
 				remove(pickingPlugin);
 			} else {

@@ -59,12 +59,11 @@ public class ChartUtils {
 	private ChartUtils() {
 	}
 
-	public static void saveChartAs(JFreeChart chart, String fileName,
-			int width, int height) {
+	public static void saveChartAs(JFreeChart chart, String fileName, int width, int height) {
 		if (fileName.toLowerCase().endsWith(".png")) {
 			try {
-				org.jfree.chart.ChartUtilities.writeChartAsPNG(
-						new FileOutputStream(fileName), chart, width, height);
+				org.jfree.chart.ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName),
+						chart, width, height);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -73,12 +72,11 @@ public class ChartUtils {
 				SVGDOMImplementation domImpl = new SVGDOMImplementation();
 				Document document = domImpl.createDocument(null, "svg", null);
 				SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-				Writer outsvg = new OutputStreamWriter(new FileOutputStream(
-						fileName), StandardCharsets.UTF_8);
+				Writer outsvg = new OutputStreamWriter(new FileOutputStream(fileName),
+						StandardCharsets.UTF_8);
 
 				svgGenerator.setSVGCanvasSize(new Dimension(width, height));
-				chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width,
-						height));
+				chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));
 				svgGenerator.stream(outsvg, true);
 				outsvg.close();
 			} catch (UnsupportedEncodingException e) {
@@ -93,20 +91,17 @@ public class ChartUtils {
 		}
 	}
 
-	public static PNGImageContent convertToPNGImageContent(JFreeChart chart,
-			int width, int height) {
+	public static PNGImageContent convertToPNGImageContent(JFreeChart chart, int width, int height) {
 		try {
 			BufferedImage img;
 
 			if (chart != null) {
 				img = chart.createBufferedImage(width, height);
 			} else {
-				img = new BufferedImage(width, height,
-						BufferedImage.TYPE_INT_RGB);
+				img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 			}
 
-			return new PNGImageContent(
-					org.jfree.chart.ChartUtilities.encodeAsPNG(img));
+			return new PNGImageContent(org.jfree.chart.ChartUtilities.encodeAsPNG(img));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -114,8 +109,7 @@ public class ChartUtils {
 		return null;
 	}
 
-	public static SvgImageContent convertToSVGImageContent(JFreeChart chart,
-			int width, int height) {
+	public static SvgImageContent convertToSVGImageContent(JFreeChart chart, int width, int height) {
 		SVGDOMImplementation domImpl = new SVGDOMImplementation();
 		Document document = domImpl.createDocument(null, "svg", null);
 		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
@@ -123,13 +117,11 @@ public class ChartUtils {
 		svgGenerator.setSVGCanvasSize(new Dimension(width, height));
 
 		if (chart != null) {
-			chart.draw(svgGenerator,
-					new Rectangle2D.Double(0, 0, width, height));
+			chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));
 		}
 
 		svgGenerator.dispose();
-		document.replaceChild(svgGenerator.getRoot(),
-				document.getDocumentElement());
+		document.replaceChild(svgGenerator.getRoot(), document.getDocumentElement());
 
 		return new SvgImageContent((SVGDocument) document, true);
 	}
@@ -144,17 +136,15 @@ public class ChartUtils {
 
 	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg) {
 		if (asSvg) {
-			return new ImagePortObject(ChartUtils.convertToSVGImageContent(
-					chart, 640, 480), new ImagePortObjectSpec(SvgCell.TYPE));
+			return new ImagePortObject(ChartUtils.convertToSVGImageContent(chart, 640, 480),
+					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
-			return new ImagePortObject(ChartUtils.convertToPNGImageContent(
-					chart, 640, 480), new ImagePortObjectSpec(
-					PNGImageContent.TYPE));
+			return new ImagePortObject(ChartUtils.convertToPNGImageContent(chart, 640, 480),
+					new ImagePortObjectSpec(PNGImageContent.TYPE));
 		}
 	}
 
-	public static void addDataSetToPlot(XYPlot plot, XYDataset dataSet,
-			XYItemRenderer renderer) {
+	public static void addDataSetToPlot(XYPlot plot, XYDataset dataSet, XYItemRenderer renderer) {
 		int i;
 
 		if (plot.getDataset(0) == null) {

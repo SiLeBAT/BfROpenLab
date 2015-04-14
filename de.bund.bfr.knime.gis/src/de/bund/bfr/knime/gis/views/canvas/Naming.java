@@ -21,8 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 public class Naming {
 
-	public static final Naming DEFAULT_NAMING = new Naming("Node", "Nodes",
-			"Edge", "Edges");
+	public static final Naming DEFAULT_NAMING = new Naming("Node", "Nodes", "Edge", "Edges");
 
 	private String node;
 	private String nodes;

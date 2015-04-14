@@ -35,8 +35,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
-public class ZoomingPaintable implements Paintable, MouseMotionListener,
-		MouseListener {
+public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseListener {
 
 	private ICanvas<?> canvas;
 	private double zoomFactor;
@@ -86,12 +85,9 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 		Stroke currentStroke = ((Graphics2D) g).getStroke();
 
 		((Graphics2D) g).setStroke(new BasicStroke(lineWidth));
-		g.drawLine(xPlus + lineD, yPlus + size / 2, xPlus + size - lineD, yPlus
-				+ size / 2);
-		g.drawLine(xPlus + size / 2, yPlus + lineD, xPlus + size / 2, yPlus
-				+ size - lineD);
-		g.drawLine(xMinus + lineD, yMinus + size / 2, xMinus + size - lineD,
-				yMinus + size / 2);
+		g.drawLine(xPlus + lineD, yPlus + size / 2, xPlus + size - lineD, yPlus + size / 2);
+		g.drawLine(xPlus + size / 2, yPlus + lineD, xPlus + size / 2, yPlus + size - lineD);
+		g.drawLine(xMinus + lineD, yMinus + size / 2, xMinus + size - lineD, yMinus + size / 2);
 		((Graphics2D) g).setStroke(currentStroke);
 	}
 
@@ -106,19 +102,15 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		boolean newPlusFocused = plusRect != null
-				&& plusRect.contains(e.getPoint());
-		boolean newMinusFocused = minusRect != null
-				&& minusRect.contains(e.getPoint());
-		boolean changed = newPlusFocused != plusFocused
-				|| newMinusFocused != minusFocused;
+		boolean newPlusFocused = plusRect != null && plusRect.contains(e.getPoint());
+		boolean newMinusFocused = minusRect != null && minusRect.contains(e.getPoint());
+		boolean changed = newPlusFocused != plusFocused || newMinusFocused != minusFocused;
 
 		plusFocused = newPlusFocused;
 		minusFocused = newMinusFocused;
 
 		if (changed) {
-			GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) canvas.getViewer()
-					.getGraphMouse();
+			GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) canvas.getViewer().getGraphMouse();
 
 			graphMouse.setPickingDeactivated(plusFocused || minusFocused);
 			paint(canvas.getViewer().getGraphics());
@@ -127,14 +119,12 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1
-				&& (plusFocused || minusFocused)) {
+		if (e.getButton() == MouseEvent.BUTTON1 && (plusFocused || minusFocused)) {
 			VisualizationViewer<?, ?> viewer = canvas.getViewer();
-			Point2D center = viewer.getRenderContext()
-					.getMultiLayerTransformer()
+			Point2D center = viewer.getRenderContext().getMultiLayerTransformer()
 					.inverseTransform(Layer.VIEW, viewer.getCenter());
-			MutableTransformer transformer = viewer.getRenderContext()
-					.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
+			MutableTransformer transformer = viewer.getRenderContext().getMultiLayerTransformer()
+					.getTransformer(Layer.LAYOUT);
 
 			if (plusFocused) {
 				transformer.scale(zoomFactor, zoomFactor, center);

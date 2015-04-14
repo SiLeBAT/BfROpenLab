@@ -81,13 +81,12 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
+			throws NotConfigurableException {
 		addressBox.removeAllColumns();
 		countryCodeBox.removeAllColumns();
 
-		for (DataColumnSpec column : KnimeUtils.getColumns(specs[0],
-				StringCell.TYPE)) {
+		for (DataColumnSpec column : KnimeUtils.getColumns(specs[0], StringCell.TYPE)) {
 			addressBox.addColumn(column);
 			countryCodeBox.addColumn(column);
 		}
@@ -100,15 +99,13 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 
 		addressBox.setSelectedColumnName(set.getAddressColumn());
 		countryCodeBox.setSelectedColumnName(set.getCountryCodeColumn());
-		serverField.setText(set.getGisgraphyServer() != null ? set
-				.getGisgraphyServer() : "");
+		serverField.setText(set.getGisgraphyServer() != null ? set.getGisgraphyServer() : "");
 
 		updatePanel();
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		if (addressBox.getSelectedColumnName() == null) {
 			throw new InvalidSettingsException("No Address Data specified");
 		}
@@ -128,16 +125,13 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		set.setRequestDelay(Integer.parseInt(delayField.getText()));
 		set.setMultipleResults((String) multipleBox.getSelectedItem());
 
-		if (set.getServiceProvider().equals(
-				GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
-				|| set.getServiceProvider().equals(
-						GeocodingSettings.PROVIDER_GISGRAPHY)) {
+		if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
+				|| set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			if (countryCodeBox.getSelectedColumnName() == null) {
 				throw new InvalidSettingsException("No Country Code specified");
 			}
 
-			if (set.getServiceProvider().equals(
-					GeocodingSettings.PROVIDER_GISGRAPHY)
+			if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)
 					&& serverField.getText().trim().isEmpty()) {
 				throw new InvalidSettingsException("No Server specified");
 			}
@@ -153,43 +147,35 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		String provider = (String) providerBox.getSelectedItem();
 
 		panel.removeAll();
-		panel.add(UI.createOptionsPanel("Provider",
-				Arrays.asList(new JLabel("Service Provider")),
+		panel.add(UI.createOptionsPanel("Provider", Arrays.asList(new JLabel("Service Provider")),
 				Arrays.asList(providerBox)));
 
 		if (provider.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
-			panel.add(UI.createOptionsPanel("Addresses",
-					Arrays.asList(new JLabel("Address:")),
+			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
-			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request (ms):"), new JLabel(
-							"When multiple Results:")), Arrays.asList(
-					delayField, multipleBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(new JLabel(
+					"Delay between Request (ms):"), new JLabel("When multiple Results:")), Arrays
+					.asList(delayField, multipleBox)));
 		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)) {
-			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
-					new JLabel("Address:"), new JLabel("Country Code:")),
-					Arrays.asList(addressBox, countryCodeBox)));
-			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request (ms):"), new JLabel(
-							"When multiple Results:")), Arrays.asList(
-					delayField, multipleBox)));
-		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
-			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(
-					new JLabel("Address:"), new JLabel("Country Code:")),
-					Arrays.asList(addressBox, countryCodeBox)));
-			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Server Address:"), new JLabel(
-							"Delay between Request (ms):"), new JLabel(
-							"When multiple Results:")), Arrays.asList(
-					serverField, delayField, multipleBox)));
-		} else if (provider.equals(GeocodingSettings.PROVIDER_BKG)) {
 			panel.add(UI.createOptionsPanel("Addresses",
-					Arrays.asList(new JLabel("Address:")),
+					Arrays.asList(new JLabel("Address:"), new JLabel("Country Code:")),
+					Arrays.asList(addressBox, countryCodeBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(new JLabel(
+					"Delay between Request (ms):"), new JLabel("When multiple Results:")), Arrays
+					.asList(delayField, multipleBox)));
+		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+			panel.add(UI.createOptionsPanel("Addresses",
+					Arrays.asList(new JLabel("Address:"), new JLabel("Country Code:")),
+					Arrays.asList(addressBox, countryCodeBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(new JLabel(
+					"Server Address:"), new JLabel("Delay between Request (ms):"), new JLabel(
+					"When multiple Results:")), Arrays.asList(serverField, delayField, multipleBox)));
+		} else if (provider.equals(GeocodingSettings.PROVIDER_BKG)) {
+			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
-			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(
-					new JLabel("Delay between Request (ms):"), new JLabel(
-							"When multiple Results:")), Arrays.asList(
-					delayField, multipleBox)));
+			panel.add(UI.createOptionsPanel("Other Options", Arrays.asList(new JLabel(
+					"Delay between Request (ms):"), new JLabel("When multiple Results:")), Arrays
+					.asList(delayField, multipleBox)));
 		}
 
 		panel.revalidate();

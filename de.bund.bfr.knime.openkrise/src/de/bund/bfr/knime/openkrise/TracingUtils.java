@@ -67,8 +67,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class TracingUtils {
 
-	public static final Naming NAMING = new Naming("Station", "Stations",
-			"Delivery", "Deliveries");
+	public static final Naming NAMING = new Naming("Station", "Stations", "Delivery", "Deliveries");
 
 	private TracingUtils() {
 	}
@@ -93,14 +92,12 @@ public class TracingUtils {
 		return tableColumns;
 	}
 
-	public static Map<String, GraphNode> readGraphNodes(
-			BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
-			throws NotConfigurableException {
+	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable,
+			NodePropertySchema nodeSchema) throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID
-					+ "\" is missing");
+			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
 		}
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
@@ -112,53 +109,47 @@ public class TracingUtils {
 			String id = IO.getToCleanString(row.getCell(idIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in "
-						+ TracingColumns.ID + " column");
+				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
+						+ " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in "
-						+ TracingColumns.ID + " column: " + id);
+				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
+						+ " column: " + id);
 			}
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils
-					.addToProperties(properties, nodeSchema, nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new GraphNode(id, properties, null));
 		}
 
 		if (nodes.isEmpty()) {
-			throw new NotConfigurableException(
-					"No valid nodes contained in table");
+			throw new NotConfigurableException("No valid nodes contained in table");
 		}
 
 		return nodes;
 	}
 
-	public static Map<String, LocationNode> readLocationNodes(
-			BufferedDataTable nodeTable, NodePropertySchema nodeSchema,
-			Set<RowKey> invalidRows, boolean skipInvalid)
+	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
+			NodePropertySchema nodeSchema, Set<RowKey> invalidRows, boolean skipInvalid)
 			throws NotConfigurableException {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int latIndex = nodeTable.getSpec().findColumnIndex(
-				GeocodingNodeModel.LATITUDE_COLUMN);
-		int lonIndex = nodeTable.getSpec().findColumnIndex(
-				GeocodingNodeModel.LONGITUDE_COLUMN);
+		int latIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN);
+		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID
-					+ "\" is missing");
+			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
 		}
 
 		if (latIndex == -1) {
-			throw new NotConfigurableException("Column \""
-					+ GeocodingNodeModel.LATITUDE_COLUMN + "\" is missing");
+			throw new NotConfigurableException("Column \"" + GeocodingNodeModel.LATITUDE_COLUMN
+					+ "\" is missing");
 		}
 
 		if (lonIndex == -1) {
-			throw new NotConfigurableException("Column \""
-					+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
+			throw new NotConfigurableException("Column \"" + GeocodingNodeModel.LONGITUDE_COLUMN
+					+ "\" is missing");
 		}
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
@@ -173,11 +164,11 @@ public class TracingUtils {
 			Double lon = IO.getDouble(row.getCell(lonIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in "
-						+ TracingColumns.ID + " column");
+				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
+						+ " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in "
-						+ TracingColumns.ID + " column: " + id);
+				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
+						+ " column: " + id);
 			}
 
 			Point2D center = null;
@@ -195,48 +186,40 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils
-					.addToProperties(properties, nodeSchema, nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new LocationNode(id, properties, center));
 		}
 
 		if (nodes.isEmpty()) {
-			throw new NotConfigurableException(
-					"No valid nodes contained in table");
+			throw new NotConfigurableException("No valid nodes contained in table");
 		}
 
 		if (!hasCoordinates) {
-			throw new NotConfigurableException(
-					"No geographic coordinates contained in table");
+			throw new NotConfigurableException("No geographic coordinates contained in table");
 		}
 
 		return nodes;
 	}
 
-	public static <V extends Node> List<Edge<V>> readEdges(
-			BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
-			Map<String, V> nodes, Set<RowKey> skippedRows)
+	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable edgeTable,
+			EdgePropertySchema edgeSchema, Map<String, V> nodes, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int fromIndex = edgeTable.getSpec()
-				.findColumnIndex(TracingColumns.FROM);
+		int fromIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.FROM);
 		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID
-					+ "\" is missing");
+			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
 		}
 
 		if (fromIndex == -1) {
-			throw new NotConfigurableException("Column \""
-					+ TracingColumns.FROM + "\" is missing");
+			throw new NotConfigurableException("Column \"" + TracingColumns.FROM + "\" is missing");
 		}
 
 		if (toIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.TO
-					+ "\" is missing");
+			throw new NotConfigurableException("Column \"" + TracingColumns.TO + "\" is missing");
 		}
 
 		List<Edge<V>> edges = new ArrayList<>();
@@ -250,11 +233,11 @@ public class TracingUtils {
 			String id = IO.getToCleanString(row.getCell(idIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in "
-						+ TracingColumns.ID + " column");
+				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
+						+ " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in "
-						+ TracingColumns.ID + " column: " + id);
+				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
+						+ " column: " + id);
 			}
 
 			String from = IO.getToCleanString(row.getCell(fromIndex));
@@ -269,8 +252,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils
-					.addToProperties(properties, edgeSchema, edgeTable, row);
+			TracingUtils.addToProperties(properties, edgeSchema, edgeTable, row);
 			properties.put(TracingColumns.ID, id);
 			properties.put(TracingColumns.FROM, from);
 			properties.put(TracingColumns.TO, to);
@@ -279,24 +261,22 @@ public class TracingUtils {
 		}
 
 		if (edges.isEmpty()) {
-			throw new NotConfigurableException(
-					"No valid edges contained in table");
+			throw new NotConfigurableException("No valid edges contained in table");
 		}
 
 		return edges;
 	}
 
 	public static <V extends Node> HashMap<Integer, MyDelivery> readDeliveries(
-			BufferedDataTable tracingTable, Collection<Edge<V>> edges,
-			Set<RowKey> skippedRows) throws NotConfigurableException {
+			BufferedDataTable tracingTable, Collection<Edge<V>> edges, Set<RowKey> skippedRows)
+			throws NotConfigurableException {
 		DataTableSpec dataSpec = tracingTable.getSpec();
 
 		if (tracingTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
 				|| tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
-			throw new NotConfigurableException(
-					"Tracing Data Model cannot be read."
-							+ " Try reexecuting the Supply Chain Reader or"
-							+ " downloading an up-to-date workflow.");
+			throw new NotConfigurableException("Tracing Data Model cannot be read."
+					+ " Try reexecuting the Supply Chain Reader or"
+					+ " downloading an up-to-date workflow.");
 		}
 
 		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
@@ -305,19 +285,16 @@ public class TracingUtils {
 			int id = Integer.parseInt(edge.getId());
 			int from = Integer.parseInt(edge.getFrom().getId());
 			int to = Integer.parseInt(edge.getTo().getId());
-			String date = (String) edge.getProperties().get(
-					TracingColumns.DELIVERY_DATE);
-			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date),
-					getMonth(date), getYear(date));
+			String date = (String) edge.getProperties().get(TracingColumns.DELIVERY_DATE);
+			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date), getMonth(date),
+					getYear(date));
 
 			deliveries.put(id, delivery);
 		}
 
 		for (DataRow row : tracingTable) {
-			int id = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingColumns.ID)));
-			int next = IO.getInt(row.getCell(dataSpec
-					.findColumnIndex(TracingColumns.NEXT)));
+			int id = IO.getInt(row.getCell(dataSpec.findColumnIndex(TracingColumns.ID)));
+			int next = IO.getInt(row.getCell(dataSpec.findColumnIndex(TracingColumns.NEXT)));
 
 			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
 				skippedRows.add(row.getKey());
@@ -331,18 +308,17 @@ public class TracingUtils {
 		return deliveries;
 	}
 
-	public static List<RegionNode> readRegions(BufferedDataTable shapeTable,
-			Set<RowKey> skippedRows) throws NotConfigurableException {
+	public static List<RegionNode> readRegions(BufferedDataTable shapeTable, Set<RowKey> skippedRows)
+			throws NotConfigurableException {
 		List<RegionNode> nodes = new ArrayList<>();
-		List<String> shapeColumns = KnimeUtils.getColumnNames(KnimeUtils
-				.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE));
+		List<String> shapeColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(
+				shapeTable.getSpec(), ShapeBlobCell.TYPE));
 
 		if (shapeColumns.isEmpty()) {
 			throw new NotConfigurableException("No Shape Column in table");
 		}
 
-		int shapeIndex = shapeTable.getSpec().findColumnIndex(
-				shapeColumns.get(0));
+		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumns.get(0));
 		int index = 0;
 
 		for (DataRow row : shapeTable) {
@@ -353,14 +329,13 @@ public class TracingUtils {
 				continue;
 			}
 
-			nodes.add(new RegionNode(index + "",
-					new LinkedHashMap<String, Object>(), (MultiPolygon) shape));
+			nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(),
+					(MultiPolygon) shape));
 			index++;
 		}
 
 		if (nodes.isEmpty()) {
-			throw new NotConfigurableException(
-					"No valid shapes contained in table");
+			throw new NotConfigurableException("No valid shapes contained in table");
 		}
 
 		return nodes;
@@ -376,8 +351,8 @@ public class TracingUtils {
 		return stringSet;
 	}
 
-	private static void addToProperties(Map<String, Object> properties,
-			PropertySchema schema, BufferedDataTable table, DataRow row) {
+	private static void addToProperties(Map<String, Object> properties, PropertySchema schema,
+			BufferedDataTable table, DataRow row) {
 		for (String property : schema.getMap().keySet()) {
 			Class<?> type = schema.getMap().get(property);
 			int column = table.getSpec().findColumnIndex(property);
@@ -385,14 +360,13 @@ public class TracingUtils {
 			if (column != -1) {
 				DataCell cell = row.getCell(column);
 
-				TracingUtils.addCellContentToMap(properties, property, type,
-						cell);
+				TracingUtils.addCellContentToMap(properties, property, type, cell);
 			}
 		}
 	}
 
-	private static void addCellContentToMap(Map<String, Object> map,
-			String property, Class<?> type, DataCell cell) {
+	private static void addCellContentToMap(Map<String, Object> map, String property,
+			Class<?> type, DataCell cell) {
 		Object obj = null;
 
 		if (type == String.class) {
@@ -408,8 +382,8 @@ public class TracingUtils {
 		CanvasUtils.addObjectToMap(map, property, type, obj);
 	}
 
-	private static void replaceNullsInInputProperties(
-			Map<String, Object> properties, PropertySchema schema) {
+	private static void replaceNullsInInputProperties(Map<String, Object> properties,
+			PropertySchema schema) {
 		if (schema.getMap().containsKey(TracingColumns.WEIGHT)
 				&& properties.get(TracingColumns.WEIGHT) == null) {
 			properties.put(TracingColumns.WEIGHT, 0.0);
@@ -502,8 +476,8 @@ public class TracingUtils {
 		}
 	}
 
-	public static HighlightConditionList renameColumns(
-			HighlightConditionList list, Set<String> columns) {
+	public static HighlightConditionList renameColumns(HighlightConditionList list,
+			Set<String> columns) {
 		HighlightConditionList newList = new HighlightConditionList(list);
 		List<HighlightCondition> newL = new ArrayList<>();
 
@@ -514,10 +488,9 @@ public class TracingUtils {
 				newL.add(renameColumn((ValueHighlightCondition) c, columns));
 			} else if (c instanceof LogicalValueHighlightCondition) {
 				newL.add(new LogicalValueHighlightCondition(renameColumn(
-						((LogicalValueHighlightCondition) c)
-								.getValueCondition(), columns), renameColumn(
-						((LogicalValueHighlightCondition) c)
-								.getLogicalCondition(), columns)));
+						((LogicalValueHighlightCondition) c).getValueCondition(), columns),
+						renameColumn(((LogicalValueHighlightCondition) c).getLogicalCondition(),
+								columns)));
 			}
 		}
 
@@ -526,8 +499,8 @@ public class TracingUtils {
 		return newList;
 	}
 
-	private static AndOrHighlightCondition renameColumn(
-			AndOrHighlightCondition c, Set<String> columns) {
+	private static AndOrHighlightCondition renameColumn(AndOrHighlightCondition c,
+			Set<String> columns) {
 		AndOrHighlightCondition newC = new AndOrHighlightCondition(c);
 		List<List<LogicalHighlightCondition>> newL1 = new ArrayList<>();
 
@@ -537,8 +510,7 @@ public class TracingUtils {
 			List<LogicalHighlightCondition> newL2 = new ArrayList<>();
 
 			for (LogicalHighlightCondition l3 : l2) {
-				LogicalHighlightCondition newL3 = new LogicalHighlightCondition(
-						l3);
+				LogicalHighlightCondition newL3 = new LogicalHighlightCondition(l3);
 
 				newL3.setProperty(renameColumn(l3.getProperty(), columns));
 				newL2.add(newL3);
@@ -552,8 +524,8 @@ public class TracingUtils {
 		return newC;
 	}
 
-	private static ValueHighlightCondition renameColumn(
-			ValueHighlightCondition c, Set<String> columns) {
+	private static ValueHighlightCondition renameColumn(ValueHighlightCondition c,
+			Set<String> columns) {
 		ValueHighlightCondition newC = new ValueHighlightCondition(c);
 
 		newC.setProperty(renameColumn(c.getProperty(), columns));

@@ -38,21 +38,19 @@ public class Function implements Serializable {
 	private Map<String, Double> initValues;
 
 	public Function() {
-		this(new LinkedHashMap<String, String>(), null,
-				new ArrayList<String>(), new ArrayList<String>());
+		this(new LinkedHashMap<String, String>(), null, new ArrayList<String>(),
+				new ArrayList<String>());
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable,
 			List<String> independentVariables, List<String> parameters) {
 		this(terms, dependentVariable, independentVariables, parameters, null,
-				new LinkedHashMap<String, String>(),
-				new LinkedHashMap<String, Double>());
+				new LinkedHashMap<String, String>(), new LinkedHashMap<String, Double>());
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable,
-			List<String> independentVariables, List<String> parameters,
-			String timeVariable, Map<String, String> initParameters,
-			Map<String, Double> initValues) {
+			List<String> independentVariables, List<String> parameters, String timeVariable,
+			Map<String, String> initParameters, Map<String, Double> initValues) {
 		this.terms = terms;
 		this.dependentVariable = dependentVariable;
 		this.independentVariables = independentVariables;

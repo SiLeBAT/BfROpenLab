@@ -43,8 +43,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
-public class LocationVisualizerInputDialog extends JDialog implements
-		ActionListener {
+public class LocationVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,25 +58,20 @@ public class LocationVisualizerInputDialog extends JDialog implements
 	private boolean approved;
 	private LocationVisualizerSettings set;
 
-	public LocationVisualizerInputDialog(JComponent owner,
-			DataTableSpec shapeSpec, DataTableSpec nodeSpec,
-			LocationVisualizerSettings set) {
-		super(SwingUtilities.getWindowAncestor(owner), "Input",
-				DEFAULT_MODALITY_TYPE);
+	public LocationVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec,
+			DataTableSpec nodeSpec, LocationVisualizerSettings set) {
+		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
-		shapeBox = new ColumnComboBox(false,
-				GisUtils.getShapeColumns(shapeSpec));
+		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				nodeSpec, DoubleCell.TYPE));
-		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings()
-				.getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(
-				nodeSpec, DoubleCell.TYPE));
-		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings()
-				.getNodeLongitudeColumn());
+		nodeLatitudeBox = new ColumnComboBox(false,
+				KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLatitudeColumn());
+		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec,
+				DoubleCell.TYPE));
+		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLongitudeColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		okButton = new JButton("OK");
@@ -89,14 +83,12 @@ public class LocationVisualizerInputDialog extends JDialog implements
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(UI.createOptionsPanel("Shape Table",
-				Arrays.asList(new JLabel("Shape Column:")),
-				Arrays.asList(shapeBox)));
-		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays
-				.asList(new JLabel("Latitude Column:"), new JLabel(
-						"Longitude Column:")), Arrays.asList(nodeLatitudeBox,
-				nodeLongitudeBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
-				Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
+				Arrays.asList(new JLabel("Shape Column:")), Arrays.asList(shapeBox)));
+		mainPanel.add(UI.createOptionsPanel("Node Table",
+				Arrays.asList(new JLabel("Latitude Column:"), new JLabel("Longitude Column:")),
+				Arrays.asList(nodeLatitudeBox, nodeLongitudeBox)));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
+				Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
@@ -114,24 +106,18 @@ public class LocationVisualizerInputDialog extends JDialog implements
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
-			DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox
-					.getSelectedColumn();
-			DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox
-					.getSelectedColumn();
+			DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox.getSelectedColumn();
+			DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox.getSelectedColumn();
 
-			if (shapeColumn == null || nodeLatitudeColumn == null
-					|| nodeLongitudeColumn == null) {
+			if (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null) {
 				String error = "\"Shape\", \"Latitude\" and \"Longitude\""
 						+ " columns must be selected";
 
-				JOptionPane.showMessageDialog(this, error, "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.getGisSettings().setShapeColumn(
-						shapeBox.getSelectedColumnName());
-				set.getGisSettings().setNodeLatitudeColumn(
-						nodeLatitudeBox.getSelectedColumnName());
+				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLongitudeColumn(
 						nodeLongitudeBox.getSelectedColumnName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());
