@@ -138,7 +138,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void borderAlphaChanged() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

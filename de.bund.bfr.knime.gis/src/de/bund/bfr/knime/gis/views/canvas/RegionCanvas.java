@@ -129,7 +129,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	@Override
 	protected GraphMouse<RegionNode, Edge<RegionNode>> createGraphMouse() {
-		return new GraphMouse<>(new RegionPickingPlugin(), 1.1);
+		return new GraphMouse<>(new RegionPickingPlugin(), 2.0);
 	}
 
 	@Override

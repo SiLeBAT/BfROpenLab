@@ -190,7 +190,7 @@ public class TracingGisCanvas extends LocationCanvas implements
 
 	@Override
 	protected GraphMouse<LocationNode, Edge<LocationNode>> createGraphMouse() {
-		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 1.1);
+		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 2.0);
 	}
 
 	@Override

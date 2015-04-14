@@ -39,6 +39,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -201,10 +202,6 @@ public class TracingViewCanvasCreator {
 
 			canvas = new TracingGisCanvas(new ArrayList<>(nodes.values()),
 					edges, nodeSchema, edgeSchema, regions, deliveries);
-			canvas.setPerformTracing(false);
-			set.setToCanvas(canvas);
-			set.getGisSettings().setToCanvas((TracingGisCanvas) canvas);
-			canvas.setPerformTracing(true);
 		} else {
 			TileSource tileSource;
 
@@ -230,13 +227,13 @@ public class TracingViewCanvasCreator {
 
 			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()),
 					edges, nodeSchema, edgeSchema, deliveries);
-
-			canvas.setPerformTracing(false);
 			((TracingOsmCanvas) canvas).setTileSource(tileSource);
-			set.setToCanvas(canvas);
-			set.getOsmSettings().setToCanvas((TracingOsmCanvas) canvas);
-			canvas.setPerformTracing(true);
 		}
+
+		canvas.setPerformTracing(false);
+		set.setToCanvas(canvas);
+		set.getGisSettings().setToCanvas((GisCanvas<?>) canvas);
+		canvas.setPerformTracing(true);
 
 		return canvas;
 	}

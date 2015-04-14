@@ -48,7 +48,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -69,7 +68,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		}
 	}
 
-	protected void zoomTo(Rectangle2D polygonsBounds, Double zoomStep) {
+	protected void zoomTo(Rectangle2D polygonsBounds) {
 		Dimension canvasSize = getCanvasSize();
 		double widthRatio = canvasSize.width / polygonsBounds.getWidth();
 		double heightRatio = canvasSize.height / polygonsBounds.getHeight();
@@ -79,12 +78,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		double polygonCenterY = polygonsBounds.getCenterY();
 
 		double scale = Math.min(widthRatio, heightRatio);
+		int zoom = (int) (Math.log(scale) / Math.log(2.0));
 
-		if (zoomStep != null) {
-			int zoom = (int) (Math.log(scale) / Math.log(zoomStep));
-
-			scale = Math.pow(zoomStep, zoom);
-		}
+		scale = Math.pow(2.0, zoom);
 
 		double scaleX = scale;
 		double scaleY = scale;
@@ -92,6 +88,16 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 		double translationY = canvasCenterY - polygonCenterY * scaleY;
 
 		setTransform(new Transform(scaleX, scaleY, translationX, translationY));
+	}
+
+	@Override
+	protected GraphMouse<V, Edge<V>> createGraphMouse() {
+		return new GraphMouse<>(new GisPickingPlugin(), 2.0);
+	}
+
+	@Override
+	protected ZoomingPaintable createZoomingPaintable() {
+		return new ZoomingPaintable(this, 2.0);
 	}
 
 	protected abstract void paintGis(Graphics g, boolean toSvg);

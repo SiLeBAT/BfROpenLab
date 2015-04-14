@@ -44,6 +44,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
@@ -257,10 +258,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (canvas instanceof TracingGraphCanvas) {
 			set.getGraphSettings().setFromCanvas((TracingGraphCanvas) canvas);
-		} else if (canvas instanceof TracingGisCanvas) {
-			set.getGisSettings().setFromCanvas((TracingGisCanvas) canvas);
-		} else if (canvas instanceof TracingOsmCanvas) {
-			set.getOsmSettings().setFromCanvas((TracingOsmCanvas) canvas);
+		} else if (canvas instanceof TracingGisCanvas
+				|| canvas instanceof TracingOsmCanvas) {
+			set.getGisSettings().setFromCanvas((GisCanvas<?>) canvas);
 		}
 	}
 }

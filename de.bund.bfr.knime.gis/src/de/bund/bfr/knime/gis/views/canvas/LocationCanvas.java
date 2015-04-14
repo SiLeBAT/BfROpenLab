@@ -217,7 +217,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		Rectangle2D bounds = CanvasUtils.getLocationBounds(nodes);
 
 		if (bounds != null) {
-			zoomTo(bounds, null);
+			zoomTo(bounds);
 		} else {
 			super.resetLayoutItemClicked();
 		}

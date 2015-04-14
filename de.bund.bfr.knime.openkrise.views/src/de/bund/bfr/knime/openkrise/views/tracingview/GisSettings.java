@@ -25,7 +25,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
-import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
@@ -34,10 +34,10 @@ public class GisSettings extends NodeSettings {
 	protected static final XmlConverter SERIALIZER = new XmlConverter(
 			Activator.class.getClassLoader());
 
-	private static final String CFG_SCALE_X = "GisScaleX";
-	private static final String CFG_SCALE_Y = "GisScaleY";
-	private static final String CFG_TRANSLATION_X = "GisTranslationX";
-	private static final String CFG_TRANSLATION_Y = "GisTranslationY";
+	private static final String CFG_SCALE_X = "OsmScaleX";
+	private static final String CFG_SCALE_Y = "OsmScaleY";
+	private static final String CFG_TRANSLATION_X = "OsmTranslationX";
+	private static final String CFG_TRANSLATION_Y = "OsmTranslationY";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
 	private static final String CFG_FONT_SIZE = "GisTextSize";
 	private static final String CFG_FONT_BOLD = "GisTextBold";
@@ -100,7 +100,7 @@ public class GisSettings extends NodeSettings {
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
 	}
 
-	public void setFromCanvas(LocationCanvas canvas) {
+	public void setFromCanvas(GisCanvas<?> canvas) {
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		fontSize = canvas.getFontSize();
@@ -108,7 +108,7 @@ public class GisSettings extends NodeSettings {
 		borderAlpha = canvas.getBorderAlpha();
 	}
 
-	public void setToCanvas(LocationCanvas canvas) {
+	public void setToCanvas(GisCanvas<?> canvas) {
 		canvas.setNodeSize(nodeSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);

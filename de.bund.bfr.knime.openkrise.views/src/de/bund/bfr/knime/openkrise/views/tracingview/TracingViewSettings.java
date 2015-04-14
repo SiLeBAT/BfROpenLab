@@ -117,7 +117,6 @@ public class TracingViewSettings extends NodeSettings {
 
 	private GraphSettings graphSettings;
 	private GisSettings gisSettings;
-	private OsmSettings osmSettings;
 
 	public TracingViewSettings() {
 		showGis = false;
@@ -148,7 +147,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings = new GraphSettings();
 		gisSettings = new GisSettings();
-		osmSettings = new OsmSettings();
 	}
 
 	@Override
@@ -290,7 +288,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.loadSettings(settings);
 		gisSettings.loadSettings(settings);
-		osmSettings.loadSettings(settings);
 	}
 
 	@Override
@@ -328,7 +325,6 @@ public class TracingViewSettings extends NodeSettings {
 
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
-		osmSettings.saveSettings(settings);
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
@@ -627,13 +623,5 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setGisSettings(GisSettings gisSettings) {
 		this.gisSettings = gisSettings;
-	}
-
-	public OsmSettings getOsmSettings() {
-		return osmSettings;
-	}
-
-	public void setOsmSettings(OsmSettings osmSettings) {
-		this.osmSettings = osmSettings;
 	}
 }

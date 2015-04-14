@@ -93,7 +93,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 
 	@Override
 	public void borderAlphaChanged() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -117,16 +116,6 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements
 	protected void applyTransform() {
 		flushImage();
 		viewer.repaint();
-	}
-
-	@Override
-	protected GraphMouse<V, Edge<V>> createGraphMouse() {
-		return new GraphMouse<>(new GisPickingPlugin(), 2.0);
-	}
-
-	@Override
-	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 2.0);
 	}
 
 	@Override

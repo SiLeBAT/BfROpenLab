@@ -48,7 +48,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		Rectangle2D bounds = CanvasUtils.getRegionBounds(getRegions());
 
 		if (bounds != null) {
-			zoomTo(bounds, null);
+			zoomTo(bounds);
 		} else {
 			super.resetLayoutItemClicked();
 		}
@@ -69,11 +69,6 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		}
 
 		viewer.repaint();
-	}
-
-	@Override
-	protected GraphMouse<V, Edge<V>> createGraphMouse() {
-		return new GraphMouse<>(new GisPickingPlugin(), 1.1);
 	}
 
 	@Override
