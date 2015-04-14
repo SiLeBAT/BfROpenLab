@@ -25,6 +25,8 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -225,12 +227,23 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		if (invalidArea != null) {
 			Polygon transformed = transform.apply(invalidArea, true);
 
-			((Graphics2D) g).setPaint(CanvasUtils.mixColors(Color.WHITE,
-					Arrays.asList(Color.RED, Color.WHITE),
+			BufferedImage invalidAreaImage = new BufferedImage(
+					getCanvasSize().width, getCanvasSize().height,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics imgGraphics = invalidAreaImage.getGraphics();
+
+			((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(
+					Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
 					Arrays.asList(1.0, 1.0)));
-			g.fillPolygon(transformed);
-			g.setColor(Color.BLACK);
-			g.drawPolygon(transformed);
+			imgGraphics.fillPolygon(transformed);
+			imgGraphics.setColor(Color.BLACK);
+			imgGraphics.drawPolygon(transformed);
+
+			float[] edgeScales = { 1f, 1f, 1f, 0.3f };
+			float[] edgeOffsets = new float[4];
+
+			((Graphics2D) g).drawImage(invalidAreaImage, new RescaleOp(
+					edgeScales, edgeOffsets, null), 0, 0);
 		}
 	}
 
