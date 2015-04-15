@@ -82,7 +82,8 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 			observed = (Boolean) element.getProperties().get(TracingColumns.OBSERVED);
 		}
 
-		caseField = new JTextField(String.valueOf(weight));
+		caseField = new JTextField(8);
+		caseField.setText(String.valueOf(weight));
 		contaminationBox = new JCheckBox("", crossContamination);
 		observedBox = new JCheckBox("", observed);
 
