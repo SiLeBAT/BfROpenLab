@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisUtils;
@@ -82,7 +83,9 @@ public class RegionNode extends Node {
 	}
 
 	public boolean containsPoint(Point2D point) {
-		return boundingBox.contains(point) && GisUtils.containsPoint(polygon, point);
+		return boundingBox.contains(point)
+				&& polygon.contains(polygon.getFactory().createPoint(
+						new Coordinate(point.getX(), point.getY())));
 	}
 
 	@Override

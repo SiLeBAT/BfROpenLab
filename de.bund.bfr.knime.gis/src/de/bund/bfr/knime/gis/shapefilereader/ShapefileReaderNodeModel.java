@@ -120,7 +120,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		loop: while (iterator.hasNext()) {
 			SimpleFeature feature = iterator.next();
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
-			Geometry shape = null;
+			MultiPolygon shape = null;
 
 			for (Property p : feature.getProperties()) {
 				String name = p.getName().toString().trim();
@@ -134,7 +134,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 						continue loop;
 					}
 
-					shape = JTS.transform((Geometry) value, transform);
+					shape = (MultiPolygon) JTS.transform((MultiPolygon) value, transform);
 					cells[i] = ShapeCellFactory.create(shape);
 				} else if (value instanceof Integer) {
 					cells[i] = new IntCell((Integer) p.getValue());
@@ -147,12 +147,11 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				}
 			}
 
-			Point2D p = GisUtils.getCenter((MultiPolygon) shape);
+			Point2D p = GisUtils.getCenter(shape);
 
 			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p.getX());
 			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p.getY());
-			cells[spec.findColumnIndex(areaColumn)] = IO.createCell(GisUtils
-					.getArea((MultiPolygon) shape));
+			cells[spec.findColumnIndex(areaColumn)] = IO.createCell(shape.getArea());
 
 			exec.checkCanceled();
 			exec.setProgress((double) index / (double) collection.size());

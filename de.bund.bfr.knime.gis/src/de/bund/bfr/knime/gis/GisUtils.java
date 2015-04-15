@@ -44,7 +44,6 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.shapecell.ShapeBlobCell;
@@ -61,21 +60,20 @@ public class GisUtils {
 	}
 
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
-		CoordinateArraySequence outerRing = new CoordinateArraySequence(new Coordinate[] {
+		Coordinate[] outerRing = new Coordinate[] {
 				new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
 				new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
 				new Coordinate(rect.getMaxX() + d, rect.getMaxY() + d),
 				new Coordinate(rect.getMinX() - d, rect.getMaxY() + d),
-				new Coordinate(rect.getMinX() - d, rect.getMinY() - d) });
-		CoordinateArraySequence innerRing = new CoordinateArraySequence(new Coordinate[] {
-				new Coordinate(rect.getMinX(), rect.getMinY()),
+				new Coordinate(rect.getMinX() - d, rect.getMinY() - d) };
+		Coordinate[] innerRing = new Coordinate[] { new Coordinate(rect.getMinX(), rect.getMinY()),
 				new Coordinate(rect.getMaxX(), rect.getMinY()),
 				new Coordinate(rect.getMaxX(), rect.getMaxY()),
 				new Coordinate(rect.getMinX(), rect.getMaxY()),
-				new Coordinate(rect.getMinX(), rect.getMinY()) });
+				new Coordinate(rect.getMinX(), rect.getMinY()) };
 
-		return new Polygon(new LinearRing(outerRing, FACTORY), new LinearRing[] { new LinearRing(
-				innerRing, FACTORY) }, FACTORY);
+		return FACTORY.createPolygon(FACTORY.createLinearRing(outerRing),
+				new LinearRing[] { FACTORY.createLinearRing(innerRing) });
 	}
 
 	public static Point2D latLonToViz(Point2D latLon) {
@@ -84,23 +82,22 @@ public class GisUtils {
 	}
 
 	public static MultiPolygon latLonToViz(MultiPolygon polygon) {
-		List<Polygon> transformed = new ArrayList<>();
+		Polygon[] transformed = new Polygon[polygon.getNumGeometries()];
 
 		for (int i = 0; i < polygon.getNumGeometries(); i++) {
 			Polygon poly = (Polygon) polygon.getGeometryN(i);
-			LinearRing exterior = new LinearRing(new CoordinateArraySequence(latLonToViz(poly
-					.getExteriorRing().getCoordinates())), FACTORY);
+			LinearRing exterior = FACTORY.createLinearRing(latLonToViz(poly.getExteriorRing()
+					.getCoordinates()));
 			LinearRing[] interior = new LinearRing[poly.getNumInteriorRing()];
 
 			for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-				interior[j] = new LinearRing(new CoordinateArraySequence(latLonToViz(poly
-						.getInteriorRingN(j).getCoordinates())), FACTORY);
+				interior[j] = FACTORY.createLinearRing(latLonToViz(poly.getInteriorRingN(j)
+						.getCoordinates()));
 			}
 
-			transformed.add(new Polygon(exterior, interior, FACTORY));
+			transformed[i] = FACTORY.createPolygon(exterior, interior);
 		}
-
-		return new MultiPolygon(transformed.toArray(new Polygon[0]), FACTORY);
+		return FACTORY.createMultiPolygon(transformed);
 	}
 
 	private static Coordinate[] latLonToViz(Coordinate[] coordinates) {
@@ -157,8 +154,8 @@ public class GisUtils {
 		double largestArea = 0.0;
 		Point center = null;
 
-		for (int index = 0; index < poly.getNumGeometries(); index++) {
-			Polygon part = (Polygon) poly.getGeometryN(index);
+		for (int i = 0; i < poly.getNumGeometries(); i++) {
+			Polygon part = (Polygon) poly.getGeometryN(i);
 			double area = part.getArea();
 
 			if (area > largestArea) {
@@ -170,18 +167,14 @@ public class GisUtils {
 		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
 	}
 
-	public static double getArea(MultiPolygon poly) {
-		return poly.getArea();
-	}
-
 	public static Rectangle2D getBoundingBox(MultiPolygon poly) {
 		double minX = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
 		double maxY = Double.NEGATIVE_INFINITY;
 
-		for (int index = 0; index < poly.getNumGeometries(); index++) {
-			Polygon part = (Polygon) poly.getGeometryN(index);
+		for (int i = 0; i < poly.getNumGeometries(); i++) {
+			Polygon part = (Polygon) poly.getGeometryN(i);
 
 			for (Coordinate c : part.getExteriorRing().getCoordinates()) {
 				minX = Math.min(minX, c.x);
@@ -192,67 +185,5 @@ public class GisUtils {
 		}
 
 		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-	}
-
-	public static boolean containsPoint(MultiPolygon poly, Point2D point) {
-		double x = point.getX();
-		double y = point.getY();
-
-		for (int index = 0; index < poly.getNumGeometries(); index++) {
-			Polygon part = (Polygon) poly.getGeometryN(index);
-			Coordinate[] points = part.getExteriorRing().getCoordinates();
-			int n = points.length;
-
-			if (!points[0].equals2D(points[n - 1])) {
-				n = n + 1;
-				points = addFirstElement(points);
-			}
-
-			int hits = 0;
-			double x1 = points[0].x;
-			double y1 = points[0].y;
-
-			for (int i = 1; i < n; i++) {
-				double x2 = points[i].x;
-				double y2 = points[i].y;
-
-				if (y == y2) {
-					if (x < x2) {
-						double y3 = points[(i + 1) % n].y;
-
-						if (y > Math.min(y1, y3) && y < Math.max(y1, y3)) {
-							hits++;
-						}
-					}
-				} else {
-					if (y > Math.min(y1, y2) && y < Math.max(y1, y2)) {
-						double xProjection = (x2 - x1) / (y2 - y1) * (y - y1) + x1;
-
-						if (x < xProjection) {
-							hits++;
-						}
-					}
-				}
-
-				x1 = x2;
-				y1 = y2;
-			}
-
-			if (hits % 2 != 0) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private static Coordinate[] addFirstElement(Coordinate[] v) {
-		int n = v.length;
-		Coordinate[] result = new Coordinate[n + 1];
-
-		System.arraycopy(v, 0, result, 0, n);
-		result[n] = v[0];
-
-		return result;
 	}
 }
