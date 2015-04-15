@@ -71,8 +71,6 @@
       <plugin id="javax.transaction" fragment="true"/>
       <plugin id="javax.xml"/>
       <plugin id="javax.xml.rpc"/>
-      <plugin id="javax.xml.soap"/>
-      <plugin id="net.sf.jabref"/>
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.batik.bridge"/>
       <plugin id="org.apache.batik.css"/>
@@ -164,6 +162,7 @@
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.help.base"/>
       <plugin id="org.eclipse.help.ui"/>
+      <plugin id="org.eclipse.jdt.compiler.apt" fragment="true"/>
       <plugin id="org.eclipse.jdt.compiler.tool" fragment="true"/>
       <plugin id="org.eclipse.jdt.core"/>
       <plugin id="org.eclipse.jdt.core.manipulation"/>
@@ -202,7 +201,6 @@
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.fife.rsyntaxtextarea"/>
-      <plugin id="org.freixas.jcalendar"/>
       <plugin id="org.geotools"/>
       <plugin id="org.graphstream"/>
       <plugin id="org.hamcrest.core"/>
@@ -232,6 +230,7 @@
       <plugin id="org.knime.workbench.ui"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
+      <plugin id="org.openstreetmap.josm"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
       <plugin id="org.w3c.css.sac"/>
