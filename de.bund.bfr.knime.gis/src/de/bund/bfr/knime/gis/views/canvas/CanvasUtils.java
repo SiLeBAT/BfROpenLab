@@ -152,18 +152,21 @@ public class CanvasUtils {
 
 		if (!invalidNodes.isEmpty()) {
 			Rectangle2D bounds = CanvasUtils.getLocationBounds(validNodes);
-			double d = Math.max(bounds.getWidth(), bounds.getHeight()) * 0.02;
+			double size = Math.max(bounds.getWidth(), bounds.getHeight());
 
-			if (d == 0.0) {
-				d = 1.0;
+			if (size == 0.0) {
+				size = 1.0;
 			}
+
+			double d = 0.2 * size;
+			double r = 0.02 * size;
 
 			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d,
 					bounds.getY() - d, bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d),
-					2 * d);
+					2 * r);
 
-			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - 2 * d, bounds.getY() - 2 * d,
-					bounds.getWidth() + 4 * d, bounds.getHeight() + 4 * d);
+			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
+					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
 			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
 
 			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
@@ -218,7 +221,7 @@ public class CanvasUtils {
 
 			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
 				LocationNode node = iterator.next();
-				Point2D p = new Point2D.Double(bounds.getMinX() - 2 * d, bounds.getMaxY() - 2 * d);
+				Point2D p = new Point2D.Double(bounds.getMinX() - d - r, bounds.getMaxY() - d - r);
 
 				node.updateCenter(p);
 				layout.setLocation(node, p);
