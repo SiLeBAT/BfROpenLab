@@ -35,9 +35,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
       <import plugin="org.knime.ext.svg"/>
-      <import plugin="org.apache.commons.math3"/>
       <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
-      <import plugin="org.openstreetmap.josm"/>
    </requires>
 
    <plugin
@@ -77,5 +75,17 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.openstreetmap.josm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

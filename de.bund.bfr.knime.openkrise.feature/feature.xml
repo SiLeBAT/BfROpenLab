@@ -42,7 +42,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.apache.poi"/>
       <import plugin="org.knime.ext.jfreechart"/>
       <import plugin="org.knime.ext.jep"/>
-      <import plugin="org.openstreetmap.josm"/>
    </requires>
 
    <plugin
@@ -126,5 +125,11 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.openstreetmap.josm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
