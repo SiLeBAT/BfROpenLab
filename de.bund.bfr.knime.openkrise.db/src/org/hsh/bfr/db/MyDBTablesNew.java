@@ -47,7 +47,7 @@ public class MyDBTablesNew extends MyDBI {
 	private String saUser = "SA";//"defad"; // SA
 	private String saPass = "";//"de6!§5ddy";
 	private String dbServerPath = "";
-	private String softwareVersion = "1.8.2.0.0";//"1.8.3";//
+	private String softwareVersion = "1.8.3";
 	
 	private boolean isPmm = false;
 	private boolean isKrise = true;
@@ -1215,16 +1215,16 @@ public class MyDBTablesNew extends MyDBI {
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 				
 		MyTable Knoten = new MyTable("Station", new String[]{"Produktkatalog","Name","Strasse","Hausnummer","Postfach","PLZ","Ort","District","Bundesland","Land","Longitude","Latitude","Ansprechpartner","Telefon","Fax","EMail","Webseite","Betriebsnummer","Betriebsart","VATnumber","Code",
-				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Serial"},
+				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Serial","ImportSources"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(255)","VARCHAR(30)","VARCHAR(100)","DOUBLE","DOUBLE","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
-				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","VARCHAR(16383)"},
+				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","VARCHAR(16383)","VARCHAR(16383)"},
 				new String[]{null,null, null,null,null,null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
 				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
-				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
-				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
+				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null,null},
+				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null,null},
 				null,
 				new LinkedList<>(Arrays.asList("Name")));
 		addTable(Knoten, Lieferketten_LIST);
@@ -1244,13 +1244,13 @@ public class MyDBTablesNew extends MyDBI {
 		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
 		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
-				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial"},
-				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)"},
-				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null},
-				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null},
+				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial","ImportSources"},
+				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(16383)"},
+				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null,null},
+				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null},
-				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null},
+				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null,null},
 				null,
 				new LinkedList<>(Arrays.asList("Artikelnummer",": ","Bezeichnung")));
 		addTable(Produzent_Artikel, Lieferketten_LIST);
@@ -1264,47 +1264,65 @@ public class MyDBTablesNew extends MyDBI {
 		addTable(Produktmatrices, -1);
 		
 		MyTable Chargen = new MyTable("Chargen",
-				new String[]{"Artikel","Zutaten","ChargenNr","Menge","Einheit","Lieferungen","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year","Serial","OriginCountry","MicrobioSample"},
-				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(255)"},
-				new String[]{null,null,null,null,null,null,"Best before - day","Best before - month","Best before - year","production date - day","production date - month","production date - year",null,null,null},
-				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{"Artikel","Zutaten","ChargenNr","Menge","Einheit","Lieferungen","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year","Serial","OriginCountry","MicrobioSample","ImportSources"},
+				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(255)","VARCHAR(16383)"},
+				new String[]{null,null,null,null,null,null,"Best before - day","Best before - month","Best before - year","production date - day","production date - month","production date - year",null,null,null,null},
+				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedList<>(Arrays.asList("pd_day",".","pd_month",".","pd_year","; ","ChargenNr","; ","Artikel")));
 		addTable(Chargen, Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
 		MyTable Lieferungen = new MyTable("Lieferungen", // Artikel_Lieferung
-				new String[]{"Charge","dd_day","dd_month","dd_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
-					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
-				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
-					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)","VARCHAR(16383)","VARCHAR(255)"}, // ,"INTEGER","INTEGER"
-				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null}, // ,null,null
-				new MyTable[]{Chargen,null,null,null,null,null,null,null,Knoten,null,null,null,null,null}, // ,null,null
+				new String[]{"Charge","dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
+					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback","ImportSources"}, // ,"Vorprodukt","Zielprodukt"
+				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
+					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)"}, // ,"INTEGER","INTEGER"
+				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","Arrival date - day","Arrival date - month","Arrival date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null,null}, // ,null,null
+				new MyTable[]{Chargen,null,null,null,null,null,null,null,null,null,null,Knoten,null,null,null,null,null,null}, // ,null,null
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}, // ,null,null
-				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null}, // ,null,null
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedList<>(Arrays.asList("dd_day",".","dd_month",".","dd_year","; ","Unitmenge"," ","UnitEinheit","; ","Charge")));
 		addTable(Lieferungen, Lieferketten_LIST);
 		Chargen.setForeignField(Lieferungen, 5);
 		
 		MyTable ChargenVerbindungen = new MyTable("ChargenVerbindungen",
-				new String[]{"Zutat","Produkt","MixtureRatio"},
-				new String[]{"INTEGER","INTEGER","DOUBLE"},
-				new String[]{null,null,"Mixture Ratio (prozentualer Anteil von der Zutat im Zielprodukt,\nz.B. Zielprodukt = Sprout mixture, Zutat = alfalfa sprouts => z.B. 0.33 (33%))"},
-				new MyTable[]{Lieferungen,Chargen,null},
+				new String[]{"Zutat","Produkt","MixtureRatio","ImportSources"},
+				new String[]{"INTEGER","INTEGER","DOUBLE","VARCHAR(16383)"},
+				new String[]{null,null,"Mixture Ratio (prozentualer Anteil von der Zutat im Zielprodukt,\nz.B. Zielprodukt = Sprout mixture, Zutat = alfalfa sprouts => z.B. 0.33 (33%))",null},
+				new MyTable[]{Lieferungen,Chargen,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null},
-				new String[]{null,null,null},
+				new LinkedHashMap[]{null,null,null,null},
+				new String[]{null,null,null,null},
 				null,
 				new LinkedList<>(Arrays.asList("Zutat")),
-				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null});
+				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null,null});
 		addTable(ChargenVerbindungen, DBKernel.debug ? Lieferketten_LIST : -1);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 
+		MyTable extraFields = new MyTable("ExtraFields",
+				new String[]{"tablename","id","attribute","value"},
+				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)"},
+				new String[]{null,null,null,null}, 
+				new MyTable[]{null,null,null,null},
+				new String[][]{{"tablename","id","attribute","value"}},
+				new LinkedHashMap[]{null,null,null,null}, 
+				new String[]{null,null,null,null});
+		addTable(extraFields, Lieferketten_LIST);
+		MyTable fclXlsSources = new MyTable("ImportMetadata",
+				new String[]{"filename","reporter","date","remarks"},
+				new String[]{"VARCHAR(2048)","VARCHAR(255)","VARCHAR(255)","VARCHAR(2048)"},
+				new String[]{null,null,null,null}, 
+				new MyTable[]{null,null,null,null},
+				new String[][]{{"filename"}},
+				new LinkedHashMap[]{null,null,null,null}, 
+				new String[]{null,null,null,null});
+		addTable(fclXlsSources, Lieferketten_LIST);
 		//check4Updates_129_130(myList);
 
 		//DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Bundesland") + " = 'NI' WHERE " + DBKernel.delimitL("ID") + " = 167", false);

@@ -38,7 +38,6 @@ import javax.swing.border.*;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.gui.dbtable.editoren.MyNewDoubleEditor;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -618,6 +617,7 @@ public class MyDBForm extends JPanel {
 	}
 	private void checkOtherEditor2Open(JComponent c, String key, MyTable myFT, int x, int y) {
 		System.out.println(x + "\t" + y + "\t" + c.getX() + "\t" + c.getY());
+		/*
 		MyNewDoubleEditor mde = new MyNewDoubleEditor(c.getToolTipText(), key, x, y, ' ');		
 		mde.setVisible(true);
 		if (mde.savePressed()) {
@@ -627,6 +627,7 @@ public class MyDBForm extends JPanel {
 				c.setToolTipText(newD.toString());
 			}
 		}
+		*/
 	}
 
 	@SuppressWarnings("unchecked")

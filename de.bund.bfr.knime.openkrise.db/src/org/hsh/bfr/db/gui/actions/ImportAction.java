@@ -36,6 +36,7 @@ import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
 import org.hsh.bfr.db.imports.MyImporter;
 import org.hsh.bfr.db.imports.custom.LieferkettenImporterEFSA;
+import org.hsh.bfr.db.imports.custom.bfrnewformat.BackTraceImporter;
 
 /**
  * @author Armin
@@ -61,7 +62,10 @@ public class ImportAction extends AbstractAction {
 	  JFileChooser fc = new JFileChooser(lastOutDir);
 //	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
-	  if (DBKernel.isKrise) {LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);}
+	  if (DBKernel.isKrise) {
+		  BackTraceImporter bti = new BackTraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
+		  LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);
+	  }
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
 	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());
@@ -92,6 +96,14 @@ public class ImportAction extends AbstractAction {
 						LieferkettenImporterEFSA efsa = (LieferkettenImporterEFSA) mi;
 						efsa.mergeIDs();
 						String log = efsa.getLogMessages();
+						Font f = new Font("Arial", Font.PLAIN, 10);
+						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
+						ib.setVisible(true);
+						
+					}
+					else if (mi instanceof BackTraceImporter) {
+						BackTraceImporter bti = (BackTraceImporter) mi;
+						String log = bti.getLogMessages();
 						Font f = new Font("Arial", Font.PLAIN, 10);
 						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
 						ib.setVisible(true);

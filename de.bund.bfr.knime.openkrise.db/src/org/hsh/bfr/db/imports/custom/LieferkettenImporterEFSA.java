@@ -431,7 +431,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		HSSFSheet transactionSheet = wb.getSheet("Transactions");
 
 		boolean isSimpleFormat = transactionSheet != null && isSimple(transactionSheet.getRow(0));
-		boolean isNewFormat = transactionSheet == null && wb.getSheet("NewTransactions") != null || isNew(transactionSheet.getRow(0));
+		boolean isNewFormat = transactionSheet == null && wb.getSheet("NewTransactions") != null || transactionSheet != null && isNew(transactionSheet.getRow(0));
 		
 		if (isNewFormat && !isSimpleFormat) {
 			doImportNewFormat(wb, progress);
@@ -1287,9 +1287,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						log += numFails + " fehlgeschlagene Importe.\n";
 						InfoBox ib = new InfoBox(log, true, new Dimension(300, 150), null);
 						ib.setVisible(true);
-					}
+					}						
 				} catch (Exception e) {
-					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e) + "\n\n";
+					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 					MyLogger.handleException(e);
 				}
 				System.err.println("Importing - Fin");
@@ -1301,20 +1301,22 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
-			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e) + "\n\n";
+			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 			MyLogger.handleException(e);
 		}
 		return "";
 	}
-	private String getST(Exception e) {
-		StackTraceElement[] ste = e.getStackTrace();
-		String strs = "";
-		if (ste != null) {
-			for (StackTraceElement stres : ste) {
-				strs += stres + "\n";
+	private String getST(Exception e, boolean getTrace) {
+		String result = e.getMessage() + "\n";
+		if (getTrace) {
+			StackTraceElement[] ste = e.getStackTrace();
+			if (ste != null) {
+				for (StackTraceElement stres : ste) {
+					result += stres + "\n";
+				}
 			}
 		}
-		return strs;
+		return result;
 	}
 
 	private boolean is1SurelyNewer(int deliveryId1, int deliveryId2) {
@@ -1564,7 +1566,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 	private class XlsFileFilter extends FileFilter {
 		public boolean accept(File f) {
-			return f.isDirectory() || f.getName().toLowerCase().endsWith(".xls");
+			String fname = f.getName().toLowerCase();
+			return f.isDirectory() || fname.endsWith(".xls");
 		}
 
 		public String getDescription() {

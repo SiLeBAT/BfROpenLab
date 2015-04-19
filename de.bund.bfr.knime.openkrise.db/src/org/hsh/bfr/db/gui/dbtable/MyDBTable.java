@@ -90,7 +90,6 @@ import org.hsh.bfr.db.gui.dbtable.editoren.MyImageCell;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyJavaTypeRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyLabelRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyMNRenderer;
-import org.hsh.bfr.db.gui.dbtable.editoren.MyNewDoubleEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyTextareaEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyTextareaRenderer;
 import org.hsh.bfr.db.gui.dbtable.header.MyTableHeaderCellRenderer;
@@ -1938,59 +1937,6 @@ public void keyTyped(final KeyEvent keyEvent) {
 	}
 	private void checkOtherEditor2Open(final int lastClickedRow, final int lastClickedCol, final int x, final int y, final char ch) {
 		if (lastClickedCol > 0) {
-	    MyTable[] myTs = actualTable.getForeignFields();
-	    if (lastClickedCol > 0 && lastClickedCol <= myTs.length && myTs[lastClickedCol-1] != null &&
-	    		myTs[lastClickedCol-1].getTablename().equals("DoubleKennzahlen")) {
-	  		JScrollPane scroller = getScroller();
-	  		//int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
-	  		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
-
-	  		String spaltenName = this.getActualTable().getFieldNames()[lastClickedCol-1];
-	  		MyNewDoubleEditor mde = new MyNewDoubleEditor(this.getValueAt(lastClickedRow, lastClickedCol), spaltenName, x, y, ch);		
-				mde.setVisible(true);
-				if (mde.savePressed()) {
-					if (mde.getNewValue() != null) {
-						this.setValueAt(mde.getNewValue(), lastClickedRow, lastClickedCol);
-					}
-      		// evtl. HashBox neu setzen, sonst wird nicht refresht
-					hashBox[lastClickedCol-1] = DBKernel.fillHashtable(myTs[lastClickedCol-1], "", "\n", "\n", !bigbigTable, true); //" | " " ; "
-					Column c = this.getColumn(lastClickedCol); 
-					c.setUserCellRenderer(new MyComboBoxEditor(hashBox[lastClickedCol-1], true));
-
-					this.save();
-			  		int sr = this.getSelectedID();
-			  		int sc = this.getSelectedColumn();
-	
-			  		try {
-				    	this.refresh();
-				    }
-				    catch (Exception e1) {
-				    	MyLogger.handleException(e1);
-				    }
-			  		if (myDBPanel1 != null) {
-						myDBPanel1.handleSuchfeldChange(null);
-					}
-				    this.updateRowHeader(!bigbigTable);
-				    if (sc >= 0 && sc < this.getColumnCount()) {
-						this.getTable().setColumnSelectionInterval(sc, sc);
-					}
-				    
-			    	/*
-				    if (sr >= 0 && sr < this.getRowCount()) {
-				    	this.setRowSelectionInterval(sr, sr);
-				    	this.goTo(sr);
-				    }
-				*/
-				    if (sorterModel != null) {
-						sorterModel.initArray();
-					}
-				    //if (scrollVal >= 0) this.getScroller().getVerticalScrollBar().setValue(scrollVal);
-				    if (hscrollVal >= 0) {
-						this.getScroller().getHorizontalScrollBar().setValue(hscrollVal);
-					}
-			    	this.setSelectedID(sr);
-			    }
-			}
 		}		
 	}
 	private int getLastClickedCol(final MouseEvent e) {
