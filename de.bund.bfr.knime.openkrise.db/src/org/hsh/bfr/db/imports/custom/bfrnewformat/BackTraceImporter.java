@@ -30,8 +30,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	public void doImport(Workbook wb, String filename) throws Exception {
 		Sheet businessSheet = wb.getSheet("Stations");
-
-		Sheet transactionSheet = wb.getSheet("BackTracing");
 		
 		Sheet inSheet = wb.getSheet("IncomingDeliveries");
 		Sheet lotSheet = wb.getSheet("Lot");
@@ -91,6 +89,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			
 			return;
 		}
+		Sheet transactionSheet = wb.getSheet("BackTracing");
+
 		Row row = transactionSheet.getRow(0);
 		
 		// Station in focus
