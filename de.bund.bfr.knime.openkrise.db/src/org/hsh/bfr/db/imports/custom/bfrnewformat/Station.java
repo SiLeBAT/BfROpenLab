@@ -4,12 +4,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.hsh.bfr.db.DBKernel;
 
 public class Station {
 
 	private static HashMap<String, Station> gathereds = new HashMap<>();
+	private HashMap<String, String> flexibles = new HashMap<>();
+
+	public void addFlexibleField(String key, String value) {
+		flexibles.put(key, value);
+	}
 	
 	private String id;
 	public String getId() {
@@ -113,6 +119,15 @@ public class Station {
 				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id}, miDbId);
 		dbId = retId;
 		gathereds.get(id).setDbId(dbId);
+		
+		// Further flexible cells
+		if (retId != null) {
+			for (Entry<String, String> es : flexibles.entrySet()) {
+				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
+						" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
+						") VALUES ('Station'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+			}
+		}
 		return retId;
 	}
 	private Integer getID(String[] feldnames, String[] feldVals, Integer miDbId) throws Exception {

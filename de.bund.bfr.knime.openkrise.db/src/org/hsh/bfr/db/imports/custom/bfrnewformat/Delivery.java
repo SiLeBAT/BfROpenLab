@@ -4,13 +4,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.hsh.bfr.db.DBKernel;
 
 public class Delivery {
 
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
+	private HashMap<String, String> flexibles = new HashMap<>();
 
+	public void addFlexibleField(String key, String value) {
+		flexibles.put(key, value);
+	}
 	private Lot lot;
 	public Lot getLot() {
 		return lot;
@@ -116,6 +121,15 @@ public class Delivery {
 				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId);
 		dbId = retId;
 		if (gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
+		
+		// Further flexible cells
+		if (retId != null) {
+			for (Entry<String, String> es : flexibles.entrySet()) {
+				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
+						" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
+						") VALUES ('Lieferungen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+			}
+		}
 		return retId;
 	}
 	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId) throws Exception {
