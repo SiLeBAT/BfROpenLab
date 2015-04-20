@@ -101,6 +101,14 @@ public class Delivery {
 	public void setTargetLotId(String targetLotId) {
 		this.targetLotId = targetLotId;
 	}
+	private String lookup;
+	
+	public String getLookup() {
+		return lookup;
+	}
+	public void setLookup(String lookup) {
+		this.lookup = lookup;
+	}
 	private Integer dbId;
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;

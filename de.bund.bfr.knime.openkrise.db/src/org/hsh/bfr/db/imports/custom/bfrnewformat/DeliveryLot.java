@@ -11,9 +11,32 @@ import org.hsh.bfr.db.DBKernel;
 public class DeliveryLot {
 
 	private HashMap<String, String> flexibles = new HashMap<>();
+	
+	private Lot targetLot;
+	public Lot getTargetLot() {
+		return targetLot;
+	}
+
+	public void setTargetLot(Lot targetLot) {
+		this.targetLot = targetLot;
+	}
+
+	public Delivery getIngredient() {
+		return ingredient;
+	}
+
+	public void setIngredient(Delivery ingredient) {
+		this.ingredient = ingredient;
+	}
+
+	private Delivery ingredient;
 
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
+	}
+	
+	public void getId(Integer miDbId) throws Exception {
+		getId(ingredient.getDbId(), targetLot.getDbId(), miDbId);
 	}
 
 	public void getId(Integer dbId, Integer dbPId, Integer miDbId) throws Exception {

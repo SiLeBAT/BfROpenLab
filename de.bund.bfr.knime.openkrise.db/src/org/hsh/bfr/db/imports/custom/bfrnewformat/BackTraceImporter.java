@@ -29,14 +29,68 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		return logMessages;
 	}
 	public void doImport(Workbook wb, String filename) throws Exception {
+		Sheet businessSheet = wb.getSheet("Stations");
+
+		Sheet transactionSheet = wb.getSheet("BackTracing");
+		
 		Sheet inSheet = wb.getSheet("IncomingDeliveries");
 		Sheet lotSheet = wb.getSheet("Lot");
 		Sheet outSheet = wb.getSheet("OutgoingDeliveries");
+		
 		if (inSheet != null && lotSheet != null && outSheet != null) {
+			// load all Stations
+			HashMap<String, Station> stations = new HashMap<>();
+			int numRows = businessSheet.getLastRowNum() + 1;
+			Row titleRow = businessSheet.getRow(0);
+			for (int i=1;i<numRows;i++) {
+				Station s = getStation(titleRow, businessSheet.getRow(i));
+				stations.put(s.getLookup(), s);
+			}
+			// load all Lots
+			HashMap<String, Lot> lots = new HashMap<>();
+			numRows = lotSheet.getLastRowNum() + 1;
+			titleRow = lotSheet.getRow(0);
+			for (int i=1;i<numRows;i++) {
+				Lot l = getMultiLot(stations, titleRow, lotSheet.getRow(i));
+				lots.put(l.getLookup(), l);
+			}
+			// load all Deliveries
+			HashMap<String, Delivery> deliveries = new HashMap<>();
+			numRows = outSheet.getLastRowNum() + 1;
+			titleRow = outSheet.getRow(0);
+			for (int i=1;i<numRows;i++) {
+				Delivery d = getMultiOutDelivery(stations, lots, titleRow, outSheet.getRow(i));
+				deliveries.put(d.getLookup(), d);
+			}
 			
+			// load Recipes
+			HashSet<DeliveryLot> recipes = new HashSet<>();
+			numRows = inSheet.getLastRowNum() + 1;
+			titleRow = inSheet.getRow(0);
+			for (int i=1;i<numRows;i++) {
+				DeliveryLot dl = getDeliveryLot(lots, deliveries, titleRow, inSheet.getRow(i));
+				recipes.add(dl);
+			}
+
+			MetaInfo mi = new MetaInfo();
+			mi.setFilename(filename);
+
+			DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+			Integer miDbId = mi.getID();
+			if (miDbId == null) throw new Exception("File already imported");
+			for (Delivery d : deliveries.values()) {
+				d.getID(miDbId);
+				if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			}
+			for (DeliveryLot dl : recipes) {
+				dl.getId(miDbId);
+			}
+
+			DBKernel.sendRequest("COMMIT", false);
+			DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+			
+			return;
 		}
-		Sheet transactionSheet = wb.getSheet("BackTracing");
-		Sheet businessSheet = wb.getSheet("Stations");
 		Row row = transactionSheet.getRow(0);
 		
 		// Station in focus
@@ -149,28 +203,71 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			Row row = businessSheet.getRow(i);
 			Cell cell = row.getCell(10);
 			if (cell.getStringCellValue().equals(lookup)) {
-				result = new Station();
-				cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(cell.getStringCellValue());}
-				cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setName(cell.getStringCellValue());}
-				cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setStreet(cell.getStringCellValue());}
-				cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setNumber(cell.getStringCellValue());}
-				cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setZip(cell.getStringCellValue());}
-				cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setCity(cell.getStringCellValue());}
-				cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDistrict(cell.getStringCellValue());}
-				cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setState(cell.getStringCellValue());}
-				cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setCountry(cell.getStringCellValue());}
-				cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTypeOfBusiness(cell.getStringCellValue());}
-				
-				// Further flexible cells
-				Row titleRow = businessSheet.getRow(0);
-				for (int ii=11;ii<20;ii++) {
-					Cell tCell = titleRow.getCell(ii);
-					if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
-						tCell.setCellType(Cell.CELL_TYPE_STRING);
-						cell = row.getCell(ii); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
-					}
-				}
+				result = getStation(businessSheet.getRow(0), row);
 				break;
+			}
+		}
+		return result;
+	}
+	private Station getStation(Row titleRow, Row row) {
+		Station result = new Station();
+		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(cell.getStringCellValue());}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setName(cell.getStringCellValue());}
+		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setStreet(cell.getStringCellValue());}
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setNumber(cell.getStringCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setZip(cell.getStringCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setCity(cell.getStringCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDistrict(cell.getStringCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setState(cell.getStringCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setCountry(cell.getStringCellValue());}
+		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTypeOfBusiness(cell.getStringCellValue());}
+		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLookup(cell.getStringCellValue());}
+		
+		// Further flexible cells
+		for (int ii=11;ii<20;ii++) {
+			Cell tCell = titleRow.getCell(ii);
+			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				tCell.setCellType(Cell.CELL_TYPE_STRING);
+				cell = row.getCell(ii); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
+			}
+		}
+		return result;
+	}
+	private DeliveryLot getDeliveryLot(HashMap<String, Lot> lots, HashMap<String, Delivery> deliveries, Row titleRow, Row row) {
+		DeliveryLot result = new DeliveryLot();
+		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setIngredient(deliveries.get(cell.getStringCellValue()));}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLot(lots.get(cell.getStringCellValue()));}
+		
+		// Further flexible cells
+		for (int i=2;i<10;i++) {
+			Cell tCell = titleRow.getCell(i);
+			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				tCell.setCellType(Cell.CELL_TYPE_STRING);
+				cell = row.getCell(i); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
+			}
+		}
+		return result;
+	}
+	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, HashMap<String, Lot> lots, Row titleRow, Row row) {
+		Delivery result = new Delivery();
+		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLot(lots.get(cell.getStringCellValue()));}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setUnitNumber(cell.getNumericCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setUnitUnit(cell.getStringCellValue());}
+		cell = row.getCell(9);  if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(stations.get(cell.getStringCellValue()));}
+		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLookup(cell.getStringCellValue());}
+		
+		// Further flexible cells
+		for (int i=11;i<20;i++) {
+			Cell tCell = titleRow.getCell(i);
+			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				tCell.setCellType(Cell.CELL_TYPE_STRING);
+				cell = row.getCell(i); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
 			}
 		}
 		return result;
@@ -210,6 +307,35 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		return result;
+	}
+	private Lot getMultiLot(HashMap<String, Station> stations, Row titleRow, Row row) {
+		Product p = new Product();
+		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setStation(stations.get(cell.getStringCellValue()));}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setName(cell.getStringCellValue());}
+		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setNumber(cell.getStringCellValue());}
+		Lot l = new Lot();
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(cell.getStringCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setUnitNumber(cell.getNumericCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(cell.getStringCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(11); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(12); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setTreatment(cell.getStringCellValue());}
+		cell = row.getCell(13); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setSampling(cell.getStringCellValue());}
+		cell = row.getCell(14); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setLookup(cell.getStringCellValue());}
+		
+		// Further flexible cells
+		for (int i=15;i<25;i++) {
+			Cell tCell = titleRow.getCell(i);
+			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				tCell.setCellType(Cell.CELL_TYPE_STRING);
+				cell = row.getCell(i); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
+			}
+		}
+		return l;
 	}
 	private boolean fillLot(Row row, HashMap<String, Delivery> deliveries, Row titleRow) {
 		Delivery d = null;

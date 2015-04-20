@@ -95,6 +95,14 @@ public class Lot {
 	private Integer expiryYear;
 	private String sampling; // -> flexible table
 	private Integer dbId;
+	private String lookup;
+	
+	public String getLookup() {
+		return lookup;
+	}
+	public void setLookup(String lookup) {
+		this.lookup = lookup;
+	}
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;
 	}
