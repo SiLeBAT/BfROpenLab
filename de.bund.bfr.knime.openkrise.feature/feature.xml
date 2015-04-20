@@ -41,8 +41,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.apache.poi"/>
-      <import plugin="org.knime.ext.jfreechart"/>
-      <import plugin="org.knime.ext.jep"/>
    </requires>
 
    <plugin
