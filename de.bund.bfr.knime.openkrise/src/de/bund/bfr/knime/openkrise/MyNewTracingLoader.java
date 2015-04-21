@@ -25,11 +25,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBI;
-
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class MyNewTracingLoader {
 

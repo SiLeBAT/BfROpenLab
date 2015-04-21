@@ -17,21 +17,41 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import javax.swing.InputMap;
+import javax.swing.KeyStroke;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+class FilteringInputMap extends InputMap {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private KeyStroke[] disableKeys;
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+	 FilteringInputMap(InputMap parent, KeyStroke[] disableKeys) {
+		 super();
+		 setParent(parent);
+		 this.disableKeys = disableKeys;
+	 }
+
+	 public Object get(KeyStroke keyStroke) {
+		 if (disableKeys != null) {
+			 for(int i=0; i<disableKeys.length; i++) {
+				 if(keyStroke.equals(disableKeys[i])) {
+					 return null;
+				 }
+			 }			 
+		 }
+		 return super.get(keyStroke);
+	 }
+
 }

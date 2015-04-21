@@ -17,21 +17,45 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+/**
+ * @author Armin
+ *
+ */
+class KeyValue {
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+  private Object key;
+  private Object value;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
+  KeyValue () {
+  }
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+  KeyValue (Object key, Object value) {
+      this.key=key;
+      this.value=value;
+  }
+
+  public Object getKey() {
+      return this.key;
+  }
+  public void setKey(Object key) {
+      this.key=key;
+  }
+
+  public Object getValue() {
+      return this.value;
+  }
+  public void setValue(String value) {
+      this.value=value;
+  }
+
+  @Override
+  public String toString() {
+      return this.value == null ? "" : this.value.toString();
+  }
+
 }

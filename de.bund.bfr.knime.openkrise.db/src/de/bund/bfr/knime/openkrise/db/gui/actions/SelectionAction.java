@@ -17,21 +17,32 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+package de.bund.bfr.knime.openkrise.db.gui.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.awt.event.ActionEvent;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
+import de.bund.bfr.knime.openkrise.db.gui.MyList;
+import de.bund.bfr.knime.openkrise.db.gui.SelectionDialog;
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+public class SelectionAction extends AbstractAction {
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+		private MyList myList;
+	  public SelectionAction(String name, Icon icon, String toolTip, MyList myList) {
+	    this.myList = myList;
+		putValue(Action.NAME, name);
+	    putValue(Action.SHORT_DESCRIPTION, toolTip);
+	    putValue(Action.SMALL_ICON, icon);
+	  }    
+
+	  public void actionPerformed(ActionEvent e) {
+			new SelectionDialog(myList).setVisible(true);
+		}
+
 }

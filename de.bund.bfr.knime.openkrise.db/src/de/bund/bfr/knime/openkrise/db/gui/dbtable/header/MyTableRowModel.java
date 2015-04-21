@@ -17,21 +17,41 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.header;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import javax.swing.table.DefaultTableModel;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+public class MyTableRowModel extends DefaultTableModel {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int numRows;
+	
+	public MyTableRowModel(int numRows) {
+		this.numRows = numRows;
 	}
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+  public int getColumnCount() {
+  	return 1;
+  }
+  public int getRowCount() {
+  	return numRows;
+  }
+
+  public Object getValueAt(int row, int col) {
+  	return row+1;
+  }
+
+  public boolean isCellEditable(int row, int col) {
+    return false;
+  }
 }

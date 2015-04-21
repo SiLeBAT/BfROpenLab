@@ -17,21 +17,47 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.awt.event.ActionListener;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+import javax.swing.JComponent;
+import javax.swing.JTextArea;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
+import quick.dbtable.CellComponent;
+
+/**
+ * @author Armin
+ *
+ */
+public class MyTextareaRenderer extends JTextArea implements CellComponent {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6899182168468689816L;
+
+	public MyTextareaRenderer() {
+		this.setLineWrap(true);
+		this.setWrapStyleWord(true);
+	}
+	
+	public void setValue(Object value) { 
+		if (value == null) this.setText(""); 
+		else this.setText(value.toString()); 
 	}
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
+	public void addActionListener(ActionListener arg0) {
+	}
+
+	public JComponent getComponent() {
+		return this;
+	}
+
+	public Object getValue() {
 		return null;
 	}
 }

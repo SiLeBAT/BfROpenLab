@@ -17,21 +17,41 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.util.LinkedHashMap;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+class Users {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
-
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+	static int READ_ONLY = 0;	
+	static int WRITE_ACCESS = 10;
+	static int SUPER_WRITE_ACCESS = 20;
+	static int ADMIN = 30;
+	
+	private int accRight;
+	private String username;
+  
+	
+  static LinkedHashMap<Object, String> getUserTypesHash() {
+  	LinkedHashMap<Object, String> result = new LinkedHashMap<>();
+  	result.put(READ_ONLY, "READ_ONLY");					
+  	result.put(WRITE_ACCESS, "WRITE_ACCESS");					
+  	result.put(SUPER_WRITE_ACCESS, "SUPER_WRITE_ACCESS");					
+  	result.put(ADMIN, "ADMIN");					
+  	return result;
+  }
+  
+  public String getUsername() {
+  	return username;
+  }
+  public int getAccessRight() {
+  	return accRight;
+  }
 }

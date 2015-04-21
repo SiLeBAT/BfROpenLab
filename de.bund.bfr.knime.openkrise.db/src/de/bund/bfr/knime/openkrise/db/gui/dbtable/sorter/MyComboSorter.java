@@ -17,21 +17,38 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.sorter;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+public class MyComboSorter implements Comparator<Integer> {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
+	private LinkedHashMap<Object, String>[] hashBox = null;
+	private int pos;
+	
+	public MyComboSorter(LinkedHashMap<Object, String>[] hashBox, int pos) {		
+		this.hashBox = hashBox;
+		this.pos = pos;
 	}
-
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+	
+  @Override
+  public int compare(Integer o1, Integer o2) {
+  	//System.out.println("MyComboSorter");
+  	if (o1 == null && o2 == null) return 0;
+  	else if (o1 == null) return 1;
+  	else if (o2 == null) return -1;
+  	else if (hashBox[pos] == null) return 0;
+  	else if (hashBox[pos].get(o1) == null && hashBox[pos].get(o2) == null) return 0;
+  	else if (hashBox[pos].get(o1) == null) return 1;
+  	else if (hashBox[pos].get(o2) == null) return -1;
+  	else return hashBox[pos].get(o1).compareTo(hashBox[pos].get(o2));
+  }
 }

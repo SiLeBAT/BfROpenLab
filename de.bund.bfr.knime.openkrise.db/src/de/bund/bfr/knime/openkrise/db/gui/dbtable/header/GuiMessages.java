@@ -17,21 +17,33 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.header;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.util.ResourceBundle;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
+public class GuiMessages {
+	private static final String BUNDLE_NAME = "de.bund.bfr.knime.openkrise.db.gui.dbtable.header.guimessages_" + DBKernel.getLanguage(); //$NON-NLS-1$
+
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+
+	private GuiMessages() {
+		// empty
 	}
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
+	/**
+	* @param key
+	*            the key for the message
+	* @return the string that matches the key
+	*/
+	public static String getString(final String key) {
+		try {
+			String res = RESOURCE_BUNDLE.getString(key);
+			return res == null || res.isEmpty() ? key : res;
+		}
+		catch (final Exception e) {
+			return key;//'!' + key + '!';
+		}
 	}
 }

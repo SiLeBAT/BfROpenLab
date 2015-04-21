@@ -17,21 +17,33 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.sorter;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.util.Comparator;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+public class MyOtherSorter implements Comparator<Object> {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
-
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+  @Override
+  public int compare(Object o1, Object o2) {
+  	//System.out.println("MyOtherSorter");
+  	if (o1 == null && o2 == null) return 0;
+  	else if (o1 == null) return 1;
+  	else if (o2 == null) return -1;
+		if (o1 instanceof Object[] && o2 instanceof Object[]) {
+			//Object[] oo1 = (Object[]) o1;
+			//Object[] oo2 = (Object[]) o2;
+			// Tja, was tun?
+			return 0;
+		}
+  	else {
+  		return 0;
+  	}
+  }
 }

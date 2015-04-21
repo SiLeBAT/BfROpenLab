@@ -17,21 +17,33 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+package de.bund.bfr.knime.openkrise.db.gui.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.awt.event.ActionEvent;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+import javax.swing.AbstractAction;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
+import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+/**
+ * @author Armin
+ *
+ */
+public class FindAction extends AbstractAction {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private MyDBPanel myDBPanel = null;
+	
+  public FindAction(MyDBPanel myDBPanel) {
+  	this.myDBPanel = myDBPanel;
+  }    
+
+  public void actionPerformed(ActionEvent e) {
+  	if (myDBPanel != null) {
+  		myDBPanel.getSuchfeld().grabFocus();
+  	}
+  }
 }

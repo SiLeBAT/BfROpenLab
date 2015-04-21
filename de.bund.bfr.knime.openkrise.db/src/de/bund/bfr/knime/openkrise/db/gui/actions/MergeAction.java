@@ -17,21 +17,37 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+package de.bund.bfr.knime.openkrise.db.gui.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.awt.event.ActionEvent;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
+import de.bund.bfr.knime.openkrise.db.MergeDBsAPriori;
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
+/**
+ * @author Armin
+ *
+ */
+public class MergeAction extends AbstractAction {
+
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public MergeAction(String name, Icon icon, String toolTip) {
+    putValue(Action.NAME, name);
+    putValue(Action.SHORT_DESCRIPTION, toolTip);
+    putValue(Action.SMALL_ICON, icon);
+    this.setEnabled(false);
+  }    
+
+  public void actionPerformed(ActionEvent e) {
+ // Zusammenführung
+	  //new MergeDBs();
+	  new MergeDBsAPriori();
 	}
 }

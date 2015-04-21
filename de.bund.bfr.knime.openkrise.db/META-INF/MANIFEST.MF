@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: DB-GUI
 Bundle-SymbolicName: de.bund.bfr.knime.openkrise.db;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.hsh.bfr.db.Activator
+Bundle-Activator: de.bund.bfr.knime.openkrise.db.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -13,10 +13,10 @@ Require-Bundle: org.eclipse.ui,
  quick.dbtable
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.hsh.bfr.db,
- org.hsh.bfr.db.gui,
- org.hsh.bfr.db.gui.dbtable,
- org.hsh.bfr.db.imports,
+Export-Package: de.bund.bfr.knime.openkrise.db,
+ de.bund.bfr.knime.openkrise.db.gui,
+ de.bund.bfr.knime.openkrise.db.gui.dbtable,
+ de.bund.bfr.knime.openkrise.db.imports,
  org.hsqldb,
  org.hsqldb.auth,
  org.hsqldb.dbinfo,

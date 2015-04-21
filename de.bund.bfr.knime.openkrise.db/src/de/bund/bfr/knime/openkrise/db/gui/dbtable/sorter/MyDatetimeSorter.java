@@ -17,21 +17,26 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.gui.dbtable.sorter;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import java.sql.Timestamp;
+import java.util.Comparator;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
+/**
+ * @author Armin
+ *
+ */
+public class MyDatetimeSorter implements Comparator<Timestamp> {
 
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
-
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+  @Override
+  public int compare(Timestamp o1, Timestamp o2) {
+  	//System.out.println("MyDatetimeSorter");
+  	if (o1 == null && o2 == null) return 0;
+  	else if (o1 == null) return 1;
+  	else if (o2 == null) return -1;
+  	else return o1.compareTo(o2);
+  }
 }

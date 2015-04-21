@@ -17,21 +17,17 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.ui.handlers;
+/**
+ * 
+ */
+package de.bund.bfr.knime.openkrise.db.imports;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import javax.swing.JProgressBar;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
-
-public class OpenDBGUI extends AbstractHandler {
-	public OpenDBGUI() {
-	}
-
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI();
-		return null;
-	}
+/**
+ * @author Armin
+ *
+ */
+public interface MyImporter {
+	public String doImport(final String filename, final JProgressBar progress, final boolean showResults);
 }

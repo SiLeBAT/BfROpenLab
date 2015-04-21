@@ -41,13 +41,13 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyLogger;
-import org.hsh.bfr.db.gui.Login;
-
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+
+import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyLogger;
+import de.bund.bfr.knime.openkrise.db.gui.Login;
 
 /**
  * @author Armin Weiser
