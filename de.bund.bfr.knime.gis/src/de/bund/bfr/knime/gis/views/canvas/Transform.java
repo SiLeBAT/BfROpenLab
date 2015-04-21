@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class Transform {
 
@@ -87,26 +87,23 @@ public class Transform {
 		return new Point2D.Double((x - translationX) / scaleX, (y - translationY) / scaleY);
 	}
 
-	public List<Polygon> apply(MultiPolygon polygon, boolean withHoles) {
-		List<Polygon> transformedPolygon = new ArrayList<>();
+	public List<java.awt.Polygon> apply(MultiPolygon poly, boolean withHoles) {
+		List<java.awt.Polygon> transformed = new ArrayList<>();
 
-		for (int index = 0; index < polygon.getNumGeometries(); index++) {
-			com.vividsolutions.jts.geom.Polygon part = (com.vividsolutions.jts.geom.Polygon) polygon
-					.getGeometryN(index);
-
-			transformedPolygon.add(apply(part, withHoles));
+		for (int index = 0; index < poly.getNumGeometries(); index++) {
+			transformed.add(apply((Polygon) poly.getGeometryN(index), withHoles));
 		}
 
-		return transformedPolygon;
+		return transformed;
 	}
 
-	public Polygon apply(com.vividsolutions.jts.geom.Polygon part, boolean withHoles) {
+	public java.awt.Polygon apply(Polygon poly, boolean withHoles) {
 		Coordinate[] points;
 
 		if (withHoles) {
-			points = part.getCoordinates();
+			points = poly.getCoordinates();
 		} else {
-			points = part.getExteriorRing().getCoordinates();
+			points = poly.getExteriorRing().getCoordinates();
 		}
 
 		int n = points.length;
@@ -120,6 +117,6 @@ public class Transform {
 			ys[i] = p.y;
 		}
 
-		return new Polygon(xs, ys, n);
+		return new java.awt.Polygon(xs, ys, n);
 	}
 }

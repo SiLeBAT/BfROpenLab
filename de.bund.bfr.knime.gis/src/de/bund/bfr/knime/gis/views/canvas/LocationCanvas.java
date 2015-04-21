@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.vividsolutions.jts.geom.Polygon;
+
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -37,7 +39,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	private static final long serialVersionUID = 1L;
 
 	private List<RegionNode> regions;
-	private com.vividsolutions.jts.geom.Polygon invalidArea;
+	private Polygon invalidArea;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),

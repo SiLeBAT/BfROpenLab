@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.vividsolutions.jts.geom.Polygon;
+
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -35,7 +37,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private com.vividsolutions.jts.geom.Polygon invalidArea;
+	private Polygon invalidArea;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
