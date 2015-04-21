@@ -91,7 +91,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private Connection getLocalConn() {
-		DBKernel.getLocalConn(false);
+		DBKernel.getLocalConn(true);
 		return null;
 	}
 

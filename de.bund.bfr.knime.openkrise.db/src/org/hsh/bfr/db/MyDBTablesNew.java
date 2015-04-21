@@ -281,7 +281,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,"INT"},
 				null,
 				new LinkedList<>(Arrays.asList("Matrixname")));
-		addTable(matrix, BasisTabellen_LIST);
+		addTable(matrix, -1);
 		
 		MyTable toxinUrsprung = new MyTable("ToxinUrsprung", new String[]{"Ursprung"},
 				new String[]{"VARCHAR(255)"},
@@ -333,7 +333,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,"INT"},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,"*.pdf, *.doc",null},
 				new LinkedList<>(Arrays.asList("Agensname")));
-		addTable(agenzien, BasisTabellen_LIST);
+		addTable(agenzien, -1);
 		MyTable normen = new MyTable("Methodennormen", new String[]{"Name","Beschreibung"},
 				new String[]{"VARCHAR(255)","VARCHAR(1023)"},
 				new String[]{"Name der Norm","Beschreibung der Norm"},

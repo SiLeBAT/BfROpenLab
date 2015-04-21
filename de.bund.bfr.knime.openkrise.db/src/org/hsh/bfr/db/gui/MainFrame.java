@@ -731,14 +731,15 @@ public class MainFrame extends JFrame {
 	}
 
 	private void button11ActionPerformed(final ActionEvent e) {
+		/*
 		// reset Database:
-		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie die Datenbank neu initialisieren möchten?", "Reset bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie die Datenbank neu initialisieren möchten?\nDie Daten gehen alle verloren!!!", "Reset bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
-			this.dispose();
-			Login login = new Login(true);
-			login.dropDatabase();
-			login.setVisible(true);
+			//Login login = new Login(true);
+			Login.dropDatabase();
+			DBKernel.openDBGUI();
 		}
+		*/
 	}
 
 	private void initComponents() {
@@ -848,7 +849,7 @@ public class MainFrame extends JFrame {
 
 			//---- button11 ----
 			button11.setText(bundle.getString("MainFrame.button11.text"));
-			button11.setVisible(false);
+			//button11.setVisible(false);
 			button11.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

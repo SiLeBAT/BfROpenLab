@@ -150,6 +150,12 @@ public class Station {
 				iv += ",'" + feldVals[i] + "'";
 			}
 		}
+		try {
+			int intId = Integer.parseInt(feldVals[feldVals.length-1]);
+			in += "," + DBKernel.delimitL("ID");
+			iv += "," + intId;
+		}
+		catch (Exception e) {}
 
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 

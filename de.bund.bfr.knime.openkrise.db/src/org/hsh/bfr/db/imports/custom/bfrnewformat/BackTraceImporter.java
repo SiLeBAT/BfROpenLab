@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
@@ -24,6 +25,7 @@ import org.hsh.bfr.db.imports.MyImporter;
 public class BackTraceImporter extends FileFilter implements MyImporter {
 
 	private String logMessages = "";
+	private int classRowIndex = -1;
 	
 	public String getLogMessages() {
 		return logMessages;
@@ -97,44 +99,46 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		Station sif = getStation(businessSheet, row.getCell(1).getStringCellValue());
 		
 		// Delivery(s) Outbound
-		int rowIndex = 5;
+		classRowIndex = 5;
 		HashMap<String, Delivery> outDeliveries = new HashMap<>(); 
-		Row titleRow = transactionSheet.getRow(rowIndex - 2);
-		for (;;rowIndex++) {
-			row = transactionSheet.getRow(rowIndex);
+		HashMap<String, Lot> outLots = new HashMap<>(); 
+		Row titleRow = transactionSheet.getRow(classRowIndex - 2);
+		for (;;classRowIndex++) {
+			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, "Reporter Information")) break;
 			Delivery d = getDelivery(businessSheet, sif, row, true, titleRow);
 			outDeliveries.put(d.getId(), d);
+			outLots.put(d.getLot().getNumber(), d.getLot());
 		}
 		
 		// Metadata on Reporter
-		rowIndex = getNextBlockRowIndex(transactionSheet, rowIndex, "Reporter Information") + 2;
-		row = transactionSheet.getRow(rowIndex);
+		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
+		row = transactionSheet.getRow(classRowIndex);
 		MetaInfo mi = getMetaInfo(row);
 		mi.setFilename(filename);
 		
 		// Lot(s)
-		rowIndex = getNextBlockRowIndex(transactionSheet, rowIndex, "Lot Information") + 3;
-		titleRow = transactionSheet.getRow(rowIndex - 2);
-		for (;;rowIndex++) {
-			row = transactionSheet.getRow(rowIndex);
+		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Lot Information") + 3;
+		titleRow = transactionSheet.getRow(classRowIndex - 2);
+		for (;;classRowIndex++) {
+			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, "Ingredients for Lot(s)")) break;
-			if (!fillLot(row, outDeliveries, titleRow)) throw new Exception("DeliveryID unknown in Row number " + (rowIndex + 1));
+			if (!fillLot(row, outLots, titleRow)) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 		}
 		
 		// Deliveries/Recipe Inbound
-		rowIndex = getNextBlockRowIndex(transactionSheet, rowIndex, "Ingredients for Lot(s)") + 3;
+		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Ingredients for Lot(s)") + 3;
 		HashSet<Delivery> inDeliveries = new HashSet<>(); 
 		int numRows = transactionSheet.getLastRowNum() + 1;
-		titleRow = transactionSheet.getRow(rowIndex - 2);
-		for (;rowIndex < numRows;rowIndex++) {
-			row = transactionSheet.getRow(rowIndex);
+		titleRow = transactionSheet.getRow(classRowIndex - 2);
+		for (;classRowIndex < numRows;classRowIndex++) {
+			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, null)) break;
 			Delivery d = getDelivery(businessSheet, sif, row, false, titleRow);
-			if (d.getTargetLotId() == null) throw new Exception("LotID unknown in Row number " + (rowIndex + 1));
+			if (d.getTargetLotId() == null) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 			inDeliveries.add(d);
 		}
 		
@@ -251,13 +255,13 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, HashMap<String, Lot> lots, Row titleRow, Row row) {
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLot(lots.get(cell.getStringCellValue()));}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setUnitNumber(cell.getNumericCellValue());}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setUnitNumber(cell.getNumericCellValue());}
 		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setUnitUnit(cell.getStringCellValue());}
 		cell = row.getCell(9);  if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(stations.get(cell.getStringCellValue()));}
 		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLookup(cell.getStringCellValue());}
@@ -283,13 +287,13 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		Delivery result = new Delivery();
 		result.setLot(l);
 		if (!outbound) result.setReceiver(sif);
-		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setDepartureYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setArrivalYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {result.setUnitNumber(cell.getNumericCellValue());}
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setDepartureYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setArrivalYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); result.setUnitNumber(cell.getNumericCellValue());}
 		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setUnitUnit(cell.getStringCellValue());}
 		cell = row.getCell(11); 
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(getStation(businessSheet, cell.getStringCellValue()));}
@@ -315,14 +319,14 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setNumber(cell.getStringCellValue());}
 		Lot l = new Lot();
 		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(cell.getStringCellValue());}
-		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setUnitNumber(cell.getNumericCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setUnitNumber(cell.getNumericCellValue());}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(cell.getStringCellValue());}
-		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(11); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(11); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryYear((int) cell.getNumericCellValue());}
 		cell = row.getCell(12); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setTreatment(cell.getStringCellValue());}
 		cell = row.getCell(13); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setSampling(cell.getStringCellValue());}
 		cell = row.getCell(14); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setLookup(cell.getStringCellValue());}
@@ -337,20 +341,19 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return l;
 	}
-	private boolean fillLot(Row row, HashMap<String, Delivery> deliveries, Row titleRow) {
-		Delivery d = null;
-		Cell cell = row.getCell(12); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); d = deliveries.get(cell.getStringCellValue());}
-		if (d == null) return false;
-		Lot l = d.getLot();
-		cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(cell.getStringCellValue());}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setUnitNumber(cell.getNumericCellValue());}
+	private boolean fillLot(Row row, HashMap<String, Lot> outLots, Row titleRow) {
+		Lot l = null;
+		Cell cell = row.getCell(12); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l = outLots.get(cell.getStringCellValue());}
+		if (l == null) return false;
+		//cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(cell.getStringCellValue());}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setUnitNumber(cell.getNumericCellValue());}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(cell.getStringCellValue());}
-		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setProductionYear((int) cell.getNumericCellValue());}
-		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryDay((int) cell.getNumericCellValue());}
-		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryMonth((int) cell.getNumericCellValue());}
-		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {l.setExpiryYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setProductionYear((int) cell.getNumericCellValue());}
+		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryDay((int) cell.getNumericCellValue());}
+		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryMonth((int) cell.getNumericCellValue());}
+		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_NUMERIC); l.setExpiryYear((int) cell.getNumericCellValue());}
 		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setTreatment(cell.getStringCellValue());}
 		cell = row.getCell(11); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setSampling(cell.getStringCellValue());}
 		
@@ -426,7 +429,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				} catch (Exception e) {
 					DBKernel.sendRequest("ROLLBACK", false);
 					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
+					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nLast row analyzed: " + (classRowIndex+1) + "\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 					MyLogger.handleException(e);
 				}
 				System.err.println("Importing - Fin");

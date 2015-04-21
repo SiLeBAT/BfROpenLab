@@ -506,7 +506,7 @@ public class Login extends JFrame {
 		}
 	}
 
-	void dropDatabase() {
+	static void dropDatabase() {
 		DBKernel.closeDBConnections(false);
 		File f = new File(DBKernel.HSHDB_PATH);
 		File[] files = f.listFiles();

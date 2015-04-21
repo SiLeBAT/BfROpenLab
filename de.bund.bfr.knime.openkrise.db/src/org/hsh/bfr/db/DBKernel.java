@@ -1476,6 +1476,7 @@ public class DBKernel {
 			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 		}
 		catch (Exception he) { //HeadlessException
+			he.printStackTrace();
 			DBKernel.m_Username = username;
 			DBKernel.m_Password = password;
 			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);

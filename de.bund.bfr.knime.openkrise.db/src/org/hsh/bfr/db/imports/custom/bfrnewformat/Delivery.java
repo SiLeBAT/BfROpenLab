@@ -174,7 +174,7 @@ public class Delivery {
 		}
 		for (int j=0;j<sFeldVals.length;j++) {
 			if (sFeldVals[j] != null) {
-				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				if (!feldnames[i+1+j].equals("Serial")) sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 				in += "," + DBKernel.delimitL(feldnames[i+1+j]);
 				iv += ",'" + sFeldVals[j] + "'";
 			}
