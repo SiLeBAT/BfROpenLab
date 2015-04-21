@@ -80,8 +80,8 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 			borderGraphics.setColor(Color.BLACK);
 
 			for (RegionNode node : getRegions()) {
-				for (Polygon part : node.getTransformedPolygon()) {
-					borderGraphics.drawPolygon(part);
+				for (Polygon poly : node.getTransformedPolygon()) {
+					borderGraphics.drawPolygon(poly);
 				}
 			}
 
@@ -90,8 +90,8 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 
 			for (RegionNode node : getRegions()) {
-				for (Polygon part : node.getTransformedPolygon()) {
-					g.drawPolygon(part);
+				for (Polygon poly : node.getTransformedPolygon()) {
+					g.drawPolygon(poly);
 				}
 			}
 		}

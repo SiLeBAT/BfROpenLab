@@ -155,12 +155,12 @@ public class GisUtils {
 		Point center = null;
 
 		for (int i = 0; i < poly.getNumGeometries(); i++) {
-			Polygon part = (Polygon) poly.getGeometryN(i);
-			double area = part.getArea();
+			Polygon p = (Polygon) poly.getGeometryN(i);
+			double area = p.getArea();
 
 			if (area > largestArea) {
 				largestArea = area;
-				center = part.getCentroid();
+				center = p.getCentroid();
 			}
 		}
 
@@ -174,9 +174,7 @@ public class GisUtils {
 		double maxY = Double.NEGATIVE_INFINITY;
 
 		for (int i = 0; i < poly.getNumGeometries(); i++) {
-			Polygon part = (Polygon) poly.getGeometryN(i);
-
-			for (Coordinate c : part.getExteriorRing().getCoordinates()) {
+			for (Coordinate c : ((Polygon) poly.getGeometryN(i)).getExteriorRing().getCoordinates()) {
 				minX = Math.min(minX, c.x);
 				maxX = Math.max(maxX, c.x);
 				minY = Math.min(minY, c.y);
