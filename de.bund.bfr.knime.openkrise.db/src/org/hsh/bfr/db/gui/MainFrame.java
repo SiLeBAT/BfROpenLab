@@ -33,6 +33,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -737,6 +738,10 @@ public class MainFrame extends JFrame {
 		if (retVal == JOptionPane.YES_OPTION) {
 			//Login login = new Login(true);
 			Login.dropDatabase();
+			Connection o = DBKernel.localConn;
+			this.setVisible(false);
+			DBKernel.mainFrame = null;
+			DBKernel.localConn = null;
 			DBKernel.openDBGUI();
 		}
 		*/

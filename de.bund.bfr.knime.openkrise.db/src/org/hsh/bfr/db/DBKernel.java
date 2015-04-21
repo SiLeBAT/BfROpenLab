@@ -83,7 +83,7 @@ public class DBKernel {
 	private static HashMap<String, String> adminP = new HashMap<>();
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<>();
 
-	private static Connection localConn = null;
+	public static Connection localConn = null;
 	private static String m_Username = "";
 	private static String m_Password = "";
 
@@ -1476,7 +1476,7 @@ public class DBKernel {
 			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 		}
 		catch (Exception he) { //HeadlessException
-			he.printStackTrace();
+			//he.printStackTrace();
 			DBKernel.m_Username = username;
 			DBKernel.m_Password = password;
 			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
