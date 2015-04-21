@@ -33,7 +33,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -732,17 +731,19 @@ public class MainFrame extends JFrame {
 	}
 
 	private void button11ActionPerformed(final ActionEvent e) {
-		/*
+		
 		// reset Database:
 		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie die Datenbank neu initialisieren möchten?\nDie Daten gehen alle verloren!!!", "Reset bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
+			DBKernel.mainFrame.dispose();
+			DBKernel.mainFrame = null;
 			//Login login = new Login(true);
 			Login.dropDatabase();
-			this.setVisible(false);
+			//this.setVisible(false);
 			//DBKernel.mainFrame = null;
 			DBKernel.openDBGUI();
 		}
-		*/
+		
 	}
 
 	private void initComponents() {
