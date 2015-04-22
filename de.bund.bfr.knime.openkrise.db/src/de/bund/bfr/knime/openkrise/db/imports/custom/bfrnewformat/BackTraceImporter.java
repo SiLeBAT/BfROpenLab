@@ -33,9 +33,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	public void doImport(Workbook wb, String filename) throws Exception {
 		Sheet businessSheet = wb.getSheet("Stations");
 		
-		Sheet inSheet = wb.getSheet("IncomingDeliveries");
+		Sheet inSheet = wb.getSheet("Deliveries2Lot");
 		Sheet lotSheet = wb.getSheet("Lot");
-		Sheet outSheet = wb.getSheet("OutgoingDeliveries");
+		Sheet outSheet = wb.getSheet("Deliveries");
 		
 		if (inSheet != null && lotSheet != null && outSheet != null) {
 			// load all Stations
