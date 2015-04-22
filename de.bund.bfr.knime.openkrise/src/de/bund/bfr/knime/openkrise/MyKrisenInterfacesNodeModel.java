@@ -90,9 +90,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		super(0, 3);
 	}
 
-	private Connection getLocalConn() {
-		DBKernel.getLocalConn(true);
-		return null;
+	private Connection getLocalConn() {		
+		return DBKernel.getLocalConn(true);
 	}
 
 	/**
@@ -208,6 +207,24 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
 					fillCell(spec, cells, TracingColumns.STATION_DEADEND, mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
 
+					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "ImportSources"));
+					
+					// Extras
+					for (String extraCol : spec.getColumnNames()) {
+						if (extraCol.startsWith("_")) {
+							String attribute = extraCol.substring(1);
+							ResultSet rs2 = DBKernel.getResultSet(conn, "SELECT " +	DBKernel.delimitL("value") + " FROM " + DBKernel.delimitL("ExtraFields") +
+									" WHERE " +	DBKernel.delimitL("tablename") + "='Station' AND " +
+									DBKernel.delimitL("id") + "=" + stationID + " AND " +	DBKernel.delimitL("attribute") + "='" + attribute + "'", false);
+							if (rs2 != null && rs2.first()) {
+								fillCell(spec, cells, extraCol, getDataStringCell(rs2, "value"));
+							}
+							else {
+								fillCell(spec, cells, extraCol, DataType.getMissingCell());
+							}
+						}
+					}
+
 					DataRow outputRow = new DefaultRow(key, cells);
 
 					output33Nodes.addRowToTable(outputRow);
@@ -268,6 +285,27 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.DELIVERY_FURTHERTB, getDataStringCell(rs, "Lieferungen.Further_Traceback"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_MICROSAMPLE, getDataStringCell(rs, "Chargen.MicrobioSample"));
 
+					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "Lieferungen.ImportSources"));
+
+					// Extras
+					for (String extraCol : spec.getColumnNames()) {
+						if (extraCol.startsWith("_")) {
+							String attribute = extraCol.substring(1);
+							int index = attribute.indexOf(".");
+							String tn = attribute.substring(0, index);
+							String fn = attribute.substring(index + 1);
+							ResultSet rs2 = DBKernel.getResultSet(conn, "SELECT " +	DBKernel.delimitL("value") + " FROM " + DBKernel.delimitL("ExtraFields") +
+									" WHERE " +	DBKernel.delimitL("tablename") + "='" + tn + "' AND " +
+									DBKernel.delimitL("id") + "=" + lieferID + " AND " +	DBKernel.delimitL("attribute") + "='" + fn + "'", false);
+							if (rs2 != null && rs2.first()) {
+								fillCell(spec, cells, extraCol, getDataStringCell(rs2, "value"));
+							}
+							else {
+								fillCell(spec, cells, extraCol, DataType.getMissingCell());
+							}
+						}
+					}
+
 					DataRow outputRow = new DefaultRow(key, cells);
 
 					output33Links.addRowToTable(outputRow);
@@ -297,7 +335,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private DataCell getDataStringCell(ResultSet rs, String columnname) throws SQLException {
-		return rs.getObject(columnname) == null ? DataType.getMissingCell() : new StringCell(clean(rs.getString(columnname)));
+		DataCell result = DataType.getMissingCell();
+		try {
+			if (rs.getObject(columnname) != null) result = new StringCell(clean(rs.getString(columnname)));
+		}
+		catch (Exception e) {}
+		return result;
 	}
 
 	private DataCell getDataIntCell(ResultSet rs, String columnname) throws SQLException {
@@ -393,7 +436,21 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Station", "DatumBeginn")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATESTART, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Station", "DatumHoehepunkt")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEPEAK, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Station", "DatumEnde")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEEND, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Station", "ImportSources")) columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
+		// ExtraFields
+		try {
+			ResultSet rs = DBKernel.getResultSet(conn, "SELECT DISTINCT(" +	DBKernel.delimitL("attribute") + ") FROM " + DBKernel.delimitL("ExtraFields") +
+					" WHERE " +	DBKernel.delimitL("tablename") + "='Station'"
+						, false);
+			if (rs != null && rs.first()) {
+				do {
+					columns.add(new DataColumnSpecCreator("_" + rs.getString(1), StringCell.TYPE).createSpec());
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();} 
+		
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
@@ -421,7 +478,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Lieferungen", "Contact_Questions_Remarks")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "Further_Traceback")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Chargen", "MicrobioSample")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "ImportSources")) columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
+		// ExtraFields
+		try {
+			ResultSet rs = DBKernel.getResultSet(conn, "SELECT DISTINCT(CONCAT(" +	DBKernel.delimitL("tablename") + ",'.'," +	DBKernel.delimitL("attribute") + ")) FROM " + DBKernel.delimitL("ExtraFields") +
+					" WHERE " +	DBKernel.delimitL("tablename") + "='Produktkatalog'" +
+					" OR " +	DBKernel.delimitL("tablename") + "='Chargen'" +
+					" OR " +	DBKernel.delimitL("tablename") + "='Lieferungen'"
+						, false);
+			if (rs != null && rs.first()) {
+				do {
+					columns.add(new DataColumnSpecCreator("_" + rs.getString(1), StringCell.TYPE).createSpec());
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();} 
+		
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 

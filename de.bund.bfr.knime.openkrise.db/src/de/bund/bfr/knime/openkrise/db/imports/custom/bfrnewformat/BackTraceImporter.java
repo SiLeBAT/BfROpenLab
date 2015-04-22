@@ -42,24 +42,27 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			HashMap<String, Station> stations = new HashMap<>();
 			int numRows = businessSheet.getLastRowNum() + 1;
 			Row titleRow = businessSheet.getRow(0);
-			for (int i=1;i<numRows;i++) {
-				Station s = getStation(titleRow, businessSheet.getRow(i));
+			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
+				Station s = getStation(titleRow, businessSheet.getRow(classRowIndex));
+				if (s == null) break;
 				stations.put(s.getLookup(), s);
 			}
 			// load all Lots
 			HashMap<String, Lot> lots = new HashMap<>();
 			numRows = lotSheet.getLastRowNum() + 1;
 			titleRow = lotSheet.getRow(0);
-			for (int i=1;i<numRows;i++) {
-				Lot l = getMultiLot(stations, titleRow, lotSheet.getRow(i));
+			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
+				Lot l = getMultiLot(stations, titleRow, lotSheet.getRow(classRowIndex));
+				if (l == null) break;
 				lots.put(l.getLookup(), l);
 			}
 			// load all Deliveries
 			HashMap<String, Delivery> deliveries = new HashMap<>();
 			numRows = outSheet.getLastRowNum() + 1;
 			titleRow = outSheet.getRow(0);
-			for (int i=1;i<numRows;i++) {
-				Delivery d = getMultiOutDelivery(stations, lots, titleRow, outSheet.getRow(i));
+			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
+				Delivery d = getMultiOutDelivery(stations, lots, titleRow, outSheet.getRow(classRowIndex));
+				if (d == null) break;
 				deliveries.put(d.getLookup(), d);
 			}
 			
@@ -67,8 +70,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			HashSet<DeliveryLot> recipes = new HashSet<>();
 			numRows = inSheet.getLastRowNum() + 1;
 			titleRow = inSheet.getRow(0);
-			for (int i=1;i<numRows;i++) {
-				DeliveryLot dl = getDeliveryLot(lots, deliveries, titleRow, inSheet.getRow(i));
+			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
+				DeliveryLot dl = getDeliveryLot(lots, deliveries, titleRow, inSheet.getRow(classRowIndex));
+				if (dl == null) break;
 				recipes.add(dl);
 			}
 
@@ -143,6 +147,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// what are the insertRessources (new BfR-Format -> then SupplyChain-Reader has to look for other IDcolumns, i.e. Serial)
+		// requests erzeugen
+		// forward tracing importieren
 		// welche Reihenfolge to insert? Was, wenn beim Import was schiefgeht?
 		DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 		Integer miDbId = mi.getID();
@@ -215,7 +221,14 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	private Station getStation(Row titleRow, Row row) {
 		Station result = new Station();
-		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
+		Cell cell = row.getCell(0);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			String id = getStr(cell.getStringCellValue());
+			if (id == null) return null;
+			result.setId(id);
+		}
+		else return null;
 		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setName(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setStreet(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setNumber(getStr(cell.getStringCellValue()));}
@@ -239,8 +252,26 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	private DeliveryLot getDeliveryLot(HashMap<String, Lot> lots, HashMap<String, Delivery> deliveries, Row titleRow, Row row) {
 		DeliveryLot result = new DeliveryLot();
-		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setIngredient(deliveries.get(getStr(cell.getStringCellValue())));}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLot(lots.get(getStr(cell.getStringCellValue())));}
+		Cell cell = row.getCell(0);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			Delivery d = deliveries.get(getStr(cell.getStringCellValue()));
+			if (d == null) return null;
+			result.setIngredient(d);
+		}
+		else {
+			return null;
+		}
+		cell = row.getCell(1);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			Lot l = lots.get(getStr(cell.getStringCellValue()));
+			if (l == null) return null;
+			result.setTargetLot(l);
+		}
+		else {
+			return null;
+		}
 		
 		// Further flexible cells
 		for (int i=2;i<10;i++) {
@@ -254,7 +285,16 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, HashMap<String, Lot> lots, Row titleRow, Row row) {
 		Delivery result = new Delivery();
-		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLot(lots.get(getStr(cell.getStringCellValue())));}
+		Cell cell = row.getCell(0);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING); 
+			Lot l = lots.get(getStr(cell.getStringCellValue()));
+			if (l == null) return null;
+			result.setLot(l);
+		}
+		else {
+			return null;
+		}
 		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDepartureDay(getInt(cell.getStringCellValue()));}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDepartureMonth(getInt(cell.getStringCellValue()));}
 		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDepartureYear(getInt(cell.getStringCellValue()));}
@@ -263,7 +303,16 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setArrivalYear(getInt(cell.getStringCellValue()));}
 		cell = row.getCell(7); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setUnitUnit(getStr(cell.getStringCellValue()));}
-		cell = row.getCell(9);  if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(stations.get(getStr(cell.getStringCellValue())));}
+		cell = row.getCell(9);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING); 
+			Station s = stations.get(getStr(cell.getStringCellValue()));
+			if (s == null) return null;
+			result.setReceiver(s);
+		}
+		else {
+			return null;
+		}
 		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLookup(getStr(cell.getStringCellValue()));}
 		
 		// Further flexible cells
@@ -314,10 +363,20 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	private Lot getMultiLot(HashMap<String, Station> stations, Row titleRow, Row row) {
 		Product p = new Product();
-		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setStation(stations.get(getStr(cell.getStringCellValue())));}
+		Cell cell = row.getCell(0);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING); 
+			Station s = stations.get(getStr(cell.getStringCellValue()));
+			if (s == null) return null;
+			p.setStation(s);
+		}
+		else {
+			return null;
+		}
 		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setName(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setNumber(getStr(cell.getStringCellValue()));}
 		Lot l = new Lot();
+		l.setProduct(p);
 		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
@@ -449,8 +508,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				System.err.println("Importing - Fin");
 				logMessages += "Importing - Fin" + "\n\n";
 				
-				BackTraceGenerator btg = new BackTraceGenerator();
-				btg.save("");
 			}
 		};
 		Thread thread = new Thread(runnable);

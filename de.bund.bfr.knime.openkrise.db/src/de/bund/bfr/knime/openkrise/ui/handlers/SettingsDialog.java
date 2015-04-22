@@ -110,7 +110,7 @@ public class SettingsDialog extends JFrame {
 
 			try {
 				DBKernel.mainFrame = null;
-				new Login(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected(), false);
+				new Login(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected(), true);
 				//Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
 				//Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
 				//DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));

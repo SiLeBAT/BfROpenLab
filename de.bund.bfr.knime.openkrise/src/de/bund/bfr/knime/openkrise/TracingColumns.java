@@ -25,6 +25,7 @@ public interface TracingColumns {
 	public static final String FROM = "from";
 	public static final String TO = "to";
 	public static final String NEXT = "Next";
+	public static final String FILESOURCES = "ImportSources";
 
 	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String WEIGHT = "Weight";

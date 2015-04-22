@@ -34,6 +34,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -43,6 +44,7 @@ import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -83,6 +85,7 @@ import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import de.bund.bfr.knime.openkrise.db.gui.dbtree.MyDBTree;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.BackTraceGenerator;
 
 /**
  * @author Armin Weiser
@@ -704,6 +707,7 @@ public class MainFrame extends JFrame {
 		button7.getAction().setEnabled(!isRO);
 		button6.getAction().setEnabled(!isRO);
 		button11.setEnabled(isEnabable);
+		button13.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -745,6 +749,28 @@ public class MainFrame extends JFrame {
 		}
 		
 	}
+	private void button13ActionPerformed(final ActionEvent e) {
+		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
+		JComboBox<String> combo = new JComboBox<>();
+		ResultSet rs = DBKernel.getResultSet(sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				do  {
+					combo.addItem(rs.getString(1));
+				} while (rs.next());
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		JDialog dial = new JDialog(this, "Choose backtracing end", true);
+        dial.getContentPane().add(combo);
+        dial.setSize(300, 80);
+        dial.setLocationRelativeTo(this);
+
+        dial.setVisible(true);
+        String endBusiness = (String) combo.getSelectedItem(); // "Primärerzeuger"
+		new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", endBusiness);
+	}
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -762,6 +788,7 @@ public class MainFrame extends JFrame {
 		button12 = new JButton();
 		button9 = new JButton();
 		button11 = new JButton();
+		button13 = new JButton();
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -862,6 +889,16 @@ public class MainFrame extends JFrame {
 			});
 			toolBar1.add(button11);
 
+			//---- button13 ----
+			button13.setText("Missing data");
+			button13.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					button13ActionPerformed(e);
+				}
+			});
+			toolBar1.add(button13);
+
 			//---- progressBar1 ----
 			progressBar1.setVisible(false);
 			toolBar1.add(progressBar1);
@@ -905,6 +942,7 @@ public class MainFrame extends JFrame {
 	private JButton button12;
 	private JButton button9;
 	private JButton button11;
+	private JButton button13;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;
