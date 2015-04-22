@@ -91,6 +91,7 @@ import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import de.bund.bfr.knime.openkrise.db.gui.dbtree.MyDBTree;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.BackTraceGenerator;
 
 /**
  * @author Armin Weiser
@@ -772,8 +773,7 @@ public class MainFrame extends JFrame {
 		dialog.setVisible(true);
 		
 		if (dialog.isApproved()) {
-			// TODO: dialog.getSelected();
-			// TODO: new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", endBusiness);
+			new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", dialog.getSelected());
 		}		
 	}
 	private static class BackTraceDialog extends JDialog implements ActionListener {
@@ -838,6 +838,7 @@ public class MainFrame extends JFrame {
 						selected.add(entry.getKey());
 					}
 				}
+				dispose();
 			} else if (e.getSource() == cancelButton) {
 				dispose();
 			}

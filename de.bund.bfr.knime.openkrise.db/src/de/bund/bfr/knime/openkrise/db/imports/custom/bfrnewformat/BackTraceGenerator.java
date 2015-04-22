@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -17,11 +18,11 @@ import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class BackTraceGenerator {
 
-	public BackTraceGenerator(String outputFolder, String endBusiness) {
+	public BackTraceGenerator(String outputFolder, List<String> business2Backtrace) {
 		try {
 			File f = new File(outputFolder);
 			if (!f.exists()) f.mkdirs();
-			getBacktraceRequests(outputFolder, endBusiness);
+			getBacktraceRequests(outputFolder, business2Backtrace);
 			//XSSFCellStyle defaultStyle = workbook.createCellStyle();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,7 +71,11 @@ public class BackTraceGenerator {
 		if (rs.getObject(sTable + ".Land") != null) result += rs.getString(sTable + ".Land");
 		return result;
 	}
-	private void getBacktraceRequests(String outputFolder, String endBusiness) throws SQLException, IOException {
+	private void getBacktraceRequests(String outputFolder, List<String> business2Backtrace) throws SQLException, IOException {
+		String backtracingBusinessesSQL = "";
+		for (String s : business2Backtrace) {
+			backtracingBusinessesSQL += " OR " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " = '" + s + "'";
+		}
 		String sql = "Select * from " + DBKernel.delimitL("Lieferungen") +
 				" LEFT JOIN " + DBKernel.delimitL("Chargen") +
 				" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
@@ -81,7 +86,7 @@ public class BackTraceGenerator {
 				" LEFT JOIN " + DBKernel.delimitL("Station") +
 				" ON " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
 				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + " IS NULL " +
-				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL OR " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " != '" + endBusiness + "')";
+				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
