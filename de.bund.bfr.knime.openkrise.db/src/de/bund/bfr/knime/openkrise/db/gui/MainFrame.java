@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -743,7 +744,7 @@ public class MainFrame extends JFrame {
 	private void button11ActionPerformed(final ActionEvent e) {
 		
 		// reset Database:
-		int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie die Datenbank neu initialisieren möchten?\nDie Daten gehen alle verloren!!!", "Reset bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int retVal = JOptionPane.showConfirmDialog(this, "Are you sure that you want to reset the database?\nAll data will be lost!!!", "Confirm Reset", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
 			DBKernel.mainFrame.dispose();
 			DBKernel.mainFrame = null;
@@ -905,7 +906,7 @@ public class MainFrame extends JFrame {
 			toolBar1.addSeparator();
 
 			//---- button8 ----
-			button8.setToolTipText(bundle.getString("MainFrame.button8.toolTipText"));
+			button8.setToolTipText("Similarity search");
 			button8.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/Eye.gif")));
 			toolBar1.add(button8);
 			toolBar1.addSeparator();
@@ -944,6 +945,7 @@ public class MainFrame extends JFrame {
 			button12.setToolTipText(bundle.getString("MainFrame.button12.toolTipText"));
 			button12.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/Find.gif")));
 			toolBar1.add(button12);
+			
 			toolBar1.addSeparator();
 
 			//---- button9 ----
@@ -951,9 +953,14 @@ public class MainFrame extends JFrame {
 			button9.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/Info.gif")));
 			toolBar1.add(button9);
 
+			toolBar1.addSeparator();
+
 			//---- button11 ----
-			button11.setText(bundle.getString("MainFrame.button11.text"));
+			button11.setToolTipText(bundle.getString("MainFrame.button11.text"));
 			//button11.setVisible(false);
+			ImageIcon ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/edit_clear.gif"));
+			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
+			button11.setIcon(ico);
 			button11.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -963,7 +970,10 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button11);
 
 			//---- button13 ----
-			button13.setText("Missing data");
+			button13.setToolTipText("Missing data");
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
+			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
+			button13.setIcon(ico);
 			button13.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

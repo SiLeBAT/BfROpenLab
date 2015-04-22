@@ -104,7 +104,7 @@ public class ImportAction extends AbstractAction {
 					else if (mi instanceof BackTraceImporter) {
 						BackTraceImporter bti = (BackTraceImporter) mi;
 						String log = bti.getLogMessages();
-						Font f = new Font("Arial", Font.PLAIN, 10);
+						Font f = new Font("Arial", Font.PLAIN, 12);
 						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
 						ib.setVisible(true);
 						

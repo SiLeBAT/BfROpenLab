@@ -30,8 +30,29 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	public String getLogMessages() {
 		return logMessages;
 	}
+	private void checkStationsFirst(Sheet businessSheet) throws Exception {
+		HashSet<Integer> stationIDs = new HashSet<>();
+		int numRows = businessSheet.getLastRowNum() + 1;
+		for (int i=1;i<numRows;i++) {
+			Row row = businessSheet.getRow(i);
+			Cell cell = row.getCell(0); // ID
+			Cell cell1 = row.getCell(1); // Name
+			if ((cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) && (cell1 == null || cell1.getCellType() == Cell.CELL_TYPE_BLANK)) return;
+			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station has no ID??? -> Row " + (i+1));
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			String val = cell.getStringCellValue();
+			int id;
+			try {
+				id = getInt(val);
+			}
+			catch (Exception e) {throw new Exception("Station has no number as ID. This is not allowed, IDs need to be Integers -> Row " + (i+1));}
+			if (stationIDs.contains(id)) throw new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1));
+			stationIDs.add(id);
+		}
+	}
 	public void doImport(Workbook wb, String filename) throws Exception {
 		Sheet businessSheet = wb.getSheet("Stations");
+		checkStationsFirst(businessSheet);
 		
 		Sheet inSheet = wb.getSheet("Deliveries2Lot");
 		Sheet lotSheet = wb.getSheet("Lot");
@@ -147,7 +168,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// what are the insertRessources (new BfR-Format -> then SupplyChain-Reader has to look for other IDcolumns, i.e. Serial)
-		// requests erzeugen
 		// forward tracing importieren
 		// welche Reihenfolge to insert? Was, wenn beim Import was schiefgeht?
 		DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
@@ -206,7 +226,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}
 		return result;
 	}
-	private Station getStation(Sheet businessSheet, String lookup) {
+	private Station getStation(Sheet businessSheet, String lookup) throws Exception {
 		Station result = null;
 		int numRows = businessSheet.getLastRowNum() + 1;
 		for (int i=0;i<numRows;i++) {
@@ -217,6 +237,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				break;
 			}
 		}
+		if (result == null) throw new Exception("Station '" + lookup + "' is not correctly defined");
 		return result;
 	}
 	private Station getStation(Row titleRow, Row row) {
@@ -325,7 +346,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow) {
+	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow) throws Exception {
 		Product p = new Product();
 		if (outbound) p.setStation(sif);
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setName(getStr(cell.getStringCellValue()));}
