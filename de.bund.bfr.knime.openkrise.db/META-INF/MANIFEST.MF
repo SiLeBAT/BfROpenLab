@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.poi,
  com.jgoodies,
  com.thoughtworks.xstream,
- quick.dbtable
+ quick.dbtable,
+ de.bund.bfr.knime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: de.bund.bfr.knime.openkrise.db,

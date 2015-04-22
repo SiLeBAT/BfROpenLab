@@ -23,6 +23,7 @@
 
 package de.bund.bfr.knime.openkrise.db.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,18 +37,22 @@ import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import javax.swing.ActionMap;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -62,6 +67,7 @@ import quick.dbtable.Filter;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
@@ -85,7 +91,6 @@ import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import de.bund.bfr.knime.openkrise.db.gui.dbtree.MyDBTree;
-import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.BackTraceGenerator;
 
 /**
  * @author Armin Weiser
@@ -751,25 +756,92 @@ public class MainFrame extends JFrame {
 	}
 	private void button13ActionPerformed(final ActionEvent e) {
 		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
-		JComboBox<String> combo = new JComboBox<>();
+		List<String> businessTypes = new ArrayList<>();
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		try {
 			if (rs != null && rs.first()) {
 				do  {
-					combo.addItem(rs.getString(1));
+					businessTypes.add(rs.getString(1));
 				} while (rs.next());
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		JDialog dial = new JDialog(this, "Choose backtracing end", true);
-        dial.getContentPane().add(combo);
-        dial.setSize(300, 80);
-        dial.setLocationRelativeTo(this);
+		BackTraceDialog dialog = new BackTraceDialog((JButton) e.getSource(), businessTypes);
+		
+		dialog.setVisible(true);
+		
+		if (dialog.isApproved()) {
+			// TODO: dialog.getSelected();
+			// TODO: new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", endBusiness);
+		}		
+	}
+	private static class BackTraceDialog extends JDialog implements ActionListener {
+				
+		private static final long serialVersionUID = 1L;
+		
+		private boolean approved;
+		private List<String> selected;
+		
+		private Map<String, JCheckBox> boxes;
+		private JButton okButton;
+		private JButton cancelButton;
+		
+		public BackTraceDialog(Component parent, List<String> businessTypes) {
+			super(SwingUtilities.getWindowAncestor(parent), "Businesses for Back Tracing", DEFAULT_MODALITY_TYPE);			
+			boxes = new LinkedHashMap<>();
+			approved = false;
+			selected = null;
+			
+			JPanel boxPanel = new JPanel();
+			
+			boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
+			
+			for (String type : businessTypes) {
+				JCheckBox box = new JCheckBox(type, true);
+				
+				boxPanel.add(box);
+				boxes.put(type, box);
+			}
+			
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+			
+			setLayout(new BorderLayout());
+			add(UI.createHorizontalPanel(new JLabel("Select Business Types for Backtracing")), BorderLayout.NORTH);
+			add(UI.createWestPanel(boxPanel), BorderLayout.CENTER);
+			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
+					BorderLayout.SOUTH);
+			pack();
+			setLocationRelativeTo(parent);
+			setResizable(false);
+		}
 
-        dial.setVisible(true);
-        String endBusiness = (String) combo.getSelectedItem(); // "Primärerzeuger"
-		new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", endBusiness);
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<String> getSelected() {
+			return selected;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				selected = new ArrayList<>();
+				
+				for (Map.Entry<String, JCheckBox> entry : boxes.entrySet()) {
+					if (entry.getValue().isSelected()) {
+						selected.add(entry.getKey());
+					}
+				}
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
 	}
 
 	private void initComponents() {
