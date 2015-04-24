@@ -100,6 +100,7 @@ public class DBKernel {
 	public static MainFrame mainFrame = null;
 
 	public static boolean passFalse = false;
+	public static boolean openingDBGUI = false;
 
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
@@ -1445,16 +1446,20 @@ public class DBKernel {
 
 	// Still to look at... myDBI...KNIME...Backup...
 	public static void openDBGUI() {
-		final Connection connection = getLocalConn(true);
-		try {
-			connection.setReadOnly(DBKernel.isReadOnly());
-			if (DBKernel.mainFrame != null && DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null) {
-				DBKernel.mainFrame.getMyList().getMyDBTable().setConnection(connection);
+		if (!openingDBGUI) {
+			openingDBGUI = true;
+			final Connection connection = getLocalConn(true);
+			try {
+				connection.setReadOnly(DBKernel.isReadOnly());
+				if (DBKernel.mainFrame != null && DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null) {
+					DBKernel.mainFrame.getMyList().getMyDBTable().setConnection(connection);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+			StartApp.go(connection);
+			openingDBGUI = false;
 		}
-		StartApp.go(connection);
 	}
 
 	public static String getInternalDefaultDBPath() {

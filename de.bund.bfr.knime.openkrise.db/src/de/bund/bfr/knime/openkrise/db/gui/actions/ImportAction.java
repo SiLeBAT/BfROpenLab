@@ -27,8 +27,14 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -104,10 +110,23 @@ public class ImportAction extends AbstractAction {
 					else if (mi instanceof BackTraceImporter) {
 						BackTraceImporter bti = (BackTraceImporter) mi;
 						String log = bti.getLogMessages();
-						Font f = new Font("Arial", Font.PLAIN, 12);
-						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
-						ib.setVisible(true);
-						
+						if (log.indexOf("\n") == log.length() - 1) {
+							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
+							if (eclipseWindow != null && DBKernel.isKrise) {						
+								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
+							} else {
+								JOptionPane pane = new JOptionPane("Import successful!", JOptionPane.INFORMATION_MESSAGE);
+								JDialog dialog = pane.createDialog("Import successful!");
+								dialog.setAlwaysOnTop(true);
+								dialog.setVisible(true);
+							}
+						}
+						else {
+							Font f = new Font("Arial", Font.PLAIN, 12);
+							InfoBox ib = new InfoBox(log, true, new Dimension(800, 400), f);
+							ib.setTitle("Errors occurred, please check and try again...");
+							ib.setVisible(true);							
+						}						
 					}
 			  	}
 		  }	  

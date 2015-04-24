@@ -8,11 +8,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
@@ -21,9 +27,31 @@ public class BackTraceGenerator {
 	public BackTraceGenerator(String outputFolder, List<String> business2Backtrace) {
 		try {
 			File f = new File(outputFolder);
-			if (!f.exists()) f.mkdirs();
-			getBacktraceRequests(outputFolder, business2Backtrace);
-			//XSSFCellStyle defaultStyle = workbook.createCellStyle();
+			if (f.exists()) {
+				for (int i=1;;i++) {
+					f = new File(outputFolder + "_" + i);
+					if (!f.exists() || i > 1000) break;
+				}
+			}
+			String message = "";
+			if (f.exists()) message = "Too many output folders... Please check and delete folders '" + outputFolder + "*'";
+			else {
+				f.mkdirs();
+				int numFilesGenerated = getBacktraceRequests(f.getAbsolutePath(), business2Backtrace);
+				//XSSFCellStyle defaultStyle = workbook.createCellStyle();
+				if (numFilesGenerated == 0) message = "No new Templates generated. All done?";
+				else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder + "'";
+			}
+
+			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (eclipseWindow != null && DBKernel.isKrise) {						
+				MessageDialog.openInformation(eclipseWindow.getShell(), "Template generation",  message);
+			} else {
+				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
+				JDialog dialog = pane.createDialog("Template generation");
+				dialog.setAlwaysOnTop(true);
+				dialog.setVisible(true);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -71,7 +99,8 @@ public class BackTraceGenerator {
 		if (rs.getObject(sTable + ".Land") != null) result += rs.getString(sTable + ".Land");
 		return result;
 	}
-	private void getBacktraceRequests(String outputFolder, List<String> business2Backtrace) throws SQLException, IOException {
+	private int getBacktraceRequests(String outputFolder, List<String> business2Backtrace) throws SQLException, IOException {
+		int result = 0;
 		String backtracingBusinessesSQL = "";
 		for (String s : business2Backtrace) {
 			backtracingBusinessesSQL += " OR " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " = '" + s + "'";
@@ -103,24 +132,25 @@ public class BackTraceGenerator {
 				if (rs.getObject("Station.ID") != null) {cell = row.getCell(1); cell.setCellValue(getStationLookup(rs, "Station"));}
 				row = sheetTracing.getRow(5);
 				if (rs.getObject("Produktkatalog.Bezeichnung") != null) {cell = row.getCell(0); cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));}
-				if (rs.getObject("Produktkatalog.Artikelnummer") != null) {cell = row.getCell(1); cell.setCellValue(rs.getString("Produktkatalog.Artikelnummer"));}
-				if (rs.getObject("Chargen.ChargenNr") != null) {cell = row.getCell(2); cell.setCellValue(rs.getString("Chargen.ChargenNr"));}
-				if (rs.getObject("Lieferungen.dd_day") != null) {cell = row.getCell(3); cell.setCellValue(rs.getInt("Lieferungen.dd_day"));}
-				if (rs.getObject("Lieferungen.dd_month") != null) {cell = row.getCell(4); cell.setCellValue(rs.getInt("Lieferungen.dd_month"));}
-				if (rs.getObject("Lieferungen.dd_year") != null) {cell = row.getCell(5); cell.setCellValue(rs.getInt("Lieferungen.dd_year"));}
-				if (rs.getObject("Lieferungen.ad_day") != null) {cell = row.getCell(6); cell.setCellValue(rs.getInt("Lieferungen.ad_day"));}
-				if (rs.getObject("Lieferungen.ad_month") != null) {cell = row.getCell(7); cell.setCellValue(rs.getInt("Lieferungen.ad_month"));}
-				if (rs.getObject("Lieferungen.ad_year") != null) {cell = row.getCell(8); cell.setCellValue(rs.getInt("Lieferungen.ad_year"));}
-				if (rs.getObject("Lieferungen.numPU") != null) {cell = row.getCell(9); cell.setCellValue(rs.getDouble("Lieferungen.numPU"));}
-				if (rs.getObject("Lieferungen.typePU") != null) {cell = row.getCell(10); cell.setCellValue(rs.getString("Lieferungen.typePU"));}
-				if (rs.getObject("Lieferungen.Empfänger") != null) {cell = row.getCell(11); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));}
-				if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(12); cell.setCellValue(rs.getString("Lieferungen.ID"));}
+				if (rs.getObject("Chargen.ChargenNr") != null) {cell = row.getCell(1); cell.setCellValue(rs.getString("Chargen.ChargenNr"));}
+				if (rs.getObject("Lieferungen.dd_day") != null) {cell = row.getCell(2); cell.setCellValue(rs.getInt("Lieferungen.dd_day"));}
+				if (rs.getObject("Lieferungen.dd_month") != null) {cell = row.getCell(3); cell.setCellValue(rs.getInt("Lieferungen.dd_month"));}
+				if (rs.getObject("Lieferungen.dd_year") != null) {cell = row.getCell(4); cell.setCellValue(rs.getInt("Lieferungen.dd_year"));}
+				if (rs.getObject("Lieferungen.ad_day") != null) {cell = row.getCell(5); cell.setCellValue(rs.getInt("Lieferungen.ad_day"));}
+				if (rs.getObject("Lieferungen.ad_month") != null) {cell = row.getCell(6); cell.setCellValue(rs.getInt("Lieferungen.ad_month"));}
+				if (rs.getObject("Lieferungen.ad_year") != null) {cell = row.getCell(7); cell.setCellValue(rs.getInt("Lieferungen.ad_year"));}
+				if (rs.getObject("Lieferungen.numPU") != null) {cell = row.getCell(8); cell.setCellValue(rs.getDouble("Lieferungen.numPU"));}
+				if (rs.getObject("Lieferungen.typePU") != null) {cell = row.getCell(9); cell.setCellValue(rs.getString("Lieferungen.typePU"));}
+				if (rs.getObject("Lieferungen.Empfänger") != null) {cell = row.getCell(10); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));}
+				if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.ID"));}
 
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Lieferungen.ID") + ".xlsx");
+				result++;
 				myxls.close();
 			} while (rs.next());
 		}
+		return result;
 	}
 	private void save(XSSFWorkbook workbook, String filename) {
 		try {

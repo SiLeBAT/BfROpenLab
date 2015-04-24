@@ -8,17 +8,17 @@ import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
-public class DeliveryLot {
+public class D2D {
 
 	private HashMap<String, String> flexibles = new HashMap<>();
 	
-	private Lot targetLot;
-	public Lot getTargetLot() {
-		return targetLot;
+	private Delivery targetDelivery;
+	public Delivery getTargetDelivery() {
+		return targetDelivery;
 	}
 
-	public void setTargetLot(Lot targetLot) {
-		this.targetLot = targetLot;
+	public void setTargetDelivery(Delivery targetDelivery) {
+		this.targetDelivery = targetDelivery;
 	}
 
 	public Delivery getIngredient() {
@@ -36,7 +36,7 @@ public class DeliveryLot {
 	}
 	
 	public void getId(Integer miDbId) throws Exception {
-		getId(ingredient.getDbId(), targetLot.getDbId(), miDbId);
+		getId(ingredient.getDbId(), targetDelivery.getLot().getDbId(), miDbId);
 	}
 
 	public void getId(Integer dbId, Integer dbPId, Integer miDbId) throws Exception {

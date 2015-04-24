@@ -747,7 +747,7 @@ public class MainFrame extends JFrame {
 		int retVal = JOptionPane.showConfirmDialog(this, "Are you sure that you want to reset the database?\nAll data will be lost!!!", "Confirm Reset", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
 			DBKernel.mainFrame.dispose();
-			DBKernel.mainFrame = null;
+			//DBKernel.mainFrame = null;
 			//Login login = new Login(true);
 			Login.dropDatabase();
 			//this.setVisible(false);
