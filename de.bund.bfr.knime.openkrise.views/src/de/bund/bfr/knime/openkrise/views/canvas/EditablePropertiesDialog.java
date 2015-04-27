@@ -262,12 +262,20 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 					TracingColumns.WEIGHT, JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
 			Double value = null;
 
-			try {
-				value = Double.parseDouble(result.toString());
-			} catch (NumberFormatException | NullPointerException ex) {
+			if (result != null) {
+				try {
+					value = Double.parseDouble(result.toString());
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(this, result.toString()
+							+ " is not a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 
 			if (value != null) {
+				if (inputTable.isEditing()) {
+					inputTable.getCellEditor().stopCellEditing();
+				}
+
 				setAllValuesTo(TracingColumns.WEIGHT, value);
 			}
 		} else if (e.getSource() == contaminationButton) {
@@ -276,6 +284,10 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 					new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
+				if (inputTable.isEditing()) {
+					inputTable.getCellEditor().stopCellEditing();
+				}
+
 				setAllValuesTo(TracingColumns.CROSS_CONTAMINATION, result);
 			}
 		} else if (e.getSource() == filterButton) {
@@ -284,6 +296,10 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 							Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
+				if (inputTable.isEditing()) {
+					inputTable.getCellEditor().stopCellEditing();
+				}
+
 				setAllValuesTo(TracingColumns.OBSERVED, result);
 			}
 		}
