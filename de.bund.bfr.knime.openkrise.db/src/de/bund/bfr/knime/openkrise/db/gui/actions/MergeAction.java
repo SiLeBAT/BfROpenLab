@@ -25,8 +25,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-import de.bund.bfr.knime.openkrise.db.MergeDBsAPriori;
-
 /**
  * @author Armin
  *
@@ -46,8 +44,5 @@ public MergeAction(String name, Icon icon, String toolTip) {
   }    
 
   public void actionPerformed(ActionEvent e) {
- // Zusammenführung
-	  //new MergeDBs();
-	  new MergeDBsAPriori();
 	}
 }

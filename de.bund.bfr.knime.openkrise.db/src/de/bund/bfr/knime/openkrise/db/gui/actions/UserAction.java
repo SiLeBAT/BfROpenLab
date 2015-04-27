@@ -25,7 +25,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 /**
  * @author Armin
@@ -45,6 +44,5 @@ public UserAction(String name, Icon icon, String toolTip) {
   }    
 
   public void actionPerformed(ActionEvent e) {
-  	DBKernel.mainFrame.getMyList().setSelection("Users");
 	}
 }

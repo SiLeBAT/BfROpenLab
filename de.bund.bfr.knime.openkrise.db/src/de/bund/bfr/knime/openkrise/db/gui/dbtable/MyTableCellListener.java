@@ -22,14 +22,11 @@
  */
 package de.bund.bfr.knime.openkrise.db.gui.dbtable;
 
-import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
-import de.bund.bfr.knime.openkrise.db.PlausibilityChecker;
-import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import quick.dbtable.DBTableCellListener;
 
 /**
@@ -78,20 +75,8 @@ class MyTableCellListener implements DBTableCellListener {
 				}
 			}
 			if (col - 2 >= myT.getFieldNames().length) return newValue;
-			String tname = myT.getTablename();
-			String fname = myT.getFieldNames()[col - 2]; 
-			if (newValue.toString().trim().length() == 0 || PlausibilityChecker.getValuePlausible(tname, fname, newValue) == null) return newValue;
-			else return provideMessageAndReturn(fname, oldValue, newValue);			
+			return newValue;
 		}
 		catch (Exception e) {MyLogger.handleException(e); return null;}
-	}
-	
-	private Object provideMessageAndReturn(String feldname, Object oldValue, Object newValue) {
-		InfoBox ib = new InfoBox("Im Feld \"" + feldname + "\" wurde kein gültiger Wert eingegeben!\nEingegebener Wert: " + newValue +
-				"\nDieser Wert kann nicht übernommen werden, daher wird der alte Wert (" + oldValue + ") wieder eingesetzt.",
-				true, new Dimension(500, 150), null, true);
-		ib.setVisible(true);   
-		theTable.grabFocus();
-		return null;
 	}
 }

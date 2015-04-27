@@ -44,7 +44,7 @@ public class BackTraceGenerator {
 			}
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			if (eclipseWindow != null && DBKernel.isKrise) {						
+			if (eclipseWindow != null) {						
 				MessageDialog.openInformation(eclipseWindow.getShell(), "Template generation",  message);
 			} else {
 				JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
@@ -62,7 +62,9 @@ public class BackTraceGenerator {
 		if (rs != null && rs.first()) {
 			int rownum = 1;
 			do {
-				XSSFRow row = sheetStations.getRow(rownum++);
+				XSSFRow row = sheetStations.getRow(rownum);
+				if (row == null) row = sheetStations.createRow(rownum);
+				rownum++;
 				XSSFCell cell;
 				if (rs.getObject("ID") != null) {cell = row.createCell(0); cell.setCellValue(rs.getString("ID"));}
 				if (rs.getObject("Name") != null) {cell = row.createCell(1); cell.setCellValue(rs.getString("Name"));}
@@ -87,7 +89,8 @@ public class BackTraceGenerator {
 		return null;
 	}
 	private String getStationLookup(ResultSet rs, String sTable) throws SQLException {
-		String result = rs.getString(sTable + ".ID") + ", ";
+		String result = rs.getString(sTable + ".ID");// + ", ";
+		/*
 		if (rs.getObject(sTable + ".Name") != null) result += rs.getString(sTable + ".Name");
 		result += ", ";
 		if (rs.getObject(sTable + ".Strasse") != null) result += rs.getString(sTable + ".Strasse");
@@ -97,6 +100,7 @@ public class BackTraceGenerator {
 		if (rs.getObject(sTable + ".Ort") != null) result += rs.getString(sTable + ".Ort");
 		result += ", ";
 		if (rs.getObject(sTable + ".Land") != null) result += rs.getString(sTable + ".Land");
+		*/
 		return result;
 	}
 	private int getBacktraceRequests(String outputFolder, List<String> business2Backtrace) throws SQLException, IOException {

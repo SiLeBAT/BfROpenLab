@@ -1719,10 +1719,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
     }
     */
     else if (keyEvent.getKeyCode() == KeyEvent.VK_K && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
-    	if (DBKernel.isKrise) {
-    		//makeKrisenGrafiken();
-    		keyEvent.consume();
-    	}
+		keyEvent.consume();
     }
     else if (keyEvent.getKeyCode() == KeyEvent.VK_O && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
 		if (myDBPanel1 != null) {

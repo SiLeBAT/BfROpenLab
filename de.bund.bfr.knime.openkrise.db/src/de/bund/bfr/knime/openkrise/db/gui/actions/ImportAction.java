@@ -68,16 +68,16 @@ public class ImportAction extends AbstractAction {
 	  JFileChooser fc = new JFileChooser(lastOutDir);
 //	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
-	  if (DBKernel.isKrise) {
+
 		  BackTraceImporter bti = new BackTraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
 		  LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);
-	  }
+
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
 	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());
 	  //fc.addChoosableFileFilter(new SymptomeImporterDOC());
 	  fc.setAcceptAllFileFilterUsed(false);
-	  fc.setMultiSelectionEnabled(DBKernel.isKrise);
+	  fc.setMultiSelectionEnabled(true);
 	  fc.setDialogTitle("Import");
 	  try {
 		  int returnVal = fc.showOpenDialog(progressBar1); // this
@@ -99,7 +99,7 @@ public class ImportAction extends AbstractAction {
 				  		}
 				  	}
 					if (mi instanceof LieferkettenImporterEFSA) {
-						LieferkettenImporterEFSA efsa = (LieferkettenImporterEFSA) mi;
+						efsa = (LieferkettenImporterEFSA) mi;
 						efsa.mergeIDs();
 						String log = efsa.getLogMessages();
 						Font f = new Font("Arial", Font.PLAIN, 10);
@@ -108,11 +108,11 @@ public class ImportAction extends AbstractAction {
 						
 					}
 					else if (mi instanceof BackTraceImporter) {
-						BackTraceImporter bti = (BackTraceImporter) mi;
+						bti = (BackTraceImporter) mi;
 						String log = bti.getLogMessages();
 						if (log.indexOf("\n") == log.length() - 1) {
 							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
-							if (eclipseWindow != null && DBKernel.isKrise) {						
+							if (eclipseWindow != null) {						
 								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
 							} else {
 								JOptionPane pane = new JOptionPane("Import successful!", JOptionPane.INFORMATION_MESSAGE);

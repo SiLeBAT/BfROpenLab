@@ -366,7 +366,7 @@ public class Login extends JFrame {
 
 					IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					
-					if (eclipseWindow != null && DBKernel.isKrise) {						
+					if (eclipseWindow != null) {						
 						MessageDialog.openInformation(eclipseWindow.getShell(), "Internal database created", "Internal database created in folder '" + DBKernel.HSHDB_PATH + "'");
 					} else {
 						JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);

@@ -41,7 +41,6 @@ import com.jgoodies.forms.layout.*;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
-import de.bund.bfr.knime.openkrise.db.PlausibilityChecker;
 import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyFilter;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
@@ -504,29 +503,6 @@ public class MyDBPanel extends JPanel {
 				    }
 				}
 				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benötigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
-			}
-			else {
-				  //if (myDBTable1.getActualTable().getTablename().equals("Messwerte")) { // erstmal nur für Messwerte, andere Tabellen können hinzugefügt werden, muss aber erst gecheckt werden, vor allem wegen der Performance!!! Die scheint bei M:N Tabellen sehr  schlecht zu sein.
-					  String toShow = "";
-					  Vector<String[]> plausibility = PlausibilityChecker.getPlausibilityRow(myDBTable1, myDBTable1.getActualTable(), -1, "ID");
-					  if (plausibility != null && plausibility.size() == 1) {
-						  String[] res = plausibility.get(0);
-						  if (res[0] != null && res[0].trim().length() > 0) toShow = res[0] + "\n";
-					  }
-					  if (toShow.trim().length() > 0) {
-						  InfoBox ib = new InfoBox(toShow, true, new Dimension(1000, 600), null, true);
-						  ib.setVisible(true);
-						  int retVal = JOptionPane.showConfirmDialog(this,
-								  GuiMessages.getString("Die Plausibilitaetspruefung wurde nicht bestanden") + ".\n" +
-								  GuiMessages.getString("Ihr solltet die eingegebenen Daten erst noch einmal ueberpruefen") + ".\n" +
-								  GuiMessages.getString("Falls ihr das zu einem spaeteren Zeitpunkt machen wollt, koennt ihr das Fenster aber auch schliessen") + ".\n" +
-								  GuiMessages.getString("Fenster schliessen?"),
-								  GuiMessages.getString("Plausibilitaetstest nicht bestanden... Trotzdem schliessen?"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-						  if (retVal == JOptionPane.NO_OPTION) {
-							  return;
-						  }
-					  }
-				  //}
 			}
 			parentDialog.dispose();
 		}

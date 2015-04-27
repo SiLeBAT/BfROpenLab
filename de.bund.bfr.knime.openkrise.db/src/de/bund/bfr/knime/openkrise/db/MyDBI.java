@@ -97,10 +97,6 @@ public abstract class MyDBI {
 		for (MyTable myT : allTables.values()) {
 			myT.createTable();
 		}
-		if (!DBKernel.isKrise) {
-			addViews();
-			addData();
-		}
 		setVersion2DB(getSoftwareVersion());
 		DBKernel.setDBVersion(null, getSoftwareVersion());
 	}

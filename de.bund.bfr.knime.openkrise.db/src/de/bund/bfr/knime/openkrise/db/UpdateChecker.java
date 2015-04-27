@@ -76,26 +76,6 @@ public class UpdateChecker {
 				"ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Latitude") + " DOUBLE BEFORE " + DBKernel.delimitL("Ansprechpartner"), false);
 		updateChangeLog("Station", 12, false);
 
-		if (!DBKernel.isKrise) {
-			// FoodProcess
-			DBKernel.myDBi.getTable("Produzent").createTable();
-			DBKernel.myDBi.getTable("Betrieb_Matrix_Produktion").createTable();
-			DBKernel.myDBi.getTable("ProzessElemente").createTable();
-			DBKernel.myDBi.getTable("ProzessWorkflow").createTable();
-			DBKernel.myDBi.getTable("ProzessWorkflow_Literatur").createTable();
-			DBKernel.myDBi.getTable("Kostenkatalog").createTable();
-			DBKernel.myDBi.getTable("Kostenkatalogpreise").createTable();
-			DBKernel.myDBi.getTable("Prozessdaten").createTable();
-			DBKernel.myDBi.getTable("Prozessdaten_Literatur").createTable();
-			DBKernel.myDBi.getTable("Prozessdaten_Sonstiges").createTable();
-			DBKernel.myDBi.getTable("Prozessdaten_Messwerte").createTable();
-			DBKernel.myDBi.getTable("Prozessdaten_Kosten").createTable();
-			DBKernel.myDBi.getTable("Prozess_Verbindungen").createTable();
-			DBKernel.myDBi.getTable("Verpackungsmaterial").createTable();
-			DBKernel.myDBi.getTable("Zutatendaten").createTable();
-			DBKernel.myDBi.getTable("Zutatendaten_Sonstiges").createTable();
-			DBKernel.myDBi.getTable("Zutatendaten_Kosten").createTable();
-		}
 	}
 
 	public static void check4Updates_179_180() {

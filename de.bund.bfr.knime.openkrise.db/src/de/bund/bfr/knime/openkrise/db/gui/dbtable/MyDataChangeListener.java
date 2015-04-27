@@ -89,16 +89,6 @@ class MyDataChangeListener extends DatabaseChangeListener {
 	  table.getActualTable().doMNs();
 	  row = checkThings(row);
 	  table.myRefresh(row);
-	  /*
-	  Vector<String[]> plausibility = PlausibilityChecker.getPlausibilityRow(table, table.getActualTable(), row, null);
-	  if (plausibility != null && plausibility.size() == 1) {
-		  String[] res = plausibility.get(0);
-		  if (res[0] != null && res[0].trim().length() > 0) {
-			  InfoBox ib = new InfoBox(res[0], true, new Dimension(500, 150), null, true);
-			  ib.setVisible(true);   
-		  }
-	  }
-	  */
   }
   public void afterDelete(int row) {
 	  row = checkThings(row);

@@ -107,7 +107,6 @@ public class DBKernel {
 
 	public static String softwareVersion = "1.8.4";
 	public static boolean debug = true;
-	public static boolean isKrise = true;
 
 	public static String getTempSA(String dbPath) {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getSA();
@@ -123,7 +122,7 @@ public class DBKernel {
 		// String pass = DBKernel.prefs.get("DBADMINPASS" +
 		// getCRC32(dbPath),"00");
 		// if (pass.equals("00")) {
-		if (isServerConnection && isKrise) return "de6!§5ddy";
+		if (isServerConnection) return "de6!§5ddy";
 		if (!adminP.containsKey(dbPath)) getUP(dbPath);
 		return adminP.get(dbPath);
 	}
@@ -139,16 +138,16 @@ public class DBKernel {
 	private static String getDefaultSA(boolean other) {
 		String sa = "";
 		// if (debug) return "SA";
-		if (other) sa = isKNIME || isKrise ? "defad" : "SA";
-		else sa = isKNIME || isKrise ? "SA" : "defad";
+		if (other) sa = "defad";
+		else sa = "SA";
 		return sa;
 	}
 
 	private static String getDefaultSAPass(boolean other) {
 		String pass = "";
 		// if (debug) return "";
-		if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
-		else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
+		if (other) pass = "de6!§5ddy";
+		else pass = "";
 		return pass;
 	}
 
@@ -158,7 +157,7 @@ public class DBKernel {
 	}
 
 	public static String getLanguage() {
-		return !isKNIME && !isKrise ? "de" : "en"; // isKrise ||
+		return "en";
 	}
 
 	public static boolean getUP(String dbPath) {
@@ -1464,7 +1463,7 @@ public class DBKernel {
 
 	public static String getInternalDefaultDBPath() {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) + System.getProperty("file.separator")
-				+ (DBKernel.isKrise ? ".fclabDB" : ".pmmlabDB") + System.getProperty("file.separator");
+				+ (".fclabDB") + System.getProperty("file.separator");
 	}
 
 	// Still to look at... myDBI...KNIME...
