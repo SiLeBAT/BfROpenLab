@@ -23,7 +23,6 @@ import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.vividsolutions.jts.geom.Polygon;
@@ -68,10 +67,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
-		viewer.getRenderContext()
-				.setVertexShapeTransformer(
-						new NodeShapeTransformer<>(getNodeSize(),
-								new LinkedHashMap<LocationNode, Double>()));
+		viewer.getRenderContext().setVertexShapeTransformer(
+				new NodeShapeTransformer<LocationNode>(getNodeSize()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

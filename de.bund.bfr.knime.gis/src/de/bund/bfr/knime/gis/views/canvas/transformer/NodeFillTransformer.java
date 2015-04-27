@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,10 @@ public class NodeFillTransformer<V extends Node> implements Transformer<V, Paint
 
 	private RenderContext<V, Edge<V>> renderContext;
 	private Map<V, Paint> nodeColors;
+
+	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext) {
+		this(renderContext, new LinkedHashMap<V, List<Double>>(), new ArrayList<Color>());
+	}
 
 	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext,
 			Map<V, List<Double>> alphaValues, List<Color> colors) {

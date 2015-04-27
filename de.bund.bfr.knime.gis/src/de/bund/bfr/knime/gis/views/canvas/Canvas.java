@@ -89,6 +89,7 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
@@ -153,13 +154,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new NodeFillTransformer<>(viewer.getRenderContext(),
-						new LinkedHashMap<V, List<Double>>(), new ArrayList<Color>()));
+				new NodeFillTransformer<>(viewer.getRenderContext()));
 		viewer.getRenderContext().setVertexStrokeTransformer(
 				new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<>(viewer.getRenderContext(),
-						new LinkedHashMap<Edge<V>, List<Double>>(), new ArrayList<Color>()));
+				new EdgeDrawTransformer<>(viewer.getRenderContext()));
+		viewer.getRenderContext().setEdgeLabelClosenessTransformer(
+				new ConstantDirectionalEdgeValueTransformer<V, Edge<V>>(0.5, 0.5));
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
 				.getTransformer(Layer.LAYOUT)).addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));

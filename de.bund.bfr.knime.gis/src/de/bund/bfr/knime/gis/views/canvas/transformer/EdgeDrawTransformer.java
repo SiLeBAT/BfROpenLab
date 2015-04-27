@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +38,13 @@ public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>,
 	private RenderContext<V, Edge<V>> renderContext;
 	private Map<Edge<V>, Paint> edgeColors;
 
-	public EdgeDrawTransformer(RenderContext<V, Edge<V>> viewer,
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext) {
+		this(renderContext, new LinkedHashMap<Edge<V>, List<Double>>(), new ArrayList<Color>());
+	}
+
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext,
 			Map<Edge<V>, List<Double>> alphaValues, List<Color> colors) {
-		this.renderContext = viewer;
+		this.renderContext = renderContext;
 		edgeColors = new LinkedHashMap<>();
 
 		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {

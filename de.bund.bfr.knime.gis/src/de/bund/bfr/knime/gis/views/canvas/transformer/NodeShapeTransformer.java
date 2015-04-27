@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
@@ -32,6 +33,10 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 	private int size;
 	private Map<V, Double> thicknessValues;
 	private double denom;
+
+	public NodeShapeTransformer(int size) {
+		this(size, new LinkedHashMap<V, Double>());
+	}
 
 	public NodeShapeTransformer(int size, Map<V, Double> thicknessValues) {
 		this.size = size;
