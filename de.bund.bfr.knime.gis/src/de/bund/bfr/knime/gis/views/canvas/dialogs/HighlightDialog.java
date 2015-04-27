@@ -293,6 +293,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
 		updateOptionsPanel();
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	@Override

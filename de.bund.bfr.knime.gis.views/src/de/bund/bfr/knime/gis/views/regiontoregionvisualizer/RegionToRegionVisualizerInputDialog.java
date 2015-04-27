@@ -112,6 +112,7 @@ public class RegionToRegionVisualizerInputDialog extends JDialog implements Acti
 				BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isApproved() {

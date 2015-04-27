@@ -113,6 +113,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 				BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isApproved() {

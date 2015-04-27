@@ -147,6 +147,7 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isAllowInvisible() {

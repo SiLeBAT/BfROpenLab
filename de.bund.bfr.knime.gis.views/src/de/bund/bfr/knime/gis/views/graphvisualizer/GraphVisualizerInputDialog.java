@@ -96,6 +96,7 @@ public class GraphVisualizerInputDialog extends JDialog implements ActionListene
 				BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isApproved() {

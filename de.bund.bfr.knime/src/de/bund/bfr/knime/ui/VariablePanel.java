@@ -387,6 +387,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			setResizable(false);
 			setLocationRelativeTo(VariablePanel.this);
 			UI.adjustDialog(this);
+			getRootPane().setDefaultButton(okButton);
 		}
 
 		public boolean isApproved() {
@@ -467,6 +468,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			setResizable(false);
 			setLocationRelativeTo(VariablePanel.this);
 			UI.adjustDialog(this);
+			getRootPane().setDefaultButton(okButton);
 		}
 
 		public boolean isApproved() {

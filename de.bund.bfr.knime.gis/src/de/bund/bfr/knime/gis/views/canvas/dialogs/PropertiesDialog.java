@@ -96,6 +96,7 @@ public class PropertiesDialog<V extends Node> extends JDialog implements ActionL
 		pack();
 		setLocationRelativeTo(parent.getComponent());
 		UI.adjustDialog(this);
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(ICanvas<V> parent,

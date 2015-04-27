@@ -637,6 +637,7 @@ public class GeocodingNodeModel extends NodeModel {
 			setResizable(false);
 			setLocationRelativeTo(getOwner());
 			setAlwaysOnTop(true);
+			getRootPane().setDefaultButton(selectButton);
 
 			isCanceled = true;
 			result = -1;

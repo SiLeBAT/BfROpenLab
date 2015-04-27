@@ -74,6 +74,7 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 				BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
+		getRootPane().setDefaultButton(okButton);
 
 		approved = false;
 		filtered = null;

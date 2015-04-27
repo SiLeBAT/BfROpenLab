@@ -96,6 +96,7 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 				BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isApproved() {

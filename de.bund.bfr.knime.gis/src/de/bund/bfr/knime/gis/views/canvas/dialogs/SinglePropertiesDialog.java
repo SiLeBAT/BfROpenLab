@@ -83,6 +83,7 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this, 0.5, 1.0);
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	@Override

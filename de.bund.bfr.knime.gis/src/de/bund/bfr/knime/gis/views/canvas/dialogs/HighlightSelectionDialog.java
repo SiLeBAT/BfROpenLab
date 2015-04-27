@@ -88,6 +88,7 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public boolean isApproved() {

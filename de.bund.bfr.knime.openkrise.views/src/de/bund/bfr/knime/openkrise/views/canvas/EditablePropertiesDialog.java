@@ -197,6 +197,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		pack();
 		setLocationRelativeTo(parent.getComponent());
 		UI.adjustDialog(this);
+		getRootPane().setDefaultButton(okButton);
 	}
 
 	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(ICanvas<V> parent,
