@@ -260,10 +260,6 @@ public class TracingUtils {
 			edges.add(new Edge<>(id, properties, node1, node2));
 		}
 
-		if (edges.isEmpty()) {
-			throw new NotConfigurableException("No valid edges contained in table");
-		}
-
 		return edges;
 	}
 

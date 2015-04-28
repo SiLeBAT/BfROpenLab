@@ -90,7 +90,7 @@ public class GraphSettings extends NodeSettings {
 	private String label;
 
 	public GraphSettings() {
-		skipEdgelessNodes = true;
+		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
 		joinEdges = true;
 		arrowInMiddle = false;

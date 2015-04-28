@@ -92,7 +92,7 @@ public class GraphSettings extends Settings {
 		nodeIdColumn = null;
 		edgeFromColumn = null;
 		edgeToColumn = null;
-		skipEdgelessNodes = true;
+		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
 		joinEdges = true;
 		arrowInMiddle = false;

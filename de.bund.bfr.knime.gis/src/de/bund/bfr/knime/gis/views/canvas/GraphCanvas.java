@@ -65,7 +65,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(getNodeSize()));
-		applyLayout(LayoutType.FR_LAYOUT, null);
+		applyLayout(LayoutType.ISOM_LAYOUT, null);
 	}
 
 	public Map<String, Point2D> getNodePositions() {

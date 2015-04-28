@@ -121,7 +121,7 @@ public class TracingViewSettings extends NodeSettings {
 		showGis = false;
 		gisType = GisType.SHAPEFILE;
 		exportAsSvg = false;
-		skipEdgelessNodes = true;
+		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
 		joinEdges = true;
 		arrowInMiddle = false;
