@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -83,14 +84,24 @@ public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 				.createTransformedShape(edgeShape));
 
 		GraphicsDecorator g = rc.getGraphicsContext();
+		Font font = rc.getEdgeFontTransformer().transform(e);
+		double width = font.getStringBounds(label, g.getFontRenderContext()).getWidth();
+		AffineTransform old = g.getTransform();
+		AffineTransform trans = new AffineTransform(old);
+		double angle = Math.atan2(line.getY2() - line.getY1(), line.getX2() - line.getX1());
 
-		if (rc.getPickedEdgeState().getPicked().contains(e)) {
-			g.setColor(Color.GREEN);
-		} else {
-			g.setColor(Color.BLACK);
+		if (angle < -Math.PI / 2) {
+			angle += Math.PI;
+		} else if (angle > Math.PI / 2) {
+			angle -= Math.PI;
 		}
 
+		trans.translate(line.getX1(), line.getY1());
+		trans.rotate(angle);
+		g.setTransform(trans);
+		g.setColor(rc.getPickedEdgeState().getPicked().contains(e) ? Color.GREEN : Color.BLACK);
 		g.setFont(rc.getEdgeFontTransformer().transform(e));
-		g.drawString(label, (int) line.getX1(), (int) line.getY1());
+		g.drawString(label, (int) (-width / 2), 0);
+		g.setTransform(old);
 	}
 }

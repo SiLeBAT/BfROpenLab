@@ -1107,9 +1107,10 @@ public class CanvasUtils {
 
 				if (p2.distance(last) < p2.distance(first)) {
 					Line2D ortho = getOrthogonal(new Line2D.Float(first, last));
-					Point2D pp2 = getIntersection(new Line2D.Float(p1, p2), ortho);
-					Point2D pp1 = new Point2D.Float((float) (pp2.getX() + p1.getX() - p2.getX()),
-							(float) (pp2.getY() + p1.getY() - p2.getY()));
+					Point2D pp1 = getIntersection(new Line2D.Float(p1, p2), ortho);
+					Point2D pp2 = new Point2D.Float(
+							(float) (pp1.getX() + last.getX() - first.getX()), (float) (pp1.getY()
+									+ last.getY() - first.getY()));
 
 					return new Line2D.Float(pp1, pp2);
 				}

@@ -43,8 +43,8 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements EdgeArrowRendering
 			Shape vertexShape) {
 		float dx = (float) (edgeShape.getX2() - edgeShape.getX1());
 		float dy = (float) (edgeShape.getY2() - edgeShape.getY1());
-		AffineTransform at = AffineTransform.getTranslateInstance(edgeShape.getX2(),
-				edgeShape.getY2());
+		AffineTransform at = AffineTransform.getTranslateInstance(edgeShape.getX1(),
+				edgeShape.getY1());
 
 		at.rotate(-Math.atan2(dx, dy) + Math.PI / 2);
 
