@@ -77,6 +77,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
+import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -89,7 +90,6 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
@@ -159,8 +159,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
 				new EdgeDrawTransformer<>(viewer.getRenderContext()));
-		viewer.getRenderContext().setEdgeLabelClosenessTransformer(
-				new ConstantDirectionalEdgeValueTransformer<V, Edge<V>>(0.5, 0.5));
+		viewer.getRenderer().setEdgeLabelRenderer(new EdgeLabelRenderer<V, Edge<V>>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
 				.getTransformer(Layer.LAYOUT)).addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));

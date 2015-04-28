@@ -26,7 +26,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.TexturePaint;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -1068,5 +1072,85 @@ public class CanvasUtils {
 				return o1.toString().compareTo(o2.toString());
 			}
 		});
+	}
+
+	public static Line2D getLineInMiddle(Shape edgeShape) {
+		GeneralPath path = new GeneralPath(edgeShape);
+		float[] seg = new float[6];
+		List<Point2D> points = new ArrayList<>();
+
+		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i.next()) {
+			i.currentSegment(seg);
+			points.add(new Point2D.Float(seg[0], seg[1]));
+		}
+
+		Point2D first = points.get(0);
+		Point2D last = points.get(points.size() - 1);
+
+		if (first.equals(last)) {
+			Point2D minP = null;
+			double minY = Double.POSITIVE_INFINITY;
+
+			for (Point2D p : points) {
+				if (p.getY() < minY) {
+					minP = p;
+					minY = p.getY();
+				}
+			}
+
+			return new Line2D.Float(minP, new Point2D.Float((float) (minP.getX() + 1.0),
+					(float) minP.getY()));
+		} else {
+			for (int i = 0; i < points.size() - 1; i++) {
+				Point2D p1 = points.get(i);
+				Point2D p2 = points.get(i + 1);
+
+				if (p2.distance(last) < p2.distance(first)) {
+					Line2D ortho = getOrthogonal(new Line2D.Float(first, last));
+					Point2D pp2 = getIntersection(new Line2D.Float(p1, p2), ortho);
+					Point2D pp1 = new Point2D.Float((float) (pp2.getX() + p1.getX() - p2.getX()),
+							(float) (pp2.getY() + p1.getY() - p2.getY()));
+
+					return new Line2D.Float(pp1, pp2);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static Point2D getIntersection(Line2D l1, Line2D l2) {
+		float x1 = (float) l1.getX1();
+		float x2 = (float) l1.getX2();
+		float x3 = (float) l2.getX1();
+		float x4 = (float) l2.getX2();
+		float y1 = (float) l1.getY1();
+		float y2 = (float) l1.getY2();
+		float y3 = (float) l2.getY1();
+		float y4 = (float) l2.getY2();
+		float factor1 = x1 * y2 - y1 * x2;
+		float factor2 = x3 * y4 - y3 * x4;
+		float denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+		float x = (factor1 * (x3 - x4) - (x1 - x2) * factor2) / denom;
+		float y = (factor1 * (y3 - y4) - (y1 - y2) * factor2) / denom;
+
+		return new Point2D.Float(x, y);
+	}
+
+	private static Line2D getOrthogonal(Line2D l) {
+		float x1 = (float) l.getX1();
+		float x2 = (float) l.getX2();
+		float y1 = (float) l.getY1();
+		float y2 = (float) l.getY2();
+		float dx = x2 - x1;
+		float dy = y2 - y1;
+
+		float nx1 = x1 + dx / 2;
+		float ny1 = y1 + dy / 2;
+		float nx2 = nx1 - dy;
+		float ny2 = ny1 + dx;
+
+		return new Line2D.Float(nx1, ny1, nx2, ny2);
 	}
 }
