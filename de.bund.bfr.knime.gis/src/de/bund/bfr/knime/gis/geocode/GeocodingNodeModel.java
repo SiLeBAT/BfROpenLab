@@ -352,8 +352,16 @@ public class GeocodingNodeModel extends NodeModel {
 
 		try {
 			doc = dBuilder.parse(yc.getInputStream());
-		} catch (Exception e) {
-			if (e.getMessage().startsWith("Server returned HTTP response code: 403 for URL")) {
+		} catch (IOException e) {
+			JOptionPane options = new JOptionPane(e.getMessage() + "\nDo you want to continue?",
+					JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
+			JDialog dialog = options.createDialog("Error");
+
+			dialog.setAlwaysOnTop(true);
+			dialog.setVisible(true);
+
+			if (options.getValue() instanceof Integer
+					&& (Integer) options.getValue() == JOptionPane.YES_OPTION) {
 				return new GeocodingResult();
 			} else {
 				throw e;
