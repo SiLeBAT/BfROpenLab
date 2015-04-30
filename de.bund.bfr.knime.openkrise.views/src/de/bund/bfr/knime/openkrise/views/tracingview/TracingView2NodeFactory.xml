@@ -327,8 +327,11 @@
 		<outPort index="2" name="Graph Image">
 			Image of the Graph.
 		</outPort>
-		<outPort index="3" name="GIS">
+		<outPort index="3" name="GIS Image">
 			Geographical image of the Graph.
+		</outPort>
+		<outPort index="4" name="Combined Image">
+			Graph and GIS image combined.
 		</outPort>
 	</ports>
 </knimeNode>

@@ -78,7 +78,7 @@ public class TracingViewNodeModel extends NodeModel {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL }, new PortType[] {
 				BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE,
-				ImagePortObject.TYPE });
+				ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -178,9 +178,10 @@ public class TracingViewNodeModel extends NodeModel {
 
 		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable,
 				tracingTable, shapeTable, set);
-		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(),
-				creator.createGraphCanvas());
+		TracingGraphCanvas graphCanvas = creator.createGraphCanvas();
+		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas);
 		ImagePortObject gisImage;
+		ImagePortObject combinedImage;
 
 		if (creator.hasGisCoordinates()) {
 			ITracingCanvas<?> gisCanvas = creator.createGisCanvas();
@@ -190,8 +191,10 @@ public class TracingViewNodeModel extends NodeModel {
 			}
 
 			gisImage = CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas);
+			combinedImage = CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas, gisCanvas);
 		} else {
 			gisImage = CanvasUtils.getImage(set.isExportAsSvg());
+			combinedImage = CanvasUtils.getImage(set.isExportAsSvg());
 		}
 
 		set.setGisType(originalGisType);
@@ -209,7 +212,7 @@ public class TracingViewNodeModel extends NodeModel {
 		}
 
 		return new PortObject[] { nodeContainer.getTable(), edgeContainer.getTable(), graphImage,
-				gisImage };
+				gisImage, combinedImage };
 	}
 
 	/**
@@ -228,6 +231,7 @@ public class TracingViewNodeModel extends NodeModel {
 		DataTableSpec edgeSpec = (DataTableSpec) inSpecs[1];
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec), createEdgeOutSpec(edgeSpec),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
