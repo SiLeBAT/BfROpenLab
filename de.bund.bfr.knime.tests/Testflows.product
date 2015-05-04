@@ -214,6 +214,7 @@
       <plugin id="org.knime.distmatrix"/>
       <plugin id="org.knime.ext.jep"/>
       <plugin id="org.knime.ext.jfreechart"/>
+      <plugin id="org.knime.ext.poi"/>
       <plugin id="org.knime.ext.sun"/>
       <plugin id="org.knime.ext.svg"/>
       <plugin id="org.knime.jsnippets"/>
