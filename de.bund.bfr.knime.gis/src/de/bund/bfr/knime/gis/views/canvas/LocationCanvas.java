@@ -80,7 +80,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			region.updatePolygon(GisUtils.latLonToViz(region.getPolygon()));
 		}
 
-		invalidArea = CanvasUtils.placeLocationNodes(this.nodes, this.edges,
+		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges,
 				viewer.getGraphLayout());
 	}
 
@@ -91,7 +91,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = CanvasUtils.getLocationBounds(nodes);
+		Rectangle2D bounds = LocationCanvasUtils.getBounds(nodes);
 
 		if (bounds != null) {
 			zoomTo(bounds);
@@ -105,14 +105,14 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		super.paintGis(g, toSvg);
 
 		if (invalidArea != null) {
-			CanvasUtils.paintNonLatLonArea(g, getCanvasSize().width, getCanvasSize().height,
-					transform.apply(invalidArea, true));
+			LocationCanvasUtils.paintNonLatLonArea(g, getCanvasSize().width,
+					getCanvasSize().height, transform.apply(invalidArea, true));
 		}
 	}
 
 	@Override
 	protected LocationNode createMetaNode(String id, Collection<LocationNode> nodes) {
-		return CanvasUtils.createLocationMetaNode(id, nodes, nodeSchema, metaNodeProperty,
+		return LocationCanvasUtils.createMetaNode(id, nodes, nodeSchema, metaNodeProperty,
 				viewer.getGraphLayout());
 	}
 }

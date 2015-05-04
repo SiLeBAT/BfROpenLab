@@ -44,7 +44,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = CanvasUtils.getRegionBounds(getRegions());
+		Rectangle2D bounds = getRegionBounds(getRegions());
 
 		if (bounds != null) {
 			zoomTo(bounds);
@@ -95,5 +95,19 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 				}
 			}
 		}
+	}
+
+	private static Rectangle2D getRegionBounds(Collection<RegionNode> nodes) {
+		Rectangle2D bounds = null;
+
+		for (RegionNode node : nodes) {
+			if (bounds == null) {
+				bounds = node.getBoundingBox();
+			} else {
+				bounds = bounds.createUnion(node.getBoundingBox());
+			}
+		}
+
+		return bounds;
 	}
 }

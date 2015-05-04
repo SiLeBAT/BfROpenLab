@@ -23,7 +23,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport;
 
@@ -32,7 +31,7 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements EdgeArrowRendering
 	@Override
 	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
 			Shape vertexShape) {
-		Line2D lineInMiddle = CanvasUtils.getLineInMiddle(edgeShape);
+		Line2D lineInMiddle = JungUtils.getLineInMiddle(edgeShape);
 
 		return lineInMiddle != null ? getArrowTransform(rc, lineInMiddle, null)
 				: new AffineTransform();

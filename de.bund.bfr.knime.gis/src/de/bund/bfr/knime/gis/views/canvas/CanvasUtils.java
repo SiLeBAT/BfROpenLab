@@ -26,20 +26,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.TexturePaint;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +40,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,15 +59,11 @@ import org.w3c.dom.svg.SVGDocument;
 import com.google.common.base.Joiner;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
-import com.vividsolutions.jts.geom.Polygon;
 
-import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -86,7 +74,6 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -110,178 +97,6 @@ public class CanvasUtils {
 			new Color(128, 255, 128), new Color(255, 128, 255), new Color(128, 255, 255) };
 
 	private CanvasUtils() {
-	}
-
-	public static Polygon placeLocationNodes(Collection<LocationNode> nodes,
-			Collection<Edge<LocationNode>> edges, Layout<LocationNode, Edge<LocationNode>> layout) {
-		Polygon invalidArea = null;
-
-		Set<LocationNode> validNodes = new LinkedHashSet<>();
-		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
-		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
-		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
-
-		for (LocationNode node : nodes) {
-			if (node.getCenter() != null) {
-				layout.setLocation(node, node.getCenter());
-				validNodes.add(node);
-			} else {
-				invalidNodes.add(node);
-				invalidToValid.put(node, new LinkedHashSet<LocationNode>());
-				invalidToInvalid.put(node, new LinkedHashSet<LocationNode>());
-			}
-		}
-
-		for (Edge<LocationNode> edge : edges) {
-			if (edge.getFrom() == edge.getTo()) {
-				continue;
-			}
-
-			if (invalidNodes.contains(edge.getFrom())) {
-				if (invalidNodes.contains(edge.getTo())) {
-					invalidToInvalid.get(edge.getFrom()).add(edge.getTo());
-				} else {
-					invalidToValid.get(edge.getFrom()).add(edge.getTo());
-				}
-			}
-
-			if (invalidNodes.contains(edge.getTo())) {
-				if (invalidNodes.contains(edge.getFrom())) {
-					invalidToInvalid.get(edge.getTo()).add(edge.getFrom());
-				} else {
-					invalidToValid.get(edge.getTo()).add(edge.getFrom());
-				}
-			}
-		}
-
-		if (!invalidNodes.isEmpty()) {
-			Rectangle2D bounds = CanvasUtils.getLocationBounds(validNodes);
-			double size = Math.max(bounds.getWidth(), bounds.getHeight());
-
-			if (size == 0.0) {
-				size = 1.0;
-			}
-
-			double d = 0.2 * size;
-			double r = 0.02 * size;
-
-			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d,
-					bounds.getY() - d, bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d),
-					2 * r);
-
-			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
-					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
-			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
-
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-				LocationNode node = iterator.next();
-				Set<LocationNode> validConnections = invalidToValid.get(node);
-
-				if (!validConnections.isEmpty()) {
-					List<Point2D> points = new ArrayList<>();
-
-					for (LocationNode n : validConnections) {
-						points.add(n.getCenter());
-					}
-
-					Point2D p = CanvasUtils.getClosestPointOnRect(CanvasUtils.getCenter(points),
-							rect);
-
-					node.updateCenter(p);
-					layout.setLocation(node, p);
-					iterator.remove();
-				}
-			}
-
-			while (true) {
-				boolean nothingChanged = true;
-
-				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-					LocationNode node = iterator.next();
-					Set<LocationNode> inValidConnections = invalidToInvalid.get(node);
-					List<Point2D> points = new ArrayList<>();
-
-					for (LocationNode n : inValidConnections) {
-						if (n.getCenter() != null) {
-							points.add(n.getCenter());
-						}
-					}
-
-					if (!points.isEmpty()) {
-						Point2D p = CanvasUtils.getClosestPointOnRect(
-								CanvasUtils.getCenter(points), rect);
-
-						node.updateCenter(p);
-						layout.setLocation(node, p);
-						iterator.remove();
-						nothingChanged = false;
-					}
-				}
-
-				if (nothingChanged) {
-					break;
-				}
-			}
-
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-				LocationNode node = iterator.next();
-				Point2D p = new Point2D.Double(bounds.getMinX() - d - r, bounds.getMaxY() - d - r);
-
-				node.updateCenter(p);
-				layout.setLocation(node, p);
-				iterator.remove();
-			}
-		}
-
-		return invalidArea;
-	}
-
-	public static void paintNonLatLonArea(Graphics g, int w, int h, java.awt.Polygon invalidArea) {
-		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics imgGraphics = invalidAreaImage.getGraphics();
-
-		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE,
-				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0)));
-		imgGraphics.fillPolygon(invalidArea);
-		imgGraphics.setColor(Color.BLACK);
-		imgGraphics.drawPolygon(invalidArea);
-
-		float[] edgeScales = { 1f, 1f, 1f, 0.3f };
-		float[] edgeOffsets = new float[4];
-
-		((Graphics2D) g).drawImage(invalidAreaImage, new RescaleOp(edgeScales, edgeOffsets, null),
-				0, 0);
-	}
-
-	public static LocationNode createLocationMetaNode(String id, Collection<LocationNode> nodes,
-			NodePropertySchema nodeSchema, String metaNodeProperty,
-			Layout<LocationNode, Edge<LocationNode>> layout) {
-		Map<String, Object> properties = new LinkedHashMap<>();
-
-		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema, node.getProperties());
-		}
-
-		properties.put(nodeSchema.getId(), id);
-		properties.put(metaNodeProperty, true);
-		properties.put(nodeSchema.getLatitude(), null);
-		properties.put(nodeSchema.getLongitude(), null);
-
-		List<Double> xList = new ArrayList<Double>();
-		List<Double> yList = new ArrayList<Double>();
-
-		for (LocationNode node : nodes) {
-			xList.add(node.getCenter().getX());
-			yList.add(node.getCenter().getY());
-		}
-
-		double x = DoubleMath.mean(Doubles.toArray(xList));
-		double y = DoubleMath.mean(Doubles.toArray(yList));
-		LocationNode newNode = new LocationNode(id, properties, new Point2D.Double(x, y));
-
-		layout.setLocation(newNode, newNode.getCenter());
-
-		return newNode;
 	}
 
 	public static List<HighlightCondition> createCategorialHighlighting(
@@ -314,37 +129,6 @@ public class CanvasUtils {
 		}
 
 		return conditions;
-	}
-
-	public static Rectangle2D getLocationBounds(Collection<LocationNode> nodes) {
-		Rectangle2D bounds = null;
-
-		for (LocationNode node : nodes) {
-			Rectangle2D r = new Rectangle2D.Double(node.getCenter().getX(),
-					node.getCenter().getY(), 0, 0);
-
-			if (bounds == null) {
-				bounds = r;
-			} else {
-				bounds = bounds.createUnion(r);
-			}
-		}
-
-		return bounds;
-	}
-
-	public static Rectangle2D getRegionBounds(Collection<RegionNode> nodes) {
-		Rectangle2D bounds = null;
-
-		for (RegionNode node : nodes) {
-			if (bounds == null) {
-				bounds = node.getBoundingBox();
-			} else {
-				bounds = bounds.createUnion(node.getBoundingBox());
-			}
-		}
-
-		return bounds;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -454,32 +238,6 @@ public class CanvasUtils {
 		y /= points.size();
 
 		return new Point2D.Double(x, y);
-	}
-
-	public static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		Double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		Double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		Double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		Double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		Double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
-
-		if (dx1 == min) {
-			return new Point2D.Double(rect.getMinX(), pointInRect.getY());
-		} else if (dx2 == min) {
-			return new Point2D.Double(rect.getMaxX(), pointInRect.getY());
-		} else if (dy1 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMinY());
-		} else if (dy2 == min) {
-			return new Point2D.Double(pointInRect.getX(), rect.getMaxY());
-		}
-
-		throw new RuntimeException("This should not happen");
-	}
-
-	public static String toRangeString(Point2D p) {
-		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-
-		return format.format(p.getX()) + " -> " + format.format(p.getY());
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
@@ -966,20 +724,6 @@ public class CanvasUtils {
 		}
 	}
 
-	public static double getDenominator(Collection<Double> values) {
-		if (values.isEmpty()) {
-			return 1.0;
-		}
-
-		double max = Collections.max(values);
-
-		if (max == 0.0 || max == Double.MIN_VALUE) {
-			return 1.0;
-		}
-
-		return max;
-	}
-
 	private static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions, int nodeSize, boolean labelsOnly) {
@@ -1072,86 +816,5 @@ public class CanvasUtils {
 				return o1.toString().compareTo(o2.toString());
 			}
 		});
-	}
-
-	public static Line2D getLineInMiddle(Shape edgeShape) {
-		GeneralPath path = new GeneralPath(edgeShape);
-		float[] seg = new float[6];
-		List<Point2D> points = new ArrayList<>();
-
-		for (PathIterator i = path.getPathIterator(null, 1); !i.isDone(); i.next()) {
-			i.currentSegment(seg);
-			points.add(new Point2D.Float(seg[0], seg[1]));
-		}
-
-		Point2D first = points.get(0);
-		Point2D last = points.get(points.size() - 1);
-
-		if (first.equals(last)) {
-			Point2D minP = null;
-			double minY = Double.POSITIVE_INFINITY;
-
-			for (Point2D p : points) {
-				if (p.getY() < minY) {
-					minP = p;
-					minY = p.getY();
-				}
-			}
-
-			return new Line2D.Float(minP, new Point2D.Float((float) (minP.getX() + 1.0),
-					(float) minP.getY()));
-		} else {
-			for (int i = 0; i < points.size() - 1; i++) {
-				Point2D p1 = points.get(i);
-				Point2D p2 = points.get(i + 1);
-
-				if (p2.distance(last) < p2.distance(first)) {
-					Line2D ortho = getOrthogonal(new Line2D.Float(first, last));
-					Point2D pp1 = getIntersection(new Line2D.Float(p1, p2), ortho);
-					Point2D pp2 = new Point2D.Float(
-							(float) (pp1.getX() + last.getX() - first.getX()), (float) (pp1.getY()
-									+ last.getY() - first.getY()));
-
-					return new Line2D.Float(pp1, pp2);
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private static Point2D getIntersection(Line2D l1, Line2D l2) {
-		float x1 = (float) l1.getX1();
-		float x2 = (float) l1.getX2();
-		float x3 = (float) l2.getX1();
-		float x4 = (float) l2.getX2();
-		float y1 = (float) l1.getY1();
-		float y2 = (float) l1.getY2();
-		float y3 = (float) l2.getY1();
-		float y4 = (float) l2.getY2();
-		float factor1 = x1 * y2 - y1 * x2;
-		float factor2 = x3 * y4 - y3 * x4;
-		float denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-		float x = (factor1 * (x3 - x4) - (x1 - x2) * factor2) / denom;
-		float y = (factor1 * (y3 - y4) - (y1 - y2) * factor2) / denom;
-
-		return new Point2D.Float(x, y);
-	}
-
-	private static Line2D getOrthogonal(Line2D l) {
-		float x1 = (float) l.getX1();
-		float x2 = (float) l.getX2();
-		float y1 = (float) l.getY1();
-		float y2 = (float) l.getY2();
-		float dx = x2 - x1;
-		float dy = y2 - y1;
-
-		float nx1 = x1 + dx / 2;
-		float ny1 = y1 + dy / 2;
-		float nx2 = nx1 - dy;
-		float ny2 = ny1 + dx;
-
-		return new Line2D.Float(nx1, ny1, nx2, ny2);
 	}
 }

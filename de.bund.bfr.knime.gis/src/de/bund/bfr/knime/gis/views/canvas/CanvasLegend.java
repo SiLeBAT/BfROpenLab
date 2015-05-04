@@ -26,9 +26,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -66,7 +69,7 @@ public class CanvasLegend<V extends Node> {
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " [" + CanvasUtils.toRangeString(condition.getValueRange(nodes)) + "]";
+					name += " [" + toRangeString(condition.getValueRange(nodes)) + "]";
 					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE,
 							LEGEND_COLOR_BOX_WIDTH, 0, color));
 				} else {
@@ -89,7 +92,7 @@ public class CanvasLegend<V extends Node> {
 
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " [" + CanvasUtils.toRangeString(condition.getValueRange(edges)) + "]";
+					name += " [" + toRangeString(condition.getValueRange(edges)) + "]";
 					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE,
 							LEGEND_COLOR_BOX_WIDTH, 0, color));
 				} else {
@@ -178,5 +181,11 @@ public class CanvasLegend<V extends Node> {
 			g.drawString(name, xEdgeName, yEdge + fontAscent);
 			yEdge += legendHeight + LEGEND_DY;
 		}
+	}
+
+	private static String toRangeString(Point2D p) {
+		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+
+		return format.format(p.getX()) + " -> " + format.format(p.getY());
 	}
 }

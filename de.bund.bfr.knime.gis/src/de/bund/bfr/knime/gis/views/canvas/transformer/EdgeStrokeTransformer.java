@@ -25,8 +25,6 @@ import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-
 public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
 	private Map<E, Double> thicknessValues;
@@ -34,7 +32,7 @@ public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
 	public EdgeStrokeTransformer(Map<E, Double> thicknessValues) {
 		this.thicknessValues = thicknessValues;
-		denom = CanvasUtils.getDenominator(thicknessValues.values());
+		denom = TransformerUtils.getDenominator(thicknessValues.values());
 	}
 
 	@Override

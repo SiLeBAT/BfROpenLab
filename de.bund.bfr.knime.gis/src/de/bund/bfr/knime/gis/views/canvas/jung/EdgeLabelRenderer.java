@@ -25,7 +25,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -45,7 +44,7 @@ public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 			return;
 		}
 
-		Line2D line = CanvasUtils.getLineInMiddle(edgeShape);
+		Line2D line = JungUtils.getLineInMiddle(edgeShape);
 
 		GraphicsDecorator g = rc.getGraphicsContext();
 		Font font = rc.getEdgeFontTransformer().transform(e);

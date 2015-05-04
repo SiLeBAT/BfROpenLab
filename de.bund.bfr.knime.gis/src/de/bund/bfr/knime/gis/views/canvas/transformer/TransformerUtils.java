@@ -19,33 +19,25 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.transformer;
 
-import java.awt.Shape;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
-import org.apache.commons.collections15.Transformer;
+public class TransformerUtils {
 
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.Context;
-import edu.uci.ics.jung.visualization.util.ArrowFactory;
-
-public class EdgeArrowTransformer<V extends Node> implements
-		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> {
-
-	private Map<Edge<V>, Double> thicknessValues;
-	private double denom;
-
-	public EdgeArrowTransformer(Map<Edge<V>, Double> thicknessValues) {
-		this.thicknessValues = thicknessValues;
-		denom = TransformerUtils.getDenominator(thicknessValues.values());
+	private TransformerUtils() {
 	}
 
-	@Override
-	public Shape transform(Context<Graph<V, Edge<V>>, Edge<V>> edge) {
-		int t1 = (int) Math.round(thicknessValues.get(edge.element) / denom * 20.0);
-		int t2 = (int) Math.round(thicknessValues.get(edge.element) / denom * 10.0);
+	public static double getDenominator(Collection<Double> values) {
+		if (values.isEmpty()) {
+			return 1.0;
+		}
 
-		return ArrowFactory.getNotchedArrow(t1 + 8, t2 + 10, 4);
+		double max = Collections.max(values);
+
+		if (max == 0.0 || max == Double.MIN_VALUE) {
+			return 1.0;
+		}
+
+		return max;
 	}
 }
