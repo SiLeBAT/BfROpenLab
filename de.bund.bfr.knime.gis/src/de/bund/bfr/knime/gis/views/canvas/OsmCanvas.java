@@ -45,6 +45,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 

@@ -39,6 +39,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;

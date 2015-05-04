@@ -76,10 +76,12 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.jung.EdgeLabelRenderer;
+import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
+import de.bund.bfr.knime.gis.views.canvas.jung.ShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -165,6 +167,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
+		viewer.setPickSupport(new ShapePickSupport<>(viewer));
 
 		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 

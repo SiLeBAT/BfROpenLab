@@ -17,34 +17,27 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.transformer;
+package de.bund.bfr.knime.gis.views.canvas.jung;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.renderers.Renderer;
-import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
-public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
+public class JungUtils {
 
-	@Override
-	public void labelEdge(RenderContext<V, E> rc, Layout<V, E> layout, E e, String label) {
-		if (label == null || label.isEmpty()) {
-			return;
-		}
+	private JungUtils() {
+	}
 
+	public static <V, E> Shape getTransformedEdgeShape(RenderContext<V, E> rc, Layout<V, E> layout,
+			E e) {
 		Graph<V, E> graph = layout.getGraph();
 		Pair<V> endpoints = graph.getEndpoints(e);
 		V v1 = endpoints.getFirst();
@@ -55,7 +48,7 @@ public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 						Context.<Graph<V, E>, V> getInstance(graph, v1))
 				|| !rc.getVertexIncludePredicate().evaluate(
 						Context.<Graph<V, E>, V> getInstance(graph, v2))) {
-			return;
+			return null;
 		}
 
 		Point2D p1 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v1));
@@ -80,28 +73,6 @@ public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 			edgeShapeTransform.scale(Math.sqrt(dx * dx + dy * dy), 1.0);
 		}
 
-		Line2D line = CanvasUtils.getLineInMiddle(edgeShapeTransform
-				.createTransformedShape(edgeShape));
-
-		GraphicsDecorator g = rc.getGraphicsContext();
-		Font font = rc.getEdgeFontTransformer().transform(e);
-		double width = font.getStringBounds(label, g.getFontRenderContext()).getWidth();
-		AffineTransform old = g.getTransform();
-		AffineTransform trans = new AffineTransform(old);
-		double angle = Math.atan2(line.getY2() - line.getY1(), line.getX2() - line.getX1());
-
-		if (angle < -Math.PI / 2) {
-			angle += Math.PI;
-		} else if (angle > Math.PI / 2) {
-			angle -= Math.PI;
-		}
-
-		trans.translate(line.getX1(), line.getY1());
-		trans.rotate(angle);
-		g.setTransform(trans);
-		g.setColor(rc.getPickedEdgeState().getPicked().contains(e) ? Color.GREEN : Color.BLACK);
-		g.setFont(rc.getEdgeFontTransformer().transform(e));
-		g.drawString(label, (int) (-width / 2), 0);
-		g.setTransform(old);
+		return edgeShapeTransform.createTransformedShape(edgeShape);
 	}
 }
