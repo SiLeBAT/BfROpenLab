@@ -94,7 +94,7 @@ public class GraphSettings extends Settings {
 		edgeToColumn = null;
 		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
-		joinEdges = true;
+		joinEdges = false;
 		arrowInMiddle = false;
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;

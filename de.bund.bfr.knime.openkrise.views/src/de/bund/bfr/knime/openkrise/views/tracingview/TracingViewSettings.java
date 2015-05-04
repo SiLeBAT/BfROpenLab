@@ -123,7 +123,7 @@ public class TracingViewSettings extends NodeSettings {
 		exportAsSvg = false;
 		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
-		joinEdges = true;
+		joinEdges = false;
 		arrowInMiddle = false;
 		showLegend = false;
 		editingMode = Mode.PICKING;

@@ -92,7 +92,7 @@ public class GraphSettings extends NodeSettings {
 	public GraphSettings() {
 		skipEdgelessNodes = false;
 		showEdgesInMetaNode = false;
-		joinEdges = true;
+		joinEdges = false;
 		arrowInMiddle = false;
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;
