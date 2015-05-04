@@ -69,8 +69,8 @@ public class ImportAction extends AbstractAction {
 //	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
 
-		  BackTraceImporter bti = new BackTraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
 		  LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);
+		  BackTraceImporter bti = new BackTraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
 
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  

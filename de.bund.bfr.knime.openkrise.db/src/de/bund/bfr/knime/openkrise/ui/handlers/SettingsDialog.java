@@ -61,6 +61,13 @@ public class SettingsDialog extends JFrame {
 	public SettingsDialog() {
 		initComponents();
 		//this.setIconImage(Resources.getInstance().getDefaultIcon());
+		this.username.setVisible(false);
+		this.password.setVisible(false);
+		this.readOnly.setVisible(false);
+		this.button2.setVisible(false);
+		this.label2.setVisible(false);
+		this.label3.setVisible(false);
+		this.label4.setVisible(false);
 		fillFields();
 	}
 

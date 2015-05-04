@@ -40,7 +40,7 @@ public class BackTraceGenerator {
 				int numFilesGenerated = getBacktraceRequests(f.getAbsolutePath(), business2Backtrace);
 				//XSSFCellStyle defaultStyle = workbook.createCellStyle();
 				if (numFilesGenerated == 0) message = "No new Templates generated. All done?";
-				else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder + "'";
+				else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + f.getAbsolutePath() + "'";
 			}
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -66,7 +66,8 @@ public class BackTraceGenerator {
 				if (row == null) row = sheetStations.createRow(rownum);
 				rownum++;
 				XSSFCell cell;
-				if (rs.getObject("ID") != null) {cell = row.createCell(0); cell.setCellValue(rs.getString("ID"));}
+				if (rs.getObject("Serial") != null) {cell = row.createCell(0); cell.setCellValue(rs.getString("Serial"));}
+				else if (rs.getObject("ID") != null) {cell = row.createCell(0); cell.setCellValue(rs.getString("ID"));}
 				if (rs.getObject("Name") != null) {cell = row.createCell(1); cell.setCellValue(rs.getString("Name"));}
 				if (rs.getObject("Strasse") != null) {cell = row.createCell(2); cell.setCellValue(rs.getString("Strasse"));}
 				if (rs.getObject("Hausnummer") != null) {cell = row.createCell(3); cell.setCellValue(rs.getString("Hausnummer"));}
@@ -146,7 +147,8 @@ public class BackTraceGenerator {
 				if (rs.getObject("Lieferungen.numPU") != null) {cell = row.getCell(8); cell.setCellValue(rs.getDouble("Lieferungen.numPU"));}
 				if (rs.getObject("Lieferungen.typePU") != null) {cell = row.getCell(9); cell.setCellValue(rs.getString("Lieferungen.typePU"));}
 				if (rs.getObject("Lieferungen.Empfänger") != null) {cell = row.getCell(10); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));}
-				if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.ID"));}
+				if (rs.getObject("Lieferungen.Serial") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.Serial"));}
+				else if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.ID"));}
 
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Lieferungen.ID") + ".xlsx");

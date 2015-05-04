@@ -101,14 +101,7 @@ public class Delivery {
 	public void setTargetLotId(String targetLotId) {
 		this.targetLotId = targetLotId;
 	}
-	private String lookup;
-	
-	public String getLookup() {
-		return lookup;
-	}
-	public void setLookup(String lookup) {
-		this.lookup = lookup;
-	}
+
 	private Integer dbId;
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;
@@ -158,6 +151,7 @@ public class Delivery {
 				" WHERE " + DBKernel.delimitL("Charge") + "=" + dbLotID + " AND " + DBKernel.delimitL("Empfänger") + "=" + dbRecID;
 		String in = DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("ImportSources");
 		String iv = dbLotID + "," + dbRecID + ",';" + miDbId + ";'";
+		String serialWhere = "";
 		int i=0;
 		for (;i<iFeldVals.length;i++) {
 			if (iFeldVals[i] != null) {
@@ -174,9 +168,11 @@ public class Delivery {
 		}
 		for (int j=0;j<sFeldVals.length;j++) {
 			if (sFeldVals[j] != null) {
-				if (!feldnames[i+1+j].equals("Serial")) sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				//if (!feldnames[i+1+j].equals("Serial"))
+				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 				in += "," + DBKernel.delimitL(feldnames[i+1+j]);
 				iv += ",'" + sFeldVals[j] + "'";
+				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 			}
 		}
 
@@ -193,8 +189,13 @@ public class Delivery {
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (ps.executeUpdate() > 0) {
 				result = DBKernel.getLastInsertedID(ps);
-				if (in.indexOf("Serial") < 0) {
+				if (serialWhere.length() == 0) {
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+					serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+				}
+				int numSameSerials = DBKernel.getRowCount("Lieferungen", serialWhere);
+				if (numSameSerials > 1) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
 				}
 			}
 		}

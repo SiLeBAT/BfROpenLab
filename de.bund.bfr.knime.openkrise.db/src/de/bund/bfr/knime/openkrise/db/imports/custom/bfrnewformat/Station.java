@@ -143,17 +143,22 @@ public class Station {
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Station") + " WHERE TRUE ";
 		String in = DBKernel.delimitL("ImportSources");
 		String iv =  "';" + miDbId + ";'";
+		String serialWhere = "";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
 				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 				in += "," + DBKernel.delimitL(feldnames[i]);
 				iv += ",'" + feldVals[i] + "'";
+				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 			}
 		}
 		try {
 			int intId = Integer.parseInt(feldVals[feldVals.length-1]);
-			in += "," + DBKernel.delimitL("ID");
-			iv += "," + intId;
+			int numIdsPresent = DBKernel.getRowCount("Station", DBKernel.delimitL("ID") + "=" + intId);
+			if (numIdsPresent == 0) {
+				in += "," + DBKernel.delimitL("ID");
+				iv += "," + intId;
+			}
 		}
 		catch (Exception e) {}
 
@@ -171,10 +176,23 @@ public class Station {
 			sql = "INSERT INTO " + DBKernel.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (ps.executeUpdate() > 0) {
-				if (in.indexOf("Serial") < 0) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-				}
 				result = DBKernel.getLastInsertedID(ps);
+				if (serialWhere.length() == 0) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+					serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+				}
+				int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
+				if (numSameSerials > 1) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
+				}
+				/*
+				while (true) {
+					int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
+					if (numSameSerials == 1) break;
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_','" + numSameSerials + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+					serialWhere = serialWhere.substring(0, serialWhere.lastIndexOf("'")) + "_" + numSameSerials + "'";
+				}
+				*/
 			}
 		}
 

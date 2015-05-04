@@ -26,6 +26,7 @@ package de.bund.bfr.knime.openkrise.db.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Window;
@@ -774,7 +775,11 @@ public class MainFrame extends JFrame {
 		dialog.setVisible(true);
 		
 		if (dialog.isApproved()) {
-			new BackTraceGenerator(DBKernel.HSHDB_PATH + "/openrequests", dialog.getSelected());
+			String folder = DBKernel.HSHDB_PATH;
+			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
+			if (this.myDB != null) this.myDB.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			new BackTraceGenerator(folder + "openrequests", dialog.getSelected());
+			if (this.myDB != null) this.myDB.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}		
 	}
 	private static class BackTraceDialog extends JDialog implements ActionListener {
