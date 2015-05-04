@@ -468,20 +468,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItem() instanceof Node) {
-			if (viewer.getPickedVertexState().getPicked().isEmpty()) {
-				popup.setNodeSelectionEnabled(false);
-			} else {
-				popup.setNodeSelectionEnabled(true);
-			}
-
+			popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 			fireNodeSelectionChanged();
 		} else if (e.getItem() instanceof Edge) {
-			if (viewer.getPickedEdgeState().getPicked().isEmpty()) {
-				popup.setEdgeSelectionEnabled(false);
-			} else {
-				popup.setEdgeSelectionEnabled(true);
-			}
-
+			popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 			fireEdgeSelectionChanged();
 		}
 	}
