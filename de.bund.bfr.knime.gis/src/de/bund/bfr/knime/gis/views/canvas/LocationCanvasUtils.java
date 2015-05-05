@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.google.common.math.DoubleMath;
@@ -65,6 +66,62 @@ public class LocationCanvasUtils {
 		}
 
 		return bounds;
+	}
+
+	public static void avoidNodeOverlay(Collection<LocationNode> nodes,
+			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize) {
+		Map<LocationNode, Point2D> positions = new LinkedHashMap<>();
+
+		for (LocationNode n : nodes) {
+			positions.put(n, n.getCenter());
+		}
+
+		double s = nodeSize / transform.getScaleX();
+		double d = s / 5.0;
+		int index = 0;
+
+		for (LocationNode n1 : nodes) {
+			Point2D p1 = positions.get(n1);
+			List<Point2D> neighbors = new ArrayList<>();
+
+			for (LocationNode n2 : nodes) {
+				Point2D p2 = positions.get(n2);
+
+				if (n1 != n2 && p1.distance(p2) < 2 * s) {
+					neighbors.add(p2);
+				}
+			}
+
+			double randX = new Random(index++).nextDouble();
+			double randY = new Random(index++).nextDouble();
+			double x1 = p1.getX() - s;
+			double x2 = p1.getX() + s;
+			double y1 = p1.getY() - s;
+			double y2 = p1.getY() + s;
+			double bestDistance = 0.0;
+			Point2D bestPoint = null;
+
+			for (double x = x1 + randX * d; x <= x2; x += d) {
+				for (double y = y1 + randY * d; y <= y2; y += d) {
+					double distance = Double.POSITIVE_INFINITY;
+
+					for (Point2D p : neighbors) {
+						distance = Math.min(distance, p.distance(x, y));
+					}
+
+					if (distance > bestDistance) {
+						bestDistance = distance;
+						bestPoint = new Point2D.Double(x, y);
+					}
+				}
+			}
+
+			positions.put(n1, bestPoint);
+		}
+
+		for (Map.Entry<LocationNode, Point2D> entry : positions.entrySet()) {
+			layout.setLocation(entry.getKey(), entry.getValue());
+		}
 	}
 
 	public static Polygon placeNodes(Collection<LocationNode> nodes,
