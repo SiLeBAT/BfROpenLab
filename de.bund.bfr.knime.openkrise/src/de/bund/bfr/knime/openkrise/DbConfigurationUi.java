@@ -169,8 +169,10 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 	}
 	
 	public void setFilename( String filename ) {
-		if (filename.endsWith(File.separator + "DB")) connField.setText(filename.substring(0, filename.length() - 3));
-		else connField.setText( filename );
+		if (filename != null) {
+			if (filename.endsWith(File.separator + "DB")) connField.setText(filename.substring(0, filename.length() - 3));
+			else connField.setText( filename );
+		}
 	}
 	
 	public void setLogin( String login ) {
