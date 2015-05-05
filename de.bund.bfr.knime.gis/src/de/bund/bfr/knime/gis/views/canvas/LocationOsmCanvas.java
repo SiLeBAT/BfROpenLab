@@ -37,6 +37,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	private static final long serialVersionUID = 1L;
 
 	private Polygon invalidArea;
+	private Double lastScaleX;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
@@ -58,9 +59,10 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 			boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		invalidArea = null;
+		lastScaleX = null;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<LocationNode>(getNodeSize()));
 
@@ -82,6 +84,24 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 			zoomTo(bounds);
 		} else {
 			super.resetLayoutItemClicked();
+		}
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
+		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+				getNodeSize(), isAvoidOverlay());
+	}
+
+	@Override
+	protected void applyTransform() {
+		super.applyTransform();
+
+		if (isAvoidOverlay()) {
+			if (lastScaleX == null || lastScaleX != transform.getScaleX()) {
+				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+						getNodeSize(), true);
+			}
 		}
 	}
 

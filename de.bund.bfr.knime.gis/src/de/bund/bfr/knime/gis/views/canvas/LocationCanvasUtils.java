@@ -68,8 +68,17 @@ public class LocationCanvasUtils {
 		return bounds;
 	}
 
-	public static void avoidNodeOverlay(Collection<LocationNode> nodes,
-			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize) {
+	public static void updateNodeLocations(Collection<LocationNode> nodes,
+			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize,
+			boolean avoidOverlay) {
+		if (!avoidOverlay) {
+			for (LocationNode n : nodes) {
+				layout.setLocation(n, n.getCenter());
+			}
+
+			return;
+		}
+
 		Map<LocationNode, Point2D> positions = new LinkedHashMap<>();
 
 		for (LocationNode n : nodes) {

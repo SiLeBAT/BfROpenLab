@@ -62,7 +62,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
-		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false));
+		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(getNodeSize()));
 
@@ -138,6 +138,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void borderAlphaChanged() {
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
 	}
 
 	@Override

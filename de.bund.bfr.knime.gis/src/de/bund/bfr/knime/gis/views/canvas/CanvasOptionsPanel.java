@@ -60,6 +60,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	public static final int DEFAULT_NODE_SIZE = 10;
 	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
+	public static final boolean DEFAULT_AVOID_OVERLAY = false;
 
 	private static final long serialVersionUID = 1L;
 
@@ -85,11 +86,12 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private int borderAlpha;
 	private JSlider borderAlphaSlider;
 	private JButton borderAlphaButton;
+	private JCheckBox avoidOverlayBox;
 
 	private List<ChangeListener> listeners;
 
 	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges, boolean allowNodeResize,
-			boolean allowPolygons) {
+			boolean allowPolygons, boolean allowGisLocations) {
 		init();
 
 		panel = new JPanel();
@@ -126,6 +128,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		if (allowPolygons) {
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel("Border Alpha", borderAlphaSlider, borderAlphaButton));
+		}
+
+		if (allowGisLocations) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel("Avoid Overlay", avoidOverlayBox));
 		}
 
 		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
@@ -242,6 +249,14 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		borderAlphaButton.doClick();
 	}
 
+	public boolean isAvoidOverlay() {
+		return avoidOverlayBox.isSelected();
+	}
+
+	public void setAvoidOverlay(boolean avoidOverlay) {
+		avoidOverlayBox.setSelected(avoidOverlay);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == borderAlphaButton) {
@@ -317,6 +332,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			for (ChangeListener l : listeners) {
 				l.arrowInMiddleChanged();
 			}
+		} else if (e.getSource() == avoidOverlayBox) {
+			for (ChangeListener l : listeners) {
+				l.avoidOverlayChanged();
+			}
 		}
 	}
 
@@ -367,6 +386,9 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 				borderAlphaSlider.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
+		avoidOverlayBox = new JCheckBox("Activate");
+		avoidOverlayBox.setSelected(DEFAULT_AVOID_OVERLAY);
+		avoidOverlayBox.addItemListener(this);
 	}
 
 	private static JPanel getOptionPanel(String name, JComponent... components) {
@@ -412,5 +434,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		void labelChanged();
 
 		void borderAlphaChanged();
+
+		void avoidOverlayChanged();
 	}
 }

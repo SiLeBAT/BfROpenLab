@@ -39,6 +39,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 	private List<RegionNode> regions;
 	private Polygon invalidArea;
+	private Double lastScaleX;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
@@ -64,9 +65,10 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		this.regions = regions;
 		invalidArea = null;
+		lastScaleX = null;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<LocationNode>(getNodeSize()));
 
@@ -97,6 +99,24 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 			zoomTo(bounds);
 		} else {
 			super.resetLayoutItemClicked();
+		}
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
+		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+				getNodeSize(), isAvoidOverlay());
+	}
+
+	@Override
+	protected void applyTransform() {
+		super.applyTransform();
+
+		if (isAvoidOverlay()) {
+			if (lastScaleX == null || lastScaleX != transform.getScaleX()) {
+				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
+						getNodeSize(), true);
+			}
 		}
 	}
 

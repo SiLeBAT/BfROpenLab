@@ -72,7 +72,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
-		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true));
+		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
 		viewer.getRenderContext()
 				.setVertexShapeTransformer(new NodeShapeTransformer<RegionNode>(2));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(
@@ -103,6 +103,10 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 			flushImage();
 			viewer.repaint();
 		}
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
 	}
 
 	@Override
