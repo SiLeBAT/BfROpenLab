@@ -70,6 +70,8 @@ public interface TracingColumns {
 	public static final String DELIVERY_DATEEXP = "Date Expiration";
 	public static final String DELIVERY_DATEMANU = "Date Manufactoring";
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
+	public static final String DELIVERY_NUM_PU = "Num_PU";
+	public static final String DELIVERY_TYPE_PU = "Type_PU";
 	public static final String DELIVERY_SERIAL = "Serial";
 	public static final String DELIVERY_ORIGIN = "OriginCountry";
 	public static final String DELIVERY_ENDCHAIN = "EndChain";

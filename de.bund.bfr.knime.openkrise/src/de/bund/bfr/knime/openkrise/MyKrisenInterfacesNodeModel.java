@@ -149,6 +149,31 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					}
 				} while (rsp.next());
 			}
+			// numPU, typePU
+			sql = "SELECT GROUP_CONCAT(\"id1\") AS \"ids_in\",SUM(\"Amount_In\") AS \"Amount_In\",MIN(\"Amount_Out\") AS \"Amount_Out\",MIN(\"id2\") AS \"ids_out\",\"Type_In\",\"Type_Out\" FROM " +
+
+			" (SELECT MIN(\"L1\".\"ID\") AS \"id1\",GROUP_CONCAT(\"L2\".\"ID\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM " +
+			" \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" " +
+			" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND \"L1\".\"typePU\" = \"L2\".\"typePU\" GROUP BY \"L1\".\"ID\",\"L1\".\"typePU\",\"L2\".\"typePU\") " +
+
+			" WHERE \"Type_In\" = \"Type_Out\" " +
+			" GROUP BY \"id2\",\"Type_In\",\"Type_Out\"";
+			//System.err.println(sql);
+			rsp = DBKernel.getResultSet(conn, sql, false);
+			if (rsp != null && rsp.first()) {
+				do {
+					if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
+						double in = rsp.getDouble("Amount_In");
+						double out = rsp.getDouble("Amount_Out");
+						if (in > out * 2 || out > in * 2) { // 1.1
+							warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
+							System.err.println(warningMessage);
+							this.setWarningMessage(warningMessage);
+							warningsThere = true;
+						}
+					}
+				} while (rsp.next());
+			}
 			if (warningsThere) this.setWarningMessage("Look into the console - there are plausibility issues...");
 			System.err.println("Plausibility Checks - Fin!");
 
@@ -280,6 +305,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.DELIVERY_DATEMANU, pd == null ? DataType.getMissingCell() : new StringCell(pd));
 					Double menge = calcMenge(rs.getObject("Unitmenge"), rs.getObject("UnitEinheit"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_AMOUNT, menge == null ? DataType.getMissingCell() : new DoubleCell(menge / 1000.0));
+					fillCell(spec, cells, TracingColumns.DELIVERY_NUM_PU, getDataDoubleCell(rs, "Lieferungen.numPU"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_TYPE_PU, getDataStringCell(rs, "Lieferungen.typePU"));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ENDCHAIN, getDataStringCell(rs, "Lieferungen.EndChain"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_ORIGIN, getDataStringCell(rs, "Chargen.OriginCountry"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_ENDCHAIN, getDataStringCell(rs, "Lieferungen.EndChain"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_ENDCHAINWHY, getDataStringCell(rs, "Lieferungen.Explanation_EndChain"));
@@ -347,6 +375,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataCell getDataIntCell(ResultSet rs, String columnname) throws SQLException {
 		return rs.getObject(columnname) == null ? DataType.getMissingCell() : new IntCell(rs.getInt(columnname));
+	}
+
+	private DataCell getDataDoubleCell(ResultSet rs, String columnname) throws SQLException {
+		return rs.getObject(columnname) == null ? DataType.getMissingCell() : new DoubleCell(rs.getDouble(columnname));
 	}
 
 	private void fillCell(DataTableSpec spec, DataCell[] cells, String columnname, DataCell value) {
@@ -477,6 +509,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Chargen", new String[] { "pd_day", "pd_month", "pd_year" })) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEMANU,
 				StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "Unitmenge")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "numPU")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE).createSpec());
+		if (containsValues(conn, "Lieferungen", "typePU")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Chargen", "OriginCountry")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "Explanation_EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
