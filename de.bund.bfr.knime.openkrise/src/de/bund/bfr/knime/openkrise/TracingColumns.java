@@ -49,6 +49,7 @@ public interface TracingColumns {
 	public static final String STATION_CITY = "City";
 	public static final String STATION_DISTRICT = "District";
 	public static final String STATION_COUNTY = "County";
+	public static final String STATION_STATE = "State";
 	public static final String STATION_COUNTRY = "Country";
 	public static final String STATION_VAT = "VAT";
 	public static final String STATION_TOB = "type of business";

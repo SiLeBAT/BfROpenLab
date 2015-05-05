@@ -193,7 +193,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.STATION_ZIP, zip == null ? DataType.getMissingCell() : new StringCell(zip));
 					fillCell(spec, cells, TracingColumns.STATION_CITY, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Ort"));
 					fillCell(spec, cells, TracingColumns.STATION_DISTRICT, doAnonymize || district == null ? DataType.getMissingCell() : new StringCell(district));
-					fillCell(spec, cells, TracingColumns.STATION_COUNTY, doAnonymize || bll == null ? DataType.getMissingCell() : new StringCell(bll));
+					fillCell(spec, cells, TracingColumns.STATION_STATE, doAnonymize || bll == null ? DataType.getMissingCell() : new StringCell(bll));
 					fillCell(spec, cells, TracingColumns.STATION_COUNTRY, doAnonymize || country == null ? DataType.getMissingCell() : new StringCell(country));
 
 					fillCell(spec, cells, TracingColumns.STATION_VAT, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "VATnumber"));
@@ -209,6 +209,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "ImportSources"));
 					
+					fillCell(spec, cells, TracingColumns.STATION_COUNTY, doAnonymize || bll == null ? DataType.getMissingCell() : new StringCell(bll));
+
 					// Extras
 					for (String extraCol : spec.getColumnNames()) {
 						if (extraCol.startsWith("_")) {
@@ -423,7 +425,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_ZIP, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_CITY, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DISTRICT, StringCell.TYPE).createSpec());
-		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTY, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STATE, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTRY, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SIMPLESUPPLIER, BooleanCell.TYPE).createSpec());
@@ -437,6 +439,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Station", "DatumHoehepunkt")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEPEAK, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Station", "DatumEnde")) columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEEND, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Station", "ImportSources")) columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
+
+		// due to backward compatibility:
+		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTY, StringCell.TYPE).createSpec());
 
 		// ExtraFields
 		try {
