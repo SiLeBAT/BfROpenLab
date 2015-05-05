@@ -520,7 +520,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			}
 		}
 
-		for (Edge<V> edge : canvas.getEdges()) {
+		for (Edge<V> edge : edges) {
 			int id = getIntegerId(edge);
 			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
 
@@ -540,7 +540,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(id));
 		}
 
-		for (Edge<V> edge : canvas.getEdges()) {
+		for (Edge<V> edge : edges) {
 			int id = getIntegerId(edge);
 
 			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(id));
@@ -550,10 +550,28 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		if (canvas.isJoinEdges()) {
 			for (Edge<V> edge : canvas.getEdges()) {
-				edge.getProperties().put(TracingColumns.OBSERVED, null);
 				edge.getProperties().put(TracingColumns.SCORE, null);
-				edge.getProperties().put(TracingColumns.BACKWARD, null);
-				edge.getProperties().put(TracingColumns.FORWARD, null);
+				edge.getProperties().put(TracingColumns.OBSERVED, false);
+				edge.getProperties().put(TracingColumns.BACKWARD, false);
+				edge.getProperties().put(TracingColumns.FORWARD, false);
+
+				for (Edge<V> e : joinMap.get(edge)) {
+					Boolean observed = (Boolean) e.getProperties().get(TracingColumns.OBSERVED);
+					Boolean backward = (Boolean) e.getProperties().get(TracingColumns.BACKWARD);
+					Boolean forward = (Boolean) e.getProperties().get(TracingColumns.FORWARD);
+
+					if (observed) {
+						edge.getProperties().put(TracingColumns.OBSERVED, true);
+					}
+
+					if (backward) {
+						edge.getProperties().put(TracingColumns.BACKWARD, true);
+					}
+
+					if (forward) {
+						edge.getProperties().put(TracingColumns.FORWARD, true);
+					}
+				}
 			}
 		}
 	}
