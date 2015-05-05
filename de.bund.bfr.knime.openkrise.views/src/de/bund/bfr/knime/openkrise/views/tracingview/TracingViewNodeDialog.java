@@ -32,6 +32,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
@@ -78,6 +80,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 	private JButton switchButton;
 	private JComboBox<GisType> gisBox;
 
+	private JScrollPane northScrollPane;
+
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
@@ -103,10 +107,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 				resetFilterButton, exportAsSvgBox), BorderLayout.WEST);
 		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox),
 				BorderLayout.EAST);
-
-		panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(northPanel, BorderLayout.NORTH);
+		northScrollPane = new JScrollPane(northPanel);
+		panel = UI.createNorthPanel(northScrollPane);
 
 		addTab("Options", panel, false);
 	}
@@ -196,6 +198,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 	public void componentResized(ComponentEvent e) {
 		if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
 			resized = true;
+
+			if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
+				northScrollPane
+						.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+				northScrollPane.getParent().revalidate();
+			} else {
+				northScrollPane
+						.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				northScrollPane.getParent().revalidate();
+			}
 		}
 	}
 
