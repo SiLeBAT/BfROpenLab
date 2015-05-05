@@ -2,6 +2,7 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -489,6 +490,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			public void run() {
 				System.err.println("Importing " + filename);
 				logMessages += "Importing " + filename + "\n";
+				InputStream is = null;
 				try {
 					if (progress != null) {
 						progress.setVisible(true);
@@ -497,7 +499,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 						progress.setMinimum(0);
 					}
 
-					InputStream is = null;
 					if (filename.startsWith("http://")) {
 						URL url = new URL(filename);
 						URLConnection uc = url.openConnection();
@@ -533,6 +534,10 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nLast row analyzed: " + (classRowIndex+1) + "\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 					MyLogger.handleException(e);
+					if (progress != null) progress.setVisible(false);
+					try {
+						is.close();
+					} catch (IOException e1) {}
 				}
 				System.err.println("Importing - Fin");
 				//logMessages += "Importing - Fin" + "\n\n";
