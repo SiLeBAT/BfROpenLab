@@ -30,15 +30,18 @@ public class LocationSettings extends GisSettings {
 	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
+	private static final String CFG_AVOID_OVERLAY = "AvoidOverlay";
 
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
 	private int nodeSize;
+	private boolean avoidOverlay;
 
 	public LocationSettings() {
 		nodeLatitudeColumn = null;
 		nodeLongitudeColumn = null;
 		nodeSize = 4;
+		avoidOverlay = false;
 	}
 
 	@Override
@@ -59,6 +62,11 @@ public class LocationSettings extends GisSettings {
 			nodeSize = settings.getInt(CFG_NODE_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -67,18 +75,21 @@ public class LocationSettings extends GisSettings {
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
 	@Override
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
 		super.setFromCanvas(canvas, resized);
 		nodeSize = canvas.getNodeSize();
+		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
 	@Override
 	public void setToCanvas(Canvas<?> canvas) {
 		super.setToCanvas(canvas);
 		canvas.setNodeSize(nodeSize);
+		canvas.setAvoidOverlay(avoidOverlay);
 	}
 
 	public String getNodeLatitudeColumn() {
@@ -103,5 +114,13 @@ public class LocationSettings extends GisSettings {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
+	}
+
+	public boolean isAvoidOverlay() {
+		return avoidOverlay;
+	}
+
+	public void setAvoidOverlay(boolean avoidOverlay) {
+		this.avoidOverlay = avoidOverlay;
 	}
 }

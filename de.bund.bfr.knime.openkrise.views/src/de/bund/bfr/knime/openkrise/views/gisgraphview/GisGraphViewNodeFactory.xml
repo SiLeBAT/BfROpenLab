@@ -56,6 +56,10 @@
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
 			</option>
+			<option name="Avoid Overlay">
+				If checked, geographical stations that occlude each other are moved so that
+				the user can see each station.
+			</option>
 		</tab>
 		<tab name="Context Menu">
 			<option name="Reset Layout">

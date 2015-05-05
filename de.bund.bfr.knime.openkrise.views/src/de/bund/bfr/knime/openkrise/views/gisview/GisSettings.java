@@ -56,6 +56,7 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_CANVAS_SIZE = "CanvasSize";
 	private static final String CFG_SELECTED_NODES = "SelectedNodes";
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
+	private static final String CFG_AVOID_OVERLAY = "AvoidOverlay";
 
 	private boolean showLegend;
 	private Transform transform;
@@ -67,6 +68,7 @@ public class GisSettings extends NodeSettings {
 	private Dimension canvasSize;
 	private List<String> selectedNodes;
 	private HighlightConditionList nodeHighlightConditions;
+	private boolean avoidOverlay;
 
 	public GisSettings() {
 		showLegend = false;
@@ -79,6 +81,7 @@ public class GisSettings extends NodeSettings {
 		selectedNodes = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		canvasSize = null;
+		avoidOverlay = false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -137,6 +140,11 @@ public class GisSettings extends NodeSettings {
 			canvasSize = (Dimension) SERIALIZER.fromXml(settings.getString(CFG_CANVAS_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -154,6 +162,7 @@ public class GisSettings extends NodeSettings {
 		settings.addString(CFG_SELECTED_NODES, SERIALIZER.toXml(selectedNodes));
 		settings.addString(CFG_NODE_HIGHLIGHT_CONDITIONS, SERIALIZER.toXml(nodeHighlightConditions));
 		settings.addString(CFG_CANVAS_SIZE, SERIALIZER.toXml(canvasSize));
+		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
@@ -169,6 +178,7 @@ public class GisSettings extends NodeSettings {
 		borderAlpha = canvas.getBorderAlpha();
 		editingMode = canvas.getEditingMode();
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
+		avoidOverlay = canvas.isAvoidOverlay();
 
 		if (resized) {
 			canvasSize = canvas.getCanvasSize();
@@ -182,6 +192,7 @@ public class GisSettings extends NodeSettings {
 		canvas.setFontBold(fontBold);
 		canvas.setBorderAlpha(borderAlpha);
 		canvas.setEditingMode(editingMode);
+		canvas.setAvoidOverlay(avoidOverlay);
 
 		if (applySelectionAndHighlighting) {
 			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
@@ -278,5 +289,13 @@ public class GisSettings extends NodeSettings {
 
 	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
+	}
+
+	public boolean isAvoidOverlay() {
+		return avoidOverlay;
+	}
+
+	public void setAvoidOverlay(boolean avoidOverlay) {
+		this.avoidOverlay = avoidOverlay;
 	}
 }

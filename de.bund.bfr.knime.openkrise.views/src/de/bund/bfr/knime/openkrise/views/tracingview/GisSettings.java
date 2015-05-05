@@ -42,12 +42,14 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_FONT_SIZE = "GisTextSize";
 	private static final String CFG_FONT_BOLD = "GisTextBold";
 	private static final String CFG_BORDER_ALPHA = "GisBorderAlpha";
+	private static final String CFG_AVOID_OVERLAY = "GisAvoidOverlay";
 
 	private Transform transform;
 	private int nodeSize;
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
+	private boolean avoidOverlay;
 
 	public GisSettings() {
 		transform = Transform.INVALID_TRANSFORM;
@@ -55,6 +57,7 @@ public class GisSettings extends NodeSettings {
 		fontSize = 12;
 		fontBold = false;
 		borderAlpha = 255;
+		avoidOverlay = false;
 	}
 
 	@Override
@@ -85,6 +88,11 @@ public class GisSettings extends NodeSettings {
 			borderAlpha = settings.getInt(CFG_BORDER_ALPHA);
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -97,6 +105,7 @@ public class GisSettings extends NodeSettings {
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
+		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
 	public void setFromCanvas(GisCanvas<?> canvas) {
@@ -105,6 +114,7 @@ public class GisSettings extends NodeSettings {
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		borderAlpha = canvas.getBorderAlpha();
+		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
 	public void setToCanvas(GisCanvas<?> canvas) {
@@ -112,6 +122,7 @@ public class GisSettings extends NodeSettings {
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setBorderAlpha(borderAlpha);
+		canvas.setAvoidOverlay(avoidOverlay);
 
 		if (transform.isValid()) {
 			canvas.setTransform(transform);
@@ -156,5 +167,13 @@ public class GisSettings extends NodeSettings {
 
 	public void setBorderAlpha(int borderAlpha) {
 		this.borderAlpha = borderAlpha;
+	}
+
+	public boolean isAvoidOverlay() {
+		return avoidOverlay;
+	}
+
+	public void setAvoidOverlay(boolean avoidOverlay) {
+		this.avoidOverlay = avoidOverlay;
 	}
 }

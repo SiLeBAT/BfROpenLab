@@ -106,6 +106,10 @@
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
 			</option>
+			<option name="Avoid Overlay">
+				If checked, geographical stations that occlude each other are moved so that
+				the user can see each station.
+			</option>
 			<option name="Enforce Temporal Order">
 				If checked, the delivery date is used for cross contamination. That means a
 				delivery can only contaminate deliveries with a later date.
