@@ -36,19 +36,21 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		int numRows = businessSheet.getLastRowNum() + 1;
 		for (int i=1;i<numRows;i++) {
 			Row row = businessSheet.getRow(i);
-			Cell cell = row.getCell(0); // ID
-			Cell cell1 = row.getCell(1); // Name
-			if ((cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) && (cell1 == null || cell1.getCellType() == Cell.CELL_TYPE_BLANK)) return;
-			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station has no ID??? -> Row " + (i+1));
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			String val = cell.getStringCellValue();
-			int id;
-			try {
-				id = getInt(val);
+			if (row != null) {
+				Cell cell = row.getCell(0); // ID
+				Cell cell1 = row.getCell(1); // Name
+				if ((cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) && (cell1 == null || cell1.getCellType() == Cell.CELL_TYPE_BLANK)) return;
+				if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station has no ID??? -> Row " + (i+1));
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				String val = cell.getStringCellValue();
+				int id;
+				try {
+					id = getInt(val);
+				}
+				catch (Exception e) {throw new Exception("Station has no number as ID. This is not allowed, IDs need to be Integers -> Row " + (i+1));}
+				if (stationIDs.contains(id)) throw new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1));
+				stationIDs.add(id);
 			}
-			catch (Exception e) {throw new Exception("Station has no number as ID. This is not allowed, IDs need to be Integers -> Row " + (i+1));}
-			if (stationIDs.contains(id)) throw new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1));
-			stationIDs.add(id);
 		}
 	}
 	public boolean doTheImport(Workbook wb, String filename) throws Exception {
@@ -247,16 +249,19 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		int numRows = businessSheet.getLastRowNum() + 1;
 		for (int i=0;i<numRows;i++) {
 			Row row = businessSheet.getRow(i);
-			Cell cell = row.getCell(0);
-			if (cell.getStringCellValue().equals(lookup)) {
-				result = getStation(businessSheet.getRow(0), row);
-				break;
+			if (row != null) {
+				Cell cell = row.getCell(0);
+				if (cell.getStringCellValue().equals(lookup)) {
+					result = getStation(businessSheet.getRow(0), row);
+					break;
+				}
 			}
 		}
 		if (result == null) throw new Exception("Station '" + lookup + "' is not correctly defined");
 		return result;
 	}
 	private Station getStation(Row titleRow, Row row) {
+		if (row == null) return null;
 		Station result = new Station();
 		Cell cell = row.getCell(0);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
@@ -289,6 +294,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	private D2D getD2D(HashMap<String, Delivery> deliveries, Row titleRow, Row row) {
+		if (row == null) return null;
 		D2D result = new D2D();
 		Cell cell = row.getCell(0);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
@@ -322,6 +328,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	private Delivery getForwardDelivery(Sheet stationSheet, HashMap<String, Lot> lots, Row titleRow, Row row) throws Exception {
+		if (row == null) return null;
 		Lot l = null;
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l=lots.get(getStr(cell.getStringCellValue()));}
 		if (l == null) return null;
@@ -352,8 +359,10 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				cell = row.getCell(i); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
 			}
 		}
-		return result;	}
+		return result;
+	}
 	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row) {
+		if (row == null) return null;
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
 		Product p = new Product();

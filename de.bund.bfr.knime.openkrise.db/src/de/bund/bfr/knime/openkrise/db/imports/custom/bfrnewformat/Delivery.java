@@ -193,7 +193,7 @@ public class Delivery {
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
 					serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
 				}
-				int numSameSerials = DBKernel.getRowCount("Lieferungen", serialWhere);
+				int numSameSerials = DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere);
 				if (numSameSerials > 1) {
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
 				}

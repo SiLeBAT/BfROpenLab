@@ -2,6 +2,7 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -152,9 +153,10 @@ public class Station {
 				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 			}
 		}
+		int intId = 0;
 		try {
-			int intId = Integer.parseInt(feldVals[feldVals.length-1]);
-			int numIdsPresent = DBKernel.getRowCount("Station", DBKernel.delimitL("ID") + "=" + intId);
+			intId = Integer.parseInt(feldVals[feldVals.length-1]);
+			int numIdsPresent = DBKernel.getRowCount("Station", " WHERE " + DBKernel.delimitL("ID") + "=" + intId);
 			if (numIdsPresent == 0) {
 				in += "," + DBKernel.delimitL("ID");
 				iv += "," + intId;
@@ -175,24 +177,31 @@ public class Station {
 		else if (!iv.isEmpty()) {
 			sql = "INSERT INTO " + DBKernel.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) {
-				result = DBKernel.getLastInsertedID(ps);
-				if (serialWhere.length() == 0) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-					serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+			//System.err.println(in + "\t" + iv);
+			try {
+				if (ps.executeUpdate() > 0) {
+					result = DBKernel.getLastInsertedID(ps);
+					if (serialWhere.length() == 0) {
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+						serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+					}
+					int numSameSerials = DBKernel.getRowCount("Station", " WHERE " + serialWhere);
+					if (numSameSerials > 1) {
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
+					}
+					/*
+					while (true) {
+						int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
+						if (numSameSerials == 1) break;
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_','" + numSameSerials + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+						serialWhere = serialWhere.substring(0, serialWhere.lastIndexOf("'")) + "_" + numSameSerials + "'";
+					}
+					*/
 				}
-				int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
-				if (numSameSerials > 1) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
-				}
-				/*
-				while (true) {
-					int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
-					if (numSameSerials == 1) break;
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_','" + numSameSerials + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-					serialWhere = serialWhere.substring(0, serialWhere.lastIndexOf("'")) + "_" + numSameSerials + "'";
-				}
-				*/
+			}
+			catch (SQLException e) {
+				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Station ID " + intId + " ist bereits vergeben");
+				else throw e;
 			}
 		}
 
