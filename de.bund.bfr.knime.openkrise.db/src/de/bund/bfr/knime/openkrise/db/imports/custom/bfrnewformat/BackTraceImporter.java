@@ -75,9 +75,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
 
 		checkStationsFirst(stationSheet);
-		checkDeliveriesFirst(deliverySheet);
 			
 		if (d2dSheet != null && deliverySheet != null) {
+			checkDeliveriesFirst(deliverySheet);
 			// load all Stations
 			HashMap<String, Station> stations = new HashMap<>();
 			int numRows = stationSheet.getLastRowNum() + 1;
