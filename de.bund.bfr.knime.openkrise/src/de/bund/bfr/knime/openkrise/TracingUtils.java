@@ -97,7 +97,8 @@ public class TracingUtils {
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
+			throw new NotConfigurableException("Station Table: Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
@@ -109,11 +110,11 @@ public class TracingUtils {
 			String id = IO.getToCleanString(row.getCell(idIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
-						+ " column");
+				throw new NotConfigurableException("Station Table: Missing value in "
+						+ TracingColumns.ID + " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
-						+ " column: " + id);
+				throw new NotConfigurableException("Station Table: Duplicate value in "
+						+ TracingColumns.ID + " column: " + id);
 			}
 
 			Map<String, Object> properties = new LinkedHashMap<>();
@@ -125,7 +126,7 @@ public class TracingUtils {
 		}
 
 		if (nodes.isEmpty()) {
-			throw new NotConfigurableException("No valid nodes contained in table");
+			throw new NotConfigurableException("Station Table: No valid nodes contained in table");
 		}
 
 		return nodes;
@@ -139,17 +140,18 @@ public class TracingUtils {
 		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
+			throw new NotConfigurableException("Station Table: Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
 		if (latIndex == -1) {
-			throw new NotConfigurableException("Column \"" + GeocodingNodeModel.LATITUDE_COLUMN
-					+ "\" is missing");
+			throw new NotConfigurableException("Station Table: Column \""
+					+ GeocodingNodeModel.LATITUDE_COLUMN + "\" is missing");
 		}
 
 		if (lonIndex == -1) {
-			throw new NotConfigurableException("Column \"" + GeocodingNodeModel.LONGITUDE_COLUMN
-					+ "\" is missing");
+			throw new NotConfigurableException("Station Table: Column \""
+					+ GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
 		}
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
@@ -164,11 +166,11 @@ public class TracingUtils {
 			Double lon = IO.getDouble(row.getCell(lonIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
-						+ " column");
+				throw new NotConfigurableException("Station Table: Missing value in "
+						+ TracingColumns.ID + " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
-						+ " column: " + id);
+				throw new NotConfigurableException("Station Table: Duplicate value in "
+						+ TracingColumns.ID + " column: " + id);
 			}
 
 			Point2D center = null;
@@ -193,11 +195,12 @@ public class TracingUtils {
 		}
 
 		if (nodes.isEmpty()) {
-			throw new NotConfigurableException("No valid nodes contained in table");
+			throw new NotConfigurableException("Station Table: No valid nodes contained in table");
 		}
 
 		if (!hasCoordinates) {
-			throw new NotConfigurableException("No geographic coordinates contained in table");
+			throw new NotConfigurableException(
+					"Station Table: No geographic coordinates contained in table");
 		}
 
 		return nodes;
@@ -209,17 +212,26 @@ public class TracingUtils {
 		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int fromIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.FROM);
 		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
+		int deliveryDateIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.DELIVERY_DATE);
 
 		if (idIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.ID + "\" is missing");
+			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.ID
+					+ "\" is missing");
 		}
 
 		if (fromIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.FROM + "\" is missing");
+			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.FROM
+					+ "\" is missing");
 		}
 
 		if (toIndex == -1) {
-			throw new NotConfigurableException("Column \"" + TracingColumns.TO + "\" is missing");
+			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.TO
+					+ "\" is missing");
+		}
+
+		if (deliveryDateIndex == -1) {
+			throw new NotConfigurableException("Delivery Table: Column \""
+					+ TracingColumns.DELIVERY_DATE + "\" is missing");
 		}
 
 		List<Edge<V>> edges = new ArrayList<>();
@@ -233,11 +245,11 @@ public class TracingUtils {
 			String id = IO.getToCleanString(row.getCell(idIndex));
 
 			if (id == null) {
-				throw new NotConfigurableException("Missing value in " + TracingColumns.ID
-						+ " column");
+				throw new NotConfigurableException("Delivery Table: Missing value in "
+						+ TracingColumns.ID + " column");
 			} else if (!ids.add(id)) {
-				throw new NotConfigurableException("Duplicate value in " + TracingColumns.ID
-						+ " column: " + id);
+				throw new NotConfigurableException("Delivery Table: Duplicate value in "
+						+ TracingColumns.ID + " column: " + id);
 			}
 
 			String from = IO.getToCleanString(row.getCell(fromIndex));
@@ -267,12 +279,20 @@ public class TracingUtils {
 			BufferedDataTable tracingTable, Collection<Edge<V>> edges, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		DataTableSpec dataSpec = tracingTable.getSpec();
+		int idIndex = tracingTable.getSpec().findColumnIndex(TracingColumns.ID);
+		int nextIndex = tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT);
 
-		if (tracingTable.getSpec().findColumnIndex(TracingColumns.ID) == -1
-				|| tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT) == -1) {
-			throw new NotConfigurableException("Tracing Data Model cannot be read."
-					+ " Try reexecuting the Supply Chain Reader or"
-					+ " downloading an up-to-date workflow.");
+		if (idIndex == -1) {
+			throw new NotConfigurableException("Delivery Relations Table: Column \""
+					+ TracingColumns.ID + "\" is missing. Try reexecuting the Supply Chain Reader"
+					+ " or downloading an up-to-date workflow.");
+		}
+
+		if (nextIndex == -1) {
+			throw new NotConfigurableException("Delivery Relations Table: Column \""
+					+ TracingColumns.NEXT + "\" is missing."
+					+ " Try reexecuting the Supply Chain Reader"
+					+ " or downloading an up-to-date workflow.");
 		}
 
 		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();

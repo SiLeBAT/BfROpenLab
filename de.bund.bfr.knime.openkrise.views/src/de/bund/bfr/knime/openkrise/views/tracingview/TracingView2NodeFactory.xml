@@ -309,12 +309,14 @@
 
 	<ports>
 		<inPort index="0" name="Stations">
-			Table with Station data.
+			Table with Station data. Is provided by first out port of Supply
+			Chain Reader.
 		</inPort>
 		<inPort index="1" name="Deliveries">
-			Table with Delivery data.
+			Table with Delivery data. Is provided by second out port of Supply
+			Chain Reader.
 		</inPort>
-		<inPort index="2" name="Tracing Data Model">
+		<inPort index="2" name="Delivery Relations">
 			Model that contains the relations between deliveries. Is provided by
 			third out port of Supply Chain Reader.
 		</inPort>

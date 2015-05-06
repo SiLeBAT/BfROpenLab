@@ -21,15 +21,14 @@
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Nodes/Stations">
-			Table with Node/Station data.
+		<outPort index="0" name="Stations">
+			Table with Station data.
 		</outPort>
-		<outPort index="1" name="Edges/Deliveries">
-			Table with Edge/Delivery data.
+		<outPort index="1" name="Deliveries">
+			Table with Delivery data.
 		</outPort>
-		<outPort index="2" name="Tracing Data Model">
-			Model that contains the relations between deliveries. Is provided
-			by third out port of Supply Chain Reader.
+		<outPort index="2" name="Delivery Relations">
+			Model that contains the relations between deliveries.
 		</outPort>
 	</ports>
 </knimeNode>
