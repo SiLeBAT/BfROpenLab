@@ -110,7 +110,9 @@ public class ImportAction extends AbstractAction {
 					else if (mi instanceof BackTraceImporter) {
 						bti = (BackTraceImporter) mi;
 						String log = bti.getLogMessages();
-						if (log.indexOf("\n") == log.length() - 1) {
+						String nl = log.replaceAll("\nImporting ", "");
+						boolean success = nl.indexOf("\n") == nl.length() - 1; 
+						if (success) {
 							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
 							if (eclipseWindow != null) {						
 								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
