@@ -85,7 +85,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
 				Station s = getStation(titleRow, stationSheet.getRow(classRowIndex));
 				if (s == null) break;
-				if (stations.containsKey(s.getId())) throw new Exception("Station defined twice??? -> Station Id: '" + s.getId() + "'");
+				if (stations.containsKey(s.getId())) throw new Exception("Station defined twice??? -> Row " + (classRowIndex+1) + "; Station Id: '" + s.getId() + "'");
 				stations.put(s.getId(), s);
 			}
 			// load all Deliveries
@@ -94,9 +94,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			titleRow = deliverySheet.getRow(0);
 			HashMap<String,String> definedLots = new HashMap<>();
 			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
-				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots);
+				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex);
 				if (d == null) break;
-				if (deliveries.containsKey(d.getId())) throw new Exception("Delivery defined twice??? -> Delivery Id: '" + d.getId() + "'");
+				if (deliveries.containsKey(d.getId())) throw new Exception("Delivery defined twice??? -> Row " + (classRowIndex+1) + "; Delivery Id: '" + d.getId() + "'");
 				deliveries.put(d.getId(), d);
 			}
 			
@@ -105,7 +105,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			numRows = d2dSheet.getLastRowNum() + 1;
 			titleRow = d2dSheet.getRow(0);
 			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
-				D2D dl = getD2D(deliveries, titleRow, d2dSheet.getRow(classRowIndex));
+				D2D dl = getD2D(deliveries, titleRow, d2dSheet.getRow(classRowIndex), classRowIndex);
 				if (dl == null) break;
 				recipes.add(dl);
 			}
@@ -308,7 +308,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private D2D getD2D(HashMap<String, Delivery> deliveries, Row titleRow, Row row) throws Exception {
+	private D2D getD2D(HashMap<String, Delivery> deliveries, Row titleRow, Row row, int rowNum) throws Exception {
 		if (row == null) return null;
 		D2D result = new D2D();
 		Cell cell = row.getCell(0);
@@ -316,7 +316,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			String did = getStr(cell.getStringCellValue());
 			Delivery d = deliveries.get(did);
-			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: " + did);
+			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + did + "'; -> Row " + (rowNum+1));
 			result.setIngredient(d);
 		}
 		else {
@@ -327,14 +327,14 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			String did = getStr(cell.getStringCellValue());
 			Delivery d = deliveries.get(did);
-			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: " + did);
+			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: '" + did + "'; -> Row " + (rowNum+1));
 			result.setTargetDelivery(d);
 		}
 		else {
 			return null;
 		}
 		if (!result.getIngredient().getReceiver().getId().equals(result.getTargetDelivery().getLot().getProduct().getStation().getId())) {
-			throw new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: " + result.getIngredient().getId() + "->" + result.getTargetDelivery().getId());
+			throw new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + result.getIngredient().getId() + "' -> '" + result.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1));
 		}
 		
 		// Further flexible cells
@@ -381,7 +381,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots) throws Exception {
+	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum) throws Exception {
 		if (row == null) return null;
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
@@ -391,7 +391,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING); 
 			String sid = getStr(cell.getStringCellValue());
 			Station s = stations.get(sid);
-			if (s == null) throw new Exception("Station ID in Deliveries not defined in stations sheet: " + sid);
+			if (s == null) throw new Exception("Station ID in Deliveries not defined in stations sheet: '" + sid + "'; -> Row " + (rowNum+1));
 			p.setStation(s);
 		}
 		else {
@@ -406,7 +406,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
 		String lotInfo = l.getUnitNumber() + "_" + l.getUnitUnit();
 		if (definedLots.containsKey(lotId)) {
-			if (!definedLots.get(lotId).equals(lotInfo)) throw new Exception("Lot has different quantities??? -> Lot number: " + l.getNumber());
+			if (!definedLots.get(lotId).equals(lotInfo)) throw new Exception("Lot has different quantities??? -> Lot number: '" + l.getNumber() + "'; -> Row " + (rowNum+1));
 		}
 		else definedLots.put(lotId, lotInfo);
 
@@ -424,12 +424,12 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING); 
 			String sid = getStr(cell.getStringCellValue());
 			Station s = stations.get(sid);
-			if (s == null) throw new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: " + sid);
+			if (s == null) throw new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: '" + sid + "'; -> Row " + (rowNum+1));
 			result.setReceiver(s);
 		}
 		else {
 			if (result.getId() == null) return null;
-			else throw new Exception("Recipient ID in sheet Deliveries not defined");
+			else throw new Exception("Recipient ID in sheet Deliveries not defined; -> Row " + (rowNum+1));
 		}
 		
 		// Further flexible cells
