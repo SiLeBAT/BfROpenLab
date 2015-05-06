@@ -39,7 +39,7 @@ public class DefaultHighlighting {
 		List<HighlightCondition> conditions = new ArrayList<>();
 
 		conditions.add(createOutbreakCondition());
-		conditions.add(createObservedCondition());
+		conditions.add(createObservedCondition(Color.GREEN));
 		conditions.add(createForwardCondition());
 		conditions.add(createBackwardCondition());
 		conditions.add(createCrossContaminationCondition());
@@ -52,6 +52,7 @@ public class DefaultHighlighting {
 	public static HighlightConditionList createEdgeHighlighting() {
 		List<HighlightCondition> conditions = new ArrayList<>();
 
+		conditions.add(createObservedCondition(Color.BLUE));
 		conditions.add(createForwardCondition());
 		conditions.add(createBackwardCondition());
 
@@ -65,12 +66,11 @@ public class DefaultHighlighting {
 		return new AndOrHighlightCondition(weight, "Outbreak", true, Color.RED, false, false, null);
 	}
 
-	private static HighlightCondition createObservedCondition() {
+	private static HighlightCondition createObservedCondition(Color color) {
 		LogicalHighlightCondition observed = new LogicalHighlightCondition(TracingColumns.OBSERVED,
 				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(observed, "Observed", true, Color.GREEN, false, false,
-				null);
+		return new AndOrHighlightCondition(observed, "Observed", true, color, false, false, null);
 	}
 
 	private static HighlightCondition createForwardCondition() {
