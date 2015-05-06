@@ -141,7 +141,7 @@ public class TracingViewSettings extends NodeSettings {
 		edgeCrossContaminations = new LinkedHashMap<>();
 		observedNodes = new LinkedHashMap<>();
 		observedEdges = new LinkedHashMap<>();
-		enforeTemporalOrder = false;
+		enforeTemporalOrder = true;
 		showForward = false;
 
 		graphSettings = new GraphSettings();
