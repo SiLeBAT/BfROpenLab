@@ -41,42 +41,45 @@ public interface TracingColumns {
 
 	public static final String DELIVERY_DATE = "Date Delivery";
 
-	public static final String STATION_NODE = "node";
+	public static final String STATION_NODE = "node"; // deprecated
 	public static final String STATION_NAME = "Name";
 	public static final String STATION_STREET = "Street";
 	public static final String STATION_HOUSENO = "HouseNumber";
 	public static final String STATION_ZIP = "ZIP";
 	public static final String STATION_CITY = "City";
 	public static final String STATION_DISTRICT = "District";
-	public static final String STATION_COUNTY = "County";
 	public static final String STATION_STATE = "State";
 	public static final String STATION_COUNTRY = "Country";
-	public static final String STATION_VAT = "VAT";
+	public static final String STATION_VAT = "VAT"; // deprecated
 	public static final String STATION_TOB = "type of business";
-	public static final String STATION_NUMCASES = "Number Cases";
-	public static final String STATION_DATESTART = "Date start";
-	public static final String STATION_DATEPEAK = "Date peak";
-	public static final String STATION_DATEEND = "Date end";
+	public static final String STATION_NUMCASES = "Number Cases"; // deprecated
+	public static final String STATION_DATESTART = "Date start"; // deprecated
+	public static final String STATION_DATEPEAK = "Date peak"; // deprecated
+	public static final String STATION_DATEEND = "Date end"; // deprecated
 	public static final String STATION_SERIAL = "Serial";
 	public static final String STATION_SIMPLESUPPLIER = "SimpleSupplier";
 	public static final String STATION_DEADSTART = "DeadStart";
 	public static final String STATION_DEADEND = "DeadEnd";
+	public static final String STATION_COUNTY = "County"; // deprecated
 
 	public static final String DELIVERY_ITEMNUM = "Item Number";
 	public static final String DELIVERY_ITEMNAME = "Name";
-	public static final String DELIVERY_PROCESSING = "Processing";
-	public static final String DELIVERY_USAGE = "IntendedUse";
-	public static final String DELIVERY_LOTNUM = "Charge Number";
-	public static final String DELIVERY_DATEEXP = "Date Expiration";
-	public static final String DELIVERY_DATEMANU = "Date Manufactoring";
+	public static final String DELIVERY_LOTNUM = "Lot Number"; // Lot number
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
 	public static final String DELIVERY_NUM_PU = "Num_PU";
 	public static final String DELIVERY_TYPE_PU = "Type_PU";
 	public static final String DELIVERY_SERIAL = "Serial";
-	public static final String DELIVERY_ORIGIN = "OriginCountry";
-	public static final String DELIVERY_ENDCHAIN = "EndChain";
-	public static final String DELIVERY_ENDCHAINWHY = "ExplanationEndChain";
-	public static final String DELIVERY_REMARKS = "Contact_Questions_Remarks";
-	public static final String DELIVERY_FURTHERTB = "FurtherTB";
-	public static final String DELIVERY_MICROSAMPLE = "MicroSample";
+	public static final String DELIVERY_CHARGENUM = "Charge Number"; // deprecated
+	
+	// now: extra fields:
+	public static final String DELIVERY_ORIGIN = "OriginCountry"; // deprecated
+	public static final String DELIVERY_ENDCHAIN = "EndChain"; // deprecated
+	public static final String DELIVERY_ENDCHAINWHY = "ExplanationEndChain"; // deprecated
+	public static final String DELIVERY_REMARKS = "Contact_Questions_Remarks"; // deprecated
+	public static final String DELIVERY_FURTHERTB = "FurtherTB"; // deprecated
+	public static final String DELIVERY_MICROSAMPLE = "MicroSample"; // deprecated
+	public static final String DELIVERY_PROCESSING = "Processing"; // deprecated
+	public static final String DELIVERY_USAGE = "IntendedUse"; // deprecated
+	public static final String DELIVERY_DATEEXP = "Date Expiration"; // deprecated
+	public static final String DELIVERY_DATEMANU = "Date Manufactoring"; // deprecated
 }

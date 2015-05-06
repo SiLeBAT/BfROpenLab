@@ -317,6 +317,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "Lieferungen.ImportSources"));
 
+					fillCell(spec, cells, TracingColumns.DELIVERY_CHARGENUM, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "ChargenNr"));
+
 					// Extras
 					for (String extraCol : spec.getColumnNames()) {
 						if (extraCol.startsWith("_")) {
@@ -518,6 +520,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Lieferungen", "Further_Traceback")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Chargen", "MicrobioSample")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "ImportSources")) columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
+
+		if (containsValues(conn, "Chargen", "ChargenNr")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
 
 		// ExtraFields
 		try {
