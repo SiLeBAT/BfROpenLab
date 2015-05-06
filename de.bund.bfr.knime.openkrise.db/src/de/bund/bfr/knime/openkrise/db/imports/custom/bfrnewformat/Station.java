@@ -99,15 +99,7 @@ public class Station {
 	private String state;
 	private String country;
 	private String typeOfBusiness;
-	private String lookup;
 	
-	public String getLookup() {
-		return lookup;
-	}
-	public void setLookup(String lookup) {
-		this.lookup = lookup;
-	}
-
 	private Integer dbId;
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;

@@ -32,7 +32,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		return logMessages;
 	}
 	private void checkStationsFirst(Sheet businessSheet) throws Exception {
-		HashSet<Integer> stationIDs = new HashSet<>();
+		HashSet<String> stationIDs = new HashSet<>();
 		int numRows = businessSheet.getLastRowNum() + 1;
 		for (int i=1;i<numRows;i++) {
 			Row row = businessSheet.getRow(i);
@@ -43,13 +43,25 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station has no ID??? -> Row " + (i+1));
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String val = cell.getStringCellValue();
-				int id;
-				try {
-					id = getInt(val);
-				}
-				catch (Exception e) {throw new Exception("Station has no number as ID. This is not allowed, IDs need to be Integers -> Row " + (i+1));}
-				if (stationIDs.contains(id)) throw new Exception("Station ID '" + id + "' is defined more than once -> Row " + (i+1));
-				stationIDs.add(id);
+				if (stationIDs.contains(val)) throw new Exception("Station ID '" + val + "' is defined more than once -> Row " + (i+1));
+				stationIDs.add(val);
+			}
+		}
+	}
+	private void checkDeliveriesFirst(Sheet deliverySheet) throws Exception {
+		HashSet<String> deliveryIDs = new HashSet<>();
+		int numRows = deliverySheet.getLastRowNum() + 1;
+		for (int i=1;i<numRows;i++) {
+			Row row = deliverySheet.getRow(i);
+			if (row != null) {
+				Cell cell = row.getCell(0); // ID
+				Cell cell1 = row.getCell(1); // Station
+				if ((cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) && (cell1 == null || cell1.getCellType() == Cell.CELL_TYPE_BLANK)) return;
+				if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Delivery has no ID??? -> Row " + (i+1));
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				String val = cell.getStringCellValue();
+				if (deliveryIDs.contains(val)) throw new Exception("Delivery ID '" + val + "' is defined more than once -> Row " + (i+1));
+				deliveryIDs.add(val);
 			}
 		}
 	}
@@ -63,6 +75,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
 
 		checkStationsFirst(stationSheet);
+		checkDeliveriesFirst(deliverySheet);
 			
 		if (d2dSheet != null && deliverySheet != null) {
 			// load all Stations
@@ -72,15 +85,18 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
 				Station s = getStation(titleRow, stationSheet.getRow(classRowIndex));
 				if (s == null) break;
-				stations.put(s.getLookup(), s);
+				if (stations.containsKey(s.getId())) throw new Exception("Station defined twice??? -> Station Id: '" + s.getId() + "'");
+				stations.put(s.getId(), s);
 			}
 			// load all Deliveries
 			HashMap<String, Delivery> deliveries = new HashMap<>();
 			numRows = deliverySheet.getLastRowNum() + 1;
 			titleRow = deliverySheet.getRow(0);
+			HashMap<String,String> definedLots = new HashMap<>();
 			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
-				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex));
+				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots);
 				if (d == null) break;
+				if (deliveries.containsKey(d.getId())) throw new Exception("Delivery defined twice??? -> Delivery Id: '" + d.getId() + "'");
 				deliveries.put(d.getId(), d);
 			}
 			
@@ -281,7 +297,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(8); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setCountry(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(9); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTypeOfBusiness(getStr(cell.getStringCellValue()));}
 //		cell = row.getCell(10); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setLookup(getStr(cell.getStringCellValue()));}
-		result.setLookup(result.getId());
 		
 		// Further flexible cells
 		for (int ii=10;ii<20;ii++) {
@@ -293,14 +308,15 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private D2D getD2D(HashMap<String, Delivery> deliveries, Row titleRow, Row row) {
+	private D2D getD2D(HashMap<String, Delivery> deliveries, Row titleRow, Row row) throws Exception {
 		if (row == null) return null;
 		D2D result = new D2D();
 		Cell cell = row.getCell(0);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			Delivery d = deliveries.get(getStr(cell.getStringCellValue()));
-			if (d == null) return null;
+			String did = getStr(cell.getStringCellValue());
+			Delivery d = deliveries.get(did);
+			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: " + did);
 			result.setIngredient(d);
 		}
 		else {
@@ -309,12 +325,16 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(1);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			Delivery d = deliveries.get(getStr(cell.getStringCellValue()));
-			if (d == null) return null;
+			String did = getStr(cell.getStringCellValue());
+			Delivery d = deliveries.get(did);
+			if (d == null) throw new Exception("Delivery ID in sheet Deliveries2Deliveries not defined in deliveries sheet: " + did);
 			result.setTargetDelivery(d);
 		}
 		else {
 			return null;
+		}
+		if (!result.getIngredient().getReceiver().getId().equals(result.getTargetDelivery().getLot().getProduct().getStation().getId())) {
+			throw new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: " + result.getIngredient().getId() + "->" + result.getTargetDelivery().getId());
 		}
 		
 		// Further flexible cells
@@ -361,7 +381,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row) {
+	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots) throws Exception {
 		if (row == null) return null;
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
@@ -369,8 +389,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(1);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 			cell.setCellType(Cell.CELL_TYPE_STRING); 
-			Station s = stations.get(getStr(cell.getStringCellValue()));
-			if (s == null) return null;
+			String sid = getStr(cell.getStringCellValue());
+			Station s = stations.get(sid);
+			if (s == null) throw new Exception("Station ID in Deliveries not defined in stations sheet: " + sid);
 			p.setStation(s);
 		}
 		else {
@@ -382,6 +403,12 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
+		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
+		String lotInfo = l.getUnitNumber() + "_" + l.getUnitUnit();
+		if (definedLots.containsKey(lotId)) {
+			if (!definedLots.get(lotId).equals(lotInfo)) throw new Exception("Lot has different quantities??? -> Lot number: " + l.getNumber());
+		}
+		else definedLots.put(lotId, lotInfo);
 
 		result.setLot(l);
 		cell = row.getCell(6); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDepartureDay(getInt(cell.getStringCellValue()));}
@@ -395,12 +422,14 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(14);
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 			cell.setCellType(Cell.CELL_TYPE_STRING); 
-			Station s = stations.get(getStr(cell.getStringCellValue()));
-			if (s == null) return null;
+			String sid = getStr(cell.getStringCellValue());
+			Station s = stations.get(sid);
+			if (s == null) throw new Exception("Recipient ID in sheet Deliveries not defined in stations sheet: " + sid);
 			result.setReceiver(s);
 		}
 		else {
-			return null;
+			if (result.getId() == null) return null;
+			else throw new Exception("Recipient ID in sheet Deliveries not defined");
 		}
 		
 		// Further flexible cells
