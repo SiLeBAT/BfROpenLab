@@ -2,6 +2,7 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -175,6 +176,16 @@ public class Delivery {
 				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 			}
 		}
+		int intId = 0;
+		try {
+			intId = Integer.parseInt(sFeldVals[sFeldVals.length-1]);
+			int numIdsPresent = DBKernel.getRowCount("Lieferungen", " WHERE " + DBKernel.delimitL("ID") + "=" + intId);
+			if (numIdsPresent == 0) {
+				in += "," + DBKernel.delimitL("ID");
+				iv += "," + intId;
+			}
+		}
+		catch (Exception e) {}
 
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -187,16 +198,22 @@ public class Delivery {
 		else if (!iv.isEmpty()) {
 			sql = "INSERT INTO " + DBKernel.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) {
-				result = DBKernel.getLastInsertedID(ps);
-				if (serialWhere.length() == 0) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-					serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+			try {
+				if (ps.executeUpdate() > 0) {
+					result = DBKernel.getLastInsertedID(ps);
+					if (serialWhere.length() == 0) {
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+						serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+					}
+					int numSameSerials = DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere);
+					if (numSameSerials > 1) {
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
+					}
 				}
-				int numSameSerials = DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere);
-				if (numSameSerials > 1) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
-				}
+			}
+			catch (SQLException e) {
+				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Delivery ID " + intId + " ist bereits vergeben");
+				else throw e;
 			}
 		}
 

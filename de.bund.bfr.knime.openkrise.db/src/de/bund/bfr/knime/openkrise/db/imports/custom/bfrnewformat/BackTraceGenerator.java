@@ -134,7 +134,10 @@ public class BackTraceGenerator {
 
 				XSSFRow row = sheetTracing.getRow(0);
 				XSSFCell cell;
-				if (rs.getObject("Station.ID") != null) {cell = row.getCell(1); cell.setCellValue(getStationLookup(rs, "Station"));}
+				if (rs.getObject("Station.ID") != null) {
+					cell = row.getCell(1); cell.setCellValue(getStationLookup(rs, "Station"));
+					cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
+				}
 				row = sheetTracing.getRow(5);
 				if (rs.getObject("Produktkatalog.Bezeichnung") != null) {cell = row.getCell(0); cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));}
 				if (rs.getObject("Chargen.ChargenNr") != null) {cell = row.getCell(1); cell.setCellValue(rs.getString("Chargen.ChargenNr"));}
@@ -146,7 +149,10 @@ public class BackTraceGenerator {
 				if (rs.getObject("Lieferungen.ad_year") != null) {cell = row.getCell(7); cell.setCellValue(rs.getInt("Lieferungen.ad_year"));}
 				if (rs.getObject("Lieferungen.numPU") != null) {cell = row.getCell(8); cell.setCellValue(rs.getDouble("Lieferungen.numPU"));}
 				if (rs.getObject("Lieferungen.typePU") != null) {cell = row.getCell(9); cell.setCellValue(rs.getString("Lieferungen.typePU"));}
-				if (rs.getObject("Lieferungen.Empfänger") != null) {cell = row.getCell(10); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));}
+				if (rs.getObject("Lieferungen.Empfänger") != null) {
+					cell = row.getCell(10); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));
+					if (sheetTracing.getRow(1) != null) {cell = sheetTracing.getRow(1).getCell(10); evaluator.evaluateFormulaCell(cell);}
+				}
 				if (rs.getObject("Lieferungen.Serial") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.Serial"));}
 				else if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.ID"));}
 

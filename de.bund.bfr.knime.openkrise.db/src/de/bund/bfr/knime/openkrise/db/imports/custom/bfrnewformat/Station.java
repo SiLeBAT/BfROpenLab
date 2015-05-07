@@ -181,14 +181,6 @@ public class Station {
 					if (numSameSerials > 1) {
 						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
 					}
-					/*
-					while (true) {
-						int numSameSerials = DBKernel.getRowCount("Station", serialWhere);
-						if (numSameSerials == 1) break;
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_','" + numSameSerials + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-						serialWhere = serialWhere.substring(0, serialWhere.lastIndexOf("'")) + "_" + numSameSerials + "'";
-					}
-					*/
 				}
 			}
 			catch (SQLException e) {

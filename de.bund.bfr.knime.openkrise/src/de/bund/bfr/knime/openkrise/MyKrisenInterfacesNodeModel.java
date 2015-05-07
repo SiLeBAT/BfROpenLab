@@ -133,7 +133,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				} while (rsp.next());
 			}
 			// Sum(In) <=> Sum(Out)???
-			sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"ID\") AS \"id1\",GROUP_CONCAT(\"L2\".\"ID\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
+			sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
 			rsp = DBKernel.getResultSet(conn, sql, false);
 			if (rsp != null && rsp.first()) {
 				do {
@@ -152,7 +152,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			// numPU, typePU
 			sql = "SELECT GROUP_CONCAT(\"id1\") AS \"ids_in\",SUM(\"Amount_In\") AS \"Amount_In\",MIN(\"Amount_Out\") AS \"Amount_Out\",MIN(\"id2\") AS \"ids_out\",\"Type_In\",\"Type_Out\" FROM " +
 
-			" (SELECT MIN(\"L1\".\"ID\") AS \"id1\",GROUP_CONCAT(\"L2\".\"ID\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM " +
+			" (SELECT MIN(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM " +
 			" \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" " +
 			" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND \"L1\".\"typePU\" = \"L2\".\"typePU\" GROUP BY \"L1\".\"ID\",\"L1\".\"typePU\",\"L2\".\"typePU\") " +
 
