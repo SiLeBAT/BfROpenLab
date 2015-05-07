@@ -627,17 +627,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		//DBKernel.convertEHEC2NewDB("Samen");
 		// evtl. auch: else if (DBKernel.isKrise) { ... nochmal auskommentieren
 		//DBKernel.convertEHEC2NewDB("Cluster");
-		Connection conn = null;
-		if (!randomGen) {
-			if (override) {
-				try {
-					conn = getNewLocalConnection(login, passwd, filename);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else conn = getLocalConn();
-		}
-		return new DataTableSpec[] { getSpec33Nodes(conn), getSpec33Links(conn), getDataModelSpec() }; // getSpecBurow(), null, getSpecWordle(),
+//		Connection conn = null;
+//		if (!randomGen) {
+//			if (override) {
+//				try {
+//					conn = getNewLocalConnection(login, passwd, filename);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			} else conn = getLocalConn();
+//		}
+		return new DataTableSpec[] { null, null, null }; // getSpecBurow(), null, getSpecWordle(),
 	}
 
 	/**
