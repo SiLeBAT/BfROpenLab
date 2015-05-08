@@ -7,7 +7,7 @@ Bundle-Activator: de.bund.bfr.knime.openkrise.db.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.apache.poi,
+ org.apache.poi.new,
  com.jgoodies,
  com.thoughtworks.xstream,
  quick.dbtable,
