@@ -9,7 +9,8 @@ Bundle-ClassPath: lib/commons-codec-1.9.jar,
  lib/log4j-1.2.17.jar,
  lib/poi-3.11-20141221.jar,
  lib/poi-ooxml-3.11-20141221.jar,
- lib/xmlbeans-2.6.0.jar
+ lib/xmlbeans-2.6.0.jar,
+ lib/poi-ooxml-schemas-3.11-20141221.jar
 Export-Package: org.apache.poi,
  org.apache.poi.common.usermodel,
  org.apache.poi.ddf,
