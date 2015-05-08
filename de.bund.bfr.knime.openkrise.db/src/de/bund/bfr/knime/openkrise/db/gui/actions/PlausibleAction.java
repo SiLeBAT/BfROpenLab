@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.db.gui.actions;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +35,7 @@ import javax.swing.JProgressBar;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
+import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyIDFilter;
@@ -68,6 +70,8 @@ public class PlausibleAction extends AbstractAction {
 				public void run() {
 		  		    try {		  
 	        			go4ISM(pd4);
+	        			InfoBox ib = new InfoBox("Finished!", true, new Dimension(160, 120), null, true);
+	        			ib.setVisible(true);    				    			
 				    }
 				    catch (Exception e) {MyLogger.handleException(e);}
 		      }
@@ -97,22 +101,22 @@ public class PlausibleAction extends AbstractAction {
 			
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
 					pd4.cs.isSelected() ?
-							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort","VATnumber"},
-								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue(),(Integer)pd4.sv.getValue()}, null, null, null, pd4.gentle.isSelected()) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"},
+								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue()}, null, null, null, pd4.gentle.isSelected()) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
 					pd4.cp.isSelected() ?
-							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung","Artikelnummer"},
-								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"pd_day","pd_month","pd_year"}, pd4.gentle.isSelected())
+							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"},
+								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 =
 					pd4.cl.isSelected() ?
-							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year"},
-								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue(),(Integer)pd4.ld.getValue(),(Integer)pd4.ld.getValue()}, null, null, null, pd4.gentle.isSelected())
+							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr"},
+								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 

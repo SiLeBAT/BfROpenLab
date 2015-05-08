@@ -570,7 +570,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				} catch (Exception e) {
 					DBKernel.sendRequest("ROLLBACK", false);
 					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-					logMessages += "\nUnable to import file '" + filename + "'.\nWrong file format?\nLast row analyzed: " + (classRowIndex+1) + "\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
+					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 					MyLogger.handleException(e);
 					if (progress != null) progress.setVisible(false);
 					try {

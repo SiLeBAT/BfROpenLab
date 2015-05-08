@@ -22,13 +22,6 @@ public class Product {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getNumber() {
-		return number;
-	}
-	public void setNumber(String number) {
-		this.number = number;
-	}
-	private String number;
 	public String getIntendedUse() {
 		return intendedUse;
 	}
@@ -56,7 +49,7 @@ public class Product {
 	}
 	public Integer getID(Integer miDbId) throws Exception {
 		if (dbId != null) return dbId;
-		Integer retId = getID(station,new String[]{"Bezeichnung","Artikelnummer"}, new String[]{name,number}, miDbId);
+		Integer retId = getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId);
 		dbId = retId;
 		if (retId != null) {
 			if (treatment != null && !treatment.isEmpty()) DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +

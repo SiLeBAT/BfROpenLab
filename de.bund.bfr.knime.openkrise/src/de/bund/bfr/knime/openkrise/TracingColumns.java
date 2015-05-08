@@ -66,8 +66,8 @@ public interface TracingColumns {
 	public static final String DELIVERY_ITEMNAME = "Name";
 	public static final String DELIVERY_LOTNUM = "Lot Number"; // Lot number
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
-	public static final String DELIVERY_NUM_PU = "Num_PU";
-	public static final String DELIVERY_TYPE_PU = "Type_PU";
+	public static final String DELIVERY_NUM_PU = "Amount";
+	public static final String DELIVERY_TYPE_PU = "Unit";
 	public static final String DELIVERY_SERIAL = "Serial";
 	public static final String DELIVERY_CHARGENUM = "Charge Number"; // deprecated
 	

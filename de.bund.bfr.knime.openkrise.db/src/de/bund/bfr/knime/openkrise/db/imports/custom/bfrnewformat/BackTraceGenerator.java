@@ -12,7 +12,9 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -120,7 +122,8 @@ public class BackTraceGenerator {
 				" LEFT JOIN " + DBKernel.delimitL("Station") +
 				" ON " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
 				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + " IS NULL " +
-				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")";
+				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
+				" ORDER BY " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -134,27 +137,27 @@ public class BackTraceGenerator {
 
 				XSSFRow row = sheetTracing.getRow(0);
 				XSSFCell cell;
+				String sid = null;
 				if (rs.getObject("Station.ID") != null) {
-					cell = row.getCell(1); cell.setCellValue(getStationLookup(rs, "Station"));
+					sid = getStationLookup(rs, "Station");
+					cell = row.getCell(1); cell.setCellValue(sid);
 					cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
 				}
-				row = sheetTracing.getRow(5);
-				if (rs.getObject("Produktkatalog.Bezeichnung") != null) {cell = row.getCell(0); cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));}
-				if (rs.getObject("Chargen.ChargenNr") != null) {cell = row.getCell(1); cell.setCellValue(rs.getString("Chargen.ChargenNr"));}
-				if (rs.getObject("Lieferungen.dd_day") != null) {cell = row.getCell(2); cell.setCellValue(rs.getInt("Lieferungen.dd_day"));}
-				if (rs.getObject("Lieferungen.dd_month") != null) {cell = row.getCell(3); cell.setCellValue(rs.getInt("Lieferungen.dd_month"));}
-				if (rs.getObject("Lieferungen.dd_year") != null) {cell = row.getCell(4); cell.setCellValue(rs.getInt("Lieferungen.dd_year"));}
-				if (rs.getObject("Lieferungen.ad_day") != null) {cell = row.getCell(5); cell.setCellValue(rs.getInt("Lieferungen.ad_day"));}
-				if (rs.getObject("Lieferungen.ad_month") != null) {cell = row.getCell(6); cell.setCellValue(rs.getInt("Lieferungen.ad_month"));}
-				if (rs.getObject("Lieferungen.ad_year") != null) {cell = row.getCell(7); cell.setCellValue(rs.getInt("Lieferungen.ad_year"));}
-				if (rs.getObject("Lieferungen.numPU") != null) {cell = row.getCell(8); cell.setCellValue(rs.getDouble("Lieferungen.numPU"));}
-				if (rs.getObject("Lieferungen.typePU") != null) {cell = row.getCell(9); cell.setCellValue(rs.getString("Lieferungen.typePU"));}
-				if (rs.getObject("Lieferungen.Empfänger") != null) {
-					cell = row.getCell(10); cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));
-					if (sheetTracing.getRow(1) != null) {cell = sheetTracing.getRow(1).getCell(10); evaluator.evaluateFormulaCell(cell);}
+				
+				int rowIndex = 5;
+				row = sheetTracing.getRow(rowIndex);
+				insertRow(rs, row);
+				if (sheetTracing.getRow(1) != null) {cell = sheetTracing.getRow(1).getCell(10); evaluator.evaluateFormulaCell(cell);}
+				
+				while (rs.next()) {
+					if (rs.getObject("Station.ID") == null) break;
+					String sl = getStationLookup(rs, "Station");
+					if (!sl.equals(sid)) break;
+					rowIndex++;
+					row = copyRow(workbook, sheetTracing, 5, rowIndex);
+					insertRow(rs, row);
 				}
-				if (rs.getObject("Lieferungen.Serial") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.Serial"));}
-				else if (rs.getObject("Lieferungen.ID") != null) {cell = row.getCell(11); cell.setCellValue(rs.getString("Lieferungen.ID"));}
+				rs.previous();
 
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
 				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Lieferungen.ID") + ".xlsx");
@@ -164,7 +167,122 @@ public class BackTraceGenerator {
 		}
 		return result;
 	}
-	private void save(XSSFWorkbook workbook, String filename) {
+	private void insertRow(ResultSet rs, XSSFRow row) throws SQLException {
+		XSSFCell cell;
+		cell = row.getCell(0);
+		if (rs.getObject("Produktkatalog.Bezeichnung") != null) cell.setCellValue(rs.getString("Produktkatalog.Bezeichnung"));
+		else cell.setCellValue("");
+		cell = row.getCell(1);
+		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
+		else cell.setCellValue("");
+		cell = row.getCell(2);
+		if (rs.getObject("Lieferungen.dd_day") != null) cell.setCellValue(rs.getInt("Lieferungen.dd_day"));
+		else cell.setCellValue("");
+		cell = row.getCell(3);
+		if (rs.getObject("Lieferungen.dd_month") != null) cell.setCellValue(rs.getInt("Lieferungen.dd_month"));
+		else cell.setCellValue("");
+		cell = row.getCell(4);
+		if (rs.getObject("Lieferungen.dd_year") != null) cell.setCellValue(rs.getInt("Lieferungen.dd_year"));
+		else cell.setCellValue("");
+		cell = row.getCell(5);
+		if (rs.getObject("Lieferungen.ad_day") != null) cell.setCellValue(rs.getInt("Lieferungen.ad_day"));
+		else cell.setCellValue("");
+		cell = row.getCell(6);
+		if (rs.getObject("Lieferungen.ad_month") != null) cell.setCellValue(rs.getInt("Lieferungen.ad_month"));
+		else cell.setCellValue("");
+		cell = row.getCell(7);
+		if (rs.getObject("Lieferungen.ad_year") != null) cell.setCellValue(rs.getInt("Lieferungen.ad_year"));
+		else cell.setCellValue("");
+		cell = row.getCell(8);
+		if (rs.getObject("Lieferungen.numPU") != null) cell.setCellValue(rs.getDouble("Lieferungen.numPU"));
+		else cell.setCellValue("");
+		cell = row.getCell(9);
+		if (rs.getObject("Lieferungen.typePU") != null) cell.setCellValue(rs.getString("Lieferungen.typePU"));
+		else cell.setCellValue("");
+		cell = row.getCell(10);
+		if (rs.getObject("Lieferungen.Empfänger") != null) cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empfänger")));
+		else cell.setCellValue("");
+		cell = row.getCell(11);
+		if (rs.getObject("Lieferungen.Serial") != null) cell.setCellValue(rs.getString("Lieferungen.Serial"));
+		else if (rs.getObject("Lieferungen.ID") != null) cell.setCellValue(rs.getString("Lieferungen.ID"));
+		else cell.setCellValue("");
+	}
+	   private XSSFRow copyRow(XSSFWorkbook workbook, XSSFSheet worksheet, int sourceRowNum, int destinationRowNum) {
+	        XSSFRow sourceRow = worksheet.getRow(sourceRowNum);
+            worksheet.shiftRows(destinationRowNum, worksheet.getLastRowNum(), 1);
+            XSSFRow newRow = worksheet.createRow(destinationRowNum);
+
+	        // Loop through source columns to add to new row
+	        for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
+	            // Grab a copy of the old/new cell
+	            XSSFCell oldCell = sourceRow.getCell(i);
+	            XSSFCell newCell = newRow.createCell(i);
+
+	            // If the old cell is null jump to next cell
+	            if (oldCell == null) {
+	                newCell = null;
+	                continue;
+	            }
+
+	            // Copy style from old cell and apply to new cell
+	            XSSFCellStyle newCellStyle = workbook.createCellStyle();
+	            newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
+	            ;
+	            newCell.setCellStyle(newCellStyle);
+
+	            // If there is a cell comment, copy
+	            if (oldCell.getCellComment() != null) {
+	                newCell.setCellComment(oldCell.getCellComment());
+	            }
+
+	            // If there is a cell hyperlink, copy
+	            if (oldCell.getHyperlink() != null) {
+	                newCell.setHyperlink(oldCell.getHyperlink());
+	            }
+
+	            // Set the cell data type
+	            newCell.setCellType(oldCell.getCellType());
+
+	            // Set the cell data value
+	            switch (oldCell.getCellType()) {
+	                case XSSFCell.CELL_TYPE_BLANK:
+	                    newCell.setCellValue(oldCell.getStringCellValue());
+	                    break;
+	                case XSSFCell.CELL_TYPE_BOOLEAN:
+	                    newCell.setCellValue(oldCell.getBooleanCellValue());
+	                    break;
+	                case XSSFCell.CELL_TYPE_ERROR:
+	                    newCell.setCellErrorValue(oldCell.getErrorCellValue());
+	                    break;
+	                case XSSFCell.CELL_TYPE_FORMULA:
+	                    newCell.setCellFormula(oldCell.getCellFormula());
+	                    break;
+	                case XSSFCell.CELL_TYPE_NUMERIC:
+	                    newCell.setCellValue(oldCell.getNumericCellValue());
+	                    break;
+	                case XSSFCell.CELL_TYPE_STRING:
+	                    newCell.setCellValue(oldCell.getRichStringCellValue());
+	                    break;
+	            }
+	        }
+
+	        // If there are are any merged regions in the source row, copy to new row
+	        for (int i = 0; i < worksheet.getNumMergedRegions(); i++) {
+	            CellRangeAddress cellRangeAddress = worksheet.getMergedRegion(i);
+	            if (cellRangeAddress.getFirstRow() == sourceRow.getRowNum()) {
+	                CellRangeAddress newCellRangeAddress = new CellRangeAddress(newRow.getRowNum(),
+	                        (newRow.getRowNum() +
+	                                (cellRangeAddress.getLastRow() - cellRangeAddress.getFirstRow()
+	                                        )),
+	                        cellRangeAddress.getFirstColumn(),
+	                        cellRangeAddress.getLastColumn());
+	                worksheet.addMergedRegion(newCellRangeAddress);
+	            }
+	        }
+	        
+	        return newRow;
+	    }
+	   private void save(XSSFWorkbook workbook, String filename) {
 		try {
 			// Write the workbook in file system
 			FileOutputStream out = new FileOutputStream(new File(filename));

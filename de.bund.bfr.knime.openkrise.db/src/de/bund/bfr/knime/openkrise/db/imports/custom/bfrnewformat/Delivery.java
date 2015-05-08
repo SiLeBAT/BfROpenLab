@@ -28,7 +28,9 @@ public class Delivery {
 		return id;
 	}
 	public void setId(String id) {
-		gathereds.put(id, this);
+		if (id != null) {
+			gathereds.put(id, this);
+		}
 		this.id = id;
 	}
 	public Integer getArrivalDay() {
@@ -117,12 +119,12 @@ public class Delivery {
 		return logMessages;
 	}
 	public Integer getID(Integer miDbId) throws Exception {
-		if (gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
+		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empfänger",
 				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId);
 		dbId = retId;
-		if (gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
+		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
 		
 		// Further flexible cells
 		if (retId != null) {

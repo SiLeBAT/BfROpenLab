@@ -44,6 +44,15 @@ public class PlausibleDialog4Krise extends JDialog {
 		initComponents();
 		selS.setVisible(false);
 		label20.setVisible(false);
+		gentle.setVisible(false);
+		ld.setVisible(false);
+		lb.setVisible(false);
+		pi.setVisible(false);
+		label6.setVisible(false);
+		label14.setVisible(false);
+		label18.setVisible(false);
+		sv.setVisible(false);
+		label19.setVisible(false);
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
@@ -199,7 +208,7 @@ public class PlausibleDialog4Krise extends JDialog {
 				contentPanel.add(ps, CC.xy(7, 3));
 
 				//---- label11 ----
-				label11.setText("Denomination:");
+				label11.setText("Name:");
 				label11.setHorizontalAlignment(SwingConstants.RIGHT);
 				contentPanel.add(label11, CC.xy(9, 3));
 

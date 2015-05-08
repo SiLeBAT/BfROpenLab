@@ -1895,22 +1895,22 @@ public void keyTyped(final KeyEvent keyEvent) {
     	try {
     		int newID = Integer.parseInt(response);
     		if (oldID == newID) {
-    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "IDs identisch: " + oldID, true, new Dimension(400,200), null, true);
+    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "IDs identical: " + oldID, true, new Dimension(400,200), null, true);
     			ib.setVisible(true);
     		}
     		else if (!DBKernel.hasID(actualTable.getTablename(), newID)) {
-    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "Die neue ID gibt es gar nicht...", true, new Dimension(400,200), null, true);
+    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "The defined ID does not exist...", true, new Dimension(400,200), null, true);
     			ib.setVisible(true);
     		}
     		else {
 	    		int reallyDoIt = JOptionPane.showConfirmDialog(this,
-	    				"ID " + oldID + " wird durch " + newID + " ersetzt. Korrekt?",
-		    			  "Datensatz ersetzen durch ID???",
+	    				"ID " + oldID + " will be replaced by " + newID + ". Correct?",
+		    			  "Replace data via ID merging???",
 		    			  JOptionPane.YES_NO_OPTION);
 	    		if (reallyDoIt == JOptionPane.YES_OPTION) {
 	    			if (DBKernel.mergeIDs(this.getConnection(), actualTable.getTablename(), oldID, newID)) {
 		    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
-		    					"ID " + oldID + " wurde erfolgreich durch " + newID + " ersetzt!",
+		    					"ID " + oldID + " was successfully replaced by " + newID + "!",
 		    					true, new Dimension(400,200), null, true);
 		    			ib.setVisible(true);
 				    	this.setTable();

@@ -637,7 +637,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 //				}
 //			} else conn = getLocalConn();
 //		}
-		return new DataTableSpec[] { null, null, null }; // getSpecBurow(), null, getSpecWordle(),
+		return new DataTableSpec[] { null, null, null }; // getSpec33Nodes(conn), getSpec33Links(conn), getDataModelSpec()
 	}
 
 	/**

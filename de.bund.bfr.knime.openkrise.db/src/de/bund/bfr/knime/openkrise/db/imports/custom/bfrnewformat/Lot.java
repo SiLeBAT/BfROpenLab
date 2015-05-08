@@ -42,58 +42,9 @@ public class Lot {
 	public void setUnitUnit(String unitUnit) {
 		this.unitUnit = unitUnit;
 	}
-	public Integer getProductionDay() {
-		return productionDay;
-	}
-	public void setProductionDay(Integer productionDay) {
-		this.productionDay = productionDay;
-	}
-	public Integer getProductionMonth() {
-		return productionMonth;
-	}
-	public void setProductionMonth(Integer productionMonth) {
-		this.productionMonth = productionMonth;
-	}
-	public Integer getProductionYear() {
-		return productionYear;
-	}
-	public void setProductionYear(Integer productionYear) {
-		this.productionYear = productionYear;
-	}
-	public Integer getExpiryDay() {
-		return expiryDay;
-	}
-	public void setExpiryDay(Integer expiryDay) {
-		this.expiryDay = expiryDay;
-	}
-	public Integer getExpiryMonth() {
-		return expiryMonth;
-	}
-	public void setExpiryMonth(Integer expiryMonth) {
-		this.expiryMonth = expiryMonth;
-	}
-	public Integer getExpiryYear() {
-		return expiryYear;
-	}
-	public void setExpiryYear(Integer expiryYear) {
-		this.expiryYear = expiryYear;
-	}
-	public String getSampling() {
-		return sampling;
-	}
-	public void setSampling(String sampling) {
-		this.sampling = sampling;
-	}
 	private String number;
 	private Double unitNumber;
 	private String unitUnit;
-	private Integer productionDay;
-	private Integer productionMonth;
-	private Integer productionYear;
-	private Integer expiryDay;
-	private Integer expiryMonth;
-	private Integer expiryYear;
-	private String sampling; // -> flexible table
 	private Integer dbId;
 	private String lookup;
 	
@@ -116,17 +67,13 @@ public class Lot {
 		return logMessages;
 	}
 	public Integer getID(Integer miDbId) throws Exception {
+		if (number == null) throw new Exception("Lot number not defined");
 		if (number != null && !number.isEmpty() && gathereds.get(number) != null && gathereds.get(number).getDbId() != null) dbId = gathereds.get(number).getDbId();
 		if (dbId != null) return dbId;
-		Integer retId = getID(product,new String[]{"pd_day","pd_month","pd_year","MHD_day","MHD_month","MHD_year","Menge","ChargenNr","Einheit"},
-				new Integer[]{productionDay,productionMonth,productionYear,expiryDay,expiryMonth,expiryYear}, unitNumber, new String[]{number,unitUnit}, miDbId);
+		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId);
 		dbId = retId;
 		if (number != null && !number.isEmpty() && gathereds.get(number) != null) gathereds.get(number).setDbId(dbId);
 		if (retId != null) {
-			if (sampling != null && !sampling.isEmpty()) DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-					" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-					") VALUES ('Chargen'," + retId + ",'Sampling','" + sampling + "')", false);
-
 			// Further flexible cells
 			for (Entry<String, String> es : flexibles.entrySet()) {
 				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
@@ -136,7 +83,7 @@ public class Lot {
 		}
 		return retId;
 	}
-	private Integer getID(Product product, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId) throws Exception {
+	private Integer getID(Product product, String number, Double unitNumber, String unitUnit, Integer miDbId) throws Exception {
 		Integer dbProdID = product.getID(miDbId);
 		if (!product.getLogMessages().isEmpty()) logMessages += product.getLogMessages() + "\n";
 		if (dbProdID == null) {
@@ -146,29 +93,19 @@ public class Lot {
 
 		Integer result = null;
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") +
-			" WHERE " + DBKernel.delimitL("Artikel") + "=" + dbProdID;
-		String in = DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ImportSources");
-		String iv = dbProdID + ",';" + miDbId + ";'";
-		int i=0;
-		for (;i<iFeldVals.length;i++) {
-			if (iFeldVals[i] != null) {
-				sql += " AND " + DBKernel.delimitL(feldnames[i]) + "=" + iFeldVals[i] + "";
-				in += "," + DBKernel.delimitL(feldnames[i]);
-				iv += "," + iFeldVals[i];
-			}
-		}
+				" WHERE " + DBKernel.delimitL("Artikel") + "=" + dbProdID + " AND " + DBKernel.delimitL("ChargenNr") + "='" + number + "'";
+		String in = DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("ImportSources");
+		String iv = dbProdID + ",'" + number + "',';" + miDbId + ";'";
 		if (unitNumber != null) {
-			sql += " AND " + DBKernel.delimitL(feldnames[i]) + "=" + unitNumber + "";
-			in += "," + DBKernel.delimitL(feldnames[i]);
+			//sql += " AND " + DBKernel.delimitL("Menge") + "=" + unitNumber + "";
+			in += "," + DBKernel.delimitL("Menge");
 			String un = ("" + unitNumber).replace(",", ".");
 			iv += "," + un;
 		}
-		for (int j=0;j<sFeldVals.length;j++) {
-			if (sFeldVals[j] != null) {
-				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
-				in += "," + DBKernel.delimitL(feldnames[i+1+j]);
-				iv += ",'" + sFeldVals[j] + "'";
-			}
+		if (unitUnit != null) {
+			//sql += " AND UCASE(" + DBKernel.delimitL("Einheit") + ")='" + unitUnit.toUpperCase() + "'";
+			in += "," + DBKernel.delimitL("Einheit");
+			iv += ",'" + unitUnit + "'";
 		}
 
 		ResultSet rs = DBKernel.getResultSet(sql, false);
