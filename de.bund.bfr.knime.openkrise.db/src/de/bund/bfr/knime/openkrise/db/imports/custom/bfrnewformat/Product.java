@@ -22,20 +22,6 @@ public class Product {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getIntendedUse() {
-		return intendedUse;
-	}
-	public void setIntendedUse(String intendedUse) {
-		this.intendedUse = intendedUse;
-	}
-	public String getTreatment() {
-		return treatment;
-	}
-	public void setTreatment(String treatment) {
-		this.treatment = treatment;
-	}
-	private String treatment; // -> flexible table
-	private String intendedUse; // -> flexible table
 
 	private Integer dbId;
 	public Integer getDbId() {
@@ -51,14 +37,6 @@ public class Product {
 		if (dbId != null) return dbId;
 		Integer retId = getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId);
 		dbId = retId;
-		if (retId != null) {
-			if (treatment != null && !treatment.isEmpty()) DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-					" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-					") VALUES ('Produktkatalog'," + retId + ",'Treatment','" + treatment + "')", false);
-			if (intendedUse != null && !intendedUse.isEmpty()) DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-					" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-					") VALUES ('Produktkatalog'," + retId + ",'IntendedUse','" + intendedUse + "')", false);
-		}
 		return retId;
 	}
 	private Integer getID(Station station, String[] feldnames, String[] feldVals, Integer miDbId) throws Exception {

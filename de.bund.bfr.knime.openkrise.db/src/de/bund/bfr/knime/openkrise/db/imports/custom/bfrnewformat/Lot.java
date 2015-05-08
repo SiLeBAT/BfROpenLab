@@ -67,7 +67,7 @@ public class Lot {
 		return logMessages;
 	}
 	public Integer getID(Integer miDbId) throws Exception {
-		if (number == null) throw new Exception("Lot number not defined");
+		if (number == null) logMessages += "Please, do always provide a lot number as this is most helpful!";//throw new Exception("Lot number not defined");
 		if (number != null && !number.isEmpty() && gathereds.get(number) != null && gathereds.get(number).getDbId() != null) dbId = gathereds.get(number).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId);
@@ -94,8 +94,12 @@ public class Lot {
 		Integer result = null;
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") +
 				" WHERE " + DBKernel.delimitL("Artikel") + "=" + dbProdID + " AND " + DBKernel.delimitL("ChargenNr") + "='" + number + "'";
-		String in = DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("ImportSources");
-		String iv = dbProdID + ",'" + number + "',';" + miDbId + ";'";
+		String in = DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ImportSources");
+		String iv = dbProdID + ",';" + miDbId + ";'";
+		if (number != null) {
+			in += "," + DBKernel.delimitL("ChargenNr");
+			iv += ",'" + number + "'";
+		}
 		if (unitNumber != null) {
 			//sql += " AND " + DBKernel.delimitL("Menge") + "=" + unitNumber + "";
 			in += "," + DBKernel.delimitL("Menge");
@@ -108,10 +112,11 @@ public class Lot {
 			iv += ",'" + unitUnit + "'";
 		}
 
-		ResultSet rs = DBKernel.getResultSet(sql, false);
-
-		if (rs != null && rs.first()) {
-			result = rs.getInt(1);
+		if (number != null) {
+			ResultSet rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first()) {
+				result = rs.getInt(1);
+			}
 		}
 
 		if (result != null) {
@@ -122,7 +127,6 @@ public class Lot {
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
 		}
-
 
 		return result;
 	}	

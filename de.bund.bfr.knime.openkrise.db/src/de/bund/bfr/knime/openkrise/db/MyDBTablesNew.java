@@ -42,7 +42,7 @@ public class MyDBTablesNew extends MyDBI {
 	private String saUser = "SA";//"defad"; // SA
 	private String saPass = "";//"de6!§5ddy";
 	private String dbServerPath = "";
-	private String softwareVersion = "1.8.4";
+	private String softwareVersion = "1.8.5";
 	
 	/*
 	 * Still todo:
@@ -407,6 +407,15 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null}, 
 				new String[]{null,null,null,null});
 		addTable(fclXlsSources, Lieferketten_LIST);
+		MyTable lookup = new MyTable("LookUps",
+				new String[]{"type","value"},
+				new String[]{"VARCHAR(255)","VARCHAR(255)"},
+				new String[]{null,null}, 
+				new MyTable[]{null,null},
+				new String[][]{{null,null}},
+				new LinkedHashMap[]{null,null}, 
+				new String[]{null,null});
+		addTable(lookup, Lieferketten_LIST);
 		//check4Updates_129_130(myList);
 
 		//DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Bundesland") + " = 'NI' WHERE " + DBKernel.delimitL("ID") + " = 167", false);

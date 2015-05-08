@@ -164,7 +164,7 @@ public class MyTable {
 				|| tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
 				|| tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 				|| tableName.equals("VarParMaps") || tableName.equals("DataSource")
-				|| tableName.equals("ExtraFields") || tableName.equals("ImportMetadata");
+				|| tableName.equals("ExtraFields") || tableName.equals("ImportMetadata") || tableName.equals("LookUps");
 
 		hideTested = hideComment || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen") || tableName.equals("Zutatendaten_Sonstiges")
 				|| tableName.equals("Versuchsbedingungen_Sonstiges") || tableName.equals("Messwerte_Sonstiges") || tableName.equals("Prozessdaten_Sonstiges")

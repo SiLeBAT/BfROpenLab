@@ -65,16 +65,48 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 	}
+	private void loadLookupSheet(Sheet lookupSheet) {
+		LookUp lu = new LookUp();
+		int numRows = lookupSheet.getLastRowNum() + 1;
+		for (int i=1;i<numRows;i++) {
+			Row row = lookupSheet.getRow(i);
+			if (row != null) {
+				Cell cell = row.getCell(0); // Sampling
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					lu.addSampling(cell.getStringCellValue());
+				}
+				cell = row.getCell(1); // TypeOfBusiness
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					lu.addTypeOfBusiness(cell.getStringCellValue());
+				}
+				cell = row.getCell(2); // Treatment
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					lu.addTreatment(cell.getStringCellValue());
+				}
+				cell = row.getCell(3); // Units
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					lu.addUnit(cell.getStringCellValue());
+				}
+			}
+		}
+		lu.intoDb();
+	}
 	public boolean doTheImport(Workbook wb, String filename) throws Exception {
 		Sheet stationSheet = wb.getSheet("Stations");
 		Sheet deliverySheet = wb.getSheet("Deliveries");
 		Sheet d2dSheet = wb.getSheet("Deliveries2Deliveries");
 		Sheet transactionSheet = wb.getSheet("BackTracing");
+		Sheet lookupSheet = wb.getSheet("LookUp");
 		
 		if (stationSheet == null) return false;
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
 
 		checkStationsFirst(stationSheet);
+		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			
 		if (d2dSheet != null && deliverySheet != null) {
 			checkDeliveriesFirst(deliverySheet);
@@ -129,7 +161,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			
 			return true;
 		}
-
+		
 		Row row = transactionSheet.getRow(0);
 		
 		// Station in focus
@@ -463,12 +495,12 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(10); 
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(getStation(businessSheet, cell.getStringCellValue()));}
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setStation(getStation(businessSheet, cell.getStringCellValue()));}
-		cell = row.getCell(11);
+		cell = row.getCell(12);
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
 		
 		// Further flexible cells
-		for (int i=12;i<20;i++) {
+		for (int i=13;i<20;i++) {
 			Cell tCell = titleRow.getCell(i);
 			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
 				tCell.setCellType(Cell.CELL_TYPE_STRING);

@@ -2,8 +2,10 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -71,5 +73,18 @@ public class D2D {
 			}
 		}		
 
+	}
+	public HashSet<Integer> getIngredients(Integer lotId) throws SQLException {
+		HashSet<Integer> result = new HashSet<>();
+		// Checke, if there are already ingredients defined! Are they the same? No? make warning!
+		String sql = "SELECT " + DBKernel.delimitL("Zutat") + " FROM " + DBKernel.delimitL("ChargenVerbindungen") +
+				" WHERE " + DBKernel.delimitL("Produkt") + "=" + lotId;
+		ResultSet rs = DBKernel.getResultSet(sql, false);
+		if (rs != null && rs.first()) {
+			do {
+				result.add(rs.getInt("Zutat"));
+			} while(rs.next());
+		}	
+		return result;
 	}
 }

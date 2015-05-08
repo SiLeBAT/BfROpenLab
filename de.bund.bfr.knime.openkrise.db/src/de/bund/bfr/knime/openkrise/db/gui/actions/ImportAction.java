@@ -126,7 +126,7 @@ public class ImportAction extends AbstractAction {
 						else {
 							Font f = new Font("Arial", Font.PLAIN, 12);
 							InfoBox ib = new InfoBox(log, true, new Dimension(800, 400), f);
-							ib.setTitle("Errors occurred, please check and try again...");
+							ib.setTitle((log.indexOf("Exception") >= 0 ? "Errors occurred, please check and try again..." : "Warnings occurred...but the data is imported."));
 							ib.setVisible(true);							
 						}						
 					}
