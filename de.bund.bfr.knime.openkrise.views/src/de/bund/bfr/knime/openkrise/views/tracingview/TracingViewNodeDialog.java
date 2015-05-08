@@ -198,16 +198,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 	public void componentResized(ComponentEvent e) {
 		if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
 			resized = true;
+		}
 
-			if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
-				northScrollPane
-						.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-				northScrollPane.getParent().revalidate();
-			} else {
-				northScrollPane
-						.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				northScrollPane.getParent().revalidate();
-			}
+		if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
+			northScrollPane
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+			northScrollPane.getParent().revalidate();
+		} else {
+			northScrollPane
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			northScrollPane.getParent().revalidate();
 		}
 	}
 
