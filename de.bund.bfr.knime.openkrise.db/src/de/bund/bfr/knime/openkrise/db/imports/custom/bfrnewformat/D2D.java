@@ -74,15 +74,22 @@ public class D2D {
 		}		
 
 	}
-	public HashSet<Integer> getIngredients(Integer lotId) throws SQLException {
-		HashSet<Integer> result = new HashSet<>();
+	public static HashSet<Delivery> getIngredients(Integer lotId) throws SQLException {
+		HashSet<Delivery> result = new HashSet<>();
 		// Checke, if there are already ingredients defined! Are they the same? No? make warning!
-		String sql = "SELECT " + DBKernel.delimitL("Zutat") + " FROM " + DBKernel.delimitL("ChargenVerbindungen") +
-				" WHERE " + DBKernel.delimitL("Produkt") + "=" + lotId;
+		String sql = "SELECT " + DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("ChargenVerbindungen") + 
+				" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + 
+				" LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + 
+				" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + 
+				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") + "=" + lotId;
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
-				result.add(rs.getInt("Zutat"));
+				Delivery d = new Delivery();
+				d.setDbId(rs.getInt("Zutat"));
+				d.setTargetLotId(rs.getString("ChargenNr"));
+				d.setId(rs.getString("Bezeichnung"));
+				result.add(d);
 			} while(rs.next());
 		}	
 		return result;

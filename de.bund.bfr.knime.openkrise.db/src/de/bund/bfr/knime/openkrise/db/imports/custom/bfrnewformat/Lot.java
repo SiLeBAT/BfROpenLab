@@ -27,7 +27,10 @@ public class Lot {
 		return number;
 	}
 	public void setNumber(String number) {
-		gathereds.put(number, this);
+		if (product != null && product.getStation() != null) {
+			String lotId = product.getStation().getId() + "_" + product.getName() + "_" + number;
+			gathereds.put(lotId, this);
+		}
 		this.number = number;
 	}
 	public Double getUnitNumber() {
@@ -46,14 +49,7 @@ public class Lot {
 	private Double unitNumber;
 	private String unitUnit;
 	private Integer dbId;
-	private String lookup;
-	
-	public String getLookup() {
-		return lookup;
-	}
-	public void setLookup(String lookup) {
-		this.lookup = lookup;
-	}
+
 	public void setDbId(Integer dbId) {
 		this.dbId = dbId;
 	}
@@ -62,17 +58,25 @@ public class Lot {
 	}
 	
 	private String logMessages = "";
+	private String logWarnings = "";
 	
+	public String getLogWarnings() {
+		return logWarnings;
+	}
 	public String getLogMessages() {
 		return logMessages;
 	}
 	public Integer getID(Integer miDbId) throws Exception {
-		if (number == null) logMessages += "Please, do always provide a lot number as this is most helpful!";//throw new Exception("Lot number not defined");
-		if (number != null && !number.isEmpty() && gathereds.get(number) != null && gathereds.get(number).getDbId() != null) dbId = gathereds.get(number).getDbId();
+		//if (number == null) logWarnings += "Please, do always provide a lot number as this is most helpful!\n";//throw new Exception("Lot number not defined");
+		String lotId = null;
+		if (number != null && !number.isEmpty() && product != null && product.getStation() != null) {
+			lotId = product.getStation().getId() + "_" + product.getName() + "_" + number;			
+		}
+		if (lotId != null && gathereds.get(lotId) != null && gathereds.get(lotId).getDbId() != null) dbId = gathereds.get(lotId).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId);
 		dbId = retId;
-		if (number != null && !number.isEmpty() && gathereds.get(number) != null) gathereds.get(number).setDbId(dbId);
+		if (lotId != null && gathereds.get(lotId) != null) gathereds.get(lotId).setDbId(dbId);
 		if (retId != null) {
 			// Further flexible cells
 			for (Entry<String, String> es : flexibles.entrySet()) {

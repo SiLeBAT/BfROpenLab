@@ -109,10 +109,11 @@ public class ImportAction extends AbstractAction {
 					}
 					else if (mi instanceof BackTraceImporter) {
 						bti = (BackTraceImporter) mi;
-						String log = bti.getLogMessages();
-						String nl = log.replaceAll("\nImporting ", "");
+						String errors = bti.getLogMessages();
+						String warnings = bti.getLogWarnings();
+						String nl = errors.replaceAll("\nImporting ", "");
 						boolean success = nl.indexOf("\n") == nl.length() - 1; 
-						if (success) {
+						if (success && warnings.isEmpty()) {
 							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
 							if (eclipseWindow != null) {						
 								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
@@ -123,10 +124,16 @@ public class ImportAction extends AbstractAction {
 								dialog.setVisible(true);
 							}
 						}
+						else if (!warnings.isEmpty()) {
+							Font f = new Font("Arial", Font.PLAIN, 12);
+							InfoBox ib = new InfoBox(warnings, true, new Dimension(800, 400), f);
+							ib.setTitle("Import successful! But some warnings occurred, please check");
+							ib.setVisible(true);							
+						}
 						else {
 							Font f = new Font("Arial", Font.PLAIN, 12);
-							InfoBox ib = new InfoBox(log, true, new Dimension(800, 400), f);
-							ib.setTitle((log.indexOf("Exception") >= 0 ? "Errors occurred, please check and try again..." : "Warnings occurred...but the data is imported."));
+							InfoBox ib = new InfoBox(errors, true, new Dimension(800, 400), f);
+							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);							
 						}						
 					}

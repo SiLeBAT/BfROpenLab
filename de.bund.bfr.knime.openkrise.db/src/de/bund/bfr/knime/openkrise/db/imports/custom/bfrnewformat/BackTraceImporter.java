@@ -26,6 +26,11 @@ import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 public class BackTraceImporter extends FileFilter implements MyImporter {
 
 	private String logMessages = "";
+	private String logWarnings = "";
+	
+	public String getLogWarnings() {
+		return logWarnings;
+	}
 	private int classRowIndex = -1;
 	
 	public String getLogMessages() {
@@ -106,7 +111,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
 
 		checkStationsFirst(stationSheet);
-		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			
 		if (d2dSheet != null && deliverySheet != null) {
 			checkDeliveriesFirst(deliverySheet);
@@ -126,7 +130,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			titleRow = deliverySheet.getRow(0);
 			HashMap<String,String> definedLots = new HashMap<>();
 			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
-				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex);
+				Delivery d = getMultiOutDelivery(stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex, filename);
 				if (d == null) break;
 				if (deliveries.containsKey(d.getId())) throw new Exception("Delivery defined twice??? -> Row " + (classRowIndex+1) + "; Delivery Id: '" + d.getId() + "'");
 				deliveries.put(d.getId(), d);
@@ -146,19 +150,45 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			mi.setFilename(filename);
 
 			DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+			if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			Integer miDbId = mi.getID();
 			if (miDbId == null) throw new Exception("File already imported");
 			for (Delivery d : deliveries.values()) {
 				d.getID(miDbId);
 				if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+				//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			}
+			
+			HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
 			for (D2D dl : recipes) {
 				dl.getId(miDbId);
+				
+				// collect data for checks if data is missing...
+				Delivery d = dl.getTargetDelivery();
+				if (!ingredients.containsKey(d)) ingredients.put(d, new HashSet<Integer>());
+				HashSet<Integer> hd = ingredients.get(d);
+				hd.add(dl.getIngredient().getDbId());
 			}
 
 			DBKernel.sendRequest("COMMIT", false);
 			DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 			
+			for (Delivery d : deliveries.values()) { // ingredients.keySet()
+				HashSet<Delivery> ingredsDB = D2D.getIngredients(d.getLot().getDbId());
+				HashSet<Integer> ingredsExcel; 
+				if (ingredients.containsKey(d)) ingredsExcel = ingredients.get(d);
+				else ingredsExcel = new HashSet<Integer>(); 
+				for (Delivery dId : ingredsDB) {
+					if (!ingredsExcel.contains(dId.getDbId().intValue())) {
+						logWarnings += "There is an ingredient (" + (dId.getId() == null ? "?" : dId.getId()) + ", Lot: " + dId.getTargetLotId() + ") undefined for lot '" + d.getLot().getNumber() + "', which is defined for that lot elsewhere...\n"+
+								"Maybe it is a typo in lot typing? Or did you forget to define that ingredient?\n"+
+								"Anyway, we assumed to integrate all ingredients to that lot.\n"+
+								"If that is different from what you intended, please correct the Excel sheet, reset database and try to import your data again!\n"+
+								"-> Delivery ID: '" + d.getId() + "' in '" + filename + "'\n\n";
+					}
+				}
+			}
+
 			return true;
 		}
 		
@@ -231,6 +261,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		// forward tracing importieren
 		// welche Reihenfolge to insert? Was, wenn beim Import was schiefgeht?
 		DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 		Integer miDbId = mi.getID();
 		if (miDbId == null) throw new Exception("File already imported");
 		insertIntoDb(miDbId, inDeliveries, outDeliveries, forwDeliveries);
@@ -244,11 +275,13 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries) {
 			Integer dbId = d.getID(miDbId);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			if (d.getTargetLotId() != null && lotDbNumber.containsKey(d.getTargetLotId())) {
 				new D2D().getId(dbId, lotDbNumber.get(d.getTargetLotId()), miDbId);
 			}
@@ -256,6 +289,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : forwDeliveries) {
 			d.getID(miDbId);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 		}
 	}
 	private boolean isBlockEnd(Row row, int numCols2Check, String nextBlockIdentifier) {
@@ -413,7 +447,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum) throws Exception {
+	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename) throws Exception {
 		if (row == null) return null;
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
@@ -432,7 +466,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); p.setName(getStr(cell.getStringCellValue()));}
 		Lot l = new Lot();
 		l.setProduct(p);
-		cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
+		cell = row.getCell(3);
+		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
+		else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n";}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();

@@ -114,6 +114,11 @@ public class Delivery {
 	}
 	
 	private String logMessages = "";
+	private String logWarnings = "";
+	
+	public String getLogWarnings() {
+		return logWarnings;
+	}
 	
 	public String getLogMessages() {
 		return logMessages;
@@ -145,6 +150,7 @@ public class Delivery {
 		}
 		Integer dbLotID = lot.getID(miDbId);
 		if (!lot.getLogMessages().isEmpty()) logMessages += lot.getLogMessages() + "\n";
+		//if (!lot.getLogWarnings().isEmpty()) logWarnings += lot.getLogWarnings() + "\n";
 		if (dbLotID == null) {
 			logMessages += "Lot unknown...\n";
 			return null;

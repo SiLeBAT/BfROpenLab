@@ -327,6 +327,7 @@ public class MyDBTablesNew extends MyDBI {
 		proce.put("erhitzt und verzehrsfertig (fast alles)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
 		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
 		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
+		
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
 				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial","ImportSources"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(16383)"},
