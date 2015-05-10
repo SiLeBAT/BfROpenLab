@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.db.gui.actions;
 
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,12 +29,17 @@ import java.util.LinkedHashSet;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
-import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.PlausibleDialog4Krise;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.editoren.MyIDFilter;
@@ -70,8 +74,15 @@ public class PlausibleAction extends AbstractAction {
 				public void run() {
 		  		    try {		  
 	        			go4ISM(pd4);
-	        			InfoBox ib = new InfoBox("Finished!", true, new Dimension(160, 120), null, true);
-	        			ib.setVisible(true);    				    			
+						IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
+						if (eclipseWindow != null) {						
+							MessageDialog.openInformation(eclipseWindow.getShell(), "Similarity Search!", "Finished!");
+						} else {
+							JOptionPane pane = new JOptionPane("Finished!", JOptionPane.INFORMATION_MESSAGE);
+							JDialog dialog = pane.createDialog("Similarity Search!");
+							dialog.setAlwaysOnTop(true);
+							dialog.setVisible(true);
+						}
 				    }
 				    catch (Exception e) {MyLogger.handleException(e);}
 		      }

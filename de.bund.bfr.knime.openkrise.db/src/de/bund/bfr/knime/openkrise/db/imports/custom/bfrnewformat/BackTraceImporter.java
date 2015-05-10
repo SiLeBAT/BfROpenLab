@@ -210,6 +210,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, "Reporter Information")) break;
 			Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename);
+			if (d == null) continue;
 			outDeliveries.put(d.getId(), d);
 			outLots.put(d.getLot().getNumber(), d.getLot());
 		}
