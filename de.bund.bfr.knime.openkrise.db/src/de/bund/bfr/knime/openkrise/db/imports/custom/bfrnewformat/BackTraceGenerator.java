@@ -341,6 +341,12 @@ public class BackTraceGenerator {
 					if (s != null && !s.isEmpty()) {
 						if (i > 0) row = copyRow(workbook, sheetTracing, rowIndex, rowIndex + i);
 						cell = row.getCell(0); cell.setCellValue(s);
+						if (rs.getObject("Chargen.Menge") != null) {
+							cell = row.getCell(1); cell.setCellValue(rs.getDouble("Chargen.Menge"));
+						}
+						if (rs.getObject("Chargen.Einheit") != null) {
+							cell = row.getCell(2); cell.setCellValue(rs.getString("Chargen.Einheit"));							
+						}
 						insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 1);
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 2, "=Units");
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 15, "=Treatment");

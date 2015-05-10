@@ -24,6 +24,9 @@ public class Product {
 	}
 
 	private Integer dbId;
+	public void setDbId(Integer dbId) {
+		this.dbId = dbId;
+	}
 	public Integer getDbId() {
 		return dbId;
 	}

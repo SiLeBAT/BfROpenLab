@@ -123,11 +123,11 @@ public class Delivery {
 	public String getLogMessages() {
 		return logMessages;
 	}
-	public Integer getID(Integer miDbId) throws Exception {
+	public Integer getID(Integer miDbId, boolean dataMayhaveChanged) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empfänger",
-				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId);
+				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged);
 		dbId = retId;
 		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
 		
@@ -141,12 +141,50 @@ public class Delivery {
 		}
 		return retId;
 	}
-	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId) throws Exception {
+	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged) throws Exception {
 		Integer dbRecID = receiver.getID(miDbId);
 		if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
 		if (dbRecID == null) {
 			logMessages += "Receiver unknown...\n";
 			return null;
+		}
+		Integer result = null;
+		if (dataMayhaveChanged && id != null && !id.isEmpty() && lot != null && lot.getProduct() != null && lot.getProduct().getStation() != null) {
+			String sql = "SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+					"," + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+					"," + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+					" FROM " + DBKernel.delimitL("Lieferungen") +
+					" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+					" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
+					" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+					" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
+					" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + dbRecID +
+					" AND UCASE(" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Serial") + ")='" + id.toUpperCase() + "'" +
+					" AND " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + lot.getProduct().getStation().getID(miDbId);
+			ResultSet rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first()) {
+				lot.getProduct().setDbId(rs.getInt("Produktkatalog.ID"));
+				if (lot.getProduct().getName() != null && !lot.getProduct().getName().isEmpty()) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produktkatalog") + " SET " + DBKernel.delimitL("Bezeichnung") + " = '" + lot.getProduct().getName() + "' WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID"), true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produktkatalog") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID"), false);					
+				}
+
+				lot.setDbId(rs.getInt("Chargen.ID"));
+				if (lot.getNumber() != null && !lot.getNumber().isEmpty()) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("ChargenNr") + " = '" + lot.getNumber() + "' WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Chargen.ID"), true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Chargen.ID"), false);
+				}
+
+				result = rs.getInt("Lieferungen.ID");
+				if (getDepartureDay() != null || getDepartureMonth() != null || getDepartureYear() != null) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_day") + " = " + getDepartureDay() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_month") + " = " + getDepartureMonth() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+				}
+				if (rs.next()) logMessages += "Delivery Id seems to be defined more than once in the database. Please provide only unique Ids! (Id: '" + id + "')\n";
+			}	
+			if (result != null) return result;
 		}
 		Integer dbLotID = lot.getID(miDbId);
 		if (!lot.getLogMessages().isEmpty()) logMessages += lot.getLogMessages() + "\n";
@@ -155,9 +193,9 @@ public class Delivery {
 			logMessages += "Lot unknown...\n";
 			return null;
 		}
-		Integer result = null;
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Lieferungen") +
-				" WHERE " + DBKernel.delimitL("Charge") + "=" + dbLotID + " AND " + DBKernel.delimitL("Empfänger") + "=" + dbRecID;
+				" WHERE " + DBKernel.delimitL("Empfänger") + "=" + dbRecID;
+		sql += " AND " + DBKernel.delimitL("Charge") + "=" + dbLotID; 
 		String in = DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("ImportSources");
 		String iv = dbLotID + "," + dbRecID + ",';" + miDbId + ";'";
 		String serialWhere = "";
