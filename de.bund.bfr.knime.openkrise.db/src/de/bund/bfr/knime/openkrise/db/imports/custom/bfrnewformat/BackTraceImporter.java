@@ -56,7 +56,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	private void checkDeliveriesFirst(Sheet deliverySheet) throws Exception {
 		HashSet<String> deliveryIDs = new HashSet<>();
 		int numRows = deliverySheet.getLastRowNum() + 1;
-		for (int i=1;i<numRows;i++) {
+		for (int i=2;i<numRows;i++) {
 			Row row = deliverySheet.getRow(i);
 			if (row != null) {
 				Cell cell = row.getCell(0); // ID
