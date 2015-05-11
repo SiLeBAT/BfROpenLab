@@ -555,7 +555,14 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	}
 	private Integer getInt(String val) {
 		Integer result = null;
-		if (!val.trim().isEmpty()) result = Integer.parseInt(val);
+		if (!val.trim().isEmpty()) {
+			try {
+				result = Integer.parseInt(val);
+			}
+			catch (Exception e) {
+				result = (int) Double.parseDouble(val);
+			}
+		}
 		return result;
 	}
 	private Double getDbl(String val) {

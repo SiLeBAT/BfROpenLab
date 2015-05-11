@@ -199,12 +199,12 @@ public class BackTraceGenerator {
 		String sql = "Select * from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("ID") + "=" + stationID;
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
-			return getStationLookup(rs, "Station");
+			return getStationLookup(rs);
 		}
 		return null;
 	}
-	private String getStationLookup(ResultSet rs, String sTable) throws SQLException {
-		String result = rs.getString(sTable + ".ID");// + ", ";
+	private String getStationLookup(ResultSet rs) throws SQLException {
+		String result = rs.getString("Station.Serial");// + ", ";
 		/*
 		if (rs.getObject(sTable + ".Name") != null) result += rs.getString(sTable + ".Name");
 		result += ", ";
@@ -288,8 +288,8 @@ public class BackTraceGenerator {
 				XSSFRow row = sheetTracing.getRow(0);
 				XSSFCell cell;
 				String sid = null;
-				if (rs.getObject("Station.ID") != null) {
-					sid = getStationLookup(rs, "Station");
+				if (rs.getObject("Station.Serial") != null) {
+					sid = getStationLookup(rs);
 					cell = row.getCell(1); cell.setCellValue(sid);
 					cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
 				}
@@ -313,8 +313,8 @@ public class BackTraceGenerator {
 				lotNumbers.add(ln);
 				
 				while (rs.next()) {
-					if (rs.getObject("Station.ID") == null) break;
-					String sl = getStationLookup(rs, "Station");
+					if (rs.getObject("Station.Serial") == null) break;
+					String sl = getStationLookup(rs);
 					if (!sl.equals(sid)) break;
 					rowIndex++;
 					row = copyRow(workbook, sheetTracing, 5, rowIndex);
@@ -390,7 +390,7 @@ public class BackTraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Station.ID") + "_" + rs.getString("Station.Name") + ".xlsx");
+				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx");
 				result++;
 				myxls.close();
 			} while (rs.next());
