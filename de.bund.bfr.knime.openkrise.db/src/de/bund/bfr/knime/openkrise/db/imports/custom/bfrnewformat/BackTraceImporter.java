@@ -172,7 +172,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 
 			DBKernel.sendRequest("COMMIT", false);
 			DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-			
+			/*
+			HashMap<Integer, String> hm = new HashMap<>(); 
 			for (Delivery d : deliveries.values()) { // ingredients.keySet()
 				HashSet<Delivery> ingredsDB = D2D.getIngredients(d.getLot().getDbId());
 				HashSet<Integer> ingredsExcel; 
@@ -180,15 +181,32 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				else ingredsExcel = new HashSet<Integer>(); 
 				for (Delivery dId : ingredsDB) {
 					if (!ingredsExcel.contains(dId.getDbId().intValue())) {
+						if (!hm.containsKey(d.getLot().getDbId())) {
+							String w = "All ingredients of lot number '" + d.getLot().getNumber() + "' of product '" + (d.getLot().getProduct() == null ? "..." : d.getLot().getProduct().getName()) + "':\n";
+							for (Delivery dId2 : ingredsDB) {
+								w += "Station: '" + dId2.getComment() + "' ,Product: '" + dId2.getId() + "' , Lot: '" + dId2.getTargetLotId() + "'\n";
+							}
+							w = w.substring(0, w.length() - 1) + "\nMissing delivery2delivery:\n";
+							hm.put(d.getLot().getDbId(), w);
+						}
+						hm.put(d.getLot().getDbId(), hm.get(d.getLot().getDbId()) + "'" + dId.getUnitUnit() + "' -> '" + d.getId() + "'\n");
+/*
 						logWarnings += "There is an ingredient (" + (dId.getId() == null ? "?" : dId.getId()) + ", Lot: " + dId.getTargetLotId() + ") undefined for lot '" + d.getLot().getNumber() + "', which is defined for that lot elsewhere...\n"+
 								"Maybe it is a typo in lot typing? Or did you forget to define that ingredient?\n"+
 								"Anyway, we assumed to integrate all ingredients to that lot.\n"+
 								"If that is different from what you intended, please correct the Excel sheet, reset database and try to import your data again!\n"+
 								"-> Delivery ID: '" + d.getId() + "' in '" + filename + "'\n\n";
+								*//*
 					}
 				}
 			}
-
+			if (hm.size() > 0) {
+				logWarnings += "In '" + filename + "':\n";
+				for (Integer ln : hm.keySet()) {
+					logWarnings += hm.get(ln) + "\n";
+				}
+			}
+*/
 			return true;
 		}
 		

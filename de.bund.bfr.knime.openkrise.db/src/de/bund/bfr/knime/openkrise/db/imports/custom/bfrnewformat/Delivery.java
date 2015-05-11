@@ -18,6 +18,13 @@ public class Delivery {
 		flexibles.put(key, value);
 	}
 	private Lot lot;
+	private String comment;
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 	public Lot getLot() {
 		return lot;
 	}
