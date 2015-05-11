@@ -40,7 +40,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.apache.poi"/>
    </requires>
 
    <plugin
@@ -127,6 +126,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="org.openstreetmap.josm"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.poi.new"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
