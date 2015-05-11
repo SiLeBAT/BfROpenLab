@@ -124,16 +124,16 @@ public class ImportAction extends AbstractAction {
 								dialog.setVisible(true);
 							}
 						}
-						else if (!warnings.isEmpty()) {
+						else if (!success) {
 							Font f = new Font("Arial", Font.PLAIN, 12);
-							InfoBox ib = new InfoBox(warnings, true, new Dimension(800, 400), f);
-							ib.setTitle("Import successful! But some warnings occurred, please check");
+							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
+							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);							
 						}
 						else {
 							Font f = new Font("Arial", Font.PLAIN, 12);
-							InfoBox ib = new InfoBox(errors, true, new Dimension(800, 400), f);
-							ib.setTitle("Errors occurred, please check and try again...");
+							InfoBox ib = new InfoBox(warnings, true, new Dimension(900, 500), f);
+							ib.setTitle("Import successful! But some warnings occurred, please check");
 							ib.setVisible(true);							
 						}						
 					}
