@@ -468,6 +468,12 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	private String getStr(Cell cell) {
+		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) return null;
+		cell.setCellType(Cell.CELL_TYPE_STRING);
+		String s = getStr(cell.getStringCellValue());
+		return s;
+	}
 	private Delivery getMultiOutDelivery(HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename) throws Exception {
 		if (row == null) return null;
 		Delivery result = new Delivery();
@@ -488,7 +494,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		Lot l = new Lot();
 		l.setProduct(p);
 		cell = row.getCell(3);
-		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
+		String str = getStr(cell);
+		if (str != null) {l.setNumber(str);}
 		else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n";}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
@@ -612,6 +619,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 	
 	private String getST(Exception e, boolean getTrace) {
 		String result = e.getMessage() + "\n";
+		if (getTrace)  result = e.toString() + "\n" + result;
 		if (getTrace) {
 			StackTraceElement[] ste = e.getStackTrace();
 			if (ste != null) {
@@ -671,7 +679,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 				} catch (Exception e) {
 					DBKernel.sendRequest("ROLLBACK", false);
 					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
+					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n\n";
 					MyLogger.handleException(e);
 					if (progress != null) progress.setVisible(false);
 					try {
@@ -688,7 +696,7 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
-			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
+			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + getST(e, false) + "\n\n";
 			MyLogger.handleException(e);
 		}
 		return null;
