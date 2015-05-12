@@ -390,7 +390,7 @@ public class BackTraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				save(workbook, outputFolder + "/Backtrace_request_" + rs.getInt("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx");
+				save(workbook, outputFolder + "/Backtrace_request_" + rs.getString("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx");
 				result++;
 				myxls.close();
 			} while (rs.next());
