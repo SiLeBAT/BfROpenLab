@@ -375,8 +375,8 @@ public class TracingViewSettings extends NodeSettings {
 
 		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
 
-		for (String id : collapsedNodes.keySet()) {
-			collapsed.put(id, collapsedNodes.get(id).keySet());
+		for (Map.Entry<String, Map<String, Point2D>> entry : collapsedNodes.entrySet()) {
+			collapsed.put(entry.getKey(), entry.getValue().keySet());
 		}
 
 		canvas.setCollapsedNodes(collapsed);

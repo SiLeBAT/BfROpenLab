@@ -199,8 +199,10 @@ public class Evaluator {
 			parser.addConstant(entry.getKey(), entry.getValue());
 		}
 
-		for (String var : functions.keySet()) {
-			fs[index] = parser.parse(functions.get(var));
+		for (Map.Entry<String, String> entry : functions.entrySet()) {
+			String var = entry.getKey();
+
+			fs[index] = parser.parse(entry.getValue());
 			valueVariables[index] = var;
 
 			if (initValues.containsKey(var)) {

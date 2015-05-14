@@ -124,9 +124,12 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		Map<String, Double> minStartValues = new LinkedHashMap<>();
 		Map<String, Double> maxStartValues = new LinkedHashMap<>();
 
-		for (String param : minimumFields.keySet()) {
-			minStartValues.put(param, minimumFields.get(param).getValue());
-			maxStartValues.put(param, maximumFields.get(param).getValue());
+		for (Map.Entry<String, DoubleTextField> entry : minimumFields.entrySet()) {
+			minStartValues.put(entry.getKey(), entry.getValue().getValue());
+		}
+
+		for (Map.Entry<String, DoubleTextField> entry : maximumFields.entrySet()) {
+			maxStartValues.put(entry.getKey(), entry.getValue().getValue());
 		}
 
 		set.setStepSize(isDiff ? stepSizeField.getValue() : Double.NaN);
@@ -273,9 +276,12 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 				expertPanel.setVisible(false);
 			}
 		} else if (e.getSource() == clearButton) {
-			for (String param : minimumFields.keySet()) {
-				minimumFields.get(param).setValue(null);
-				maximumFields.get(param).setValue(null);
+			for (DoubleTextField field : minimumFields.values()) {
+				field.setValue(null);
+			}
+
+			for (DoubleTextField field : maximumFields.values()) {
+				field.setValue(null);
 			}
 		}
 	}

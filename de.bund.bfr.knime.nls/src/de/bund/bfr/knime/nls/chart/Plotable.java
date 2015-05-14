@@ -30,6 +30,8 @@ import java.util.Map;
 
 import org.nfunk.jep.ParseException;
 
+import com.google.common.collect.Sets;
+
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.MathUtils;
@@ -463,8 +465,8 @@ public class Plotable {
 			for (int i = 0; i < n; i++) {
 				boolean containsNull = false;
 
-				for (String var : valueLists.keySet()) {
-					if (!MathUtils.isValidDouble(valueLists.get(var)[i])) {
+				for (double[] list : valueLists.values()) {
+					if (!MathUtils.isValidDouble(list[i])) {
 						containsNull = true;
 						break;
 					}
@@ -503,26 +505,19 @@ public class Plotable {
 	private Map<String, Double> createParserConstants(String varX) {
 		Map<String, Double> parserConstants = new LinkedHashMap<>();
 
-		for (String constant : constants.keySet()) {
-			if (constants.get(constant) == null) {
+		for (Map.Entry<String, Double> entry : Sets.union(constants.entrySet(),
+				parameters.entrySet())) {
+			if (entry.getValue() == null) {
 				return null;
 			}
 
-			parserConstants.put(constant, constants.get(constant));
-		}
-
-		for (String param : parameters.keySet()) {
-			if (parameters.get(param) == null) {
-				return null;
-			}
-
-			parserConstants.put(param, parameters.get(param));
+			parserConstants.put(entry.getKey(), entry.getValue());
 		}
 
 		if (type != Type.DATA_DIFF) {
-			for (String param : independentVariables.keySet()) {
-				if (!param.equals(varX)) {
-					parserConstants.put(param, independentVariables.get(param));
+			for (Map.Entry<String, Double> entry : independentVariables.entrySet()) {
+				if (!entry.getKey().equals(varX)) {
+					parserConstants.put(entry.getKey(), entry.getValue());
 				}
 			}
 		}
