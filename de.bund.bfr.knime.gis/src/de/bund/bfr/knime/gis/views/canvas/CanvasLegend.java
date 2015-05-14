@@ -164,21 +164,21 @@ public class CanvasLegend<V extends Node> {
 
 		g.setFont(legendFont);
 
-		for (String name : nodeLegend.keySet()) {
-			g.drawImage(nodeLegend.get(name), xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH,
-					legendHeight, null);
+		for (Map.Entry<String, Image> entry : nodeLegend.entrySet()) {
+			g.drawImage(entry.getValue(), xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight,
+					null);
 			g.setColor(Color.BLACK);
 			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.drawString(name, xNodeName, yNode + fontAscent);
+			g.drawString(entry.getKey(), xNodeName, yNode + fontAscent);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
-		for (String name : edgeLegend.keySet()) {
-			g.drawImage(edgeLegend.get(name), xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH,
-					legendHeight, null);
+		for (Map.Entry<String, Image> entry : edgeLegend.entrySet()) {
+			g.drawImage(entry.getValue(), xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight,
+					null);
 			g.setColor(Color.BLACK);
 			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
-			g.drawString(name, xEdgeName, yEdge + fontAscent);
+			g.drawString(entry.getKey(), xEdgeName, yEdge + fontAscent);
 			yEdge += legendHeight + LEGEND_DY;
 		}
 	}

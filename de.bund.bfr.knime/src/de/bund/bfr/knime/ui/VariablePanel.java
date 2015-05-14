@@ -98,13 +98,11 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		}
 
 		for (Map.Entry<String, List<Double>> entry : variables.entrySet()) {
-			List<Boolean> selected = new ArrayList<>(Collections.nCopies(entry.getValue().size(),
-					true));
+			String var = entry.getKey();
 
-			selectedValues.put(entry.getKey(), selected);
-		}
+			selectedValues.put(var,
+					new ArrayList<>(Collections.nCopies(entry.getValue().size(), true)));
 
-		for (String var : variables.keySet()) {
 			if (multiSelection) {
 				JButton selectButton = new JButton(var + " Values");
 
@@ -120,8 +118,8 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 				Double min = minValues.get(var);
 				Double max = maxValues.get(var);
 
-				if (!variables.get(var).isEmpty()) {
-					value = variables.get(var).get(0);
+				if (!entry.getValue().isEmpty()) {
+					value = entry.getValue().get(0);
 				}
 
 				if (value == null) {
@@ -199,11 +197,9 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 	}
 
 	public void setValues(Map<String, Double> values) {
-		for (String var : valueFields.keySet()) {
-			DoubleTextField field = valueFields.get(var);
-
-			if (values.containsKey(var)) {
-				field.setValue(values.get(var));
+		for (Map.Entry<String, DoubleTextField> entry : valueFields.entrySet()) {
+			if (values.containsKey(entry.getKey())) {
+				entry.getValue().setValue(values.get(entry.getKey()));
 			}
 		}
 	}

@@ -1065,9 +1065,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		Map<String, String> collapseTo = new LinkedHashMap<>();
 
-		for (String to : collapsedNodes.keySet()) {
-			for (String from : collapsedNodes.get(to)) {
-				collapseTo.put(from, to);
+		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
+			for (String from : entry.getValue()) {
+				collapseTo.put(from, entry.getKey());
 			}
 		}
 
@@ -1082,21 +1082,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			}
 		}
 
-		Set<V> metaNodes = new LinkedHashSet<>();
-
-		for (String newId : collapsedNodes.keySet()) {
+		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
+			String newId = entry.getKey();
 			V newNode = nodeSaveMap.get(newId);
 
 			if (newNode == null) {
-				Set<V> nodes = CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(newId));
-
-				newNode = createMetaNode(newId, nodes);
+				newNode = createMetaNode(newId,
+						CanvasUtils.getElementsById(nodeSaveMap, entry.getValue()));
 				nodeSaveMap.put(newId, newNode);
 			}
 
 			nodes.add(newNode);
-			nodesById.put(newNode.getId(), newNode);
-			metaNodes.add(newNode);
+			nodesById.put(newId, newNode);
 		}
 
 		for (Edge<V> edge : allEdges) {
