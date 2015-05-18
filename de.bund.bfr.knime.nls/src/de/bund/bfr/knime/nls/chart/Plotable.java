@@ -30,8 +30,6 @@ import java.util.Map;
 
 import org.nfunk.jep.ParseException;
 
-import com.google.common.collect.Sets;
-
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.MathUtils;
@@ -503,23 +501,18 @@ public class Plotable {
 	}
 
 	private Map<String, Double> createParserConstants(String varX) {
-		Map<String, Double> parserConstants = new LinkedHashMap<>();
-
-		for (Map.Entry<String, Double> entry : Sets.union(constants.entrySet(),
-				parameters.entrySet())) {
-			if (entry.getValue() == null) {
-				return null;
-			}
-
-			parserConstants.put(entry.getKey(), entry.getValue());
+		if (constants.values().contains(null) || parameters.values().contains(null)) {
+			return null;
 		}
 
+		Map<String, Double> parserConstants = new LinkedHashMap<>();
+
+		parserConstants.putAll(constants);
+		parserConstants.putAll(parameters);
+
 		if (type != Type.DATA_DIFF) {
-			for (Map.Entry<String, Double> entry : independentVariables.entrySet()) {
-				if (!entry.getKey().equals(varX)) {
-					parserConstants.put(entry.getKey(), entry.getValue());
-				}
-			}
+			parserConstants.putAll(independentVariables);
+			parserConstants.remove(varX);
 		}
 
 		return parserConstants;
