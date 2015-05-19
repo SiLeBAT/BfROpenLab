@@ -719,6 +719,6 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 
 	@Override
 	public String getDescription() {
-		return "Neue BfR-Lieferketten Datei (*.xlsx)";
+		return "Supply Chain Importer - BfR-formats (*.xlsx)";
 	}
 }

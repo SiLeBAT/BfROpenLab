@@ -154,7 +154,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	}
 
 	public String getDescription() {
-		return "Neue Lieferketten Datei (*.xls)";
+		return "Supply Chain Importer - EFSA-format (*.xls)";
 	}
 
 	private String getExtension(File f) {

@@ -90,7 +90,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 	}
 
 	public String getDescription() {
-		return "Excel Datei (*.xls)";
+		return "General Excel Importer (*.xls)";
 	}
 
 	private String getExtension(File f) {
