@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -116,7 +117,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		setTransform(Transform.IDENTITY_TRANSFORM);
+		Rectangle2D bounds = CanvasUtils.getBounds(getNodePositions(nodes).values());
+
+		if (bounds != null) {
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
+		} else {
+			super.resetLayoutItemClicked();
+		}
 	}
 
 	@Override
@@ -263,21 +270,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		} else {
 			setNodePositions(getNodePositions());
 		}
-	}
-
-	private Map<String, Point2D> getNodePositions(Collection<GraphNode> nodes) {
-		Map<String, Point2D> map = new LinkedHashMap<>();
-		Layout<GraphNode, Edge<GraphNode>> layout = viewer.getGraphLayout();
-
-		for (GraphNode node : nodes) {
-			Point2D pos = layout.transform(node);
-
-			if (pos != null) {
-				map.put(node.getId(), pos);
-			}
-		}
-
-		return map;
 	}
 
 	private void applyNewMetaNodePositions(Collection<String> metaIds) {

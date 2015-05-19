@@ -47,7 +47,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		Rectangle2D bounds = getRegionBounds(getRegions());
 
 		if (bounds != null) {
-			zoomTo(bounds);
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
 		} else {
 			super.resetLayoutItemClicked();
 		}

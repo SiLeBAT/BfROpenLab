@@ -28,6 +28,7 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.ByteArrayOutputStream;
@@ -97,6 +98,45 @@ public class CanvasUtils {
 			new Color(128, 255, 128), new Color(255, 128, 255), new Color(128, 255, 255) };
 
 	private CanvasUtils() {
+	}
+
+	public static Rectangle2D getBounds(Collection<Point2D> positions) {
+		Rectangle2D bounds = null;
+
+		for (Point2D p : positions) {
+			if (bounds == null) {
+				bounds = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
+			} else {
+				bounds.add(p);
+			}
+		}
+
+		return bounds;
+	}
+
+	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D polygonsBounds,
+			Double zoomStep) {
+		double widthRatio = canvasSize.width / polygonsBounds.getWidth();
+		double heightRatio = canvasSize.height / polygonsBounds.getHeight();
+		double canvasCenterX = canvasSize.width / 2.0;
+		double canvasCenterY = canvasSize.height / 2.0;
+		double polygonCenterX = polygonsBounds.getCenterX();
+		double polygonCenterY = polygonsBounds.getCenterY();
+
+		double scale = Math.min(widthRatio, heightRatio);
+
+		if (zoomStep != null) {
+			int zoom = (int) (Math.log(scale) / Math.log(2.0));
+
+			scale = Math.pow(2.0, zoom);
+		}
+
+		double scaleX = scale;
+		double scaleY = scale;
+		double translationX = canvasCenterX - polygonCenterX * scaleX;
+		double translationY = canvasCenterY - polygonCenterY * scaleY;
+
+		return new Transform(scaleX, scaleY, translationX, translationY);
 	}
 
 	public static List<HighlightCondition> createCategorialHighlighting(

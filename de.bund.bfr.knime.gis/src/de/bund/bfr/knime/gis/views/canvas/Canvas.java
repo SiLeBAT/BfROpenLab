@@ -32,6 +32,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -84,6 +85,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
@@ -1163,6 +1165,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				}
 			}
 		}
+	}
+
+	protected Map<String, Point2D> getNodePositions(Collection<V> nodes) {
+		Map<String, Point2D> map = new LinkedHashMap<>();
+		Layout<V, Edge<V>> layout = viewer.getGraphLayout();
+
+		for (V node : nodes) {
+			Point2D pos = layout.transform(node);
+
+			if (pos != null) {
+				map.put(node.getId(), pos);
+			}
+		}
+
+		return map;
 	}
 
 	protected HighlightListDialog openNodeHighlightDialog() {

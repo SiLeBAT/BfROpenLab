@@ -78,10 +78,10 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = LocationCanvasUtils.getBounds(nodes);
+		Rectangle2D bounds = CanvasUtils.getBounds(getNodePositions(nodes).values());
 
 		if (bounds != null) {
-			zoomTo(bounds);
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
 		} else {
 			super.resetLayoutItemClicked();
 		}

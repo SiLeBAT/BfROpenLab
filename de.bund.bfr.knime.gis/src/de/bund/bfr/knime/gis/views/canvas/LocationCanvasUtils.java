@@ -51,23 +51,6 @@ public class LocationCanvasUtils {
 	private LocationCanvasUtils() {
 	}
 
-	public static Rectangle2D getBounds(Collection<LocationNode> nodes) {
-		Rectangle2D bounds = null;
-
-		for (LocationNode node : nodes) {
-			Rectangle2D r = new Rectangle2D.Double(node.getCenter().getX(),
-					node.getCenter().getY(), 0, 0);
-
-			if (bounds == null) {
-				bounds = r;
-			} else {
-				bounds = bounds.createUnion(r);
-			}
-		}
-
-		return bounds;
-	}
-
 	public static void updateNodeLocations(Collection<LocationNode> nodes,
 			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize,
 			boolean avoidOverlay) {
@@ -141,11 +124,13 @@ public class LocationCanvasUtils {
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
 		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
 		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
+		List<Point2D> positions = new ArrayList<>();
 
 		for (LocationNode node : nodes) {
 			if (node.getCenter() != null) {
 				layout.setLocation(node, node.getCenter());
 				validNodes.add(node);
+				positions.add(node.getCenter());
 			} else {
 				invalidNodes.add(node);
 				invalidToValid.put(node, new LinkedHashSet<LocationNode>());
@@ -176,7 +161,7 @@ public class LocationCanvasUtils {
 		}
 
 		if (!invalidNodes.isEmpty()) {
-			Rectangle2D bounds = getBounds(validNodes);
+			Rectangle2D bounds = CanvasUtils.getBounds(positions);
 			double size = Math.max(bounds.getWidth(), bounds.getHeight());
 
 			if (size == 0.0) {
