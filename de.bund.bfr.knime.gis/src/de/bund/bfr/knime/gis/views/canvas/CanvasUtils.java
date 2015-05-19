@@ -567,6 +567,7 @@ public class CanvasUtils {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
+		double ab = backgroundColor.getAlpha() / 255.0;
 		List<Color> cs = new ArrayList<>();
 
 		for (int i = 0; i < colors.size(); i++) {
@@ -576,8 +577,9 @@ public class CanvasUtils {
 				double r = colors.get(i).getRed() / 255.0 * alpha + rb * (1 - alpha);
 				double g = colors.get(i).getGreen() / 255.0 * alpha + gb * (1 - alpha);
 				double b = colors.get(i).getBlue() / 255.0 * alpha + bb * (1 - alpha);
+				double a = colors.get(i).getAlpha() / 255.0 * alpha + ab * (1 - alpha);
 
-				cs.add(new Color((float) r, (float) g, (float) b));
+				cs.add(new Color((float) r, (float) g, (float) b, (float) a));
 			}
 		}
 
@@ -588,7 +590,7 @@ public class CanvasUtils {
 		}
 
 		BufferedImage img = new BufferedImage(cs.size() * TEXTURE_SIZE, 1,
-				BufferedImage.TYPE_INT_RGB);
+				BufferedImage.TYPE_INT_ARGB);
 
 		for (int i = 0; i < cs.size() * TEXTURE_SIZE; i++) {
 			img.setRGB(i, 0, cs.get(i / TEXTURE_SIZE).getRGB());

@@ -51,7 +51,6 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -69,7 +68,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 	private static final long serialVersionUID = 1L;
 
-	private static Color BUTTON_BACKGROUND = UIManager.getDefaults().getColor("Button.background");
+	private static Color BUTTON_BACKGROUND = new JButton().getBackground();
 
 	private static enum Type {
 		LOGICAL_CONDITION("Logical Condition"), APPLY_TO_ALL("Apply To All"), VALUE_CONDITION(
@@ -103,6 +102,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 	}
 
 	private Type type;
+	private Color color;
 	private Color lastColor;
 
 	private JComboBox<Type> conditionTypeBox;
@@ -207,8 +207,6 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		colorButton = new JButton("     ");
 		colorButton.setContentAreaFilled(false);
 		colorButton.setOpaque(true);
-		colorButton.setBackground(condition.getColor() != null ? condition.getColor()
-				: BUTTON_BACKGROUND);
 		colorButton.addActionListener(this);
 		colorBox = new JCheckBox("Use Color");
 		colorBox.setSelected(condition.getColor() != null);
@@ -222,6 +220,8 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		labelBox.insertItemAt("", 0);
 		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition
 				.getLabelProperty() : "");
+
+		setNewColor(condition.getColor());
 
 		JPanel optionsPanel = new JPanel();
 
@@ -370,11 +370,10 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			add(conditionPanel, BorderLayout.CENTER);
 			pack();
 		} else if (e.getSource() == colorButton) {
-			Color newColor = JColorChooser.showDialog(colorButton, "Choose Color",
-					colorButton.getBackground());
+			Color newColor = JColorChooser.showDialog(colorButton, "Choose Color", color);
 
 			if (newColor != null) {
-				colorButton.setBackground(newColor);
+				setNewColor(newColor);
 			}
 		} else if (e.getSource() == colorBox) {
 			updateOptionsPanel();
@@ -424,10 +423,6 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 	}
 
 	private void updateOptionsPanel() {
-		if (colorButton.getBackground() != BUTTON_BACKGROUND) {
-			lastColor = colorButton.getBackground();
-		}
-
 		if (allowInvisible && invisibleBox.isSelected()) {
 			colorBox.setEnabled(false);
 			thicknessBox.setEnabled(false);
@@ -439,11 +434,11 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		}
 
 		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
-			colorButton.setBackground(lastColor);
+			setNewColor(lastColor);
 			colorButton.setEnabled(true);
 			legendBox.setEnabled(!nameField.getText().isEmpty());
 		} else {
-			colorButton.setBackground(BUTTON_BACKGROUND);
+			setNewColor(null);
 			colorButton.setEnabled(false);
 			legendBox.setEnabled(false);
 		}
@@ -608,7 +603,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		String labelProperty = null;
 
 		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
-			color = colorButton.getBackground();
+			color = this.color;
 		}
 
 		if (allowLabel && !labelBox.getSelectedItem().equals("")) {
@@ -757,5 +752,27 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 		add(conditionPanel, BorderLayout.CENTER);
 		pack();
+	}
+
+	private void setNewColor(Color c) {
+		color = c;
+
+		if (c != null) {
+			lastColor = c;
+		}
+
+		if (c != null) {
+			double alpha = c.getAlpha() / 255.0;
+			double r = alpha * c.getRed() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getRed()
+					/ 255.0;
+			double g = alpha * c.getGreen() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getGreen()
+					/ 255.0;
+			double b = alpha * c.getBlue() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getBlue()
+					/ 255.0;
+
+			colorButton.setBackground(new Color((float) r, (float) g, (float) b));
+		} else {
+			colorButton.setBackground(BUTTON_BACKGROUND);
+		}
 	}
 }
