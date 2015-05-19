@@ -19,38 +19,42 @@
  *******************************************************************************/
 package de.bund.bfr.knime;
 
-import org.osgi.framework.BundleActivator;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
-public class Activator implements BundleActivator {
+/**
+ * This is the eclipse bundle activator. Note: KNIME node developers probably
+ * won't have to do anything in here, as this class is only needed by the
+ * eclipse platform/plugin mechanism. If you want to move/rename this file, make
+ * sure to change the plugin.xml file in the project root directory accordingly.
+ * 
+ * @author Christian Thoens
+ */
+public class Activator extends Plugin {
 
-	private static BundleContext context;
-
-	static BundleContext getContext() {
-		return context;
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * This method is called upon plug-in activation.
 	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-	 * )
+	 * @param context
+	 *            The OSGI bundle context
+	 * @throws Exception
+	 *             If this plugin could not be started
 	 */
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+	public void start(final BundleContext context) throws Exception {
+		super.start(context);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * This method is called when the plug-in is stopped.
 	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 * @param context
+	 *            The OSGI bundle context
+	 * @throws Exception
+	 *             If this plugin could not be stopped
 	 */
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+	public void stop(final BundleContext context) throws Exception {
+		super.stop(context);
 	}
-
 }

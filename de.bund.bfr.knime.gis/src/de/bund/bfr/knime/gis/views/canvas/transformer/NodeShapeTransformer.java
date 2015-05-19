@@ -50,7 +50,7 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 			factor = 0.0;
 		}
 
-		int size = (int) (this.size * (1 + factor / denom));
+		double size = Math.round(this.size * (1 + factor / denom));
 
 		return new Ellipse2D.Double(-size / 2, -size / 2, size, size);
 	}

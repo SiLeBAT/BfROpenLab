@@ -299,11 +299,11 @@ public class LocationCanvasUtils {
 	}
 
 	private static Point2D getClosestPointOnRect(Point2D pointInRect, Rectangle2D rect) {
-		Double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
-		Double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
-		Double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
-		Double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
-		Double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
+		double dx1 = Math.abs(pointInRect.getX() - rect.getMinX());
+		double dx2 = Math.abs(pointInRect.getX() - rect.getMaxX());
+		double dy1 = Math.abs(pointInRect.getY() - rect.getMinY());
+		double dy2 = Math.abs(pointInRect.getY() - rect.getMaxY());
+		double min = Collections.min(Arrays.asList(dx1, dx2, dy1, dy2));
 
 		if (dx1 == min) {
 			return new Point2D.Double(rect.getMinX(), pointInRect.getY());

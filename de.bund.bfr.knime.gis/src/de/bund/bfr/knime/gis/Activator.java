@@ -31,16 +31,9 @@ import org.osgi.framework.BundleContext;
  * @author Christian Thoens
  */
 public class Activator extends AbstractUIPlugin {
+
 	// The shared instance.
 	private static Activator plugin;
-
-	/**
-	 * The constructor.
-	 */
-	public Activator() {
-		super();
-		plugin = this;
-	}
 
 	/**
 	 * This method is called upon plug-in activation.
@@ -53,7 +46,7 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-
+		plugin = this;
 	}
 
 	/**
@@ -66,8 +59,8 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		super.stop(context);
 		plugin = null;
+		super.stop(context);
 	}
 
 	/**
@@ -78,5 +71,4 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
-
 }

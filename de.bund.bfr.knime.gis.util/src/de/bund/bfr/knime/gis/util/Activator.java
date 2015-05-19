@@ -31,16 +31,6 @@ import org.osgi.framework.BundleContext;
  * @author Christian Thoens
  */
 public class Activator extends Plugin {
-	// The shared instance.
-	private static Activator plugin;
-
-	/**
-	 * The constructor.
-	 */
-	public Activator() {
-		super();
-		plugin = this;
-	}
 
 	/**
 	 * This method is called upon plug-in activation.
@@ -53,7 +43,6 @@ public class Activator extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-
 	}
 
 	/**
@@ -67,16 +56,5 @@ public class Activator extends Plugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
-		plugin = null;
 	}
-
-	/**
-	 * Returns the shared instance.
-	 * 
-	 * @return Singleton instance of the Plugin
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
-
 }

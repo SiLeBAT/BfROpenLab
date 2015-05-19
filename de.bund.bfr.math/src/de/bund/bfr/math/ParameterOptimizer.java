@@ -22,6 +22,7 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -315,7 +316,13 @@ public class ParameterOptimizer {
 			}
 		}
 
-		Collections.sort(valuesList);
+		Collections.sort(valuesList, new Comparator<StartValues>() {
+
+			@Override
+			public int compare(StartValues o1, StartValues o2) {
+				return Double.compare(o1.getError(), o2.getError());
+			}
+		});
 
 		return valuesList.subList(0, n);
 	}
@@ -428,7 +435,7 @@ public class ParameterOptimizer {
 		}
 	}
 
-	private static class StartValues implements Comparable<StartValues> {
+	private static class StartValues {
 
 		private double[] values;
 		private double error;
@@ -442,9 +449,8 @@ public class ParameterOptimizer {
 			return values;
 		}
 
-		@Override
-		public int compareTo(StartValues o) {
-			return Double.compare(error, o.error);
+		public double getError() {
+			return error;
 		}
 	}
 
