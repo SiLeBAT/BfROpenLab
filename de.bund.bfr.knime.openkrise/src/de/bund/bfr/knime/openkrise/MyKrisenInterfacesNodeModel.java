@@ -511,8 +511,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, "Chargen", new String[] { "pd_day", "pd_month", "pd_year" })) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEMANU,
 				StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "Unitmenge")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "numPU")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "typePU")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
+		boolean acv = containsValues(conn, "Lieferungen", "numPU"); 
+		if (acv) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE).createSpec());
+		if (acv && containsValues(conn, "Lieferungen", "typePU")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Chargen", "OriginCountry")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, "Lieferungen", "Explanation_EndChain")) columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
