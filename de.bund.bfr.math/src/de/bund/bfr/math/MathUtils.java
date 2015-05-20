@@ -178,6 +178,8 @@ public class MathUtils {
 			parser.addDiffRule(new ZeroDiffRule(">="));
 			parser.addDiffRule(new ZeroDiffRule("&&"));
 			parser.addDiffRule(new ZeroDiffRule("||"));
+			parser.addDiffRule(new ZeroDiffRule("=="));
+			parser.addDiffRule(new ZeroDiffRule("!="));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
