@@ -98,6 +98,7 @@
       <plugin id="org.apache.lucene.analysis"/>
       <plugin id="org.apache.lucene.core"/>
       <plugin id="org.apache.poi"/>
+      <plugin id="org.apache.poi.new"/>
       <plugin id="org.apache.xalan"/>
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
