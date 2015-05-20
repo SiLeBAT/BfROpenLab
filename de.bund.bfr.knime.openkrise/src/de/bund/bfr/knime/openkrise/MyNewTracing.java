@@ -502,7 +502,6 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getSupplierID());
-					if (mdn.getMergedSupplierID() != null) result.add(mdn.getMergedSupplierID());
 				}
 			}
 		}
@@ -518,7 +517,6 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getRecipientID());
-					if (mdn.getMergedRecipientID() != null) result.add(mdn.getMergedRecipientID());
 				}
 			}
 		}
@@ -533,7 +531,6 @@ public class MyNewTracing {
 				for (Integer i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					if (caseStations.containsKey(mdn.getRecipientID())) result.add(mdn.getRecipientID());
-					if (mdn.getMergedRecipientID() != null && caseStations.containsKey(mdn.getMergedRecipientID())) result.add(mdn.getMergedRecipientID());
 				}
 			}
 		}

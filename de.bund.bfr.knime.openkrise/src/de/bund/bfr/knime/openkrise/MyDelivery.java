@@ -25,7 +25,6 @@ public class MyDelivery {
 
 	private int id;
 	private int supplierID, recipientID;
-	private Integer mergedSupplierID, mergedRecipientID;
 	private Integer deliveryDay;
 	private Integer deliveryMonth;
 	private Integer deliveryYear;
@@ -40,8 +39,6 @@ public class MyDelivery {
 		this.id = id;
 		this.supplierID = supplierID;
 		this.recipientID = recipientID;
-		this.mergedSupplierID = null;
-		this.mergedRecipientID = null;
 		this.deliveryDay = deliveryDay;
 		this.deliveryMonth = deliveryMonth;
 		this.deliveryYear = deliveryYear;
@@ -82,21 +79,6 @@ public class MyDelivery {
 	public int getRecipientID() {
 		return recipientID;
 	}
-	public Integer getMergedSupplierID() {
-		return mergedSupplierID;
-	}
-
-	public void setMergedSupplierID(Integer mergedSupplierID) {
-		this.mergedSupplierID = mergedSupplierID;
-	}
-
-	public Integer getMergedRecipientID() {
-		return mergedRecipientID;
-	}
-
-	public void setMergedRecipientID(Integer mergedRecipientID) {
-		this.mergedRecipientID = mergedRecipientID;
-	}
 	public int getId() {
 		return id;
 	}
@@ -121,23 +103,11 @@ public class MyDelivery {
 	public void setDeliveryYear(Integer deliveryYear) {
 		this.deliveryYear = deliveryYear;
 	}
-
-	public void removeNext(Integer nextID) {
-		if (nextID == null) System.err.println("next = null...");
-		else {
-			allNextIDs.remove(nextID);
-		}
-	}
+	
 	public void addNext(Integer nextID) {
 		if (nextID == null) System.err.println("next = null...");
 		else {
 			allNextIDs.add(nextID);
-		}
-	}
-	public void removePrevious(Integer previousID) {
-		if (previousID == null) System.err.println("previous = null...");
-		else {
-			allPreviousIDs.remove(previousID);
 		}
 	}
 	public void addPrevious(Integer previousID) {
