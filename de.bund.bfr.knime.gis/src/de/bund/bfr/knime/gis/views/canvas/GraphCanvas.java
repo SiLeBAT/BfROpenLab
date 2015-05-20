@@ -239,34 +239,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 
 			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
-		} else {
+		} else if (!nodes.isEmpty()) {
 			layout.setSize(viewer.getSize());
 			setTransform(Transform.IDENTITY_TRANSFORM);
+		} else {
+			return;
 		}
 
 		viewer.setGraphLayout(layout);
 
 		if (layout instanceof IterativeContext) {
-			final IterativeContext layoutProcess = (IterativeContext) layout;
-
-			new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					while (true) {
-						if (layoutProcess.done()) {
-							setNodePositions(getNodePositions());
-							break;
-						}
-
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}).start();
+			new Thread(new LayoutThread((IterativeContext) layout,
+					!selectedNodes.isEmpty() ? selectedNodes : nodes)).start();
 		} else {
 			setNodePositions(getNodePositions());
 		}
@@ -289,6 +273,51 @@ public class GraphCanvas extends Canvas<GraphNode> {
 						diff);
 
 				viewer.getGraphLayout().setLocation(newNode, newPos);
+			}
+		}
+	}
+
+	private class LayoutThread implements Runnable {
+
+		private IterativeContext layoutProcess;
+		private Set<GraphNode> usedNodes;
+		private Transform lastTransform;
+		private boolean transformedByUser;
+
+		public LayoutThread(IterativeContext layoutProcess, Set<GraphNode> usedNodes) {
+			this.layoutProcess = layoutProcess;
+			this.usedNodes = usedNodes;
+			lastTransform = getTransform();
+			transformedByUser = false;
+		}
+
+		@Override
+		public void run() {
+			while (true) {
+				if (!transformedByUser) {
+					Rectangle2D bounds = CanvasUtils
+							.getBounds(getNodePositions(usedNodes).values());
+					Transform newTransform = CanvasUtils.getTransformForBounds(getCanvasSize(),
+							bounds, null);
+
+					if (getTransform().equals(lastTransform)) {
+						setTransform(newTransform);
+						lastTransform = newTransform;
+					} else {
+						transformedByUser = true;
+					}
+				}
+
+				if (layoutProcess.done()) {
+					setNodePositions(getNodePositions());
+					break;
+				}
+
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

@@ -119,4 +119,16 @@ public class Transform {
 
 		return new java.awt.Polygon(xs, ys, n);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Transform) {
+			Transform t = (Transform) obj;
+
+			return scaleX == t.scaleX && scaleY == t.scaleY && translationX == t.translationX
+					&& translationY == t.translationY;
+		}
+
+		return false;
+	}
 }
