@@ -102,9 +102,7 @@ public class TracingParametersNodeModel extends NodeModel {
 				skippedEdgeRows);
 		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
-		MyNewTracing tracing = new MyNewTracing(deliveries, new LinkedHashMap<Integer, Double>(),
-				new LinkedHashMap<Integer, Double>(), new LinkedHashSet<Integer>(),
-				new LinkedHashSet<Integer>(), 0);
+		MyNewTracing tracing = new MyNewTracing(deliveries);
 
 		for (RowKey key : skippedEdgeRows) {
 			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");

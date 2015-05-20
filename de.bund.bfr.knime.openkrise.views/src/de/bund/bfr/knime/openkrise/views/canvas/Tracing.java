@@ -424,9 +424,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			activeDeliveries.put(getIntegerId(id), deliveries.get(getIntegerId(id)));
 		}
 
-		MyNewTracing tracing = new MyNewTracing(activeDeliveries,
-				new LinkedHashMap<Integer, Double>(), new LinkedHashMap<Integer, Double>(),
-				new LinkedHashSet<Integer>(), new LinkedHashSet<Integer>(), 0.0);
+		MyNewTracing tracing = new MyNewTracing(activeDeliveries);
 
 		for (String id : canvas.getCollapsedNodes().keySet()) {
 			Set<String> nodeIdStrings = canvas.getCollapsedNodes().get(id);

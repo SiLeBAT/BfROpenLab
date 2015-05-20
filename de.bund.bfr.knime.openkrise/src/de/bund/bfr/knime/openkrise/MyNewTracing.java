@@ -46,13 +46,13 @@ public class MyNewTracing {
 	private double caseSum = 0;
 	private boolean enforceTemporalOrder = false;
 	
-	public MyNewTracing(HashMap<Integer, MyDelivery> allDeliveries, HashMap<Integer, Double> caseStations, HashMap<Integer, Double> caseDeliveries, HashSet<Integer> ccStations, HashSet<Integer> ccDeliveries, double caseSum) {
+	public MyNewTracing(HashMap<Integer, MyDelivery> allDeliveries) {
 		this.allDeliveries = getClone(allDeliveries);
-		this.caseStations = caseStations;
-		this.ccStations = ccStations;
-		this.caseDeliveries = caseDeliveries;
-		this.ccDeliveries = ccDeliveries;
-		this.caseSum = caseSum;
+		this.caseStations = new HashMap<>();
+		this.ccStations = new HashSet<>();
+		this.caseDeliveries = new HashMap<>();
+		this.ccDeliveries = new HashSet<>();
+		this.caseSum = 0;
 		removeEmptyIds(this.allDeliveries);
 	}
 	public HashMap<Integer, MyDelivery> getAllDeliveries() {

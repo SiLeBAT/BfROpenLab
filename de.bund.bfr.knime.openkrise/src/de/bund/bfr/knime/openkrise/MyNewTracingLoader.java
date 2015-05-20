@@ -23,46 +23,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 
-import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class MyNewTracingLoader {
 
-	private static HashMap<Integer, MyDelivery> allDeliveries;
-	private static HashMap<Integer, Double> caseStations = null;
-	private static HashSet<Integer> ccStations = null;
-	private static double caseSum = 0;
+	private static HashMap<Integer, MyDelivery> allDeliveries;	
 
 	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
-		// Zeroly: get all cases
-		caseStations = new HashMap<>();
-		ccStations = new HashSet<>();
-		//ccDeliveries = new HashSet<Integer>();
-		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CasePriority") + " FROM " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("CasePriority") + " > 0";
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-			caseSum = 0;
-			if (rs != null && rs.first()) {
-				do {
-					double cp = rs.getDouble("CasePriority");
-					if (cp < 0) cp = 0;
-					//if (cp > 1) cp = 1;
-					caseStations.put(rs.getInt("ID"), cp);
-					caseSum += cp;
-				} while (rs.next());
-			}
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-
 		allDeliveries = new HashMap<>();		
 		// Firstly: get all deliveries
-		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") +
+		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") +
 				" FROM " + DBKernel.delimitL("Lieferungen") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
@@ -106,7 +78,7 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 		
-		MyNewTracing mnt = new MyNewTracing(allDeliveries, caseStations, null, ccStations, null, caseSum);
+		MyNewTracing mnt = new MyNewTracing(allDeliveries);
 		return mnt;
 	}
 }
