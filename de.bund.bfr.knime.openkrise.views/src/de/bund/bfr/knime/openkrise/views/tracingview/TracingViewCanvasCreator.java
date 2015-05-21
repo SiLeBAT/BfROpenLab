@@ -163,7 +163,7 @@ public class TracingViewCanvasCreator {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		HashMap<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges,
 				nodeSchema, edgeSchema, deliveries);
@@ -182,7 +182,7 @@ public class TracingViewCanvasCreator {
 				invalidRows, false);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		HashMap<Integer, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		ITracingCanvas<?> canvas;
 

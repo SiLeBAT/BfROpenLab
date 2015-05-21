@@ -29,9 +29,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -46,7 +44,6 @@ import javax.swing.JSeparator;
 
 import com.google.common.base.Joiner;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -77,7 +74,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
-	private Map<Integer, MyDelivery> deliveries;
+	private Map<String, MyDelivery> deliveries;
 
 	private boolean performTracing;
 
@@ -87,7 +84,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 	public Tracing(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap, Map<Edge<V>, Set<Edge<V>>> joinMap,
-			Map<Integer, MyDelivery> deliveries) {
+			Map<String, MyDelivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
@@ -372,18 +369,18 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 				canvas.getEdgeHighlightConditions()));
 		removedEdges.addAll(CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes()));
 
-		Set<Integer> forwardEdges = new LinkedHashSet<>();
+		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.addAll(tracingWithCC.getForwardDeliveries2(getIntegerId(edge)));
+			forwardEdges.addAll(tracingWithCC.getForwardDeliveries2(edge.getId()));
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveries2(getIntegerId(edge)));
+			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveries2(edge.getId()));
 		}
 
 		for (Edge<V> edge : removedEdges) {
-			if (forwardEdges.contains(getIntegerId(edge))) {
+			if (forwardEdges.contains(edge.getId())) {
 				canvas.getNodes().add(edge.getFrom());
 				canvas.getNodes().add(edge.getTo());
 				canvas.getEdges().add(edge);
@@ -418,63 +415,54 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	}
 
 	private MyNewTracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
-		HashMap<Integer, MyDelivery> activeDeliveries = new HashMap<>();
+		HashMap<String, MyDelivery> activeDeliveries = new HashMap<>();
 
-		for (Edge<V> id : edges) {
-			activeDeliveries.put(getIntegerId(id), deliveries.get(getIntegerId(id)));
+		for (Edge<V> edge : edges) {
+			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));
 		}
 
 		MyNewTracing tracing = new MyNewTracing(activeDeliveries);
 
-		for (String id : canvas.getCollapsedNodes().keySet()) {
-			Set<String> nodeIdStrings = canvas.getCollapsedNodes().get(id);
-			Set<Integer> nodeIds = new LinkedHashSet<>();
-
-			for (String idString : nodeIdStrings) {
-				nodeIds.add(Integer.parseInt(idString));
-			}
-
-			tracing.mergeStations(nodeIds, createId(nodeIdStrings));
+		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
+			tracing.mergeStations(entry.getValue(), entry.getKey());
 		}
 
 		for (V node : canvas.getNodes()) {
-			int id = getIntegerId(node, canvas.getCollapsedNodes());
 			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
-				tracing.setCase(id, caseValue);
+				tracing.setCase(node.getId(), caseValue);
 			} else {
-				tracing.setCase(id, 0.0);
+				tracing.setCase(node.getId(), 0.0);
 			}
 
 			if (useCrossContamination) {
 				if (contaminationValue != null) {
-					tracing.setCrossContamination(id, contaminationValue);
+					tracing.setCrossContamination(node.getId(), contaminationValue);
 				} else {
-					tracing.setCrossContamination(id, false);
+					tracing.setCrossContamination(node.getId(), false);
 				}
 			}
 		}
 
 		for (Edge<V> edge : edges) {
-			int id = getIntegerId(edge);
 			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
 			Boolean contaminationValue = (Boolean) edge.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
-				tracing.setCaseDelivery(id, caseValue);
+				tracing.setCaseDelivery(edge.getId(), caseValue);
 			} else {
-				tracing.setCaseDelivery(id, 0.0);
+				tracing.setCaseDelivery(edge.getId(), 0.0);
 			}
 
 			if (useCrossContamination) {
 				if (contaminationValue != null) {
-					tracing.setCrossContaminationDelivery(id, contaminationValue);
+					tracing.setCrossContaminationDelivery(edge.getId(), contaminationValue);
 				} else {
-					tracing.setCrossContaminationDelivery(id, false);
+					tracing.setCrossContaminationDelivery(edge.getId(), false);
 				}
 			}
 		}
@@ -501,49 +489,43 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 		MyNewTracing tracing = createTracing(edges, true);
 
-		Set<Integer> backwardNodes = new LinkedHashSet<>();
-		Set<Integer> forwardNodes = new LinkedHashSet<>();
-		Set<Integer> backwardEdges = new LinkedHashSet<>();
-		Set<Integer> forwardEdges = new LinkedHashSet<>();
+		Set<String> backwardNodes = new LinkedHashSet<>();
+		Set<String> forwardNodes = new LinkedHashSet<>();
+		Set<String> backwardEdges = new LinkedHashSet<>();
+		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (V node : canvas.getNodes()) {
-			int id = getIntegerId(node, canvas.getCollapsedNodes());
 			Boolean value = (Boolean) node.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations(id));
-				forwardNodes.addAll(tracing.getForwardStations(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+				backwardNodes.addAll(tracing.getBackwardStations(node.getId()));
+				forwardNodes.addAll(tracing.getForwardStations(node.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveries(node.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveries(node.getId()));
 			}
 		}
 
 		for (Edge<V> edge : edges) {
-			int id = getIntegerId(edge);
 			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations2(id));
-				forwardNodes.addAll(tracing.getForwardStations2(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+				backwardNodes.addAll(tracing.getBackwardStations2(edge.getId()));
+				forwardNodes.addAll(tracing.getForwardStations2(edge.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveries2(edge.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveries2(edge.getId()));
 			}
 		}
 
 		for (V node : canvas.getNodes()) {
-			int id = getIntegerId(node, canvas.getCollapsedNodes());
-
-			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(id));
-			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(id));
-			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(id));
+			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(node.getId()));
+			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(node.getId()));
+			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(node.getId()));
 		}
 
 		for (Edge<V> edge : edges) {
-			int id = getIntegerId(edge);
-
-			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(id));
-			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(id));
-			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(id));
+			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
+			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
 		}
 
 		if (canvas.isJoinEdges()) {
@@ -580,22 +562,6 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 
 	private static boolean nullToFalse(Boolean value) {
 		return value == null ? false : value;
-	}
-
-	private static <V extends Node> int getIntegerId(V node, Map<String, Set<String>> collapsedNodes) {
-		if (collapsedNodes.containsKey(node.getId())) {
-			return createId(collapsedNodes.get(node.getId()));
-		} else {
-			return Integer.parseInt(node.getId());
-		}
-	}
-
-	private static <V extends Node> int getIntegerId(Edge<V> edge) {
-		return Integer.parseInt(edge.getId());
-	}
-
-	private static int createId(Collection<String> c) {
-		return KnimeUtils.listToString(new ArrayList<>(c)).hashCode();
 	}
 
 	public static class HighlightChecker implements HighlightConditionChecker {

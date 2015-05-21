@@ -23,33 +23,32 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MyHashSet<T> extends HashSet<T> {
+public class MyHashSet extends HashSet<String> {
 
 	final static int FD = 4;
 	final static int BD = 5;
 
-	private Set<Integer> furtherIds = new HashSet<>();
+	private Set<String> furtherIds = new HashSet<>();
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2199772191561806909L;
 
-	public boolean containsId(Integer id) {
+	public boolean containsId(String id) {
 		return furtherIds.contains(id);
 	}
 
-	public void addId(Integer id) {
+	public void addId(String id) {
 		furtherIds.add(id);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void merge(Map<Integer, MyDelivery> allDeliveries, int type) {
-		for (Integer i : furtherIds) {
+	public void merge(Map<String, MyDelivery> allDeliveries, int type) {
+		for (String i : furtherIds) {
 			MyDelivery dd = allDeliveries.get(i);
 			if (type == FD && dd.getForwardDeliveries() != null)
-				this.addAll((HashSet<T>) dd.getForwardDeliveries());
+				this.addAll(dd.getForwardDeliveries());
 			else if (type == BD && dd.getBackwardDeliveries() != null)
-				this.addAll((HashSet<T>) dd.getBackwardDeliveries());
+				this.addAll(dd.getBackwardDeliveries());
 		}
 		furtherIds.clear();
 	}

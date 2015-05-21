@@ -275,7 +275,7 @@ public class TracingUtils {
 		return edges;
 	}
 
-	public static <V extends Node> HashMap<Integer, MyDelivery> readDeliveries(
+	public static <V extends Node> HashMap<String, MyDelivery> readDeliveries(
 			BufferedDataTable tracingTable, Collection<Edge<V>> edges, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		DataTableSpec dataSpec = tracingTable.getSpec();
@@ -295,22 +295,21 @@ public class TracingUtils {
 					+ " or downloading an up-to-date workflow.");
 		}
 
-		HashMap<Integer, MyDelivery> deliveries = new HashMap<>();
+		HashMap<String, MyDelivery> deliveries = new HashMap<>();
 
 		for (Edge<V> edge : edges) {
-			int id = Integer.parseInt(edge.getId());
-			int from = Integer.parseInt(edge.getFrom().getId());
-			int to = Integer.parseInt(edge.getTo().getId());
 			String date = (String) edge.getProperties().get(TracingColumns.DELIVERY_DATE);
-			MyDelivery delivery = new MyDelivery(id, from, to, getDay(date), getMonth(date),
-					getYear(date));
+			MyDelivery delivery = new MyDelivery(edge.getId(), edge.getFrom().getId(), edge.getTo()
+					.getId(), getDay(date), getMonth(date), getYear(date));
 
-			deliveries.put(id, delivery);
+			deliveries.put(edge.getId(), delivery);
 		}
 
 		for (DataRow row : tracingTable) {
-			int id = IO.getInt(row.getCell(dataSpec.findColumnIndex(TracingColumns.ID)));
-			int next = IO.getInt(row.getCell(dataSpec.findColumnIndex(TracingColumns.NEXT)));
+			String id = IO
+					.getToCleanString(row.getCell(dataSpec.findColumnIndex(TracingColumns.ID)));
+			String next = IO.getToCleanString(row.getCell(dataSpec
+					.findColumnIndex(TracingColumns.NEXT)));
 
 			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
 				skippedRows.add(row.getKey());
@@ -355,16 +354,6 @@ public class TracingUtils {
 		}
 
 		return nodes;
-	}
-
-	public static Set<String> toString(Set<?> set) {
-		Set<String> stringSet = new LinkedHashSet<>();
-
-		for (Object o : set) {
-			stringSet.add(o.toString());
-		}
-
-		return stringSet;
 	}
 
 	private static void addToProperties(Map<String, Object> properties, PropertySchema schema,

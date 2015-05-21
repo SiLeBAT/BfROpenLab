@@ -44,12 +44,12 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<Integer, MyDelivery>());
+				new LinkedHashMap<String, MyDelivery>());
 	}
 
 	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			Map<Integer, MyDelivery> deliveries) {
+			Map<String, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, true);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}

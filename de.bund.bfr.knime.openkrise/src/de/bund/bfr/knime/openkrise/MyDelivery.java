@@ -24,19 +24,19 @@ import java.util.Set;
 
 public class MyDelivery {
 
-	private int id;
-	private int supplierID, recipientID;
+	private String id;
+	private String supplierID, recipientID;
 	private Integer deliveryDay;
 	private Integer deliveryMonth;
 	private Integer deliveryYear;
 
-	private Set<Integer> allNextIDs;
-	private Set<Integer> allPreviousIDs;
+	private Set<String> allNextIDs;
+	private Set<String> allPreviousIDs;
 
-	private MyHashSet<Integer> forwardDeliveries;
-	private MyHashSet<Integer> backwardDeliveries;
+	private MyHashSet forwardDeliveries;
+	private MyHashSet backwardDeliveries;
 
-	public MyDelivery(int id, int supplierID, int recipientID, Integer deliveryDay,
+	public MyDelivery(String id, String supplierID, String recipientID, Integer deliveryDay,
 			Integer deliveryMonth, Integer deliveryYear) {
 		this.id = id;
 		this.supplierID = supplierID;
@@ -49,47 +49,47 @@ public class MyDelivery {
 		allPreviousIDs = new HashSet<>();
 	}
 
-	public Set<Integer> getAllNextIDs() {
+	public Set<String> getAllNextIDs() {
 		return allNextIDs;
 	}
 
-	public Set<Integer> getAllPreviousIDs() {
+	public Set<String> getAllPreviousIDs() {
 		return allPreviousIDs;
 	}
 
-	public MyHashSet<Integer> getForwardDeliveries() {
+	public MyHashSet getForwardDeliveries() {
 		return forwardDeliveries;
 	}
 
-	public void setForwardDeliveries(MyHashSet<Integer> forwardDeliveries) {
+	public void setForwardDeliveries(MyHashSet forwardDeliveries) {
 		this.forwardDeliveries = forwardDeliveries;
 	}
 
-	public MyHashSet<Integer> getBackwardDeliveries() {
+	public MyHashSet getBackwardDeliveries() {
 		return backwardDeliveries;
 	}
 
-	public void setBackwardDeliveries(MyHashSet<Integer> backwardDeliveries) {
+	public void setBackwardDeliveries(MyHashSet backwardDeliveries) {
 		this.backwardDeliveries = backwardDeliveries;
 	}
 
-	public void setSupplierID(int supplierID) {
+	public void setSupplierID(String supplierID) {
 		this.supplierID = supplierID;
 	}
 
-	public void setRecipientID(int recipientID) {
+	public void setRecipientID(String recipientID) {
 		this.recipientID = recipientID;
 	}
 
-	public int getSupplierID() {
+	public String getSupplierID() {
 		return supplierID;
 	}
 
-	public int getRecipientID() {
+	public String getRecipientID() {
 		return recipientID;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 

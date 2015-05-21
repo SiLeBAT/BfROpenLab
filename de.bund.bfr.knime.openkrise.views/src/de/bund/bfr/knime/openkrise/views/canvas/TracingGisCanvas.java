@@ -45,12 +45,12 @@ public class TracingGisCanvas extends LocationCanvas implements ITracingCanvas<L
 	public TracingGisCanvas() {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(), new ArrayList<RegionNode>(),
-				new LinkedHashMap<Integer, MyDelivery>());
+				new LinkedHashMap<String, MyDelivery>());
 	}
 
 	public TracingGisCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			List<RegionNode> regions, Map<Integer, MyDelivery> deliveries) {
+			List<RegionNode> regions, Map<String, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, regions);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}

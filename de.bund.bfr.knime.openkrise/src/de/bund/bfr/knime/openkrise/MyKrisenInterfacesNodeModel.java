@@ -187,7 +187,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				boolean isBVLFormat = false;
 				DataTableSpec spec = output33Nodes.getTableSpec();
 				do {
-					int stationID = rs.getInt("ID");
+					String stationID = rs.getObject("ID").toString();
 					String district = null;
 					String bll = clean(rs.getString("Bundesland"));
 					if (rowNumber == 0 && bll != null && (bll.equals("Altenburger Land") || bll.equals("Wesel"))) isBVLFormat = true;
@@ -202,14 +202,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 						else country = "DE";
 					}
 					String bl = getBL(bll);
-					String company = (rs.getObject("Name") == null || (doAnonymize && stationID < 100000)) ? getAnonymizedStation(bl, stationID, country)
+					String company = (rs.getObject("Name") == null || doAnonymize) ? getAnonymizedStation(bl, stationID.hashCode(), country)
 							: clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
 					//if (rs.getObject("Land") != null && clean(rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 					//id2Code.put(stationID, company);
 					RowKey key = RowKey.createRowKey(rowNumber);
 					DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-					fillCell(spec, cells, TracingColumns.ID, new IntCell(stationID));
+					fillCell(spec, cells, TracingColumns.ID, new StringCell(stationID));
 
 					fillCell(spec, cells, TracingColumns.STATION_NODE, new StringCell(company));
 					fillCell(spec, cells, TracingColumns.STATION_NAME, new StringCell(company));
@@ -278,17 +278,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				int rowNumber = 0;
 				DataTableSpec spec = output33Links.getTableSpec();
 				do {
-					int lieferID = rs.getInt("Lieferungen.ID");
-					int id1 = rs.getInt("Produktkatalog.Station");
-					int id2 = rs.getInt("Lieferungen.Empfänger");
-					int from = id1;
-					int to = id2;
+					String lieferID = rs.getObject("Lieferungen.ID").toString();
+					String id1 = rs.getObject("Produktkatalog.Station").toString();
+					String id2 = rs.getObject("Lieferungen.Empfänger").toString();
+					String from = id1;
+					String to = id2;
 					RowKey key = RowKey.createRowKey(rowNumber);
 					DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-					fillCell(spec, cells, TracingColumns.ID, new IntCell(lieferID));
-					fillCell(spec, cells, TracingColumns.FROM, new IntCell(from));
-					fillCell(spec, cells, TracingColumns.TO, new IntCell(to));
+					fillCell(spec, cells, TracingColumns.ID, new StringCell(lieferID));
+					fillCell(spec, cells, TracingColumns.FROM, new StringCell(from));
+					fillCell(spec, cells, TracingColumns.TO, new StringCell(to));
 
 					fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNAME, getDataStringCell(rs, "Bezeichnung"));
 					fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNUM, doAnonymize ? DataType.getMissingCell() : getDataStringCell(rs, "Artikelnummer"));
@@ -350,7 +350,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			int i = 0;
 
 			for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
-				for (int next : delivery.getAllNextIDs()) {
+				for (String next : delivery.getAllNextIDs()) {
 					deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));
 					i++;
 				}
@@ -444,14 +444,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataTableSpec getDataModelSpec() {
 		DataColumnSpec[] spec = new DataColumnSpec[2];
-		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec();
-		spec[1] = new DataColumnSpecCreator(TracingColumns.NEXT, IntCell.TYPE).createSpec();
+		spec[0] = new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec();
+		spec[1] = new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec();
 		return new DataTableSpec(spec);
 	}
 
 	private DataTableSpec getSpec33Nodes(Connection conn) {
 		List<DataColumnSpec> columns = new ArrayList<>();
-		columns.add(new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NODE, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
@@ -495,9 +495,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private DataTableSpec getSpec33Links(Connection conn) {
 		List<DataColumnSpec> columns = new ArrayList<>();
-		columns.add(new DataColumnSpecCreator(TracingColumns.ID, IntCell.TYPE).createSpec());
-		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, IntCell.TYPE).createSpec());
-		columns.add(new DataColumnSpecCreator(TracingColumns.TO, IntCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNUM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATE, StringCell.TYPE).createSpec());

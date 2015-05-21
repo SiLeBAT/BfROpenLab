@@ -44,12 +44,12 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanva
 	public TracingOsmCanvas() {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<Integer, MyDelivery>());
+				new LinkedHashMap<String, MyDelivery>());
 	}
 
 	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			Map<Integer, MyDelivery> deliveries) {
+			Map<String, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING);
 		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
