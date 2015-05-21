@@ -736,6 +736,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void highlightEdgeCategoriesItemClicked() {
+		String[] properties = edgeSchema.getMap().keySet().toArray(new String[0]);
+		String result = (String) JOptionPane.showInputDialog(this,
+				"Select Property with Categories?", "Highlight Categories",
+				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+
+		if (result != null) {
+			HighlightConditionList newHighlighting = new HighlightConditionList(
+					edgeHighlightConditions);
+
+			newHighlighting.getConditions().addAll(
+					CanvasUtils.createCategorialHighlighting(edges, result));
+			setEdgeHighlightConditions(newHighlighting);
+		}
+	}
+
+	@Override
 	public void selectNodesItemClicked() {
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodeSaveMap.values()));

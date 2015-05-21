@@ -59,6 +59,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	private JMenuItem selectHighlightedNodesItem;
 	private JMenuItem selectHighlightedEdgesItem;
 	private JMenuItem highlightNodeCategoriesItem;
+	private JMenuItem highlightEdgeCategoriesItem;
 	private JMenuItem selectNodesItem;
 	private JMenuItem selectEdgesItem;
 	private JMenuItem nodePropertiesItem;
@@ -121,6 +122,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			edgeHighlightMenu.add(highlightEdgesItem);
 			edgeHighlightMenu.add(clearHighlightedEdgesItem);
 			edgeHighlightMenu.add(selectHighlightedEdgesItem);
+			edgeHighlightMenu.add(highlightEdgeCategoriesItem);
 
 			add(nodeHighlightMenu);
 			add(edgeHighlightMenu);
@@ -236,6 +238,10 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 			for (ClickListener l : listeners) {
 				l.highlightNodeCategoriesItemClicked();
 			}
+		} else if (e.getSource() == highlightEdgeCategoriesItem) {
+			for (ClickListener l : listeners) {
+				l.highlightEdgeCategoriesItemClicked();
+			}
 		} else if (e.getSource() == selectNodesItem) {
 			for (ClickListener l : listeners) {
 				l.selectNodesItemClicked();
@@ -334,6 +340,8 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		clearHighlightedEdgesItem.addActionListener(this);
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
 		selectHighlightedEdgesItem.addActionListener(this);
+		highlightEdgeCategoriesItem = new JMenuItem("Add Category Highlighting");
+		highlightEdgeCategoriesItem.addActionListener(this);
 
 		selectNodesItem = new JMenuItem("Select " + owner.getNaming().Nodes());
 		selectNodesItem.addActionListener(this);
@@ -394,6 +402,8 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		void selectHighlightedEdgesItemClicked();
 
 		void highlightNodeCategoriesItemClicked();
+
+		void highlightEdgeCategoriesItemClicked();
 
 		void selectNodesItemClicked();
 

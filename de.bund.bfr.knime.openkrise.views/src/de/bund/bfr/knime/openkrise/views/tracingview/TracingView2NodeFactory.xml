@@ -183,6 +183,10 @@
 				All stations that have non zero values for the specified Highlight Condition
 				will be selected.
 			</option>
+			<option name="Station Highlighting -> Add Category Highlighting">
+				Automatically creates Station Highlight Conditions for all categories of
+				parameter.
+			</option>
 			<option name="Delivery Highlighting -> Edit">
 				Opens a dialog to add, remove and edit Highlight Conditions for deliveries.
 			</option>
@@ -192,6 +196,10 @@
 			<option name="Delivery Highlighting -> Select Highlighted">
 				All delivery that have non zero values for the specified Highlight Condition
 				will be selected.
+			</option>
+			<option name="Delivery Highlighting -> Add Category Highlighting">
+				Automatically creates Delivery Highlight Conditions for all categories of
+				parameter.
 			</option>
 			<option name="Select Stations">
 				Opens a dialog to select stations based on a logical condition.
