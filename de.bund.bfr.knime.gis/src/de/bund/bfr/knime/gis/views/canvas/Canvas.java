@@ -1051,8 +1051,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
-		applyHighlights();
 		applyShowEdgesInMetaNode();
+		applyHighlights();
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 
 		setSelectedNodeIds(selectedNodeIds);

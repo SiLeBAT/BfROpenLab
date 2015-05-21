@@ -340,8 +340,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		canvas.applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
 		applyTracing();
-		canvas.applyHighlights();
 		canvas.applyShowEdgesInMetaNode();
+		canvas.applyHighlights();
 		canvas.getViewer().getGraphLayout()
 				.setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
 
