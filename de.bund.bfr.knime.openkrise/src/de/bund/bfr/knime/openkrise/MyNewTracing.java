@@ -19,16 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 public class MyNewTracing {
@@ -40,8 +33,8 @@ public class MyNewTracing {
 	private Map<Integer, Double> caseDeliveries = null;
 	private Set<Integer> ccStations = null;
 	private Set<Integer> ccDeliveries = null;
-	private LinkedHashMap<Integer, Set<Integer>> sortedStations = null;
-	private LinkedHashMap<Integer, Set<Integer>> sortedDeliveries = null;
+	private Map<Integer, Set<Integer>> sortedStations = null;
+	private Map<Integer, Set<Integer>> sortedDeliveries = null;
 	private double caseSum = 0;
 	private boolean enforceTemporalOrder = false;
 
@@ -177,52 +170,27 @@ public class MyNewTracing {
 		// (deliveries), and all of them have cases!!!
 		// Therefore, we sum here based on the suppliers (supplierSum), not on
 		// the deliveries!!!
-		HashMap<Integer, Set<Integer>> supplierSum = new HashMap<>();
-		HashMap<Integer, Set<Integer>> deliverySum = new HashMap<>();
+		sortedStations = new HashMap<>();
+		sortedDeliveries = new HashMap<>();
+
 		for (MyDelivery md : allDeliveries.values()) {
 			Set<Integer> fwc = new HashSet<>();
 
 			fwc.addAll(getForwardStationsWithCases(md));
 			fwc.addAll(getForwardDeliveriesWithCases(md));
 
-			if (supplierSum.containsKey(md.getSupplierID())) {
-				supplierSum.get(md.getSupplierID()).addAll(fwc);
+			if (sortedStations.containsKey(md.getSupplierID())) {
+				sortedStations.get(md.getSupplierID()).addAll(fwc);
 			} else {
-				supplierSum.put(md.getSupplierID(), new HashSet<>(fwc));
+				sortedStations.put(md.getSupplierID(), new HashSet<>(fwc));
 			}
 
-			deliverySum.put(md.getId(), new HashSet<>(fwc));
+			sortedDeliveries.put(md.getId(), new HashSet<>(fwc));
 		}
-
-		sortedStations = sortByValues(supplierSum);
-		sortedDeliveries = sortByValues(deliverySum);
-	}
-
-	private static LinkedHashMap<Integer, Set<Integer>> sortByValues(
-			HashMap<Integer, Set<Integer>> map) {
-		List<Map.Entry<Integer, Set<Integer>>> entries = new LinkedList<>(map.entrySet());
-
-		Collections.sort(entries, new Comparator<Map.Entry<Integer, Set<Integer>>>() {
-
-			@Override
-			public int compare(Entry<Integer, Set<Integer>> o1, Entry<Integer, Set<Integer>> o2) {
-				return o2.getValue().size() - o1.getValue().size();
-			}
-		});
-
-		// LinkedHashMap will keep the keys in the order they are inserted
-		// which is currently sorted on natural ordering
-		LinkedHashMap<Integer, Set<Integer>> sortedMap = new LinkedHashMap<>();
-
-		for (Map.Entry<Integer, Set<Integer>> entry : entries) {
-			sortedMap.put(entry.getKey(), entry.getValue());
-		}
-
-		return sortedMap;
 	}
 
 	public Set<Integer> getForwardStations(int stationID) {
-		Set<Integer> stations = new LinkedHashSet<>();
+		Set<Integer> stations = new HashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
 			for (Integer i : getAllOutgoing().get(stationID)) {
@@ -235,7 +203,7 @@ public class MyNewTracing {
 	}
 
 	public Set<Integer> getBackwardStations(int stationID) {
-		Set<Integer> stations = new LinkedHashSet<>();
+		Set<Integer> stations = new HashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
 			for (Integer i : getAllIncoming().get(stationID)) {
@@ -248,7 +216,7 @@ public class MyNewTracing {
 	}
 
 	public Set<Integer> getForwardDeliveries(int stationID) {
-		Set<Integer> deliveries = new LinkedHashSet<>();
+		Set<Integer> deliveries = new HashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
 			for (Integer i : getAllOutgoing().get(stationID)) {
@@ -261,7 +229,7 @@ public class MyNewTracing {
 	}
 
 	public Set<Integer> getBackwardDeliveries(int stationID) {
-		Set<Integer> deliveries = new LinkedHashSet<>();
+		Set<Integer> deliveries = new HashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
 			for (Integer i : getAllIncoming().get(stationID)) {
