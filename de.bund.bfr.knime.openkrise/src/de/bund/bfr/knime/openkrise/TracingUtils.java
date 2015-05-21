@@ -37,6 +37,7 @@ import org.knime.core.data.RowKey;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
@@ -232,6 +233,9 @@ public class TracingUtils {
 		if (deliveryDateIndex == -1) {
 			throw new NotConfigurableException("Delivery Table: Column \""
 					+ TracingColumns.DELIVERY_DATE + "\" is missing");
+		} else if (edgeTable.getSpec().getColumnSpec(deliveryDateIndex).getType() != StringCell.TYPE) {
+			throw new NotConfigurableException("Delivery Table: Column \""
+					+ TracingColumns.DELIVERY_DATE + "\" must be of type String");
 		}
 
 		List<Edge<V>> edges = new ArrayList<>();
