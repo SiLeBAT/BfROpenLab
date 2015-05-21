@@ -132,14 +132,20 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	@Override
+	public void collapseToNodeItemClicked() {
+		updatePositionsOfCollapsedNodes();
+		super.collapseToNodeItemClicked();
+	}
+
+	@Override
 	public void expandFromNodeItemClicked() {
-		applyNewMetaNodePositions(getSelectedNodeIds());
+		updatePositionsOfCollapsedNodes();
 		super.expandFromNodeItemClicked();
 	}
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		applyNewMetaNodePositions(collapsedNodes.keySet());
+		updatePositionsOfCollapsedNodes();
 		super.clearCollapsedNodesItemClicked();
 	}
 
@@ -256,16 +262,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 	}
 
-	private void applyNewMetaNodePositions(Collection<String> metaIds) {
-		for (String id : metaIds) {
-			if (!collapsedNodes.containsKey(id)) {
-				continue;
-			}
-
-			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap,
-					collapsedNodes.get(id));
+	private void updatePositionsOfCollapsedNodes() {
+		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
+			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap, entry.getValue());
 			Point2D oldCenter = CanvasUtils.getCenter(getNodePositions(newNodes).values());
-			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(id));
+			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(entry.getKey()));
 			Point2D diff = CanvasUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {

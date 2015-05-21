@@ -61,6 +61,8 @@ import org.apache.batik.svggen.SVGGraphics2D;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import com.google.common.collect.Sets;
+
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
@@ -839,11 +841,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void collapseToNodeItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
+		Set<String> selectedMetaIds = new LinkedHashSet<>(Sets.intersection(selectedIds,
+				collapsedNodes.keySet()));
 
-		for (String id : selectedIds) {
-			if (collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes()
-						+ " are already collapsed", "Error", JOptionPane.ERROR_MESSAGE);
+		if (!selectedMetaIds.isEmpty()) {
+			String message = "Some of the selected " + naming.nodes() + " are already meta "
+					+ naming.nodes() + ".\nCollapse all contained " + naming.nodes()
+					+ " into the new meta " + naming.node() + "?";
+
+			if (JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
 				return;
 			}
 		}
@@ -852,6 +858,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		if (newId == null) {
 			return;
+		}
+
+		for (String id : selectedMetaIds) {
+			selectedIds.remove(id);
+			selectedIds.addAll(collapsedNodes.remove(id));
+			nodeSaveMap.remove(id);
 		}
 
 		collapsedNodes.put(newId, selectedIds);
@@ -864,12 +876,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void expandFromNodeItemClicked() {
 		Set<String> selectedIds = getSelectedNodeIds();
 
-		for (String id : selectedIds) {
-			if (!collapsedNodes.keySet().contains(id)) {
-				JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes()
-						+ " are not collapsed", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
+		if (!Sets.difference(selectedIds, collapsedNodes.keySet()).isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes()
+					+ " are not collapsed", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 
 		Set<String> newIds = new LinkedHashSet<>();
