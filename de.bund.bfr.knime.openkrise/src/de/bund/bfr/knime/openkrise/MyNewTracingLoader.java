@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -87,6 +88,50 @@ public class MyNewTracingLoader {
 		}
 
 		MyNewTracing mnt = new MyNewTracing(allDeliveries);
+		mnt.setSerialUsable(serialPossible(conn));
 		return mnt;
+	}
+	
+	private static boolean serialPossible(Connection conn) {
+		HashSet<String> hs = new HashSet<>();
+		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM " + DBKernel.delimitL("Station");
+		try {
+			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
+			if (rs != null && rs.first()) {
+				do {
+					if (rs.getObject("Serial") == null) {
+						return false;
+					}
+					String s = rs.getString("Serial");
+					if (hs.contains(s)) return false;
+					hs.add(s);
+				} while (rs.next());
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		hs.clear();
+		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit") + " FROM " + DBKernel.delimitL("Lieferungen");
+		try {
+			boolean alwaysUEkg = true;
+			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
+			if (rs != null && rs.first()) {
+				do {
+					if (rs.getObject("Serial") == null) {
+						return false;
+					}
+					String s = rs.getString("Serial");
+					if (hs.contains(s)) return false;
+					hs.add(s);
+					if (rs.getObject("UnitEinheit") == null || !rs.getString("UnitEinheit").equals("kg")) alwaysUEkg = false;
+				} while (rs.next());
+			}
+			if (alwaysUEkg) return false; // beim EFSA Importer wurde immer kg eingetragen, später beim bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt und UnitEinheit müsste immer NULL sein, daher ist das ein sehr gutes Indiz daafür, dass wir es mit alten Daten zu tun haben
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 }

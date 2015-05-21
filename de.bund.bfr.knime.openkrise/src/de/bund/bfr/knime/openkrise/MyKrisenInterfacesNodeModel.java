@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -180,6 +181,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			System.err.println("Starting Tracing...");
 			MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
+			boolean useSerialAsID = mnt.isSerialUsable();
+			HashMap<String, String> hmStationIDs = new HashMap<>();
+			HashMap<String, String> hmDeliveryIDs = new HashMap<>();
 			System.err.println("Starting Nodes33...");
 			ResultSet rs = DBKernel.getResultSet(conn, "SELECT * FROM " + DBKernel.delimitL("Station"), false);
 			if (rs != null && rs.first()) {
@@ -187,7 +191,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				boolean isBVLFormat = false;
 				DataTableSpec spec = output33Nodes.getTableSpec();
 				do {
-					String stationID = rs.getObject("ID").toString();
+					String sID = rs.getString("ID");
+					String stationID = rs.getObject(useSerialAsID ? "Serial" : "ID").toString();
+					if (useSerialAsID) hmStationIDs.put(sID, stationID);
 					String district = null;
 					String bll = clean(rs.getString("Bundesland"));
 					if (rowNumber == 0 && bll != null && (bll.equals("Altenburger Land") || bll.equals("Wesel"))) isBVLFormat = true;
@@ -202,7 +208,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 						else country = "DE";
 					}
 					String bl = getBL(bll);
-					String company = (rs.getObject("Name") == null || doAnonymize) ? getAnonymizedStation(bl, stationID.hashCode(), country)
+					String company = (rs.getObject("Name") == null || doAnonymize) ? getAnonymizedStation(bl, sID.hashCode(), country)
 							: clean(rs.getString("Name")); // bl + stationID + "(" + country + ")"
 					//if (rs.getObject("Land") != null && clean(rs.getString("Land").equals("Serbia")) toBeMerged.add(stationID);
 					//id2Code.put(stationID, company);
@@ -228,13 +234,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.STATION_DATEPEAK, getDataStringCell(rs, "DatumHoehepunkt"));
 					fillCell(spec, cells, TracingColumns.STATION_DATEEND, getDataStringCell(rs, "DatumEnde"));
 					fillCell(spec, cells, TracingColumns.STATION_SERIAL, getDataStringCell(rs, "Serial"));
-					fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER, mnt.isSimpleSupplier(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
-					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, mnt.isStationStart(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
-					fillCell(spec, cells, TracingColumns.STATION_DEADEND, mnt.isStationEnd(stationID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER, mnt.isSimpleSupplier(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, mnt.isStationStart(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADEND, mnt.isStationEnd(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
 
 					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "ImportSources"));
 					
 					fillCell(spec, cells, TracingColumns.STATION_COUNTY, doAnonymize || bll == null ? DataType.getMissingCell() : new StringCell(bll));
+
 
 					// Extras
 					for (String extraCol : spec.getColumnNames()) {
@@ -242,7 +249,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 							String attribute = extraCol.substring(1);
 							ResultSet rs2 = DBKernel.getResultSet(conn, "SELECT " +	DBKernel.delimitL("value") + " FROM " + DBKernel.delimitL("ExtraFields") +
 									" WHERE " +	DBKernel.delimitL("tablename") + "='Station' AND " +
-									DBKernel.delimitL("id") + "=" + stationID + " AND " +	DBKernel.delimitL("attribute") + "='" + attribute + "'", false);
+									DBKernel.delimitL("id") + "=" + sID + " AND " +	DBKernel.delimitL("attribute") + "='" + attribute + "'", false);
 							if (rs2 != null && rs2.first()) {
 								fillCell(spec, cells, extraCol, getDataStringCell(rs2, "value"));
 							}
@@ -278,9 +285,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				int rowNumber = 0;
 				DataTableSpec spec = output33Links.getTableSpec();
 				do {
-					String lieferID = rs.getObject("Lieferungen.ID").toString();
+					String lID = rs.getObject("Lieferungen.ID").toString();
+					String lieferID = rs.getObject(useSerialAsID ? "Lieferungen.Serial" : lID).toString();
 					String id1 = rs.getObject("Produktkatalog.Station").toString();
 					String id2 = rs.getObject("Lieferungen.Empfänger").toString();
+					if (useSerialAsID) {
+						hmDeliveryIDs.put(lID, lieferID);
+						id1 = hmStationIDs.get(id1);
+						id2 = hmStationIDs.get(id2);
+					}
 					String from = id1;
 					String to = id2;
 					RowKey key = RowKey.createRowKey(rowNumber);
@@ -328,7 +341,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 							String fn = attribute.substring(index + 1);
 							ResultSet rs2 = DBKernel.getResultSet(conn, "SELECT " +	DBKernel.delimitL("value") + " FROM " + DBKernel.delimitL("ExtraFields") +
 									" WHERE " +	DBKernel.delimitL("tablename") + "='" + tn + "' AND " +
-									DBKernel.delimitL("id") + "=" + lieferID + " AND " +	DBKernel.delimitL("attribute") + "='" + fn + "'", false);
+									DBKernel.delimitL("id") + "=" + lID + " AND " +	DBKernel.delimitL("attribute") + "='" + fn + "'", false);
 							if (rs2 != null && rs2.first()) {
 								fillCell(spec, cells, extraCol, getDataStringCell(rs2, "value"));
 							}
@@ -351,7 +364,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
 				for (String next : delivery.getAllNextIDs()) {
-					deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));
+					if (useSerialAsID) deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(hmDeliveryIDs.get(delivery.getId())), IO.createCell(hmDeliveryIDs.get(next))));
+					else deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));
 					i++;
 				}
 			}

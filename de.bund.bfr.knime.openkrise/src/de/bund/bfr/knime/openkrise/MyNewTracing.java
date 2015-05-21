@@ -569,4 +569,13 @@ public class MyNewTracing {
 			delivery.getAllPreviousIDs().retainAll(deliveries.keySet());
 		}
 	}
+	private boolean serialUsable = false;
+
+	public void setSerialUsable(boolean serialUsable) {
+		this.serialUsable = serialUsable;
+	}
+
+	public boolean isSerialUsable() {
+		return serialUsable;
+	}
 }
