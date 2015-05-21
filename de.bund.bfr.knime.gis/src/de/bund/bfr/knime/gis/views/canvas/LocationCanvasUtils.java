@@ -245,7 +245,7 @@ public class LocationCanvasUtils {
 		Graphics imgGraphics = invalidAreaImage.getGraphics();
 
 		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE,
-				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0)));
+				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0), false));
 		imgGraphics.fillPolygon(invalidArea);
 		imgGraphics.setColor(Color.BLACK);
 		imgGraphics.drawPolygon(invalidArea);

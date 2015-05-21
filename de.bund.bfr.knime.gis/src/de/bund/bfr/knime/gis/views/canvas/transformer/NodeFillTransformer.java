@@ -49,7 +49,7 @@ public class NodeFillTransformer<V extends Node> implements Transformer<V, Paint
 
 		for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
 			nodeColors.put(entry.getKey(),
-					CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue()));
+					CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
 		}
 	}
 

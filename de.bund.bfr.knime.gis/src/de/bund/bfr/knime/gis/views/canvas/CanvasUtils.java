@@ -84,7 +84,8 @@ public class CanvasUtils {
 
 	public static final Color LEGEND_BACKGROUND = new Color(230, 230, 230);
 
-	private static final int TEXTURE_SIZE = 3;
+	private static final int NODE_TEXTURE_SIZE = 3;
+	private static final int EDGE_TEXTURE_SIZE = 5;
 	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85),
 			new Color(85, 85, 255), new Color(85, 255, 85), new Color(255, 85, 255),
 			new Color(85, 255, 255), new Color(255, 175, 175), new Color(128, 128, 128),
@@ -563,7 +564,8 @@ public class CanvasUtils {
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
 	}
 
-	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas) {
+	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas,
+			boolean forEdges) {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
@@ -589,11 +591,25 @@ public class CanvasUtils {
 			return cs.get(0);
 		}
 
-		BufferedImage img = new BufferedImage(cs.size() * TEXTURE_SIZE, 1,
-				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img;
+		int size = cs.size() * (forEdges ? EDGE_TEXTURE_SIZE : NODE_TEXTURE_SIZE);
 
-		for (int i = 0; i < cs.size() * TEXTURE_SIZE; i++) {
-			img.setRGB(i, 0, cs.get(i / TEXTURE_SIZE).getRGB());
+		if (forEdges) {
+			img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+
+			for (int i = 0; i < size; i++) {
+				for (int j = 0; j < size; j++) {
+					img.setRGB(i, j,
+							cs.get((i / EDGE_TEXTURE_SIZE + j / EDGE_TEXTURE_SIZE) % cs.size())
+									.getRGB());
+				}
+			}
+		} else {
+			img = new BufferedImage(size, 1, BufferedImage.TYPE_INT_ARGB);
+
+			for (int i = 0; i < size; i++) {
+				img.setRGB(i, 0, cs.get(i / NODE_TEXTURE_SIZE).getRGB());
+			}
 		}
 
 		return new TexturePaint(img, new Rectangle(img.getWidth(), img.getHeight()));

@@ -52,6 +52,7 @@ public class DefaultHighlighting {
 	public static HighlightConditionList createEdgeHighlighting() {
 		List<HighlightCondition> conditions = new ArrayList<>();
 
+		conditions.add(createOutbreakCondition());
 		conditions.add(createObservedCondition(Color.BLUE));
 		conditions.add(createForwardCondition());
 		conditions.add(createBackwardCondition());

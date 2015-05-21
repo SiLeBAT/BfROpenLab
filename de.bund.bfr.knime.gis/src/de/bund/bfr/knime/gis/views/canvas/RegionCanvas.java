@@ -170,7 +170,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		}
 
 		for (RegionNode node : nodes) {
-			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node));
+			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node),
+					false);
 
 			if (!color.equals(Color.WHITE) && !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);

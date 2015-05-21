@@ -49,7 +49,7 @@ public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>,
 
 		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
 			edgeColors.put(entry.getKey(),
-					CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue()));
+					CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
 		}
 	}
 
