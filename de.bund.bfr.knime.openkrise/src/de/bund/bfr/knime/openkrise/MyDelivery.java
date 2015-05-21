@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class MyDelivery {
 
@@ -29,8 +30,8 @@ public class MyDelivery {
 	private Integer deliveryMonth;
 	private Integer deliveryYear;
 
-	private HashSet<Integer> allNextIDs;
-	private HashSet<Integer> allPreviousIDs;
+	private Set<Integer> allNextIDs;
+	private Set<Integer> allPreviousIDs;
 
 	private MyHashSet<Integer> forwardDeliveries;
 	private MyHashSet<Integer> backwardDeliveries;
@@ -48,11 +49,11 @@ public class MyDelivery {
 		allPreviousIDs = new HashSet<>();
 	}
 
-	public HashSet<Integer> getAllNextIDs() {
+	public Set<Integer> getAllNextIDs() {
 		return allNextIDs;
 	}
 
-	public HashSet<Integer> getAllPreviousIDs() {
+	public Set<Integer> getAllPreviousIDs() {
 		return allPreviousIDs;
 	}
 
@@ -114,22 +115,6 @@ public class MyDelivery {
 
 	public void setDeliveryYear(Integer deliveryYear) {
 		this.deliveryYear = deliveryYear;
-	}
-
-	public void addNext(Integer nextID) {
-		if (nextID == null)
-			System.err.println("next = null...");
-		else {
-			allNextIDs.add(nextID);
-		}
-	}
-
-	public void addPrevious(Integer previousID) {
-		if (previousID == null)
-			System.err.println("previous = null...");
-		else {
-			allPreviousIDs.add(previousID);
-		}
 	}
 
 	public void resetStatusVariables() {

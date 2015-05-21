@@ -19,15 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class MyHashSet<T> extends HashSet<T> {
 
 	final static int FD = 4;
 	final static int BD = 5;
 
-	private HashSet<Integer> furtherIds = new HashSet<>();
+	private Set<Integer> furtherIds = new HashSet<>();
 	/**
 	 * 
 	 */
@@ -42,7 +43,7 @@ public class MyHashSet<T> extends HashSet<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void merge(HashMap<Integer, MyDelivery> allDeliveries, int type) {
+	public void merge(Map<Integer, MyDelivery> allDeliveries, int type) {
 		for (Integer i : furtherIds) {
 			MyDelivery dd = allDeliveries.get(i);
 			if (type == FD && dd.getForwardDeliveries() != null)
