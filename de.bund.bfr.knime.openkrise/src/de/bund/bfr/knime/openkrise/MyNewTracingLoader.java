@@ -19,11 +19,17 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.using;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import org.jooq.SQLDialect;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -44,6 +50,15 @@ public class MyNewTracingLoader {
 				+ " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON "
 				+ DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "="
 				+ DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
+		sql = using(conn, SQLDialect.HSQLDB)
+				.select(field("\"ID\""), field("\"Empfänger\""), field("\"Station\""),
+						field("\"dd_day\""), field("\"dd_month\""), field("\"dd_year\""))
+				.from(table("\"Lieferungen\"")).leftOuterJoin(table("\"Chargen\""))
+				.on(field("\"Lieferungen\".\"Charge\"").equal(field("\"Chargen\".\"ID\"")))
+				.leftOuterJoin(table("\"Produktkatalog\""))
+				.on(field("\"Chargen\".\"Artikel\"").equal(field("\"Produktkatalog\".\"ID\"")))
+				.getSQL();
+
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
@@ -91,10 +106,11 @@ public class MyNewTracingLoader {
 		mnt.setSerialUsable(serialPossible(conn));
 		return mnt;
 	}
-	
+
 	private static boolean serialPossible(Connection conn) {
 		HashSet<String> hs = new HashSet<>();
-		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM " + DBKernel.delimitL("Station");
+		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM "
+				+ DBKernel.delimitL("Station");
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
@@ -103,7 +119,8 @@ public class MyNewTracingLoader {
 						return false;
 					}
 					String s = rs.getString("Serial");
-					if (hs.contains(s)) return false;
+					if (hs.contains(s))
+						return false;
 					hs.add(s);
 				} while (rs.next());
 			}
@@ -112,7 +129,8 @@ public class MyNewTracingLoader {
 			return false;
 		}
 		hs.clear();
-		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit") + " FROM " + DBKernel.delimitL("Lieferungen");
+		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit")
+				+ " FROM " + DBKernel.delimitL("Lieferungen");
 		try {
 			boolean alwaysUEkg = true;
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
@@ -122,12 +140,21 @@ public class MyNewTracingLoader {
 						return false;
 					}
 					String s = rs.getString("Serial");
-					if (hs.contains(s)) return false;
+					if (hs.contains(s))
+						return false;
 					hs.add(s);
-					if (rs.getObject("UnitEinheit") == null || !rs.getString("UnitEinheit").equals("kg")) alwaysUEkg = false;
+					if (rs.getObject("UnitEinheit") == null
+							|| !rs.getString("UnitEinheit").equals("kg"))
+						alwaysUEkg = false;
 				} while (rs.next());
 			}
-			if (alwaysUEkg) return false; // beim EFSA Importer wurde immer kg eingetragen, später beim bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt und UnitEinheit müsste immer NULL sein, daher ist das ein sehr gutes Indiz daafür, dass wir es mit alten Daten zu tun haben
+			if (alwaysUEkg)
+				return false; // beim EFSA Importer wurde immer kg eingetragen,
+								// später beim bfrnewimporter wurde nur noch
+								// "numPU" und "typePU" benutzt und UnitEinheit
+								// müsste immer NULL sein, daher ist das ein
+								// sehr gutes Indiz daafür, dass wir es mit
+								// alten Daten zu tun haben
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
