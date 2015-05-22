@@ -19,17 +19,22 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
-import static org.jooq.impl.DSL.using;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.SQLDialect;
+import org.jooq.Table;
+import org.jooq.impl.DSL;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -37,6 +42,20 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 public class MyNewTracingLoader {
 
 	private static HashMap<String, MyDelivery> allDeliveries;
+
+	private static Field<Object> field(String name) {
+		List<String> parts = new ArrayList<>();
+
+		for (String s : Splitter.on(".").split(name.replace("\"", ""))) {
+			parts.add("\"" + s + "\"");
+		}
+
+		return DSL.field(Joiner.on(".").join(parts));
+	}
+
+	private static Table<Record> table(String name) {
+		return DSL.table("\"" + name + "\"");
+	}
 
 	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
 		allDeliveries = new HashMap<>();
@@ -50,14 +69,14 @@ public class MyNewTracingLoader {
 				+ " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON "
 				+ DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "="
 				+ DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
-		sql = using(conn, SQLDialect.HSQLDB)
-				.select(field("\"ID\""), field("\"Empfänger\""), field("\"Station\""),
-						field("\"dd_day\""), field("\"dd_month\""), field("\"dd_year\""))
-				.from(table("\"Lieferungen\"")).leftOuterJoin(table("\"Chargen\""))
-				.on(field("\"Lieferungen\".\"Charge\"").equal(field("\"Chargen\".\"ID\"")))
-				.leftOuterJoin(table("\"Produktkatalog\""))
-				.on(field("\"Chargen\".\"Artikel\"").equal(field("\"Produktkatalog\".\"ID\"")))
-				.getSQL();
+		sql = DSL
+				.using(conn, SQLDialect.HSQLDB)
+				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"),
+						field("dd_month"), field("dd_year")).from(table("Lieferungen"))
+				.leftOuterJoin(table("Chargen"))
+				.on(field("Lieferungen.Charge").equal(field("Chargen.ID")))
+				.leftOuterJoin(table("Produktkatalog"))
+				.on(field("Chargen.Artikel").equal(field("Produktkatalog.ID"))).getSQL();
 
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
