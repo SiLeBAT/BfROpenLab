@@ -83,7 +83,7 @@ public class ExcelExport extends FileFilter {
       		if (progress != null) {
       			progress.setVisible(true);
       			progress.setStringPainted(true);
-      			progress.setString("Exporting Excel Datei...");
+      			progress.setString("Exporting Excel File...");
       			progress.setMinimum(0);
       			progress.setMaximum(myDB.getRowCount());
       			progress.setValue(0);

@@ -106,6 +106,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		Sheet d2dSheet = wb.getSheet("Deliveries2Deliveries");
 		Sheet transactionSheet = wb.getSheet("BackTracing");
 		Sheet lookupSheet = wb.getSheet("LookUp");
+		Sheet forwardSheet = wb.getSheet("Opt_ForwardTracing");
+		Sheet forwardSheetNew = wb.getSheet("ForwardTracing_Opt");
 		
 		if (stationSheet == null) return false;
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
@@ -211,33 +213,67 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		Row row = transactionSheet.getRow(0);
-		
-		// Station in focus
-		Cell cell = row.getCell(1);
-		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station in Focus not defined");
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		Station sif = getStation(stationSheet, cell.getStringCellValue(), row);
-		
-		// Delivery(s) Outbound
-		classRowIndex = 5;
+		Row titleRow;
+		Cell cell;
 		HashMap<String, Delivery> outDeliveries = new HashMap<>(); 
 		HashMap<String, Lot> outLots = new HashMap<>(); 
-		Row titleRow = transactionSheet.getRow(classRowIndex - 2);
-		for (;;classRowIndex++) {
-			row = transactionSheet.getRow(classRowIndex);
-			if (row == null) continue;
-			if (isBlockEnd(row, 13, "Reporter Information")) break;
-			Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename);
-			if (d == null) continue;
-			outDeliveries.put(d.getId(), d);
-			outLots.put(d.getLot().getNumber(), d.getLot());
-		}
+		Station sif;
+		MetaInfo mi;
 		
-		// Metadata on Reporter
-		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
-		row = transactionSheet.getRow(classRowIndex);
-		MetaInfo mi = getMetaInfo(row);
-		mi.setFilename(filename);
+		if (forwardSheet != null) {
+			// Station in focus
+			cell = row.getCell(1);
+			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station in Focus not defined");
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			sif = getStation(stationSheet, cell.getStringCellValue(), row);
+			
+			// Delivery(s) Outbound
+			classRowIndex = 5;
+			titleRow = transactionSheet.getRow(classRowIndex - 2);
+			for (;;classRowIndex++) {
+				row = transactionSheet.getRow(classRowIndex);
+				if (row == null) continue;
+				if (isBlockEnd(row, 13, "Reporter Information")) break;
+				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename);
+				if (d == null) continue;
+				outDeliveries.put(d.getId(), d);
+				outLots.put(d.getLot().getNumber(), d.getLot());
+			}
+			
+			// Metadata on Reporter
+			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
+			row = transactionSheet.getRow(classRowIndex);
+			mi = getMetaInfo(row);
+			mi.setFilename(filename);
+		}
+		else { // Reporter shifted to the top
+			// Metadata on Reporter
+			classRowIndex = getNextBlockRowIndex(transactionSheet, 0, "Reporter Information") + 2;
+			row = transactionSheet.getRow(classRowIndex);
+			mi = getMetaInfo(row);
+			mi.setFilename(filename);
+
+			// Station in focus
+			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Station in Focus:");
+			row = transactionSheet.getRow(classRowIndex);
+			cell = row.getCell(1);
+			if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) throw new Exception("Station in Focus not defined");
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			sif = getStation(stationSheet, cell.getStringCellValue(), row);
+			
+			// Delivery(s) Outbound
+			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Products Out") + 3;
+			titleRow = transactionSheet.getRow(classRowIndex - 2);
+			for (;;classRowIndex++) {
+				row = transactionSheet.getRow(classRowIndex);
+				if (row == null) continue;
+				if (isBlockEnd(row, 13, "Reporter Information")) break;
+				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename);
+				if (d == null) continue;
+				outDeliveries.put(d.getId(), d);
+				outLots.put(d.getLot().getNumber(), d.getLot());
+			}			
+		}
 		
 		// Lot(s)
 		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Lot Information") + 3;
@@ -265,8 +301,8 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// Opt_ForwardTracing
-		Sheet forwardSheet = wb.getSheet("Opt_ForwardTracing");
 		HashSet<Delivery> forwDeliveries = new HashSet<>(); 
+		if (forwardSheet == null) forwardSheet = forwardSheetNew;
 		numRows = forwardSheet.getLastRowNum() + 1;
 		titleRow = forwardSheet.getRow(0);
 		for (classRowIndex=2;classRowIndex < numRows;classRowIndex++) {
