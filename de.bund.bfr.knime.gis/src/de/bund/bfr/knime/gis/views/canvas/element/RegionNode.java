@@ -19,11 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.element;
 
-import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -38,8 +37,7 @@ public class RegionNode extends Node {
 	private Point2D center;
 	private Rectangle2D boundingBox;
 
-	private List<Polygon> transformedPolygon;
-	private List<Polygon> transformedPolygonWithHoles;
+	private Shape transformedPolygon;
 
 	public RegionNode(String id, Map<String, Object> properties, MultiPolygon polygon) {
 		super(id, properties);
@@ -55,7 +53,6 @@ public class RegionNode extends Node {
 		center = GisUtils.getCenter(polygon);
 		boundingBox = GisUtils.getBoundingBox(polygon);
 		transformedPolygon = null;
-		transformedPolygonWithHoles = null;
 	}
 
 	public Point2D getCenter() {
@@ -66,20 +63,12 @@ public class RegionNode extends Node {
 		return boundingBox;
 	}
 
-	public List<Polygon> getTransformedPolygon() {
+	public Shape getTransformedPolygon() {
 		return transformedPolygon;
 	}
 
-	public List<Polygon> getTransformedPolygonWithHoles() {
-		return transformedPolygonWithHoles;
-	}
-
 	public void createTransformedPolygons(Transform transform) {
-		transformedPolygon = transform.apply(polygon, false);
-	}
-
-	public void createTransformedPolygonsWithHoles(Transform transform) {
-		transformedPolygonWithHoles = transform.apply(polygon, true);
+		transformedPolygon = transform.apply(polygon);
 	}
 
 	public boolean containsPoint(Point2D point) {

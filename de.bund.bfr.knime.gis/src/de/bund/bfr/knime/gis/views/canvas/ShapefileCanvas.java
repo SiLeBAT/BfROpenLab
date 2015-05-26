@@ -21,7 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Polygon;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
@@ -80,9 +80,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 			borderGraphics.setColor(Color.BLACK);
 
 			for (RegionNode node : getRegions()) {
-				for (Polygon poly : node.getTransformedPolygon()) {
-					borderGraphics.drawPolygon(poly);
-				}
+				((Graphics2D) borderGraphics).draw(node.getTransformedPolygon());
 			}
 
 			CanvasUtils.drawImageWithAlpha(g, borderImage, getBorderAlpha());
@@ -90,9 +88,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 
 			for (RegionNode node : getRegions()) {
-				for (Polygon poly : node.getTransformedPolygon()) {
-					g.drawPolygon(poly);
-				}
+				((Graphics2D) g).draw(node.getTransformedPolygon());
 			}
 		}
 	}

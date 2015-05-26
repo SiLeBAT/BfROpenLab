@@ -23,7 +23,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Polygon;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -110,15 +109,6 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void applyTransform() {
-		for (RegionNode node : getRegions()) {
-			node.createTransformedPolygonsWithHoles(transform);
-		}
-
-		super.applyTransform();
-	}
-
-	@Override
 	public void applyChanges() {
 		flushImage();
 		super.applyChanges();
@@ -139,10 +129,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	protected void paintGis(Graphics g, boolean toSvg) {
 		for (RegionNode node : viewer.getPickedVertexState().getPicked()) {
 			g.setColor(Color.BLUE);
-
-			for (Polygon poly : node.getTransformedPolygonWithHoles()) {
-				g.fillPolygon(poly);
-			}
+			((Graphics2D) g).fill(node.getTransformedPolygon());
 		}
 
 		List<Color> nodeColors = new ArrayList<>();
@@ -175,10 +162,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 			if (!color.equals(Color.WHITE) && !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);
-
-				for (Polygon poly : node.getTransformedPolygonWithHoles()) {
-					g.fillPolygon(poly);
-				}
+				((Graphics2D) g).fill(node.getTransformedPolygon());
 			}
 		}
 

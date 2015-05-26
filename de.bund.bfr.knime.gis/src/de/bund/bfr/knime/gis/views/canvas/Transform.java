@@ -20,14 +20,13 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
+import org.geotools.geometry.jts.LiteShape;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 public class Transform {
 
@@ -87,37 +86,8 @@ public class Transform {
 		return new Point2D.Double((x - translationX) / scaleX, (y - translationY) / scaleY);
 	}
 
-	public List<java.awt.Polygon> apply(MultiPolygon poly, boolean withHoles) {
-		List<java.awt.Polygon> transformed = new ArrayList<>();
-
-		for (int index = 0; index < poly.getNumGeometries(); index++) {
-			transformed.add(apply((Polygon) poly.getGeometryN(index), withHoles));
-		}
-
-		return transformed;
-	}
-
-	public java.awt.Polygon apply(Polygon poly, boolean withHoles) {
-		Coordinate[] points;
-
-		if (withHoles) {
-			points = poly.getCoordinates();
-		} else {
-			points = poly.getExteriorRing().getCoordinates();
-		}
-
-		int n = points.length;
-		int[] xs = new int[n];
-		int[] ys = new int[n];
-
-		for (int i = 0; i < n; i++) {
-			Point p = apply(points[i].x, points[i].y);
-
-			xs[i] = p.x;
-			ys[i] = p.y;
-		}
-
-		return new java.awt.Polygon(xs, ys, n);
+	public Shape apply(Geometry g) {
+		return new LiteShape(g, toAffineTransform(), false);
 	}
 
 	@Override

@@ -22,6 +22,7 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -240,15 +241,15 @@ public class LocationCanvasUtils {
 		return invalidArea;
 	}
 
-	public static void paintNonLatLonArea(Graphics g, int w, int h, java.awt.Polygon invalidArea) {
+	public static void paintNonLatLonArea(Graphics g, int w, int h, Shape invalidArea) {
 		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics imgGraphics = invalidAreaImage.getGraphics();
 
 		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE,
 				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0), false));
-		imgGraphics.fillPolygon(invalidArea);
+		((Graphics2D) imgGraphics).fill(invalidArea);
 		imgGraphics.setColor(Color.BLACK);
-		imgGraphics.drawPolygon(invalidArea);
+		((Graphics2D) imgGraphics).draw(invalidArea);
 		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
 	}
 

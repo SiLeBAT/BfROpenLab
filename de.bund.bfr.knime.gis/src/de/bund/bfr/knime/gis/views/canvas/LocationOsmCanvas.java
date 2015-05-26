@@ -111,7 +111,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		if (invalidArea != null) {
 			LocationCanvasUtils.paintNonLatLonArea(g, getCanvasSize().width,
-					getCanvasSize().height, transform.apply(invalidArea, true));
+					getCanvasSize().height, transform.apply(invalidArea));
 		}
 	}
 
