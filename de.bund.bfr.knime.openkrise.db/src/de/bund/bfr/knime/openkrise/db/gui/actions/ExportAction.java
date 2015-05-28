@@ -47,47 +47,54 @@ public class ExportAction extends AbstractAction {
 	private MyDBTable myDB;
 
 	public ExportAction(String name, Icon icon, String toolTip, JProgressBar progressBar1, MyDBTable myDB) {
-  	this.progressBar1 = progressBar1;
-  	this.myDB = myDB;
-    putValue(Action.NAME, name);
-    putValue(Action.SHORT_DESCRIPTION, toolTip);
-    putValue(Action.SMALL_ICON, icon);
-  }    
+		this.progressBar1 = progressBar1;
+		this.myDB = myDB;
+		putValue(Action.NAME, name);
+		putValue(Action.SHORT_DESCRIPTION, toolTip);
+		putValue(Action.SMALL_ICON, icon);
+	}
 
-  public void actionPerformed(ActionEvent e) {
-		int retVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame, "Soll der Export den Volltext beinhalten?\n\nJa:\nAlle Felder werden im Volltext abgespeichert.\n\nNein:\nFür (die grauen) \"Fremdfelder\" werden nur die VerlinkungsIDs abgespeichert.",
-				"Excel Export - Wie?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		String retValStr = ""; // Bei Gelegenheit mal aktivieren (parsen!) hier!
-		/*(String)JOptionPane.showInputDialog(
+	public void actionPerformed(ActionEvent e) {
+		int retVal = JOptionPane.showConfirmDialog(
 				DBKernel.mainFrame,
-                "Welche Zeilen sollen exportiert werden (Default: alle, Syntax: 1;3;5-12)?",
-                "Excel Export - Was genau?",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                "");*/
+				"Export in full text?\n\nYes:\nAll fields will be saved in full text mode (corresponding to their visibility).\n\nNo:\nThe gray \"foreign fields\" will be saved as they are in the db (IDs -> linking numbers).",
+				"Excel Export - Which mode?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		String retValStr = ""; // Bei Gelegenheit mal aktivieren (parsen!) hier!
+		/*
+		 * (String)JOptionPane.showInputDialog(
+		 * DBKernel.mainFrame,
+		 * "Welche Zeilen sollen exportiert werden (Default: alle, Syntax: 1;3;5-12)?",
+		 * "Excel Export - Was genau?",
+		 * JOptionPane.PLAIN_MESSAGE,
+		 * null,
+		 * null,
+		 * "");
+		 */
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
-	  JFileChooser fc = new JFileChooser(lastOutDir);
-	  ExcelExport xls = new ExcelExport();
-	  fc.setFileFilter(xls);
-	  fc.setAcceptAllFileFilterUsed(false);
-	  fc.setMultiSelectionEnabled(false);
-	  fc.setSelectedFile(new File(myDB.getActualTable().getTablename() + ".xls"));
-	  fc.setDialogTitle("Export");
-	  int returnVal = fc.showSaveDialog(progressBar1);// MainFrame
-	  if(returnVal == JFileChooser.APPROVE_OPTION) {
-	  	File selectedFile = fc.getSelectedFile();
-	  	if (selectedFile != null) {
-	  		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
-			DBKernel.prefs.prefsFlush();
-	  		if(selectedFile.exists()) {
-	  			returnVal = JOptionPane.showConfirmDialog(progressBar1, "Soll die Datei ersetzt werden?", "Excel Datei bereits vorhanden", JOptionPane.YES_NO_CANCEL_OPTION);
-	  			if (returnVal == JOptionPane.NO_OPTION) {actionPerformed(null); return;}
-	  			else if (returnVal == JOptionPane.YES_OPTION) ;
-	  			else return;
-	  		}
-	  		xls.doExport(selectedFile.getAbsolutePath(), myDB, progressBar1, retVal == JOptionPane.YES_OPTION, retValStr);
-	  	}
-	  }
+		JFileChooser fc = new JFileChooser(lastOutDir);
+		ExcelExport xls = new ExcelExport();
+		fc.setFileFilter(xls);
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setMultiSelectionEnabled(false);
+		fc.setSelectedFile(new File(myDB.getActualTable().getTablename() + ".xls"));
+		fc.setDialogTitle("Export");
+		int returnVal = fc.showSaveDialog(progressBar1);// MainFrame
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fc.getSelectedFile();
+			if (selectedFile != null) {
+				DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
+				DBKernel.prefs.prefsFlush();
+				if (selectedFile.exists()) {
+					returnVal = JOptionPane.showConfirmDialog(progressBar1, "Replace file?", "Excel file exists already", JOptionPane.YES_NO_CANCEL_OPTION);
+					if (returnVal == JOptionPane.NO_OPTION) {
+						actionPerformed(null);
+						return;
+					} else if (returnVal == JOptionPane.YES_OPTION)
+					;
+					else return;
+				}
+				xls.doExport(selectedFile.getAbsolutePath(), myDB, progressBar1, retVal == JOptionPane.YES_OPTION, retValStr);
+			}
+		}
 	}
 }

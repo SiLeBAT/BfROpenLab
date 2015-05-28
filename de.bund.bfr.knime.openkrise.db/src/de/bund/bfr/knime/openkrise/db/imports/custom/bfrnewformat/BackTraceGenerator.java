@@ -285,7 +285,8 @@ public class BackTraceGenerator {
 				LinkedHashSet<String> le = getLotExtra();
 				LinkedHashSet<String> de = getDeliveryExtra();
 
-				XSSFRow row = sheetTracing.getRow(0);
+				// Station in Focus
+				XSSFRow row = sheetTracing.getRow(4);
 				XSSFCell cell;
 				String sid = null;
 				if (rs.getObject("Station.Serial") != null) {
@@ -294,7 +295,8 @@ public class BackTraceGenerator {
 					cell = row.getCell(2); evaluator.evaluateFormulaCell(cell);
 				}
 				
-				row = sheetTracing.getRow(3);
+				// Products Out
+				row = sheetTracing.getRow(7);
 				int j=0;
 				for (String e : de) {
 					if (e != null && !e.isEmpty()) {
@@ -307,7 +309,7 @@ public class BackTraceGenerator {
 				
 				XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheetTracing);
 				LinkedHashSet<String> lotNumbers = new LinkedHashSet<>();
-				int rowIndex = 5;
+				int rowIndex = 9;
 				row = sheetTracing.getRow(rowIndex);
 				String ln = fillRow(dvHelper, sheetTracing, rs, row, evaluator, de);
 				lotNumbers.add(ln);
@@ -323,7 +325,8 @@ public class BackTraceGenerator {
 				}
 				rs.previous();
 
-				row = sheetTracing.getRow(rowIndex + 7);
+				// Lot Information
+				row = sheetTracing.getRow(rowIndex + 3);
 				j=0;
 				for (String e : le) {
 					if (e != null && !e.isEmpty()) {
@@ -334,7 +337,7 @@ public class BackTraceGenerator {
 					}
 				}
 
-				rowIndex += 9;
+				rowIndex += 5;
 				int i=0;
 				row = sheetTracing.getRow(rowIndex);
 				for (String s : lotNumbers) {
@@ -360,6 +363,7 @@ public class BackTraceGenerator {
 				String referenceString = sheetTracing.getSheetName() + "!$A$" + (rowIndex+1) + ":$A$" + (rowIndex+i);
 				reference.setRefersToFormula(referenceString);				
 				
+				// Ingredients for Lot(s)
 				row = sheetTracing.getRow(rowIndex + i + 2);
 				j=0;
 				for (String e : de) {
