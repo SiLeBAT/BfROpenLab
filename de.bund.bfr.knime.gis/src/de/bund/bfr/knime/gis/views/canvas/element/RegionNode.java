@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisUtils;
@@ -35,7 +36,6 @@ public class RegionNode extends Node {
 
 	private MultiPolygon polygon;
 	private Point2D center;
-	private Rectangle2D boundingBox;
 
 	private Shape transformedPolygon;
 
@@ -50,8 +50,7 @@ public class RegionNode extends Node {
 
 	public void updatePolygon(MultiPolygon polygon) {
 		this.polygon = polygon;
-		center = GisUtils.getCenter(polygon);
-		boundingBox = GisUtils.getBoundingBox(polygon);
+		center = GisUtils.getCenterOfLargestPolygon(polygon);
 		transformedPolygon = null;
 	}
 
@@ -60,7 +59,10 @@ public class RegionNode extends Node {
 	}
 
 	public Rectangle2D getBoundingBox() {
-		return boundingBox;
+		Envelope bounds = polygon.getEnvelopeInternal();
+
+		return new Rectangle2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(),
+				bounds.getHeight());
 	}
 
 	public Shape getTransformedPolygon() {
@@ -72,9 +74,8 @@ public class RegionNode extends Node {
 	}
 
 	public boolean containsPoint(Point2D point) {
-		return boundingBox.contains(point)
-				&& polygon.contains(polygon.getFactory().createPoint(
-						new Coordinate(point.getX(), point.getY())));
+		return polygon.contains(polygon.getFactory().createPoint(
+				new Coordinate(point.getX(), point.getY())));
 	}
 
 	@Override

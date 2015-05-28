@@ -35,6 +35,7 @@ import java.util.Map;
 
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -197,6 +198,27 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	}
 
 	protected class RegionPickingPlugin extends GisPickingPlugin {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				RegionNode node = getContainingNode(e.getX(), e.getY());
+				Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(),
+						e.getX(), e.getY());
+
+				if (edge != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
+							edge, edgeSchema);
+
+					dialog.setVisible(true);
+				} else if (node != null) {
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
+							node, nodeSchema);
+
+					dialog.setVisible(true);
+				}
+			}
+		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {

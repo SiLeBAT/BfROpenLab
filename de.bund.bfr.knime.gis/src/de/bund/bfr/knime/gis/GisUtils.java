@@ -150,7 +150,7 @@ public class GisUtils {
 		return columns;
 	}
 
-	public static Point2D getCenter(MultiPolygon poly) {
+	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {
 		double largestArea = 0.0;
 		Point center = null;
 
@@ -165,23 +165,5 @@ public class GisUtils {
 		}
 
 		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
-	}
-
-	public static Rectangle2D getBoundingBox(MultiPolygon poly) {
-		double minX = Double.POSITIVE_INFINITY;
-		double maxX = Double.NEGATIVE_INFINITY;
-		double minY = Double.POSITIVE_INFINITY;
-		double maxY = Double.NEGATIVE_INFINITY;
-
-		for (int i = 0; i < poly.getNumGeometries(); i++) {
-			for (Coordinate c : ((Polygon) poly.getGeometryN(i)).getExteriorRing().getCoordinates()) {
-				minX = Math.min(minX, c.x);
-				maxX = Math.max(maxX, c.x);
-				minY = Math.min(minY, c.y);
-				maxY = Math.max(maxY, c.y);
-			}
-		}
-
-		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 	}
 }

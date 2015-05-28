@@ -147,7 +147,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				}
 			}
 
-			Point2D p = GisUtils.getCenter(shape);
+			Point2D p = GisUtils.getCenterOfLargestPolygon(shape);
 
 			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p.getX());
 			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p.getY());
