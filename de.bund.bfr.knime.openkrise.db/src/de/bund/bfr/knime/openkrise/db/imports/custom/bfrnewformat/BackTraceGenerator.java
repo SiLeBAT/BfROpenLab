@@ -319,7 +319,7 @@ public class BackTraceGenerator {
 					String sl = getStationLookup(rs);
 					if (!sl.equals(sid)) break;
 					rowIndex++;
-					row = copyRow(workbook, sheetTracing, 5, rowIndex);
+					row = copyRow(workbook, sheetTracing, 9, rowIndex);
 					ln = fillRow(dvHelper, sheetTracing, rs, row, evaluator, de);
 					lotNumbers.add(ln);
 				}
