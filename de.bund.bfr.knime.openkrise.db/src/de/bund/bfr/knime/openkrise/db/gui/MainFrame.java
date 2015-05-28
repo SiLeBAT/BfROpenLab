@@ -777,9 +777,9 @@ public class MainFrame extends JFrame {
 		if (dialog.isApproved()) {
 			String folder = DBKernel.HSHDB_PATH;
 			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
-			if (this.myDB != null) this.myDB.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
 			new BackTraceGenerator(folder + "openrequests", dialog.getSelected());
-			if (this.myDB != null) this.myDB.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		}		
 	}
 	private static class BackTraceDialog extends JDialog implements ActionListener {

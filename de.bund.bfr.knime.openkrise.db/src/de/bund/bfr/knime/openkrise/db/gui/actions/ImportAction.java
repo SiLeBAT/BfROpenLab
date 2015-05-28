@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db.gui.actions;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -82,6 +83,7 @@ public class ImportAction extends AbstractAction {
 	  try {
 		  int returnVal = fc.showOpenDialog(progressBar1); // this
 		  if (returnVal == JFileChooser.APPROVE_OPTION) {
+				if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		  		if (fc.getFileFilter() instanceof MyImporter) {
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();
 				  	File[] selectedFiles = fc.getSelectedFiles();
@@ -144,6 +146,7 @@ public class ImportAction extends AbstractAction {
 		  MyLogger.handleMessage(fc + "\t" + lastOutDir);
 		  MyLogger.handleException(e1);
 	  }
+		if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		MyLogger.handleMessage("Importing - FinFin!");
 	}
   private void doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
