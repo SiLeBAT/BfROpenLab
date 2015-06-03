@@ -133,7 +133,7 @@ public class Delivery {
 	public Integer getID(Integer miDbId, boolean dataMayhaveChanged) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
-		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empf‰nger",
+		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empf√§nger",
 				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged);
 		dbId = retId;
 		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
@@ -165,7 +165,7 @@ public class Delivery {
 					" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
 					" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
 					" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-					" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empf‰nger") + "=" + dbRecID +
+					" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empf√§nger") + "=" + dbRecID +
 					" AND UCASE(" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Serial") + ")='" + id.toUpperCase() + "'" +
 					" AND " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + lot.getProduct().getStation().getID(miDbId);
 			ResultSet rs = DBKernel.getResultSet(sql, false);
@@ -201,9 +201,9 @@ public class Delivery {
 			return null;
 		}
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Lieferungen") +
-				" WHERE " + DBKernel.delimitL("Empf‰nger") + "=" + dbRecID;
+				" WHERE " + DBKernel.delimitL("Empf√§nger") + "=" + dbRecID;
 		sql += " AND " + DBKernel.delimitL("Charge") + "=" + dbLotID; 
-		String in = DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Empf‰nger") + "," + DBKernel.delimitL("ImportSources");
+		String in = DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Empf√§nger") + "," + DBKernel.delimitL("ImportSources");
 		String iv = dbLotID + "," + dbRecID + ",';" + miDbId + ";'";
 		String serialWhere = "";
 		int i=0;

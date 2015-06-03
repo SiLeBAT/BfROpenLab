@@ -763,7 +763,7 @@ public class MyTable {
 			String tableName = this.getTablename();
 			// hier soll immer die ID drin stehen, die wird dann zur Darstellung
 			// der M:N Beziehung ausgelesen.
-			// Mach einfach für alle Zeilen, dauert ja nicht lange, oder?
+			// Mach einfach fÃ¼r alle Zeilen, dauert ja nicht lange, oder?
 			for (int i = 0; i < listMNs.size(); i++) {
 				String feldname = listMNs.get(i);
 				DBKernel.sendRequest(

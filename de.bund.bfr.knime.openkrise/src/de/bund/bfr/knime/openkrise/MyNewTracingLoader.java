@@ -60,7 +60,7 @@ public class MyNewTracingLoader {
 	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
 		allDeliveries = new HashMap<>();
 		// Firstly: get all deliveries
-		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empf‰nger")
+		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empf√§nger")
 				+ "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + ","
 				+ DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + " FROM "
 				+ DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen")
@@ -71,7 +71,7 @@ public class MyNewTracingLoader {
 				+ DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
 		sql = DSL
 				.using(conn, SQLDialect.HSQLDB)
-				.select(field("ID"), field("Empf‰nger"), field("Station"), field("dd_day"),
+				.select(field("ID"), field("Empf√§nger"), field("Station"), field("dd_day"),
 						field("dd_month"), field("dd_year")).from(table("Lieferungen"))
 				.leftOuterJoin(table("Chargen"))
 				.on(field("Lieferungen.Charge").equal(field("Chargen.ID")))
@@ -83,7 +83,7 @@ public class MyNewTracingLoader {
 			if (rs != null && rs.first()) {
 				do {
 					MyDelivery md = new MyDelivery(rs.getObject("ID").toString(), rs.getObject(
-							"Station").toString(), rs.getObject("Empf‰nger").toString(),
+							"Station").toString(), rs.getObject("Empf√§nger").toString(),
 							(Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"),
 							(Integer) rs.getObject("dd_year"));
 					allDeliveries.put(md.getId(), md);
@@ -169,10 +169,10 @@ public class MyNewTracingLoader {
 			}
 			if (alwaysUEkg)
 				return false; // beim EFSA Importer wurde immer kg eingetragen,
-								// sp‰ter beim bfrnewimporter wurde nur noch
+								// sp√§ter beim bfrnewimporter wurde nur noch
 								// "numPU" und "typePU" benutzt und UnitEinheit
-								// m¸sste immer NULL sein, daher ist das ein
-								// sehr gutes Indiz daaf¸r, dass wir es mit
+								// m√ºsste immer NULL sein, daher ist das ein
+								// sehr gutes Indiz daaf√ºr, dass wir es mit
 								// alten Daten zu tun haben
 		} catch (SQLException e) {
 			e.printStackTrace();

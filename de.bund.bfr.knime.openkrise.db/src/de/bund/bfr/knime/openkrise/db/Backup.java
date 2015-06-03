@@ -117,7 +117,7 @@ public class Backup extends FileFilter {
 				String answerErr = DBKernel.sendRequestGetErr("BACKUP DATABASE TO '" + filename + "' BLOCKING");
 				if (!silent) {
 					if (answerErr.length() == 0) {
-						JOptionPane.showMessageDialog(frame, "In '" + filename + "' " + GuiMessages.getString("wurde erfolgreich ein Backup der Datenbank erstellt!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+						JOptionPane.showMessageDialog(frame, "In '" + filename + "' " + GuiMessages.getString("wurde erfolgreich ein Backup der Datenbank erstellt!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu Ã¶ffnen!" : "")
 								"Backup", JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						JOptionPane.showMessageDialog(frame,
@@ -179,8 +179,8 @@ public class Backup extends FileFilter {
 		if (scriptFile != null && scriptFile.exists()) {
 			if (!silent) {
 				int returnVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame,
-						GuiMessages.getString("Die Datenbank wird gelöscht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
-								+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank löschen"), JOptionPane.YES_NO_OPTION);
+						GuiMessages.getString("Die Datenbank wird gelÃ¶scht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
+								+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank lÃ¶schen"), JOptionPane.YES_NO_OPTION);
 				if (returnVal != JOptionPane.YES_OPTION) {
 					return result;
 				}
@@ -230,7 +230,7 @@ public class Backup extends FileFilter {
 					}
 				}
 				if (!silent && answerErr.length() == 0) {
-					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu Ã¶ffnen!" : "")
 							"Restore", JOptionPane.INFORMATION_MESSAGE);
 					if (myDB != null && !DBKernel.isKNIME) {
 						myDB.myRefresh();

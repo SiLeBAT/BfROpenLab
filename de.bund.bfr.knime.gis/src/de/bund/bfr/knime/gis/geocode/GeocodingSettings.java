@@ -30,7 +30,7 @@ public class GeocodingSettings extends NodeSettings {
 	public static final String PROVIDER_MAPQUEST = "MapQuest";
 	public static final String PROVIDER_GISGRAPHY_PUBLIC = "Gisgraphy Public Server";
 	public static final String PROVIDER_GISGRAPHY = "Gisgraphy";
-	public static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
+	public static final String PROVIDER_BKG = "Bundesamt fÃ¼r Kartographie und GeodÃ¤sie";
 	public static final String[] PROVIDER_CHOICES = { PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY_PUBLIC,
 			PROVIDER_GISGRAPHY, PROVIDER_BKG };
 

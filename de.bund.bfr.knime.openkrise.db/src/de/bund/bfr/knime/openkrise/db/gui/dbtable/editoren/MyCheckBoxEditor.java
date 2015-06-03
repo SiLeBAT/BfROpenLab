@@ -54,7 +54,7 @@ public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, Cell
 	public MyCheckBoxEditor(String tooltip, MyDBTable myDB, boolean isGeprueftCheckBox) {
 		this.myDB = myDB;
 		this.setToolTipText(tooltip);
-		this.isGeprueftCheckBox = isGeprueftCheckBox;//tooltip.endsWith("Richtigkeit überprüft");
+		this.isGeprueftCheckBox = isGeprueftCheckBox;//tooltip.endsWith("Richtigkeit Ã¼berprÃ¼ft");
 		//this.addChangeListener(this);
 		this.addActionListener(this);
 		this.setHorizontalAlignment(SwingConstants.CENTER);
@@ -113,7 +113,7 @@ public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, Cell
 			      	//System.out.println(v.keySet().toString());
 		      		if (v.containsKey(DBKernel.getUsername())) {
 				        this.setSelected(!this.isSelected());
-	    				InfoBox ib = new InfoBox("Der Benutzer, der diesen Datensatz erstellt hat,\ndarf das Geprueft-Feld nicht ändern!", true, new Dimension(333, 150), null, true);
+	    				InfoBox ib = new InfoBox("Der Benutzer, der diesen Datensatz erstellt hat,\ndarf das Geprueft-Feld nicht Ã¤ndern!", true, new Dimension(333, 150), null, true);
 	    				ib.setVisible(true);    				
 		      		}		
 			      	if (isNull && this.isSelected()) isNull = false;			   

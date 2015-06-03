@@ -1453,7 +1453,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + sdfFormat(dayMHD, monthMHD, yearMHD);
 					;
 					//System.err.println(deliveryS);
-					lastID = getID("Lieferungen", new String[] { "Charge", "dd_day", "dd_month", "dd_year", "Unitmenge", "UnitEinheit", "Empf‰nger", "Serial",
+					lastID = getID("Lieferungen", new String[] { "Charge", "dd_day", "dd_month", "dd_year", "Unitmenge", "UnitEinheit", "Empf√§nger", "Serial",
 							"Contact_Questions_Remarks", "numPU", "typePU", "EndChain", "Explanation_EndChain", "Further_Traceback" }, new String[] { lastID.toString(), dayD,
 							monthD, yearD, amountKG, "kg", empf == null ? null : empf.toString(), serial, cqr, numPU, typePU, EndChain, Explanation_EndChain, Further_Traceback },
 							new boolean[] { true, true, true, true, true, true, true, false, false, true, true, false, false, false }, new boolean[] { false, false, false, false,

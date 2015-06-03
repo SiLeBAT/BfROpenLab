@@ -47,10 +47,10 @@ public class MyPreferences {
 	}
 }
 /*
-Auﬂerdem:
+Au√üerdem:
 - DBKernel, Zeile 1716 weg "bundle = FrameworkUtil.getBundle(DBKernel.class);"
 - DBKernel.debug = false
-- alle DBKernels weg in MyTrigger f¸r Server.jar!!!
+- alle DBKernels weg in MyTrigger f√ºr Server.jar!!!
 - zum debuggen auf der commandline app starten mit: 'java -Xms512m -Xmx768m -jar "C:\Dokumente und Einstellungen\Weiser\Lokale Einstellungen\Anwendungsdaten\SiLeBAT-DB\SiLeBAT_1.7.9.jar"'
 */
 

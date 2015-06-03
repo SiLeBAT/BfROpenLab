@@ -52,7 +52,7 @@ public class MyTrigger implements Trigger {
 						}        				
         			}
         			else if (triggerType == Trigger.UPDATE_BEFORE_ROW) {
-        				// Achtung: Aktiver User darf die Kennung nicht ‰ndern. Daher: ƒnderung nicht zulassen!!!
+        				// Achtung: Aktiver User darf die Kennung nicht √§ndern. Daher: √Ñnderung nicht zulassen!!!
 	        	  		if (rowBefore != null && rowBefore[1] != null) {
 	        	  			String un = MainKernel.getUsername(); 
 	        	  			if (un.length() == 0) {
@@ -65,7 +65,7 @@ public class MyTrigger implements Trigger {
 		        	  			}
 		        	  	}
 	        	  		/*
-        				// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: ƒnderung nicht zulassen!!!
+        				// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: √Ñnderung nicht zulassen!!!
         				if (rowBefore != null && rowBefore[4] != null) {
         					int oldAccRight = ((Integer) rowBefore[4]).intValue();
         					if (oldAccRight == Users.ADMIN) {
@@ -94,7 +94,7 @@ public class MyTrigger implements Trigger {
         				}
         			}
         		}
-        		else if (tableName.equals("ProzessWorkflow") && triggerType == Trigger.UPDATE_BEFORE_ROW) { // XML sollte nicht gelˆscht werden d¸rfen!
+        		else if (tableName.equals("ProzessWorkflow") && triggerType == Trigger.UPDATE_BEFORE_ROW) { // XML sollte nicht gel√∂scht werden d√ºrfen!
         			if (rowAfter != null && (rowAfter[9] == null)) { // XML
     					rowAfter[9] = rowBefore[9];
         			}
@@ -150,13 +150,13 @@ public class MyTrigger implements Trigger {
 		  	else {
 		  		int oldAccRight = (oldUser[4] == null) ? Users.READ_ONLY : ((Integer) oldUser[4]).intValue();
 		  		String oldUsername = oldUser[1].toString();
-			  	// 2. Username hat sich ge‰ndert
+			  	// 2. Username hat sich ge√§ndert
 		  		if (oldUsername.length() > 0 && !oldUsername.equals(newUsername)) {
 			  		if (createUser(newUsername, newAccRight)) {
 						deleteUser(oldUser);
 					}	  			
 		  		}
-			  	// 3. Access Rights haben sich ge‰ndert
+			  	// 3. Access Rights haben sich ge√§ndert
 			  	else if (oldAccRight != newAccRight) {
 			  		if (removeAccRight(newUsername, oldAccRight)) {
 						createAccRight(newUsername, newAccRight);

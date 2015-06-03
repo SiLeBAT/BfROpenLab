@@ -288,7 +288,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					String lID = rs.getObject("Lieferungen.ID").toString();
 					String lieferID = rs.getObject(useSerialAsID ? "Lieferungen.Serial" : lID).toString();
 					String id1 = rs.getObject("Produktkatalog.Station").toString();
-					String id2 = rs.getObject("Lieferungen.Empf‰nger").toString();
+					String id2 = rs.getObject("Lieferungen.Empf√§nger").toString();
 					if (useSerialAsID) {
 						hmDeliveryIDs.put(lID, lieferID);
 						id1 = hmStationIDs.get(id1);

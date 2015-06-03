@@ -36,7 +36,7 @@ import de.bund.bfr.knime.openkrise.db.imports.SQLScriptImporter;
  * 
  */
 
-// ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
+// ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachtrÃ¤glich ausgefÃ¼hrt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
 	public static void check4Updates_184_185() {
@@ -487,7 +487,7 @@ public class UpdateChecker {
 			// 34 -> 35, 33 -> 31
 			DBKernel.sendRequest(
 					"INSERT INTO " + DBKernel.delimitL("Einheiten") + " (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung")
-							+ ") VALUES (44,'°Bé','Grad Baumé')", false); // 31 -> 44
+							+ ") VALUES (44,'Â°BÃ©','Grad BaumÃ©')", false); // 31 -> 44
 			DBKernel.sendRequest(
 					"INSERT INTO " + DBKernel.delimitL("Einheiten") + " (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung")
 							+ ") VALUES (46,'U/min','Umdrehungen pro Minute')", false); // 32 -> 46
@@ -658,8 +658,8 @@ public class UpdateChecker {
 	 * "/de/bund/bfr/knime/openkrise/db/res/002_EstModelPrimView_165.sql", null, false); new
 	 * SQLScriptImporter
 	 * ().doImport("/de/bund/bfr/knime/openkrise/db/res/002_EstModelSecView_165.sql", null,
-	 * false); } public static void check4Updates_163_164() { /* // für Krisen
-	 * EHEC-DB, da wurde wohl ein Update mitten "im Übergang" von
+	 * false); } public static void check4Updates_163_164() { /* // fÃ¼r Krisen
+	 * EHEC-DB, da wurde wohl ein Update mitten "im Ãœbergang" von
 	 * check4Updates_162_163 gemacht DBKernel.sendRequest("DROP VIEW IF EXISTS "
 	 * + DBKernel.delimitL("MesswerteEinfach"), false);
 	 * DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") +
@@ -1475,8 +1475,8 @@ public class UpdateChecker {
 	 * ps.setString(1, "Linsensamen"); ps.execute(); ps.setString(1,
 	 * "Zwiebelsamen"); ps.execute();
 	 * 
-	 * ps.setString(1, "Frischgemüse"); ps.execute(); ps.setString(1,
-	 * "Sprossgemüse"); ps.execute(); ps.setString(1, "Bockshornkleesprossen");
+	 * ps.setString(1, "FrischgemÃ¼se"); ps.execute(); ps.setString(1,
+	 * "SprossgemÃ¼se"); ps.execute(); ps.setString(1, "Bockshornkleesprossen");
 	 * ps.execute(); ps.setString(1, "Alfalfasprossen"); ps.execute();
 	 * ps.setString(1, "Mungobohnensprossen"); ps.execute(); ps.setString(1,
 	 * "Rettichsprossen"); ps.execute(); ps.setString(1, "Linsensprossen");
@@ -1621,7 +1621,7 @@ public class UpdateChecker {
 							}
 						} else {
 							if (!ct.equals("PRIMARY KEY") && !ct.equals("CHECK")) {
-								MyLogger.handleMessage("Wasn das jetzt fürn CONSTRAINT. Soll ich wirklich löschen??? " + ct + "\t" + tn + "\t" + cn);
+								MyLogger.handleMessage("Wasn das jetzt fÃ¼rn CONSTRAINT. Soll ich wirklich lÃ¶schen??? " + ct + "\t" + tn + "\t" + cn);
 							}
 						}
 					}

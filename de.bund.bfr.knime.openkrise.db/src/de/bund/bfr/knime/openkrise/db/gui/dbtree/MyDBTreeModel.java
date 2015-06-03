@@ -220,7 +220,7 @@ class MyDBTreeModel implements TreeModel {
 		  				String cutCode = (myCS == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
 		  				String description = rs.getString(3);
 		  				if (code == null || code.trim().length() == 0) {
-		  					System.err.println("Brümde?");
+		  					System.err.println("BrÃ¼mde?");
 		  				}
 		  				else {
 		  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
@@ -278,7 +278,7 @@ class MyDBTreeModel implements TreeModel {
 					else {
 						if (i > 0) { // sonst Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: -1
 							String zeroKey = key;
-							for (int j=i;j<cutSystem.length;j++) { // Nullen anfügen, gibts dann nen Parent? Das ist zumindest wichtig bei ADV-01 Matrices. Sieht bei den anderen System auch gut aus
+							for (int j=i;j<cutSystem.length;j++) { // Nullen anfÃ¼gen, gibts dann nen Parent? Das ist zumindest wichtig bei ADV-01 Matrices. Sieht bei den anderen System auch gut aus
 								for (int k=0;k<cutSystem[j]-cutSystem[j-1];k++) {
 									zeroKey += "0";
 								}

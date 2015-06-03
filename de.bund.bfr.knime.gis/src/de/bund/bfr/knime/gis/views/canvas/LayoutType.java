@@ -20,7 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 public enum LayoutType {
-	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman–Reingold"), ISOM_LAYOUT(
+	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
 			"Self-Organizing Map"), KK_LAYOUT("Kamada-Kawai");
 
 	private String name;

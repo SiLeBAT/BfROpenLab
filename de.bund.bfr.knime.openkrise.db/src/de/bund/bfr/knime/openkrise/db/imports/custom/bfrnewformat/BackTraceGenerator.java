@@ -484,7 +484,7 @@ public class BackTraceGenerator {
 		if (rs.getObject("Lieferungen.typePU") != null) cell.setCellValue(rs.getString("Lieferungen.typePU"));
 		else cell.setCellValue("");
 		cell = row.getCell(10);
-		if (rs.getObject("Lieferungen.Empf‰nger") != null) cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empf‰nger")));
+		if (rs.getObject("Lieferungen.Empf√§nger") != null) cell.setCellValue(getStationLookup(rs.getString("Lieferungen.Empf√§nger")));
 		else cell.setCellValue("");
 		cell = row.getCell(11);
 		cell.setCellFormula("INDEX(Companies,MATCH(K" + (row.getRowNum() + 1) + ",StationIDs,0),1)");

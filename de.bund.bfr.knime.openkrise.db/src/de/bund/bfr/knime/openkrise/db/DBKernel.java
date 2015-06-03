@@ -122,7 +122,7 @@ public class DBKernel {
 		// String pass = DBKernel.prefs.get("DBADMINPASS" +
 		// getCRC32(dbPath),"00");
 		// if (pass.equals("00")) {
-		if (isServerConnection) return "de6!§5ddy";
+		if (isServerConnection) return "de6!Â§5ddy";
 		if (!adminP.containsKey(dbPath)) getUP(dbPath);
 		return adminP.get(dbPath);
 	}
@@ -146,7 +146,7 @@ public class DBKernel {
 	private static String getDefaultSAPass(boolean other) {
 		String pass = "";
 		// if (debug) return "";
-		if (other) pass = "de6!§5ddy";
+		if (other) pass = "de6!Â§5ddy";
 		else pass = "";
 		return pass;
 	}
@@ -415,7 +415,7 @@ public class DBKernel {
 					actualRow += "\t" + rs.getString(j);
 				}
 				do {
-					if (showDeletedAsWell || rs.getObject("ID") != null) { // wurde die ID in der Zwischenzeit gelöscht? Dann muss sie auch nicht gelistet werden!
+					if (showDeletedAsWell || rs.getObject("ID") != null) { // wurde die ID in der Zwischenzeit gelÃ¶scht? Dann muss sie auch nicht gelistet werden!
 						Integer id = rs.getInt("TabellenID");
 						if (result.containsKey(id)) {
 							entries = result.get(id);
@@ -450,7 +450,7 @@ public class DBKernel {
 						entries.add(newEntry + "\n" + actualRow);
 						result.put(id, entries);
 					} else {
-						// System.err.println(rs.getInt("TabellenID") + " wurde bereits gelöscht!");
+						// System.err.println(rs.getInt("TabellenID") + " wurde bereits gelÃ¶scht!");
 					}
 				} while (rs.next());
 				rs.close();
@@ -591,7 +591,7 @@ public class DBKernel {
 					} catch (Exception e) {
 						MyLogger.handleException(e);
 					}
-					break; // nur das zuletzt abgespeicherte soll geöffnet werden!
+					break; // nur das zuletzt abgespeicherte soll geÃ¶ffnet werden!
 				} while (rs.next());
 			}
 		} catch (SQLException e) {
@@ -654,7 +654,7 @@ public class DBKernel {
 	}
 
 	// Still to look at... myDBI... newConn...
-	// newConn wird nur von MergeDBs benötigt
+	// newConn wird nur von MergeDBs benÃ¶tigt
 	static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 		return getDBConnection(dbPath, theUsername, thePassword, newConn, false);
 	}
@@ -675,7 +675,7 @@ public class DBKernel {
 	}
 
 	// Still to look at... myDBI... newConn...
-	// newConn wird nur von MergeDBs und Bfrdb benötigt
+	// newConn wird nur von MergeDBs und Bfrdb benÃ¶tigt
 	static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
 		Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
 		return result;
@@ -920,7 +920,7 @@ public class DBKernel {
 					result = "";
 					// System.err.println("isMN..." + ft);
 				} else {
-					System.err.println("hashBox überprüfen...\t" + id);
+					System.err.println("hashBox Ã¼berprÃ¼fen...\t" + id);
 					result = "";// ft + ": leer\n";
 				}
 			} else {
@@ -1308,7 +1308,7 @@ public class DBKernel {
 		return isAdmin(null, un);
 	}
 
-	private static boolean isAdmin(Connection conn, String un) { // nur der Admin kann überhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen für Adminrechte, das kann auch defad sein
+	private static boolean isAdmin(Connection conn, String un) { // nur der Admin kann Ã¼berhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen fÃ¼r Adminrechte, das kann auch defad sein
 		if (conn == null) {
 			if (un.equals(getTempSA(HSHDB_PATH))) {
 				return true;
@@ -1492,7 +1492,7 @@ public class DBKernel {
 						DBKernel.myDBi.addUserInCaseNotThere(username, password);
 					}
 				} else {
-					if (!Backup.doRestore(null, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+					if (!Backup.doRestore(null, temp, true)) { // Passwort hat sich verÃ¤ndert innerhalb der 2 beteiligten Datenbanken...
 					}
 				}
 			}

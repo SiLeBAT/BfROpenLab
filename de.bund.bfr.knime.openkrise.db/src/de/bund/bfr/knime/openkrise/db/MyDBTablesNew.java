@@ -40,7 +40,7 @@ public class MyDBTablesNew extends MyDBI {
 	private LinkedHashSet<String> allViews = null;
 	private LinkedHashMap<String, String> allData = null;
 	private String saUser = "SA";//"defad"; // SA
-	private String saPass = "";//"de6!§5ddy";
+	private String saPass = "";//"de6!Â§5ddy";
 	private String dbServerPath = "";
 	private String softwareVersion = "1.8.5";
 	
@@ -163,8 +163,8 @@ public class MyDBTablesNew extends MyDBI {
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), true);
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
 	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
+	        // Zur Ãœberwachung, damit immer mindestens ein Admin Ã¼brig bleibt; dasselbe gibts im MyDataChangeListener fÃ¼r Delete Operations!
+	        // AuÃŸerdem zur Ãœberwachung, daÃŸ der eingeloggte User seine Kennung nicht Ã¤ndert
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
 	}
@@ -190,7 +190,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,null,null},
 				new String[][]{{"Username"}},
 				new LinkedHashMap[]{null,null,null,Users.getUserTypesHash()});
-		addTable(us, -1); // müsste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da müsste man erst die sendRequests umstellen auf defaultconnection...		
+		addTable(us, -1); // mÃ¼sste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da mÃ¼sste man erst die sendRequests umstellen auf defaultconnection...		
 
 		MyTable infoTable = new MyTable("Infotabelle",
 				new String[]{"Parameter","Wert"},
@@ -204,7 +204,7 @@ public class MyDBTablesNew extends MyDBI {
 		// Katalogtabellen
 		MyTable matrix = new MyTable("Matrices", new String[]{"Matrixname","Leitsatznummer","pH","aw","Dichte","Katalogcodes"},
 				new String[]{"VARCHAR(255)","VARCHAR(20)","DOUBLE","DOUBLE","DOUBLE","INTEGER"},
-				new String[]{"Kulturmedium / Futtermittel / Lebensmittel / Serum / Kot / Gewebe","Leitsatznummer - falls bekannt","pH-Wert über alle Produkte der Warengruppe - falls abschaetzbar","aw-Wert über alle Produkte der Warengruppe - falls abschaetzbar","Dichte der Matrix über alle Produkte der Warengruppe - falls abschaetzbar","Matrixkatalog - Codes"},
+				new String[]{"Kulturmedium / Futtermittel / Lebensmittel / Serum / Kot / Gewebe","Leitsatznummer - falls bekannt","pH-Wert Ã¼ber alle Produkte der Warengruppe - falls abschaetzbar","aw-Wert Ã¼ber alle Produkte der Warengruppe - falls abschaetzbar","Dichte der Matrix Ã¼ber alle Produkte der Warengruppe - falls abschaetzbar","Matrixkatalog - Codes"},
 				new MyTable[]{null,null,null,null,null,null},
 				null,
 				null,
@@ -267,7 +267,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable matrix_OG = new MyTable("Codes_Matrices", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
-				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, GS1, BLS, ADV oder auch selfmade)","Hierarchischer Code","Zugehörige Matrix"},
+				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, GS1, BLS, ADV oder auch selfmade)","Hierarchischer Code","ZugehÃ¶rige Matrix"},
 				new MyTable[]{null,null,matrix},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -278,7 +278,7 @@ public class MyDBTablesNew extends MyDBI {
 		matrix.setForeignField(matrix_OG, 5);
 		MyTable agenzienkategorie = new MyTable("Codes_Agenzien", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
-				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, ADV oder auch selfmade)","Hierarchischer Code","Zugehöriges Agens"},
+				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, ADV oder auch selfmade)","Hierarchischer Code","ZugehÃ¶riges Agens"},
 				new MyTable[]{null,null,agenzien},
 				new String[][]{{"CodeSystem","Code"}},
 				null,
@@ -303,8 +303,8 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(255)","VARCHAR(30)","VARCHAR(100)","DOUBLE","DOUBLE","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
 				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","VARCHAR(16383)","VARCHAR(16383)"},
 				new String[]{null,null, null,null,null,null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
-				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
-				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null,null},
+				"z.B. Endverbraucher, Erzeuger, EinzelhÃ¤ndler, GroÃŸhÃ¤ndler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
+				"Falldefinition erfÃ¼llt (z.B. laut RKI) - PrioritÃ¤t: Wert zwischen 0 und 1",null,null,null,"Datum frÃ¼hester Erkrankungsbeginn","Datum des HÃ¶hepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
@@ -325,13 +325,13 @@ public class MyDBTablesNew extends MyDBI {
 		LinkedHashMap<String, String> proce = new LinkedHashMap<>();
 		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and ready-to-eat (e.g. salads)" : "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
 		proce.put("erhitzt und verzehrsfertig (fast alles)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
-		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
-		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
+		proce.put("erhitzt und nicht verzehrsfÃ¤hig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfÃ¤hig (Vorprodukte wie eingefrorene Kuchen)");
+		proce.put("nicht erhitzt und nicht verzehrsfÃ¤hig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfÃ¤hig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
 				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial","ImportSources"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(16383)"},
-				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null,null},
+				new String[]{null,null,null,"gekocht? geschÃ¼ttelt? gerÃ¼hrt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null,null},
 				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null,null},
@@ -363,7 +363,7 @@ public class MyDBTablesNew extends MyDBI {
 		
 		MyTable Lieferungen = new MyTable("Lieferungen", // Artikel_Lieferung
 				new String[]{"Charge","dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
-					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback","ImportSources"}, // ,"Vorprodukt","Zielprodukt"
+					"Unitmenge","UnitEinheit","EmpfÃ¤nger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback","ImportSources"}, // ,"Vorprodukt","Zielprodukt"
 				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
 					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)"}, // ,"INTEGER","INTEGER"
 				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","Arrival date - day","Arrival date - month","Arrival date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null,null}, // ,null,null
@@ -386,7 +386,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null},
 				null,
 				new LinkedList<>(Arrays.asList("Zutat")),
-				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null,null});
+				new String[]{"Zutat.EmpfÃ¤nger=Produkt.Artikel.Station", null, null,null});
 		addTable(ChargenVerbindungen, DBKernel.debug ? Lieferketten_LIST : -1);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 
@@ -429,7 +429,7 @@ public class MyDBTablesNew extends MyDBI {
 
 	private void loadHashes() {		
 		LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<>();
-		hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
+		hashBundesland.put("Baden-WÃ¼rttemberg", "Baden-WÃ¼rttemberg");
 		hashBundesland.put("Bayern", "Bayern");
 		hashBundesland.put("Berlin", "Berlin");
 		hashBundesland.put("Brandenburg", "Brandenburg");
@@ -444,7 +444,7 @@ public class MyDBTablesNew extends MyDBI {
 		hashBundesland.put("Sachsen", "Sachsen");
 		hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
 		hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
-		hashBundesland.put("Thüringen", "Thüringen");
+		hashBundesland.put("ThÃ¼ringen", "ThÃ¼ringen");
 		allHashes.put("County", hashBundesland);
 	}
 	private void loadOther4Gui() {

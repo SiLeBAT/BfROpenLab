@@ -471,7 +471,7 @@ public abstract class MyDBI {
 				} else if (mnTable != null && i > 1 && i - 2 < mnTable.length && mnTable[i - 2] != null && mnTable[i - 2].length() > 0) {
 					result = "";
 				} else {
-					System.err.println("hashBox überprüfen...\t" + id);
+					System.err.println("hashBox Ã¼berprÃ¼fen...\t" + id);
 					result = "";// ft + ": leer\n";
 				}
 			} else {

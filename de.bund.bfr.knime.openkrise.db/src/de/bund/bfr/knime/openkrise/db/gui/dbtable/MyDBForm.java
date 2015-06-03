@@ -318,13 +318,13 @@ public class MyDBForm extends JPanel {
 	private void updateRow() {
 		if (DBKernel.isReadOnly()) return;
 	      try {
-	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,
+	    	  // GeprÃ¼ft erstmal nicht berÃ¼cksichtigen, das gibt nur Ã„rger: dauernd Update der DB,
 	    	  // weil hier so nur false gespeichert werden kann und nicht NULL. Es sind aber viele NULLen in der DB drin
 	    	  String sql = myT.getUpdateSQL1().replace(",\"Geprueft\"=?", "");
 	    	  //System.err.println(sql);
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);
 			managePs(ps);
-			// Achtung hier "myT.getNumFields()-1" bis Geprüft wieder integriert ist!
+			// Achtung hier "myT.getNumFields()-1" bis GeprÃ¼ft wieder integriert ist!
 			ps.setInt(myT.getNumFields()-1, getInt(((JTextField) componentMap.get("ID")).getText()));
 			
 			ps.execute();
@@ -342,7 +342,7 @@ public class MyDBForm extends JPanel {
 		if (DBKernel.isReadOnly()) return false;
 		boolean allNull = true;
 	      try {
-	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,
+	    	  // GeprÃ¼ft erstmal nicht berÃ¼cksichtigen, das gibt nur Ã„rger: dauernd Update der DB,
 	    	  // weil hier so nur false gespeichert werden kann und nicht NULL. Es ind aber viele NULLen in der DB drin
 	    	  String sql = myT.getInsertSQL1().replace(",\"Geprueft\"", "").replace(",?)", ")");
 	    	  //System.err.println(sql);
@@ -367,8 +367,8 @@ public class MyDBForm extends JPanel {
 	}
 	void deleteRow() {
 		if (!newDS()) {
-			int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie diesen Datensatz löschen möchten?",
-		    		"Löschen bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daÃŸ Sie diesen Datensatz lÃ¶schen mÃ¶chten?",
+		    		"LÃ¶schen bestÃ¤tigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		    if (retVal == JOptionPane.YES_OPTION) {
 				DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL(myT.getTablename()) +
 						" WHERE " + DBKernel.delimitL("ID") + " = " + getSelectedID(), false);
@@ -430,7 +430,7 @@ public class MyDBForm extends JPanel {
 	    }
 	    if (!myT.getHideScore()) allNullVals = handleInt(ps, ++i, ((JTextField) componentMap.get("Guetescore")).getText()) && allNullVals;
 	    if (!myT.getHideKommentar()) allNullVals = handleStr(ps, ++i, componentMap.get("Kommentar")) && allNullVals;
-	    // Geprüft mache ich erstmal nur Read-Only!! is zu bucklig wegen 1. null berücksichtigen, 2. die ganze abfragelogik von wegen ein anderer Nutzer darf nur usw...!
+	    // GeprÃ¼ft mache ich erstmal nur Read-Only!! is zu bucklig wegen 1. null berÃ¼cksichtigen, 2. die ganze abfragelogik von wegen ein anderer Nutzer darf nur usw...!
 	    //if (!myT.getHideTested()) allNullVals = handleBool(ps, ++i, componentMap.get("Geprueft")) && allNullVals;
 	    
 	    return allNullVals;
@@ -523,7 +523,7 @@ public class MyDBForm extends JPanel {
 	
 	private void scrollBar1AdjustmentValueChanged(AdjustmentEvent e) {
 		if (initVal > 0 && !e.getValueIsAdjusting()) {
-			if (initVal > 1) { // Änderungen abspeichern!
+			if (initVal > 1) { // Ã„nderungen abspeichern!
 				if (newDS()) insertNewRow();
 				else updateRow();
 			}

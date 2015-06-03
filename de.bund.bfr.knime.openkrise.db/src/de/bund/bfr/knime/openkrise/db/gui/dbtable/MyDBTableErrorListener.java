@@ -36,11 +36,11 @@ class MyDBTableErrorListener implements DBTableErrorListener {
 	
 	public boolean errorOccured(int errorId, String errorMessage, Exception unexpectedException) {
 		if (errorId == 6) {
-			//errorId=6: Invalid index (Unable to delete!) passiert dummerweise beim Löschen der letzten Zeile in einer Table... wieso auch immer
+			//errorId=6: Invalid index (Unable to delete!) passiert dummerweise beim LÃ¶schen der letzten Zeile in einer Table... wieso auch immer
 			return true;
 		}
 		else if (errorId == 3 && errorMessage.equals("data exception: string data, right truncation")) {
-			String text = "Der Text in einem Feld (gelb markiert) ist zu lang und kann so nicht abgespeichert werden!\nBitte ändern!";
+			String text = "Der Text in einem Feld (gelb markiert) ist zu lang und kann so nicht abgespeichert werden!\nBitte Ã¤ndern!";
 			InfoBox ib = new InfoBox(text, true, new Dimension(600, 200), null, false);	
 			ib.setVisible(true);
 			return true;

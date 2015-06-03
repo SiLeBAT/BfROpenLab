@@ -136,7 +136,7 @@ public class MainFrame extends JFrame {
 
 	public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm, final JDialog owner) {
 		Object result = null;
-		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " ausw‰hlen...");
+		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " ausw√§hlen...");
 		//JDialog f = new JDialog(DBKernel.mainFrame, titel, dbForm != null);
 		JDialog f = new JDialog(owner == null ? DBKernel.mainFrame : owner, titel);
 		f.setModal(dbForm != null || owner != null);
@@ -174,7 +174,7 @@ public class MainFrame extends JFrame {
 				myP.setParentDialog(f, true);
 			}
 
-			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf mˆglicherweise nicht zu sehen...
+			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf m√∂glicherweise nicht zu sehen...
 			f.getContentPane().add(myP);
 			f.pack();
 			if (dbForm == null) {
@@ -258,7 +258,7 @@ public class MainFrame extends JFrame {
 	public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, Component parent,
 			String level1Expansion) {
 		Object result = null;
-		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " ausw‰hlen...");
+		String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " ausw√§hlen...");
 		//JDialog.setDefaultLookAndFeelDecorated(true);
 		Window parentFrame = null;
 		if (parent == null) {
@@ -297,7 +297,7 @@ public class MainFrame extends JFrame {
 				 * myT.getTablename().equals("Versuchsbedingungen") &&
 				 * headerValue != null &&
 				 * headerValue.toString().equals("Matrix")) { showOnly = new
-				 * String[] {"TOP", "ADV", "GS1", "N‰hrmedien"}; } else if (myT
+				 * String[] {"TOP", "ADV", "GS1", "N√§hrmedien"}; } else if (myT
 				 * != null && myT.getTablename().equals("Zutatendaten") &&
 				 * headerValue != null &&
 				 * headerValue.toString().equals("Matrix")) { showOnly = new
@@ -341,7 +341,7 @@ public class MainFrame extends JFrame {
 				myP.setParentDialog(f, true);
 			}
 			myP.setTreeVisible(isHierarchic, level1Expansion);
-			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf mˆglicherweise nicht zu sehen...
+			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf m√∂glicherweise nicht zu sehen...
 			f.getContentPane().add(myP);
 			f.pack();
 			if (dbTable == null) {
@@ -475,7 +475,7 @@ public class MainFrame extends JFrame {
 		if (myT != null) {
 			Object[][] o = null;
 			String[] dff = myT.getDeepForeignFields();
-			// Zutat.Empf‰nger=Produkt.Artikel.Station
+			// Zutat.Empf√§nger=Produkt.Artikel.Station
 			// Vorprozess.Prozessdaten=Prozess_Verbindungen.Ausgangsprozess WHERE Prozess_Verbindungen.Zielprozess=Prozessdaten; AND " + DBKernel.delimitL("Zutat_Produkt") + "='Produkt'
 			if (dff != null && dff[col - 1] != null) {
 				StringTokenizer tokADD = new StringTokenizer(dff[col - 1], ";");
@@ -496,7 +496,7 @@ public class MainFrame extends JFrame {
 							tok.nextToken();// Zutat
 							if (tok.hasMoreTokens()) {
 								o = new Object[1][2];
-								o[0][0] = tok.nextToken(); // Empf‰nger
+								o[0][0] = tok.nextToken(); // Empf√§nger
 								tok = new StringTokenizer(right, ".");
 								if (tok.hasMoreTokens()) {
 									String field = tok.nextToken(); // Produkt

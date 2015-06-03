@@ -133,7 +133,7 @@ public class PlausibleAction extends AbstractAction {
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
 					pd4.cd.isSelected() ?
-							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empf‰nger"},
+							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empf√§nger"},
 								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
@@ -175,7 +175,7 @@ public class PlausibleAction extends AbstractAction {
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
     			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-    			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empf‰nger") + "=" + stationId;
+    			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empf√§nger") + "=" + stationId;
 		try {
 			System.err.println("Deliveries - Inbound");
 			System.err.println("Recipient\tArtikelnummer\tBezeichnung\tChargenNr\tMHD_day\tMHD_month\tMHD_year\tpd_day\tpd_month\tpd_year\tdd_day\tdd_month\tdd_year\tUnitmenge\tUnitEinheit\tnumPU\ttypePU");
@@ -198,7 +198,7 @@ public class PlausibleAction extends AbstractAction {
 				DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + "," +
 				DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
 				DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("numPU") + "," + DBKernel.delimitL("typePU") + "," +
-				DBKernel.delimitL("Empf‰nger") +
+				DBKernel.delimitL("Empf√§nger") +
 				" FROM " + DBKernel.delimitL("Produktkatalog") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
@@ -216,7 +216,7 @@ public class PlausibleAction extends AbstractAction {
 							rs.getObject("pd_day") + "\t" + rs.getObject("pd_month") + "\t" + rs.getObject("pd_year") + "\t" +
 							rs.getObject("dd_day") + "\t" + rs.getObject("dd_month") + "\t" + rs.getObject("dd_year") + "\t" +
 							rs.getObject("Unitmenge") + "\t" + rs.getObject("UnitEinheit") + "\t" + rs.getObject("numPU") + "\t" + rs.getObject("typePU") + "\t" +
-							rs.getInt("Empf‰nger"));
+							rs.getInt("Empf√§nger"));
 				} while (rs.next());
 			}
 		}

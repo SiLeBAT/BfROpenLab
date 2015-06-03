@@ -92,7 +92,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
       this.addAncestorListener(new AncestorListener() {
     	  public void ancestorAdded(AncestorEvent e) {
     		  }
-    		  public void ancestorRemoved(AncestorEvent e) { // oben rechts das x gedrückt zum Schliessen
+    		  public void ancestorRemoved(AncestorEvent e) { // oben rechts das x gedrÃ¼ckt zum Schliessen
     			  if (DBKernel.debug) System.out.println("lbs2: " + (System.currentTimeMillis() - lastBLOBChosen));
     			  if (System.currentTimeMillis() - lastBLOBChosen > 1000) {
                 	  lastBLOBChosen = System.currentTimeMillis();
@@ -169,7 +169,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
   public void addCellEditorListener(CellEditorListener l) {
     //System.out.println("addCellEditorListener" + l);
     listeners.addElement(l);
-    // alle KeyEvents außer Alt+Enter, Strg+Enter, damit soll was anders passieren, nämlich die abgespeicherte Datei geöffnet werden
+    // alle KeyEvents auÃŸer Alt+Enter, Strg+Enter, damit soll was anders passieren, nÃ¤mlich die abgespeicherte Datei geÃ¶ffnet werden
     if (sourceEvent != null && sourceEvent instanceof KeyEvent &&
     		((KeyEvent) sourceEvent).getKeyChar() != KeyEvent.VK_ENTER) shouldSelectCell(sourceEvent);
   }
@@ -252,7 +252,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
   }
 
   public boolean isCellEditable(EventObject anEvent) {
-	  if (anEvent == null) { // null wird übergeben bei selectCell(row, column) in der Funktion setSelectedRowCol in MyDBTable
+	  if (anEvent == null) { // null wird Ã¼bergeben bei selectCell(row, column) in der Funktion setSelectedRowCol in MyDBTable
 		  return false;
 	  }
 	  else {

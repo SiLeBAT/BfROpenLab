@@ -53,9 +53,9 @@ public class MainKernel {
 	private static String logFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
 	*/
 	private static String[][] dbDefs = new String[][] {
-		//{"krise_145","krise_145","SA","de6!ง5ddy"},
-		{"silebat_DB","silebat_DB","defad","de6!ง5ddy"},
-		{"silebat_DB_test","silebat_DB_test","defad","de6!ง5ddy"}//,
+		//{"krise_145","krise_145","SA","de6!ยง5ddy"},
+		{"silebat_DB","silebat_DB","defad","de6!ยง5ddy"},
+		{"silebat_DB_test","silebat_DB_test","defad","de6!ยง5ddy"}//,
 	};
 	
 	public static void main(final String[] args) { // Servervariante

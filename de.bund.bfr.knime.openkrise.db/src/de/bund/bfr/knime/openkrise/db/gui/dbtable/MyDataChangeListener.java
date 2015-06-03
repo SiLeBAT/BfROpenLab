@@ -44,26 +44,26 @@ class MyDataChangeListener extends DatabaseChangeListener {
     this.table = table;
   }
   public boolean beforeDelete(int row) {
-  	if (table.getActualTable().isReadOnly() || (table.getMyDBPanel() != null && table.getMyDBPanel().isMN())) return false; // table.getMyDBPanel() == null bedeutet, dass es sich hier um myDBTable2 handelt... da soll schon gelöscht werden können
+  	if (table.getActualTable().isReadOnly() || (table.getMyDBPanel() != null && table.getMyDBPanel().isMN())) return false; // table.getMyDBPanel() == null bedeutet, dass es sich hier um myDBTable2 handelt... da soll schon gelÃ¶scht werden kÃ¶nnen
   	if (table.getActualTable().getTablename().equals("Users")) {
-  		// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: Löschung nicht zulassen!!!
+  		// Achtung: es sollte immer mindestens ein Admin vorhanden sein. Daher: LÃ¶schung nicht zulassen!!!
   		if (table.getValueAt(row, 1) != null && table.getValueAt(row, 1).toString().length() > 0) {
     		if (DBKernel.getUsername().equals(table.getValueAt(row, 1).toString())) {
-  		    JOptionPane.showMessageDialog(table, "Aktiver User kann nicht gelöscht werden!", "Löschen nicht möglich", JOptionPane.INFORMATION_MESSAGE);
+  		    JOptionPane.showMessageDialog(table, "Aktiver User kann nicht gelÃ¶scht werden!", "LÃ¶schen nicht mÃ¶glich", JOptionPane.INFORMATION_MESSAGE);
   				return false;
     		}
     		/*
     		if (DBKernel.countUsers(true) == 1) {
     			int oldAccRight = ((Integer) table.getValueAt(row, 4)).intValue();
     			if (oldAccRight == Users.ADMIN) {
-    				JOptionPane.showMessageDialog(table, "Mindestens ein User muss Admin Rechte haben!", "Löschen nicht möglich", JOptionPane.INFORMATION_MESSAGE);
+    				JOptionPane.showMessageDialog(table, "Mindestens ein User muss Admin Rechte haben!", "LÃ¶schen nicht mÃ¶glich", JOptionPane.INFORMATION_MESSAGE);
     				return false;
     			}
     		}  	
     		*/		
   		}
   	}
-    int retVal = JOptionPane.showConfirmDialog(table, "Sind Sie sicher, daß Sie die ausgewählte Zeile löschen möchten?", "Löschen bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+    int retVal = JOptionPane.showConfirmDialog(table, "Sind Sie sicher, daÃŸ Sie die ausgewÃ¤hlte Zeile lÃ¶schen mÃ¶chten?", "LÃ¶schen bestÃ¤tigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
     return retVal == JOptionPane.YES_OPTION;
   }
 

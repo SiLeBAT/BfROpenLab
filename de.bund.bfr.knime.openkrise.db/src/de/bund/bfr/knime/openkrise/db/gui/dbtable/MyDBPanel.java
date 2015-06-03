@@ -502,7 +502,7 @@ public class MyDBPanel extends JPanel {
 				    	return;
 				    }
 				}
-				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benötigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
+				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benÃ¶tigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
 			}
 			parentDialog.dispose();
 		}
@@ -603,7 +603,7 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void textField1FocusLost(FocusEvent e) {
-		// nach filtern nimmt sich manchmal der JTable den Focus, das nervt, also dann bitte wieder zurück!
+		// nach filtern nimmt sich manchmal der JTable den Focus, das nervt, also dann bitte wieder zurÃ¼ck!
 		if (System.currentTimeMillis() - tf1LastFocus < 200) textField1.requestFocus();
 	}
 

@@ -48,7 +48,7 @@ public class RandomNetworkGenerator {
 	}
 
 	private void generateFCLNetwork(int numNodes, int maxLinksPerNode) {
-		graph = new MultiGraph("Barab‡si-Albert");
+		graph = new MultiGraph("Barab√†si-Albert");
 		// Between 1 and maxLinksPerNode new links per node added.
 		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator(maxLinksPerNode);
 		gen.setDirectedEdges(true, true);
