@@ -205,6 +205,7 @@
       <plugin id="org.geotools"/>
       <plugin id="org.graphstream"/>
       <plugin id="org.hamcrest.core"/>
+      <plugin id="org.jooq"/>
       <plugin id="org.junit"/>
       <plugin id="org.knime.base"/>
       <plugin id="org.knime.core"/>
