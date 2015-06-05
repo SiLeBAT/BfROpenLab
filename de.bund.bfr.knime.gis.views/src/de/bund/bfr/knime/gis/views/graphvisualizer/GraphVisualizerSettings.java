@@ -48,8 +48,4 @@ public class GraphVisualizerSettings extends ViewSettings {
 	public GraphSettings getGraphSettings() {
 		return graphSettings;
 	}
-
-	public void setGraphSettings(GraphSettings graphSettings) {
-		this.graphSettings = graphSettings;
-	}
 }

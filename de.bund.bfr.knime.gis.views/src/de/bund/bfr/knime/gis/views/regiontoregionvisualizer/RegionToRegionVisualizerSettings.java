@@ -54,15 +54,7 @@ public class RegionToRegionVisualizerSettings extends ViewSettings {
 		return graphSettings;
 	}
 
-	public void setGraphSettings(GraphSettings graphSettings) {
-		this.graphSettings = graphSettings;
-	}
-
 	public RegionSettings getGisSettings() {
 		return gisSettings;
-	}
-
-	public void setGisSettings(RegionSettings gisSettings) {
-		this.gisSettings = gisSettings;
 	}
 }

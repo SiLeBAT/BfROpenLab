@@ -53,15 +53,7 @@ public class GisGraphViewSettings extends ViewSettings {
 		return graphSettings;
 	}
 
-	public void setGraphSettings(GraphSettings graphSettings) {
-		this.graphSettings = graphSettings;
-	}
-
 	public GisSettings getGisSettings() {
 		return gisSettings;
-	}
-
-	public void setGisSettings(GisSettings gisSettings) {
-		this.gisSettings = gisSettings;
 	}
 }

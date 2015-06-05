@@ -45,8 +45,4 @@ public class GisViewSettings extends ViewSettings {
 	public GisSettings getGisSettings() {
 		return gisSettings;
 	}
-
-	public void setGisSettings(GisSettings gisSettings) {
-		this.gisSettings = gisSettings;
-	}
 }

@@ -400,6 +400,14 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setShowForward(showForward);
 	}
 
+	public GraphSettings getGraphSettings() {
+		return graphSettings;
+	}
+
+	public GisSettings getGisSettings() {
+		return gisSettings;
+	}
+
 	public boolean isShowGis() {
 		return showGis;
 	}
@@ -590,21 +598,5 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setShowForward(boolean showForward) {
 		this.showForward = showForward;
-	}
-
-	public GraphSettings getGraphSettings() {
-		return graphSettings;
-	}
-
-	public void setGraphSettings(GraphSettings graphSettings) {
-		this.graphSettings = graphSettings;
-	}
-
-	public GisSettings getGisSettings() {
-		return gisSettings;
-	}
-
-	public void setGisSettings(GisSettings gisSettings) {
-		this.gisSettings = gisSettings;
 	}
 }

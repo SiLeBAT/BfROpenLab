@@ -48,8 +48,4 @@ public class RegionVisualizerSettings extends ViewSettings {
 	public RegionSettings getGisSettings() {
 		return gisSettings;
 	}
-
-	public void setGisSettings(RegionSettings gisSettings) {
-		this.gisSettings = gisSettings;
-	}
 }

@@ -48,8 +48,4 @@ public class LocationVisualizerSettings extends ViewSettings {
 	public LocationSettings getGisSettings() {
 		return gisSettings;
 	}
-
-	public void setGisSettings(LocationSettings gisSettings) {
-		this.gisSettings = gisSettings;
-	}
 }

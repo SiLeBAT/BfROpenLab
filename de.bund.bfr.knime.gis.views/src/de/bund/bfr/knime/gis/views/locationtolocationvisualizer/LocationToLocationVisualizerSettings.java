@@ -54,15 +54,7 @@ public class LocationToLocationVisualizerSettings extends ViewSettings {
 		return graphSettings;
 	}
 
-	public void setGraphSettings(GraphSettings graphSettings) {
-		this.graphSettings = graphSettings;
-	}
-
 	public LocationSettings getGisSettings() {
 		return gisSettings;
-	}
-
-	public void setGisSettings(LocationSettings gisSettings) {
-		this.gisSettings = gisSettings;
 	}
 }
