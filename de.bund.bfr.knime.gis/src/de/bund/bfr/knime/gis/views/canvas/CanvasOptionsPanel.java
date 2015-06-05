@@ -351,7 +351,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 						"Error", JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
-		} else if (e.getSource() == nodeMaxSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
+		} else if (e.getSource() == nodeMaxSizeBox
+				&& (e.getStateChange() == ItemEvent.SELECTED || nodeMaxSizeBox.getSelectedItem() == null)) {
 			Object size = nodeMaxSizeBox.getSelectedItem();
 
 			if (size instanceof Integer || size == null) {
