@@ -19,8 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.transformer;
 
+import java.awt.BasicStroke;
 import java.awt.Shape;
-import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
@@ -33,19 +33,17 @@ import edu.uci.ics.jung.visualization.util.ArrowFactory;
 public class EdgeArrowTransformer<V extends Node> implements
 		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> {
 
-	private Map<Edge<V>, Double> thicknessValues;
-	private double denom;
+	private EdgeStrokeTransformer<Edge<V>> strokeTransformer;
 
-	public EdgeArrowTransformer(Map<Edge<V>, Double> thicknessValues) {
-		this.thicknessValues = thicknessValues;
-		denom = TransformerUtils.getDenominator(thicknessValues.values());
+	public EdgeArrowTransformer(EdgeStrokeTransformer<Edge<V>> strokeTransformer) {
+		this.strokeTransformer = strokeTransformer;
 	}
 
 	@Override
 	public Shape transform(Context<Graph<V, Edge<V>>, Edge<V>> edge) {
-		int t1 = (int) Math.round(thicknessValues.get(edge.element) / denom * 20.0);
-		int t2 = (int) Math.round(thicknessValues.get(edge.element) / denom * 10.0);
+		BasicStroke stroke = (BasicStroke) strokeTransformer.transform(edge.element);
+		float thickness = stroke.getLineWidth();
 
-		return ArrowFactory.getNotchedArrow(t1 + 8, t2 + 10, 4);
+		return ArrowFactory.getNotchedArrow(thickness + 8, 2 * thickness + 10, 4);
 	}
 }

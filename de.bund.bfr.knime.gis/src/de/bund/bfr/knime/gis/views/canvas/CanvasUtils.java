@@ -498,7 +498,8 @@ public class CanvasUtils {
 
 	public static <V extends Node> void applyEdgeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<Edge<V>> edges,
-			HighlightConditionList edgeHighlightConditions) {
+			HighlightConditionList edgeHighlightConditions, int edgeThickness,
+			Integer edgeMaxThickness) {
 		List<Color> colors = new ArrayList<>();
 		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
@@ -560,8 +561,12 @@ public class CanvasUtils {
 
 		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext,
 				alphaValues, colors));
-		renderContext.setEdgeStrokeTransformer(new EdgeStrokeTransformer<>(thicknessValues));
-		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(thicknessValues));
+
+		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(
+				edgeThickness, edgeMaxThickness, thicknessValues);
+
+		renderContext.setEdgeStrokeTransformer(strokeTransformer);
+		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(strokeTransformer));
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
 	}
 

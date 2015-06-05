@@ -27,19 +27,27 @@ import org.apache.commons.collections15.Transformer;
 
 public class EdgeStrokeTransformer<E> implements Transformer<E, Stroke> {
 
+	private int thickness;
+	private Integer maxThickness;
 	private Map<E, Double> thicknessValues;
 	private double denom;
 
-	public EdgeStrokeTransformer(Map<E, Double> thicknessValues) {
+	public EdgeStrokeTransformer(int thickness, Integer maxThickness, Map<E, Double> thicknessValues) {
+		this.thickness = thickness;
+		this.maxThickness = maxThickness;
 		this.thicknessValues = thicknessValues;
 		denom = TransformerUtils.getDenominator(thicknessValues.values());
 	}
 
 	@Override
 	public Stroke transform(E edge) {
-		int thickness = (int) Math.round(thicknessValues.get(edge) / denom * 10.0) + 1;
+		int max = maxThickness != null ? maxThickness : thickness + 10;
+		Double factor = thicknessValues.get(edge);
 
-		return new BasicStroke(thickness);
+		if (factor == null) {
+			factor = 0.0;
+		}
+
+		return new BasicStroke((float) (thickness + (max - thickness) * factor / denom));
 	}
-
 }

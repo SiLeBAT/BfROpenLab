@@ -61,6 +61,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	public static final boolean DEFAULT_FONT_BOLD = false;
 	public static final int DEFAULT_NODE_SIZE = 10;
 	public static final Integer DEFAULT_NODE_MAX_SIZE = null;
+	public static final int DEFAULT_EDGE_THICKNESS = 1;
+	public static final Integer DEFAULT_EDGE_MAX_THICKNESS = null;
 	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final boolean DEFAULT_AVOID_OVERLAY = false;
@@ -70,6 +72,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 30 };
 	private static final Integer[] NODE_MAX_SIZES = { null, 6, 10, 14, 20, 30, 40 };
+	private static final int[] EDGE_THICKNESSES = { 1, 2, 3, 5, 10 };
+	private static final Integer[] EDGE_MAX_THICKNESSES = { null, 2, 3, 5, 10, 20 };
 
 	private JPanel panel;
 
@@ -85,6 +89,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private JComboBox<Integer> nodeSizeBox;
 	private Integer nodeMaxSize;
 	private JComboBox<Integer> nodeMaxSizeBox;
+	private int edgeThickness;
+	private JComboBox<Integer> edgeThicknessBox;
+	private Integer edgeMaxThickness;
+	private JComboBox<Integer> edgeMaxThicknessBox;
 	private JCheckBox arrowInMiddleBox;
 	private String label;
 	private JTextField labelField;
@@ -130,6 +138,13 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			panel.add(Box.createHorizontalStrut(5));
 			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", new JLabel("Min:"),
 					nodeSizeBox, Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox));
+		}
+
+		if (allowEdges) {
+			panel.add(Box.createHorizontalStrut(5));
+			panel.add(getOptionPanel(owner.getNaming().Edge() + " Thickness", new JLabel("Min:"),
+					edgeThicknessBox, Box.createHorizontalStrut(5), new JLabel("Max:"),
+					edgeMaxThicknessBox));
 		}
 
 		if (allowPolygons) {
@@ -235,6 +250,24 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	public void setNodeMaxSize(Integer nodeMaxSize) {
 		this.nodeMaxSize = nodeMaxSize;
 		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+	}
+
+	public int getEdgeThickness() {
+		return edgeThickness;
+	}
+
+	public void setEdgeThickness(int edgeThickness) {
+		this.edgeThickness = edgeThickness;
+		edgeThicknessBox.setSelectedItem(edgeThickness);
+	}
+
+	public Integer getEdgeMaxThickness() {
+		return edgeMaxThickness;
+	}
+
+	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
+		this.edgeMaxThickness = edgeMaxThickness;
+		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 	}
 
 	public boolean isArrowInMiddle() {
@@ -373,6 +406,50 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 						"Error", JOptionPane.ERROR_MESSAGE);
 				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 			}
+		} else if (e.getSource() == edgeThicknessBox && e.getStateChange() == ItemEvent.SELECTED) {
+			Object size = edgeThicknessBox.getSelectedItem();
+
+			if (size instanceof Integer) {
+				if (edgeMaxThickness != null && (Integer) size > edgeMaxThickness) {
+					JOptionPane.showMessageDialog(edgeThicknessBox,
+							"Value cannot be larger than max thickness " + edgeMaxThickness,
+							"Error", JOptionPane.ERROR_MESSAGE);
+					edgeThicknessBox.setSelectedItem(edgeThickness);
+				} else {
+					edgeThickness = (Integer) size;
+
+					for (ChangeListener l : listeners) {
+						l.edgeThicknessChanged();
+					}
+				}
+			} else {
+				JOptionPane.showMessageDialog(edgeThicknessBox, size + " is not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				edgeThicknessBox.setSelectedItem(edgeThickness);
+			}
+		} else if (e.getSource() == edgeMaxThicknessBox
+				&& (e.getStateChange() == ItemEvent.SELECTED || edgeMaxThicknessBox
+						.getSelectedItem() == null)) {
+			Object size = edgeMaxThicknessBox.getSelectedItem();
+
+			if (size instanceof Integer || size == null) {
+				if (size != null && (Integer) size < edgeThickness) {
+					JOptionPane.showMessageDialog(edgeMaxThicknessBox,
+							"Value cannot be smaller than min thickness " + edgeThickness, "Error",
+							JOptionPane.ERROR_MESSAGE);
+					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+				} else {
+					edgeMaxThickness = (Integer) size;
+
+					for (ChangeListener l : listeners) {
+						l.edgeMaxThicknessChanged();
+					}
+				}
+			} else {
+				JOptionPane.showMessageDialog(edgeMaxThicknessBox, size + " is not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+			}
 		} else if (e.getSource() == arrowInMiddleBox) {
 			for (ChangeListener l : listeners) {
 				l.arrowInMiddleChanged();
@@ -390,53 +467,79 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		fontSize = DEFAULT_FONT_SIZE;
 		nodeSize = DEFAULT_NODE_SIZE;
 		nodeMaxSize = DEFAULT_NODE_MAX_SIZE;
+		edgeThickness = DEFAULT_EDGE_THICKNESS;
+		edgeMaxThickness = DEFAULT_EDGE_MAX_THICKNESS;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
 		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING, Mode.PICKING });
 		editingModeBox.setSelectedItem(DEFAULT_MODE);
 		editingModeBox.addItemListener(this);
+
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
 		showLegendBox.addItemListener(this);
+
 		joinEdgesBox = new JCheckBox("Activate");
 		joinEdgesBox.setSelected(DEFAULT_JOIN_EDGES);
 		joinEdgesBox.addItemListener(this);
+
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
 		skipEdgelessNodesBox.addItemListener(this);
+
 		showEdgesInMetaNodeBox = new JCheckBox("Activate");
 		showEdgesInMetaNodeBox.setSelected(DEFAULT_SHOW_EDGES_IN_META_NODE);
 		showEdgesInMetaNodeBox.addItemListener(this);
+
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		fontSizeBox.setSelectedItem(fontSize);
 		fontSizeBox.addItemListener(this);
+
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
 		fontBoldBox.addItemListener(this);
+
 		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
 		nodeSizeBox.addItemListener(this);
+
 		nodeMaxSizeBox = new JComboBox<>(NODE_MAX_SIZES);
 		nodeMaxSizeBox.setEditable(true);
 		((JTextField) nodeMaxSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 		nodeMaxSizeBox.addItemListener(this);
+
+		edgeThicknessBox = new JComboBox<>(new Vector<>(Ints.asList(EDGE_THICKNESSES)));
+		edgeThicknessBox.setEditable(true);
+		((JTextField) edgeThicknessBox.getEditor().getEditorComponent()).setColumns(3);
+		edgeThicknessBox.setSelectedItem(edgeThickness);
+		edgeThicknessBox.addItemListener(this);
+
+		edgeMaxThicknessBox = new JComboBox<>(EDGE_MAX_THICKNESSES);
+		edgeMaxThicknessBox.setEditable(true);
+		((JTextField) edgeMaxThicknessBox.getEditor().getEditorComponent()).setColumns(3);
+		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+		edgeMaxThicknessBox.addItemListener(this);
+
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
 		arrowInMiddleBox.addItemListener(this);
+
 		label = null;
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(this);
+
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
 		borderAlphaSlider.setPreferredSize(new Dimension(100,
 				borderAlphaSlider.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
+
 		avoidOverlayBox = new JCheckBox("Activate");
 		avoidOverlayBox.setSelected(DEFAULT_AVOID_OVERLAY);
 		avoidOverlayBox.addItemListener(this);
@@ -481,6 +584,10 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		void nodeSizeChanged();
 
 		void nodeMaxSizeChanged();
+
+		void edgeThicknessChanged();
+
+		void edgeMaxThicknessChanged();
 
 		void arrowInMiddleChanged();
 

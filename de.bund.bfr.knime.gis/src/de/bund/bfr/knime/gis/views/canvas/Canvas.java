@@ -309,6 +309,22 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		optionsPanel.setNodeMaxSize(nodeMaxSize);
 	}
 
+	public int getEdgeThickness() {
+		return optionsPanel.getEdgeThickness();
+	}
+
+	public void setEdgeThickness(int edgeThickness) {
+		optionsPanel.setEdgeThickness(edgeThickness);
+	}
+
+	public Integer getEdgeMaxThickness() {
+		return optionsPanel.getEdgeMaxThickness();
+	}
+
+	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
+		optionsPanel.setEdgeMaxThickness(edgeMaxThickness);
+	}
+
 	@Override
 	public boolean isArrowInMiddle() {
 		return optionsPanel.isArrowInMiddle();
@@ -1024,6 +1040,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void edgeThicknessChanged() {
+		applyChanges();
+	}
+
+	@Override
+	public void edgeMaxThicknessChanged() {
+		applyChanges();
+	}
+
+	@Override
 	public void arrowInMiddleChanged() {
 		viewer.getRenderer()
 				.getEdgeRenderer()
@@ -1192,7 +1218,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void applyHighlights() {
 		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions,
 				getNodeSize(), getNodeMaxSize());
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions);
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions,
+				getEdgeThickness(), getEdgeMaxThickness());
 	}
 
 	@Override
