@@ -37,6 +37,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
 
+import com.google.common.base.Joiner;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -165,5 +166,36 @@ public class GisUtils {
 		}
 
 		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
+	}
+
+	public static String getAddress(String street, String city, String district, String state,
+			String country, String postalCode) {
+		List<String> parts = new ArrayList<>();
+
+		if (street != null) {
+			parts.add(street);
+		}
+
+		if (city != null && postalCode != null) {
+			parts.add(postalCode + " " + city);
+		} else if (city != null) {
+			parts.add(city);
+		} else if (postalCode != null) {
+			parts.add(postalCode);
+		}
+
+		if (district != null) {
+			parts.add(district);
+		}
+
+		if (state != null) {
+			parts.add(state);
+		}
+
+		if (country != null) {
+			parts.add(country);
+		}
+
+		return Joiner.on(", ").join(parts);
 	}
 }
