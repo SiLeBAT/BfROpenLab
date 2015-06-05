@@ -32,12 +32,16 @@ public class LocationSettings extends GisSettings {
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
 	private static final String CFG_NODE_MAX_SIZE = "GisNodeMaxSize";
+	private static final String CFG_EDGE_THICKNESS = "GisEdgeThickness";
+	private static final String CFG_EDGE_MAX_THICKNESS = "GisEdgeMaxThickness";
 	private static final String CFG_AVOID_OVERLAY = "AvoidOverlay";
 
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
 	private int nodeSize;
 	private Integer nodeMaxSize;
+	private int edgeThickness;
+	private Integer edgeMaxThickness;
 	private boolean avoidOverlay;
 
 	public LocationSettings() {
@@ -45,6 +49,8 @@ public class LocationSettings extends GisSettings {
 		nodeLongitudeColumn = null;
 		nodeSize = 4;
 		nodeMaxSize = null;
+		edgeThickness = 1;
+		edgeMaxThickness = null;
 		avoidOverlay = false;
 	}
 
@@ -73,6 +79,16 @@ public class LocationSettings extends GisSettings {
 		}
 
 		try {
+			edgeThickness = settings.getInt(CFG_EDGE_THICKNESS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeMaxThickness = KnimeUtils.minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
 		} catch (InvalidSettingsException e) {
 		}
@@ -85,6 +101,8 @@ public class LocationSettings extends GisSettings {
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
+		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
+		settings.addInt(CFG_EDGE_MAX_THICKNESS, KnimeUtils.nullToMinusOne(edgeMaxThickness));
 		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
@@ -93,6 +111,8 @@ public class LocationSettings extends GisSettings {
 		super.setFromCanvas(canvas, resized);
 		nodeSize = canvas.getNodeSize();
 		nodeMaxSize = canvas.getNodeMaxSize();
+		edgeThickness = canvas.getEdgeThickness();
+		edgeMaxThickness = canvas.getEdgeMaxThickness();
 		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
@@ -101,6 +121,8 @@ public class LocationSettings extends GisSettings {
 		super.setToCanvas(canvas);
 		canvas.setNodeSize(nodeSize);
 		canvas.setNodeMaxSize(nodeMaxSize);
+		canvas.setEdgeThickness(edgeThickness);
+		canvas.setEdgeMaxThickness(edgeMaxThickness);
 		canvas.setAvoidOverlay(avoidOverlay);
 	}
 
@@ -134,6 +156,22 @@ public class LocationSettings extends GisSettings {
 
 	public void setNodeMaxSize(Integer nodeMaxSize) {
 		this.nodeMaxSize = nodeMaxSize;
+	}
+
+	public int getEdgeThickness() {
+		return edgeThickness;
+	}
+
+	public void setEdgeThickness(int edgeThickness) {
+		this.edgeThickness = edgeThickness;
+	}
+
+	public Integer getEdgeMaxThickness() {
+		return edgeMaxThickness;
+	}
+
+	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
+		this.edgeMaxThickness = edgeMaxThickness;
 	}
 
 	public boolean isAvoidOverlay() {

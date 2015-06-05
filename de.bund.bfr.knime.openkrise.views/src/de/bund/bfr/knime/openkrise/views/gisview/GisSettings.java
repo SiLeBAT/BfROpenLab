@@ -51,6 +51,8 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_TRANSLATION_Y = "TranslationY";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
 	private static final String CFG_NODE_MAX_SIZE = "GisNodeMaxSize";
+	private static final String CFG_EDGE_THICKNESS = "GisEdgeThickness";
+	private static final String CFG_EDGE_MAX_THICKNESS = "GisEdgeMaxThickness";
 	private static final String CFG_FONT_SIZE = "TextSize";
 	private static final String CFG_FONT_BOLD = "TextBold";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
@@ -64,6 +66,8 @@ public class GisSettings extends NodeSettings {
 	private Transform transform;
 	private int nodeSize;
 	private Integer nodeMaxSize;
+	private int edgeThickness;
+	private Integer edgeMaxThickness;
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
@@ -78,6 +82,8 @@ public class GisSettings extends NodeSettings {
 		transform = Transform.INVALID_TRANSFORM;
 		nodeSize = 4;
 		nodeMaxSize = null;
+		edgeThickness = 1;
+		edgeMaxThickness = null;
 		fontSize = 12;
 		fontBold = false;
 		borderAlpha = 255;
@@ -110,6 +116,16 @@ public class GisSettings extends NodeSettings {
 
 		try {
 			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeThickness = settings.getInt(CFG_EDGE_THICKNESS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeMaxThickness = KnimeUtils.minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -165,6 +181,8 @@ public class GisSettings extends NodeSettings {
 		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
+		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
+		settings.addInt(CFG_EDGE_MAX_THICKNESS, KnimeUtils.nullToMinusOne(edgeMaxThickness));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
@@ -184,6 +202,8 @@ public class GisSettings extends NodeSettings {
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		nodeMaxSize = canvas.getNodeMaxSize();
+		edgeThickness = canvas.getEdgeThickness();
+		edgeMaxThickness = canvas.getEdgeMaxThickness();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		borderAlpha = canvas.getBorderAlpha();
@@ -200,6 +220,8 @@ public class GisSettings extends NodeSettings {
 		canvas.setShowLegend(showLegend);
 		canvas.setNodeSize(nodeSize);
 		canvas.setNodeMaxSize(nodeMaxSize);
+		canvas.setEdgeThickness(edgeThickness);
+		canvas.setEdgeMaxThickness(edgeMaxThickness);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setBorderAlpha(borderAlpha);
@@ -253,6 +275,22 @@ public class GisSettings extends NodeSettings {
 
 	public void setNodeMaxSize(Integer nodeMaxSize) {
 		this.nodeMaxSize = nodeMaxSize;
+	}
+
+	public int getEdgeThickness() {
+		return edgeThickness;
+	}
+
+	public void setEdgeThickness(int edgeThickness) {
+		this.edgeThickness = edgeThickness;
+	}
+
+	public Integer getEdgeMaxThickness() {
+		return edgeMaxThickness;
+	}
+
+	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
+		this.edgeMaxThickness = edgeMaxThickness;
 	}
 
 	public int getFontSize() {

@@ -57,6 +57,8 @@ public class GraphSettings extends Settings {
 	private static final String CFG_NODE_POSITIONS = "GraphNodePositions";
 	private static final String CFG_NODE_SIZE = "GraphNodeSize";
 	private static final String CFG_NODE_MAX_SIZE = "GraphNodeMaxSize";
+	private static final String CFG_EDGE_THICKNESS = "GraphEdgeThickness";
+	private static final String CFG_EDGE_MAX_THICKNESS = "GraphEdgeMaxThickness";
 	private static final String CFG_FONT_SIZE = "GraphTextSize";
 	private static final String CFG_FONT_BOLD = "GraphTextBold";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
@@ -80,6 +82,8 @@ public class GraphSettings extends Settings {
 	private Map<String, Point2D> nodePositions;
 	private int nodeSize;
 	private Integer nodeMaxSize;
+	private int edgeThickness;
+	private Integer edgeMaxThickness;
 	private int fontSize;
 	private boolean fontBold;
 	private Mode editingMode;
@@ -104,6 +108,8 @@ public class GraphSettings extends Settings {
 		nodePositions = new LinkedHashMap<>();
 		nodeSize = 10;
 		nodeMaxSize = null;
+		edgeThickness = 1;
+		edgeMaxThickness = null;
 		fontSize = 12;
 		fontBold = false;
 		editingMode = Mode.PICKING;
@@ -183,6 +189,16 @@ public class GraphSettings extends Settings {
 		}
 
 		try {
+			edgeThickness = settings.getInt(CFG_EDGE_THICKNESS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeMaxThickness = KnimeUtils.minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			fontSize = settings.getInt(CFG_FONT_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
@@ -255,6 +271,8 @@ public class GraphSettings extends Settings {
 		settings.addString(CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
 		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
+		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
+		settings.addInt(CFG_EDGE_MAX_THICKNESS, KnimeUtils.nullToMinusOne(edgeMaxThickness));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
@@ -278,6 +296,8 @@ public class GraphSettings extends Settings {
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		nodeMaxSize = canvas.getNodeMaxSize();
+		edgeThickness = canvas.getEdgeThickness();
+		edgeMaxThickness = canvas.getEdgeMaxThickness();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		joinEdges = canvas.isJoinEdges();
@@ -316,6 +336,8 @@ public class GraphSettings extends Settings {
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeSize(nodeSize);
 		canvas.setNodeMaxSize(nodeMaxSize);
+		canvas.setEdgeThickness(edgeThickness);
+		canvas.setEdgeMaxThickness(edgeMaxThickness);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setJoinEdges(joinEdges);
@@ -444,6 +466,22 @@ public class GraphSettings extends Settings {
 
 	public void setNodeMaxSize(Integer nodeMaxSize) {
 		this.nodeMaxSize = nodeMaxSize;
+	}
+
+	public int getEdgeThickness() {
+		return edgeThickness;
+	}
+
+	public void setEdgeThickness(int edgeThickness) {
+		this.edgeThickness = edgeThickness;
+	}
+
+	public Integer getEdgeMaxThickness() {
+		return edgeMaxThickness;
+	}
+
+	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
+		this.edgeMaxThickness = edgeMaxThickness;
 	}
 
 	public int getFontSize() {

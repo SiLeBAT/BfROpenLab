@@ -309,18 +309,22 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		optionsPanel.setNodeMaxSize(nodeMaxSize);
 	}
 
+	@Override
 	public int getEdgeThickness() {
 		return optionsPanel.getEdgeThickness();
 	}
 
+	@Override
 	public void setEdgeThickness(int edgeThickness) {
 		optionsPanel.setEdgeThickness(edgeThickness);
 	}
 
+	@Override
 	public Integer getEdgeMaxThickness() {
 		return optionsPanel.getEdgeMaxThickness();
 	}
 
+	@Override
 	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
 		optionsPanel.setEdgeMaxThickness(edgeMaxThickness);
 	}
