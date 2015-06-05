@@ -314,7 +314,7 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), cities.get(i), districts.get(i),
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i),
 					states.get(i), countries.get(i), postalCodes.get(i)));
 		}
 
@@ -391,8 +391,8 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), cities.get(i), null, states.get(i),
-					countryCodes.get(i), postalCodes.get(i)));
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), null,
+					states.get(i), countryCodes.get(i), postalCodes.get(i)));
 		}
 
 		int index = getIndex(address + ", " + countryCode, choices);
@@ -458,7 +458,7 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), cities.get(i), districts.get(i),
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i),
 					states.get(i), DE, postalCodes.get(i)));
 		}
 

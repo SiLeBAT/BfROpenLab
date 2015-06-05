@@ -168,11 +168,13 @@ public class GisUtils {
 		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
 	}
 
-	public static String getAddress(String street, String city, String district, String state,
-			String country, String postalCode) {
+	public static String getAddress(String street, String houseNumber, String city,
+			String district, String state, String country, String postalCode) {
 		List<String> parts = new ArrayList<>();
 
-		if (street != null) {
+		if (street != null && houseNumber != null) {
+			parts.add(street + " " + houseNumber);
+		} else if (street != null) {
 			parts.add(street);
 		}
 
@@ -194,6 +196,10 @@ public class GisUtils {
 
 		if (country != null) {
 			parts.add(country);
+		}
+
+		if (parts.isEmpty()) {
+			return null;
 		}
 
 		return Joiner.on(", ").join(parts);
