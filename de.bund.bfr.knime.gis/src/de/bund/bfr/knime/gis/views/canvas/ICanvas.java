@@ -77,6 +77,10 @@ public interface ICanvas<V extends Node> {
 
 	void setNodeSize(int nodeSize);
 
+	Integer getNodeMaxSize();
+
+	void setNodeMaxSize(Integer nodeMaxSize);
+
 	boolean isArrowInMiddle();
 
 	void setArrowInMiddle(boolean arrowInMiddle);

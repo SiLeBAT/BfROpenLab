@@ -27,6 +27,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -44,12 +45,14 @@ public class GraphSettings extends NodeSettings {
 	private static final String CFG_TRANSLATION_Y = "GraphTranslationY";
 	private static final String CFG_NODE_POSITIONS = "GraphNodePositions";
 	private static final String CFG_NODE_SIZE = "GraphNodeSize";
+	private static final String CFG_NODE_MAX_SIZE = "GraphNodeMaxSize";
 	private static final String CFG_FONT_SIZE = "GraphTextSize";
 	private static final String CFG_FONT_BOLD = "GraphTextBold";
 
 	private Transform transform;
 	private Map<String, Point2D> nodePositions;
 	private int nodeSize;
+	private Integer nodeMaxSize;
 	private int fontSize;
 	private boolean fontBold;
 
@@ -57,6 +60,7 @@ public class GraphSettings extends NodeSettings {
 		transform = Transform.INVALID_TRANSFORM;
 		nodePositions = new LinkedHashMap<>();
 		nodeSize = 10;
+		nodeMaxSize = null;
 		fontSize = 12;
 		fontBold = false;
 	}
@@ -83,6 +87,11 @@ public class GraphSettings extends NodeSettings {
 		}
 
 		try {
+			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			fontSize = settings.getInt(CFG_FONT_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
@@ -101,6 +110,7 @@ public class GraphSettings extends NodeSettings {
 		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addString(CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 	}
@@ -108,6 +118,7 @@ public class GraphSettings extends NodeSettings {
 	public void setFromCanvas(GraphCanvas canvas) {
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
+		nodeMaxSize = canvas.getNodeMaxSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		nodePositions = canvas.getNodePositions();
@@ -115,6 +126,7 @@ public class GraphSettings extends NodeSettings {
 
 	public void setToCanvas(GraphCanvas canvas) {
 		canvas.setNodeSize(nodeSize);
+		canvas.setNodeMaxSize(nodeMaxSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 
@@ -147,6 +159,14 @@ public class GraphSettings extends NodeSettings {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
+	}
+
+	public Integer getNodeMaxSize() {
+		return nodeMaxSize;
+	}
+
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		this.nodeMaxSize = nodeMaxSize;
 	}
 
 	public int getFontSize() {

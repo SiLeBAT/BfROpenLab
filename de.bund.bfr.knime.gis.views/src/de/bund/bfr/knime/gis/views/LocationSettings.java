@@ -23,6 +23,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 
 public class LocationSettings extends GisSettings {
@@ -30,17 +31,20 @@ public class LocationSettings extends GisSettings {
 	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
+	private static final String CFG_NODE_MAX_SIZE = "GisNodeMaxSize";
 	private static final String CFG_AVOID_OVERLAY = "AvoidOverlay";
 
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
 	private int nodeSize;
+	private Integer nodeMaxSize;
 	private boolean avoidOverlay;
 
 	public LocationSettings() {
 		nodeLatitudeColumn = null;
 		nodeLongitudeColumn = null;
 		nodeSize = 4;
+		nodeMaxSize = null;
 		avoidOverlay = false;
 	}
 
@@ -64,6 +68,11 @@ public class LocationSettings extends GisSettings {
 		}
 
 		try {
+			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			avoidOverlay = settings.getBoolean(CFG_AVOID_OVERLAY);
 		} catch (InvalidSettingsException e) {
 		}
@@ -75,6 +84,7 @@ public class LocationSettings extends GisSettings {
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
 		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
@@ -82,6 +92,7 @@ public class LocationSettings extends GisSettings {
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
 		super.setFromCanvas(canvas, resized);
 		nodeSize = canvas.getNodeSize();
+		nodeMaxSize = canvas.getNodeMaxSize();
 		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
@@ -89,6 +100,7 @@ public class LocationSettings extends GisSettings {
 	public void setToCanvas(Canvas<?> canvas) {
 		super.setToCanvas(canvas);
 		canvas.setNodeSize(nodeSize);
+		canvas.setNodeMaxSize(nodeMaxSize);
 		canvas.setAvoidOverlay(avoidOverlay);
 	}
 
@@ -114,6 +126,14 @@ public class LocationSettings extends GisSettings {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
+	}
+
+	public Integer getNodeMaxSize() {
+		return nodeMaxSize;
+	}
+
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		this.nodeMaxSize = nodeMaxSize;
 	}
 
 	public boolean isAvoidOverlay() {

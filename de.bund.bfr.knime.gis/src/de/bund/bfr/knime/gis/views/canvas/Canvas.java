@@ -300,6 +300,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public Integer getNodeMaxSize() {
+		return optionsPanel.getNodeMaxSize();
+	}
+
+	@Override
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		optionsPanel.setNodeMaxSize(nodeMaxSize);
+	}
+
+	@Override
 	public boolean isArrowInMiddle() {
 		return optionsPanel.isArrowInMiddle();
 	}
@@ -1009,6 +1019,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void nodeMaxSizeChanged() {
+		applyChanges();
+	}
+
+	@Override
 	public void arrowInMiddleChanged() {
 		viewer.getRenderer()
 				.getEdgeRenderer()
@@ -1176,7 +1191,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void applyHighlights() {
 		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions,
-				getNodeSize());
+				getNodeSize(), getNodeMaxSize());
 		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions);
 	}
 

@@ -40,7 +40,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -103,7 +102,7 @@ public class UI {
 		return new Dimension(Math.max(d1.width, d2.width), Math.max(d1.height, d2.height));
 	}
 
-	public static JPanel createTitledPanel(JComponent comp, String title) {
+	public static JPanel createTitledPanel(Component comp, String title) {
 		JPanel p = new JPanel();
 
 		p.setBorder(BorderFactory.createTitledBorder(title));
@@ -113,7 +112,7 @@ public class UI {
 		return p;
 	}
 
-	public static JPanel createNorthPanel(JComponent component) {
+	public static JPanel createNorthPanel(Component component) {
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
@@ -122,7 +121,7 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createSouthPanel(JComponent component) {
+	public static JPanel createSouthPanel(Component component) {
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
@@ -131,7 +130,7 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createWestPanel(JComponent component) {
+	public static JPanel createWestPanel(Component component) {
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
@@ -140,7 +139,7 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createEastPanel(JComponent component) {
+	public static JPanel createEastPanel(Component component) {
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
@@ -149,13 +148,13 @@ public class UI {
 		return northPanel;
 	}
 
-	public static JPanel createHorizontalPanel(JComponent... components) {
+	public static JPanel createHorizontalPanel(Component... components) {
 		JPanel buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		for (JComponent button : components) {
+		for (Component button : components) {
 			buttonPanel.add(Box.createHorizontalStrut(5));
 			buttonPanel.add(button);
 		}
@@ -165,8 +164,8 @@ public class UI {
 		return buttonPanel;
 	}
 
-	public static JPanel createOptionsPanel(String name, List<? extends JComponent> leftComponents,
-			List<? extends JComponent> rightComponents) {
+	public static JPanel createOptionsPanel(String name, List<? extends Component> leftComponents,
+			List<? extends Component> rightComponents) {
 		int n = leftComponents.size();
 
 		JPanel leftPanel = new JPanel();
@@ -200,7 +199,7 @@ public class UI {
 		return outerPanel;
 	}
 
-	public static JPanel createCenterPanel(JComponent comp) {
+	public static JPanel createCenterPanel(Component comp) {
 		JPanel p = new JPanel();
 
 		p.setLayout(new GridBagLayout());

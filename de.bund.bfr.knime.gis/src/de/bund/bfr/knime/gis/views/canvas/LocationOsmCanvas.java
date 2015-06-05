@@ -64,7 +64,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
 		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<LocationNode>(getNodeSize()));
+				new NodeShapeTransformer<LocationNode>(getNodeSize(), getNodeMaxSize()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

@@ -65,7 +65,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<GraphNode>(getNodeSize()));
+				new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
 
 		if (!nodes.isEmpty()) {
 			applyLayout(LayoutType.ISOM_LAYOUT, null);

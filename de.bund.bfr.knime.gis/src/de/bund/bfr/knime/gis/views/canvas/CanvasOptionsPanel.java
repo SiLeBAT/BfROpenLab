@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,6 +60,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	public static final int DEFAULT_FONT_SIZE = 12;
 	public static final boolean DEFAULT_FONT_BOLD = false;
 	public static final int DEFAULT_NODE_SIZE = 10;
+	public static final Integer DEFAULT_NODE_MAX_SIZE = null;
 	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final boolean DEFAULT_AVOID_OVERLAY = false;
@@ -65,7 +68,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private static final long serialVersionUID = 1L;
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
-	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 40 };
+	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 30 };
+	private static final Integer[] NODE_MAX_SIZES = { null, 6, 10, 14, 20, 30, 40 };
 
 	private JPanel panel;
 
@@ -79,6 +83,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private JCheckBox fontBoldBox;
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
+	private Integer nodeMaxSize;
+	private JComboBox<Integer> nodeMaxSizeBox;
 	private JCheckBox arrowInMiddleBox;
 	private String label;
 	private JTextField labelField;
@@ -122,7 +128,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", nodeSizeBox));
+			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", new JLabel("Min:"),
+					nodeSizeBox, Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox));
 		}
 
 		if (allowPolygons) {
@@ -219,6 +226,15 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
 		nodeSizeBox.setSelectedItem(nodeSize);
+	}
+
+	public Integer getNodeMaxSize() {
+		return nodeMaxSize;
+	}
+
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		this.nodeMaxSize = nodeMaxSize;
+		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 	}
 
 	public boolean isArrowInMiddle() {
@@ -318,15 +334,43 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			Object size = nodeSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
-				nodeSize = (Integer) size;
+				if (nodeMaxSize != null && (Integer) size > nodeMaxSize) {
+					JOptionPane.showMessageDialog(nodeSizeBox,
+							"Value cannot be larger than max size " + nodeMaxSize, "Error",
+							JOptionPane.ERROR_MESSAGE);
+					nodeSizeBox.setSelectedItem(nodeSize);
+				} else {
+					nodeSize = (Integer) size;
 
-				for (ChangeListener l : listeners) {
-					l.nodeSizeChanged();
+					for (ChangeListener l : listeners) {
+						l.nodeSizeChanged();
+					}
 				}
 			} else {
 				JOptionPane.showMessageDialog(nodeSizeBox, size + " is not a valid number",
 						"Error", JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
+			}
+		} else if (e.getSource() == nodeMaxSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
+			Object size = nodeMaxSizeBox.getSelectedItem();
+
+			if (size instanceof Integer || size == null) {
+				if (size != null && (Integer) size < nodeSize) {
+					JOptionPane.showMessageDialog(nodeMaxSizeBox,
+							"Value cannot be smaller than min size " + nodeSize, "Error",
+							JOptionPane.ERROR_MESSAGE);
+					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+				} else {
+					nodeMaxSize = (Integer) size;
+
+					for (ChangeListener l : listeners) {
+						l.nodeMaxSizeChanged();
+					}
+				}
+			} else {
+				JOptionPane.showMessageDialog(nodeMaxSizeBox, size + " is not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 			}
 		} else if (e.getSource() == arrowInMiddleBox) {
 			for (ChangeListener l : listeners) {
@@ -344,6 +388,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		fontSize = DEFAULT_FONT_SIZE;
 		nodeSize = DEFAULT_NODE_SIZE;
+		nodeMaxSize = DEFAULT_NODE_MAX_SIZE;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
 		editingModeBox = new JComboBox<>(new Mode[] { Mode.TRANSFORMING, Mode.PICKING });
@@ -374,6 +419,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
 		nodeSizeBox.addItemListener(this);
+		nodeMaxSizeBox = new JComboBox<>(NODE_MAX_SIZES);
+		nodeMaxSizeBox.setEditable(true);
+		((JTextField) nodeMaxSizeBox.getEditor().getEditorComponent()).setColumns(3);
+		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+		nodeMaxSizeBox.addItemListener(this);
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
 		arrowInMiddleBox.addItemListener(this);
@@ -391,14 +441,14 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		avoidOverlayBox.addItemListener(this);
 	}
 
-	private static JPanel getOptionPanel(String name, JComponent... components) {
+	private static JPanel getOptionPanel(String name, Component... components) {
 		JPanel panel = new JPanel();
 		TitledBorder border = BorderFactory.createTitledBorder(name);
 
 		panel.setBorder(border);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
-		for (JComponent c : components) {
+		for (Component c : components) {
 			panel.add(UI.createCenterPanel(c));
 		}
 
@@ -428,6 +478,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		void fontChanged();
 
 		void nodeSizeChanged();
+
+		void nodeMaxSizeChanged();
 
 		void arrowInMiddleChanged();
 

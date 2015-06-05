@@ -73,8 +73,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
-		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<RegionNode>(2));
+		viewer.getRenderContext().setVertexShapeTransformer(
+				new NodeShapeTransformer<RegionNode>(2, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(
 				new InvisibleTransformer<RegionNode>());
 		viewer.getRenderContext().setVertexFillPaintTransformer(

@@ -33,6 +33,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -59,6 +60,7 @@ public class GraphSettings extends NodeSettings {
 	private static final String CFG_TRANSLATION_Y = "GraphTranslationY";
 	private static final String CFG_NODE_POSITIONS = "GraphNodePositions";
 	private static final String CFG_NODE_SIZE = "GraphNodeSize";
+	private static final String CFG_NODE_MAX_SIZE = "GraphNodeMaxSize";
 	private static final String CFG_FONT_SIZE = "GraphTextSize";
 	private static final String CFG_FONT_BOLD = "GraphTextBold";
 	private static final String CFG_SELECTED_NODES = "GraphSelectedNodes";
@@ -78,6 +80,7 @@ public class GraphSettings extends NodeSettings {
 	private Transform transform;
 	private Map<String, Point2D> nodePositions;
 	private int nodeSize;
+	private Integer nodeMaxSize;
 	private int fontSize;
 	private boolean fontBold;
 	private Mode editingMode;
@@ -98,6 +101,7 @@ public class GraphSettings extends NodeSettings {
 		transform = Transform.INVALID_TRANSFORM;
 		nodePositions = new LinkedHashMap<>();
 		nodeSize = 10;
+		nodeMaxSize = null;
 		fontSize = 12;
 		fontBold = false;
 		editingMode = Mode.PICKING;
@@ -153,6 +157,11 @@ public class GraphSettings extends NodeSettings {
 
 		try {
 			nodeSize = settings.getInt(CFG_NODE_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -225,6 +234,7 @@ public class GraphSettings extends NodeSettings {
 		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addString(CFG_NODE_POSITIONS, SERIALIZER.toXml(nodePositions));
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addString(CFG_EDITING_MODE, editingMode.name());
@@ -247,6 +257,7 @@ public class GraphSettings extends NodeSettings {
 		showLegend = canvas.isShowLegend();
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
+		nodeMaxSize = canvas.getNodeMaxSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		joinEdges = canvas.isJoinEdges();
@@ -284,6 +295,7 @@ public class GraphSettings extends NodeSettings {
 		canvas.setShowLegend(showLegend);
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeSize(nodeSize);
+		canvas.setNodeMaxSize(nodeMaxSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setJoinEdges(joinEdges);
@@ -384,6 +396,14 @@ public class GraphSettings extends NodeSettings {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
+	}
+
+	public Integer getNodeMaxSize() {
+		return nodeMaxSize;
+	}
+
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		this.nodeMaxSize = nodeMaxSize;
 	}
 
 	public int getFontSize() {

@@ -29,29 +29,32 @@ import org.apache.commons.collections15.Transformer;
 public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 
 	private int size;
+	private Integer maxSize;
 	private Map<V, Double> thicknessValues;
 	private double denom;
 
-	public NodeShapeTransformer(int size) {
-		this(size, new LinkedHashMap<V, Double>());
+	public NodeShapeTransformer(int size, Integer maxSize) {
+		this(size, maxSize, new LinkedHashMap<V, Double>());
 	}
 
-	public NodeShapeTransformer(int size, Map<V, Double> thicknessValues) {
+	public NodeShapeTransformer(int size, Integer maxSize, Map<V, Double> thicknessValues) {
 		this.size = size;
+		this.maxSize = maxSize;
 		this.thicknessValues = thicknessValues;
 		denom = TransformerUtils.getDenominator(thicknessValues.values());
 	}
 
 	@Override
 	public Shape transform(V n) {
+		int max = maxSize != null ? maxSize : size * 2;
 		Double factor = thicknessValues.get(n);
 
 		if (factor == null) {
 			factor = 0.0;
 		}
 
-		double size = Math.round(this.size * (1 + factor / denom));
+		double s = size + (max - size) * factor / denom;
 
-		return new Ellipse2D.Double(-size / 2, -size / 2, size, size);
+		return new Ellipse2D.Double(-s / 2, -s / 2, s, s);
 	}
 }

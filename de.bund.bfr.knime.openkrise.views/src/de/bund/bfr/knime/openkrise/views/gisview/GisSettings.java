@@ -29,6 +29,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
@@ -49,6 +50,7 @@ public class GisSettings extends NodeSettings {
 	private static final String CFG_TRANSLATION_X = "TranslationX";
 	private static final String CFG_TRANSLATION_Y = "TranslationY";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
+	private static final String CFG_NODE_MAX_SIZE = "GisNodeMaxSize";
 	private static final String CFG_FONT_SIZE = "TextSize";
 	private static final String CFG_FONT_BOLD = "TextBold";
 	private static final String CFG_BORDER_ALPHA = "BorderAlpha";
@@ -61,6 +63,7 @@ public class GisSettings extends NodeSettings {
 	private boolean showLegend;
 	private Transform transform;
 	private int nodeSize;
+	private Integer nodeMaxSize;
 	private int fontSize;
 	private boolean fontBold;
 	private int borderAlpha;
@@ -74,6 +77,7 @@ public class GisSettings extends NodeSettings {
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;
 		nodeSize = 4;
+		nodeMaxSize = null;
 		fontSize = 12;
 		fontBold = false;
 		borderAlpha = 255;
@@ -101,6 +105,11 @@ public class GisSettings extends NodeSettings {
 
 		try {
 			nodeSize = settings.getInt(CFG_NODE_SIZE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -155,6 +164,7 @@ public class GisSettings extends NodeSettings {
 		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
 		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
+		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);
@@ -173,6 +183,7 @@ public class GisSettings extends NodeSettings {
 		showLegend = canvas.isShowLegend();
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
+		nodeMaxSize = canvas.getNodeMaxSize();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		borderAlpha = canvas.getBorderAlpha();
@@ -188,6 +199,7 @@ public class GisSettings extends NodeSettings {
 	public void setToCanvas(Canvas<?> canvas, boolean applySelectionAndHighlighting) {
 		canvas.setShowLegend(showLegend);
 		canvas.setNodeSize(nodeSize);
+		canvas.setNodeMaxSize(nodeMaxSize);
 		canvas.setFontSize(fontSize);
 		canvas.setFontBold(fontBold);
 		canvas.setBorderAlpha(borderAlpha);
@@ -233,6 +245,14 @@ public class GisSettings extends NodeSettings {
 
 	public void setNodeSize(int nodeSize) {
 		this.nodeSize = nodeSize;
+	}
+
+	public Integer getNodeMaxSize() {
+		return nodeMaxSize;
+	}
+
+	public void setNodeMaxSize(Integer nodeMaxSize) {
+		this.nodeMaxSize = nodeMaxSize;
 	}
 
 	public int getFontSize() {

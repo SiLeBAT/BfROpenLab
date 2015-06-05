@@ -486,13 +486,14 @@ public class CanvasUtils {
 
 	public static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, false);
+			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize,
+				false);
 	}
 
 	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext,
 			Collection<V> nodes, HighlightConditionList nodeHighlightConditions) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, true);
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, null, true);
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(
@@ -784,7 +785,8 @@ public class CanvasUtils {
 
 	private static <V extends Node> void applyNodeHighlights(
 			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize, boolean labelsOnly) {
+			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
+			boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
@@ -848,7 +850,7 @@ public class CanvasUtils {
 
 		if (!labelsOnly) {
 			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize,
-					thicknessValues));
+					nodeMaxSize, thicknessValues));
 			renderContext.setVertexFillPaintTransformer(new NodeFillTransformer<>(renderContext,
 					alphaValues, colors));
 		}
