@@ -169,20 +169,25 @@ public class GisUtils {
 	}
 
 	public static String getAddress(String street, String houseNumber, String city,
-			String district, String state, String country, String postalCode) {
+			String district, String state, String country, String postalCode,
+			boolean houseNumberAfterStreet) {
 		List<String> parts = new ArrayList<>();
 
 		if (street != null && houseNumber != null) {
-			parts.add(street + " " + houseNumber);
+			if (houseNumberAfterStreet) {
+				parts.add(street + " " + houseNumber);
+			} else {
+				parts.add(houseNumber + " " + street);
+			}
 		} else if (street != null) {
 			parts.add(street);
 		}
 
-		if (city != null && postalCode != null) {
-			parts.add(postalCode + " " + city);
-		} else if (city != null) {
+		if (city != null) {
 			parts.add(city);
-		} else if (postalCode != null) {
+		}
+
+		if (postalCode != null) {
 			parts.add(postalCode);
 		}
 

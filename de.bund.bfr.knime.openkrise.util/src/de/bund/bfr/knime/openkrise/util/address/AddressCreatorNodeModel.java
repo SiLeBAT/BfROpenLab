@@ -40,6 +40,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.bund.bfr.knime.IO;
@@ -61,6 +62,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 	protected static final String CFG_STATE = "State";
 	protected static final String CFG_COUNTRY = "Country";
 	protected static final String CFG_POSTAL_CODE = "PostalCode";
+	protected static final String CFG_HOUSE_NUMBER_AFTER_STREET = "HouseNumberAfterStreet";
 
 	private SettingsModelString street;
 	private SettingsModelString houseNumber;
@@ -69,6 +71,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 	private SettingsModelString state;
 	private SettingsModelString country;
 	private SettingsModelString postalCode;
+	private SettingsModelBoolean houseNumberAfterStreet;
 
 	/**
 	 * Constructor for the node model.
@@ -82,6 +85,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 		state = new SettingsModelString(CFG_STATE, TracingColumns.STATION_STATE);
 		country = new SettingsModelString(CFG_COUNTRY, TracingColumns.STATION_COUNTRY);
 		postalCode = new SettingsModelString(CFG_POSTAL_CODE, TracingColumns.STATION_ZIP);
+		houseNumberAfterStreet = new SettingsModelBoolean(CFG_HOUSE_NUMBER_AFTER_STREET, true);
 	}
 
 	/**
@@ -149,7 +153,8 @@ public class AddressCreatorNodeModel extends NodeModel {
 			}
 
 			cells[outSpec.findColumnIndex(TracingColumns.ADDRESS)] = IO.createCell(GisUtils
-					.getAddress(street, houseNumber, city, district, state, country, postalCode));
+					.getAddress(street, houseNumber, city, district, state, country, postalCode,
+							houseNumberAfterStreet.getBooleanValue()));
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
 			exec.setProgress((double) index / (double) table.getRowCount());

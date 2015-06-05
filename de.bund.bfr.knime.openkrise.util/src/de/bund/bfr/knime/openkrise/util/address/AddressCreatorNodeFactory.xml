@@ -4,30 +4,48 @@
 	<name>Address Creator</name>
 
 	<shortDescription>
-
+		Creates formatted address from multiple columns.
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Insert long description here...</intro>
+		<intro>
+			This node creates a formatted address from the columns specified in config dialog. This
+			address can be used in the Geocoding node.
+		</intro>
 
-
-		<option name="short name of first option (like in the dialog)">description of first option</option>
-		<option name="short name of second option (like in the dialog)">description of second option</option>
-		<!-- possibly more options that can also be grouped by tabs -->
-		<!-- <tab name="Standard Options"> <option name="short name of first option (like in the dialog)">description 
-			of first option</option> <option name="short name of second option (like in the dialog)">description 
-			of second option</option> </tab> <tab name="Advanced Options"> <option name="short name of first advanced 
-			option (like in the dialog)">description of first advanced option</option> </tab> -->
+		<option name="Street Column">
+			Column containing the street name.
+		</option>
+		<option name="House Number Column">
+			Column containing the house number.
+		</option>
+		<option name="City Column">
+			Column containing the city name.
+		</option>
+		<option name="District Column">
+			Column containing the district name.
+		</option>
+		<option name="State Column">
+			Column containing the state name.
+		</option>
+		<option name="Country Column">
+			Column containing the country name.
+		</option>
+		<option name="Postal Code Column">
+			Column containing the postal code.
+		</option>
+		<option name="House Number after Street Name">
+			If checked the address house number is put after the street name, e.g. "Main
+			Street 1". Otherwise it is put before the street name, e.g. "1 Main Street".
+		</option>
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="In-Port name">Description of first input port...</inPort>
-		<!-- possibly more input ports here -->
-		<outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-		<!-- possibly more output ports here -->
+		<inPort index="0" name="Input Table">
+			Input table.
+		</inPort>
+		<outPort index="0" name="Address Table">
+			Input table with address column.
+		</outPort>
 	</ports>
-	<views>
-		<view index="0" name="name of first view">Description of first view...</view>
-		<!--view index="1" name="name of second view">Description of second view...</view -->
-	</views>
 </knimeNode>

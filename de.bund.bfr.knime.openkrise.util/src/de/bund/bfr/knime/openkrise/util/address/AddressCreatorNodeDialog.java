@@ -21,7 +21,9 @@ package de.bund.bfr.knime.openkrise.util.address;
 
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -63,5 +65,8 @@ public class AddressCreatorNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
 				AddressCreatorNodeModel.CFG_POSTAL_CODE, null), "Postal Code Column", 0, false,
 				true, StringValue.class));
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				AddressCreatorNodeModel.CFG_HOUSE_NUMBER_AFTER_STREET, true),
+				"House Number after Street Name"));
 	}
 }
