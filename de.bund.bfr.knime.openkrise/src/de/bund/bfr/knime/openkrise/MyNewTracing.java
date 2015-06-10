@@ -143,7 +143,7 @@ public class MyNewTracing {
 		}
 		if (caseSum > 0 && caseStations.containsKey(id))
 			return caseStations.get(id) / caseSum;
-		return -1.0;
+		return 0.0;
 	}
 
 	public double getDeliveryScore(String id) {
@@ -161,7 +161,7 @@ public class MyNewTracing {
 			// return ((double) sortedDeliveries.get(id).size()) /
 			// caseStations.size();
 		}
-		return -1.0;
+		return 0.0;
 	}
 
 	private void getScores() {
