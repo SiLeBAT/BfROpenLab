@@ -80,53 +80,21 @@ public class TracingViewCanvasCreator {
 		Map<String, Class<?>> nodeProperties = TracingUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils.getTableColumns(edgeTable.getSpec());
 
-		if (!nodeProperties.containsKey(TracingColumns.WEIGHT)) {
-			nodeProperties.put(TracingColumns.WEIGHT, Double.class);
-		}
+		nodeProperties.put(TracingColumns.WEIGHT, Double.class);
+		nodeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
+		nodeProperties.put(TracingColumns.OBSERVED, Boolean.class);
+		nodeProperties.put(TracingColumns.SCORE, Double.class);
+		nodeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);
+		nodeProperties.put(TracingColumns.BACKWARD, Boolean.class);
+		nodeProperties.put(TracingColumns.FORWARD, Boolean.class);
 
-		if (!nodeProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
-			nodeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingColumns.SCORE)) {
-			nodeProperties.put(TracingColumns.SCORE, Double.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingColumns.OBSERVED)) {
-			nodeProperties.put(TracingColumns.OBSERVED, Boolean.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingColumns.BACKWARD)) {
-			nodeProperties.put(TracingColumns.BACKWARD, Boolean.class);
-		}
-
-		if (!nodeProperties.containsKey(TracingColumns.FORWARD)) {
-			nodeProperties.put(TracingColumns.FORWARD, Boolean.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.WEIGHT)) {
-			edgeProperties.put(TracingColumns.WEIGHT, Double.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.CROSS_CONTAMINATION)) {
-			edgeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.OBSERVED)) {
-			edgeProperties.put(TracingColumns.OBSERVED, Boolean.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.SCORE)) {
-			edgeProperties.put(TracingColumns.SCORE, Double.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.BACKWARD)) {
-			edgeProperties.put(TracingColumns.BACKWARD, Boolean.class);
-		}
-
-		if (!edgeProperties.containsKey(TracingColumns.FORWARD)) {
-			edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
-		}
+		edgeProperties.put(TracingColumns.WEIGHT, Double.class);
+		edgeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
+		edgeProperties.put(TracingColumns.OBSERVED, Boolean.class);
+		edgeProperties.put(TracingColumns.SCORE, Double.class);
+		edgeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);
+		edgeProperties.put(TracingColumns.BACKWARD, Boolean.class);
+		edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
 
 		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
 		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM,

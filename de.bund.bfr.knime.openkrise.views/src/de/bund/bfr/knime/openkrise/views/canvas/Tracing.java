@@ -516,21 +516,44 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			}
 		}
 
+		double maxScore = 0.0;
+
 		for (V node : canvas.getNodes()) {
-			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(node.getId()));
+			double score = tracing.getStationScore(node.getId());
+
+			maxScore = Math.max(maxScore, score);
+			node.getProperties().put(TracingColumns.SCORE, score);
 			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(node.getId()));
 			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(node.getId()));
 		}
 
 		for (Edge<V> edge : edges) {
-			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(edge.getId()));
+			double score = tracing.getDeliveryScore(edge.getId());
+
+			maxScore = Math.max(maxScore, score);
+			edge.getProperties().put(TracingColumns.SCORE, score);
 			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
+		}
+
+		double normFactor = maxScore != 0.0 ? 1.0 / maxScore : 1.0;
+
+		for (V node : canvas.getNodes()) {
+			double score = (Double) node.getProperties().get(TracingColumns.SCORE);
+
+			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
+		}
+
+		for (Edge<V> edge : canvas.getEdges()) {
+			double score = (Double) edge.getProperties().get(TracingColumns.SCORE);
+
+			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
 		}
 
 		if (canvas.isJoinEdges()) {
 			for (Edge<V> edge : canvas.getEdges()) {
 				edge.getProperties().put(TracingColumns.SCORE, null);
+				edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, null);
 				edge.getProperties().put(TracingColumns.OBSERVED, false);
 				edge.getProperties().put(TracingColumns.BACKWARD, false);
 				edge.getProperties().put(TracingColumns.FORWARD, false);
@@ -569,7 +592,8 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 		@Override
 		public String findError(HighlightCondition condition) {
 			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
-					TracingColumns.BACKWARD, TracingColumns.FORWARD);
+					TracingColumns.NORMALIZED_SCORE, TracingColumns.BACKWARD,
+					TracingColumns.FORWARD);
 			String error = "The following columns cannot be used with \"Invisible\" option:\n"
 					+ Joiner.on(", ").join(tracingColumns);
 

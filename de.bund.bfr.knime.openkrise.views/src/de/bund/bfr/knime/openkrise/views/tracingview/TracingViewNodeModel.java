@@ -295,6 +295,7 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
@@ -336,6 +337,7 @@ public class TracingViewNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 

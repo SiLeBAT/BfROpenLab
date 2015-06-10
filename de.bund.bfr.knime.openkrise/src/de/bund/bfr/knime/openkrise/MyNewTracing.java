@@ -119,7 +119,7 @@ public class MyNewTracing {
 		return true;
 	}
 
-	public Double getStationScore(String id) {
+	public double getStationScore(String id) {
 		if (sortedStations == null)
 			getScores();
 		if (caseSum > 0 && sortedStations.get(id) != null) {
@@ -146,7 +146,7 @@ public class MyNewTracing {
 		return -1.0;
 	}
 
-	public Double getDeliveryScore(String id) {
+	public double getDeliveryScore(String id) {
 		if (sortedDeliveries == null)
 			getScores();
 		if (caseSum > 0 && sortedDeliveries.get(id) != null) {
@@ -569,6 +569,7 @@ public class MyNewTracing {
 			delivery.getAllPreviousIDs().retainAll(deliveries.keySet());
 		}
 	}
+
 	private boolean serialUsable = false;
 
 	public void setSerialUsable(boolean serialUsable) {

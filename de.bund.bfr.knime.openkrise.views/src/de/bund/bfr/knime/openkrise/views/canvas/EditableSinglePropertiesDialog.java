@@ -65,21 +65,21 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		super(SwingUtilities.getWindowAncestor(parent), "Properties", DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
+		Map<String, Object> values = element.getProperties();
 		double weight = 0.0;
 		boolean crossContamination = false;
 		boolean observed = false;
 
-		if (element.getProperties().get(TracingColumns.WEIGHT) != null) {
-			weight = (Double) element.getProperties().get(TracingColumns.WEIGHT);
+		if (values.get(TracingColumns.WEIGHT) != null) {
+			weight = (Double) values.get(TracingColumns.WEIGHT);
 		}
 
-		if (element.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null) {
-			crossContamination = (Boolean) element.getProperties().get(
-					TracingColumns.CROSS_CONTAMINATION);
+		if (values.get(TracingColumns.CROSS_CONTAMINATION) != null) {
+			crossContamination = (Boolean) values.get(TracingColumns.CROSS_CONTAMINATION);
 		}
 
-		if (element.getProperties().get(TracingColumns.OBSERVED) != null) {
-			observed = (Boolean) element.getProperties().get(TracingColumns.OBSERVED);
+		if (values.get(TracingColumns.OBSERVED) != null) {
+			observed = (Boolean) values.get(TracingColumns.OBSERVED);
 		}
 
 		caseField = new JTextField(8);
@@ -91,13 +91,14 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 				TracingColumns.WEIGHT + ":"), new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
 				new JLabel(TracingColumns.OBSERVED + ":")), Arrays.asList(caseField,
 				contaminationBox, observedBox));
-		List<JLabel> tracingLabels = Arrays
-				.asList(new JLabel(TracingColumns.SCORE + ":"), new JLabel(TracingColumns.BACKWARD
-						+ ":"), new JLabel(TracingColumns.FORWARD + ":"));
+		List<JLabel> tracingLabels = Arrays.asList(new JLabel(TracingColumns.SCORE + ":"),
+				new JLabel(TracingColumns.NORMALIZED_SCORE + ":"), new JLabel(
+						TracingColumns.BACKWARD + ":"), new JLabel(TracingColumns.FORWARD + ":"));
 		List<JTextField> tracingFields = Arrays.asList(
-				createField(element.getProperties().get(TracingColumns.SCORE)), createField(element
-						.getProperties().get(TracingColumns.BACKWARD)), createField(element
-						.getProperties().get(TracingColumns.FORWARD)));
+				createField(values.get(TracingColumns.SCORE)),
+				createField(values.get(TracingColumns.NORMALIZED_SCORE)),
+				createField(values.get(TracingColumns.BACKWARD)),
+				createField(values.get(TracingColumns.FORWARD)));
 		JPanel tracingPanel = UI.createOptionsPanel("Tracing", tracingLabels, tracingFields);
 		JPanel northPanel = new JPanel();
 
@@ -111,6 +112,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		otherProperties.remove(TracingColumns.CROSS_CONTAMINATION);
 		otherProperties.remove(TracingColumns.OBSERVED);
 		otherProperties.remove(TracingColumns.SCORE);
+		otherProperties.remove(TracingColumns.NORMALIZED_SCORE);
 		otherProperties.remove(TracingColumns.BACKWARD);
 		otherProperties.remove(TracingColumns.FORWARD);
 

@@ -31,6 +31,7 @@ public interface TracingColumns {
 	public static final String WEIGHT = "Weight";
 	public static final String CROSS_CONTAMINATION = "CrossContamination";
 	public static final String SCORE = "Score";
+	public static final String NORMALIZED_SCORE = "Normalized Score";
 
 	public static final String OLD_OBSERVED = "Filter";
 	public static final String OBSERVED = "Observed";

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -116,12 +117,6 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, Double> edgeWeights = new LinkedHashMap<>();
 		Set<String> crossNodes = new LinkedHashSet<>();
 		Set<String> crossEdges = new LinkedHashSet<>();
-		Set<String> filterNodes = new LinkedHashSet<>();
-		Set<String> filterEdges = new LinkedHashSet<>();
-		Set<String> backwardNodes = new LinkedHashSet<>();
-		Set<String> forwardNodes = new LinkedHashSet<>();
-		Set<String> backwardEdges = new LinkedHashSet<>();
-		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (GraphNode node : nodes.values()) {
 			String id = node.getId();
@@ -195,6 +190,13 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		tracing.fillDeliveries(set.isEnforeTemporalOrder());
 
+		Set<String> filterNodes = new LinkedHashSet<>();
+		Set<String> filterEdges = new LinkedHashSet<>();
+		Set<String> backwardNodes = new LinkedHashSet<>();
+		Set<String> forwardNodes = new LinkedHashSet<>();
+		Set<String> backwardEdges = new LinkedHashSet<>();
+		Set<String> forwardEdges = new LinkedHashSet<>();
+
 		for (GraphNode node : nodes.values()) {
 			String id = node.getId();
 			Boolean filter = null;
@@ -237,27 +239,43 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 		}
 
+		Map<String, Double> nodeScores = new LinkedHashMap<>();
+		Map<String, Double> edgeScores = new LinkedHashMap<>();
+
+		for (GraphNode node : nodes.values()) {
+			nodeScores.put(node.getId(), tracing.getStationScore(node.getId()));
+		}
+
+		for (Edge<GraphNode> edge : edges) {
+			edgeScores.put(edge.getId(), tracing.getDeliveryScore(edge.getId()));
+		}
+
+		double maxScore = Math.max(Collections.max(nodeScores.values()),
+				Collections.max(edgeScores.values()));
+		double normFactor = maxScore > 0.0 ? 1.0 / maxScore : 1.0;
+
 		int index = 0;
-		DataTableSpec nodeInSpec = nodeTable.getSpec();
-		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeInSpec);
+		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
 		BufferedDataContainer nodeContainer = exec.createDataContainer(nodeOutSpec);
 
 		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(nodeInSpec
-					.findColumnIndex(TracingColumns.ID)));
+			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(
+					TracingColumns.ID)));
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : nodeInSpec) {
-				cells[nodeOutSpec.findColumnIndex(column.getName())] = row.getCell(nodeInSpec
-						.findColumnIndex(column.getName()));
+			for (DataColumnSpec column : nodeTable.getSpec()) {
+				cells[nodeOutSpec.findColumnIndex(column.getName())] = row.getCell(nodeTable
+						.getSpec().findColumnIndex(column.getName()));
 			}
 
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(nodeWeights
 					.get(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossNodes.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(tracing
-					.getStationScore(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(nodeScores
+					.get(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
+					.createCell(normFactor * nodeScores.get(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO.createCell(filterNodes
 					.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
@@ -274,18 +292,17 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		nodeContainer.close();
 
-		DataTableSpec edgeInSpec = edgeTable.getSpec();
-		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeInSpec);
+		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeTable.getSpec());
 		BufferedDataContainer edgeContainer = exec.createDataContainer(edgeOutSpec);
 
 		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(edgeInSpec
-					.findColumnIndex(TracingColumns.ID)));
+			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec().findColumnIndex(
+					TracingColumns.ID)));
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : edgeInSpec) {
-				cells[edgeOutSpec.findColumnIndex(column.getName())] = row.getCell(edgeInSpec
-						.findColumnIndex(column.getName()));
+			for (DataColumnSpec column : edgeTable.getSpec()) {
+				cells[edgeOutSpec.findColumnIndex(column.getName())] = row.getCell(edgeTable
+						.getSpec().findColumnIndex(column.getName()));
 			}
 
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(edgeWeights
@@ -294,8 +311,10 @@ public class TracingParametersNodeModel extends NodeModel {
 					.createCell(crossEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO.createCell(filterEdges
 					.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(tracing
-					.getDeliveryScore(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(edgeScores
+					.get(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
+					.createCell(normFactor * edgeScores.get(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
 					.createCell(backwardEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardEdges
@@ -379,6 +398,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
@@ -409,6 +429,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
+		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
