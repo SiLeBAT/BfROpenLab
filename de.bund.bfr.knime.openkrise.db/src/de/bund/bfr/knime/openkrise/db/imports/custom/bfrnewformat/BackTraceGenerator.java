@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -308,15 +309,17 @@ public class BackTraceGenerator {
 				}
 				
 				XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheetTracing);
-				LinkedHashSet<Lot> lotNumbers = new LinkedHashSet<>();
+				LinkedHashMap<String, Lot> lotNumbers = new LinkedHashMap<>();
 				int rowIndex = 9;
 				row = sheetTracing.getRow(rowIndex);
 				String ln = fillRow(dvHelper, sheetTracing, rs, row, evaluator, de);
-				Lot l = new Lot();
-				l.setNumber(ln);
-				if (rs.getObject("Chargen.Menge") != null) l.setUnitNumber(rs.getDouble("Chargen.Menge"));
-				if (rs.getObject("Chargen.Einheit") != null) l.setUnitUnit(rs.getString("Chargen.Einheit"));
-				lotNumbers.add(l);
+				if (!lotNumbers.containsKey(ln)) {
+					Lot l = new Lot();
+					l.setNumber(ln);
+					if (rs.getObject("Chargen.Menge") != null) l.setUnitNumber(rs.getDouble("Chargen.Menge"));
+					if (rs.getObject("Chargen.Einheit") != null) l.setUnitUnit(rs.getString("Chargen.Einheit"));
+					lotNumbers.put(ln, l);
+				}
 				
 				while (rs.next()) {
 					if (rs.getObject("Station.Serial") == null) break;
@@ -325,11 +328,13 @@ public class BackTraceGenerator {
 					rowIndex++;
 					row = copyRow(workbook, sheetTracing, 9, rowIndex);
 					ln = fillRow(dvHelper, sheetTracing, rs, row, evaluator, de);
-					l = new Lot();
-					l.setNumber(ln);
-					if (rs.getObject("Chargen.Menge") != null) l.setUnitNumber(rs.getDouble("Chargen.Menge"));
-					if (rs.getObject("Chargen.Einheit") != null) l.setUnitUnit(rs.getString("Chargen.Einheit"));
-					lotNumbers.add(l);
+					if (!lotNumbers.containsKey(ln)) {
+						Lot l = new Lot();
+						l.setNumber(ln);
+						if (rs.getObject("Chargen.Menge") != null) l.setUnitNumber(rs.getDouble("Chargen.Menge"));
+						if (rs.getObject("Chargen.Einheit") != null) l.setUnitUnit(rs.getString("Chargen.Einheit"));
+						lotNumbers.put(ln, l);
+					}
 				}
 				rs.previous();
 
@@ -348,7 +353,7 @@ public class BackTraceGenerator {
 				rowIndex += 5;
 				int i=0;
 				row = sheetTracing.getRow(rowIndex);
-				for (Lot lot : lotNumbers) {
+				for (Lot lot : lotNumbers.values()) {
 					if (lot != null && !lot.getNumber().isEmpty()) {
 						if (i > 0) row = copyRow(workbook, sheetTracing, rowIndex, rowIndex + i);
 						cell = row.getCell(0); cell.setCellValue(lot.getNumber());
