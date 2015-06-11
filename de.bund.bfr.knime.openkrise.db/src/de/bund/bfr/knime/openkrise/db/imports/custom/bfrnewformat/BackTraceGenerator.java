@@ -454,7 +454,7 @@ public class BackTraceGenerator {
 		else cell.setCellValue("");
 		cell = row.getCell(1);
 		if (rs.getObject("Chargen.ChargenNr") != null) cell.setCellValue(rs.getString("Chargen.ChargenNr"));
-		else cell.setCellValue("");
+		else cell.setCellValue("(autoLot" + row.getRowNum() + ")");
 		result = cell.getStringCellValue();
 		insertCondition(dvHelper, sheetTracing, row.getRowNum(), 2, "1", "31");
 		cell = row.getCell(2);

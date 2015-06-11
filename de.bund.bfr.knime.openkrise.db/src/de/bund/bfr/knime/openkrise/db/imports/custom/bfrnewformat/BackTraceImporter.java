@@ -332,7 +332,9 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			d.getID(miDbId, true);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
-			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).intValue() != d.getLot().getDbId()) throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
+			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).intValue() != d.getLot().getDbId()) {
+				throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
+			}
 			else lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries) {
@@ -603,6 +605,13 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
+		if (!outbound) {
+			String newSerial = p.getName() + ";" + l.getNumber() + ";" +
+					result.getDepartureDay() + ";" + result.getDepartureMonth() + ";" + result.getDepartureYear() + ";" +
+					result.getArrivalDay() + ";" + result.getArrivalMonth() + ";" + result.getArrivalYear() + ";" +
+					result.getUnitNumber() + ";" + result.getUnitUnit() + ";" + result.getReceiver().getId();
+			result.setId(newSerial);
+		}
 		
 		// Further flexible cells
 		for (int i=13;i<20;i++) {
