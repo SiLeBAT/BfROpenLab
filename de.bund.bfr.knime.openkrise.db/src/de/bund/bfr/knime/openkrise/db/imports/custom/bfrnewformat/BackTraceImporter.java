@@ -327,28 +327,32 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 		return true;
 	}
 	private void insertIntoDb(Integer miDbId, HashSet<Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
-		HashMap<String, Integer> lotDbNumber = new HashMap<>();
+		HashMap<String, Lot> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId, true);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
-			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).intValue() != d.getLot().getDbId()) {
-				//throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
-				
-				if (d.getLot().getDbId() != null) {
+			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).getDbId().intValue() != d.getLot().getDbId()) {
+				Lot ol = lotDbNumber.get(d.getLot().getNumber());
+				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
+						ol.getProduct() != null && d.getLot().getProduct().getName().equals(ol.getProduct().getName())) {
 					d.getLot().deleteDbId();
-					d.updateLotDbId(lotDbNumber.get(d.getLot().getNumber()));
+					d.updateLotDbId(ol.getDbId());
 				}
-				
+				/*
+				else {
+					throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
+				}
+				*/
 			}
-			else lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
+			else lotDbNumber.put(d.getLot().getNumber(), d.getLot());
 		}
 		for (Delivery d : inDeliveries) {
 			Integer dbId = d.getID(miDbId, false);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			if (d.getTargetLotId() != null && lotDbNumber.containsKey(d.getTargetLotId())) {
-				new D2D().getId(dbId, lotDbNumber.get(d.getTargetLotId()), miDbId);
+				new D2D().getId(dbId, lotDbNumber.get(d.getTargetLotId()).getDbId(), miDbId);
 			}
 		}
 		for (Delivery d : forwDeliveries) {
