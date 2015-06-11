@@ -121,7 +121,6 @@ public class LocationCanvasUtils {
 			Collection<Edge<LocationNode>> edges, Layout<LocationNode, Edge<LocationNode>> layout) {
 		Polygon invalidArea = null;
 
-		Set<LocationNode> validNodes = new LinkedHashSet<>();
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
 		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
 		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
@@ -130,7 +129,6 @@ public class LocationCanvasUtils {
 		for (LocationNode node : nodes) {
 			if (node.getCenter() != null) {
 				layout.setLocation(node, node.getCenter());
-				validNodes.add(node);
 				positions.add(node.getCenter());
 			} else {
 				invalidNodes.add(node);
