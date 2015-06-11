@@ -181,7 +181,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createGraphMouse() {
-		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 1.1);
+		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 1.1, false);
 	}
 
 	@Override

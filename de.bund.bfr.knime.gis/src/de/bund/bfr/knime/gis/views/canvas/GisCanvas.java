@@ -66,7 +66,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V> {
 
 	@Override
 	protected GraphMouse<V, Edge<V>> createGraphMouse() {
-		return new GraphMouse<>(new GisPickingPlugin(), 2.0);
+		return new GraphMouse<>(new GisPickingPlugin(), 2.0, true);
 	}
 
 	@Override

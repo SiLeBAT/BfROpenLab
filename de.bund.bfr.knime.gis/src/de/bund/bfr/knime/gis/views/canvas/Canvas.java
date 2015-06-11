@@ -1275,7 +1275,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	protected GraphMouse<V, Edge<V>> createGraphMouse() {
-		return new GraphMouse<>(new PickingPlugin(), 1.1);
+		return new GraphMouse<>(new PickingPlugin(), 1.1, false);
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {

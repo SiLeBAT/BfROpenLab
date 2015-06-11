@@ -31,10 +31,16 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	private boolean pickingDeactivated;
 
-	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin, double zoomingFactor) {
+	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin, double zoomingFactor,
+			boolean gisScaling) {
 		super((float) (1 / zoomingFactor), (float) zoomingFactor);
 
-		scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0, in, out);
+		if (gisScaling) {
+			scalingPlugin = new GisScalingGraphMousePlugin(new LayoutScalingControl(), 0, in, out);
+		} else {
+			scalingPlugin = new ScalingGraphMousePlugin(new LayoutScalingControl(), 0, in, out);
+		}
+
 		translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
 		this.pickingPlugin = pickingPlugin;
 		pickingDeactivated = false;
