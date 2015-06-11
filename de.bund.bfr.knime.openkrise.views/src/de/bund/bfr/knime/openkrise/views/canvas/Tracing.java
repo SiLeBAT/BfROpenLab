@@ -544,7 +544,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
 		}
 
-		for (Edge<V> edge : canvas.getEdges()) {
+		for (Edge<V> edge : edges) {
 			double score = (Double) edge.getProperties().get(TracingColumns.SCORE);
 
 			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
