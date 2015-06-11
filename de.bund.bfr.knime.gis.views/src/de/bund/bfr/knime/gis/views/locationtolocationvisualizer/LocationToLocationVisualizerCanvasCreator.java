@@ -86,7 +86,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public Canvas<LocationNode> createLocationCanvas() throws InvalidSettingsException {
+	public Canvas<LocationNode> createGisCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = ViewUtils.readLocationNodes(nodeTable, nodeProperties,

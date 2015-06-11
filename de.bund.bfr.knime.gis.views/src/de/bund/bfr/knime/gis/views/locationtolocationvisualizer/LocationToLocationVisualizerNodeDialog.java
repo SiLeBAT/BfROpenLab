@@ -35,6 +35,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -75,6 +76,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		edgeTable = (BufferedDataTable) input[2];
 		set.loadSettings(settings);
 
+		if (shapeTable == null && set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			set.getGisSettings().setGisType(GisType.MAPNIK);
+		}
+
 		updateSplitPane(false);
 		resized = set.getGraphSettings().getCanvasSize() == null
 				|| set.getGisSettings().getCanvasSize() == null;
@@ -90,8 +95,8 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		LocationToLocationVisualizerInputDialog dialog = new LocationToLocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(),
-				edgeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null,
+				nodeTable.getSpec(), edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -216,7 +221,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
-			gisCanvas = creator.createLocationCanvas();
+			gisCanvas = creator.createGisCanvas();
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 		} catch (InvalidSettingsException e) {

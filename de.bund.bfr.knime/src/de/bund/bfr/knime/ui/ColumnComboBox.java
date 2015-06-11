@@ -69,6 +69,18 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 		this(optional, null);
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		enableBox.setEnabled(enabled);
+
+		if (enabled) {
+			selectionBox.setEnabled(enableBox.isSelected());
+		} else {
+			selectionBox.setEnabled(false);
+		}
+	}
+
 	public void removeAllColumns() {
 		columns.clear();
 		selectionBox.removeAllItems();
@@ -125,10 +137,6 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (enableBox.isSelected()) {
-			selectionBox.setEnabled(true);
-		} else {
-			selectionBox.setEnabled(false);
-		}
+		selectionBox.setEnabled(enableBox.isSelected());
 	}
 }

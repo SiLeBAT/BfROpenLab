@@ -35,7 +35,10 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
  * This is the model implementation of LocationVisualizer.
@@ -51,7 +54,7 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected LocationVisualizerNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+		super(new PortType[] { BufferedDataTable.TYPE_OPTIONAL, BufferedDataTable.TYPE },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new LocationVisualizerSettings();
 	}
@@ -63,10 +66,18 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
-		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(shapeTable,
-				nodeTable, set);
+		GisType originalGisType = set.getGisSettings().getGisType();
 
-		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), creator.createCanvas()) };
+		if (shapeTable == null && set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			set.getGisSettings().setGisType(GisType.MAPNIK);
+		}
+
+		Canvas<LocationNode> canvas = new LocationVisualizerCanvasCreator(shapeTable, nodeTable,
+				set).createCanvas();
+
+		set.getGisSettings().setGisType(originalGisType);
+
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), canvas) };
 	}
 
 	/**

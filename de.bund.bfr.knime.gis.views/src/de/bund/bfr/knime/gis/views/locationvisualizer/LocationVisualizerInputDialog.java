@@ -22,6 +22,8 @@ package de.bund.bfr.knime.gis.views.locationvisualizer;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
@@ -45,7 +47,7 @@ import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
-public class LocationVisualizerInputDialog extends JDialog implements ActionListener {
+public class LocationVisualizerInputDialog extends JDialog implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,10 +69,14 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		this.set = set;
 		approved = false;
 
-		gisBox = new JComboBox<>(GisType.values());
+		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values()
+				: GisType.valuesWithoutShapefile());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
-		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
+		gisBox.addItemListener(this);
+		shapeBox = new ColumnComboBox(false,
+				shapeSpec != null ? GisUtils.getShapeColumns(shapeSpec) : null);
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
+		shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
 		nodeLatitudeBox = new ColumnComboBox(false,
 				KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLatitudeColumn());
@@ -87,14 +93,14 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(UI.createOptionsPanel("Shape Table",
-				Arrays.asList(new JLabel("Shape Column:")), Arrays.asList(shapeBox)));
+		mainPanel.add(UI.createOptionsPanel("GIS Options",
+				Arrays.asList(new JLabel("GIS Type"), new JLabel("Shape Column:")),
+				Arrays.asList(gisBox, shapeBox)));
 		mainPanel.add(UI.createOptionsPanel("Node Table",
 				Arrays.asList(new JLabel("Latitude Column:"), new JLabel("Longitude Column:")),
 				Arrays.asList(nodeLatitudeBox, nodeLongitudeBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
-				Arrays.asList(new JLabel("GIS Type"), exportAsSvgBox),
-				Arrays.asList(gisBox, new JLabel())));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
+				Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
@@ -115,15 +121,22 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
 			DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox.getSelectedColumn();
 			DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox.getSelectedColumn();
+			GisType gisType = (GisType) gisBox.getSelectedItem();
 
-			if (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null) {
+			if (gisType == GisType.SHAPEFILE
+					&& (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
 				String error = "\"Shape\", \"Latitude\" and \"Longitude\""
 						+ " columns must be selected";
 
 				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+			} else if (gisType != GisType.SHAPEFILE
+					&& (nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
+				String error = "\"Latitude\" and \"Longitude\"" + " columns must be selected";
+
+				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
-				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
+				set.getGisSettings().setGisType(gisType);
 				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLongitudeColumn(
@@ -136,4 +149,10 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		}
 	}
 
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == gisBox && e.getStateChange() == ItemEvent.SELECTED) {
+			shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
+		}
+	}
 }

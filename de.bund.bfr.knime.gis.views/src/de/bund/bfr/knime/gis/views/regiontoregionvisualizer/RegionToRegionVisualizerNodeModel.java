@@ -70,7 +70,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
-		RegionCanvas gisCanvas = creator.createGISCanvas(graphCanvas);
+		RegionCanvas gisCanvas = creator.createGisCanvas(graphCanvas);
 
 		for (String id : creator.getNonExistingRegions()) {
 			setWarningMessage("Region \"" + id + "\" is not contained in the shapefile");

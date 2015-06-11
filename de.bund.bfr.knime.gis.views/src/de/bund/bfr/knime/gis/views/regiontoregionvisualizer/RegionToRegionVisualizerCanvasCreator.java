@@ -83,7 +83,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public RegionCanvas createGISCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
+	public RegionCanvas createGisCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
 		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable, set
 				.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeRegionColumn());
 		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set

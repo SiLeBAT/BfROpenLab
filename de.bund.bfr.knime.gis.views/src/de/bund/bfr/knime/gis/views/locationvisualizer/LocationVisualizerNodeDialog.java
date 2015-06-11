@@ -34,6 +34,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
@@ -66,6 +67,11 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
+
+		if (shapeTable == null && set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			set.getGisSettings().setGisType(GisType.MAPNIK);
+		}
+
 		updateGisCanvas(false);
 		resized = set.getGisSettings().getCanvasSize() == null;
 	}
@@ -79,7 +85,8 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null,
+				nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 

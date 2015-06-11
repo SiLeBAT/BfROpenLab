@@ -277,7 +277,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
-			gisCanvas = creator.createGISCanvas(graphCanvas);
+			gisCanvas = creator.createGisCanvas(graphCanvas);
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
 

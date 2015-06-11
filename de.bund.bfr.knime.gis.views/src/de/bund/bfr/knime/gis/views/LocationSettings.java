@@ -19,6 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -41,6 +45,14 @@ public class LocationSettings extends GisSettings {
 		@Override
 		public String toString() {
 			return name;
+		}
+
+		public static GisType[] valuesWithoutShapefile() {
+			List<GisType> types = new ArrayList<>(Arrays.asList(values()));
+
+			types.remove(SHAPEFILE);
+
+			return types.toArray(new GisType[0]);
 		}
 	}
 

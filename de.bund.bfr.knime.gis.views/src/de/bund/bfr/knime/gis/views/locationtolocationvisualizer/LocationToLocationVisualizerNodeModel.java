@@ -35,7 +35,11 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
  * This is the model implementation of LocationToLocationVisualizer.
@@ -51,7 +55,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected LocationToLocationVisualizerNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+		super(new PortType[] { BufferedDataTable.TYPE_OPTIONAL, BufferedDataTable.TYPE,
 				BufferedDataTable.TYPE }, new PortType[] { ImagePortObject.TYPE,
 				ImagePortObject.TYPE });
 		set = new LocationToLocationVisualizerSettings();
@@ -65,12 +69,21 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
+		GisType originalGisType = set.getGisSettings().getGisType();
+
+		if (shapeTable == null && set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			set.getGisSettings().setGisType(GisType.MAPNIK);
+		}
+
 		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
 				shapeTable, nodeTable, edgeTable, set);
+		GraphCanvas graphCanvas = creator.createGraphCanvas();
+		Canvas<LocationNode> gisCanvas = creator.createGisCanvas();
 
-		return new PortObject[] {
-				CanvasUtils.getImage(set.isExportAsSvg(), creator.createGraphCanvas()),
-				CanvasUtils.getImage(set.isExportAsSvg(), creator.createLocationCanvas()) };
+		set.getGisSettings().setGisType(originalGisType);
+
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
+				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas) };
 	}
 
 	/**
