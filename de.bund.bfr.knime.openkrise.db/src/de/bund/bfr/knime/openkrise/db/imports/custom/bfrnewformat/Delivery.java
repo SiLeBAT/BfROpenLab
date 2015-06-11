@@ -272,4 +272,8 @@ public class Delivery {
 
 		return result;
 	}
+	
+	public void updateLotDbId(Integer newLotDbId) {
+		if (newLotDbId != null) DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Charge") + "=" + newLotDbId + " WHERE " + DBKernel.delimitL("ID") + "=" + dbId, false);
+	}
 }

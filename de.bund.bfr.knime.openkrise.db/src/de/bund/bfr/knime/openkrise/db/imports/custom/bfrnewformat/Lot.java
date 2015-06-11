@@ -134,4 +134,8 @@ public class Lot {
 
 		return result;
 	}	
+	
+	public void deleteDbId() {
+		if (dbId != null) DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Chargen") + " WHERE " + DBKernel.delimitL("ID") + "=" + dbId, false);
+	}
 }

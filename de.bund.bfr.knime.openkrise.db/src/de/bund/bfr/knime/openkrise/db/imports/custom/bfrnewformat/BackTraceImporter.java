@@ -333,7 +333,13 @@ public class BackTraceImporter extends FileFilter implements MyImporter {
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).intValue() != d.getLot().getDbId()) {
-				throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
+				//throw new Exception("Lot Numbers of different lots are the same in 'Products Out'!");
+				
+				if (d.getLot().getDbId() != null) {
+					d.getLot().deleteDbId();
+					d.updateLotDbId(lotDbNumber.get(d.getLot().getNumber()));
+				}
+				
 			}
 			else lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
