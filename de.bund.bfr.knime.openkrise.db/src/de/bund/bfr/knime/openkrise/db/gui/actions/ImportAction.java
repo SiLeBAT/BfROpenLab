@@ -43,7 +43,7 @@ import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 import de.bund.bfr.knime.openkrise.db.imports.GeneralXLSImporter;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 import de.bund.bfr.knime.openkrise.db.imports.custom.LieferkettenImporterEFSA;
-import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.BackTraceImporter;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.TraceImporter;
 
 /**
  * @author Armin
@@ -71,7 +71,7 @@ public class ImportAction extends AbstractAction {
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
 
 		  LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);
-		  BackTraceImporter bti = new BackTraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
+		  TraceImporter bti = new TraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
 
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
@@ -109,8 +109,8 @@ public class ImportAction extends AbstractAction {
 						ib.setVisible(true);
 						
 					}
-					else if (mi instanceof BackTraceImporter) {
-						bti = (BackTraceImporter) mi;
+					else if (mi instanceof TraceImporter) {
+						bti = (TraceImporter) mi;
 						String errors = bti.getLogMessages();
 						String warnings = bti.getLogWarnings();
 						String nl = errors.replaceAll("\nImporting ", "");

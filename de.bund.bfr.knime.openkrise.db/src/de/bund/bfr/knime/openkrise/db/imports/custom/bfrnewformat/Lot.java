@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -12,7 +13,11 @@ public class Lot {
 
 	private static HashMap<String, Lot> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
+	private HashSet<String> inDeliveries = new HashSet<>();
 
+	public HashSet<String> getInDeliveries() {
+		return inDeliveries;
+	}
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}
