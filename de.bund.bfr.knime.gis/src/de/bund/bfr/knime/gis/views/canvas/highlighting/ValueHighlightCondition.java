@@ -199,12 +199,6 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 			}
 		}
 
-		for (T element : elements) {
-			if (values.get(element) == 0.0) {
-				values.put(element, Double.MIN_VALUE);
-			}
-		}
-
 		return values;
 	}
 

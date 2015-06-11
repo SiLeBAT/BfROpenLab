@@ -155,12 +155,6 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 			}
 		}
 
-		for (T element : nonZeroElements) {
-			if (values.get(element) == 0.0) {
-				values.put(element, Double.MIN_VALUE);
-			}
-		}
-
 		return values;
 	}
 

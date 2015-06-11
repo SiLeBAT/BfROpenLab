@@ -34,10 +34,6 @@ public class TransformerUtils {
 
 		double max = Collections.max(values);
 
-		if (max == 0.0 || max == Double.MIN_VALUE) {
-			return 1.0;
-		}
-
-		return max;
+		return max != 0.0 ? max : 1.0;
 	}
 }
