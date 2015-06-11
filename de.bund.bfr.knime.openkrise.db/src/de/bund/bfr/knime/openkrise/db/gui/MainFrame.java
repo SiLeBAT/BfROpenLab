@@ -93,7 +93,7 @@ import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBPanel;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.header.GuiMessages;
 import de.bund.bfr.knime.openkrise.db.gui.dbtree.MyDBTree;
-import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.BackTraceGenerator;
+import de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat.TraceGenerator;
 
 /**
  * @author Armin Weiser
@@ -716,6 +716,7 @@ public class MainFrame extends JFrame {
 		button6.getAction().setEnabled(!isRO);
 		button11.setEnabled(isEnabable);
 		button13.setEnabled(isEnabable);
+		button14.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -770,7 +771,7 @@ public class MainFrame extends JFrame {
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		BackTraceDialog dialog = new BackTraceDialog((JButton) e.getSource(), businessTypes);
+		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, false);
 		
 		dialog.setVisible(true);
 		
@@ -778,11 +779,36 @@ public class MainFrame extends JFrame {
 			String folder = DBKernel.HSHDB_PATH;
 			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-			new BackTraceGenerator(folder + "openrequests", dialog.getSelected());
+			new TraceGenerator(folder + "openrequests", dialog.getSelected(), false);
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		}		
 	}
-	private static class BackTraceDialog extends JDialog implements ActionListener {
+	private void button14ActionPerformed(final ActionEvent e) {
+		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
+		List<String> businessTypes = new ArrayList<>();
+		ResultSet rs = DBKernel.getResultSet(sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				do  {
+					businessTypes.add(rs.getString(1));
+				} while (rs.next());
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, true);
+		
+		dialog.setVisible(true);
+		
+		if (dialog.isApproved()) {
+			String folder = DBKernel.HSHDB_PATH;
+			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+			new TraceGenerator(folder + "openrequests", dialog.getSelected(), true);
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		}		
+	}
+	private static class TraceDialog extends JDialog implements ActionListener {
 				
 		private static final long serialVersionUID = 1L;
 		
@@ -793,8 +819,8 @@ public class MainFrame extends JFrame {
 		private JButton okButton;
 		private JButton cancelButton;
 		
-		public BackTraceDialog(Component parent, List<String> businessTypes) {
-			super(SwingUtilities.getWindowAncestor(parent), "Businesses for Back Tracing", DEFAULT_MODALITY_TYPE);			
+		public TraceDialog(Component parent, List<String> businessTypes, boolean isForward) {
+			super(SwingUtilities.getWindowAncestor(parent), "Businesses for " + (isForward ? "Forward" : "Back") + " Tracing", DEFAULT_MODALITY_TYPE);			
 			boxes = new LinkedHashMap<>();
 			approved = false;
 			selected = null;
@@ -816,7 +842,7 @@ public class MainFrame extends JFrame {
 			cancelButton.addActionListener(this);
 			
 			setLayout(new BorderLayout());
-			add(UI.createHorizontalPanel(new JLabel("Select Business Types for Backtracing")), BorderLayout.NORTH);
+			add(UI.createHorizontalPanel(new JLabel("Select Business Types for " + (isForward ? "Forward tracing" : "Backtracing"))), BorderLayout.NORTH);
 			add(UI.createWestPanel(boxPanel), BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
 					BorderLayout.SOUTH);
@@ -868,6 +894,7 @@ public class MainFrame extends JFrame {
 		button9 = new JButton();
 		button11 = new JButton();
 		button13 = new JButton();
+		button14 = new JButton();
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -975,7 +1002,7 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button11);
 
 			//---- button13 ----
-			button13.setToolTipText("Missing data");
+			button13.setToolTipText("Missing backward data");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button13.setIcon(ico);
@@ -985,7 +1012,20 @@ public class MainFrame extends JFrame {
 					button13ActionPerformed(e);
 				}
 			});
+			
 			toolBar1.add(button13);
+			//---- button14 ----
+			button14.setToolTipText("Missing forward data");
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
+			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
+			button14.setIcon(ico);
+			button14.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					button14ActionPerformed(e);
+				}
+			});
+			toolBar1.add(button14);
 
 			//---- progressBar1 ----
 			progressBar1.setVisible(false);
@@ -1031,6 +1071,7 @@ public class MainFrame extends JFrame {
 	private JButton button9;
 	private JButton button11;
 	private JButton button13;
+	private JButton button14;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;
