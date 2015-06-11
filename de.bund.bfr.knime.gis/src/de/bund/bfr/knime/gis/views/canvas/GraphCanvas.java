@@ -66,9 +66,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
 				new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
+	}
 
+	public void initLayout() {
 		if (!nodes.isEmpty()) {
-			applyLayout(LayoutType.ISOM_LAYOUT, null);
+			applyLayout(LayoutType.ISOM_LAYOUT, null, true);
 		}
 	}
 
@@ -77,10 +79,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
-		if (nodePositions.isEmpty()) {
-			return;
-		}
-
 		int n = 0;
 
 		for (GraphNode node : nodeSaveMap.values()) {
@@ -128,7 +126,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
-		applyLayout(layoutType, getSelectedNodes());
+		applyLayout(layoutType, getSelectedNodes(), false);
 	}
 
 	@Override
@@ -182,7 +180,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes,
+			boolean avoidIterations) {
 		if (selectedNodes == null) {
 			selectedNodes = new LinkedHashSet<>();
 		}
@@ -254,7 +253,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		viewer.setGraphLayout(layout);
 
-		if (layout instanceof IterativeContext) {
+		if (layout instanceof IterativeContext && !avoidIterations) {
 			new Thread(new LayoutThread((IterativeContext) layout,
 					!selectedNodes.isEmpty() ? selectedNodes : nodes)).start();
 		} else {

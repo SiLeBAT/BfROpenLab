@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -62,7 +61,7 @@ public class GraphSettings extends NodeSettings {
 
 	public GraphSettings() {
 		transform = Transform.INVALID_TRANSFORM;
-		nodePositions = new LinkedHashMap<>();
+		nodePositions = null;
 		nodeSize = 10;
 		nodeMaxSize = null;
 		edgeThickness = 1;
@@ -156,7 +155,11 @@ public class GraphSettings extends NodeSettings {
 			canvas.setTransform(transform);
 		}
 
-		canvas.setNodePositions(nodePositions);
+		if (nodePositions != null) {
+			canvas.setNodePositions(nodePositions);
+		} else {
+			canvas.initLayout();
+		}
 	}
 
 	public Transform getTransform() {

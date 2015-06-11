@@ -103,7 +103,7 @@ public class GraphSettings extends NodeSettings {
 		arrowInMiddle = false;
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;
-		nodePositions = new LinkedHashMap<>();
+		nodePositions = null;
 		nodeSize = 10;
 		nodeMaxSize = null;
 		edgeThickness = 1;
@@ -311,7 +311,7 @@ public class GraphSettings extends NodeSettings {
 		}
 	}
 
-	public void setToCanvas(ICanvas<?> canvas, boolean applyNodePosition) {
+	public void setToCanvas(ICanvas<?> canvas) {
 		canvas.setShowLegend(showLegend);
 		canvas.setEditingMode(editingMode);
 		canvas.setNodeSize(nodeSize);
@@ -351,8 +351,12 @@ public class GraphSettings extends NodeSettings {
 			canvas.setTransform(transform);
 		}
 
-		if (applyNodePosition && canvas instanceof GraphCanvas) {
-			((GraphCanvas) canvas).setNodePositions(nodePositions);
+		if (canvas instanceof GraphCanvas) {
+			if (nodePositions != null) {
+				((GraphCanvas) canvas).setNodePositions(nodePositions);
+			} else {
+				((GraphCanvas) canvas).initLayout();
+			}
 		}
 	}
 

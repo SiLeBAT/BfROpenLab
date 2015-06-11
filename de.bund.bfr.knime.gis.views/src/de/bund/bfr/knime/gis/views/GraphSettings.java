@@ -105,7 +105,7 @@ public class GraphSettings extends Settings {
 		arrowInMiddle = false;
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;
-		nodePositions = new LinkedHashMap<>();
+		nodePositions = null;
 		nodeSize = 10;
 		nodeMaxSize = null;
 		edgeThickness = 1;
@@ -368,7 +368,11 @@ public class GraphSettings extends Settings {
 		}
 
 		if (canvas instanceof GraphCanvas) {
-			((GraphCanvas) canvas).setNodePositions(nodePositions);
+			if (nodePositions != null) {
+				((GraphCanvas) canvas).setNodePositions(nodePositions);
+			} else {
+				((GraphCanvas) canvas).initLayout();
+			}
 		}
 	}
 

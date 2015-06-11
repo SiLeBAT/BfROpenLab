@@ -115,14 +115,14 @@ public class CanvasUtils {
 		return bounds;
 	}
 
-	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D polygonsBounds,
+	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D bounds,
 			Double zoomStep) {
-		double widthRatio = canvasSize.width / polygonsBounds.getWidth();
-		double heightRatio = canvasSize.height / polygonsBounds.getHeight();
+		double widthRatio = canvasSize.width / bounds.getWidth();
+		double heightRatio = canvasSize.height / bounds.getHeight();
 		double canvasCenterX = canvasSize.width / 2.0;
 		double canvasCenterY = canvasSize.height / 2.0;
-		double polygonCenterX = polygonsBounds.getCenterX();
-		double polygonCenterY = polygonsBounds.getCenterY();
+		double centerX = bounds.getCenterX();
+		double centerY = bounds.getCenterY();
 
 		double scale = Math.min(widthRatio, heightRatio);
 
@@ -134,8 +134,8 @@ public class CanvasUtils {
 
 		double scaleX = scale;
 		double scaleY = scale;
-		double translationX = canvasCenterX - polygonCenterX * scaleX;
-		double translationY = canvasCenterY - polygonCenterY * scaleY;
+		double translationX = canvasCenterX - centerX * scaleX;
+		double translationY = canvasCenterY - centerY * scaleY;
 
 		return new Transform(scaleX, scaleY, translationX, translationY);
 	}
