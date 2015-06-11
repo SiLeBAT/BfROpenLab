@@ -71,7 +71,7 @@ public class LocationCanvasUtils {
 
 		double s = nodeSize / transform.getScaleX();
 		double d = s / 5.0;
-		int index = 0;
+		Random rand = new Random(0);
 
 		for (LocationNode n1 : nodes) {
 			Point2D p1 = positions.get(n1);
@@ -85,8 +85,8 @@ public class LocationCanvasUtils {
 				}
 			}
 
-			double randX = new Random(index++).nextDouble();
-			double randY = new Random(index++).nextDouble();
+			double randX = rand.nextDouble();
+			double randY = rand.nextDouble();
 			double x1 = p1.getX() - s;
 			double x2 = p1.getX() + s;
 			double y1 = p1.getY() - s;

@@ -91,6 +91,24 @@ public class Transform {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+
+		temp = Double.doubleToLongBits(scaleX);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(scaleY);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(translationX);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(translationY);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Transform) {
 			Transform t = (Transform) obj;
