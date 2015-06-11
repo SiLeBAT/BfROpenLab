@@ -27,6 +27,7 @@ import java.util.Arrays;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -43,12 +44,14 @@ import org.knime.core.data.def.StringCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class LocationToLocationVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private JComboBox<GisType> gisBox;
 	private ColumnComboBox shapeBox;
 	private ColumnComboBox nodeIdBox;
 	private ColumnComboBox nodeLatitudeBox;
@@ -68,6 +71,8 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 		this.set = set;
 		approved = false;
 
+		gisBox = new JComboBox<>(GisType.values());
+		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
@@ -104,8 +109,9 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(new JLabel(
 				"Source Node ID Column:"), new JLabel("Target Node ID Column:")), Arrays.asList(
 				edgeFromBox, edgeToBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
-				Arrays.asList(new JLabel())));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
+				Arrays.asList(new JLabel("GIS Type"), exportAsSvgBox),
+				Arrays.asList(gisBox, new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
@@ -144,6 +150,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
+				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
 				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
 				set.getGraphSettings().setNodeIdColumn(nodeIdBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());

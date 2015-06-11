@@ -40,6 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
+import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
  * <code>NodeDialog</code> for the "LocationToLocationVisualizer" Node.
@@ -51,7 +52,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
-	private LocationCanvas gisCanvas;
+	private Canvas<LocationNode> gisCanvas;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;

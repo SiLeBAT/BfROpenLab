@@ -25,9 +25,17 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
+import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
+import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -46,9 +54,7 @@ public class LocationVisualizerCanvasCreator {
 		this.set = set;
 	}
 
-	public LocationCanvas createCanvas() throws InvalidSettingsException {
-		List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings()
-				.getShapeColumn());
+	public Canvas<LocationNode> createCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(nodeTable,
 				nodeProperties, null, set.getGisSettings().getNodeLatitudeColumn(),
@@ -59,8 +65,39 @@ public class LocationVisualizerCanvasCreator {
 		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
-		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING,
-				regions);
+		Canvas<LocationNode> canvas;
+
+		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings()
+					.getShapeColumn());
+
+			canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING, regions);
+		} else {
+			TileSource tileSource;
+
+			switch (set.getGisSettings().getGisType()) {
+			case MAPNIK:
+				tileSource = new OsmTileSource.Mapnik();
+				break;
+			case CYCLE_MAP:
+				tileSource = new OsmTileSource.CycleMap();
+				break;
+			case BING_AERIAL:
+				tileSource = new BingAerialTileSource();
+				break;
+			case MAPQUEST:
+				tileSource = new MapQuestOsmTileSource();
+				break;
+			case MAPQUEST_AERIAL:
+				tileSource = new MapQuestOpenAerialTileSource();
+				break;
+			default:
+				throw new IllegalArgumentException();
+			}
+
+			canvas = new LocationOsmCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
+			((LocationOsmCanvas) canvas).setTileSource(tileSource);
+		}
 
 		set.getGisSettings().setToCanvas(canvas);
 

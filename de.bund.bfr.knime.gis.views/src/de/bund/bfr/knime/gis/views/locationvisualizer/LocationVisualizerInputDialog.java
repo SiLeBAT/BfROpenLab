@@ -27,6 +27,7 @@ import java.util.Arrays;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -41,12 +42,14 @@ import org.knime.core.data.def.DoubleCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
+import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class LocationVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private JComboBox<GisType> gisBox;
 	private ColumnComboBox shapeBox;
 	private ColumnComboBox nodeLatitudeBox;
 	private ColumnComboBox nodeLongitudeBox;
@@ -64,6 +67,8 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		this.set = set;
 		approved = false;
 
+		gisBox = new JComboBox<>(GisType.values());
+		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		nodeLatitudeBox = new ColumnComboBox(false,
@@ -87,8 +92,9 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		mainPanel.add(UI.createOptionsPanel("Node Table",
 				Arrays.asList(new JLabel("Latitude Column:"), new JLabel("Longitude Column:")),
 				Arrays.asList(nodeLatitudeBox, nodeLongitudeBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
-				Arrays.asList(new JLabel())));
+		mainPanel.add(UI.createOptionsPanel("Miscellaneous",
+				Arrays.asList(new JLabel("GIS Type"), exportAsSvgBox),
+				Arrays.asList(gisBox, new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
@@ -117,6 +123,7 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
+				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
 				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLongitudeColumn(
