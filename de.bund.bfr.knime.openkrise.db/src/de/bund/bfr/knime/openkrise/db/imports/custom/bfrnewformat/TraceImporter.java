@@ -112,8 +112,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		boolean isForTracing = forSheet != null;
 		if (isForTracing) transactionSheet = forSheet;
-		String label = "Ingredients In for Lot(s)";
-		if (isForTracing) label = "Products Out";
 		
 		if (stationSheet == null) return false;
 		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return false;
@@ -267,6 +265,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			sif = getStation(stationSheet, cell.getStringCellValue(), row);
 			
+			String label = "Products Out";
+			if (isForTracing) label = "Ingredients In for Lot(s)";
 			// Delivery(s) Outbound
 			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, label) + 3;
 			titleRow = transactionSheet.getRow(classRowIndex - 2);
@@ -281,6 +281,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}			
 		}
 		
+		String label = "Ingredients In for Lot(s)";
+		if (isForTracing) label = "Products Out";
 		// Lot(s)
 		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Lot Information") + 3;
 		titleRow = transactionSheet.getRow(classRowIndex - 2);
@@ -288,7 +290,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, label)) break;
-			if (!fillLot(row, outLots, titleRow, isForTracing ? outDeliveries : null)) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
+			if (!fillLot(row, outLots, titleRow, isForTracing ? outDeliveries : null)) {
+				throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
+			}
 		}
 		
 		// Deliveries/Recipe Inbound
@@ -362,8 +366,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				Lot ol = lotDbNumber.get(d.getLot().getNumber());
 				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
 						ol.getProduct() != null && d.getLot().getProduct().getName().equals(ol.getProduct().getName())) {
+					d.updateLotDbId(d.getLot().getDbId(), ol.getDbId());
 					d.getLot().deleteDbId();
-					d.updateLotDbId(ol.getDbId());
 				}
 				/*
 				else {
@@ -625,7 +629,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (outLots == null && !outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
 		}
 		Lot l;
-		if (outbound && outLots != null) {
+		if (outbound && outLots != null && outLots.containsKey(lotDelNumber)) {
 			l = outLots.get(lotDelNumber);
 		}
 		else {
@@ -639,6 +643,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}
 			else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n";}
 			l.setNumber(lotNumber);
+			if (lotNumber == null && p.getName() == null) {
+				throw new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1));
+			}
 		}
 		//cell = row.getCell(1); if (cell != null) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setNumber(getStr(cell.getStringCellValue()));}
 		result.setLot(l);
