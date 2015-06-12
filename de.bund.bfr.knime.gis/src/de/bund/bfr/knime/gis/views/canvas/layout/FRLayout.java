@@ -63,7 +63,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
 	@Override
 	public void setSize(Dimension size) {
-		if (initialized == false) {
+		if (!initialized) {
 			setInitializer(new RandomLocationTransformer<V>(size));
 		}
 
@@ -100,10 +100,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 	 */
 	@Override
 	public boolean done() {
-		if (currentIteration > MAX_ITERATIONS || temperature < 1.0 / max_dimension) {
-			return true;
-		}
-		return false;
+		return currentIteration > MAX_ITERATIONS || temperature < 1.0 / max_dimension;
 	}
 
 	/**
@@ -118,7 +115,6 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 		 * Calculate repulsion
 		 */
 		while (true) {
-
 			try {
 				for (V v1 : getGraph().getVertices()) {
 					calcRepulsion(v1);
@@ -211,25 +207,23 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 		double dx = (xDelta / deltaLength) * force;
 		double dy = (yDelta / deltaLength) * force;
 
-		if (v1_locked == false) {
-			FRVertexData fvd1 = frVertexData.get(v1);
-			fvd1.offset(-dx, -dy);
+		if (!v1_locked) {
+			frVertexData.get(v1).offset(-dx, -dy);
 		}
 
-		if (v2_locked == false) {
-			FRVertexData fvd2 = frVertexData.get(v2);
-			fvd2.offset(dx, dy);
+		if (!v2_locked) {
+			frVertexData.get(v2).offset(dx, dy);
 		}
 	}
 
 	private void calcRepulsion(V v1) {
-		FRVertexData fvd1 = frVertexData.get(v1);
+		FRVertexData fvd = frVertexData.get(v1);
 
-		if (fvd1 == null) {
+		if (fvd == null) {
 			return;
 		}
 
-		fvd1.setLocation(0, 0);
+		fvd.setLocation(0, 0);
 
 		try {
 			for (V v2 : getGraph().getVertices()) {
@@ -239,8 +233,11 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
 				Point2D p1 = transform(v1);
 				Point2D p2 = transform(v2);
-				if (p1 == null || p2 == null)
+
+				if (p1 == null || p2 == null) {
 					continue;
+				}
+
 				double xDelta = p1.getX() - p2.getX();
 				double yDelta = p1.getY() - p2.getY();
 
@@ -254,7 +251,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 							"Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
 				}
 
-				fvd1.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+				fvd.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
 			}
 		} catch (ConcurrentModificationException cme) {
 			calcRepulsion(v1);
@@ -269,12 +266,12 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 
 		private static final long serialVersionUID = 1L;
 
-		protected void offset(double x, double y) {
+		public void offset(double x, double y) {
 			this.x += x;
 			this.y += y;
 		}
 
-		protected double norm() {
+		public double norm() {
 			return Math.sqrt(x * x + y * y);
 		}
 	}
