@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package io.github.psgs.issuesdownload;
+package de.bund.bfr.github;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
