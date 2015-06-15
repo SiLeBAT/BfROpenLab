@@ -1363,9 +1363,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			String error = "The column \"" + edgeSchema.getId()
-					+ "\" cannot be used with \"Invisible\" option as it is used as "
-					+ naming.edge() + " ID";
+			if (!isJoinEdges()) {
+				return null;
+			}
+
+			String error = "Joined " + naming.edges()
+					+ " cannot be made invisible.\nYou can uncheck \"Join " + naming.Edges()
+					+ "\" and make the unjoined " + naming.edges() + " invisible.";
 
 			if (condition != null && condition.isInvisible()) {
 				AndOrHighlightCondition logicalCondition = null;
