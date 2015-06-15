@@ -238,7 +238,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Reporter Information")) break;
-				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename, null);
+				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename, false, null);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				outLots.put(d.getLot().getNumber(), d.getLot());
@@ -274,7 +274,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Lot Information")) break;
-				Delivery d = getDelivery(stationSheet, sif, row, !isForTracing, titleRow, filename, outLots);
+				Delivery d = getDelivery(stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				if (!isForTracing) outLots.put(d.getLot().getNumber(), d.getLot());
@@ -290,13 +290,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, label)) break;
-			if (!fillLot(row, outLots, titleRow, isForTracing ? outDeliveries : null)) {
+			if (!fillLot(row, sif, outLots, titleRow, isForTracing ? outDeliveries : null)) {
 				throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 			}
 		}
 		
 		// Deliveries/Recipe Inbound
-		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Ingredients for Lot(s)") + 3;
+		label = "Ingredients for Lot(s)";
+		if (isForTracing) label = "Products Out";
+		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, label) + 3;
 		HashMap<String, Delivery> inDeliveries = new HashMap<>(); 
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		titleRow = transactionSheet.getRow(classRowIndex - 2);
@@ -304,7 +306,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, null)) break;
-			Delivery d = getDelivery(stationSheet, sif, row, false, titleRow, filename, isForTracing ? outLots : null);
+			Delivery d = getDelivery(stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots);
 			if (d == null) continue;
 			if (!isForTracing && d.getTargetLotId() == null) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 			inDeliveries.put(d.getId(), d);
@@ -366,8 +368,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				Lot ol = lotDbNumber.get(d.getLot().getNumber());
 				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
 						ol.getProduct() != null && d.getLot().getProduct().getName().equals(ol.getProduct().getName())) {
-					d.updateLotDbId(d.getLot().getDbId(), ol.getDbId());
-					d.getLot().deleteDbId();
+					d.mergeLot(d.getLot().getDbId(), ol.getDbId());
 				}
 				/*
 				else {
@@ -616,20 +617,20 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, HashMap<String, Lot> outLots) throws Exception {
+	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots) throws Exception {
 		Cell cell = row.getCell(12);
 		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
 		Delivery result = new Delivery();
 		String lotDelNumber = null;
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-			lotDelNumber = getStr(cell.getStringCellValue());
+			cell.setCellType(Cell.CELL_TYPE_STRING); lotDelNumber = getStr(cell.getStringCellValue());
 			//if (isForTracing && outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
-			if (outLots == null && outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(lotDelNumber);}
-			if (outLots != null && !outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
-			if (outLots == null && !outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
+			if (!isForTracing && outbound) {result.setId(lotDelNumber);}
+			if (isForTracing && !outbound) {result.setId(lotDelNumber);}
+			if (!isForTracing && !outbound) {result.setTargetLotId(lotDelNumber);}
 		}
 		Lot l;
-		if (outbound && outLots != null && outLots.containsKey(lotDelNumber)) {
+		if (isForTracing && outbound) {
 			l = outLots.get(lotDelNumber);
 		}
 		else {
@@ -663,7 +664,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(getStation(businessSheet, cell.getStringCellValue(), row));}
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setStation(getStation(businessSheet, cell.getStringCellValue(), row));}
 
-		if (outLots == null && !outbound || outLots != null && outbound) {
+		if (!isForTracing && !outbound || isForTracing && outbound) {
 			String newSerial = l.getProduct().getName() + ";" + l.getNumber() + ";" +
 					result.getDepartureDay() + ";" + result.getDepartureMonth() + ";" + result.getDepartureYear() + ";" +
 					result.getArrivalDay() + ";" + result.getArrivalMonth() + ";" + result.getArrivalYear() + ";" +
@@ -702,19 +703,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (val.trim().isEmpty()) return null;
 		return val;
 	}
-	private boolean fillLot(Row row, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries) {
+	private boolean fillLot(Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries) {
 		Lot l = null;
 		String lotNumber = null;
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}	
 		l = outLots.get(lotNumber);
 		if (l == null) {
-			if (outDeliveries != null) {l = new Lot(); l.setNumber(lotNumber);}
+			if (outDeliveries != null) {l = new Lot(); l.setNumber(lotNumber); outLots.put(l.getNumber(), l);}
 			else return false;
 		}
 		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		if (outDeliveries != null) {
-			cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Product p = new Product(); p.setName(getStr(cell.getStringCellValue())); l.setProduct(p);}
+			cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Product p = new Product(); p.setName(getStr(cell.getStringCellValue())); l.setProduct(p); p.setStation(sif);}
 			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Delivery d = outDeliveries.get(getStr(cell.getStringCellValue())); if (d == null) return false; d.setTargetLotId(l.getNumber());}
 		}
 		

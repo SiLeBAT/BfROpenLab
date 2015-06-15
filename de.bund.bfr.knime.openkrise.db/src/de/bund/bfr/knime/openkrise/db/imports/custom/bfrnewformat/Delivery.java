@@ -184,6 +184,9 @@ public class Delivery {
 
 				result = rs.getInt("Lieferungen.ID");
 				if (getDepartureDay() != null || getDepartureMonth() != null || getDepartureYear() != null) {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_day") + " = " + getArrivalDay() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_month") + " = " + getArrivalMonth() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_year") + " = " + getArrivalYear() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_day") + " = " + getDepartureDay() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_month") + " = " + getDepartureMonth() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
@@ -273,7 +276,11 @@ public class Delivery {
 		return result;
 	}
 	
-	public void updateLotDbId(Integer oldLotDbId, Integer newLotDbId) {
-		if (newLotDbId != null) DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Charge") + "=" + newLotDbId + " WHERE " + DBKernel.delimitL("Charge") + "=" + oldLotDbId, false);
+	public void mergeLot(Integer oldLotDbId, Integer newLotDbId) {
+		if (oldLotDbId != null && newLotDbId != null) {
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Charge") + "=" + newLotDbId.intValue() + " WHERE " + DBKernel.delimitL("Charge") + "=" + oldLotDbId.intValue(), false);
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ChargenVerbindungen") + " SET " + DBKernel.delimitL("Produkt") + "=" + newLotDbId.intValue() + " WHERE " + DBKernel.delimitL("Produkt") + "=" + oldLotDbId.intValue(), false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Chargen") + " WHERE " + DBKernel.delimitL("ID") + "=" + oldLotDbId.intValue(), false);
+		}
 	}
 }
