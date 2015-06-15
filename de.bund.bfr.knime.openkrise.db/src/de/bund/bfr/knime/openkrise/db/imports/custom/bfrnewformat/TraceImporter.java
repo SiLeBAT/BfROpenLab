@@ -536,6 +536,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		else {
 			throw new Exception("No Recipient Station defined in Forward Tracing sheet");
 		}
+		result.setId(getNewSerial(l, result));
 		
 		// Further flexible cells
 		for (int i=8;i<25;i++) {
@@ -665,11 +666,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setStation(getStation(businessSheet, cell.getStringCellValue(), row));}
 
 		if (!isForTracing && !outbound || isForTracing && outbound) {
-			String newSerial = l.getProduct().getName() + ";" + l.getNumber() + ";" +
-					result.getDepartureDay() + ";" + result.getDepartureMonth() + ";" + result.getDepartureYear() + ";" +
-					result.getArrivalDay() + ";" + result.getArrivalMonth() + ";" + result.getArrivalYear() + ";" +
-					result.getUnitNumber() + ";" + result.getUnitUnit() + ";" + result.getReceiver().getId();
-			result.setId(newSerial);
+			result.setId(getNewSerial(l, result));
 		}
 		
 		// Further flexible cells
@@ -681,6 +678,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		return result;
+	}
+	private String getNewSerial(Lot l, Delivery d) {
+		String newSerial = (l.getProduct() != null ? l.getProduct().getName() : "null") + ";" + l.getNumber() + ";" +
+				d.getDepartureDay() + ";" + d.getDepartureMonth() + ";" + d.getDepartureYear() + ";" +
+				d.getArrivalDay() + ";" + d.getArrivalMonth() + ";" + d.getArrivalYear() + ";" +
+				d.getUnitNumber() + ";" + d.getUnitUnit() + ";" + d.getReceiver().getId();
+		return newSerial;
 	}
 	private Integer getInt(String val) {
 		Integer result = null;
