@@ -60,16 +60,23 @@ public class MyNewTracingLoader {
 	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
 		allDeliveries = new HashMap<>();
 		// Firstly: get all deliveries
-		String sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Empfänger")
-				+ "," + DBKernel.delimitL("Station") + "," + DBKernel.delimitL("dd_day") + ","
-				+ DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + " FROM "
-				+ DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Chargen")
-				+ " ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge")
-				+ "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID")
-				+ " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON "
-				+ DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "="
-				+ DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID");
-		sql = DSL
+		// String sql = "SELECT " + DBKernel.delimitL("ID") + "," +
+		// DBKernel.delimitL("Empfänger")
+		// + "," + DBKernel.delimitL("Station") + "," +
+		// DBKernel.delimitL("dd_day") + ","
+		// + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year")
+		// + " FROM "
+		// + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " +
+		// DBKernel.delimitL("Chargen")
+		// + " ON " + DBKernel.delimitL("Lieferungen") + "." +
+		// DBKernel.delimitL("Charge")
+		// + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID")
+		// + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON "
+		// + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
+		// "="
+		// + DBKernel.delimitL("Produktkatalog") + "." +
+		// DBKernel.delimitL("ID");
+		String sql = DSL
 				.using(conn, SQLDialect.HSQLDB)
 				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"),
 						field("dd_month"), field("dd_year")).from(table("Lieferungen"))
@@ -121,12 +128,10 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 
-		MyNewTracing mnt = new MyNewTracing(allDeliveries);
-		mnt.setSerialUsable(serialPossible(conn));
-		return mnt;
+		return new MyNewTracing(allDeliveries);
 	}
 
-	private static boolean serialPossible(Connection conn) {
+	public static boolean serialPossible(Connection conn) {
 		HashSet<String> hs = new HashSet<>();
 		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM "
 				+ DBKernel.delimitL("Station");

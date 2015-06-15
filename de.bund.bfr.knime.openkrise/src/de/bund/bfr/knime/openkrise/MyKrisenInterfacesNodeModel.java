@@ -181,7 +181,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			System.err.println("Starting Tracing...");
 			MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
-			boolean useSerialAsID = mnt.isSerialUsable();
+			boolean useSerialAsID = MyNewTracingLoader.serialPossible(conn);
 			HashMap<String, String> hmStationIDs = new HashMap<>();
 			HashMap<String, String> hmDeliveryIDs = new HashMap<>();
 			System.err.println("Starting Nodes33...");
