@@ -19,10 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class MyDelivery implements Cloneable {
+public class MyDelivery {
 
 	private String id;
 	private String supplierID, recipientID;
@@ -42,8 +42,8 @@ public class MyDelivery implements Cloneable {
 		this.deliveryMonth = deliveryMonth;
 		this.deliveryYear = deliveryYear;
 
-		allNextIDs = new HashSet<>();
-		allPreviousIDs = new HashSet<>();
+		allNextIDs = new LinkedHashSet<>();
+		allPreviousIDs = new LinkedHashSet<>();
 	}
 
 	public Set<String> getAllNextIDs() {
@@ -84,16 +84,5 @@ public class MyDelivery implements Cloneable {
 
 	public Integer getDeliveryYear() {
 		return deliveryYear;
-	}
-
-	@Override
-	public MyDelivery clone() {
-		MyDelivery mdNew = new MyDelivery(id, supplierID, recipientID, deliveryDay, deliveryMonth,
-				deliveryYear);
-
-		mdNew.allNextIDs = new HashSet<>(allNextIDs);
-		mdNew.allPreviousIDs = new HashSet<>(allPreviousIDs);
-
-		return mdNew;
 	}
 }

@@ -19,12 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 public class MyNewTracing {
 
@@ -43,18 +43,25 @@ public class MyNewTracing {
 	private boolean enforceTemporalOrder = false;
 
 	public MyNewTracing(Map<String, MyDelivery> allDeliveries) {
-		this.allDeliveries = new HashMap<>();
+		this.allDeliveries = new LinkedHashMap<>();
 
 		for (MyDelivery d : allDeliveries.values()) {
-			this.allDeliveries.put(d.getId(), d.clone());
+			MyDelivery copy = new MyDelivery(d.getId(), d.getSupplierID(), d.getRecipientID(),
+					d.getDeliveryDay(), d.getDeliveryMonth(), d.getDeliveryYear());
+
+			copy.getAllNextIDs().addAll(
+					Sets.intersection(d.getAllNextIDs(), allDeliveries.keySet()));
+			copy.getAllPreviousIDs().addAll(
+					Sets.intersection(d.getAllPreviousIDs(), allDeliveries.keySet()));
+
+			this.allDeliveries.put(copy.getId(), copy);
 		}
 
-		this.caseStations = new HashMap<>();
-		this.ccStations = new HashSet<>();
-		this.caseDeliveries = new HashMap<>();
-		this.ccDeliveries = new HashSet<>();
+		this.caseStations = new LinkedHashMap<>();
+		this.ccStations = new LinkedHashSet<>();
+		this.caseDeliveries = new LinkedHashMap<>();
+		this.ccDeliveries = new LinkedHashSet<>();
 		this.caseSum = 0;
-		removeEmptyIds(this.allDeliveries);
 
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
@@ -66,11 +73,11 @@ public class MyNewTracing {
 
 	private Map<String, Set<String>> getAllIncoming() {
 		if (allIncoming == null) {
-			allIncoming = new HashMap<>();
+			allIncoming = new LinkedHashMap<>();
 			for (MyDelivery d : allDeliveries.values()) {
 				String rid = d.getRecipientID();
 				if (!allIncoming.containsKey(rid))
-					allIncoming.put(rid, new HashSet<String>());
+					allIncoming.put(rid, new LinkedHashSet<String>());
 				allIncoming.get(rid).add(d.getId());
 			}
 		}
@@ -79,11 +86,11 @@ public class MyNewTracing {
 
 	private Map<String, Set<String>> getAllOutgoing() {
 		if (allOutgoing == null) {
-			allOutgoing = new HashMap<>();
+			allOutgoing = new LinkedHashMap<>();
 			for (MyDelivery d : allDeliveries.values()) {
 				String sid = d.getSupplierID();
 				if (!allOutgoing.containsKey(sid))
-					allOutgoing.put(sid, new HashSet<String>());
+					allOutgoing.put(sid, new LinkedHashSet<String>());
 				allOutgoing.get(sid).add(d.getId());
 			}
 		}
@@ -177,11 +184,11 @@ public class MyNewTracing {
 		// (deliveries), and all of them have cases!!!
 		// Therefore, we sum here based on the suppliers (supplierSum), not on
 		// the deliveries!!!
-		sortedStations = new HashMap<>();
-		sortedDeliveries = new HashMap<>();
+		sortedStations = new LinkedHashMap<>();
+		sortedDeliveries = new LinkedHashMap<>();
 
 		for (MyDelivery md : allDeliveries.values()) {
-			Set<String> fwc = new HashSet<>();
+			Set<String> fwc = new LinkedHashSet<>();
 
 			fwc.addAll(getForwardStationsWithCases(md));
 			fwc.addAll(getForwardDeliveriesWithCases(md));
@@ -189,15 +196,15 @@ public class MyNewTracing {
 			if (sortedStations.containsKey(md.getSupplierID())) {
 				sortedStations.get(md.getSupplierID()).addAll(fwc);
 			} else {
-				sortedStations.put(md.getSupplierID(), new HashSet<>(fwc));
+				sortedStations.put(md.getSupplierID(), new LinkedHashSet<>(fwc));
 			}
 
-			sortedDeliveries.put(md.getId(), new HashSet<>(fwc));
+			sortedDeliveries.put(md.getId(), new LinkedHashSet<>(fwc));
 		}
 	}
 
 	public Set<String> getForwardStations(String stationID) {
-		Set<String> stations = new HashSet<>();
+		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
 			for (String i : getAllOutgoing().get(stationID)) {
@@ -210,7 +217,7 @@ public class MyNewTracing {
 	}
 
 	public Set<String> getBackwardStations(String stationID) {
-		Set<String> stations = new HashSet<>();
+		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
 			for (String i : getAllIncoming().get(stationID)) {
@@ -223,7 +230,7 @@ public class MyNewTracing {
 	}
 
 	public Set<String> getForwardDeliveries(String stationID) {
-		Set<String> deliveries = new HashSet<>();
+		Set<String> deliveries = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
 			for (String i : getAllOutgoing().get(stationID)) {
@@ -236,7 +243,7 @@ public class MyNewTracing {
 	}
 
 	public Set<String> getBackwardDeliveries(String stationID) {
-		Set<String> deliveries = new HashSet<>();
+		Set<String> deliveries = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
 			for (String i : getAllIncoming().get(stationID)) {
@@ -257,7 +264,7 @@ public class MyNewTracing {
 	}
 
 	public Set<String> getForwardDeliveries2(String deliveryId) {
-		Set<String> f = new HashSet<>(getForwardDeliveries(allDeliveries.get(deliveryId)));
+		Set<String> f = new LinkedHashSet<>(getForwardDeliveries(allDeliveries.get(deliveryId)));
 
 		f.remove(deliveryId);
 
@@ -265,7 +272,7 @@ public class MyNewTracing {
 	}
 
 	public Set<String> getBackwardDeliveries2(String deliveryId) {
-		Set<String> b = new HashSet<>(getBackwardDeliveries(allDeliveries.get(deliveryId)));
+		Set<String> b = new LinkedHashSet<>(getBackwardDeliveries(allDeliveries.get(deliveryId)));
 
 		b.remove(deliveryId);
 
@@ -283,7 +290,7 @@ public class MyNewTracing {
 
 	public void setCaseDelivery(String deliveryID, double priority) {
 		if (caseDeliveries == null)
-			caseDeliveries = new HashMap<>();
+			caseDeliveries = new LinkedHashMap<>();
 		if (priority < 0)
 			priority = 0;
 		if (caseDeliveries.containsKey(deliveryID)) {
@@ -301,7 +308,7 @@ public class MyNewTracing {
 
 	public void setCase(String stationID, double priority) {
 		if (caseStations == null)
-			caseStations = new HashMap<>();
+			caseStations = new LinkedHashMap<>();
 		if (priority < 0)
 			priority = 0;
 		// else if (priority > 1) priority = 1;
@@ -320,7 +327,7 @@ public class MyNewTracing {
 
 	public void setCrossContaminationDelivery(String deliveryID, boolean possible) {
 		if (ccDeliveries == null)
-			ccDeliveries = new HashSet<>();
+			ccDeliveries = new LinkedHashSet<>();
 		if (possible)
 			ccDeliveries.add(deliveryID);
 		else if (ccDeliveries.contains(deliveryID))
@@ -332,7 +339,7 @@ public class MyNewTracing {
 
 	public void setCrossContamination(String stationID, boolean possible) {
 		if (ccStations == null)
-			ccStations = new HashSet<>();
+			ccStations = new LinkedHashSet<>();
 		if (possible)
 			ccStations.add(stationID);
 		else if (ccStations.contains(stationID))
@@ -511,7 +518,7 @@ public class MyNewTracing {
 		if (md != null) {
 			Set<String> fd = getBackwardDeliveries(md);
 			if (fd != null && fd.size() > 0) {
-				result = new HashSet<>();
+				result = new LinkedHashSet<>();
 				for (String i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getSupplierID());
@@ -526,7 +533,7 @@ public class MyNewTracing {
 		if (md != null) {
 			Set<String> fd = getForwardDeliveries(md);
 			if (fd != null && fd.size() > 0) {
-				result = new HashSet<>();
+				result = new LinkedHashSet<>();
 				for (String i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					result.add(mdn.getRecipientID());
@@ -541,7 +548,7 @@ public class MyNewTracing {
 		if (md != null) {
 			Set<String> fd = getForwardDeliveries(md);
 			if (fd != null && fd.size() > 0) {
-				result = new HashSet<>();
+				result = new LinkedHashSet<>();
 				for (String i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					if (caseStations.containsKey(mdn.getRecipientID()))
@@ -557,7 +564,7 @@ public class MyNewTracing {
 		if (md != null) {
 			Set<String> fd = getForwardDeliveries(md);
 			if (fd != null && fd.size() > 0) {
-				result = new HashSet<>();
+				result = new LinkedHashSet<>();
 				for (String i : fd) {
 					MyDelivery mdn = allDeliveries.get(i);
 					if (caseDeliveries.containsKey(mdn.getId()))
@@ -569,12 +576,5 @@ public class MyNewTracing {
 			}
 		}
 		return result;
-	}
-
-	private static void removeEmptyIds(Map<String, MyDelivery> deliveries) {
-		for (MyDelivery delivery : deliveries.values()) {
-			delivery.getAllNextIDs().retainAll(deliveries.keySet());
-			delivery.getAllPreviousIDs().retainAll(deliveries.keySet());
-		}
 	}
 }
