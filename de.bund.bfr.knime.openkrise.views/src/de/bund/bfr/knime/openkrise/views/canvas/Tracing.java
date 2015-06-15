@@ -30,7 +30,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -415,7 +414,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	}
 
 	private MyNewTracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
-		HashMap<String, MyDelivery> activeDeliveries = new HashMap<>();
+		Map<String, MyDelivery> activeDeliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));

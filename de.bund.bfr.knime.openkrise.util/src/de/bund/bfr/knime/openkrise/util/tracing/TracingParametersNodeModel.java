@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -101,7 +100,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		HashMap<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		MyNewTracing tracing = new MyNewTracing(deliveries);
 

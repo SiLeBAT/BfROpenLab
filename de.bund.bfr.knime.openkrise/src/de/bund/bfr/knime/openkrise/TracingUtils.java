@@ -22,7 +22,6 @@ package de.bund.bfr.knime.openkrise;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -279,7 +278,7 @@ public class TracingUtils {
 		return edges;
 	}
 
-	public static <V extends Node> HashMap<String, MyDelivery> readDeliveries(
+	public static <V extends Node> Map<String, MyDelivery> readDeliveries(
 			BufferedDataTable tracingTable, Collection<Edge<V>> edges, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		DataTableSpec dataSpec = tracingTable.getSpec();
@@ -299,7 +298,7 @@ public class TracingUtils {
 					+ " or downloading an up-to-date workflow.");
 		}
 
-		HashMap<String, MyDelivery> deliveries = new HashMap<>();
+		Map<String, MyDelivery> deliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			String date = (String) edge.getProperties().get(TracingColumns.DELIVERY_DATE);

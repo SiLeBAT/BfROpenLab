@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +130,7 @@ public class TracingViewCanvasCreator {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		HashMap<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges,
 				nodeSchema, edgeSchema, deliveries);
