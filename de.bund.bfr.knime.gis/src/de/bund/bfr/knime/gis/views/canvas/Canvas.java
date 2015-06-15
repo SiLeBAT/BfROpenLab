@@ -359,10 +359,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		optionsPanel.setBorderAlpha(borderAlpha);
 	}
 
+	@Override
 	public boolean isAvoidOverlay() {
 		return optionsPanel.isAvoidOverlay();
 	}
 
+	@Override
 	public void setAvoidOverlay(boolean avoidOverlay) {
 		optionsPanel.setAvoidOverlay(avoidOverlay);
 	}

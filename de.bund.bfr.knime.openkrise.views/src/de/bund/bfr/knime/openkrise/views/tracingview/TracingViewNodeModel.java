@@ -56,7 +56,7 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.openkrise.TracingColumns;
-import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
@@ -184,7 +184,7 @@ public class TracingViewNodeModel extends NodeModel {
 		ImagePortObject combinedImage;
 
 		if (creator.hasGisCoordinates()) {
-			ITracingCanvas<?> gisCanvas = creator.createGisCanvas();
+			ITracingGisCanvas<?> gisCanvas = creator.createGisCanvas();
 
 			if (gisCanvas instanceof TracingOsmCanvas) {
 				((TracingOsmCanvas) gisCanvas).loadAllTiles();

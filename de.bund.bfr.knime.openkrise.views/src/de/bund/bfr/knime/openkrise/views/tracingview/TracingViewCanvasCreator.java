@@ -38,7 +38,6 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -47,10 +46,10 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
-import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingGisCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingShapefileCanvas;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 public class TracingViewCanvasCreator {
@@ -143,7 +142,7 @@ public class TracingViewCanvasCreator {
 		return canvas;
 	}
 
-	public ITracingCanvas<?> createGisCanvas() throws NotConfigurableException {
+	public ITracingGisCanvas<?> createGisCanvas() throws NotConfigurableException {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
 		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema,
 				invalidRows, false);
@@ -151,12 +150,12 @@ public class TracingViewCanvasCreator {
 				skippedEdgeRows);
 		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
-		ITracingCanvas<?> canvas;
+		ITracingGisCanvas<?> canvas;
 
 		if (set.getGisType() == GisType.SHAPEFILE) {
 			List<RegionNode> regions = TracingUtils.readRegions(shapeTable, skippedShapeRows);
 
-			canvas = new TracingGisCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
 					edgeSchema, regions, deliveries);
 		} else {
 			TileSource tileSource;
@@ -188,7 +187,7 @@ public class TracingViewCanvasCreator {
 
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
-		set.getGisSettings().setToCanvas((GisCanvas<?>) canvas);
+		set.getGisSettings().setToCanvas(canvas);
 		canvas.setPerformTracing(true);
 
 		return canvas;

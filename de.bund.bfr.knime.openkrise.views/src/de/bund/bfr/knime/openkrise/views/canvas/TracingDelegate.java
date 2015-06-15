@@ -63,13 +63,13 @@ import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 
-public class Tracing<V extends Node> implements ActionListener, ItemListener {
+public class TracingDelegate<V extends Node> implements ActionListener, ItemListener {
 
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 
-	private ITracingCanvas<V> canvas;
+	private ICanvas<V> canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
@@ -81,7 +81,7 @@ public class Tracing<V extends Node> implements ActionListener, ItemListener {
 	private JCheckBox showForwardBox;
 	private JMenuItem defaultHighlightItem;
 
-	public Tracing(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap,
+	public TracingDelegate(ICanvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap, Map<Edge<V>, Set<Edge<V>>> joinMap,
 			Map<String, MyDelivery> deliveries) {
 		this.canvas = canvas;

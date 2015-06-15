@@ -101,6 +101,10 @@ public interface ICanvas<V extends Node> {
 
 	void setBorderAlpha(int borderAlpha);
 
+	boolean isAvoidOverlay();
+
+	void setAvoidOverlay(boolean avoidOverlay);
+
 	NodePropertySchema getNodeSchema();
 
 	EdgePropertySchema getEdgeSchema();

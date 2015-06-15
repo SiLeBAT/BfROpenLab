@@ -35,11 +35,11 @@ import de.bund.bfr.knime.openkrise.MyDelivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
-public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanvas<LocationNode> {
+public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
-	private Tracing<LocationNode> tracing;
+	private TracingDelegate<LocationNode> tracing;
 
 	public TracingOsmCanvas() {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
@@ -51,7 +51,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanva
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
 			Map<String, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
+		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanva
 		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super
 				.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new Tracing.PostPaintable(this));
+		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 
 		return server;
 	}
@@ -182,14 +182,14 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanva
 
 	@Override
 	protected GraphMouse<LocationNode, Edge<LocationNode>> createGraphMouse() {
-		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 2.0, true);
+		return new GraphMouse<>(new TracingDelegate.PickingPlugin<>(this), 2.0, true);
 	}
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		HighlightListDialog dialog = super.openNodeHighlightDialog();
 
-		dialog.addChecker(new Tracing.HighlightChecker());
+		dialog.addChecker(new TracingDelegate.HighlightChecker());
 
 		return dialog;
 	}
@@ -198,7 +198,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingCanva
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		HighlightListDialog dialog = super.openEdgeHighlightDialog();
 
-		dialog.addChecker(new Tracing.HighlightChecker());
+		dialog.addChecker(new TracingDelegate.HighlightChecker());
 
 		return dialog;
 	}

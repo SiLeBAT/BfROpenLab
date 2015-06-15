@@ -39,7 +39,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	private static final long serialVersionUID = 1L;
 
-	private Tracing<GraphNode> tracing;
+	private TracingDelegate<GraphNode> tracing;
 
 	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
@@ -51,7 +51,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
 			Map<String, MyDelivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, true);
-		tracing = new Tracing<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
+		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 
 	@Override
@@ -164,7 +164,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
 				.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new Tracing.PostPaintable(this));
+		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 
 		return server;
 	}
@@ -181,14 +181,14 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	protected GraphMouse<GraphNode, Edge<GraphNode>> createGraphMouse() {
-		return new GraphMouse<>(new Tracing.PickingPlugin<>(this), 1.1, false);
+		return new GraphMouse<>(new TracingDelegate.PickingPlugin<>(this), 1.1, false);
 	}
 
 	@Override
 	protected HighlightListDialog openNodeHighlightDialog() {
 		HighlightListDialog dialog = super.openNodeHighlightDialog();
 
-		dialog.addChecker(new Tracing.HighlightChecker());
+		dialog.addChecker(new TracingDelegate.HighlightChecker());
 
 		return dialog;
 	}
@@ -197,7 +197,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	protected HighlightListDialog openEdgeHighlightDialog() {
 		HighlightListDialog dialog = super.openEdgeHighlightDialog();
 
-		dialog.addChecker(new Tracing.HighlightChecker());
+		dialog.addChecker(new TracingDelegate.HighlightChecker());
 
 		return dialog;
 	}

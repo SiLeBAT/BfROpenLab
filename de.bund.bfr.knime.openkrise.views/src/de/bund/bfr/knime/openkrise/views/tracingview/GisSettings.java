@@ -26,7 +26,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
-import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
+import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
@@ -136,7 +136,7 @@ public class GisSettings extends NodeSettings {
 		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 
-	public void setFromCanvas(GisCanvas<?> canvas) {
+	public void setFromCanvas(IGisCanvas<?> canvas) {
 		transform = canvas.getTransform();
 		nodeSize = canvas.getNodeSize();
 		nodeMaxSize = canvas.getNodeMaxSize();
@@ -148,7 +148,7 @@ public class GisSettings extends NodeSettings {
 		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
-	public void setToCanvas(GisCanvas<?> canvas) {
+	public void setToCanvas(IGisCanvas<?> canvas) {
 		canvas.setNodeSize(nodeSize);
 		canvas.setNodeMaxSize(nodeMaxSize);
 		canvas.setEdgeThickness(edgeThickness);
