@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,8 +35,8 @@ public class MyNewTracing {
 	private Map<String, Double> caseDeliveries = null;
 	private Set<String> ccStations = null;
 	private Set<String> ccDeliveries = null;
-	private Map<String, MyHashSet> backwardDeliveries;
-	private Map<String, MyHashSet> forwardDeliveries;
+	private Map<String, Set<String>> backwardDeliveries;
+	private Map<String, Set<String>> forwardDeliveries;
 	private Map<String, Set<String>> sortedStations = null;
 	private Map<String, Set<String>> sortedDeliveries = null;
 	private double caseSum = 0;
@@ -445,14 +446,16 @@ public class MyNewTracing {
 		sortedDeliveries = null;
 	}
 
-	private void searchFBCases(MyDelivery md, MyHashSet stemmingDeliveries) {
+	private void searchFBCases(MyDelivery md, Set<String> stemmingDeliveries) {
 		if (!stemmingDeliveries.contains(md.getId())) {
 			stemmingDeliveries.add(md.getId());
 			Set<String> n = md.getAllPreviousIDs();
 			for (String d : n) {
 				MyDelivery dd = allDeliveries.get(d);
-				if (backwardDeliveries.get(d) != null) {
-					stemmingDeliveries.addId(d);
+				Set<String> backward = backwardDeliveries.get(d);
+
+				if (backward != null) {
+					stemmingDeliveries.addAll(backward);
 				} else {
 					searchFBCases(dd, stemmingDeliveries);
 				}
@@ -460,14 +463,16 @@ public class MyNewTracing {
 		}
 	}
 
-	private void searchFFCases(MyDelivery md, MyHashSet headingDeliveries) {
+	private void searchFFCases(MyDelivery md, Set<String> headingDeliveries) {
 		if (!headingDeliveries.contains(md.getId())) {
 			headingDeliveries.add(md.getId());
 			Set<String> n = md.getAllNextIDs();
 			for (String d : n) {
 				MyDelivery dd = allDeliveries.get(d);
-				if (forwardDeliveries.get(d) != null) {
-					headingDeliveries.addId(d);
+				Set<String> forward = forwardDeliveries.get(d);
+
+				if (forward != null) {
+					headingDeliveries.addAll(forward);
 				} else {
 					searchFFCases(dd, headingDeliveries);
 				}
@@ -477,11 +482,10 @@ public class MyNewTracing {
 
 	private Set<String> getForwardDeliveries(MyDelivery md) {
 		if (md != null) {
-			MyHashSet forwardDeliveries = this.forwardDeliveries.get(md.getId());
+			Set<String> forwardDeliveries = this.forwardDeliveries.get(md.getId());
 			if (forwardDeliveries == null) {
-				forwardDeliveries = new MyHashSet();
+				forwardDeliveries = new LinkedHashSet<>();
 				searchFFCases(md, forwardDeliveries);
-				forwardDeliveries.merge(backwardDeliveries, this.forwardDeliveries, MyHashSet.FD);
 				this.forwardDeliveries.put(md.getId(), forwardDeliveries);
 			}
 			return forwardDeliveries;
@@ -491,11 +495,10 @@ public class MyNewTracing {
 
 	private Set<String> getBackwardDeliveries(MyDelivery md) {
 		if (md != null) {
-			MyHashSet backwardDeliveries = this.backwardDeliveries.get(md.getId());
+			Set<String> backwardDeliveries = this.backwardDeliveries.get(md.getId());
 			if (backwardDeliveries == null) {
-				backwardDeliveries = new MyHashSet();
+				backwardDeliveries = new LinkedHashSet<>();
 				searchFBCases(md, backwardDeliveries);
-				backwardDeliveries.merge(this.backwardDeliveries, forwardDeliveries, MyHashSet.BD);
 				this.backwardDeliveries.put(md.getId(), backwardDeliveries);
 			}
 			return backwardDeliveries;
