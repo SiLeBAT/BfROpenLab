@@ -22,7 +22,7 @@ package de.bund.bfr.knime.openkrise;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MyDelivery {
+public class MyDelivery implements Cloneable {
 
 	private String id;
 	private String supplierID, recipientID;
@@ -32,9 +32,6 @@ public class MyDelivery {
 
 	private Set<String> allNextIDs;
 	private Set<String> allPreviousIDs;
-
-	private MyHashSet forwardDeliveries;
-	private MyHashSet backwardDeliveries;
 
 	public MyDelivery(String id, String supplierID, String recipientID, Integer deliveryDay,
 			Integer deliveryMonth, Integer deliveryYear) {
@@ -55,22 +52,6 @@ public class MyDelivery {
 
 	public Set<String> getAllPreviousIDs() {
 		return allPreviousIDs;
-	}
-
-	public MyHashSet getForwardDeliveries() {
-		return forwardDeliveries;
-	}
-
-	public void setForwardDeliveries(MyHashSet forwardDeliveries) {
-		this.forwardDeliveries = forwardDeliveries;
-	}
-
-	public MyHashSet getBackwardDeliveries() {
-		return backwardDeliveries;
-	}
-
-	public void setBackwardDeliveries(MyHashSet backwardDeliveries) {
-		this.backwardDeliveries = backwardDeliveries;
 	}
 
 	public void setSupplierID(String supplierID) {
@@ -105,30 +86,13 @@ public class MyDelivery {
 		return deliveryYear;
 	}
 
-	public void setDeliveryDay(Integer deliveryDay) {
-		this.deliveryDay = deliveryDay;
-	}
-
-	public void setDeliveryMonth(Integer deliveryMonth) {
-		this.deliveryMonth = deliveryMonth;
-	}
-
-	public void setDeliveryYear(Integer deliveryYear) {
-		this.deliveryYear = deliveryYear;
-	}
-
-	public void resetStatusVariables() {
-		forwardDeliveries = null;
-		backwardDeliveries = null;
-	}
-
 	@Override
 	public MyDelivery clone() {
-		MyDelivery mdNew = new MyDelivery(getId(), getSupplierID(), getRecipientID(),
-				getDeliveryDay(), getDeliveryMonth(), getDeliveryYear());
+		MyDelivery mdNew = new MyDelivery(id, supplierID, recipientID, deliveryDay, deliveryMonth,
+				deliveryYear);
 
-		mdNew.getAllNextIDs().addAll(getAllNextIDs());
-		mdNew.getAllPreviousIDs().addAll(getAllPreviousIDs());
+		mdNew.allNextIDs = new HashSet<>(allNextIDs);
+		mdNew.allPreviousIDs = new HashSet<>(allPreviousIDs);
 
 		return mdNew;
 	}

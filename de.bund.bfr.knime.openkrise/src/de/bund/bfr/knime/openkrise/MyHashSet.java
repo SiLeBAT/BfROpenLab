@@ -42,13 +42,16 @@ public class MyHashSet extends HashSet<String> {
 		furtherIds.add(id);
 	}
 
-	public void merge(Map<String, MyDelivery> allDeliveries, int type) {
+	public void merge(Map<String, MyHashSet> backwardDeliveries,
+			Map<String, MyHashSet> forwardDeliveries, int type) {
 		for (String i : furtherIds) {
-			MyDelivery dd = allDeliveries.get(i);
-			if (type == FD && dd.getForwardDeliveries() != null)
-				this.addAll(dd.getForwardDeliveries());
-			else if (type == BD && dd.getBackwardDeliveries() != null)
-				this.addAll(dd.getBackwardDeliveries());
+			MyHashSet backward = backwardDeliveries.get(i);
+			MyHashSet forward = forwardDeliveries.get(i);
+
+			if (type == FD && forward != null)
+				this.addAll(forward);
+			else if (type == BD && backward != null)
+				this.addAll(backward);
 		}
 		furtherIds.clear();
 	}

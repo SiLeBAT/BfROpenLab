@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +34,8 @@ public class MyNewTracing {
 	private Map<String, Double> caseDeliveries = null;
 	private Set<String> ccStations = null;
 	private Set<String> ccDeliveries = null;
+	private Map<String, MyHashSet> backwardDeliveries;
+	private Map<String, MyHashSet> forwardDeliveries;
 	private Map<String, Set<String>> sortedStations = null;
 	private Map<String, Set<String>> sortedDeliveries = null;
 	private double caseSum = 0;
@@ -51,6 +54,9 @@ public class MyNewTracing {
 		this.ccDeliveries = new HashSet<>();
 		this.caseSum = 0;
 		removeEmptyIds(this.allDeliveries);
+
+		backwardDeliveries = new LinkedHashMap<>();
+		forwardDeliveries = new LinkedHashMap<>();
 	}
 
 	public Map<String, MyDelivery> getAllDeliveries() {
@@ -269,9 +275,8 @@ public class MyNewTracing {
 		this.enforceTemporalOrder = enforceTemporalOrder;
 		allIncoming = null;
 		allOutgoing = null;
-		for (MyDelivery md : allDeliveries.values()) {
-			md.resetStatusVariables();
-		}
+		backwardDeliveries.clear();
+		forwardDeliveries.clear();
 		tcocc();
 	}
 
@@ -446,7 +451,7 @@ public class MyNewTracing {
 			Set<String> n = md.getAllPreviousIDs();
 			for (String d : n) {
 				MyDelivery dd = allDeliveries.get(d);
-				if (dd.getBackwardDeliveries() != null) {
+				if (backwardDeliveries.get(d) != null) {
 					stemmingDeliveries.addId(d);
 				} else {
 					searchFBCases(dd, stemmingDeliveries);
@@ -461,7 +466,7 @@ public class MyNewTracing {
 			Set<String> n = md.getAllNextIDs();
 			for (String d : n) {
 				MyDelivery dd = allDeliveries.get(d);
-				if (dd.getForwardDeliveries() != null) {
+				if (forwardDeliveries.get(d) != null) {
 					headingDeliveries.addId(d);
 				} else {
 					searchFFCases(dd, headingDeliveries);
@@ -472,12 +477,12 @@ public class MyNewTracing {
 
 	private Set<String> getForwardDeliveries(MyDelivery md) {
 		if (md != null) {
-			MyHashSet forwardDeliveries = md.getForwardDeliveries();
+			MyHashSet forwardDeliveries = this.forwardDeliveries.get(md.getId());
 			if (forwardDeliveries == null) {
 				forwardDeliveries = new MyHashSet();
 				searchFFCases(md, forwardDeliveries);
-				forwardDeliveries.merge(allDeliveries, MyHashSet.FD);
-				md.setForwardDeliveries(forwardDeliveries);
+				forwardDeliveries.merge(backwardDeliveries, this.forwardDeliveries, MyHashSet.FD);
+				this.forwardDeliveries.put(md.getId(), forwardDeliveries);
 			}
 			return forwardDeliveries;
 		}
@@ -486,12 +491,12 @@ public class MyNewTracing {
 
 	private Set<String> getBackwardDeliveries(MyDelivery md) {
 		if (md != null) {
-			MyHashSet backwardDeliveries = md.getBackwardDeliveries();
+			MyHashSet backwardDeliveries = this.backwardDeliveries.get(md.getId());
 			if (backwardDeliveries == null) {
 				backwardDeliveries = new MyHashSet();
 				searchFBCases(md, backwardDeliveries);
-				backwardDeliveries.merge(allDeliveries, MyHashSet.BD);
-				md.setBackwardDeliveries(backwardDeliveries);
+				backwardDeliveries.merge(this.backwardDeliveries, forwardDeliveries, MyHashSet.BD);
+				this.backwardDeliveries.put(md.getId(), backwardDeliveries);
 			}
 			return backwardDeliveries;
 		}
