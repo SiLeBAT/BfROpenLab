@@ -187,7 +187,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 		}
 
-		tracing.fillDeliveries(set.isEnforeTemporalOrder());
+		tracing.init(set.isEnforeTemporalOrder());
 
 		Set<String> filterNodes = new LinkedHashSet<>();
 		Set<String> filterEdges = new LinkedHashSet<>();

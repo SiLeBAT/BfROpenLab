@@ -362,7 +362,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			int i = 0;
 
-			for (Delivery delivery : mnt.getAllDeliveries().values()) {
+			for (Delivery delivery : mnt.getDeliveries().values()) {
 				for (String next : delivery.getAllNextIDs()) {
 					if (useSerialAsID) deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(hmDeliveryIDs.get(delivery.getId())), IO.createCell(hmDeliveryIDs.get(next))));
 					else deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));

@@ -466,7 +466,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		tracing.fillDeliveries(isEnforceTemporalOrder());
+		tracing.init(isEnforceTemporalOrder());
 
 		return tracing;
 	}
