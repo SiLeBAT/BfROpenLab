@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -179,7 +180,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			System.err.println("Plausibility Checks - Fin!");
 
 			System.err.println("Starting Tracing...");
-			Tracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
+			Map<String, Delivery> allDeliveries = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
+			Tracing mnt = new Tracing(allDeliveries);
 
 			boolean useSerialAsID = MyNewTracingLoader.serialPossible(conn);
 			HashMap<String, String> hmStationIDs = new HashMap<>();
@@ -362,7 +364,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			int i = 0;
 
-			for (Delivery delivery : mnt.getDeliveries().values()) {
+			for (Delivery delivery : allDeliveries.values()) {
 				for (String next : delivery.getAllNextIDs()) {
 					if (useSerialAsID) deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(hmDeliveryIDs.get(delivery.getId())), IO.createCell(hmDeliveryIDs.get(next))));
 					else deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));

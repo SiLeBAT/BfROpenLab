@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -57,7 +58,7 @@ public class MyNewTracingLoader {
 		return DSL.table("\"" + name + "\"");
 	}
 
-	public static Tracing getNewTracingModel(MyDBI myDBi, Connection conn) {
+	public static Map<String, Delivery> getNewTracingModel(MyDBI myDBi, Connection conn) {
 		allDeliveries = new HashMap<>();
 		// Firstly: get all deliveries
 		// String sql = "SELECT " + DBKernel.delimitL("ID") + "," +
@@ -128,7 +129,7 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 
-		return new Tracing(allDeliveries);
+		return allDeliveries;
 	}
 
 	public static boolean serialPossible(Connection conn) {
