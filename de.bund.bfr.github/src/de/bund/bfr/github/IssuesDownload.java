@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,11 +61,16 @@ public class IssuesDownload {
 		FileWriter writer = new FileWriter("issues.csv");
 		int index = 1;
 
-		writer.append("Id\tTitle\tCreator\tAssignee\tMilestone\tState");
+		writer.append("Id\tTitle\tCreator\tAssignee\tMilestone\tCreated\tClosed\tState");
 		writer.append("\n");
 
 		for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
 				repository.listIssues(GHIssueState.CLOSED))) {
+			if (issue.getMilestone() != null
+					&& issue.getMilestone().getTitle().equals("Non-FoodChain-Lab")) {
+				continue;
+			}
+
 			List<String> parts = new ArrayList<>();
 
 			parts.add(String.valueOf(issue.getNumber()));
@@ -79,6 +85,18 @@ public class IssuesDownload {
 
 			if (issue.getMilestone() != null) {
 				parts.add(issue.getMilestone().getTitle());
+			} else {
+				parts.add("");
+			}
+
+			if (issue.getCreatedAt() != null) {
+				parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getCreatedAt()));
+			} else {
+				parts.add("");
+			}
+
+			if (issue.getClosedAt() != null) {
+				parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getClosedAt()));
 			} else {
 				parts.add("");
 			}
