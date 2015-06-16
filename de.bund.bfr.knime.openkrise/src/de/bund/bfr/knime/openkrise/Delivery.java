@@ -22,7 +22,7 @@ package de.bund.bfr.knime.openkrise;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class MyDelivery {
+public class Delivery {
 
 	private String id;
 	private String supplierID, recipientID;
@@ -33,7 +33,7 @@ public class MyDelivery {
 	private Set<String> allNextIDs;
 	private Set<String> allPreviousIDs;
 
-	public MyDelivery(String id, String supplierID, String recipientID, Integer deliveryDay,
+	public Delivery(String id, String supplierID, String recipientID, Integer deliveryDay,
 			Integer deliveryMonth, Integer deliveryYear) {
 		this.id = id;
 		this.supplierID = supplierID;

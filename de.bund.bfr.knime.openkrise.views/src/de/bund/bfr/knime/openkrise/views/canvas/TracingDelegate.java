@@ -56,8 +56,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.Delivery;
+import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -73,7 +73,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
-	private Map<String, MyDelivery> deliveries;
+	private Map<String, Delivery> deliveries;
 
 	private boolean performTracing;
 
@@ -83,7 +83,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 	public TracingDelegate(ICanvas<V> canvas, Map<String, V> nodeSaveMap,
 			Map<String, Edge<V>> edgeSaveMap, Map<Edge<V>, Set<Edge<V>>> joinMap,
-			Map<String, MyDelivery> deliveries) {
+			Map<String, Delivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
@@ -359,8 +359,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			return;
 		}
 
-		MyNewTracing tracingWithCC = createTracing(canvas.getEdges(), true);
-		MyNewTracing tracingWithoutCC = createTracing(canvas.getEdges(), false);
+		Tracing tracingWithCC = createTracing(canvas.getEdges(), true);
+		Tracing tracingWithoutCC = createTracing(canvas.getEdges(), false);
 		Set<Edge<V>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
@@ -413,14 +413,14 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 	}
 
-	private MyNewTracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
-		Map<String, MyDelivery> activeDeliveries = new LinkedHashMap<>();
+	private Tracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
+		Map<String, Delivery> activeDeliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));
 		}
 
-		MyNewTracing tracing = new MyNewTracing(activeDeliveries);
+		Tracing tracing = new Tracing(activeDeliveries);
 
 		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
 			tracing.mergeStations(entry.getValue(), entry.getKey());
@@ -486,7 +486,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		MyNewTracing tracing = createTracing(edges, true);
+		Tracing tracing = createTracing(edges, true);
 
 		Set<String> backwardNodes = new LinkedHashSet<>();
 		Set<String> forwardNodes = new LinkedHashSet<>();

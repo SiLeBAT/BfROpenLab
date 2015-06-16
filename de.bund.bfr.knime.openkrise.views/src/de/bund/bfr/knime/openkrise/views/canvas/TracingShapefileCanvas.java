@@ -32,7 +32,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
-import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
@@ -46,12 +46,12 @@ public class TracingShapefileCanvas extends LocationCanvas implements
 	public TracingShapefileCanvas() {
 		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(), new ArrayList<RegionNode>(),
-				new LinkedHashMap<String, MyDelivery>());
+				new LinkedHashMap<String, Delivery>());
 	}
 
 	public TracingShapefileCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			List<RegionNode> regions, Map<String, MyDelivery> deliveries) {
+			List<RegionNode> regions, Map<String, Delivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, regions);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}

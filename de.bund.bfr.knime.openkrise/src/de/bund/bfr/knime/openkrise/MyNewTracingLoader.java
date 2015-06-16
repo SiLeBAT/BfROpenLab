@@ -41,7 +41,7 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class MyNewTracingLoader {
 
-	private static HashMap<String, MyDelivery> allDeliveries;
+	private static HashMap<String, Delivery> allDeliveries;
 
 	private static Field<Object> field(String name) {
 		List<String> parts = new ArrayList<>();
@@ -57,7 +57,7 @@ public class MyNewTracingLoader {
 		return DSL.table("\"" + name + "\"");
 	}
 
-	public static MyNewTracing getNewTracingModel(MyDBI myDBi, Connection conn) {
+	public static Tracing getNewTracingModel(MyDBI myDBi, Connection conn) {
 		allDeliveries = new HashMap<>();
 		// Firstly: get all deliveries
 		// String sql = "SELECT " + DBKernel.delimitL("ID") + "," +
@@ -89,7 +89,7 @@ public class MyNewTracingLoader {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
-					MyDelivery md = new MyDelivery(rs.getObject("ID").toString(), rs.getObject(
+					Delivery md = new Delivery(rs.getObject("ID").toString(), rs.getObject(
 							"Station").toString(), rs.getObject("Empfänger").toString(),
 							(Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"),
 							(Integer) rs.getObject("dd_year"));
@@ -115,8 +115,8 @@ public class MyNewTracingLoader {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
-					MyDelivery mdZ = allDeliveries.get(rs.getObject(1).toString());
-					MyDelivery mdP = allDeliveries.get(rs.getObject(2).toString());
+					Delivery mdZ = allDeliveries.get(rs.getObject(1).toString());
+					Delivery mdP = allDeliveries.get(rs.getObject(2).toString());
 					if (mdZ != null && mdP != null) {
 						mdZ.getAllNextIDs().add(mdP.getId());
 						mdP.getAllPreviousIDs().add(mdZ.getId());
@@ -128,7 +128,7 @@ public class MyNewTracingLoader {
 			e.printStackTrace();
 		}
 
-		return new MyNewTracing(allDeliveries);
+		return new Tracing(allDeliveries);
 	}
 
 	public static boolean serialPossible(Connection conn) {

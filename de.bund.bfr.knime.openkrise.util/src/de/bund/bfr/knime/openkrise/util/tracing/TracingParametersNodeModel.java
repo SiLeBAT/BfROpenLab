@@ -57,8 +57,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.openkrise.MyDelivery;
-import de.bund.bfr.knime.openkrise.MyNewTracing;
+import de.bund.bfr.knime.openkrise.Delivery;
+import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 
@@ -100,9 +100,9 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
-		MyNewTracing tracing = new MyNewTracing(deliveries);
+		Tracing tracing = new Tracing(deliveries);
 
 		for (RowKey key : skippedEdgeRows) {
 			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");

@@ -278,7 +278,7 @@ public class TracingUtils {
 		return edges;
 	}
 
-	public static <V extends Node> Map<String, MyDelivery> readDeliveries(
+	public static <V extends Node> Map<String, Delivery> readDeliveries(
 			BufferedDataTable tracingTable, Collection<Edge<V>> edges, Set<RowKey> skippedRows)
 			throws NotConfigurableException {
 		DataTableSpec dataSpec = tracingTable.getSpec();
@@ -298,11 +298,11 @@ public class TracingUtils {
 					+ " or downloading an up-to-date workflow.");
 		}
 
-		Map<String, MyDelivery> deliveries = new LinkedHashMap<>();
+		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			String date = (String) edge.getProperties().get(TracingColumns.DELIVERY_DATE);
-			MyDelivery delivery = new MyDelivery(edge.getId(), edge.getFrom().getId(), edge.getTo()
+			Delivery delivery = new Delivery(edge.getId(), edge.getFrom().getId(), edge.getTo()
 					.getId(), getDay(date), getMonth(date), getYear(date));
 
 			deliveries.put(edge.getId(), delivery);

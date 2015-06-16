@@ -43,7 +43,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
@@ -129,7 +129,7 @@ public class TracingViewCanvasCreator {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges,
 				nodeSchema, edgeSchema, deliveries);
@@ -148,7 +148,7 @@ public class TracingViewCanvasCreator {
 				invalidRows, false);
 		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
 				skippedEdgeRows);
-		Map<String, MyDelivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
 				skippedTracingRows);
 		ITracingGisCanvas<?> canvas;
 

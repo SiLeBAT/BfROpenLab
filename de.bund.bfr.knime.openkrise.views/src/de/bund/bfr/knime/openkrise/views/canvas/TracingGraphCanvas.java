@@ -31,7 +31,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
-import de.bund.bfr.knime.openkrise.MyDelivery;
+import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
@@ -44,12 +44,12 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	public TracingGraphCanvas() {
 		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
 				new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<String, MyDelivery>());
+				new LinkedHashMap<String, Delivery>());
 	}
 
 	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			Map<String, MyDelivery> deliveries) {
+			Map<String, Delivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, true);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}

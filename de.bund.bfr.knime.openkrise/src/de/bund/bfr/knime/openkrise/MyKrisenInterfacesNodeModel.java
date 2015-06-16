@@ -179,7 +179,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			System.err.println("Plausibility Checks - Fin!");
 
 			System.err.println("Starting Tracing...");
-			MyNewTracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
+			Tracing mnt = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
 			boolean useSerialAsID = MyNewTracingLoader.serialPossible(conn);
 			HashMap<String, String> hmStationIDs = new HashMap<>();
@@ -362,7 +362,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			int i = 0;
 
-			for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
+			for (Delivery delivery : mnt.getAllDeliveries().values()) {
 				for (String next : delivery.getAllNextIDs()) {
 					if (useSerialAsID) deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(hmDeliveryIDs.get(delivery.getId())), IO.createCell(hmDeliveryIDs.get(next))));
 					else deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO.createCell(delivery.getId()), IO.createCell(next)));
