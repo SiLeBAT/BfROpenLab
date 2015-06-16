@@ -453,64 +453,50 @@ public class MyNewTracing {
 		sortedDeliveries = null;
 	}
 
-	private void searchFBCases(MyDelivery md, Set<String> stemmingDeliveries) {
-		if (!stemmingDeliveries.contains(md.getId())) {
-			stemmingDeliveries.add(md.getId());
-			Set<String> n = md.getAllPreviousIDs();
-			for (String d : n) {
-				MyDelivery dd = allDeliveries.get(d);
-				Set<String> backward = backwardDeliveries.get(d);
-
-				if (backward != null) {
-					stemmingDeliveries.addAll(backward);
-				} else {
-					searchFBCases(dd, stemmingDeliveries);
-				}
-			}
+	private Set<String> getBackwardDeliveries(MyDelivery d) {
+		if (d == null) {
+			return null;
 		}
+
+		Set<String> backward = backwardDeliveries.get(d.getId());
+
+		if (backward != null) {
+			return backward;
+		}
+
+		backward = new LinkedHashSet<>();
+		backward.add(d.getId());
+
+		for (String prev : d.getAllPreviousIDs()) {
+			backward.addAll(getBackwardDeliveries(allDeliveries.get(prev)));
+		}
+
+		backwardDeliveries.put(d.getId(), backward);
+
+		return backward;
 	}
 
-	private void searchFFCases(MyDelivery md, Set<String> headingDeliveries) {
-		if (!headingDeliveries.contains(md.getId())) {
-			headingDeliveries.add(md.getId());
-			Set<String> n = md.getAllNextIDs();
-			for (String d : n) {
-				MyDelivery dd = allDeliveries.get(d);
-				Set<String> forward = forwardDeliveries.get(d);
-
-				if (forward != null) {
-					headingDeliveries.addAll(forward);
-				} else {
-					searchFFCases(dd, headingDeliveries);
-				}
-			}
+	private Set<String> getForwardDeliveries(MyDelivery d) {
+		if (d == null) {
+			return null;
 		}
-	}
 
-	private Set<String> getForwardDeliveries(MyDelivery md) {
-		if (md != null) {
-			Set<String> forwardDeliveries = this.forwardDeliveries.get(md.getId());
-			if (forwardDeliveries == null) {
-				forwardDeliveries = new LinkedHashSet<>();
-				searchFFCases(md, forwardDeliveries);
-				this.forwardDeliveries.put(md.getId(), forwardDeliveries);
-			}
-			return forwardDeliveries;
-		}
-		return null;
-	}
+		Set<String> forward = forwardDeliveries.get(d.getId());
 
-	private Set<String> getBackwardDeliveries(MyDelivery md) {
-		if (md != null) {
-			Set<String> backwardDeliveries = this.backwardDeliveries.get(md.getId());
-			if (backwardDeliveries == null) {
-				backwardDeliveries = new LinkedHashSet<>();
-				searchFBCases(md, backwardDeliveries);
-				this.backwardDeliveries.put(md.getId(), backwardDeliveries);
-			}
-			return backwardDeliveries;
+		if (forward != null) {
+			return forward;
 		}
-		return null;
+
+		forward = new LinkedHashSet<>();
+		forward.add(d.getId());
+
+		for (String next : d.getAllNextIDs()) {
+			forward.addAll(getForwardDeliveries(allDeliveries.get(next)));
+		}
+
+		forwardDeliveries.put(d.getId(), forward);
+
+		return forward;
 	}
 
 	private Set<String> getBackwardStations(MyDelivery md) {
