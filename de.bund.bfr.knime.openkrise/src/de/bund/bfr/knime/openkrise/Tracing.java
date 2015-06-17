@@ -38,8 +38,6 @@ public class Tracing {
 	private Map<String, Set<String>> allOutgoing;
 	private Map<String, Set<String>> backwardDeliveries;
 	private Map<String, Set<String>> forwardDeliveries;
-	private Map<String, Set<String>> sortedStations;
-	private Map<String, Set<String>> sortedDeliveries;
 	private double weightSum;
 
 	public Tracing(Map<String, Delivery> deliveries) {
@@ -56,44 +54,54 @@ public class Tracing {
 			this.deliveries.put(copy.getId(), copy);
 		}
 
-		this.stationWeights = new LinkedHashMap<>();
-		this.ccStations = new LinkedHashSet<>();
-		this.deliveryWeights = new LinkedHashMap<>();
-		this.ccDeliveries = new LinkedHashSet<>();
-		this.weightSum = 0;
-
-		backwardDeliveries = new LinkedHashMap<>();
-		forwardDeliveries = new LinkedHashMap<>();
+		stationWeights = new LinkedHashMap<>();
+		ccStations = new LinkedHashSet<>();
+		deliveryWeights = new LinkedHashMap<>();
+		ccDeliveries = new LinkedHashSet<>();
 	}
 
-	public Map<String, Delivery> getDeliveries() {
-		return deliveries;
+	public void setCaseDelivery(String deliveryID, double priority) {
+		if (priority > 0) {
+			deliveryWeights.put(deliveryID, priority);
+		} else {
+			deliveryWeights.remove(deliveryID);
+		}
 	}
 
-	private Map<String, Set<String>> getAllIncoming() {
-		if (allIncoming == null) {
-			allIncoming = new LinkedHashMap<>();
-			for (Delivery d : deliveries.values()) {
-				String rid = d.getRecipientID();
-				if (!allIncoming.containsKey(rid))
-					allIncoming.put(rid, new LinkedHashSet<String>());
-				allIncoming.get(rid).add(d.getId());
+	public void setCase(String stationID, double priority) {
+		if (priority > 0) {
+			stationWeights.put(stationID, priority);
+		} else {
+			stationWeights.remove(stationID);
+		}
+	}
+
+	public void setCrossContaminationDelivery(String deliveryID, boolean possible) {
+		if (possible) {
+			ccDeliveries.add(deliveryID);
+		} else {
+			ccDeliveries.remove(deliveryID);
+		}
+	}
+
+	public void setCrossContamination(String stationID, boolean possible) {
+		if (possible) {
+			ccStations.add(stationID);
+		} else {
+			ccStations.remove(stationID);
+		}
+	}
+
+	public void mergeStations(Set<String> toBeMerged, String mergedStationID) {
+		for (Delivery md : deliveries.values()) {
+			if (toBeMerged.contains(md.getSupplierID())) {
+				md.setSupplierID(mergedStationID);
+			}
+
+			if (toBeMerged.contains(md.getRecipientID())) {
+				md.setRecipientID(mergedStationID);
 			}
 		}
-		return allIncoming;
-	}
-
-	private Map<String, Set<String>> getAllOutgoing() {
-		if (allOutgoing == null) {
-			allOutgoing = new LinkedHashMap<>();
-			for (Delivery d : deliveries.values()) {
-				String sid = d.getSupplierID();
-				if (!allOutgoing.containsKey(sid))
-					allOutgoing.put(sid, new LinkedHashSet<String>());
-				allOutgoing.get(sid).add(d.getId());
-			}
-		}
-		return allOutgoing;
 	}
 
 	public boolean isStationStart(String id) {
@@ -132,157 +140,11 @@ public class Tracing {
 		return true;
 	}
 
-	public double getStationScore(String id) {
-		if (sortedStations == null)
-			getScores();
-		if (weightSum > 0 && sortedStations.get(id) != null) {
-			double sum = 0;
-			for (String key : sortedStations.get(id)) {
-				if (key.startsWith("-")) {
-					key = key.substring(1);
-
-					if (deliveryWeights.get(key) != null) {
-						sum += deliveryWeights.get(key);
-					}
-				} else {
-					if (stationWeights.get(key) != null) {
-						sum += stationWeights.get(key);
-					}
-				}
-			}
-			if (stationWeights.containsKey(id))
-				sum += stationWeights.get(id);
-			return sum / weightSum;
-		}
-		if (weightSum > 0 && stationWeights.containsKey(id))
-			return stationWeights.get(id) / weightSum;
-		return 0.0;
-	}
-
-	public double getDeliveryScore(String id) {
-		if (sortedDeliveries == null)
-			getScores();
-		if (weightSum > 0 && sortedDeliveries.get(id) != null) {
-			double sum = 0;
-			for (String key : sortedDeliveries.get(id)) {
-				if (key.startsWith("-"))
-					sum += deliveryWeights.get(key.substring(1));
-				else
-					sum += stationWeights.get(key);
-			}
-			return sum / weightSum;
-			// return ((double) sortedDeliveries.get(id).size()) /
-			// caseStations.size();
-		}
-		return 0.0;
-	}
-
-	private void getScores() {
-		// getForwardStationsWithCases counts for each delivery. But: it might
-		// be the case that a station delivers into "different" directions
-		// (deliveries), and all of them have cases!!!
-		// Therefore, we sum here based on the suppliers (supplierSum), not on
-		// the deliveries!!!
-		sortedStations = new LinkedHashMap<>();
-		sortedDeliveries = new LinkedHashMap<>();
-
-		for (Delivery md : deliveries.values()) {
-			Set<String> fwc = new LinkedHashSet<>();
-
-			fwc.addAll(getForwardStationsWithCases(md));
-			fwc.addAll(getForwardDeliveriesWithCases(md));
-
-			if (sortedStations.containsKey(md.getSupplierID())) {
-				sortedStations.get(md.getSupplierID()).addAll(fwc);
-			} else {
-				sortedStations.put(md.getSupplierID(), new LinkedHashSet<>(fwc));
-			}
-
-			sortedDeliveries.put(md.getId(), new LinkedHashSet<>(fwc));
-		}
-	}
-
-	public Set<String> getForwardStations(String stationID) {
-		Set<String> stations = new LinkedHashSet<>();
-
-		if (getAllOutgoing().get(stationID) != null) {
-			for (String i : getAllOutgoing().get(stationID)) {
-				Delivery md = deliveries.get(i);
-				stations.addAll(getForwardStations(md));
-			}
-		}
-
-		return stations;
-	}
-
-	public Set<String> getBackwardStations(String stationID) {
-		Set<String> stations = new LinkedHashSet<>();
-
-		if (getAllIncoming().get(stationID) != null) {
-			for (String i : getAllIncoming().get(stationID)) {
-				Delivery md = deliveries.get(i);
-				stations.addAll(getBackwardStations(md));
-			}
-		}
-
-		return stations;
-	}
-
-	public Set<String> getForwardDeliveries(String stationID) {
-		Set<String> forward = new LinkedHashSet<>();
-
-		if (getAllOutgoing().get(stationID) != null) {
-			for (String i : getAllOutgoing().get(stationID)) {
-				forward.addAll(getForwardDeliveries(deliveries.get(i)));
-			}
-		}
-
-		return forward;
-	}
-
-	public Set<String> getBackwardDeliveries(String stationID) {
-		Set<String> backward = new LinkedHashSet<>();
-
-		if (getAllIncoming().get(stationID) != null) {
-			for (String i : getAllIncoming().get(stationID)) {
-				backward.addAll(getBackwardDeliveries(deliveries.get(i)));
-			}
-		}
-
-		return backward;
-	}
-
-	public Set<String> getForwardStations2(String deliveryId) {
-		return getForwardStations(deliveries.get(deliveryId));
-	}
-
-	public Set<String> getBackwardStations2(String deliveryId) {
-		return getBackwardStations(deliveries.get(deliveryId));
-	}
-
-	public Set<String> getForwardDeliveries2(String deliveryId) {
-		Set<String> f = new LinkedHashSet<>(getForwardDeliveries(deliveries.get(deliveryId)));
-
-		f.remove(deliveryId);
-
-		return f;
-	}
-
-	public Set<String> getBackwardDeliveries2(String deliveryId) {
-		Set<String> b = new LinkedHashSet<>(getBackwardDeliveries(deliveries.get(deliveryId)));
-
-		b.remove(deliveryId);
-
-		return b;
-	}
-
 	public void init(boolean enforceTemporalOrder) {
 		allIncoming = null;
 		allOutgoing = null;
-		sortedStations = null;
-		sortedDeliveries = null;
-		backwardDeliveries.clear();
-		forwardDeliveries.clear();
+		backwardDeliveries = new LinkedHashMap<>();
+		forwardDeliveries = new LinkedHashMap<>();
 		weightSum = 0.0;
 
 		for (double w : stationWeights.values()) {
@@ -348,49 +210,154 @@ public class Tracing {
 		}
 	}
 
-	public void setCaseDelivery(String deliveryID, double priority) {
-		if (priority > 0) {
-			deliveryWeights.put(deliveryID, priority);
-		} else {
-			deliveryWeights.remove(deliveryID);
+	public double getStationScore(String id) {
+		if (weightSum == 0.0) {
+			return 0.0;
 		}
-	}
 
-	public void setCase(String stationID, double priority) {
-		if (priority > 0) {
-			stationWeights.put(stationID, priority);
-		} else {
-			stationWeights.remove(stationID);
+		double sum = 0.0;
+
+		if (stationWeights.containsKey(id)) {
+			sum += stationWeights.get(id);
 		}
-	}
 
-	public void setCrossContaminationDelivery(String deliveryID, boolean possible) {
-		if (possible) {
-			ccDeliveries.add(deliveryID);
-		} else {
-			ccDeliveries.remove(deliveryID);
-		}
-	}
-
-	public void setCrossContamination(String stationID, boolean possible) {
-		if (possible) {
-			ccStations.add(stationID);
-		} else {
-			ccStations.remove(stationID);
-		}
-	}
-
-	public void mergeStations(Set<String> toBeMerged, String mergedStationID) {
-		if (toBeMerged != null && toBeMerged.size() > 0) {
-			for (Delivery md : deliveries.values()) {
-				if (toBeMerged.contains(md.getSupplierID())) {
-					md.setSupplierID(mergedStationID);
-				}
-				if (toBeMerged.contains(md.getRecipientID())) {
-					md.setRecipientID(mergedStationID);
-				}
+		for (String stationId : getForwardStations(id)) {
+			if (stationWeights.containsKey(stationId)) {
+				sum += stationWeights.get(stationId);
 			}
 		}
+
+		for (String deliveryId : getForwardDeliveries(id)) {
+			if (deliveryWeights.containsKey(deliveryId)) {
+				sum += deliveryWeights.get(deliveryId);
+			}
+		}
+
+		return sum / weightSum;
+	}
+
+	public double getDeliveryScore(String id) {
+		if (weightSum == 0.0) {
+			return 0.0;
+		}
+
+		double sum = 0.0;
+
+		if (deliveryWeights.containsKey(id)) {
+			sum += deliveryWeights.get(id);
+		}
+
+		for (String stationId : getForwardStations2(id)) {
+			if (stationWeights.containsKey(stationId)) {
+				sum += stationWeights.get(stationId);
+			}
+		}
+
+		for (String deliveryId : getForwardDeliveries2(id)) {
+			if (deliveryWeights.containsKey(deliveryId)) {
+				sum += deliveryWeights.get(deliveryId);
+			}
+		}
+
+		return sum / weightSum;
+	}
+
+	public Set<String> getForwardStations(String stationID) {
+		Set<String> stations = new LinkedHashSet<>();
+
+		if (getAllOutgoing().get(stationID) != null) {
+			for (String i : getAllOutgoing().get(stationID)) {
+				stations.addAll(getForwardStations(deliveries.get(i)));
+			}
+		}
+
+		return stations;
+	}
+
+	public Set<String> getBackwardStations(String stationID) {
+		Set<String> stations = new LinkedHashSet<>();
+
+		if (getAllIncoming().get(stationID) != null) {
+			for (String i : getAllIncoming().get(stationID)) {
+				stations.addAll(getBackwardStations(deliveries.get(i)));
+			}
+		}
+
+		return stations;
+	}
+
+	public Set<String> getForwardDeliveries(String stationID) {
+		Set<String> forward = new LinkedHashSet<>();
+
+		if (getAllOutgoing().get(stationID) != null) {
+			for (String i : getAllOutgoing().get(stationID)) {
+				forward.addAll(getForwardDeliveries(deliveries.get(i)));
+			}
+		}
+
+		return forward;
+	}
+
+	public Set<String> getBackwardDeliveries(String stationID) {
+		Set<String> backward = new LinkedHashSet<>();
+
+		if (getAllIncoming().get(stationID) != null) {
+			for (String i : getAllIncoming().get(stationID)) {
+				backward.addAll(getBackwardDeliveries(deliveries.get(i)));
+			}
+		}
+
+		return backward;
+	}
+
+	public Set<String> getForwardStations2(String deliveryId) {
+		return getForwardStations(deliveries.get(deliveryId));
+	}
+
+	public Set<String> getBackwardStations2(String deliveryId) {
+		return getBackwardStations(deliveries.get(deliveryId));
+	}
+
+	public Set<String> getForwardDeliveries2(String deliveryId) {
+		Set<String> f = new LinkedHashSet<>(getForwardDeliveries(deliveries.get(deliveryId)));
+
+		f.remove(deliveryId);
+
+		return f;
+	}
+
+	public Set<String> getBackwardDeliveries2(String deliveryId) {
+		Set<String> b = new LinkedHashSet<>(getBackwardDeliveries(deliveries.get(deliveryId)));
+
+		b.remove(deliveryId);
+
+		return b;
+	}
+
+	private Map<String, Set<String>> getAllIncoming() {
+		if (allIncoming == null) {
+			allIncoming = new LinkedHashMap<>();
+			for (Delivery d : deliveries.values()) {
+				String rid = d.getRecipientID();
+				if (!allIncoming.containsKey(rid))
+					allIncoming.put(rid, new LinkedHashSet<String>());
+				allIncoming.get(rid).add(d.getId());
+			}
+		}
+		return allIncoming;
+	}
+
+	private Map<String, Set<String>> getAllOutgoing() {
+		if (allOutgoing == null) {
+			allOutgoing = new LinkedHashMap<>();
+			for (Delivery d : deliveries.values()) {
+				String sid = d.getSupplierID();
+				if (!allOutgoing.containsKey(sid))
+					allOutgoing.put(sid, new LinkedHashSet<String>());
+				allOutgoing.get(sid).add(d.getId());
+			}
+		}
+		return allOutgoing;
 	}
 
 	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
@@ -490,41 +457,6 @@ public class Tracing {
 				for (String i : fd) {
 					Delivery mdn = deliveries.get(i);
 					result.add(mdn.getRecipientID());
-				}
-			}
-		}
-		return result;
-	}
-
-	private Set<String> getForwardStationsWithCases(Delivery md) {
-		Set<String> result = null;
-		if (md != null) {
-			Set<String> fd = getForwardDeliveries(md);
-			if (fd != null && fd.size() > 0) {
-				result = new LinkedHashSet<>();
-				for (String i : fd) {
-					Delivery mdn = deliveries.get(i);
-					if (stationWeights.containsKey(mdn.getRecipientID()))
-						result.add(mdn.getRecipientID());
-				}
-			}
-		}
-		return result;
-	}
-
-	private Set<String> getForwardDeliveriesWithCases(Delivery md) {
-		Set<String> result = null;
-		if (md != null) {
-			Set<String> fd = getForwardDeliveries(md);
-			if (fd != null && fd.size() > 0) {
-				result = new LinkedHashSet<>();
-				for (String i : fd) {
-					Delivery mdn = deliveries.get(i);
-					if (deliveryWeights.containsKey(mdn.getId()))
-						result.add("-" + mdn.getId());
-					// hier minus, damit nachher unterschieden werden kann
-					// zwischen Delivery und Station, siehe in Funktion
-					// getStationScore bzw. getDeliveryScore
 				}
 			}
 		}
