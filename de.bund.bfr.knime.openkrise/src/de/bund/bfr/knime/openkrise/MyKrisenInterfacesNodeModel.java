@@ -180,8 +180,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			System.err.println("Plausibility Checks - Fin!");
 
 			System.err.println("Starting Tracing...");
-			Map<String, Delivery> allDeliveries = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
-			Tracing mnt = new Tracing(allDeliveries);
+			Map<String, Delivery> allDeliveries = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);			
 
 			boolean useSerialAsID = MyNewTracingLoader.serialPossible(conn);
 			HashMap<String, String> hmStationIDs = new HashMap<>();
@@ -236,9 +235,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					fillCell(spec, cells, TracingColumns.STATION_DATEPEAK, getDataStringCell(rs, "DatumHoehepunkt"));
 					fillCell(spec, cells, TracingColumns.STATION_DATEEND, getDataStringCell(rs, "DatumEnde"));
 					fillCell(spec, cells, TracingColumns.STATION_SERIAL, getDataStringCell(rs, "Serial"));
-					fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER, mnt.isSimpleSupplier(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
-					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, mnt.isStationStart(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
-					fillCell(spec, cells, TracingColumns.STATION_DEADEND, mnt.isStationEnd(sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER, isSimpleSupplier(allDeliveries, sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADSTART, isStationStart(allDeliveries, sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					fillCell(spec, cells, TracingColumns.STATION_DEADEND, isStationEnd(allDeliveries, sID) ? BooleanCell.TRUE : BooleanCell.FALSE);
 
 					fillCell(spec, cells, TracingColumns.FILESOURCES, getDataStringCell(rs, "ImportSources"));
 					
@@ -714,4 +713,39 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
 	}
 
+	private static boolean isStationStart(Map<String, Delivery> deliveries, String id) {
+		for (Delivery d : deliveries.values()) {
+			if (d.getRecipientID().equals(id)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static boolean isSimpleSupplier(Map<String, Delivery> deliveries, String id) {
+		if (isStationStart(deliveries, id)) {
+			String recId = null;
+			for (Delivery d : deliveries.values()) {
+				if (d.getSupplierID().equals(id)) {
+					if (recId == null)
+						recId = d.getRecipientID();
+					else if (!recId.equals(d.getRecipientID()))
+						return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean isStationEnd(Map<String, Delivery> deliveries, String id) {
+		for (Delivery d : deliveries.values()) {
+			if (d.getSupplierID().equals(id)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
