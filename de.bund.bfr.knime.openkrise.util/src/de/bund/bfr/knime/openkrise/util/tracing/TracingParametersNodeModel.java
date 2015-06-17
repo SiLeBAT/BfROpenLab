@@ -210,10 +210,10 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filterNodes.add(id);
-				backwardNodes.addAll(tracing.getBackwardStations(id));
-				forwardNodes.addAll(tracing.getForwardStations(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries(id));
+				backwardNodes.addAll(tracing.getBackwardStationsOfStation(id));
+				forwardNodes.addAll(tracing.getForwardStationsOfStation(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesOfStation(id));
+				forwardEdges.addAll(tracing.getForwardDeliveriesOfStation(id));
 			}
 		}
 
@@ -231,10 +231,10 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (filter != null && filter) {
 				filterEdges.add(id);
-				backwardNodes.addAll(tracing.getBackwardStations2(id));
-				forwardNodes.addAll(tracing.getForwardStations2(id));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(id));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(id));
+				backwardNodes.addAll(tracing.getBackwardStationsOfDelivery(id));
+				forwardNodes.addAll(tracing.getForwardStationsOfDelivery(id));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesOfDelivery(id));
+				forwardEdges.addAll(tracing.getForwardDeliveriesOfDelivery(id));
 			}
 		}
 

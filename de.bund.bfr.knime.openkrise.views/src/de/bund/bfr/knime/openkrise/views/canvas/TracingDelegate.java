@@ -371,11 +371,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.addAll(tracingWithCC.getForwardDeliveries2(edge.getId()));
+			forwardEdges.addAll(tracingWithCC.getForwardDeliveriesOfDelivery(edge.getId()));
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveries2(edge.getId()));
+			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveriesOfDelivery(edge.getId()));
 		}
 
 		for (Edge<V> edge : removedEdges) {
@@ -497,10 +497,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean value = (Boolean) node.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations(node.getId()));
-				forwardNodes.addAll(tracing.getForwardStations(node.getId()));
-				backwardEdges.addAll(tracing.getBackwardDeliveries(node.getId()));
-				forwardEdges.addAll(tracing.getForwardDeliveries(node.getId()));
+				backwardNodes.addAll(tracing.getBackwardStationsOfStation(node.getId()));
+				forwardNodes.addAll(tracing.getForwardStationsOfStation(node.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesOfStation(node.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveriesOfStation(node.getId()));
 			}
 		}
 
@@ -508,10 +508,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStations2(edge.getId()));
-				forwardNodes.addAll(tracing.getForwardStations2(edge.getId()));
-				backwardEdges.addAll(tracing.getBackwardDeliveries2(edge.getId()));
-				forwardEdges.addAll(tracing.getForwardDeliveries2(edge.getId()));
+				backwardNodes.addAll(tracing.getBackwardStationsOfDelivery(edge.getId()));
+				forwardNodes.addAll(tracing.getForwardStationsOfDelivery(edge.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesOfDelivery(edge.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveriesOfDelivery(edge.getId()));
 			}
 		}
 

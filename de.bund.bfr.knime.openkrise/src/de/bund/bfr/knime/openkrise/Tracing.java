@@ -221,13 +221,13 @@ public class Tracing {
 			sum += stationWeights.get(id);
 		}
 
-		for (String stationId : getForwardStations(id)) {
+		for (String stationId : getForwardStationsOfStation(id)) {
 			if (stationWeights.containsKey(stationId)) {
 				sum += stationWeights.get(stationId);
 			}
 		}
 
-		for (String deliveryId : getForwardDeliveries(id)) {
+		for (String deliveryId : getForwardDeliveriesOfStation(id)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
 				sum += deliveryWeights.get(deliveryId);
 			}
@@ -247,13 +247,13 @@ public class Tracing {
 			sum += deliveryWeights.get(id);
 		}
 
-		for (String stationId : getForwardStations2(id)) {
+		for (String stationId : getForwardStationsOfDelivery(id)) {
 			if (stationWeights.containsKey(stationId)) {
 				sum += stationWeights.get(stationId);
 			}
 		}
 
-		for (String deliveryId : getForwardDeliveries2(id)) {
+		for (String deliveryId : getForwardDeliveriesOfDelivery(id)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
 				sum += deliveryWeights.get(deliveryId);
 			}
@@ -262,7 +262,7 @@ public class Tracing {
 		return sum / weightSum;
 	}
 
-	public Set<String> getForwardStations(String stationID) {
+	public Set<String> getForwardStationsOfStation(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
@@ -274,7 +274,7 @@ public class Tracing {
 		return stations;
 	}
 
-	public Set<String> getBackwardStations(String stationID) {
+	public Set<String> getBackwardStationsOfStation(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
@@ -286,7 +286,7 @@ public class Tracing {
 		return stations;
 	}
 
-	public Set<String> getForwardDeliveries(String stationID) {
+	public Set<String> getForwardDeliveriesOfStation(String stationID) {
 		Set<String> forward = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
@@ -298,7 +298,7 @@ public class Tracing {
 		return forward;
 	}
 
-	public Set<String> getBackwardDeliveries(String stationID) {
+	public Set<String> getBackwardDeliveriesOfStation(String stationID) {
 		Set<String> backward = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
@@ -310,15 +310,15 @@ public class Tracing {
 		return backward;
 	}
 
-	public Set<String> getForwardStations2(String deliveryId) {
+	public Set<String> getForwardStationsOfDelivery(String deliveryId) {
 		return getForwardStations(deliveries.get(deliveryId));
 	}
 
-	public Set<String> getBackwardStations2(String deliveryId) {
+	public Set<String> getBackwardStationsOfDelivery(String deliveryId) {
 		return getBackwardStations(deliveries.get(deliveryId));
 	}
 
-	public Set<String> getForwardDeliveries2(String deliveryId) {
+	public Set<String> getForwardDeliveriesOfDelivery(String deliveryId) {
 		Set<String> f = new LinkedHashSet<>(getForwardDeliveries(deliveries.get(deliveryId)));
 
 		f.remove(deliveryId);
@@ -326,7 +326,7 @@ public class Tracing {
 		return f;
 	}
 
-	public Set<String> getBackwardDeliveries2(String deliveryId) {
+	public Set<String> getBackwardDeliveriesOfDelivery(String deliveryId) {
 		Set<String> b = new LinkedHashSet<>(getBackwardDeliveries(deliveries.get(deliveryId)));
 
 		b.remove(deliveryId);
