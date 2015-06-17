@@ -131,7 +131,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (weight != null && weight != 0.0) {
 				nodeWeights.put(id, weight);
-				tracing.setCase(id, weight);
+				tracing.setStationWeight(id, weight);
 			} else {
 				nodeWeights.put(id, 0.0);
 			}
@@ -148,7 +148,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (cross != null && cross) {
 				crossNodes.add(id);
-				tracing.setCrossContamination(id, cross);
+				tracing.setCrossContaminationOfStation(id, cross);
 			}
 		}
 
@@ -166,7 +166,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (weight != null && weight != 0.0) {
 				edgeWeights.put(id, weight);
-				tracing.setCaseDelivery(id, weight);
+				tracing.setDeliveryWeight(id, weight);
 			} else {
 				edgeWeights.put(id, 0.0);
 			}
@@ -183,7 +183,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			if (cross != null && cross) {
 				crossEdges.add(id);
-				tracing.setCrossContaminationDelivery(id, cross);
+				tracing.setCrossContaminationOfDelivery(id, cross);
 			}
 		}
 

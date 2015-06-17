@@ -432,16 +432,16 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
-				tracing.setCase(node.getId(), caseValue);
+				tracing.setStationWeight(node.getId(), caseValue);
 			} else {
-				tracing.setCase(node.getId(), 0.0);
+				tracing.setStationWeight(node.getId(), 0.0);
 			}
 
 			if (useCrossContamination) {
 				if (contaminationValue != null) {
-					tracing.setCrossContamination(node.getId(), contaminationValue);
+					tracing.setCrossContaminationOfStation(node.getId(), contaminationValue);
 				} else {
-					tracing.setCrossContamination(node.getId(), false);
+					tracing.setCrossContaminationOfStation(node.getId(), false);
 				}
 			}
 		}
@@ -452,16 +452,16 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 					TracingColumns.CROSS_CONTAMINATION);
 
 			if (caseValue != null) {
-				tracing.setCaseDelivery(edge.getId(), caseValue);
+				tracing.setDeliveryWeight(edge.getId(), caseValue);
 			} else {
-				tracing.setCaseDelivery(edge.getId(), 0.0);
+				tracing.setDeliveryWeight(edge.getId(), 0.0);
 			}
 
 			if (useCrossContamination) {
 				if (contaminationValue != null) {
-					tracing.setCrossContaminationDelivery(edge.getId(), contaminationValue);
+					tracing.setCrossContaminationOfDelivery(edge.getId(), contaminationValue);
 				} else {
-					tracing.setCrossContaminationDelivery(edge.getId(), false);
+					tracing.setCrossContaminationOfDelivery(edge.getId(), false);
 				}
 			}
 		}

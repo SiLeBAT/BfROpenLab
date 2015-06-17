@@ -60,15 +60,7 @@ public class Tracing {
 		ccDeliveries = new LinkedHashSet<>();
 	}
 
-	public void setCaseDelivery(String deliveryID, double priority) {
-		if (priority > 0) {
-			deliveryWeights.put(deliveryID, priority);
-		} else {
-			deliveryWeights.remove(deliveryID);
-		}
-	}
-
-	public void setCase(String stationID, double priority) {
+	public void setStationWeight(String stationID, double priority) {
 		if (priority > 0) {
 			stationWeights.put(stationID, priority);
 		} else {
@@ -76,15 +68,15 @@ public class Tracing {
 		}
 	}
 
-	public void setCrossContaminationDelivery(String deliveryID, boolean possible) {
-		if (possible) {
-			ccDeliveries.add(deliveryID);
+	public void setDeliveryWeight(String deliveryID, double priority) {
+		if (priority > 0) {
+			deliveryWeights.put(deliveryID, priority);
 		} else {
-			ccDeliveries.remove(deliveryID);
+			deliveryWeights.remove(deliveryID);
 		}
 	}
 
-	public void setCrossContamination(String stationID, boolean possible) {
+	public void setCrossContaminationOfStation(String stationID, boolean possible) {
 		if (possible) {
 			ccStations.add(stationID);
 		} else {
@@ -92,14 +84,22 @@ public class Tracing {
 		}
 	}
 
+	public void setCrossContaminationOfDelivery(String deliveryID, boolean possible) {
+		if (possible) {
+			ccDeliveries.add(deliveryID);
+		} else {
+			ccDeliveries.remove(deliveryID);
+		}
+	}
+
 	public void mergeStations(Set<String> toBeMerged, String mergedStationID) {
-		for (Delivery md : deliveries.values()) {
-			if (toBeMerged.contains(md.getSupplierID())) {
-				md.setSupplierID(mergedStationID);
+		for (Delivery d : deliveries.values()) {
+			if (toBeMerged.contains(d.getSupplierID())) {
+				d.setSupplierID(mergedStationID);
 			}
 
-			if (toBeMerged.contains(md.getRecipientID())) {
-				md.setRecipientID(mergedStationID);
+			if (toBeMerged.contains(d.getRecipientID())) {
+				d.setRecipientID(mergedStationID);
 			}
 		}
 	}
@@ -290,8 +290,9 @@ public class Tracing {
 		Set<String> forward = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
-			for (String i : getAllOutgoing().get(stationID)) {
-				forward.addAll(getForwardDeliveries(deliveries.get(i)));
+			for (String id : getAllOutgoing().get(stationID)) {
+				forward.add(id);
+				forward.addAll(getForwardDeliveries(deliveries.get(id)));
 			}
 		}
 
@@ -302,8 +303,9 @@ public class Tracing {
 		Set<String> backward = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
-			for (String i : getAllIncoming().get(stationID)) {
-				backward.addAll(getBackwardDeliveries(deliveries.get(i)));
+			for (String id : getAllIncoming().get(stationID)) {
+				backward.add(id);
+				backward.addAll(getBackwardDeliveries(deliveries.get(id)));
 			}
 		}
 
@@ -319,19 +321,11 @@ public class Tracing {
 	}
 
 	public Set<String> getForwardDeliveriesOfDelivery(String deliveryId) {
-		Set<String> f = new LinkedHashSet<>(getForwardDeliveries(deliveries.get(deliveryId)));
-
-		f.remove(deliveryId);
-
-		return f;
+		return getForwardDeliveries(deliveries.get(deliveryId));
 	}
 
 	public Set<String> getBackwardDeliveriesOfDelivery(String deliveryId) {
-		Set<String> b = new LinkedHashSet<>(getBackwardDeliveries(deliveries.get(deliveryId)));
-
-		b.remove(deliveryId);
-
-		return b;
+		return getBackwardDeliveries(deliveries.get(deliveryId));
 	}
 
 	private Map<String, Set<String>> getAllIncoming() {
@@ -361,25 +355,25 @@ public class Tracing {
 	}
 
 	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-	private boolean is1MaybeNewer(Delivery md1, Delivery md2) {
-		Integer year1 = md1.getDeliveryYear();
-		Integer year2 = md2.getDeliveryYear();
+	private boolean is1MaybeNewer(Delivery d1, Delivery d2) {
+		Integer year1 = d1.getDeliveryYear();
+		Integer year2 = d2.getDeliveryYear();
 		if (year1 == null || year2 == null)
 			return true;
 		if (year1 > year2)
 			return true;
 		if (year1 < year2)
 			return false;
-		Integer month1 = md1.getDeliveryMonth();
-		Integer month2 = md2.getDeliveryMonth();
+		Integer month1 = d1.getDeliveryMonth();
+		Integer month2 = d2.getDeliveryMonth();
 		if (month1 == null || month2 == null)
 			return true;
 		if (month1 > month2)
 			return true;
 		if (month1 < month2)
 			return false;
-		Integer day1 = md1.getDeliveryDay();
-		Integer day2 = md2.getDeliveryDay();
+		Integer day1 = d1.getDeliveryDay();
+		Integer day2 = d2.getDeliveryDay();
 		if (day1 == null || day2 == null)
 			return true;
 		if (day1 >= day2)
@@ -388,10 +382,6 @@ public class Tracing {
 	}
 
 	private Set<String> getBackwardDeliveries(Delivery d) {
-		if (d == null) {
-			return null;
-		}
-
 		Set<String> backward = backwardDeliveries.get(d.getId());
 
 		if (backward != null) {
@@ -399,9 +389,9 @@ public class Tracing {
 		}
 
 		backward = new LinkedHashSet<>();
-		backward.add(d.getId());
 
 		for (String prev : d.getAllPreviousIDs()) {
+			backward.add(prev);
 			backward.addAll(getBackwardDeliveries(deliveries.get(prev)));
 		}
 
@@ -411,10 +401,6 @@ public class Tracing {
 	}
 
 	private Set<String> getForwardDeliveries(Delivery d) {
-		if (d == null) {
-			return null;
-		}
-
 		Set<String> forward = forwardDeliveries.get(d.getId());
 
 		if (forward != null) {
@@ -422,9 +408,9 @@ public class Tracing {
 		}
 
 		forward = new LinkedHashSet<>();
-		forward.add(d.getId());
 
 		for (String next : d.getAllNextIDs()) {
+			forward.add(next);
 			forward.addAll(getForwardDeliveries(deliveries.get(next)));
 		}
 
@@ -433,33 +419,27 @@ public class Tracing {
 		return forward;
 	}
 
-	private Set<String> getBackwardStations(Delivery md) {
-		Set<String> result = null;
-		if (md != null) {
-			Set<String> fd = getBackwardDeliveries(md);
-			if (fd != null && fd.size() > 0) {
-				result = new LinkedHashSet<>();
-				for (String i : fd) {
-					Delivery mdn = deliveries.get(i);
-					result.add(mdn.getSupplierID());
-				}
-			}
+	private Set<String> getBackwardStations(Delivery d) {
+		Set<String> result = new LinkedHashSet<>();
+
+		result.add(d.getSupplierID());
+
+		for (String id : getBackwardDeliveries(d)) {
+			result.add(deliveries.get(id).getSupplierID());
 		}
+
 		return result;
 	}
 
-	private Set<String> getForwardStations(Delivery md) {
-		Set<String> result = null;
-		if (md != null) {
-			Set<String> fd = getForwardDeliveries(md);
-			if (fd != null && fd.size() > 0) {
-				result = new LinkedHashSet<>();
-				for (String i : fd) {
-					Delivery mdn = deliveries.get(i);
-					result.add(mdn.getRecipientID());
-				}
-			}
+	private Set<String> getForwardStations(Delivery d) {
+		Set<String> result = new LinkedHashSet<>();
+
+		result.add(d.getRecipientID());
+
+		for (String id : getForwardDeliveries(d)) {
+			result.add(deliveries.get(id).getRecipientID());
 		}
+
 		return result;
 	}
 }
