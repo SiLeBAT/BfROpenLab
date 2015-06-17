@@ -85,4 +85,14 @@ public class Delivery {
 	public Integer getDeliveryYear() {
 		return deliveryYear;
 	}
+
+	public Delivery copy() {
+		Delivery copy = new Delivery(id, supplierID, recipientID, deliveryDay, deliveryMonth,
+				deliveryYear);
+
+		copy.allNextIDs = new LinkedHashSet<>(allNextIDs);
+		copy.allPreviousIDs = new LinkedHashSet<>(allPreviousIDs);
+
+		return copy;
+	}
 }

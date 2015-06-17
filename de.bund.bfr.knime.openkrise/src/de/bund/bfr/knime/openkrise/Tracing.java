@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -34,24 +35,22 @@ public class Tracing {
 	private Set<String> ccStations;
 	private Set<String> ccDeliveries;
 
-	private Map<String, Set<String>> allIncoming;
-	private Map<String, Set<String>> allOutgoing;
-	private Map<String, Set<String>> backwardDeliveries;
-	private Map<String, Set<String>> forwardDeliveries;
-	private double weightSum;
+	private transient Map<String, Set<String>> allIncoming;
+	private transient Map<String, Set<String>> allOutgoing;
+	private transient Map<String, Set<String>> backwardDeliveries;
+	private transient Map<String, Set<String>> forwardDeliveries;
+	private transient double weightSum;
 
-	public Tracing(Map<String, Delivery> deliveries) {
+	public Tracing(Collection<Delivery> deliveries) {
 		this.deliveries = new LinkedHashMap<>();
 
-		for (Delivery d : deliveries.values()) {
-			Delivery copy = new Delivery(d.getId(), d.getSupplierID(), d.getRecipientID(),
-					d.getDeliveryDay(), d.getDeliveryMonth(), d.getDeliveryYear());
+		for (Delivery d : deliveries) {
+			this.deliveries.put(d.getId(), d.copy());
+		}
 
-			copy.getAllNextIDs().addAll(Sets.intersection(d.getAllNextIDs(), deliveries.keySet()));
-			copy.getAllPreviousIDs().addAll(
-					Sets.intersection(d.getAllPreviousIDs(), deliveries.keySet()));
-
-			this.deliveries.put(copy.getId(), copy);
+		for (Delivery d : this.deliveries.values()) {
+			d.getAllNextIDs().retainAll(this.deliveries.keySet());
+			d.getAllPreviousIDs().retainAll(this.deliveries.keySet());
 		}
 
 		stationWeights = new LinkedHashMap<>();
@@ -104,43 +103,7 @@ public class Tracing {
 		}
 	}
 
-	public boolean isStationStart(String id) {
-		for (Delivery d : deliveries.values()) {
-			if (d.getRecipientID().equals(id)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public boolean isSimpleSupplier(String id) {
-		if (isStationStart(id)) {
-			String recId = null;
-			for (Delivery d : deliveries.values()) {
-				if (d.getSupplierID().equals(id)) {
-					if (recId == null)
-						recId = d.getRecipientID();
-					else if (!recId.equals(d.getRecipientID()))
-						return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isStationEnd(String id) {
-		for (Delivery d : deliveries.values()) {
-			if (d.getSupplierID().equals(id)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public void init(boolean enforceTemporalOrder) {
+	public Result init(boolean enforceTemporalOrder) {
 		allIncoming = null;
 		allOutgoing = null;
 		backwardDeliveries = new LinkedHashMap<>();
@@ -208,9 +171,29 @@ public class Tracing {
 				}
 			}
 		}
+
+		Result result = new Result();
+
+		for (String stationId : Sets.union(getAllOutgoing().keySet(), getAllIncoming().keySet())) {
+			result.stationScores.put(stationId, getStationScore(stationId));
+			result.forwardStationsByStation.put(stationId, getForwardStations(stationId));
+			result.backwardStationsByStation.put(stationId, getBackwardStations(stationId));
+			result.forwardDeliveriesByStation.put(stationId, getForwardDeliveries(stationId));
+			result.backwardDeliveriesByStation.put(stationId, getBackwardDeliveries(stationId));
+		}
+
+		for (Delivery d : deliveries.values()) {
+			result.deliveryScores.put(d.getId(), getDeliveryScore(d));
+			result.forwardStationsByDelivery.put(d.getId(), getForwardStations(d));
+			result.backwardStationsByDelivery.put(d.getId(), getBackwardStations(d));
+			result.forwardDeliveriesByDelivery.put(d.getId(), getForwardDeliveries(d));
+			result.backwardDeliveriesByDelivery.put(d.getId(), getBackwardDeliveries(d));
+		}
+
+		return result;
 	}
 
-	public double getStationScore(String id) {
+	private double getStationScore(String id) {
 		if (weightSum == 0.0) {
 			return 0.0;
 		}
@@ -221,13 +204,13 @@ public class Tracing {
 			sum += stationWeights.get(id);
 		}
 
-		for (String stationId : getForwardStationsOfStation(id)) {
+		for (String stationId : getForwardStations(id)) {
 			if (stationWeights.containsKey(stationId)) {
 				sum += stationWeights.get(stationId);
 			}
 		}
 
-		for (String deliveryId : getForwardDeliveriesOfStation(id)) {
+		for (String deliveryId : getForwardDeliveries(id)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
 				sum += deliveryWeights.get(deliveryId);
 			}
@@ -236,24 +219,24 @@ public class Tracing {
 		return sum / weightSum;
 	}
 
-	public double getDeliveryScore(String id) {
+	private double getDeliveryScore(Delivery d) {
 		if (weightSum == 0.0) {
 			return 0.0;
 		}
 
 		double sum = 0.0;
 
-		if (deliveryWeights.containsKey(id)) {
-			sum += deliveryWeights.get(id);
+		if (deliveryWeights.containsKey(d.getId())) {
+			sum += deliveryWeights.get(d.getId());
 		}
 
-		for (String stationId : getForwardStationsOfDelivery(id)) {
+		for (String stationId : getForwardStations(d)) {
 			if (stationWeights.containsKey(stationId)) {
 				sum += stationWeights.get(stationId);
 			}
 		}
 
-		for (String deliveryId : getForwardDeliveriesOfDelivery(id)) {
+		for (String deliveryId : getForwardDeliveries(d)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
 				sum += deliveryWeights.get(deliveryId);
 			}
@@ -262,7 +245,7 @@ public class Tracing {
 		return sum / weightSum;
 	}
 
-	public Set<String> getForwardStationsOfStation(String stationID) {
+	private Set<String> getForwardStations(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
@@ -274,7 +257,7 @@ public class Tracing {
 		return stations;
 	}
 
-	public Set<String> getBackwardStationsOfStation(String stationID) {
+	private Set<String> getBackwardStations(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
@@ -286,7 +269,7 @@ public class Tracing {
 		return stations;
 	}
 
-	public Set<String> getForwardDeliveriesOfStation(String stationID) {
+	private Set<String> getForwardDeliveries(String stationID) {
 		Set<String> forward = new LinkedHashSet<>();
 
 		if (getAllOutgoing().get(stationID) != null) {
@@ -299,7 +282,7 @@ public class Tracing {
 		return forward;
 	}
 
-	public Set<String> getBackwardDeliveriesOfStation(String stationID) {
+	private Set<String> getBackwardDeliveries(String stationID) {
 		Set<String> backward = new LinkedHashSet<>();
 
 		if (getAllIncoming().get(stationID) != null) {
@@ -310,75 +293,6 @@ public class Tracing {
 		}
 
 		return backward;
-	}
-
-	public Set<String> getForwardStationsOfDelivery(String deliveryId) {
-		return getForwardStations(deliveries.get(deliveryId));
-	}
-
-	public Set<String> getBackwardStationsOfDelivery(String deliveryId) {
-		return getBackwardStations(deliveries.get(deliveryId));
-	}
-
-	public Set<String> getForwardDeliveriesOfDelivery(String deliveryId) {
-		return getForwardDeliveries(deliveries.get(deliveryId));
-	}
-
-	public Set<String> getBackwardDeliveriesOfDelivery(String deliveryId) {
-		return getBackwardDeliveries(deliveries.get(deliveryId));
-	}
-
-	private Map<String, Set<String>> getAllIncoming() {
-		if (allIncoming == null) {
-			allIncoming = new LinkedHashMap<>();
-			for (Delivery d : deliveries.values()) {
-				String rid = d.getRecipientID();
-				if (!allIncoming.containsKey(rid))
-					allIncoming.put(rid, new LinkedHashSet<String>());
-				allIncoming.get(rid).add(d.getId());
-			}
-		}
-		return allIncoming;
-	}
-
-	private Map<String, Set<String>> getAllOutgoing() {
-		if (allOutgoing == null) {
-			allOutgoing = new LinkedHashMap<>();
-			for (Delivery d : deliveries.values()) {
-				String sid = d.getSupplierID();
-				if (!allOutgoing.containsKey(sid))
-					allOutgoing.put(sid, new LinkedHashSet<String>());
-				allOutgoing.get(sid).add(d.getId());
-			}
-		}
-		return allOutgoing;
-	}
-
-	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-	private boolean is1MaybeNewer(Delivery d1, Delivery d2) {
-		Integer year1 = d1.getDeliveryYear();
-		Integer year2 = d2.getDeliveryYear();
-		if (year1 == null || year2 == null)
-			return true;
-		if (year1 > year2)
-			return true;
-		if (year1 < year2)
-			return false;
-		Integer month1 = d1.getDeliveryMonth();
-		Integer month2 = d2.getDeliveryMonth();
-		if (month1 == null || month2 == null)
-			return true;
-		if (month1 > month2)
-			return true;
-		if (month1 < month2)
-			return false;
-		Integer day1 = d1.getDeliveryDay();
-		Integer day2 = d2.getDeliveryDay();
-		if (day1 == null || day2 == null)
-			return true;
-		if (day1 >= day2)
-			return true;
-		return false;
 	}
 
 	private Set<String> getBackwardDeliveries(Delivery d) {
@@ -441,5 +355,125 @@ public class Tracing {
 		}
 
 		return result;
+	}
+
+	private Map<String, Set<String>> getAllIncoming() {
+		if (allIncoming == null) {
+			allIncoming = new LinkedHashMap<>();
+			for (Delivery d : deliveries.values()) {
+				String rid = d.getRecipientID();
+				if (!allIncoming.containsKey(rid))
+					allIncoming.put(rid, new LinkedHashSet<String>());
+				allIncoming.get(rid).add(d.getId());
+			}
+		}
+		return allIncoming;
+	}
+
+	private Map<String, Set<String>> getAllOutgoing() {
+		if (allOutgoing == null) {
+			allOutgoing = new LinkedHashMap<>();
+			for (Delivery d : deliveries.values()) {
+				String sid = d.getSupplierID();
+				if (!allOutgoing.containsKey(sid))
+					allOutgoing.put(sid, new LinkedHashSet<String>());
+				allOutgoing.get(sid).add(d.getId());
+			}
+		}
+		return allOutgoing;
+	}
+
+	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
+	private boolean is1MaybeNewer(Delivery d1, Delivery d2) {
+		Integer year1 = d1.getDeliveryYear();
+		Integer year2 = d2.getDeliveryYear();
+		if (year1 == null || year2 == null)
+			return true;
+		if (year1 > year2)
+			return true;
+		if (year1 < year2)
+			return false;
+		Integer month1 = d1.getDeliveryMonth();
+		Integer month2 = d2.getDeliveryMonth();
+		if (month1 == null || month2 == null)
+			return true;
+		if (month1 > month2)
+			return true;
+		if (month1 < month2)
+			return false;
+		Integer day1 = d1.getDeliveryDay();
+		Integer day2 = d2.getDeliveryDay();
+		if (day1 == null || day2 == null)
+			return true;
+		if (day1 >= day2)
+			return true;
+		return false;
+	}
+
+	public static final class Result {
+
+		private Map<String, Double> stationScores;
+		private Map<String, Double> deliveryScores;
+		private Map<String, Set<String>> forwardStationsByStation;
+		private Map<String, Set<String>> backwardStationsByStation;
+		private Map<String, Set<String>> forwardDeliveriesByStation;
+		private Map<String, Set<String>> backwardDeliveriesByStation;
+		private Map<String, Set<String>> forwardStationsByDelivery;
+		private Map<String, Set<String>> backwardStationsByDelivery;
+		private Map<String, Set<String>> forwardDeliveriesByDelivery;
+		private Map<String, Set<String>> backwardDeliveriesByDelivery;
+
+		private Result() {
+			stationScores = new LinkedHashMap<>();
+			deliveryScores = new LinkedHashMap<>();
+			forwardStationsByStation = new LinkedHashMap<>();
+			backwardStationsByStation = new LinkedHashMap<>();
+			forwardDeliveriesByStation = new LinkedHashMap<>();
+			backwardDeliveriesByStation = new LinkedHashMap<>();
+			forwardStationsByDelivery = new LinkedHashMap<>();
+			backwardStationsByDelivery = new LinkedHashMap<>();
+			forwardDeliveriesByDelivery = new LinkedHashMap<>();
+			backwardDeliveriesByDelivery = new LinkedHashMap<>();
+		}
+
+		public Map<String, Double> getStationScores() {
+			return stationScores;
+		}
+
+		public Map<String, Double> getDeliveryScores() {
+			return deliveryScores;
+		}
+
+		public Map<String, Set<String>> getForwardStationsByStation() {
+			return forwardStationsByStation;
+		}
+
+		public Map<String, Set<String>> getBackwardStationsByStation() {
+			return backwardStationsByStation;
+		}
+
+		public Map<String, Set<String>> getForwardDeliveriesByStation() {
+			return forwardDeliveriesByStation;
+		}
+
+		public Map<String, Set<String>> getBackwardDeliveriesByStation() {
+			return backwardDeliveriesByStation;
+		}
+
+		public Map<String, Set<String>> getForwardStationsByDelivery() {
+			return forwardStationsByDelivery;
+		}
+
+		public Map<String, Set<String>> getBackwardStationsByDelivery() {
+			return backwardStationsByDelivery;
+		}
+
+		public Map<String, Set<String>> getForwardDeliveriesByDelivery() {
+			return forwardDeliveriesByDelivery;
+		}
+
+		public Map<String, Set<String>> getBackwardDeliveriesByDelivery() {
+			return backwardDeliveriesByDelivery;
+		}
 	}
 }

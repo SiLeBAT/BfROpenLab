@@ -359,8 +359,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			return;
 		}
 
-		Tracing tracingWithCC = createTracing(canvas.getEdges(), true);
-		Tracing tracingWithoutCC = createTracing(canvas.getEdges(), false);
+		Tracing.Result tracingWithCC = createTracing(canvas.getEdges(), true);
+		Tracing.Result tracingWithoutCC = createTracing(canvas.getEdges(), false);
 		Set<Edge<V>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
@@ -371,11 +371,12 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.addAll(tracingWithCC.getForwardDeliveriesOfDelivery(edge.getId()));
+			forwardEdges.addAll(tracingWithCC.getForwardDeliveriesByDelivery().get(edge.getId()));
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveriesOfDelivery(edge.getId()));
+			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveriesByDelivery().get(
+					edge.getId()));
 		}
 
 		for (Edge<V> edge : removedEdges) {
@@ -413,14 +414,14 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 	}
 
-	private Tracing createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
+	private Tracing.Result createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
 		Map<String, Delivery> activeDeliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
 			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));
 		}
 
-		Tracing tracing = new Tracing(activeDeliveries);
+		Tracing tracing = new Tracing(activeDeliveries.values());
 
 		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
 			tracing.mergeStations(entry.getValue(), entry.getKey());
@@ -466,9 +467,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		tracing.init(isEnforceTemporalOrder());
-
-		return tracing;
+		return tracing.init(isEnforceTemporalOrder());
 	}
 
 	private void applyTracing() {
@@ -486,7 +485,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		Tracing tracing = createTracing(edges, true);
+		Tracing.Result tracing = createTracing(edges, true);
 
 		Set<String> backwardNodes = new LinkedHashSet<>();
 		Set<String> forwardNodes = new LinkedHashSet<>();
@@ -497,10 +496,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean value = (Boolean) node.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStationsOfStation(node.getId()));
-				forwardNodes.addAll(tracing.getForwardStationsOfStation(node.getId()));
-				backwardEdges.addAll(tracing.getBackwardDeliveriesOfStation(node.getId()));
-				forwardEdges.addAll(tracing.getForwardDeliveriesOfStation(node.getId()));
+				backwardNodes.addAll(tracing.getBackwardStationsByStation().get(node.getId()));
+				forwardNodes.addAll(tracing.getForwardStationsByStation().get(node.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesByStation().get(node.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveriesByStation().get(node.getId()));
 			}
 		}
 
@@ -508,17 +507,18 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
 
 			if (value != null && value == true) {
-				backwardNodes.addAll(tracing.getBackwardStationsOfDelivery(edge.getId()));
-				forwardNodes.addAll(tracing.getForwardStationsOfDelivery(edge.getId()));
-				backwardEdges.addAll(tracing.getBackwardDeliveriesOfDelivery(edge.getId()));
-				forwardEdges.addAll(tracing.getForwardDeliveriesOfDelivery(edge.getId()));
+				backwardNodes.addAll(tracing.getBackwardStationsByDelivery().get(edge.getId()));
+				forwardNodes.addAll(tracing.getForwardStationsByDelivery().get(edge.getId()));
+				backwardEdges.addAll(tracing.getBackwardDeliveriesByDelivery().get(edge.getId()));
+				forwardEdges.addAll(tracing.getForwardDeliveriesByDelivery().get(edge.getId()));
 			}
 		}
 
 		double maxScore = 0.0;
 
 		for (V node : canvas.getNodes()) {
-			double score = tracing.getStationScore(node.getId());
+			double score = tracing.getStationScores().containsKey(node.getId()) ? tracing
+					.getStationScores().get(node.getId()) : 0.0;
 
 			maxScore = Math.max(maxScore, score);
 			node.getProperties().put(TracingColumns.SCORE, score);
@@ -527,7 +527,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 
 		for (Edge<V> edge : edges) {
-			double score = tracing.getDeliveryScore(edge.getId());
+			double score = tracing.getDeliveryScores().containsKey(edge.getId()) ? tracing
+					.getDeliveryScores().get(edge.getId()) : 0.0;
 
 			maxScore = Math.max(maxScore, score);
 			edge.getProperties().put(TracingColumns.SCORE, score);
