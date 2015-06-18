@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -34,7 +35,9 @@ import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class TraceGenerator {
 
-	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward) {
+	private JComponent parent;
+	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward, JComponent parent) {
+		this.parent = parent;
 		try {
 			int numFilesGenerated = isForward ? getFortraceRequests(outputFolder.getAbsolutePath(), business2Trace) : getBacktraceRequests(outputFolder.getAbsolutePath(), business2Trace);
 
@@ -378,8 +381,9 @@ public class TraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				save(workbook, outputFolder + "/Forwardtrace_request_" + rs.getString("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx");
-				result++;
+				if (save(workbook, outputFolder + File.separator + "Forwardtrace_request_" + rs.getString("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx")) {
+					result++;
+				}
 				myxls.close();
 			} while (rs.next());
 		}
@@ -540,8 +544,9 @@ public class TraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				save(workbook, outputFolder + "/Backtrace_request_" + rs.getString("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx");
-				result++;
+				if (save(workbook, outputFolder + File.separator + "Backtrace_request_" + rs.getString("Station.Serial") + "_" + rs.getString("Station.Name") + ".xlsx")) {
+					result++;
+				}
 				myxls.close();
 			} while (rs.next());
 		}
@@ -701,16 +706,24 @@ public class TraceGenerator {
 	        
 	        return newRow;
 	    }
-	   private void save(XSSFWorkbook workbook, String filename) {
+	   private boolean save(XSSFWorkbook workbook, String filename) {
 		try {
+			File f = new File(filename);
+			if (f.exists()) {
+				int returnVal = JOptionPane.showConfirmDialog(parent, "Replace file '" + filename + "'?", "Excel file '" + filename + "' exists already", JOptionPane.YES_NO_OPTION);
+				if (returnVal == JOptionPane.NO_OPTION) return false;
+				else if (returnVal == JOptionPane.YES_OPTION) ;
+				else return false;
+			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(filename));
+			FileOutputStream out = new FileOutputStream(f);
 			workbook.write(out);
 			out.close();
 			System.out.println(filename + " written successfully on disk.");
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
-
+		return true;
 	}
 }

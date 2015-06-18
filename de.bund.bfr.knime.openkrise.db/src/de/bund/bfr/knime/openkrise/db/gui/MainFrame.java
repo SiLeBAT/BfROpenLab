@@ -36,6 +36,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -781,13 +782,18 @@ public class MainFrame extends JFrame {
 	private void doTraceGeneration(TraceDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
 			JFileChooser chooser = new JFileChooser(); 
-		    chooser.setCurrentDirectory(new java.io.File("."));
-		    chooser.setDialogTitle("Select ouput folder");
+			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
+		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
+		    chooser.setDialogTitle("Select output folder");
 		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    chooser.setAcceptAllFileFilterUsed(false);
 		    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+		    	File f = chooser.getSelectedFile();
+		    	if (f.isFile()) f = f.getParentFile();
+				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
+				DBKernel.prefs.prefsFlush();
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-				new TraceGenerator(chooser.getSelectedFile(), dialog.getSelected(), isForward);
+				new TraceGenerator(f, dialog.getSelected(), isForward, chooser);
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		    }
 		}
@@ -809,7 +815,7 @@ public class MainFrame extends JFrame {
 		
 		dialog.setVisible(true);
 		
-		doTraceGeneration(dialog, false);
+		doTraceGeneration(dialog, true);
 	}
 	private static class TraceDialog extends JDialog implements ActionListener {
 				
