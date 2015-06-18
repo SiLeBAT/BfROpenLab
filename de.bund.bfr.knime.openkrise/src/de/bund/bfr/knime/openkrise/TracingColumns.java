@@ -40,7 +40,8 @@ public interface TracingColumns {
 
 	public static final String CLUSTER_ID = "ClusterID";
 	public static final String ADDRESS = "Address";
-	public static final String DELIVERY_DATE = "Date Delivery";
+	public static final String DELIVERY_DEPARTURE = "Date Delivery";
+	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
 	public static final String STATION_NODE = "node"; // deprecated
 	public static final String STATION_NAME = "Name";

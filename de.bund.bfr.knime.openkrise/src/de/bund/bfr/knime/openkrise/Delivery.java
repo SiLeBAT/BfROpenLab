@@ -26,21 +26,28 @@ public class Delivery {
 
 	private String id;
 	private String supplierID, recipientID;
-	private Integer deliveryDay;
-	private Integer deliveryMonth;
-	private Integer deliveryYear;
+	private Integer departureDay;
+	private Integer departureMonth;
+	private Integer departureYear;
+	private Integer arrivalDay;
+	private Integer arrivalMonth;
+	private Integer arrivalYear;
 
 	private Set<String> allNextIDs;
 	private Set<String> allPreviousIDs;
 
-	public Delivery(String id, String supplierID, String recipientID, Integer deliveryDay,
-			Integer deliveryMonth, Integer deliveryYear) {
+	public Delivery(String id, String supplierID, String recipientID, Integer departureDay,
+			Integer departureMonth, Integer departureYear, Integer arrivalDay,
+			Integer arrivalMonth, Integer arrivalYear) {
 		this.id = id;
 		this.supplierID = supplierID;
 		this.recipientID = recipientID;
-		this.deliveryDay = deliveryDay;
-		this.deliveryMonth = deliveryMonth;
-		this.deliveryYear = deliveryYear;
+		this.departureDay = departureDay;
+		this.departureMonth = departureMonth;
+		this.departureYear = departureYear;
+		this.arrivalDay = arrivalDay;
+		this.arrivalMonth = arrivalMonth;
+		this.arrivalYear = arrivalYear;
 
 		allNextIDs = new LinkedHashSet<>();
 		allPreviousIDs = new LinkedHashSet<>();
@@ -74,21 +81,33 @@ public class Delivery {
 		return id;
 	}
 
-	public Integer getDeliveryDay() {
-		return deliveryDay;
+	public Integer getDepartureDay() {
+		return departureDay;
 	}
 
-	public Integer getDeliveryMonth() {
-		return deliveryMonth;
+	public Integer getDepartureMonth() {
+		return departureMonth;
 	}
 
-	public Integer getDeliveryYear() {
-		return deliveryYear;
+	public Integer getDepartureYear() {
+		return departureYear;
+	}
+
+	public Integer getArrivalDay() {
+		return arrivalDay;
+	}
+
+	public Integer getArrivalMonth() {
+		return arrivalMonth;
+	}
+
+	public Integer getArrivalYear() {
+		return arrivalYear;
 	}
 
 	public Delivery copy() {
-		Delivery copy = new Delivery(id, supplierID, recipientID, deliveryDay, deliveryMonth,
-				deliveryYear);
+		Delivery copy = new Delivery(id, supplierID, recipientID, departureDay, departureMonth,
+				departureYear, arrivalDay, arrivalMonth, arrivalYear);
 
 		copy.allNextIDs = new LinkedHashSet<>(allNextIDs);
 		copy.allPreviousIDs = new LinkedHashSet<>(allPreviousIDs);

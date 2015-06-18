@@ -395,8 +395,8 @@ public class Tracing {
 
 	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
 	private boolean isInTemporalOrder(Delivery in, Delivery out) {
-		Integer yearOut = out.getDeliveryYear();
-		Integer yearIn = in.getDeliveryYear();
+		Integer yearOut = out.getDepartureYear();
+		Integer yearIn = in.getArrivalYear();
 
 		if (yearOut == null || yearIn == null) {
 			return true;
@@ -406,8 +406,8 @@ public class Tracing {
 			return false;
 		}
 
-		Integer monthOut = out.getDeliveryMonth();
-		Integer monthIn = in.getDeliveryMonth();
+		Integer monthOut = out.getDepartureMonth();
+		Integer monthIn = in.getArrivalMonth();
 
 		if (monthOut == null || monthIn == null) {
 			return true;
@@ -417,8 +417,8 @@ public class Tracing {
 			return false;
 		}
 
-		Integer dayOut = out.getDeliveryDay();
-		Integer dayIn = in.getDeliveryDay();
+		Integer dayOut = out.getDepartureDay();
+		Integer dayIn = in.getArrivalDay();
 
 		if (dayOut == null || dayIn == null) {
 			return true;

@@ -212,7 +212,8 @@ public class TracingUtils {
 		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
 		int fromIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.FROM);
 		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
-		int deliveryDateIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.DELIVERY_DATE);
+		int deliveryDateIndex = edgeTable.getSpec().findColumnIndex(
+				TracingColumns.DELIVERY_DEPARTURE);
 
 		if (idIndex == -1) {
 			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.ID
@@ -231,10 +232,10 @@ public class TracingUtils {
 
 		if (deliveryDateIndex == -1) {
 			throw new NotConfigurableException("Delivery Table: Column \""
-					+ TracingColumns.DELIVERY_DATE + "\" is missing");
+					+ TracingColumns.DELIVERY_DEPARTURE + "\" is missing");
 		} else if (edgeTable.getSpec().getColumnSpec(deliveryDateIndex).getType() != StringCell.TYPE) {
 			throw new NotConfigurableException("Delivery Table: Column \""
-					+ TracingColumns.DELIVERY_DATE + "\" must be of type String");
+					+ TracingColumns.DELIVERY_DEPARTURE + "\" must be of type String");
 		}
 
 		List<Edge<V>> edges = new ArrayList<>();
@@ -301,9 +302,20 @@ public class TracingUtils {
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edges) {
-			String date = (String) edge.getProperties().get(TracingColumns.DELIVERY_DATE);
+			String departureDate = (String) edge.getProperties().get(
+					TracingColumns.DELIVERY_DEPARTURE);
+			String arrivalDate = (String) edge.getProperties().get(TracingColumns.DELIVERY_ARRIVAL);
+
+			if (departureDate == null || departureDate.isEmpty()) {
+				departureDate = arrivalDate;
+			} else if (arrivalDate == null || arrivalDate.isEmpty()) {
+				arrivalDate = departureDate;
+			}
+
 			Delivery delivery = new Delivery(edge.getId(), edge.getFrom().getId(), edge.getTo()
-					.getId(), getDay(date), getMonth(date), getYear(date));
+					.getId(), getDay(departureDate), getMonth(departureDate),
+					getYear(departureDate), getDay(arrivalDate), getMonth(arrivalDate),
+					getYear(arrivalDate));
 
 			deliveries.put(edge.getId(), delivery);
 		}
