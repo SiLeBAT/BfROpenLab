@@ -39,9 +39,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
 public class DbConfigurationUi extends JPanel implements ActionListener {
-	
+
 	private static final long serialVersionUID = 20120622;
-	
+
 	public static final String PARAM_FILENAME = "filename";
 	public static final String PARAM_LOGIN = "login";
 	public static final String PARAM_PASSWD = "passwd";
@@ -53,100 +53,101 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 	private JPasswordField passwdField;
 	private JButton chooseButton;
 	private JButton applyButton;
-	
-	public DbConfigurationUi() { this( false ); }
 
-	public DbConfigurationUi( boolean hasApplyButton ) {
-		
+	public DbConfigurationUi() {
+		this(false);
+	}
+
+	public DbConfigurationUi(boolean hasApplyButton) {
+
 		JPanel mainPanel, panel, panel2, panel0;
-		
+
 		mainPanel = new JPanel();
-		mainPanel.setLayout( new BorderLayout() );
+		mainPanel.setLayout(new BorderLayout());
 		// setPreferredSize( new Dimension( 330, 130 ) );
-		
+
 		panel0 = new JPanel();
-		panel0.setLayout( new BorderLayout() );
-		
-		mainPanel.add( panel0, BorderLayout.SOUTH );
-				
+		panel0.setLayout(new BorderLayout());
+
+		mainPanel.add(panel0, BorderLayout.SOUTH);
+
 		panel = new JPanel();
-		panel.setLayout( new GridLayout( 0, 1 ) );
-		panel0.add( panel, BorderLayout.WEST );
+		panel.setLayout(new GridLayout(0, 1));
+		panel0.add(panel, BorderLayout.WEST);
 		// panel.add( new JLabel() );
-		panel.add( new JLabel( "Database : " ) );
-		panel.add( new JLabel( "Login : " ) );
-		panel.add( new JLabel( "Password : " ) );
-		panel.add( new JLabel() );
-		
+		panel.add(new JLabel("Database : "));
+		panel.add(new JLabel("Login : "));
+		panel.add(new JLabel("Password : "));
+		panel.add(new JLabel());
+
 		panel = new JPanel();
-		panel.setLayout( new GridLayout( 0, 1 ) );
-		panel0.add( panel, BorderLayout.CENTER );
-		
-		
-		overrideBox = new JCheckBox( "Use external database" );
-		overrideBox.addActionListener( this );
-		mainPanel.add( overrideBox, BorderLayout.CENTER );
-		
+		panel.setLayout(new GridLayout(0, 1));
+		panel0.add(panel, BorderLayout.CENTER);
+
+		overrideBox = new JCheckBox("Use external database");
+		overrideBox.addActionListener(this);
+		mainPanel.add(overrideBox, BorderLayout.CENTER);
+
 		panel2 = new JPanel();
-		panel2.setLayout( new BorderLayout() );
-		panel.add( panel2 );
-		
+		panel2.setLayout(new BorderLayout());
+		panel.add(panel2);
+
 		connField = new JTextField();
-		connField.setEditable( false );
-		panel2.add( connField, BorderLayout.CENTER );
-		
-		chooseButton = new JButton( "..." );
-		chooseButton.addActionListener( this );
-		panel2.add( chooseButton, BorderLayout.EAST );
-		panel2.add( new JLabel( "jdbc:hsqldb:file:" ), BorderLayout.WEST );
-		
+		connField.setEditable(false);
+		panel2.add(connField, BorderLayout.CENTER);
+
+		chooseButton = new JButton("...");
+		chooseButton.addActionListener(this);
+		panel2.add(chooseButton, BorderLayout.EAST);
+		panel2.add(new JLabel("jdbc:hsqldb:file:"), BorderLayout.WEST);
+
 		loginField = new JTextField();
-		loginField.setEditable( false );
-		panel.add( loginField );
-		
+		loginField.setEditable(false);
+		panel.add(loginField);
+
 		passwdField = new JPasswordField();
-		passwdField.setEditable( false );
-		panel.add( passwdField );
-		
-		if( hasApplyButton ) {
-			
+		passwdField.setEditable(false);
+		panel.add(passwdField);
+
+		if (hasApplyButton) {
+
 			panel2 = new JPanel();
-			panel2.setLayout( new BoxLayout( panel2, BoxLayout.X_AXIS ) );
-			panel.add( panel2 );
-			
-			applyButton = new JButton( "Apply" );
-			panel2.add( Box.createHorizontalGlue() );
-			panel2.add( applyButton );
-		}
-		else
-			panel.add( new JLabel() );
-		
+			panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
+			panel.add(panel2);
+
+			applyButton = new JButton("Apply");
+			panel2.add(Box.createHorizontalGlue());
+			panel2.add(applyButton);
+		} else
+			panel.add(new JLabel());
+
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
 	}
-	
+
 	@Override
-	public void actionPerformed( ActionEvent e ) {
-		if( e.getSource() == overrideBox ) {
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == overrideBox) {
 			connField.setEditable(overrideBox.isSelected());
 			loginField.setEditable(overrideBox.isSelected());
 			passwdField.setEditable(overrideBox.isSelected());
 		}
-		
-		if (e.getSource() == chooseButton) {			
-			if( overrideBox.isSelected() ) {				
-			    JFileChooser chooser = new JFileChooser(); 
-			    chooser.setCurrentDirectory(new java.io.File(connField.getText()));
-			    chooser.setDialogTitle("Choose folder of database");
-			    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			    chooser.setAcceptAllFileFilterUsed(false);
-			    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-			    	connField.setText(chooser.getSelectedFile().getAbsolutePath());
+
+		if (e.getSource() == chooseButton) {
+			if (overrideBox.isSelected()) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.setCurrentDirectory(new java.io.File(connField.getText()));
+				chooser.setDialogTitle("Choose folder of database");
+				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+					connField.setText(chooser.getSelectedFile().getAbsolutePath());
 				}
 			}
-			
+
 		}
 	}
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
@@ -155,48 +156,65 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 		loginField.setEnabled(enabled);
 		passwdField.setEnabled(enabled);
 		chooseButton.setEnabled(enabled);
-		if (applyButton != null) applyButton.setEnabled(enabled);
+		if (applyButton != null)
+			applyButton.setEnabled(enabled);
 	}
-	
+
 	public boolean getOverride() {
 		return overrideBox.isSelected();
 	}
-	
-	public void setOverride( boolean override ) {
-		
-		if( override != overrideBox.isSelected() )
+
+	public void setOverride(boolean override) {
+
+		if (override != overrideBox.isSelected())
 			overrideBox.doClick();
 	}
-	
-	public void setFilename( String filename ) {
+
+	public void setFilename(String filename) {
 		if (filename != null) {
-			if (filename.endsWith(File.separator + "DB")) connField.setText(filename.substring(0, filename.length() - 3));
-			else connField.setText( filename );
+			if (filename.endsWith(File.separator + "DB"))
+				connField.setText(filename.substring(0, filename.length() - 3));
+			else
+				connField.setText(filename);
 		}
 	}
-	
-	public void setLogin( String login ) {
-		loginField.setText( login );
+
+	public void setLogin(String login) {
+		loginField.setText(login);
 	}
-	
-	public void setPasswd( String passwd ) {
-		passwdField.setText( passwd );
+
+	public void setPasswd(String passwd) {
+		passwdField.setText(passwd);
 	}
-	
-	public boolean isOverride() {return overrideBox.isSelected();}
-	public String getFilename() {return connField.getText() + File.separator + "DB";}
-	public String getLogin() {return loginField.getText();}
-	public String getPasswd() {return String.valueOf(passwdField.getPassword());}
-	
-	public JButton getApplyButton() {return applyButton;}
-	
-    public void saveSettingsTo(Config c) {
-    	c.addString(PARAM_FILENAME, connField.getText());
-    	c.addString(PARAM_LOGIN, loginField.getText());
-    	c.addString(PARAM_PASSWD, String.valueOf(passwdField.getPassword()));
-    	c.addBoolean(PARAM_OVERRIDE, overrideBox.isSelected());
-    }	
-	public void setSettings(Config c) throws InvalidSettingsException {		
+
+	public boolean isOverride() {
+		return overrideBox.isSelected();
+	}
+
+	public String getFilename() {
+		return connField.getText() + File.separator + "DB";
+	}
+
+	public String getLogin() {
+		return loginField.getText();
+	}
+
+	public String getPasswd() {
+		return String.valueOf(passwdField.getPassword());
+	}
+
+	public JButton getApplyButton() {
+		return applyButton;
+	}
+
+	public void saveSettingsTo(Config c) {
+		c.addString(PARAM_FILENAME, connField.getText());
+		c.addString(PARAM_LOGIN, loginField.getText());
+		c.addString(PARAM_PASSWD, String.valueOf(passwdField.getPassword()));
+		c.addBoolean(PARAM_OVERRIDE, overrideBox.isSelected());
+	}
+
+	public void setSettings(Config c) throws InvalidSettingsException {
 		connField.setText(c.getString(PARAM_FILENAME));
 		loginField.setText(c.getString(PARAM_LOGIN));
 		passwdField.setText(c.getString(PARAM_PASSWD));

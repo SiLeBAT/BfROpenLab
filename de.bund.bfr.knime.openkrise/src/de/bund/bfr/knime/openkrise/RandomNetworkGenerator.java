@@ -42,7 +42,7 @@ import de.bund.bfr.knime.IO;
 public class RandomNetworkGenerator {
 
 	private Graph graph = null;
-	
+
 	public RandomNetworkGenerator(int numNodes, int maxLinksPerNode) {
 		generateFCLNetwork(numNodes, maxLinksPerNode);
 	}
@@ -59,11 +59,11 @@ public class RandomNetworkGenerator {
 			gen.nextEvents();
 		}
 		gen.end();
-		//graph.display();
+		// graph.display();
 	}
 
 	public void getNodes(BufferedDataContainer output33Nodes) {
-		for (int i=0;i<graph.getNodeCount();i++) {
+		for (int i = 0; i < graph.getNodeCount(); i++) {
 			RowKey key = RowKey.createRowKey(i);
 			Node node = graph.getNode(i);
 			DataCell[] cells = new DataCell[19];
@@ -78,7 +78,7 @@ public class RandomNetworkGenerator {
 			cells[8] = DataType.getMissingCell(); // country
 			cells[9] = DataType.getMissingCell(); // VATnumber
 			cells[10] = DataType.getMissingCell(); // Betriebsart
-			
+
 			cells[11] = DataType.getMissingCell(); // AnzahlFaelle
 			cells[12] = DataType.getMissingCell(); // DatumBeginn
 			cells[13] = DataType.getMissingCell(); // DatumHoehepunkt
@@ -88,19 +88,18 @@ public class RandomNetworkGenerator {
 			boolean ss = node.getInDegree() == 0;
 			if (ss) {
 				int index = -1;
-				for (int j=0;j<node.getOutDegree();j++) {
+				for (int j = 0; j < node.getOutDegree(); j++) {
 					if (index < 0) {
 						index = node.getLeavingEdge(j).getIndex();
 						continue;
-					}
-					else if (node.getLeavingEdge(j).getIndex() != index) {
+					} else if (node.getLeavingEdge(j).getIndex() != index) {
 						ss = false;
 						break;
 					}
 				}
 			}
-			cells[16] = ss ? BooleanCell.TRUE : BooleanCell.FALSE; // SimpleSupplier 
-			cells[17] = node.getInDegree() == 0 ? BooleanCell.TRUE : BooleanCell.FALSE; // StationStart 
+			cells[16] = ss ? BooleanCell.TRUE : BooleanCell.FALSE; // SimpleSupplier
+			cells[17] = node.getInDegree() == 0 ? BooleanCell.TRUE : BooleanCell.FALSE; // StationStart
 			cells[18] = node.getOutDegree() == 0 ? BooleanCell.TRUE : BooleanCell.FALSE; // StationEnd
 
 			DataRow outputRow = new DefaultRow(key, cells);
@@ -108,8 +107,9 @@ public class RandomNetworkGenerator {
 			output33Nodes.addRowToTable(outputRow);
 		}
 	}
+
 	public void getLinks(BufferedDataContainer output33Links) {
-		for (int i=0;i<graph.getEdgeCount();i++) {
+		for (int i = 0; i < graph.getEdgeCount(); i++) {
 			RowKey key = RowKey.createRowKey(i);
 			Edge edge = graph.getEdge(i);
 			DataCell[] cells = new DataCell[20];
@@ -117,7 +117,7 @@ public class RandomNetworkGenerator {
 			edge.isDirected();
 			cells[1] = new IntCell(edge.getSourceNode().getIndex()); // from
 			cells[2] = new IntCell(edge.getTargetNode().getIndex()); // to
-			
+
 			cells[3] = DataType.getMissingCell(); // Artikelnummer
 			cells[4] = DataType.getMissingCell(); // Bezeichnung
 			cells[5] = DataType.getMissingCell(); // Prozessierung
@@ -125,15 +125,16 @@ public class RandomNetworkGenerator {
 			cells[7] = DataType.getMissingCell(); // ChargenNr
 			cells[8] = DataType.getMissingCell(); // MHD
 			cells[9] = DataType.getMissingCell(); // Production Date
-			cells[10] = DataType.getMissingCell(); // Delivery Data			
+			cells[10] = DataType.getMissingCell(); // Delivery Data
 			cells[11] = DataType.getMissingCell(); // Amount
-			
+
 			cells[12] = new StringCell("Row" + i);
 			cells[13] = DataType.getMissingCell(); // Serial
 			cells[14] = DataType.getMissingCell(); // OriginCountry
 
-			cells[15] = DataType.getMissingCell(); // EndChain BooleanCell.TRUE : BooleanCell.FALSE;
-			cells[16] = DataType.getMissingCell(); // Explanation_EndChain 
+			cells[15] = DataType.getMissingCell(); // EndChain BooleanCell.TRUE
+													// : BooleanCell.FALSE;
+			cells[16] = DataType.getMissingCell(); // Explanation_EndChain
 			cells[17] = DataType.getMissingCell(); // Contact_Questions_Remarks
 			cells[18] = DataType.getMissingCell(); // Further_Traceback
 			cells[19] = DataType.getMissingCell(); // MicrobioSample
@@ -143,14 +144,15 @@ public class RandomNetworkGenerator {
 			output33Links.addRowToTable(outputRow);
 		}
 	}
+
 	public void getDeliveryDelivery(BufferedDataContainer deliveryDelivery) {
 		Random r1 = new Random();
 		Random r2 = new Random();
 		int lfd = 0;
-		for (int i=0;i<graph.getNodeCount();i++) {
+		for (int i = 0; i < graph.getNodeCount(); i++) {
 			Node node = graph.getNode(i);
 			if (node.getInDegree() > 0 && node.getOutDegree() > 0) {
-				for (int j=0;j<node.getInDegree();j++) {
+				for (int j = 0; j < node.getInDegree(); j++) {
 					int numConnections = r1.nextInt(node.getOutDegree());
 					HashSet<Integer> done = new HashSet<Integer>();
 					for (int k = 0; k < numConnections; k++) {
@@ -159,21 +161,21 @@ public class RandomNetworkGenerator {
 							toIndex = r2.nextInt(node.getOutDegree());
 						} while (done.contains(toIndex));
 						done.add(toIndex);
-						deliveryDelivery.addRowToTable(new DefaultRow(lfd+"", IO.createCell(node.getEnteringEdge(j).getIndex()), IO.createCell(node.getLeavingEdge(toIndex).getIndex())));
+						deliveryDelivery.addRowToTable(new DefaultRow(lfd + "", IO.createCell(node
+								.getEnteringEdge(j).getIndex()), IO.createCell(node.getLeavingEdge(
+								toIndex).getIndex())));
 						lfd++;
 					}
 				}
 			}
 		}
 		/*
-		int i = 0;
-
-		for (MyDelivery delivery : mnt.getAllDeliveries().values()) {
-			for (int next : delivery.getAllNextIDs()) {
-				deliveryDelivery.addRowToTable(new DefaultRow(i+"", IO.createCell(delivery.getId()), IO.createCell(next)));
-				i++;
-			}
-		}
-		*/
+		 * int i = 0;
+		 * 
+		 * for (MyDelivery delivery : mnt.getAllDeliveries().values()) { for
+		 * (int next : delivery.getAllNextIDs()) {
+		 * deliveryDelivery.addRowToTable(new DefaultRow(i+"",
+		 * IO.createCell(delivery.getId()), IO.createCell(next))); i++; } }
+		 */
 	}
 }
