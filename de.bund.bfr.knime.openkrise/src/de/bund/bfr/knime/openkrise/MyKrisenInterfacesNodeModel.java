@@ -397,6 +397,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 							clean(rs.getString("Lieferungen.dd_year")));
 					fillCell(spec, cells, TracingColumns.DELIVERY_DEPARTURE,
 							dd == null ? DataType.getMissingCell() : new StringCell(dd));
+					String ad = sdfFormat(clean(rs.getString("Lieferungen.ad_day")),
+							clean(rs.getString("Lieferungen.ad_month")),
+							clean(rs.getString("Lieferungen.ad_year")));
+					fillCell(spec, cells, TracingColumns.DELIVERY_ARRIVAL,
+							ad == null ? DataType.getMissingCell() : new StringCell(ad));
 					fillCell(spec, cells, TracingColumns.DELIVERY_SERIAL,
 							getDataStringCell(rs, "Lieferungen.Serial"));
 
@@ -700,7 +705,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE)
 				.createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE)
-				.createSpec());
+		.createSpec());
+		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE)
+		.createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE)
 				.createSpec());
 

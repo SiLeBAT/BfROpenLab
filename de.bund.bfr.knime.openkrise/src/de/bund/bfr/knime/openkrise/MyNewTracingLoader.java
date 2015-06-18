@@ -93,8 +93,8 @@ public class MyNewTracingLoader {
 					Delivery md = new Delivery(rs.getObject("ID").toString(), rs.getObject(
 							"Station").toString(), rs.getObject("Empfänger").toString(),
 							(Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"),
-							(Integer) rs.getObject("dd_year"), (Integer) rs.getObject("dd_day"),
-							(Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"));
+							(Integer) rs.getObject("dd_year"), (Integer) rs.getObject("ad_day"),
+							(Integer) rs.getObject("ad_month"), (Integer) rs.getObject("ad_year"));
 					allDeliveries.put(md.getId(), md);
 				} while (rs.next());
 			}
