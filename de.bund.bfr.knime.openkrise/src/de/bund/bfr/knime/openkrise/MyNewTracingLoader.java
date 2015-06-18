@@ -80,7 +80,8 @@ public class MyNewTracingLoader {
 		String sql = DSL
 				.using(conn, SQLDialect.HSQLDB)
 				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"),
-						field("dd_month"), field("dd_year")).from(table("Lieferungen"))
+						field("dd_month"), field("dd_year"), field("ad_day"), field("ad_month"),
+						field("ad_year")).from(table("Lieferungen"))
 				.leftOuterJoin(table("Chargen"))
 				.on(field("Lieferungen.Charge").equal(field("Chargen.ID")))
 				.leftOuterJoin(table("Produktkatalog"))
