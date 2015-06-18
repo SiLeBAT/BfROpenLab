@@ -34,24 +34,13 @@ import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class TraceGenerator {
 
-	public TraceGenerator(String outputFolder, List<String> business2Trace, boolean isForward) {
+	public TraceGenerator(File outputFolder, List<String> business2Trace, boolean isForward) {
 		try {
-			File f = new File(outputFolder);
-			if (f.exists()) {
-				for (int i=1;;i++) {
-					f = new File(outputFolder + "_" + i);
-					if (!f.exists() || i > 1000) break;
-				}
-			}
+			int numFilesGenerated = isForward ? getFortraceRequests(outputFolder.getAbsolutePath(), business2Trace) : getBacktraceRequests(outputFolder.getAbsolutePath(), business2Trace);
+
 			String message = "";
-			if (f.exists()) message = "Too many output folders... Please check and delete folders '" + outputFolder + "*'";
-			else {
-				f.mkdirs();
-				int numFilesGenerated = isForward ? getFortraceRequests(f.getAbsolutePath(), business2Trace) : getBacktraceRequests(f.getAbsolutePath(), business2Trace);
-				//XSSFCellStyle defaultStyle = workbook.createCellStyle();
-				if (numFilesGenerated == 0) message = "No new Templates generated. All done?";
-				else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + f.getAbsolutePath() + "'";
-			}
+			if (numFilesGenerated == 0) message = "No new Templates generated. All done?";
+			else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder.getAbsolutePath() + "'";
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (eclipseWindow != null) {						

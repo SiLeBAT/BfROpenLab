@@ -53,6 +53,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -775,13 +776,21 @@ public class MainFrame extends JFrame {
 		
 		dialog.setVisible(true);
 		
+		doTraceGeneration(dialog, false);
+	}
+	private void doTraceGeneration(TraceDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
-			String folder = DBKernel.HSHDB_PATH;
-			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-			new TraceGenerator(folder + "openrequests", dialog.getSelected(), false);
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
-		}		
+			JFileChooser chooser = new JFileChooser(); 
+		    chooser.setCurrentDirectory(new java.io.File("."));
+		    chooser.setDialogTitle("Select ouput folder");
+		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    chooser.setAcceptAllFileFilterUsed(false);
+		    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+				new TraceGenerator(chooser.getSelectedFile(), dialog.getSelected(), isForward);
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    }
+		}
 	}
 	private void button14ActionPerformed(final ActionEvent e) {
 		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
@@ -800,13 +809,7 @@ public class MainFrame extends JFrame {
 		
 		dialog.setVisible(true);
 		
-		if (dialog.isApproved()) {
-			String folder = DBKernel.HSHDB_PATH;
-			if (!folder.endsWith(System.getProperty("file.separator"))) folder += System.getProperty("file.separator");
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-			new TraceGenerator(folder + "openrequests", dialog.getSelected(), true);
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
-		}		
+		doTraceGeneration(dialog, false);
 	}
 	private static class TraceDialog extends JDialog implements ActionListener {
 				
