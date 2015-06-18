@@ -25,7 +25,7 @@ import java.util.Set;
 public class Delivery {
 
 	private String id;
-	private String supplierID, recipientID;
+	private String supplierId, recipientId;
 	private Integer departureDay;
 	private Integer departureMonth;
 	private Integer departureYear;
@@ -33,15 +33,15 @@ public class Delivery {
 	private Integer arrivalMonth;
 	private Integer arrivalYear;
 
-	private Set<String> allNextIDs;
-	private Set<String> allPreviousIDs;
+	private Set<String> allNextIds;
+	private Set<String> allPreviousIds;
 
-	public Delivery(String id, String supplierID, String recipientID, Integer departureDay,
+	public Delivery(String id, String supplierId, String recipientId, Integer departureDay,
 			Integer departureMonth, Integer departureYear, Integer arrivalDay,
 			Integer arrivalMonth, Integer arrivalYear) {
 		this.id = id;
-		this.supplierID = supplierID;
-		this.recipientID = recipientID;
+		this.supplierId = supplierId;
+		this.recipientId = recipientId;
 		this.departureDay = departureDay;
 		this.departureMonth = departureMonth;
 		this.departureYear = departureYear;
@@ -49,32 +49,24 @@ public class Delivery {
 		this.arrivalMonth = arrivalMonth;
 		this.arrivalYear = arrivalYear;
 
-		allNextIDs = new LinkedHashSet<>();
-		allPreviousIDs = new LinkedHashSet<>();
+		allNextIds = new LinkedHashSet<>();
+		allPreviousIds = new LinkedHashSet<>();
 	}
 
-	public Set<String> getAllNextIDs() {
-		return allNextIDs;
+	public String getSupplierId() {
+		return supplierId;
 	}
 
-	public Set<String> getAllPreviousIDs() {
-		return allPreviousIDs;
+	public void setSupplierId(String supplierId) {
+		this.supplierId = supplierId;
 	}
 
-	public void setSupplierID(String supplierID) {
-		this.supplierID = supplierID;
+	public String getRecipientId() {
+		return recipientId;
 	}
 
-	public void setRecipientID(String recipientID) {
-		this.recipientID = recipientID;
-	}
-
-	public String getSupplierID() {
-		return supplierID;
-	}
-
-	public String getRecipientID() {
-		return recipientID;
+	public void setRecipientId(String recipientId) {
+		this.recipientId = recipientId;
 	}
 
 	public String getId() {
@@ -105,12 +97,20 @@ public class Delivery {
 		return arrivalYear;
 	}
 
+	public Set<String> getAllNextIds() {
+		return allNextIds;
+	}
+
+	public Set<String> getAllPreviousIds() {
+		return allPreviousIds;
+	}
+
 	public Delivery copy() {
-		Delivery copy = new Delivery(id, supplierID, recipientID, departureDay, departureMonth,
+		Delivery copy = new Delivery(id, supplierId, recipientId, departureDay, departureMonth,
 				departureYear, arrivalDay, arrivalMonth, arrivalYear);
 
-		copy.allNextIDs = new LinkedHashSet<>(allNextIDs);
-		copy.allPreviousIDs = new LinkedHashSet<>(allPreviousIDs);
+		copy.allNextIds = new LinkedHashSet<>(allNextIds);
+		copy.allPreviousIds = new LinkedHashSet<>(allPreviousIds);
 
 		return copy;
 	}

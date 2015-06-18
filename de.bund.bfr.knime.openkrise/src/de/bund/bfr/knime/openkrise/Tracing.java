@@ -56,8 +56,8 @@ public class Tracing {
 		for (Delivery d : deliveries) {
 			Delivery copy = d.copy();
 
-			copy.getAllNextIDs().retainAll(allIds);
-			copy.getAllPreviousIDs().retainAll(allIds);
+			copy.getAllNextIds().retainAll(allIds);
+			copy.getAllPreviousIds().retainAll(allIds);
 			this.deliveries.add(copy);
 		}
 
@@ -67,46 +67,46 @@ public class Tracing {
 		ccDeliveries = new LinkedHashSet<>();
 	}
 
-	public void setStationWeight(String stationID, double priority) {
+	public void setStationWeight(String stationId, double priority) {
 		if (priority > 0) {
-			stationWeights.put(stationID, priority);
+			stationWeights.put(stationId, priority);
 		} else {
-			stationWeights.remove(stationID);
+			stationWeights.remove(stationId);
 		}
 	}
 
-	public void setDeliveryWeight(String deliveryID, double priority) {
+	public void setDeliveryWeight(String deliveryId, double priority) {
 		if (priority > 0) {
-			deliveryWeights.put(deliveryID, priority);
+			deliveryWeights.put(deliveryId, priority);
 		} else {
-			deliveryWeights.remove(deliveryID);
+			deliveryWeights.remove(deliveryId);
 		}
 	}
 
-	public void setCrossContaminationOfStation(String stationID, boolean possible) {
+	public void setCrossContaminationOfStation(String stationId, boolean possible) {
 		if (possible) {
-			ccStations.add(stationID);
+			ccStations.add(stationId);
 		} else {
-			ccStations.remove(stationID);
+			ccStations.remove(stationId);
 		}
 	}
 
-	public void setCrossContaminationOfDelivery(String deliveryID, boolean possible) {
+	public void setCrossContaminationOfDelivery(String deliveryId, boolean possible) {
 		if (possible) {
-			ccDeliveries.add(deliveryID);
+			ccDeliveries.add(deliveryId);
 		} else {
-			ccDeliveries.remove(deliveryID);
+			ccDeliveries.remove(deliveryId);
 		}
 	}
 
-	public void mergeStations(Set<String> toBeMerged, String mergedStationID) {
+	public void mergeStations(Set<String> toBeMerged, String mergedStationId) {
 		for (Delivery d : deliveries) {
-			if (toBeMerged.contains(d.getSupplierID())) {
-				d.setSupplierID(mergedStationID);
+			if (toBeMerged.contains(d.getSupplierId())) {
+				d.setSupplierId(mergedStationId);
 			}
 
-			if (toBeMerged.contains(d.getRecipientID())) {
-				d.setRecipientID(mergedStationID);
+			if (toBeMerged.contains(d.getRecipientId())) {
+				d.setRecipientId(mergedStationId);
 			}
 		}
 	}
@@ -122,7 +122,7 @@ public class Tracing {
 		outgoingDeliveries = new LinkedHashMap<>();
 
 		for (Delivery d : deliveryMap.values()) {
-			String recipient = d.getRecipientID();
+			String recipient = d.getRecipientId();
 
 			if (!incomingDeliveries.containsKey(recipient)) {
 				incomingDeliveries.put(recipient, new LinkedHashSet<String>());
@@ -132,7 +132,7 @@ public class Tracing {
 		}
 
 		for (Delivery d : deliveryMap.values()) {
-			String supplier = d.getSupplierID();
+			String supplier = d.getSupplierId();
 
 			if (!outgoingDeliveries.containsKey(supplier)) {
 				outgoingDeliveries.put(supplier, new LinkedHashSet<String>());
@@ -165,8 +165,8 @@ public class Tracing {
 					Delivery out = deliveryMap.get(outId);
 
 					if (!enforceTemporalOrder || (isInTemporalOrder(in, out))) {
-						in.getAllNextIDs().add(outId);
-						out.getAllPreviousIDs().add(inId);
+						in.getAllNextIds().add(outId);
+						out.getAllPreviousIds().add(inId);
 					}
 				}
 			}
@@ -183,25 +183,25 @@ public class Tracing {
 
 				Delivery in2 = deliveryMap.get(in2Id);
 
-				if (!in1.getRecipientID().equals(in2.getRecipientID())) {
+				if (!in1.getRecipientId().equals(in2.getRecipientId())) {
 					continue;
 				}
 
-				for (String out1Id : in1.getAllNextIDs()) {
+				for (String out1Id : in1.getAllNextIds()) {
 					Delivery out1 = deliveryMap.get(out1Id);
 
 					if (!enforceTemporalOrder || (isInTemporalOrder(in2, out1))) {
-						in2.getAllNextIDs().add(out1Id);
-						out1.getAllPreviousIDs().add(in2Id);
+						in2.getAllNextIds().add(out1Id);
+						out1.getAllPreviousIds().add(in2Id);
 					}
 				}
 
-				for (String out2Id : in2.getAllNextIDs()) {
+				for (String out2Id : in2.getAllNextIds()) {
 					Delivery out2 = deliveryMap.get(out2Id);
 
 					if (!enforceTemporalOrder || (isInTemporalOrder(in1, out2))) {
-						in1.getAllNextIDs().add(out2Id);
-						out2.getAllPreviousIDs().add(in1Id);
+						in1.getAllNextIds().add(out2Id);
+						out2.getAllPreviousIds().add(in1Id);
 					}
 				}
 			}
@@ -285,8 +285,8 @@ public class Tracing {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (outgoingDeliveries.containsKey(stationID)) {
-			for (String i : outgoingDeliveries.get(stationID)) {
-				stations.addAll(getForwardStations(deliveryMap.get(i)));
+			for (String id : outgoingDeliveries.get(stationID)) {
+				stations.addAll(getForwardStations(deliveryMap.get(id)));
 			}
 		}
 
@@ -297,8 +297,8 @@ public class Tracing {
 		Set<String> stations = new LinkedHashSet<>();
 
 		if (incomingDeliveries.containsKey(stationID)) {
-			for (String i : incomingDeliveries.get(stationID)) {
-				stations.addAll(getBackwardStations(deliveryMap.get(i)));
+			for (String id : incomingDeliveries.get(stationID)) {
+				stations.addAll(getBackwardStations(deliveryMap.get(id)));
 			}
 		}
 
@@ -340,7 +340,7 @@ public class Tracing {
 
 		backward = new LinkedHashSet<>();
 
-		for (String prev : d.getAllPreviousIDs()) {
+		for (String prev : d.getAllPreviousIds()) {
 			backward.add(prev);
 			backward.addAll(getBackwardDeliveries(deliveryMap.get(prev)));
 		}
@@ -359,7 +359,7 @@ public class Tracing {
 
 		forward = new LinkedHashSet<>();
 
-		for (String next : d.getAllNextIDs()) {
+		for (String next : d.getAllNextIds()) {
 			forward.add(next);
 			forward.addAll(getForwardDeliveries(deliveryMap.get(next)));
 		}
@@ -372,10 +372,10 @@ public class Tracing {
 	private Set<String> getBackwardStations(Delivery d) {
 		Set<String> result = new LinkedHashSet<>();
 
-		result.add(d.getSupplierID());
+		result.add(d.getSupplierId());
 
 		for (String id : getBackwardDeliveries(d)) {
-			result.add(deliveryMap.get(id).getSupplierID());
+			result.add(deliveryMap.get(id).getSupplierId());
 		}
 
 		return result;
@@ -384,10 +384,10 @@ public class Tracing {
 	private Set<String> getForwardStations(Delivery d) {
 		Set<String> result = new LinkedHashSet<>();
 
-		result.add(d.getRecipientID());
+		result.add(d.getRecipientId());
 
 		for (String id : getForwardDeliveries(d)) {
-			result.add(deliveryMap.get(id).getRecipientID());
+			result.add(deliveryMap.get(id).getRecipientId());
 		}
 
 		return result;
@@ -395,10 +395,10 @@ public class Tracing {
 
 	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
 	private boolean isInTemporalOrder(Delivery in, Delivery out) {
-		Integer yearOut = out.getDepartureYear();
 		Integer yearIn = in.getArrivalYear();
+		Integer yearOut = out.getDepartureYear();
 
-		if (yearOut == null || yearIn == null) {
+		if (yearIn == null || yearOut == null) {
 			return true;
 		} else if (yearOut > yearIn) {
 			return true;
@@ -406,10 +406,10 @@ public class Tracing {
 			return false;
 		}
 
-		Integer monthOut = out.getDepartureMonth();
 		Integer monthIn = in.getArrivalMonth();
+		Integer monthOut = out.getDepartureMonth();
 
-		if (monthOut == null || monthIn == null) {
+		if (monthIn == null || monthOut == null) {
 			return true;
 		} else if (monthOut > monthIn) {
 			return true;
@@ -417,10 +417,10 @@ public class Tracing {
 			return false;
 		}
 
-		Integer dayOut = out.getDepartureDay();
 		Integer dayIn = in.getArrivalDay();
+		Integer dayOut = out.getDepartureDay();
 
-		if (dayOut == null || dayIn == null) {
+		if (dayIn == null || dayOut == null) {
 			return true;
 		} else if (dayOut >= dayIn) {
 			return true;

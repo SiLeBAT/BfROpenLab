@@ -491,7 +491,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			int i = 0;
 
 			for (Delivery delivery : allDeliveries.values()) {
-				for (String next : delivery.getAllNextIDs()) {
+				for (String next : delivery.getAllNextIds()) {
 					if (useSerialAsID)
 						deliveryDelivery.addRowToTable(new DefaultRow(i + "", IO
 								.createCell(hmDeliveryIDs.get(delivery.getId())), IO
@@ -959,7 +959,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private static boolean isStationStart(Map<String, Delivery> deliveries, String id) {
 		for (Delivery d : deliveries.values()) {
-			if (d.getRecipientID().equals(id)) {
+			if (d.getRecipientId().equals(id)) {
 				return false;
 			}
 		}
@@ -971,10 +971,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (isStationStart(deliveries, id)) {
 			String recId = null;
 			for (Delivery d : deliveries.values()) {
-				if (d.getSupplierID().equals(id)) {
+				if (d.getSupplierId().equals(id)) {
 					if (recId == null)
-						recId = d.getRecipientID();
-					else if (!recId.equals(d.getRecipientID()))
+						recId = d.getRecipientId();
+					else if (!recId.equals(d.getRecipientId()))
 						return false;
 				}
 			}
@@ -985,7 +985,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private static boolean isStationEnd(Map<String, Delivery> deliveries, String id) {
 		for (Delivery d : deliveries.values()) {
-			if (d.getSupplierID().equals(id)) {
+			if (d.getSupplierId().equals(id)) {
 				return false;
 			}
 		}

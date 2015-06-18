@@ -331,8 +331,8 @@ public class TracingUtils {
 				continue;
 			}
 
-			deliveries.get(id).getAllNextIDs().add(next);
-			deliveries.get(next).getAllPreviousIDs().add(id);
+			deliveries.get(id).getAllNextIds().add(next);
+			deliveries.get(next).getAllPreviousIds().add(id);
 		}
 
 		return deliveries;

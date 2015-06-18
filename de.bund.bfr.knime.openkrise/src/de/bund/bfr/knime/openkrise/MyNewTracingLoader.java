@@ -120,8 +120,8 @@ public class MyNewTracingLoader {
 					Delivery mdZ = allDeliveries.get(rs.getObject(1).toString());
 					Delivery mdP = allDeliveries.get(rs.getObject(2).toString());
 					if (mdZ != null && mdP != null) {
-						mdZ.getAllNextIDs().add(mdP.getId());
-						mdP.getAllPreviousIDs().add(mdZ.getId());
+						mdZ.getAllNextIds().add(mdP.getId());
+						mdP.getAllPreviousIds().add(mdZ.getId());
 					}
 					// if (mdP != null) mdP.addPrevious(mdZ.getId());
 				} while (rs.next());
