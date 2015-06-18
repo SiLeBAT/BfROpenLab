@@ -1002,7 +1002,7 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button11);
 
 			//---- button13 ----
-			button13.setToolTipText("Missing backward data");
+			button13.setToolTipText("Generate backward tracing templates");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button13.setIcon(ico);
@@ -1015,7 +1015,7 @@ public class MainFrame extends JFrame {
 			
 			toolBar1.add(button13);
 			//---- button14 ----
-			button14.setToolTipText("Missing forward data");
+			button14.setToolTipText("Generate forward tracing templates");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button14.setIcon(ico);
