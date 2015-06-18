@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="spec.xml">
 <entry key="spec_name" type="xstring" value="default"/>
-<entry key="number_columns" type="xint" value="27"/>
+<entry key="number_columns" type="xint" value="28"/>
 <config key="column_spec_0">
 <entry key="column_name" type="xstring" value="ID"/>
 <config key="element_names">
@@ -303,6 +303,27 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_20">
+<entry key="column_name" type="xstring" value="Date Delivery Arrival"/>
+<config key="element_names">
+<entry key="array-size" type="xint" value="0"/>
+</config>
+<config key="column_type">
+<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
+</config>
+<config key="column_domain">
+<config key="possible_values">
+<entry key="array-size" type="xint" value="1"/>
+<config key="0">
+<entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
+<config key="org.knime.core.data.def.StringCell">
+<entry key="StringCell" type="xstring" value="2013-11-11"/>
+</config>
+</config>
+</config>
+</config>
+<config key="column_properties"/>
+</config>
+<config key="column_spec_21">
 <entry key="column_name" type="xstring" value="Weight"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -326,7 +347,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_21">
+<config key="column_spec_22">
 <entry key="column_name" type="xstring" value="CrossContamination"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -365,7 +386,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_22">
+<config key="column_spec_23">
 <entry key="column_name" type="xstring" value="Observed"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -404,7 +425,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_23">
+<config key="column_spec_24">
 <entry key="column_name" type="xstring" value="Score"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -428,7 +449,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_24">
+<config key="column_spec_25">
 <entry key="column_name" type="xstring" value="Normalized Score"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -452,7 +473,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_25">
+<config key="column_spec_26">
 <entry key="column_name" type="xstring" value="Backward"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -491,7 +512,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_26">
+<config key="column_spec_27">
 <entry key="column_name" type="xstring" value="Forward"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
