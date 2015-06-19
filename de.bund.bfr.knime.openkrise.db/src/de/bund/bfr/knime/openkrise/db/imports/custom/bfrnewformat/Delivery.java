@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -104,12 +105,12 @@ public class Delivery {
 	private Double unitNumber;
 	private String unitUnit;
 	private Station receiver;
-	private String targetLotId;
-	public String getTargetLotId() {
-		return targetLotId;
+	private HashSet<String> targetLotIds = new HashSet<>();
+	public HashSet<String> getTargetLotIds() {
+		return targetLotIds;
 	}
-	public void setTargetLotId(String targetLotId) {
-		this.targetLotId = targetLotId;
+	public void addTargetLotId(String targetLotId) {
+		targetLotIds.add(targetLotId);
 	}
 
 	private Integer dbId;

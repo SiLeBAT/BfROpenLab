@@ -238,7 +238,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Reporter Information")) break;
-				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename, false, null);
+				Delivery d = getDelivery(stationSheet, sif, row, true, titleRow, filename, false, null, outDeliveries);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				outLots.put(d.getLot().getNumber(), d.getLot());
@@ -274,7 +274,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Lot Information")) break;
-				Delivery d = getDelivery(stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots);
+				Delivery d = getDelivery(stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots, outDeliveries);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				if (!isForTracing) outLots.put(d.getLot().getNumber(), d.getLot());
@@ -306,9 +306,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, null)) break;
-			Delivery d = getDelivery(stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots);
+			Delivery d = getDelivery(stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots, inDeliveries);
 			if (d == null) continue;
-			if (!isForTracing && d.getTargetLotId() == null) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
+			if (!isForTracing && d.getTargetLotIds().size() == 0) throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 			inDeliveries.put(d.getId(), d);
 		}
 		
@@ -353,8 +353,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			Integer dbId = d.getID(miDbId, true);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
-			if (d.getTargetLotId() != null && lotDbNumber.containsKey(d.getTargetLotId())) {
-				new D2D().getId(dbId, lotDbNumber.get(d.getTargetLotId()), miDbId);
+			for (String targetLotId : d.getTargetLotIds()) {
+				if (lotDbNumber.containsKey(targetLotId)) {
+					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId);
+				}
 			}
 		}
 	}
@@ -382,8 +384,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			Integer dbId = d.getID(miDbId, false);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
-			if (d.getTargetLotId() != null && lotDbNumber.containsKey(d.getTargetLotId())) {
-				new D2D().getId(dbId, lotDbNumber.get(d.getTargetLotId()).getDbId(), miDbId);
+			for (String targetLotId : d.getTargetLotIds()) {
+				if (lotDbNumber.containsKey(targetLotId)) {
+					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId);
+				}
 			}
 		}
 		for (Delivery d : forwDeliveries) {
@@ -618,7 +622,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots) throws Exception {
+	private Delivery getDelivery(Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries) throws Exception {
 		Cell cell = row.getCell(12);
 		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
 		Delivery result = new Delivery();
@@ -628,7 +632,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			//if (isForTracing && outbound) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setTargetLotId(getStr(cell.getStringCellValue()));}
 			if (!isForTracing && outbound) {result.setId(lotDelNumber);}
 			if (isForTracing && !outbound) {result.setId(lotDelNumber);}
-			if (!isForTracing && !outbound) {result.setTargetLotId(lotDelNumber);}
+			if (!isForTracing && !outbound) {result.addTargetLotId(lotDelNumber);}
 		}
 		Lot l;
 		if (isForTracing && outbound) {
@@ -667,6 +671,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 		if (!isForTracing && !outbound || isForTracing && outbound) {
 			result.setId(getNewSerial(l, result));
+			if (existingDeliveries != null && existingDeliveries.containsKey(result.getId())) {
+				result.getTargetLotIds().addAll(existingDeliveries.get(result.getId()).getTargetLotIds());
+			}
 		}
 		
 		// Further flexible cells
@@ -720,7 +727,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		if (outDeliveries != null) {
 			cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Product p = new Product(); p.setName(getStr(cell.getStringCellValue())); l.setProduct(p); p.setStation(sif);}
-			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Delivery d = outDeliveries.get(getStr(cell.getStringCellValue())); if (d == null) return false; d.setTargetLotId(l.getNumber());}
+			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Delivery d = outDeliveries.get(getStr(cell.getStringCellValue())); if (d == null) return false; d.addTargetLotId(l.getNumber());}
 		}
 		
 		// Further flexible cells

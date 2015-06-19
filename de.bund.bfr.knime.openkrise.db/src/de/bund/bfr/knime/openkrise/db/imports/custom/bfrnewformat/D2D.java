@@ -88,7 +88,7 @@ public class D2D {
 			do {
 				Delivery d = new Delivery();
 				d.setDbId(rs.getInt("Zutat"));
-				d.setTargetLotId(rs.getString("ChargenNr"));
+				d.addTargetLotId(rs.getString("ChargenNr"));
 				d.setId(rs.getString("Bezeichnung"));
 				d.setUnitUnit(rs.getString("Serial"));
 				d.setComment(rs.getString("Name"));
