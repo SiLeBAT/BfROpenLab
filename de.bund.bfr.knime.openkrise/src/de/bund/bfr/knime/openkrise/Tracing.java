@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math3.stat.StatUtils;
+
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Doubles;
 
 public class Tracing {
 
@@ -112,45 +115,16 @@ public class Tracing {
 	}
 
 	public Result getResult(boolean enforceTemporalOrder) {
+		incomingDeliveries = getIncomingDeliveries(deliveries);
+		outgoingDeliveries = getOutgoingDeliveries(deliveries);
+		backwardDeliveries = new LinkedHashMap<>();
+		forwardDeliveries = new LinkedHashMap<>();
+		weightSum = StatUtils.sum(Doubles.toArray(stationWeights.values()))
+				+ StatUtils.sum(Doubles.toArray(deliveryWeights.values()));
 		deliveryMap = new LinkedHashMap<>();
 
 		for (Delivery d : deliveries) {
 			deliveryMap.put(d.getId(), d.copy());
-		}
-
-		incomingDeliveries = new LinkedHashMap<>();
-		outgoingDeliveries = new LinkedHashMap<>();
-
-		for (Delivery d : deliveryMap.values()) {
-			String recipient = d.getRecipientId();
-
-			if (!incomingDeliveries.containsKey(recipient)) {
-				incomingDeliveries.put(recipient, new LinkedHashSet<String>());
-			}
-
-			incomingDeliveries.get(recipient).add(d.getId());
-		}
-
-		for (Delivery d : deliveryMap.values()) {
-			String supplier = d.getSupplierId();
-
-			if (!outgoingDeliveries.containsKey(supplier)) {
-				outgoingDeliveries.put(supplier, new LinkedHashSet<String>());
-			}
-
-			outgoingDeliveries.get(supplier).add(d.getId());
-		}
-
-		backwardDeliveries = new LinkedHashMap<>();
-		forwardDeliveries = new LinkedHashMap<>();
-		weightSum = 0.0;
-
-		for (double w : stationWeights.values()) {
-			weightSum += w;
-		}
-
-		for (double w : deliveryWeights.values()) {
-			weightSum += w;
 		}
 
 		for (String stationId : ccStations) {
@@ -394,7 +368,7 @@ public class Tracing {
 	}
 
 	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-	private boolean isInTemporalOrder(Delivery in, Delivery out) {
+	private static boolean isInTemporalOrder(Delivery in, Delivery out) {
 		Integer yearIn = in.getArrivalYear();
 		Integer yearOut = out.getDepartureYear();
 
@@ -427,6 +401,38 @@ public class Tracing {
 		}
 
 		return false;
+	}
+
+	private static Map<String, Set<String>> getIncomingDeliveries(Collection<Delivery> deliveries) {
+		Map<String, Set<String>> result = new LinkedHashMap<>();
+
+		for (Delivery d : deliveries) {
+			String recipient = d.getRecipientId();
+
+			if (!result.containsKey(recipient)) {
+				result.put(recipient, new LinkedHashSet<String>());
+			}
+
+			result.get(recipient).add(d.getId());
+		}
+
+		return result;
+	}
+
+	private static Map<String, Set<String>> getOutgoingDeliveries(Collection<Delivery> deliveries) {
+		Map<String, Set<String>> result = new LinkedHashMap<>();
+
+		for (Delivery d : deliveries) {
+			String recipient = d.getSupplierId();
+
+			if (!result.containsKey(recipient)) {
+				result.put(recipient, new LinkedHashSet<String>());
+			}
+
+			result.get(recipient).add(d.getId());
+		}
+
+		return result;
 	}
 
 	public static final class Result {
