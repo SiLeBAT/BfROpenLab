@@ -99,7 +99,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		String type = valueCondition.getType();
 
 		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);

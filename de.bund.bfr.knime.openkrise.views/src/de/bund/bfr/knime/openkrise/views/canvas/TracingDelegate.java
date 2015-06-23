@@ -432,19 +432,9 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean contaminationValue = (Boolean) node.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
-			if (caseValue != null) {
-				tracing.setStationWeight(node.getId(), caseValue);
-			} else {
-				tracing.setStationWeight(node.getId(), 0.0);
-			}
-
-			if (useCrossContamination) {
-				if (contaminationValue != null) {
-					tracing.setCrossContaminationOfStation(node.getId(), contaminationValue);
-				} else {
-					tracing.setCrossContaminationOfStation(node.getId(), false);
-				}
-			}
+			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
+			tracing.setCrossContaminationOfStation(node.getId(),
+					contaminationValue != null ? contaminationValue : false);
 		}
 
 		for (Edge<V> edge : edges) {
@@ -452,19 +442,9 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			Boolean contaminationValue = (Boolean) edge.getProperties().get(
 					TracingColumns.CROSS_CONTAMINATION);
 
-			if (caseValue != null) {
-				tracing.setDeliveryWeight(edge.getId(), caseValue);
-			} else {
-				tracing.setDeliveryWeight(edge.getId(), 0.0);
-			}
-
-			if (useCrossContamination) {
-				if (contaminationValue != null) {
-					tracing.setCrossContaminationOfDelivery(edge.getId(), contaminationValue);
-				} else {
-					tracing.setCrossContaminationOfDelivery(edge.getId(), false);
-				}
-			}
+			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
+			tracing.setCrossContaminationOfDelivery(edge.getId(),
+					contaminationValue != null ? contaminationValue : false);
 		}
 
 		return tracing.getResult(isEnforceTemporalOrder());

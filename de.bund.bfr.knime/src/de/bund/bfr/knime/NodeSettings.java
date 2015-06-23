@@ -28,4 +28,27 @@ public abstract class NodeSettings {
 
 	public abstract void saveSettings(NodeSettingsWO settings);
 
+	protected static boolean nullToFalse(Boolean b) {
+		return b != null ? b : false;
+	}
+
+	protected static Boolean falseToNull(boolean b) {
+		return b ? b : null;
+	}
+
+	protected static double nullToNan(Double d) {
+		return d != null ? d : Double.NaN;
+	}
+
+	protected static Double nanToNull(double d) {
+		return !Double.isNaN(d) ? d : null;
+	}
+
+	protected static int nullToMinusOne(Integer i) {
+		return i != null ? i : -1;
+	}
+
+	protected static Integer minusOneToNull(int i) {
+		return i != -1 ? i : null;
+	}
 }

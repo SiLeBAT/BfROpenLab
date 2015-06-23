@@ -22,7 +22,7 @@ package de.bund.bfr.knime.openkrise.util.tracing;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -112,137 +112,99 @@ public class TracingParametersNodeModel extends NodeModel {
 			setWarningMessage("Tracing Table: Row " + key.getString() + " skipped");
 		}
 
-		Map<String, Double> nodeWeights = new LinkedHashMap<>();
-		Map<String, Double> edgeWeights = new LinkedHashMap<>();
-		Set<String> crossNodes = new LinkedHashSet<>();
-		Set<String> crossEdges = new LinkedHashSet<>();
+		Map<String, Double> nodeWeights;
+		Map<String, Double> edgeWeights;
+		Map<String, Boolean> crossNodes;
+		Map<String, Boolean> crossEdges;
 
-		for (GraphNode node : nodes.values()) {
-			String id = node.getId();
-			Double weight = null;
-
-			if (set.getNodeWeightConditionValue() != null) {
-				if (isInCondition(node, set.getNodeWeightCondition())) {
-					weight = set.getNodeWeightConditionValue();
-				}
-			} else {
-				weight = set.getNodeWeights().get(id);
-			}
-
-			if (weight != null && weight != 0.0) {
-				nodeWeights.put(id, weight);
-				tracing.setStationWeight(id, weight);
-			} else {
-				nodeWeights.put(id, 0.0);
-			}
-
-			Boolean cross = null;
-
-			if (set.getNodeContaminationConditionValue() != null) {
-				if (isInCondition(node, set.getNodeContaminationCondition())) {
-					cross = set.getNodeContaminationConditionValue();
-				}
-			} else {
-				cross = set.getNodeCrossContaminations().get(id);
-			}
-
-			if (cross != null && cross) {
-				crossNodes.add(id);
-				tracing.setCrossContaminationOfStation(id, cross);
-			}
+		if (set.getNodeWeightConditionValue() != null) {
+			nodeWeights = createConditionMap(nodes.values(), set.getNodeWeightCondition(),
+					set.getNodeWeightConditionValue(), 0.0);
+		} else {
+			nodeWeights = getCopyWithoutNullValues(set.getNodeWeights(), 0.0);
 		}
 
-		for (Edge<GraphNode> edge : edges) {
-			String id = edge.getId();
-			Double weight = null;
+		if (set.getEdgeWeightConditionValue() != null) {
+			edgeWeights = createConditionMap(edges, set.getEdgeWeightCondition(),
+					set.getEdgeWeightConditionValue(), 0.0);
+		} else {
+			edgeWeights = getCopyWithoutNullValues(set.getEdgeWeights(), 0.0);
+		}
 
-			if (set.getEdgeWeightConditionValue() != null) {
-				if (isInCondition(edge, set.getEdgeWeightCondition())) {
-					weight = set.getEdgeWeightConditionValue();
-				}
-			} else {
-				weight = set.getEdgeWeights().get(id);
-			}
+		if (set.getNodeContaminationConditionValue() != null) {
+			crossNodes = createConditionMap(nodes.values(), set.getNodeContaminationCondition(),
+					set.getNodeContaminationConditionValue(), false);
+		} else {
+			crossNodes = getCopyWithoutNullValues(set.getNodeCrossContaminations(), false);
+		}
 
-			if (weight != null && weight != 0.0) {
-				edgeWeights.put(id, weight);
-				tracing.setDeliveryWeight(id, weight);
-			} else {
-				edgeWeights.put(id, 0.0);
-			}
+		if (set.getEdgeContaminationConditionValue() != null) {
+			crossEdges = createConditionMap(edges, set.getEdgeContaminationCondition(),
+					set.getEdgeContaminationConditionValue(), false);
+		} else {
+			crossEdges = getCopyWithoutNullValues(set.getEdgeCrossContaminations(), false);
+		}
 
-			Boolean cross = null;
+		for (Map.Entry<String, Double> entry : nodeWeights.entrySet()) {
+			tracing.setStationWeight(entry.getKey(), entry.getValue());
+		}
 
-			if (set.getEdgeContaminationConditionValue() != null) {
-				if (isInCondition(edge, set.getEdgeContaminationCondition())) {
-					cross = set.getEdgeContaminationConditionValue();
-				}
-			} else {
-				cross = set.getEdgeCrossContaminations().get(id);
-			}
+		for (Map.Entry<String, Double> entry : edgeWeights.entrySet()) {
+			tracing.setDeliveryWeight(entry.getKey(), entry.getValue());
+		}
 
-			if (cross != null && cross) {
-				crossEdges.add(id);
-				tracing.setCrossContaminationOfDelivery(id, cross);
-			}
+		for (Map.Entry<String, Boolean> entry : crossNodes.entrySet()) {
+			tracing.setCrossContaminationOfStation(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<String, Boolean> entry : crossEdges.entrySet()) {
+			tracing.setCrossContaminationOfDelivery(entry.getKey(), entry.getValue());
 		}
 
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
-
-		Set<String> filterNodes = new LinkedHashSet<>();
-		Set<String> filterEdges = new LinkedHashSet<>();
-		Set<String> backwardNodes = new LinkedHashSet<>();
-		Set<String> forwardNodes = new LinkedHashSet<>();
-		Set<String> backwardEdges = new LinkedHashSet<>();
-		Set<String> forwardEdges = new LinkedHashSet<>();
-
-		for (GraphNode node : nodes.values()) {
-			String id = node.getId();
-			Boolean filter = null;
-
-			if (set.getObservedNodesConditionValue() != null) {
-				if (isInCondition(node, set.getObservedNodesCondition())) {
-					filter = set.getObservedNodesConditionValue();
-				}
-			} else {
-				filter = set.getObservedNodes().get(id);
-			}
-
-			if (filter != null && filter) {
-				filterNodes.add(id);
-				backwardNodes.addAll(result.getBackwardStationsByStation().get(id));
-				forwardNodes.addAll(result.getForwardStationsByStation().get(id));
-				backwardEdges.addAll(result.getBackwardDeliveriesByStation().get(id));
-				forwardEdges.addAll(result.getForwardDeliveriesByStation().get(id));
-			}
-		}
-
-		for (Edge<GraphNode> edge : edges) {
-			String id = edge.getId();
-			Boolean filter = null;
-
-			if (set.getObservedEdgesConditionValue() != null) {
-				if (isInCondition(edge, set.getObservedEdgesCondition())) {
-					filter = set.getObservedEdgesConditionValue();
-				}
-			} else {
-				filter = set.getObservedEdges().get(id);
-			}
-
-			if (filter != null && filter) {
-				filterEdges.add(id);
-				backwardNodes.addAll(result.getBackwardStationsByDelivery().get(id));
-				forwardNodes.addAll(result.getForwardStationsByDelivery().get(id));
-				backwardEdges.addAll(result.getBackwardDeliveriesByDelivery().get(id));
-				forwardEdges.addAll(result.getForwardDeliveriesByDelivery().get(id));
-			}
-		}
-
 		Map<String, Double> nodeScores = result.getStationScores();
 		Map<String, Double> edgeScores = result.getDeliveryScores();
 		double maxScore = Math.max(Collections.max(nodeScores.values()),
 				Collections.max(edgeScores.values()));
 		double normFactor = maxScore > 0.0 ? 1.0 / maxScore : 1.0;
+		Map<String, Boolean> observedNodes;
+		Map<String, Boolean> observedEdges;
+		Set<String> backwardNodes = new LinkedHashSet<>();
+		Set<String> forwardNodes = new LinkedHashSet<>();
+		Set<String> backwardEdges = new LinkedHashSet<>();
+		Set<String> forwardEdges = new LinkedHashSet<>();
+
+		if (set.getObservedNodesConditionValue() != null) {
+			observedNodes = createConditionMap(nodes.values(), set.getObservedNodesCondition(),
+					set.getObservedNodesConditionValue(), false);
+		} else {
+			observedNodes = getCopyWithoutNullValues(set.getObservedNodes(), false);
+		}
+
+		if (set.getObservedEdgesConditionValue() != null) {
+			observedEdges = createConditionMap(edges, set.getObservedEdgesCondition(),
+					set.getObservedEdgesConditionValue(), false);
+		} else {
+			observedEdges = getCopyWithoutNullValues(set.getObservedEdges(), false);
+		}
+
+		for (Map.Entry<String, Boolean> entry : observedNodes.entrySet()) {
+			if (entry.getValue()) {
+				backwardNodes.addAll(result.getBackwardStationsByStation().get(entry.getKey()));
+				forwardNodes.addAll(result.getForwardStationsByStation().get(entry.getKey()));
+				backwardEdges.addAll(result.getBackwardDeliveriesByStation().get(entry.getKey()));
+				forwardEdges.addAll(result.getForwardDeliveriesByStation().get(entry.getKey()));
+			}
+		}
+
+		for (Map.Entry<String, Boolean> entry : observedNodes.entrySet()) {
+			if (entry.getValue()) {
+				backwardNodes.addAll(result.getBackwardStationsByDelivery().get(entry.getKey()));
+				forwardNodes.addAll(result.getForwardStationsByDelivery().get(entry.getKey()));
+				backwardEdges.addAll(result.getBackwardDeliveriesByDelivery().get(entry.getKey()));
+				forwardEdges.addAll(result.getForwardDeliveriesByDelivery().get(entry.getKey()));
+			}
+		}
 
 		int index = 0;
 		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
@@ -259,15 +221,15 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(nodeWeights
-					.get(id));
+					.containsKey(id) ? nodeWeights.get(id) : 0.0);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
-					.createCell(crossNodes.contains(id));
+					.createCell(crossNodes.containsKey(id) ? crossNodes.get(id) : false);
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
+					.createCell(observedNodes.containsKey(id) ? observedNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(nodeScores
 					.containsKey(id) ? nodeScores.get(id) : 0.0);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(nodeScores.containsKey(id) ? normFactor * nodeScores.get(id) : 0.0);
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO.createCell(filterNodes
-					.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
 					.createCell(backwardNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardNodes
@@ -296,11 +258,11 @@ public class TracingParametersNodeModel extends NodeModel {
 			}
 
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(edgeWeights
-					.get(id));
+					.containsKey(id) ? edgeWeights.get(id) : 0.0);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
-					.createCell(crossEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO.createCell(filterEdges
-					.contains(id));
+					.createCell(crossEdges.containsKey(id) ? crossEdges.get(id) : false);
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
+					.createCell(observedEdges.containsKey(id) ? observedEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(edgeScores
 					.containsKey(id) ? edgeScores.get(id) : 0.0);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
@@ -440,12 +402,30 @@ public class TracingParametersNodeModel extends NodeModel {
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static boolean isInCondition(Element element, AndOrHighlightCondition condition) {
-		if (condition == null) {
-			return true;
+	private static <T> Map<String, T> createConditionMap(Collection<? extends Element> elements,
+			AndOrHighlightCondition condition, T inValue, T outValue) {
+		Map<String, T> result = new LinkedHashMap<>();
+
+		if (condition != null) {
+			for (Map.Entry<Element, Double> entry : condition.getValues(elements).entrySet()) {
+				result.put(entry.getKey().getId(), entry.getValue() != 0.0 ? inValue : outValue);
+			}
+		} else {
+			for (Element element : elements) {
+				result.put(element.getId(), inValue);
+			}
 		}
 
-		return condition.getValues(Arrays.asList(element)).get(element) != 0.0;
+		return result;
 	}
 
+	private static <T> Map<String, T> getCopyWithoutNullValues(Map<String, T> map, T replacement) {
+		Map<String, T> result = new LinkedHashMap<>();
+
+		for (Map.Entry<String, T> entry : map.entrySet()) {
+			result.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : replacement);
+		}
+
+		return result;
+	}
 }

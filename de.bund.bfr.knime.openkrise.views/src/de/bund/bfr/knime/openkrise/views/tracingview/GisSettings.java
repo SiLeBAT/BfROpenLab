@@ -23,7 +23,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
@@ -85,7 +84,7 @@ public class GisSettings extends NodeSettings {
 		}
 
 		try {
-			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+			nodeMaxSize = minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -95,7 +94,7 @@ public class GisSettings extends NodeSettings {
 		}
 
 		try {
-			edgeMaxThickness = KnimeUtils.minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
+			edgeMaxThickness = minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -127,9 +126,9 @@ public class GisSettings extends NodeSettings {
 		settings.addDouble(CFG_TRANSLATION_X, transform.getTranslationX());
 		settings.addDouble(CFG_TRANSLATION_Y, transform.getTranslationY());
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
-		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
+		settings.addInt(CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
 		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
-		settings.addInt(CFG_EDGE_MAX_THICKNESS, KnimeUtils.nullToMinusOne(edgeMaxThickness));
+		settings.addInt(CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
 		settings.addInt(CFG_FONT_SIZE, fontSize);
 		settings.addBoolean(CFG_FONT_BOLD, fontBold);
 		settings.addInt(CFG_BORDER_ALPHA, borderAlpha);

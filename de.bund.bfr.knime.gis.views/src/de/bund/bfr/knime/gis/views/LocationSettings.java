@@ -27,7 +27,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 
 public class LocationSettings extends GisSettings {
@@ -110,7 +109,7 @@ public class LocationSettings extends GisSettings {
 		}
 
 		try {
-			nodeMaxSize = KnimeUtils.minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
+			nodeMaxSize = minusOneToNull(settings.getInt(CFG_NODE_MAX_SIZE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -120,7 +119,7 @@ public class LocationSettings extends GisSettings {
 		}
 
 		try {
-			edgeMaxThickness = KnimeUtils.minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
+			edgeMaxThickness = minusOneToNull(settings.getInt(CFG_EDGE_MAX_THICKNESS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -137,9 +136,9 @@ public class LocationSettings extends GisSettings {
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
-		settings.addInt(CFG_NODE_MAX_SIZE, KnimeUtils.nullToMinusOne(nodeMaxSize));
+		settings.addInt(CFG_NODE_MAX_SIZE, nullToMinusOne(nodeMaxSize));
 		settings.addInt(CFG_EDGE_THICKNESS, edgeThickness);
-		settings.addInt(CFG_EDGE_MAX_THICKNESS, KnimeUtils.nullToMinusOne(edgeMaxThickness));
+		settings.addInt(CFG_EDGE_MAX_THICKNESS, nullToMinusOne(edgeMaxThickness));
 		settings.addBoolean(CFG_AVOID_OVERLAY, avoidOverlay);
 	}
 

@@ -144,7 +144,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		List<List<Map<T, Double>>> valuesList = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> andLists : conditions) {

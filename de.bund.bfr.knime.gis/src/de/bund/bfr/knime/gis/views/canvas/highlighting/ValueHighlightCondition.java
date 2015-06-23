@@ -151,7 +151,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Collection<T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
 
 		for (T element : elements) {

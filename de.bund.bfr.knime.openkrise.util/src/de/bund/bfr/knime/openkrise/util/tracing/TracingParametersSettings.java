@@ -26,7 +26,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -175,37 +174,37 @@ public class TracingParametersSettings extends NodeSettings {
 		}
 
 		try {
-			nodeWeightConditionValue = KnimeUtils.nanToNull(settings
+			nodeWeightConditionValue = nanToNull(settings
 					.getDouble(CFG_NODE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeWeightConditionValue = KnimeUtils.nanToNull(settings
+			edgeWeightConditionValue = nanToNull(settings
 					.getDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeContaminationConditionValue = KnimeUtils.falseToNull(settings
+			nodeContaminationConditionValue = falseToNull(settings
 					.getBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeContaminationConditionValue = KnimeUtils.falseToNull(settings
+			edgeContaminationConditionValue = falseToNull(settings
 					.getBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedNodesConditionValue = KnimeUtils.falseToNull(settings
+			observedNodesConditionValue = falseToNull(settings
 					.getBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedEdgesConditionValue = KnimeUtils.falseToNull(settings
+			observedEdgesConditionValue = falseToNull(settings
 					.getBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
@@ -232,18 +231,16 @@ public class TracingParametersSettings extends NodeSettings {
 				SERIALIZER.toXml(edgeContaminationCondition));
 		settings.addString(CFG_OBSERVED_NODES_CONDITION, SERIALIZER.toXml(observedNodesCondition));
 		settings.addString(CFG_OBSERVED_EDGES_CONDITION, SERIALIZER.toXml(observedEdgesCondition));
-		settings.addDouble(CFG_NODE_WEIGHT_CONDITION_VALUE,
-				KnimeUtils.nullToNan(nodeWeightConditionValue));
-		settings.addDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE,
-				KnimeUtils.nullToNan(edgeWeightConditionValue));
+		settings.addDouble(CFG_NODE_WEIGHT_CONDITION_VALUE, nullToNan(nodeWeightConditionValue));
+		settings.addDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE, nullToNan(edgeWeightConditionValue));
 		settings.addBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE,
-				KnimeUtils.nullToFalse(nodeContaminationConditionValue));
+				nullToFalse(nodeContaminationConditionValue));
 		settings.addBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE,
-				KnimeUtils.nullToFalse(edgeContaminationConditionValue));
+				nullToFalse(edgeContaminationConditionValue));
 		settings.addBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE,
-				KnimeUtils.nullToFalse(observedNodesConditionValue));
+				nullToFalse(observedNodesConditionValue));
 		settings.addBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE,
-				KnimeUtils.nullToFalse(observedEdgesConditionValue));
+				nullToFalse(observedEdgesConditionValue));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 

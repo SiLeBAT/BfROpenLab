@@ -40,7 +40,7 @@ public interface HighlightCondition {
 
 	String getLabelProperty();
 
-	<T extends Element> Map<T, Double> getValues(Collection<T> elements);
+	<T extends Element> Map<T, Double> getValues(Collection<? extends T> elements);
 
 	Point2D getValueRange(Collection<? extends Element> elements);
 }

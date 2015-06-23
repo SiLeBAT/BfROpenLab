@@ -123,28 +123,4 @@ public class KnimeUtils {
 			}
 		}
 	}
-
-	public static boolean nullToFalse(Boolean b) {
-		return b != null ? b : false;
-	}
-
-	public static Boolean falseToNull(boolean b) {
-		return b ? b : null;
-	}
-
-	public static double nullToNan(Double d) {
-		return d != null ? d : Double.NaN;
-	}
-
-	public static Double nanToNull(double d) {
-		return !Double.isNaN(d) ? d : null;
-	}
-
-	public static int nullToMinusOne(Integer i) {
-		return i != null ? i : -1;
-	}
-
-	public static Integer minusOneToNull(int i) {
-		return i != -1 ? i : null;
-	}
 }
