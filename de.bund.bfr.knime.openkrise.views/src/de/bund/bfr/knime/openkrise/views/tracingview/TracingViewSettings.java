@@ -83,6 +83,8 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
 	private static final String CFG_NODE_CROSS_CONTAMINATIONS = "CrossContaminations";
 	private static final String CFG_EDGE_CROSS_CONTAMINATIONS = "EdgeCrossContaminations";
+	private static final String CFG_NODE_KILL_CONTAMINATIONS = "NodeKillContaminations";
+	private static final String CFG_EDGE_KILL_CONTAMINATIONS = "EdgeKillContaminations";
 	private static final String CFG_OBSERVED_NODES = "Filter";
 	private static final String CFG_OBSERVED_EDGES = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
@@ -109,6 +111,8 @@ public class TracingViewSettings extends NodeSettings {
 	private Map<String, Double> edgeWeights;
 	private Map<String, Boolean> nodeCrossContaminations;
 	private Map<String, Boolean> edgeCrossContaminations;
+	private Map<String, Boolean> nodeKillContaminations;
+	private Map<String, Boolean> edgeKillContaminations;
 	private Map<String, Boolean> observedNodes;
 	private Map<String, Boolean> observedEdges;
 	private boolean enforeTemporalOrder;
@@ -139,6 +143,8 @@ public class TracingViewSettings extends NodeSettings {
 		edgeWeights = new LinkedHashMap<>();
 		nodeCrossContaminations = new LinkedHashMap<>();
 		edgeCrossContaminations = new LinkedHashMap<>();
+		nodeKillContaminations = new LinkedHashMap<>();
+		edgeKillContaminations = new LinkedHashMap<>();
 		observedNodes = new LinkedHashMap<>();
 		observedEdges = new LinkedHashMap<>();
 		enforeTemporalOrder = true;
@@ -261,6 +267,18 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
+			nodeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_NODE_KILL_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			edgeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
+					.getString(CFG_EDGE_KILL_CONTAMINATIONS));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings
 					.getString(CFG_OBSERVED_NODES));
 		} catch (InvalidSettingsException e) {
@@ -309,6 +327,8 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addString(CFG_EDGE_WEIGHTS, SERIALIZER.toXml(edgeWeights));
 		settings.addString(CFG_NODE_CROSS_CONTAMINATIONS, SERIALIZER.toXml(nodeCrossContaminations));
 		settings.addString(CFG_EDGE_CROSS_CONTAMINATIONS, SERIALIZER.toXml(edgeCrossContaminations));
+		settings.addString(CFG_NODE_KILL_CONTAMINATIONS, SERIALIZER.toXml(nodeKillContaminations));
+		settings.addString(CFG_EDGE_KILL_CONTAMINATIONS, SERIALIZER.toXml(edgeKillContaminations));
 		settings.addString(CFG_OBSERVED_NODES, SERIALIZER.toXml(observedNodes));
 		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
@@ -356,6 +376,8 @@ public class TracingViewSettings extends NodeSettings {
 		edgeWeights = canvas.getEdgeWeights();
 		nodeCrossContaminations = canvas.getNodeCrossContaminations();
 		edgeCrossContaminations = canvas.getEdgeCrossContaminations();
+		nodeKillContaminations = canvas.getNodeKillContaminations();
+		edgeKillContaminations = canvas.getEdgeKillContaminations();
 		observedNodes = canvas.getObservedNodes();
 		observedEdges = canvas.getObservedEdges();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
@@ -394,6 +416,8 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setEdgeWeights(edgeWeights);
 		canvas.setNodeCrossContaminations(nodeCrossContaminations);
 		canvas.setEdgeCrossContaminations(edgeCrossContaminations);
+		canvas.setNodeKillContaminations(nodeKillContaminations);
+		canvas.setEdgeKillContaminations(edgeKillContaminations);
 		canvas.setObservedNodes(observedNodes);
 		canvas.setObservedEdges(observedEdges);
 		canvas.setEnforceTemporalOrder(enforeTemporalOrder);
@@ -566,6 +590,22 @@ public class TracingViewSettings extends NodeSettings {
 
 	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
 		this.edgeCrossContaminations = edgeCrossContaminations;
+	}
+
+	public Map<String, Boolean> getNodeKillContaminations() {
+		return nodeKillContaminations;
+	}
+
+	public void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations) {
+		this.nodeKillContaminations = nodeKillContaminations;
+	}
+
+	public Map<String, Boolean> getEdgeKillContaminations() {
+		return edgeKillContaminations;
+	}
+
+	public void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations) {
+		this.edgeKillContaminations = edgeKillContaminations;
 	}
 
 	public Map<String, Boolean> getObservedNodes() {

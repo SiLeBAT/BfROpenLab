@@ -39,6 +39,8 @@ public class Tracing {
 	private Map<String, Double> deliveryWeights;
 	private Set<String> ccStations;
 	private Set<String> ccDeliveries;
+	private Set<String> killContaminationStations;
+	private Set<String> killContaminationDeliveries;
 
 	private transient Map<String, Delivery> deliveryMap;
 	private transient Map<String, Set<String>> incomingDeliveries;
@@ -68,6 +70,8 @@ public class Tracing {
 		ccStations = new LinkedHashSet<>();
 		deliveryWeights = new LinkedHashMap<>();
 		ccDeliveries = new LinkedHashSet<>();
+		killContaminationStations = new LinkedHashSet<>();
+		killContaminationDeliveries = new LinkedHashSet<>();
 	}
 
 	public void setStationWeight(String stationId, double priority) {
@@ -102,6 +106,22 @@ public class Tracing {
 		}
 	}
 
+	public void setKillContaminationOfStation(String stationId, boolean enabled) {
+		if (enabled) {
+			killContaminationStations.add(stationId);
+		} else {
+			killContaminationStations.remove(stationId);
+		}
+	}
+
+	public void setKillContaminationOfDelivery(String deliveryId, boolean enabled) {
+		if (enabled) {
+			killContaminationDeliveries.add(deliveryId);
+		} else {
+			killContaminationDeliveries.remove(deliveryId);
+		}
+	}
+
 	public void mergeStations(Set<String> toBeMerged, String mergedStationId) {
 		for (Delivery d : deliveries) {
 			if (toBeMerged.contains(d.getSupplierId())) {
@@ -128,6 +148,11 @@ public class Tracing {
 		}
 
 		for (String stationId : ccStations) {
+			if (!incomingDeliveries.containsKey(stationId)
+					|| !outgoingDeliveries.containsKey(stationId)) {
+				continue;
+			}
+
 			for (String inId : incomingDeliveries.get(stationId)) {
 				Delivery in = deliveryMap.get(inId);
 
@@ -179,6 +204,31 @@ public class Tracing {
 					}
 				}
 			}
+		}
+
+		for (String stationId : killContaminationStations) {
+			if (!incomingDeliveries.containsKey(stationId)
+					|| !outgoingDeliveries.containsKey(stationId)) {
+				continue;
+			}
+
+			for (String inId : incomingDeliveries.get(stationId)) {
+				deliveryMap.get(inId).getAllNextIds().clear();
+			}
+
+			for (String outId : outgoingDeliveries.get(stationId)) {
+				deliveryMap.get(outId).getAllPreviousIds().clear();
+			}
+		}
+
+		for (String deliveryId : killContaminationDeliveries) {
+			Delivery d = deliveryMap.get(deliveryId);
+
+			for (String next : d.getAllNextIds()) {
+				deliveryMap.get(next).getAllPreviousIds().remove(deliveryId);
+			}
+
+			d.getAllNextIds().clear();
 		}
 
 		Result result = new Result();

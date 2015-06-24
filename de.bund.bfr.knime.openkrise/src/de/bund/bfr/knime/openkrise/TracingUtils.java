@@ -414,6 +414,11 @@ public class TracingUtils {
 			properties.put(TracingColumns.CROSS_CONTAMINATION, false);
 		}
 
+		if (schema.getMap().containsKey(TracingColumns.KILL_CONTAMINATION)
+				&& properties.get(TracingColumns.KILL_CONTAMINATION) == null) {
+			properties.put(TracingColumns.KILL_CONTAMINATION, false);
+		}
+
 		if (schema.getMap().containsKey(TracingColumns.OBSERVED)
 				&& properties.get(TracingColumns.OBSERVED) == null) {
 			properties.put(TracingColumns.OBSERVED, false);

@@ -30,6 +30,7 @@ public interface TracingColumns {
 	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String WEIGHT = "Weight";
 	public static final String CROSS_CONTAMINATION = "CrossContamination";
+	public static final String KILL_CONTAMINATION = "Kill Contamination";
 	public static final String SCORE = "Score";
 	public static final String NORMALIZED_SCORE = "Normalized Score";
 

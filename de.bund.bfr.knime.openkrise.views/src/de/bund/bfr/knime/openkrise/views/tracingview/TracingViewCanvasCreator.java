@@ -80,6 +80,7 @@ public class TracingViewCanvasCreator {
 
 		nodeProperties.put(TracingColumns.WEIGHT, Double.class);
 		nodeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
+		nodeProperties.put(TracingColumns.KILL_CONTAMINATION, Boolean.class);
 		nodeProperties.put(TracingColumns.OBSERVED, Boolean.class);
 		nodeProperties.put(TracingColumns.SCORE, Double.class);
 		nodeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);
@@ -88,6 +89,7 @@ public class TracingViewCanvasCreator {
 
 		edgeProperties.put(TracingColumns.WEIGHT, Double.class);
 		edgeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
+		edgeProperties.put(TracingColumns.KILL_CONTAMINATION, Boolean.class);
 		edgeProperties.put(TracingColumns.OBSERVED, Boolean.class);
 		edgeProperties.put(TracingColumns.SCORE, Double.class);
 		edgeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);

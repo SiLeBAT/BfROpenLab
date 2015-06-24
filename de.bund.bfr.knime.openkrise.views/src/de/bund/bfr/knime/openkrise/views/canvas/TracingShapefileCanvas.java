@@ -97,6 +97,26 @@ public class TracingShapefileCanvas extends LocationCanvas implements
 	}
 
 	@Override
+	public Map<String, Boolean> getNodeKillContaminations() {
+		return tracing.getNodeKillContaminations();
+	}
+
+	@Override
+	public void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations) {
+		tracing.setNodeKillContaminations(nodeKillContaminations);
+	}
+
+	@Override
+	public Map<String, Boolean> getEdgeKillContaminations() {
+		return tracing.getEdgeKillContaminations();
+	}
+
+	@Override
+	public void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations) {
+		tracing.setEdgeKillContaminations(edgeKillContaminations);
+	}
+
+	@Override
 	public Map<String, Boolean> getObservedNodes() {
 		return tracing.getObservedNodes();
 	}

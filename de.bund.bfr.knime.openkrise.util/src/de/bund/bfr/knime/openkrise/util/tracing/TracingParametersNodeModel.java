@@ -116,6 +116,8 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, Double> edgeWeights;
 		Map<String, Boolean> crossNodes;
 		Map<String, Boolean> crossEdges;
+		Map<String, Boolean> killNodes;
+		Map<String, Boolean> killEdges;
 
 		if (set.getNodeWeightConditionValue() != null) {
 			nodeWeights = createConditionMap(nodes.values(), set.getNodeWeightCondition(),
@@ -145,6 +147,20 @@ public class TracingParametersNodeModel extends NodeModel {
 			crossEdges = getCopyWithoutNullValues(set.getEdgeCrossContaminations(), false);
 		}
 
+		if (set.getNodeKillConditionValue() != null) {
+			killNodes = createConditionMap(nodes.values(), set.getNodeKillCondition(),
+					set.getNodeKillConditionValue(), false);
+		} else {
+			killNodes = getCopyWithoutNullValues(set.getNodeKillContaminations(), false);
+		}
+
+		if (set.getEdgeKillConditionValue() != null) {
+			killEdges = createConditionMap(edges, set.getEdgeKillCondition(),
+					set.getEdgeKillConditionValue(), false);
+		} else {
+			killEdges = getCopyWithoutNullValues(set.getEdgeKillContaminations(), false);
+		}
+
 		for (Map.Entry<String, Double> entry : nodeWeights.entrySet()) {
 			tracing.setStationWeight(entry.getKey(), entry.getValue());
 		}
@@ -159,6 +175,14 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		for (Map.Entry<String, Boolean> entry : crossEdges.entrySet()) {
 			tracing.setCrossContaminationOfDelivery(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<String, Boolean> entry : killNodes.entrySet()) {
+			tracing.setKillContaminationOfStation(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<String, Boolean> entry : killEdges.entrySet()) {
+			tracing.setKillContaminationOfDelivery(entry.getKey(), entry.getValue());
 		}
 
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
@@ -224,6 +248,8 @@ public class TracingParametersNodeModel extends NodeModel {
 					.containsKey(id) ? nodeWeights.get(id) : 0.0);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossNodes.containsKey(id) ? crossNodes.get(id) : false);
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.KILL_CONTAMINATION)] = IO
+					.createCell(killNodes.containsKey(id) ? killNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedNodes.containsKey(id) ? observedNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(nodeScores
@@ -261,6 +287,8 @@ public class TracingParametersNodeModel extends NodeModel {
 					.containsKey(id) ? edgeWeights.get(id) : 0.0);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossEdges.containsKey(id) ? crossEdges.get(id) : false);
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.KILL_CONTAMINATION)] = IO
+					.createCell(killEdges.containsKey(id) ? killEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedEdges.containsKey(id) ? observedEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(edgeScores
@@ -349,6 +377,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
@@ -379,6 +408,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
+		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
 		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
 		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);

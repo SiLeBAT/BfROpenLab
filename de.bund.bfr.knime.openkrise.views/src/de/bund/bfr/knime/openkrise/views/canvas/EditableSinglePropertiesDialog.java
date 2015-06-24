@@ -56,6 +56,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 
 	private JTextField caseField;
 	private JCheckBox contaminationBox;
+	private JCheckBox killBox;
 	private JCheckBox observedBox;
 
 	private boolean approved;
@@ -66,31 +67,26 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		this.element = element;
 
 		Map<String, Object> values = element.getProperties();
-		double weight = 0.0;
-		boolean crossContamination = false;
-		boolean observed = false;
-
-		if (values.get(TracingColumns.WEIGHT) != null) {
-			weight = (Double) values.get(TracingColumns.WEIGHT);
-		}
-
-		if (values.get(TracingColumns.CROSS_CONTAMINATION) != null) {
-			crossContamination = (Boolean) values.get(TracingColumns.CROSS_CONTAMINATION);
-		}
-
-		if (values.get(TracingColumns.OBSERVED) != null) {
-			observed = (Boolean) values.get(TracingColumns.OBSERVED);
-		}
+		double weight = values.get(TracingColumns.WEIGHT) != null ? (Double) values
+				.get(TracingColumns.WEIGHT) : 0.0;
+		boolean crossContamination = values.get(TracingColumns.CROSS_CONTAMINATION) != null ? (Boolean) values
+				.get(TracingColumns.CROSS_CONTAMINATION) : false;
+		boolean killContamination = values.get(TracingColumns.KILL_CONTAMINATION) != null ? (Boolean) values
+				.get(TracingColumns.KILL_CONTAMINATION) : false;
+		boolean observed = values.get(TracingColumns.OBSERVED) != null ? (Boolean) values
+				.get(TracingColumns.OBSERVED) : false;
 
 		caseField = new JTextField(8);
 		caseField.setText(String.valueOf(weight));
 		contaminationBox = new JCheckBox("", crossContamination);
+		killBox = new JCheckBox("", killContamination);
 		observedBox = new JCheckBox("", observed);
 
 		JPanel inputPanel = UI.createOptionsPanel("Input", Arrays.asList(new JLabel(
 				TracingColumns.WEIGHT + ":"), new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
-				new JLabel(TracingColumns.OBSERVED + ":")), Arrays.asList(caseField,
-				contaminationBox, observedBox));
+				new JLabel(TracingColumns.KILL_CONTAMINATION + ":"), new JLabel(
+						TracingColumns.OBSERVED + ":")), Arrays.asList(caseField, contaminationBox,
+				killBox, observedBox));
 		List<JLabel> tracingLabels = Arrays.asList(new JLabel(TracingColumns.SCORE + ":"),
 				new JLabel(TracingColumns.NORMALIZED_SCORE + ":"), new JLabel(
 						TracingColumns.BACKWARD + ":"), new JLabel(TracingColumns.FORWARD + ":"));
@@ -110,6 +106,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 
 		otherProperties.remove(TracingColumns.WEIGHT);
 		otherProperties.remove(TracingColumns.CROSS_CONTAMINATION);
+		otherProperties.remove(TracingColumns.KILL_CONTAMINATION);
 		otherProperties.remove(TracingColumns.OBSERVED);
 		otherProperties.remove(TracingColumns.SCORE);
 		otherProperties.remove(TracingColumns.NORMALIZED_SCORE);
@@ -173,6 +170,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 
 			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 					contaminationBox.isSelected());
+			element.getProperties().put(TracingColumns.KILL_CONTAMINATION, killBox.isSelected());
 			element.getProperties().put(TracingColumns.OBSERVED, observedBox.isSelected());
 			approved = true;
 			dispose();

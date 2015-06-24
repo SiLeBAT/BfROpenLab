@@ -7,7 +7,7 @@
 <entry key="authored-by" type="xstring" value="thoens"/>
 <entry key="authored-when" type="xstring" value="2014-08-20 10:42:10 +0200"/>
 <entry key="lastEdited-by" type="xstring" value="thoens"/>
-<entry key="lastEdited-when" type="xstring" value="2015-06-18 17:39:33 +0200"/>
+<entry key="lastEdited-when" type="xstring" value="2015-06-24 13:15:34 +0200"/>
 </config>
 <entry key="customDescription" type="xstring" isnull="true" value=""/>
 <entry key="state" type="xstring" value="CONFIGURED"/>
@@ -159,14 +159,14 @@
 </config>
 <config key="connection_5">
 <entry key="sourceID" type="xint" value="301"/>
-<entry key="destID" type="xint" value="300"/>
-<entry key="sourcePort" type="xint" value="2"/>
+<entry key="destID" type="xint" value="299"/>
+<entry key="sourcePort" type="xint" value="1"/>
 <entry key="destPort" type="xint" value="1"/>
 </config>
 <config key="connection_6">
 <entry key="sourceID" type="xint" value="301"/>
-<entry key="destID" type="xint" value="299"/>
-<entry key="sourcePort" type="xint" value="1"/>
+<entry key="destID" type="xint" value="300"/>
+<entry key="sourcePort" type="xint" value="2"/>
 <entry key="destPort" type="xint" value="1"/>
 </config>
 <config key="connection_7">

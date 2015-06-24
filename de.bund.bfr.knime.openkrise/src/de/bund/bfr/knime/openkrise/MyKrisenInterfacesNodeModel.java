@@ -705,9 +705,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE)
 				.createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE)
-		.createSpec());
+				.createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE)
-		.createSpec());
+				.createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE)
 				.createSpec());
 

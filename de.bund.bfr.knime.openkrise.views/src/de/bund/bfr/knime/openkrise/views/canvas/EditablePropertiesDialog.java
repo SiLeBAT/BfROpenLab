@@ -87,6 +87,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 	private JButton selectButton;
 	private JButton weightButton;
 	private JButton contaminationButton;
+	private JButton killButton;
 	private JButton filterButton;
 
 	private boolean approved;
@@ -116,6 +117,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 
 		uneditableSchema.getMap().remove(TracingColumns.WEIGHT);
 		uneditableSchema.getMap().remove(TracingColumns.CROSS_CONTAMINATION);
+		uneditableSchema.getMap().remove(TracingColumns.KILL_CONTAMINATION);
 		uneditableSchema.getMap().remove(TracingColumns.OBSERVED);
 
 		elementList = new ArrayList<>(elements);
@@ -141,6 +143,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		weightButton.addActionListener(this);
 		contaminationButton = new JButton("Set All " + TracingColumns.CROSS_CONTAMINATION);
 		contaminationButton.addActionListener(this);
+		killButton = new JButton("Set All " + TracingColumns.KILL_CONTAMINATION);
+		killButton.addActionListener(this);
 		filterButton = new JButton("Set All " + TracingColumns.OBSERVED);
 		filterButton.addActionListener(this);
 
@@ -149,6 +153,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		cornerPanel.setLayout(new GridLayout(1, 3));
 		cornerPanel.add(getTableHeaderComponent(TracingColumns.WEIGHT));
 		cornerPanel.add(getTableHeaderComponent(TracingColumns.CROSS_CONTAMINATION));
+		cornerPanel.add(getTableHeaderComponent(TracingColumns.KILL_CONTAMINATION));
 		cornerPanel.add(getTableHeaderComponent(TracingColumns.OBSERVED));
 
 		scrollPane = new JScrollPane();
@@ -177,18 +182,10 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 			buttons.add(selectButton);
 		}
 
-		if (schema.getMap().containsKey(TracingColumns.WEIGHT)) {
-			buttons.add(weightButton);
-		}
-
-		if (schema.getMap().containsKey(TracingColumns.CROSS_CONTAMINATION)) {
-			buttons.add(contaminationButton);
-		}
-
-		if (schema.getMap().containsKey(TracingColumns.OBSERVED)) {
-			buttons.add(filterButton);
-		}
-
+		buttons.add(weightButton);
+		buttons.add(contaminationButton);
+		buttons.add(killButton);
+		buttons.add(filterButton);
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(UI.createHorizontalPanel(buttons.toArray(new JButton[0]))),
 				BorderLayout.NORTH);
@@ -230,6 +227,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 				element.getProperties().put(TracingColumns.WEIGHT, input.getWeight());
 				element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
 						input.isCrossContamination());
+				element.getProperties().put(TracingColumns.KILL_CONTAMINATION,
+						input.isKillContamination());
 				element.getProperties().put(TracingColumns.OBSERVED, input.isObserved());
 			}
 
@@ -279,9 +278,23 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 
 				setAllValuesTo(TracingColumns.WEIGHT, value);
 			}
-		} else if (e.getSource() == contaminationButton) {
-			Object result = JOptionPane.showInputDialog(this, "Set All Values to?",
-					TracingColumns.CROSS_CONTAMINATION, JOptionPane.QUESTION_MESSAGE, null,
+		} else {
+			String property = null;
+
+			if (e.getSource() == contaminationButton) {
+				property = TracingColumns.CROSS_CONTAMINATION;
+			} else if (e.getSource() == killButton) {
+				property = TracingColumns.KILL_CONTAMINATION;
+			} else if (e.getSource() == filterButton) {
+				property = TracingColumns.OBSERVED;
+			}
+
+			if (property == null) {
+				return;
+			}
+
+			Object result = JOptionPane.showInputDialog(this, "Set All Values to?", property,
+					JOptionPane.QUESTION_MESSAGE, null,
 					new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
@@ -289,19 +302,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 					inputTable.getCellEditor().stopCellEditing();
 				}
 
-				setAllValuesTo(TracingColumns.CROSS_CONTAMINATION, result);
-			}
-		} else if (e.getSource() == filterButton) {
-			Object result = JOptionPane.showInputDialog(this, "Set All Values to?",
-					TracingColumns.OBSERVED, JOptionPane.QUESTION_MESSAGE, null, new Boolean[] {
-							Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
-
-			if (result != null) {
-				if (inputTable.isEditing()) {
-					inputTable.getCellEditor().stopCellEditing();
-				}
-
-				setAllValuesTo(TracingColumns.OBSERVED, result);
+				setAllValuesTo(property, result);
 			}
 		}
 	}
@@ -370,6 +371,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 				input.setWeight((Double) value);
 			} else if (column.equals(TracingColumns.CROSS_CONTAMINATION)) {
 				input.setCrossContamination((Boolean) value);
+			} else if (column.equals(TracingColumns.KILL_CONTAMINATION)) {
+				input.setKillContamination((Boolean) value);
 			} else if (column.equals(TracingColumns.OBSERVED)) {
 				input.setObserved((Boolean) value);
 			}

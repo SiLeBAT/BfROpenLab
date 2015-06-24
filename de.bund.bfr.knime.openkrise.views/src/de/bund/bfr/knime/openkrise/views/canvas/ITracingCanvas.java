@@ -42,6 +42,14 @@ public interface ITracingCanvas<V extends Node> extends ICanvas<V> {
 
 	void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations);
 
+	Map<String, Boolean> getNodeKillContaminations();
+
+	void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations);
+
+	Map<String, Boolean> getEdgeKillContaminations();
+
+	void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations);
+
 	Map<String, Boolean> getObservedNodes();
 
 	void setObservedNodes(Map<String, Boolean> observedNodes);

@@ -57,6 +57,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	private TableInputPanel<Double> edgeWeightPanel;
 	private TableInputPanel<Boolean> nodeContaminationPanel;
 	private TableInputPanel<Boolean> edgeContaminationPanel;
+	private TableInputPanel<Boolean> nodeKillPanel;
+	private TableInputPanel<Boolean> edgeKillPanel;
 	private TableInputPanel<Boolean> nodeFilterPanel;
 	private TableInputPanel<Boolean> edgeFilterPanel;
 	private JCheckBox enforceTempBox;
@@ -70,17 +72,23 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		edgeWeightPanel = new TableInputPanel<>(Double.class, TableInputPanel.Type.EDGE);
 		nodeContaminationPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.NODE);
 		edgeContaminationPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
+		nodeKillPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.NODE);
+		edgeKillPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
 		nodeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.NODE);
 		edgeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
 		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab(TracingUtils.NAMING.Node() + " Weights", nodeWeightPanel);
-		addTab(TracingUtils.NAMING.Edge() + " Weights", edgeWeightPanel);
-		addTab(TracingUtils.NAMING.Node() + " Cross Contaminations", nodeContaminationPanel);
-		addTab(TracingUtils.NAMING.Edge() + " Cross Contaminations", edgeContaminationPanel);
-		addTab("Observed " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
-		addTab("Observed " + TracingUtils.NAMING.Edges(), edgeFilterPanel);
+		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.WEIGHT, nodeWeightPanel);
+		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.WEIGHT, edgeWeightPanel);
+		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.CROSS_CONTAMINATION,
+				nodeContaminationPanel);
+		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.CROSS_CONTAMINATION,
+				edgeContaminationPanel);
+		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.KILL_CONTAMINATION, nodeKillPanel);
+		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
+		addTab(TracingColumns.OBSERVED + " " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
+		addTab(TracingColumns.OBSERVED + " " + TracingUtils.NAMING.Edges(), edgeFilterPanel);
 	}
 
 	@Override
@@ -112,6 +120,10 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				set.getNodeContaminationCondition(), set.getNodeContaminationConditionValue());
 		edgeContaminationPanel.update(edges, edgeSchema, set.getEdgeCrossContaminations(),
 				set.getEdgeContaminationCondition(), set.getEdgeContaminationConditionValue());
+		nodeKillPanel.update(nodes.values(), nodeSchema, set.getNodeKillContaminations(),
+				set.getNodeKillCondition(), set.getNodeKillConditionValue());
+		edgeKillPanel.update(edges, edgeSchema, set.getEdgeKillContaminations(),
+				set.getEdgeKillCondition(), set.getEdgeKillConditionValue());
 		nodeFilterPanel.update(nodes.values(), nodeSchema, set.getObservedNodes(),
 				set.getObservedNodesCondition(), set.getObservedNodesConditionValue());
 		edgeFilterPanel.update(edges, edgeSchema, set.getObservedEdges(),
@@ -143,6 +155,14 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		set.setEdgeCrossContaminations(edgeContaminationPanel.getValues());
 		set.setEdgeContaminationCondition(edgeContaminationPanel.getCondition());
 		set.setEdgeContaminationConditionValue(edgeContaminationPanel.getValueForAll());
+
+		set.setNodeKillContaminations(nodeKillPanel.getValues());
+		set.setNodeKillCondition(nodeKillPanel.getCondition());
+		set.setNodeKillConditionValue(nodeKillPanel.getValueForAll());
+
+		set.setEdgeKillContaminations(edgeKillPanel.getValues());
+		set.setEdgeKillCondition(edgeKillPanel.getCondition());
+		set.setEdgeKillConditionValue(edgeKillPanel.getValueForAll());
 
 		set.setObservedNodes(nodeFilterPanel.getValues());
 		set.setObservedNodesCondition(nodeFilterPanel.getCondition());

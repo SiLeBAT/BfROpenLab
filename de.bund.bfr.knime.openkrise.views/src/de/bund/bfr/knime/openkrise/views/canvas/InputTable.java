@@ -52,24 +52,16 @@ public class InputTable extends JTable {
 		List<Input> inputs = new ArrayList<>();
 
 		for (Element e : elements) {
-			double weight = 0.0;
-			boolean crossContamination = false;
-			boolean observed = false;
+			double weight = e.getProperties().get(TracingColumns.WEIGHT) != null ? (Double) e
+					.getProperties().get(TracingColumns.WEIGHT) : 0.0;
+			boolean crossContamination = e.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null ? (Boolean) e
+					.getProperties().get(TracingColumns.CROSS_CONTAMINATION) : false;
+			boolean killContamination = e.getProperties().get(TracingColumns.KILL_CONTAMINATION) != null ? (Boolean) e
+					.getProperties().get(TracingColumns.KILL_CONTAMINATION) : false;
+			boolean observed = e.getProperties().get(TracingColumns.OBSERVED) != null ? (Boolean) e
+					.getProperties().get(TracingColumns.OBSERVED) : false;
 
-			if (e.getProperties().get(TracingColumns.WEIGHT) != null) {
-				weight = (Double) e.getProperties().get(TracingColumns.WEIGHT);
-			}
-
-			if (e.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null) {
-				crossContamination = (Boolean) e.getProperties().get(
-						TracingColumns.CROSS_CONTAMINATION);
-			}
-
-			if (e.getProperties().get(TracingColumns.OBSERVED) != null) {
-				observed = (Boolean) e.getProperties().get(TracingColumns.OBSERVED);
-			}
-
-			inputs.add(new Input(weight, crossContamination, observed));
+			inputs.add(new Input(weight, crossContamination, killContamination, observed));
 		}
 
 		setModel(new InputTableModel(inputs));
@@ -82,11 +74,14 @@ public class InputTable extends JTable {
 
 		private double weight;
 		private boolean crossContamination;
+		private boolean killContamination;
 		private boolean observed;
 
-		public Input(double weight, boolean crossContamination, boolean observed) {
+		public Input(double weight, boolean crossContamination, boolean killContamination,
+				boolean observed) {
 			this.weight = weight;
 			this.crossContamination = crossContamination;
+			this.killContamination = killContamination;
 			this.observed = observed;
 		}
 
@@ -104,6 +99,14 @@ public class InputTable extends JTable {
 
 		public void setCrossContamination(boolean crossContamination) {
 			this.crossContamination = crossContamination;
+		}
+
+		public boolean isKillContamination() {
+			return killContamination;
+		}
+
+		public void setKillContamination(boolean killContamination) {
+			this.killContamination = killContamination;
 		}
 
 		public boolean isObserved() {
@@ -177,10 +180,12 @@ public class InputTable extends JTable {
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
-			panel.setLayout(new GridLayout(1, 3, 1, 0));
+			panel.setLayout(new GridLayout(1, 4, 1, 0));
 			panel.add(getTableRendererComponent(input.getWeight(), Double.class, isSelected,
 					hasFocus));
 			panel.add(getTableRendererComponent(input.isCrossContamination(), Boolean.class,
+					isSelected, hasFocus));
+			panel.add(getTableRendererComponent(input.isKillContamination(), Boolean.class,
 					isSelected, hasFocus));
 			panel.add(getTableRendererComponent(input.isObserved(), Boolean.class, isSelected,
 					hasFocus));
@@ -206,6 +211,7 @@ public class InputTable extends JTable {
 
 		private JTable weightTable;
 		private JTable ccTable;
+		private JTable killTable;
 		private JTable observedTable;
 
 		private JTextField weightField;
@@ -213,6 +219,7 @@ public class InputTable extends JTable {
 		public InputEditor() {
 			weightTable = new JTable(new SimpleModel(Double.class));
 			ccTable = new JTable(new SimpleModel(Boolean.class));
+			killTable = new JTable(new SimpleModel(Boolean.class));
 			observedTable = new JTable(new SimpleModel(Boolean.class));
 		}
 
@@ -225,6 +232,7 @@ public class InputTable extends JTable {
 
 			double weight = 0.0;
 			boolean cc = false;
+			boolean kill = false;
 			boolean observed = false;
 
 			try {
@@ -238,11 +246,16 @@ public class InputTable extends JTable {
 			}
 
 			try {
+				kill = (Boolean) killTable.getValueAt(0, 0);
+			} catch (ClassCastException | NullPointerException e) {
+			}
+
+			try {
 				observed = (Boolean) observedTable.getValueAt(0, 0);
 			} catch (ClassCastException | NullPointerException e) {
 			}
 
-			return new Input(weight, cc, observed);
+			return new Input(weight, cc, kill, observed);
 		}
 
 		@Override
@@ -251,14 +264,17 @@ public class InputTable extends JTable {
 			Input input = (Input) value;
 			TableCellEditor weightEditor = weightTable.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
+			TableCellEditor killEditor = ccTable.getDefaultEditor(Boolean.class);
 			TableCellEditor observedEditor = observedTable.getDefaultEditor(Boolean.class);
 
 			weightEditor.addCellEditorListener(this);
 			ccEditor.addCellEditorListener(this);
+			killEditor.addCellEditorListener(this);
 			observedEditor.addCellEditorListener(this);
 
 			weightTable.setValueAt(input.getWeight(), 0, 0);
 			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
+			killTable.setValueAt(input.isKillContamination(), 0, 0);
 			observedTable.setValueAt(input.isObserved(), 0, 0);
 			weightField = (JTextField) weightEditor.getTableCellEditorComponent(weightTable,
 					input.getWeight(), isSelected, 0, 0);
@@ -266,10 +282,12 @@ public class InputTable extends JTable {
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
-			panel.setLayout(new GridLayout(1, 3, 1, 0));
+			panel.setLayout(new GridLayout(1, 4, 1, 0));
 			panel.add(weightField);
 			panel.add(ccEditor.getTableCellEditorComponent(ccTable, input.isCrossContamination(),
 					isSelected, 0, 0));
+			panel.add(killEditor.getTableCellEditorComponent(killTable,
+					input.isKillContamination(), isSelected, 0, 0));
 			panel.add(observedEditor.getTableCellEditorComponent(observedTable, input.isObserved(),
 					isSelected, 0, 0));
 
@@ -280,6 +298,7 @@ public class InputTable extends JTable {
 		public void editingStopped(ChangeEvent e) {
 			TableCellEditor weightEditor = weightTable.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
+			TableCellEditor killEditor = killTable.getDefaultEditor(Boolean.class);
 			TableCellEditor observedEditor = observedTable.getDefaultEditor(Boolean.class);
 
 			if (e.getSource() == weightEditor) {
@@ -288,6 +307,10 @@ public class InputTable extends JTable {
 
 			if (e.getSource() == ccEditor) {
 				ccTable.setValueAt(ccEditor.getCellEditorValue(), 0, 0);
+			}
+
+			if (e.getSource() == killEditor) {
+				killTable.setValueAt(killEditor.getCellEditorValue(), 0, 0);
 			}
 
 			if (e.getSource() == observedEditor) {
