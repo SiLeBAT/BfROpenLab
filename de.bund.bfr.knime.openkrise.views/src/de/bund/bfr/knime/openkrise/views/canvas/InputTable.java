@@ -264,7 +264,7 @@ public class InputTable extends JTable {
 			Input input = (Input) value;
 			TableCellEditor weightEditor = weightTable.getDefaultEditor(Double.class);
 			TableCellEditor ccEditor = ccTable.getDefaultEditor(Boolean.class);
-			TableCellEditor killEditor = ccTable.getDefaultEditor(Boolean.class);
+			TableCellEditor killEditor = killTable.getDefaultEditor(Boolean.class);
 			TableCellEditor observedEditor = observedTable.getDefaultEditor(Boolean.class);
 
 			weightEditor.addCellEditorListener(this);

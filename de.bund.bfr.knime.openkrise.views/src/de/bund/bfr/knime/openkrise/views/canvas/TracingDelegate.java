@@ -595,19 +595,15 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				edge.getProperties().put(TracingColumns.FORWARD, false);
 
 				for (Edge<V> e : joinMap.get(edge)) {
-					Boolean observed = (Boolean) e.getProperties().get(TracingColumns.OBSERVED);
-					Boolean backward = (Boolean) e.getProperties().get(TracingColumns.BACKWARD);
-					Boolean forward = (Boolean) e.getProperties().get(TracingColumns.FORWARD);
-
-					if (observed) {
+					if ((Boolean) e.getProperties().get(TracingColumns.OBSERVED)) {
 						edge.getProperties().put(TracingColumns.OBSERVED, true);
 					}
 
-					if (backward) {
+					if ((Boolean) e.getProperties().get(TracingColumns.BACKWARD)) {
 						edge.getProperties().put(TracingColumns.BACKWARD, true);
 					}
 
-					if (forward) {
+					if ((Boolean) e.getProperties().get(TracingColumns.FORWARD)) {
 						edge.getProperties().put(TracingColumns.FORWARD, true);
 					}
 				}
