@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.math3.stat.StatUtils;
-
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.google.common.primitives.Doubles;
 
 public class Tracing {
 
@@ -47,7 +45,7 @@ public class Tracing {
 	private transient Map<String, Set<String>> outgoingDeliveries;
 	private transient Map<String, Set<String>> backwardDeliveries;
 	private transient Map<String, Set<String>> forwardDeliveries;
-	private transient double weightSum;
+	private transient double weightDenom;
 
 	public Tracing(Collection<Delivery> deliveries) {
 		Set<String> allIds = new LinkedHashSet<>();
@@ -74,32 +72,32 @@ public class Tracing {
 		killContaminationDeliveries = new LinkedHashSet<>();
 	}
 
-	public void setStationWeight(String stationId, double priority) {
-		if (priority > 0) {
-			stationWeights.put(stationId, priority);
-		} else {
+	public void setStationWeight(String stationId, double weight) {
+		if (weight == 0.0) {
 			stationWeights.remove(stationId);
-		}
-	}
-
-	public void setDeliveryWeight(String deliveryId, double priority) {
-		if (priority > 0) {
-			deliveryWeights.put(deliveryId, priority);
 		} else {
-			deliveryWeights.remove(deliveryId);
+			stationWeights.put(stationId, weight);
 		}
 	}
 
-	public void setCrossContaminationOfStation(String stationId, boolean possible) {
-		if (possible) {
+	public void setDeliveryWeight(String deliveryId, double weight) {
+		if (weight == 0.0) {
+			deliveryWeights.remove(deliveryId);
+		} else {
+			deliveryWeights.put(deliveryId, weight);
+		}
+	}
+
+	public void setCrossContaminationOfStation(String stationId, boolean enabled) {
+		if (enabled) {
 			ccStations.add(stationId);
 		} else {
 			ccStations.remove(stationId);
 		}
 	}
 
-	public void setCrossContaminationOfDelivery(String deliveryId, boolean possible) {
-		if (possible) {
+	public void setCrossContaminationOfDelivery(String deliveryId, boolean enabled) {
+		if (enabled) {
 			ccDeliveries.add(deliveryId);
 		} else {
 			ccDeliveries.remove(deliveryId);
@@ -135,12 +133,22 @@ public class Tracing {
 	}
 
 	public Result getResult(boolean enforceTemporalOrder) {
+		double positiveWeightSum = 0.0;
+		double negativeWeightSum = 0.0;
+
+		for (double w : Iterables.concat(stationWeights.values(), deliveryWeights.values())) {
+			if (w > 0.0) {
+				positiveWeightSum += w;
+			} else {
+				negativeWeightSum -= w;
+			}
+		}
+
+		weightDenom = Math.max(positiveWeightSum, negativeWeightSum);
 		incomingDeliveries = getIncomingDeliveries(deliveries);
 		outgoingDeliveries = getOutgoingDeliveries(deliveries);
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
-		weightSum = StatUtils.sum(Doubles.toArray(stationWeights.values()))
-				+ StatUtils.sum(Doubles.toArray(deliveryWeights.values()));
 		deliveryMap = new LinkedHashMap<>();
 
 		for (Delivery d : deliveries) {
@@ -254,55 +262,93 @@ public class Tracing {
 	}
 
 	private double getStationScore(String id) {
-		if (weightSum == 0.0) {
+		if (weightDenom == 0.0) {
 			return 0.0;
 		}
 
-		double sum = 0.0;
+		double pos = 0.0;
+		double neg = 0.0;
 
 		if (stationWeights.containsKey(id)) {
-			sum += stationWeights.get(id);
+			double w = stationWeights.get(id);
+
+			if (w > 0.0) {
+				pos += w;
+			} else {
+				neg -= w;
+			}
 		}
 
 		for (String stationId : getForwardStations(id)) {
 			if (stationWeights.containsKey(stationId)) {
-				sum += stationWeights.get(stationId);
+				double w = stationWeights.get(stationId);
+
+				if (w > 0.0) {
+					pos += w;
+				} else {
+					neg -= w;
+				}
 			}
 		}
 
 		for (String deliveryId : getForwardDeliveries(id)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
-				sum += deliveryWeights.get(deliveryId);
+				double w = deliveryWeights.get(deliveryId);
+
+				if (w > 0.0) {
+					pos += w;
+				} else {
+					neg -= w;
+				}
 			}
 		}
 
-		return sum / weightSum;
+		return pos / weightDenom - neg / weightDenom;
 	}
 
 	private double getDeliveryScore(Delivery d) {
-		if (weightSum == 0.0) {
+		if (weightDenom == 0.0) {
 			return 0.0;
 		}
 
-		double sum = 0.0;
+		double pos = 0.0;
+		double neg = 0.0;
 
 		if (deliveryWeights.containsKey(d.getId())) {
-			sum += deliveryWeights.get(d.getId());
+			double w = deliveryWeights.get(d.getId());
+
+			if (w > 0.0) {
+				pos += w;
+			} else {
+				neg -= w;
+			}
 		}
 
 		for (String stationId : getForwardStations(d)) {
 			if (stationWeights.containsKey(stationId)) {
-				sum += stationWeights.get(stationId);
+				double w = stationWeights.get(stationId);
+
+				if (w > 0.0) {
+					pos += w;
+				} else {
+					neg -= w;
+				}
 			}
 		}
 
 		for (String deliveryId : getForwardDeliveries(d)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
-				sum += deliveryWeights.get(deliveryId);
+				double w = deliveryWeights.get(deliveryId);
+
+				if (w > 0.0) {
+					pos += w;
+				} else {
+					neg -= w;
+				}
 			}
 		}
 
-		return sum / weightSum;
+		return pos / weightDenom - neg / weightDenom;
 	}
 
 	private Set<String> getForwardStations(String stationID) {
