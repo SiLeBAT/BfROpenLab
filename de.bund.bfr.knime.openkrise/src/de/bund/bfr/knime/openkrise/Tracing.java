@@ -266,44 +266,25 @@ public class Tracing {
 			return 0.0;
 		}
 
-		double pos = 0.0;
-		double neg = 0.0;
+		double sum = 0.0;
 
 		if (stationWeights.containsKey(id)) {
-			double w = stationWeights.get(id);
-
-			if (w > 0.0) {
-				pos += w;
-			} else {
-				neg -= w;
-			}
+			sum += stationWeights.get(id);
 		}
 
 		for (String stationId : getForwardStations(id)) {
 			if (stationWeights.containsKey(stationId)) {
-				double w = stationWeights.get(stationId);
-
-				if (w > 0.0) {
-					pos += w;
-				} else {
-					neg -= w;
-				}
+				sum += stationWeights.get(stationId);
 			}
 		}
 
 		for (String deliveryId : getForwardDeliveries(id)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
-				double w = deliveryWeights.get(deliveryId);
-
-				if (w > 0.0) {
-					pos += w;
-				} else {
-					neg -= w;
-				}
+				sum += deliveryWeights.get(deliveryId);
 			}
 		}
 
-		return pos / weightDenom - neg / weightDenom;
+		return sum / weightDenom;
 	}
 
 	private double getDeliveryScore(Delivery d) {
@@ -311,44 +292,25 @@ public class Tracing {
 			return 0.0;
 		}
 
-		double pos = 0.0;
-		double neg = 0.0;
+		double sum = 0.0;
 
 		if (deliveryWeights.containsKey(d.getId())) {
-			double w = deliveryWeights.get(d.getId());
-
-			if (w > 0.0) {
-				pos += w;
-			} else {
-				neg -= w;
-			}
+			sum += deliveryWeights.get(d.getId());
 		}
 
 		for (String stationId : getForwardStations(d)) {
 			if (stationWeights.containsKey(stationId)) {
-				double w = stationWeights.get(stationId);
-
-				if (w > 0.0) {
-					pos += w;
-				} else {
-					neg -= w;
-				}
+				sum += stationWeights.get(stationId);
 			}
 		}
 
 		for (String deliveryId : getForwardDeliveries(d)) {
 			if (deliveryWeights.containsKey(deliveryId)) {
-				double w = deliveryWeights.get(deliveryId);
-
-				if (w > 0.0) {
-					pos += w;
-				} else {
-					neg -= w;
-				}
+				sum += deliveryWeights.get(deliveryId);
 			}
 		}
 
-		return pos / weightDenom - neg / weightDenom;
+		return sum / weightDenom;
 	}
 
 	private Set<String> getForwardStations(String stationID) {
