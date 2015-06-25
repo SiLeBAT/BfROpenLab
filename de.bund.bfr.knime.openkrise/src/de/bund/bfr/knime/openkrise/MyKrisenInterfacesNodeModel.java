@@ -56,6 +56,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 /**
@@ -67,8 +68,6 @@ import de.bund.bfr.knime.openkrise.db.DBKernel;
 public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	static final String PARAM_FILENAME = "filename";
-	static final String PARAM_LOGIN = "login";
-	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
 
 	static final String PARAM_ANONYMIZE = "anonymize";
@@ -77,8 +76,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	static final String PARAM_RANDOMLINKING = "randomgeneratorlinking";
 
 	private String filename;
-	private String login;
-	private String passwd;
 	private boolean override;
 
 	private boolean doAnonymize;
@@ -116,8 +113,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			rng.getLinks(output33Links);
 			rng.getDeliveryDelivery(deliveryDelivery);
 		} else {
-			Connection conn = override ? getNewLocalConnection(login, passwd, filename)
-					: getLocalConn();
+			String f = KnimeUtils.getFile(filename).getAbsolutePath();
+			Connection conn = override ? getNewLocalConnection("SA", "", f) : getLocalConn();
 			output33Nodes = exec.createDataContainer(getSpec33Nodes(conn));
 			output33Links = exec.createDataContainer(getSpec33Links(conn));
 			// if (doAnonymize) doAnonymizeHard(conn);
@@ -904,8 +901,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 
 		settings.addString(PARAM_FILENAME, filename);
-		settings.addString(PARAM_LOGIN, login);
-		settings.addString(PARAM_PASSWD, passwd);
 		settings.addBoolean(PARAM_OVERRIDE, override);
 
 		settings.addBoolean(PARAM_ANONYMIZE, doAnonymize);
@@ -923,8 +918,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 
 		filename = settings.getString(PARAM_FILENAME);
-		login = settings.getString(PARAM_LOGIN);
-		passwd = settings.getString(PARAM_PASSWD);
 		override = settings.getBoolean(PARAM_OVERRIDE);
 
 		doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);

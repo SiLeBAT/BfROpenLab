@@ -82,8 +82,6 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
 
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, dbui.getFilename());
-		settings.addString(MyKrisenInterfacesNodeModel.PARAM_LOGIN, dbui.getLogin());
-		settings.addString(MyKrisenInterfacesNodeModel.PARAM_PASSWD, dbui.getPasswd());
 		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride());
 
 		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected());
@@ -102,8 +100,6 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		try {
 
 			dbui.setFilename(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME));
-			dbui.setLogin(settings.getString(MyKrisenInterfacesNodeModel.PARAM_LOGIN));
-			dbui.setPasswd(settings.getString(MyKrisenInterfacesNodeModel.PARAM_PASSWD));
 			dbui.setOverride(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
 
 			doAnonymize.setSelected(settings
