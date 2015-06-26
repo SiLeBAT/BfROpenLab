@@ -140,7 +140,7 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 	}
 
 	public String getFilename() {
-		return connField.getText() + "/DB";
+		return connField.getText();
 	}
 
 	public void saveSettingsTo(Config c) {

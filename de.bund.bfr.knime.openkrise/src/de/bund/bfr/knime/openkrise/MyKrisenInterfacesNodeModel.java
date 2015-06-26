@@ -113,7 +113,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			rng.getLinks(output33Links);
 			rng.getDeliveryDelivery(deliveryDelivery);
 		} else {
-			String f = KnimeUtils.getFile(filename).getAbsolutePath();
+			String f = KnimeUtils.getFile(filename + "/DB").getAbsolutePath();
 			Connection conn = override ? getNewLocalConnection("SA", "", f) : getLocalConn();
 			output33Nodes = exec.createDataContainer(getSpec33Nodes(conn));
 			output33Links = exec.createDataContainer(getSpec33Links(conn));
