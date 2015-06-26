@@ -58,8 +58,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			independentVariables = KnimeUtils.stringToList(settings
-					.getString(CFG_INDEPENDENT_VARIABLES));
+			independentVariables = KnimeUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 	}

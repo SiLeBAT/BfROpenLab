@@ -84,8 +84,7 @@ public class KnimeUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<DataColumnSpec> getColumns(DataTableSpec spec,
-			Class<? extends DataValue>... types) {
+	public static List<DataColumnSpec> getColumns(DataTableSpec spec, Class<? extends DataValue>... types) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {

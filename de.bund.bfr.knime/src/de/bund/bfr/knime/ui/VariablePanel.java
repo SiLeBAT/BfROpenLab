@@ -53,8 +53,7 @@ import com.google.common.collect.HashBiMap;
 
 import de.bund.bfr.knime.UI;
 
-public class VariablePanel extends JPanel implements ActionListener, TextListener, ChangeListener,
-		MouseListener {
+public class VariablePanel extends JPanel implements ActionListener, TextListener, ChangeListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,8 +75,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 	private boolean instantSliders;
 
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
-			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges,
-			boolean instantSliders) {
+			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
 		this.variables = variables;
 		this.minValues = minValues;
 		this.maxValues = maxValues;
@@ -100,8 +98,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		for (Map.Entry<String, List<Double>> entry : variables.entrySet()) {
 			String var = entry.getKey();
 
-			selectedValues.put(var,
-					new ArrayList<>(Collections.nCopies(entry.getValue().size(), true)));
+			selectedValues.put(var, new ArrayList<>(Collections.nCopies(entry.getValue().size(), true)));
 
 			if (multiSelection) {
 				JButton selectButton = new JButton(var + " Values");
@@ -244,8 +241,8 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 				slider.setEnabled(true);
 				slider.removeChangeListener(this);
-				slider.setValue(field.getValue() != null ? doubleToInt(field.getValue(),
-						minValues.get(var), maxValues.get(var)) : 0);
+				slider.setValue(field.getValue() != null
+						? doubleToInt(field.getValue(), minValues.get(var), maxValues.get(var)) : 0);
 				slider.addChangeListener(this);
 			}
 		}
@@ -264,8 +261,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 			if (slider != null && slider.isEnabled()) {
 				slider.removeChangeListener(this);
-				slider.setValue(doubleToInt(field.getValue(), minValues.get(var),
-						maxValues.get(var)));
+				slider.setValue(doubleToInt(field.getValue(), minValues.get(var), maxValues.get(var)));
 				slider.addChangeListener(this);
 			}
 
@@ -347,8 +343,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		private JButton cancelButton;
 
 		public SelectDialog(String title, List<Double> values, List<Boolean> initialSelected) {
-			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title,
-					DEFAULT_MODALITY_TYPE);
+			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title, DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			selected = null;
@@ -365,8 +360,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			centerPanel.setLayout(new GridLayout(values.size(), 1, 5, 5));
 
 			for (int i = 0; i < values.size(); i++) {
-				JCheckBox box = new JCheckBox(NumberFormat.getInstance(Locale.US).format(
-						values.get(i)));
+				JCheckBox box = new JCheckBox(NumberFormat.getInstance(Locale.US).format(values.get(i)));
 
 				box.setSelected(initialSelected.get(i));
 				box.addActionListener(this);
@@ -376,8 +370,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 			setLayout(new BorderLayout());
 			add(centerPanel, BorderLayout.CENTER);
-			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-					BorderLayout.SOUTH);
+			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 			pack();
 
 			setResizable(false);
@@ -437,8 +430,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		private JButton cancelButton;
 
 		public RangeDialog(String title, Double initialMin, Double initialMax) {
-			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title,
-					DEFAULT_MODALITY_TYPE);
+			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title, DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			min = null;
@@ -455,10 +447,9 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 			setLayout(new BorderLayout());
 			add(UI.createHorizontalPanel(UI.createOptionsPanel(null,
-					Arrays.asList(new JLabel("Min:"), new JLabel("Max:")),
-					Arrays.asList(minField, maxField))), BorderLayout.CENTER);
-			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-					BorderLayout.SOUTH);
+					Arrays.asList(new JLabel("Min:"), new JLabel("Max:")), Arrays.asList(minField, maxField))),
+					BorderLayout.CENTER);
+			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 			pack();
 
 			setResizable(false);
@@ -484,8 +475,8 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			if (e.getSource() == okButton) {
 				if (minField.getValue() != null && maxField.getValue() != null
 						&& minField.getValue() >= maxField.getValue()) {
-					JOptionPane.showMessageDialog(okButton, "Min must be smaller than Max",
-							"Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(okButton, "Min must be smaller than Max", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 
 				approved = true;

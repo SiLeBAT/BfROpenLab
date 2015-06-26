@@ -53,8 +53,7 @@ public class LocationCanvasUtils {
 	}
 
 	public static void updateNodeLocations(Collection<LocationNode> nodes,
-			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize,
-			boolean avoidOverlay) {
+			Layout<LocationNode, Edge<LocationNode>> layout, Transform transform, int nodeSize, boolean avoidOverlay) {
 		if (!avoidOverlay) {
 			for (LocationNode n : nodes) {
 				layout.setLocation(n, n.getCenter());
@@ -117,8 +116,8 @@ public class LocationCanvasUtils {
 		}
 	}
 
-	public static Polygon placeNodes(Collection<LocationNode> nodes,
-			Collection<Edge<LocationNode>> edges, Layout<LocationNode, Edge<LocationNode>> layout) {
+	public static Polygon placeNodes(Collection<LocationNode> nodes, Collection<Edge<LocationNode>> edges,
+			Layout<LocationNode, Edge<LocationNode>> layout) {
 		Polygon invalidArea = null;
 
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
@@ -170,9 +169,8 @@ public class LocationCanvasUtils {
 			double d = 0.2 * size;
 			double r = 0.02 * size;
 
-			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d,
-					bounds.getY() - d, bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d),
-					2 * r);
+			invalidArea = GisUtils.createBorderPolygon(new Rectangle2D.Double(bounds.getX() - d, bounds.getY() - d,
+					bounds.getWidth() + 2 * d, bounds.getHeight() + 2 * d), 2 * r);
 
 			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
 					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
@@ -243,17 +241,16 @@ public class LocationCanvasUtils {
 		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics imgGraphics = invalidAreaImage.getGraphics();
 
-		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE,
-				Arrays.asList(Color.RED, Color.WHITE), Arrays.asList(1.0, 1.0), false));
+		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
+				Arrays.asList(1.0, 1.0), false));
 		((Graphics2D) imgGraphics).fill(invalidArea);
 		imgGraphics.setColor(Color.BLACK);
 		((Graphics2D) imgGraphics).draw(invalidArea);
 		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
 	}
 
-	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes,
-			NodePropertySchema nodeSchema, String metaNodeProperty,
-			Layout<LocationNode, Edge<LocationNode>> layout) {
+	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
+			String metaNodeProperty, Layout<LocationNode, Edge<LocationNode>> layout) {
 		Map<String, Object> properties = new LinkedHashMap<>();
 
 		for (LocationNode node : nodes) {

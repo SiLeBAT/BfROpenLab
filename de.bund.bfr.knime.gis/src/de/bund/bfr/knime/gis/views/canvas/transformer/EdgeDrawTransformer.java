@@ -42,14 +42,13 @@ public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>,
 		this(renderContext, new LinkedHashMap<Edge<V>, List<Double>>(), new ArrayList<Color>());
 	}
 
-	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext,
-			Map<Edge<V>, List<Double>> alphaValues, List<Color> colors) {
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext, Map<Edge<V>, List<Double>> alphaValues,
+			List<Color> colors) {
 		this.renderContext = renderContext;
 		edgeColors = new LinkedHashMap<>();
 
 		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
-			edgeColors.put(entry.getKey(),
-					CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
+			edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
 		}
 	}
 

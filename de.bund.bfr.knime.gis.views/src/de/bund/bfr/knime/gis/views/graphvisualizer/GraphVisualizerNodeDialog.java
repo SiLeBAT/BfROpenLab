@@ -59,8 +59,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
 		set.getGraphSettings().loadSettings(settings);
@@ -77,8 +76,8 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog((JButton) e.getSource(),
-				nodeTable.getSpec(), edgeTable.getSpec(), set);
+		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog((JButton) e.getSource(), nodeTable.getSpec(),
+				edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -93,8 +92,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable,
-				edgeTable, set);
+		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable, edgeTable, set);
 
 		try {
 			canvas = creator.createGraphCanvas();
@@ -103,8 +101,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 

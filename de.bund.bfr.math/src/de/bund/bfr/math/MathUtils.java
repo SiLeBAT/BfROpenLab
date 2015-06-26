@@ -73,8 +73,7 @@ public class MathUtils {
 
 				if (matches && start && end) {
 					String orginal = newFormular.substring(i - 1, i + var.length() + 1);
-					String replacement = newFormular.charAt(i - 1) + newVar
-							+ newFormular.charAt(i + var.length());
+					String replacement = newFormular.charAt(i - 1) + newVar + newFormular.charAt(i + var.length());
 
 					newFormular = newFormular.replace(orginal, replacement);
 					foundReplacement = true;
@@ -139,8 +138,8 @@ public class MathUtils {
 			return null;
 		}
 
-		return numSample * Math.log(sse / numSample) + 2.0 * (numParam + 1.0) + 2.0
-				* (numParam + 1.0) * (numParam + 2.0) / (numSample - numParam - 2.0);
+		return numSample * Math.log(sse / numSample) + 2.0 * (numParam + 1.0)
+				+ 2.0 * (numParam + 1.0) * (numParam + 2.0) / (numSample - numParam - 2.0);
 	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
@@ -210,8 +209,8 @@ public class MathUtils {
 		}
 
 		@Override
-		public Node differentiate(ASTFunNode node, String var, Node[] children, Node[] dchildren,
-				DJep djep) throws ParseException {
+		public Node differentiate(ASTFunNode node, String var, Node[] children, Node[] dchildren, DJep djep)
+				throws ParseException {
 			return djep.getNodeFactory().buildConstantNode(0.0);
 		}
 

@@ -202,8 +202,7 @@ public class Plotable {
 		this.degreesOfFreedom = degreesOfFreedom;
 	}
 
-	public double[][] getDataPoints(String paramX, String paramY, Transform transformX,
-			Transform transformY) {
+	public double[][] getDataPoints(String paramX, String paramY, Transform transformX, Transform transformY) {
 		double[] xList = valueLists.get(paramX);
 		double[] yList = valueLists.get(paramY);
 
@@ -240,8 +239,8 @@ public class Plotable {
 		return pointsArray;
 	}
 
-	public double[][] getFunctionPoints(String varX, Transform transformX, Transform transformY,
-			double minX, double maxX) throws ParseException {
+	public double[][] getFunctionPoints(String varX, Transform transformX, Transform transformY, double minX,
+			double maxX) throws ParseException {
 		Map<String, Double> parserConstants = createParserConstants(varX);
 
 		if (function == null || parserConstants == null) {
@@ -256,8 +255,7 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
-		double[] convertedYs = Evaluator.getFunctionPoints(parserConstants, function, varX,
-				convertedXs);
+		double[] convertedYs = Evaluator.getFunctionPoints(parserConstants, function, varX, convertedXs);
 
 		if (convertedYs == null) {
 			return null;
@@ -286,8 +284,8 @@ public class Plotable {
 		return points;
 	}
 
-	public double[][] getFunctionErrors(String varX, Transform transformX, Transform transformY,
-			double minX, double maxX, boolean prediction) throws ParseException {
+	public double[][] getFunctionErrors(String varX, Transform transformX, Transform transformY, double minX,
+			double maxX, boolean prediction) throws ParseException {
 		Map<String, Double> parserConstants = createParserConstants(varX);
 
 		if (function == null || parserConstants == null || covarianceMatrixMissing()) {
@@ -302,8 +300,8 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
-		double[] convertedYs = Evaluator.getFunctionErrors(parserConstants, function, varX,
-				convertedXs, covariances, prediction ? mse : 0.0, degreesOfFreedom);
+		double[] convertedYs = Evaluator.getFunctionErrors(parserConstants, function, varX, convertedXs, covariances,
+				prediction ? mse : 0.0, degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;
@@ -332,8 +330,8 @@ public class Plotable {
 		return points;
 	}
 
-	public double[][] getDiffPoints(String varX, Transform transformX, Transform transformY,
-			double minX, double maxX) throws ParseException {
+	public double[][] getDiffPoints(String varX, Transform transformX, Transform transformY, double minX, double maxX)
+			throws ParseException {
 		Map<String, Double> parserConstants = createParserConstants(varX);
 
 		if (parserConstants == null || functions.isEmpty() || !varX.equals(diffVariable)) {
@@ -349,11 +347,9 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
-		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
-				stepSize / 10.0);
-		double[] convertedYs = Evaluator.getDiffPoints(parserConstants, functions, initValues,
-				initParameters, conditionLists, dependentVariable, independentVariables, varX,
-				convertedXs, integrator);
+		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
+		double[] convertedYs = Evaluator.getDiffPoints(parserConstants, functions, initValues, initParameters,
+				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator);
 
 		if (convertedYs == null) {
 			return null;
@@ -382,12 +378,11 @@ public class Plotable {
 		return points;
 	}
 
-	public double[][] getDiffErrors(String varX, Transform transformX, Transform transformY,
-			double minX, double maxX, boolean prediction) throws ParseException {
+	public double[][] getDiffErrors(String varX, Transform transformX, Transform transformY, double minX, double maxX,
+			boolean prediction) throws ParseException {
 		Map<String, Double> parserConstants = createParserConstants(varX);
 
-		if (parserConstants == null || functions.isEmpty() || !varX.equals(diffVariable)
-				|| covarianceMatrixMissing()) {
+		if (parserConstants == null || functions.isEmpty() || !varX.equals(diffVariable) || covarianceMatrixMissing()) {
 			return null;
 		}
 
@@ -400,11 +395,10 @@ public class Plotable {
 			convertedXs[i] = transformX.from(xs[i]);
 		}
 
-		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA,
-				stepSize / 10.0);
-		double[] convertedYs = Evaluator.getDiffErrors(parserConstants, functions, initValues,
-				initParameters, conditionLists, dependentVariable, independentVariables, varX,
-				convertedXs, integrator, covariances, prediction ? mse : 0.0, degreesOfFreedom);
+		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
+		double[] convertedYs = Evaluator.getDiffErrors(parserConstants, functions, initValues, initParameters,
+				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, covariances,
+				prediction ? mse : 0.0, degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;
@@ -444,8 +438,7 @@ public class Plotable {
 	}
 
 	private boolean isPlotable() {
-		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION, Type.DATA_FUNCTION,
-				Type.DATA_DIFF);
+		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION, Type.DATA_FUNCTION, Type.DATA_DIFF);
 		List<Type> typesWithData = Arrays.asList(Type.DATA, Type.DATA_FUNCTION, Type.DATA_DIFF);
 
 		if (typesWithParams.contains(type) && parameters.values().contains(null)) {

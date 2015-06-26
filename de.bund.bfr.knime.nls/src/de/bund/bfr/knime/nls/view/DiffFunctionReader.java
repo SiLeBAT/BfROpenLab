@@ -48,8 +48,7 @@ public class DiffFunctionReader implements Reader {
 	}
 
 	public DiffFunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
-			BufferedDataTable varTable, BufferedDataTable conditionTable,
-			BufferedDataTable covarianceTable) {
+			BufferedDataTable varTable, BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns;
 
@@ -97,8 +96,7 @@ public class DiffFunctionReader implements Reader {
 			plotable.getInitParameters().putAll(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
-			plotable.getIndependentVariables().putAll(
-					NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
+			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
 			plotable.getValueLists().putAll(NlsUtils.getDiffVariableValues(varTable, id, f));
 			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
 

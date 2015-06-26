@@ -92,17 +92,14 @@ public class ParameterOptimizer {
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, double[] timeValues,
-			double[] targetValues, String dependentVariable, String timeVariable,
-			Map<String, double[]> variableValues, IntegratorFactory integrator)
-			throws ParseException {
+			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
+			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
+			IntegratorFactory integrator) throws ParseException {
 		this(parameters, targetValues);
-		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues,
-				initParameters, parameters, variableValues, timeValues, dependentVariable,
-				timeVariable, integrator);
-		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas, dependentVariables,
-				initValues, initParameters, parameters, variableValues, timeValues,
-				dependentVariable, timeVariable, integrator);
+		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
+				variableValues, timeValues, dependentVariable, timeVariable, integrator);
+		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
+				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
 	}
 
 	public Map<String, Double> getMinValues() {
@@ -165,8 +162,7 @@ public class ParameterOptimizer {
 			}
 		}
 
-		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount,
-				paramStepSize, nLevenberg);
+		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize, nLevenberg);
 
 		optimize(startValuesList, stopWhenSuccessful);
 	}
@@ -257,8 +253,8 @@ public class ParameterOptimizer {
 		}
 	}
 
-	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount,
-			double[] paramStepSize, int n) {
+	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount, double[] paramStepSize,
+			int n) {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -293,8 +289,7 @@ public class ParameterOptimizer {
 				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
 			}
 
-			double error = targetVector.getDistance(new ArrayRealVector(optimizerFunction
-					.value(values)));
+			double error = targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values)));
 
 			if (!Double.isNaN(error)) {
 				valuesList.add(new StartValues(values, error));
@@ -328,9 +323,8 @@ public class ParameterOptimizer {
 	}
 
 	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues) {
-		LeastSquaresBuilder builder = new LeastSquaresBuilder()
-				.model(optimizerFunction, optimizerFunctionJacobian).maxEvaluations(MAX_EVAL)
-				.maxIterations(MAX_EVAL).target(targetValues).start(startValues);
+		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
+				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder = builder.parameterValidator(new ParameterValidator() {

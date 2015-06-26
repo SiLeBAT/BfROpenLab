@@ -43,8 +43,8 @@ public class VectorFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)),
-				variableValues.keySet()));
+		parser = MathUtils
+				.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 
 		for (double[] values : variableValues.values()) {

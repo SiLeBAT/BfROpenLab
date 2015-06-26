@@ -66,8 +66,7 @@ public class IssuesDownload {
 
 		for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
 				repository.listIssues(GHIssueState.CLOSED))) {
-			if (issue.getMilestone() != null
-					&& issue.getMilestone().getTitle().equals("Non-FoodChain-Lab")) {
+			if (issue.getMilestone() != null && issue.getMilestone().getTitle().equals("Non-FoodChain-Lab")) {
 				continue;
 			}
 

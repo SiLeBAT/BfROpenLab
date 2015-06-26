@@ -70,8 +70,7 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 		add(UI.createWestPanel(allBox), BorderLayout.NORTH);
 		add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-				BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
 		getRootPane().setDefaultButton(okButton);

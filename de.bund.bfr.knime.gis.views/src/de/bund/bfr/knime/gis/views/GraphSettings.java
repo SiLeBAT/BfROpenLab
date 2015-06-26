@@ -165,15 +165,13 @@ public class GraphSettings extends Settings {
 		}
 
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
-					settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_POSITIONS));
+			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings.getString(CFG_NODE_POSITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -218,32 +216,30 @@ public class GraphSettings extends Settings {
 		}
 
 		try {
-			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_NODES));
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			selectedEdges = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_EDGES));
+			selectedEdges = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER.fromXml(settings
-					.getString(CFG_COLLAPSED_NODES));
+			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
+					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 

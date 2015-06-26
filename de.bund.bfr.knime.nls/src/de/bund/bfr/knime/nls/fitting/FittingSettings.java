@@ -84,20 +84,17 @@ public class FittingSettings extends NlsNodeSettings {
 		}
 
 		try {
-			minStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_MIN_START_VALUES));
+			minStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MIN_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			maxStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_MAX_START_VALUES));
+			maxStartValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MAX_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			startValues = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_START_VALUES));
+			startValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_START_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 

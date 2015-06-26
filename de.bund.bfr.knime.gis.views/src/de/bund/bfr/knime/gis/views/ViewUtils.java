@@ -75,8 +75,8 @@ public class ViewUtils {
 		return tableColumns;
 	}
 
-	public static Map<String, String> getIdToRegionMap(BufferedDataTable nodeTable,
-			String nodeIdColumn, String nodeRegionColumn) throws InvalidSettingsException {
+	public static Map<String, String> getIdToRegionMap(BufferedDataTable nodeTable, String nodeIdColumn,
+			String nodeRegionColumn) throws InvalidSettingsException {
 		Map<String, String> idToRegionMap = new LinkedHashMap<>();
 		int idIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int regionIndex = nodeTable.getSpec().findColumnIndex(nodeRegionColumn);
@@ -101,8 +101,8 @@ public class ViewUtils {
 		return idToRegionMap;
 	}
 
-	public static Map<String, MultiPolygon> readPolygons(BufferedDataTable shapeTable,
-			String shapeColumn, String shapeRegionColumn) throws InvalidSettingsException {
+	public static Map<String, MultiPolygon> readPolygons(BufferedDataTable shapeTable, String shapeColumn,
+			String shapeRegionColumn) throws InvalidSettingsException {
 		Map<String, MultiPolygon> polygonMap = new LinkedHashMap<>();
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumn);
 		int shapeRegionIndex = shapeTable.getSpec().findColumnIndex(shapeRegionColumn);
@@ -129,7 +129,7 @@ public class ViewUtils {
 
 	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable,
 			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String nodeRegionColumn)
-			throws InvalidSettingsException {
+					throws InvalidSettingsException {
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
 		int nodeRegionIndex = nodeTable.getSpec().findColumnIndex(nodeRegionColumn);
@@ -180,8 +180,7 @@ public class ViewUtils {
 			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
-				nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(),
-						(MultiPolygon) shape));
+				nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(), (MultiPolygon) shape));
 				index++;
 			}
 		}
@@ -192,7 +191,7 @@ public class ViewUtils {
 	public static Map<String, RegionNode> readRegionNodes(BufferedDataTable nodeTable,
 			Map<String, Class<?>> nodeProperties, Map<String, MultiPolygon> polygonMap,
 			Map<String, String> idToRegionMap, String nodeIdColumn, Set<String> nonExistingRegions)
-			throws InvalidSettingsException {
+					throws InvalidSettingsException {
 		Map<String, RegionNode> nodes = new LinkedHashMap<>();
 		Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<>();
 		int nodeIdIndex = nodeTable.getSpec().findColumnIndex(nodeIdColumn);
@@ -249,8 +248,8 @@ public class ViewUtils {
 	}
 
 	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
-			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String latitudeColumn,
-			String longitudeColumn) throws InvalidSettingsException {
+			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String latitudeColumn, String longitudeColumn)
+					throws InvalidSettingsException {
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		int latIndex = nodeTable.getSpec().findColumnIndex(latitudeColumn);
 		int lonIndex = nodeTable.getSpec().findColumnIndex(longitudeColumn);
@@ -301,9 +300,8 @@ public class ViewUtils {
 	}
 
 	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable edgeTable,
-			Map<String, Class<?>> edgeProperties, Map<String, V> nodes,
-			Map<String, String> idToRegionMap, String edgeFromColumn, String edgeToColumn)
-			throws InvalidSettingsException {
+			Map<String, Class<?>> edgeProperties, Map<String, V> nodes, Map<String, String> idToRegionMap,
+			String edgeFromColumn, String edgeToColumn) throws InvalidSettingsException {
 		List<Edge<V>> edges = new ArrayList<>();
 		int fromIndex = edgeTable.getSpec().findColumnIndex(edgeFromColumn);
 		int toIndex = edgeTable.getSpec().findColumnIndex(edgeToColumn);
@@ -347,8 +345,7 @@ public class ViewUtils {
 		return edges;
 	}
 
-	public static String createNewIdProperty(List<? extends Element> elements,
-			Map<String, Class<?>> properties) {
+	public static String createNewIdProperty(List<? extends Element> elements, Map<String, Class<?>> properties) {
 		String name = KnimeUtils.createNewValue("ID", properties.keySet());
 
 		properties.put(name, String.class);
@@ -360,8 +357,8 @@ public class ViewUtils {
 		return name;
 	}
 
-	private static void addToProperties(Map<String, Object> properties,
-			Map<String, Class<?>> propertyTypes, BufferedDataTable table, DataRow row) {
+	private static void addToProperties(Map<String, Object> properties, Map<String, Class<?>> propertyTypes,
+			BufferedDataTable table, DataRow row) {
 		for (Map.Entry<String, Class<?>> entry : propertyTypes.entrySet()) {
 			int column = table.getSpec().findColumnIndex(entry.getKey());
 			DataCell cell = row.getCell(column);
@@ -370,8 +367,7 @@ public class ViewUtils {
 		}
 	}
 
-	private static void addCellContentToMap(Map<String, Object> map, String property,
-			Class<?> type, DataCell cell) {
+	private static void addCellContentToMap(Map<String, Object> map, String property, Class<?> type, DataCell cell) {
 		Object obj = null;
 
 		if (type == String.class) {

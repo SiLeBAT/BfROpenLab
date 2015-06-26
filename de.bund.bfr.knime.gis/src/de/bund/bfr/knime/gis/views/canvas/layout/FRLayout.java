@@ -34,7 +34,7 @@ import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeContext {
+public class FRLayout<V, E> extends AbstractLayout<V, E>implements IterativeContext {
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -52,13 +52,12 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 	public FRLayout(Graph<V, E> g) {
 		super(g);
 
-		frVertexData = LazyMap.decorate(new HashMap<V, FRVertexData>(),
-				new Factory<FRVertexData>() {
-					@Override
-					public FRVertexData create() {
-						return new FRVertexData();
-					}
-				});
+		frVertexData = LazyMap.decorate(new HashMap<V, FRVertexData>(), new Factory<FRVertexData>() {
+			@Override
+			public FRVertexData create() {
+				return new FRVertexData();
+			}
+		});
 	}
 
 	@Override
@@ -166,8 +165,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 		double newXDisp = fvd.getX() / deltaLength * Math.min(deltaLength, temperature);
 
 		if (Double.isNaN(newXDisp)) {
-			throw new IllegalArgumentException(
-					"Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
+			throw new IllegalArgumentException("Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
 		}
 
 		double newYDisp = fvd.getY() / deltaLength * Math.min(deltaLength, temperature);
@@ -200,8 +198,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 		double force = (deltaLength * deltaLength) / attraction_constant;
 
 		if (Double.isNaN(force)) {
-			throw new IllegalArgumentException(
-					"Unexpected mathematical result in FRLayout:calcPositions [force]");
+			throw new IllegalArgumentException("Unexpected mathematical result in FRLayout:calcPositions [force]");
 		}
 
 		double dx = (xDelta / deltaLength) * force;
@@ -241,14 +238,12 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> implements IterativeCon
 				double xDelta = p1.getX() - p2.getX();
 				double yDelta = p1.getY() - p2.getY();
 
-				double deltaLength = Math.max(EPSILON,
-						Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
+				double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 
 				double force = (repulsion_constant * repulsion_constant) / deltaLength;
 
 				if (Double.isNaN(force)) {
-					throw new RuntimeException(
-							"Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
+					throw new RuntimeException("Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
 				}
 
 				fvd.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);

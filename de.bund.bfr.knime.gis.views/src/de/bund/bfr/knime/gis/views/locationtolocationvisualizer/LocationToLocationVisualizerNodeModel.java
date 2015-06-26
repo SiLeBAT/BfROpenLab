@@ -55,9 +55,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected LocationToLocationVisualizerNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE_OPTIONAL, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] { ImagePortObject.TYPE,
-				ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE_OPTIONAL, BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+				new PortType[] { ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new LocationToLocationVisualizerSettings();
 	}
 
@@ -75,8 +74,8 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 			set.getGisSettings().setGisType(GisType.MAPNIK);
 		}
 
-		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
-				shapeTable, nodeTable, edgeTable, set);
+		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(shapeTable,
+				nodeTable, edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
 		Canvas<LocationNode> gisCanvas = creator.createGisCanvas();
 
@@ -114,8 +113,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

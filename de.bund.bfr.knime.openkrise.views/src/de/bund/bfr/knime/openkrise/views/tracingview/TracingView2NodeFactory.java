@@ -51,8 +51,7 @@ public class TracingView2NodeFactory extends NodeFactory<TracingViewNodeModel> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<TracingViewNodeModel> createNodeView(final int viewIndex,
-			final TracingViewNodeModel nodeModel) {
+	public NodeView<TracingViewNodeModel> createNodeView(final int viewIndex, final TracingViewNodeModel nodeModel) {
 		return null;
 	}
 

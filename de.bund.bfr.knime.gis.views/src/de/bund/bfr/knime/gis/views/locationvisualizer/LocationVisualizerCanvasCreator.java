@@ -56,9 +56,8 @@ public class LocationVisualizerCanvasCreator {
 
 	public Canvas<LocationNode> createCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
-		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(nodeTable,
-				nodeProperties, null, set.getGisSettings().getNodeLatitudeColumn(),
-				set.getGisSettings().getNodeLongitudeColumn()).values());
+		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(nodeTable, nodeProperties, null,
+				set.getGisSettings().getNodeLatitudeColumn(), set.getGisSettings().getNodeLongitudeColumn()).values());
 		String nodeIdProperty = ViewUtils.createNewIdProperty(nodes, nodeProperties);
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, nodeIdProperty);
 
@@ -68,8 +67,7 @@ public class LocationVisualizerCanvasCreator {
 		Canvas<LocationNode> canvas;
 
 		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
-			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings()
-					.getShapeColumn());
+			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn());
 
 			canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING, regions);
 		} else {

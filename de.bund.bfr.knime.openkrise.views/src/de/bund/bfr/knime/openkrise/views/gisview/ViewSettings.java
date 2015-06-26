@@ -29,8 +29,7 @@ import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class ViewSettings extends NodeSettings {
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 

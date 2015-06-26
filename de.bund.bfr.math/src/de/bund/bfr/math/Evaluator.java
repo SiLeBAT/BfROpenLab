@@ -45,8 +45,8 @@ public class Evaluator {
 	private static Map<DiffFunctionConf, double[]> diffResults = new LinkedHashMap<>();
 	private static Map<ErrorDiffFunctionConf, double[]> errorDiffResults = new LinkedHashMap<>();
 
-	public static double[] getFunctionPoints(Map<String, Double> parserConstants, String formula,
-			String varX, double[] valuesX) throws ParseException {
+	public static double[] getFunctionPoints(Map<String, Double> parserConstants, String formula, String varX,
+			double[] valuesX) throws ParseException {
 		FunctionConf function = new FunctionConf(parserConstants, formula, varX, valuesX);
 
 		if (results.containsKey(function)) {
@@ -89,11 +89,11 @@ public class Evaluator {
 		return valuesY;
 	}
 
-	public static double[] getFunctionErrors(Map<String, Double> parserConstants, String formula,
-			String varX, double[] valuesX, Map<String, Map<String, Double>> covariances,
-			double extraVariance, int degreesOfFreedom) throws ParseException {
-		ErrorFunctionConf function = new ErrorFunctionConf(parserConstants, formula, varX, valuesX,
-				covariances, extraVariance, degreesOfFreedom);
+	public static double[] getFunctionErrors(Map<String, Double> parserConstants, String formula, String varX,
+			double[] valuesX, Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom)
+					throws ParseException {
+		ErrorFunctionConf function = new ErrorFunctionConf(parserConstants, formula, varX, valuesX, covariances,
+				extraVariance, degreesOfFreedom);
 
 		if (errorResults.containsKey(function)) {
 			return errorResults.get(function);
@@ -145,8 +145,7 @@ public class Evaluator {
 					String param1 = paramList.get(i);
 					String param2 = paramList.get(j);
 
-					variance += 2.0 * derivValues[i] * derivValues[j]
-							* covariances.get(param1).get(param2);
+					variance += 2.0 * derivValues[i] * derivValues[j] * covariances.get(param1).get(param2);
 				}
 			}
 
@@ -169,14 +168,12 @@ public class Evaluator {
 		return valuesY;
 	}
 
-	public static double[] getDiffPoints(Map<String, Double> parserConstants,
-			Map<String, String> functions, Map<String, Double> initValues,
-			Map<String, String> initParameters, Map<String, double[]> conditionLists,
-			String dependentVariable, Map<String, Double> independentVariables, String varX,
-			double[] valuesX, IntegratorFactory integrator) throws ParseException {
-		DiffFunctionConf function = new DiffFunctionConf(parserConstants, functions, initValues,
-				initParameters, conditionLists, dependentVariable, independentVariables, varX,
-				valuesX, integrator);
+	public static double[] getDiffPoints(Map<String, Double> parserConstants, Map<String, String> functions,
+			Map<String, Double> initValues, Map<String, String> initParameters, Map<String, double[]> conditionLists,
+			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
+			IntegratorFactory integrator) throws ParseException {
+		DiffFunctionConf function = new DiffFunctionConf(parserConstants, functions, initValues, initParameters,
+				conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator);
 
 		if (diffResults.containsKey(function)) {
 			return diffResults.get(function);
@@ -252,17 +249,14 @@ public class Evaluator {
 		return valuesY;
 	}
 
-	public static double[] getDiffErrors(Map<String, Double> parserConstants,
-			Map<String, String> functions, Map<String, Double> initValues,
-			Map<String, String> initParameters, Map<String, double[]> conditionLists,
-			String dependentVariable, Map<String, Double> independentVariables, String varX,
-			double[] valuesX, IntegratorFactory integrator,
-			Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom)
-			throws ParseException {
-		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions,
-				initValues, initParameters, conditionLists, dependentVariable,
-				independentVariables, varX, valuesX, integrator, covariances, extraVariance,
-				degreesOfFreedom);
+	public static double[] getDiffErrors(Map<String, Double> parserConstants, Map<String, String> functions,
+			Map<String, Double> initValues, Map<String, String> initParameters, Map<String, double[]> conditionLists,
+			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
+			IntegratorFactory integrator, Map<String, Map<String, Double>> covariances, double extraVariance,
+			int degreesOfFreedom) throws ParseException {
+		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions, initValues,
+				initParameters, conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
+				covariances, extraVariance, degreesOfFreedom);
 
 		if (errorDiffResults.containsKey(function)) {
 			return errorDiffResults.get(function);
@@ -276,9 +270,8 @@ public class Evaluator {
 			double[] deriv = new double[valuesX.length];
 
 			Arrays.fill(deriv, Double.NaN);
-			executor.execute(new DiffDerivThread(parserConstants, functions, initValues,
-					initParameters, conditionLists, dependentVariable, independentVariables, varX,
-					valuesX, integrator, param, deriv));
+			executor.execute(new DiffDerivThread(parserConstants, functions, initValues, initParameters, conditionLists,
+					dependentVariable, independentVariables, varX, valuesX, integrator, param, deriv));
 			derivValues.put(param, deriv);
 		}
 
@@ -316,8 +309,8 @@ public class Evaluator {
 					String param1 = paramList.get(i);
 					String param2 = paramList.get(j);
 
-					variance += 2.0 * derivValues.get(param1)[index]
-							* derivValues.get(param2)[index] * covariances.get(param1).get(param2);
+					variance += 2.0 * derivValues.get(param1)[index] * derivValues.get(param2)[index]
+							* covariances.get(param1).get(param2);
 
 					if (!MathUtils.isValidDouble(variance)) {
 						continue loop;
@@ -351,8 +344,7 @@ public class Evaluator {
 		private String varX;
 		private double[] valuesX;
 
-		public FunctionConf(Map<String, Double> parserConstants, String formula, String varX,
-				double[] valuesX) {
+		public FunctionConf(Map<String, Double> parserConstants, String formula, String varX, double[] valuesX) {
 			this.parserConstants = parserConstants;
 			this.formula = formula;
 			this.varX = varX;
@@ -380,8 +372,8 @@ public class Evaluator {
 
 			FunctionConf f = (FunctionConf) obj;
 
-			return parserConstants.equals(f.parserConstants) && formula.equals(f.formula)
-					&& varX.equals(f.varX) && Arrays.equals(valuesX, f.valuesX);
+			return parserConstants.equals(f.parserConstants) && formula.equals(f.formula) && varX.equals(f.varX)
+					&& Arrays.equals(valuesX, f.valuesX);
 		}
 	}
 
@@ -391,9 +383,8 @@ public class Evaluator {
 		private double extraVariance;
 		private int degreesOfFreedom;
 
-		public ErrorFunctionConf(Map<String, Double> parserConstants, String formula, String varX,
-				double[] valuesX, Map<String, Map<String, Double>> covariances,
-				double extraVariance, int degreesOfFreedom) {
+		public ErrorFunctionConf(Map<String, Double> parserConstants, String formula, String varX, double[] valuesX,
+				Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom) {
 			super(parserConstants, formula, varX, valuesX);
 			this.covariances = covariances;
 			this.extraVariance = extraVariance;
@@ -442,8 +433,7 @@ public class Evaluator {
 		public DiffFunctionConf(Map<String, Double> parserConstants, Map<String, String> functions,
 				Map<String, Double> initValues, Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
-				Map<String, Double> independentVariables, String varX, double[] valuesX,
-				IntegratorFactory integrator) {
+				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator) {
 			this.parserConstants = parserConstants;
 			this.functions = functions;
 			this.initValues = initValues;
@@ -508,15 +498,13 @@ public class Evaluator {
 		private double extraVariance;
 		private int degreesOfFreedom;
 
-		public ErrorDiffFunctionConf(Map<String, Double> parserConstants,
-				Map<String, String> functions, Map<String, Double> initValues,
-				Map<String, String> initParameters, Map<String, double[]> conditionLists,
-				String dependentVariable, Map<String, Double> independentVariables, String varX,
-				double[] valuesX, IntegratorFactory integrator,
-				Map<String, Map<String, Double>> covariances, double extraVariance,
-				int degreesOfFreedom) {
-			super(parserConstants, functions, initValues, initParameters, conditionLists,
-					dependentVariable, independentVariables, varX, valuesX, integrator);
+		public ErrorDiffFunctionConf(Map<String, Double> parserConstants, Map<String, String> functions,
+				Map<String, Double> initValues, Map<String, String> initParameters,
+				Map<String, double[]> conditionLists, String dependentVariable,
+				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator,
+				Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom) {
+			super(parserConstants, functions, initValues, initParameters, conditionLists, dependentVariable,
+					independentVariables, varX, valuesX, integrator);
 			this.covariances = covariances;
 			this.extraVariance = extraVariance;
 			this.degreesOfFreedom = degreesOfFreedom;
@@ -566,8 +554,8 @@ public class Evaluator {
 		public DiffDerivThread(Map<String, Double> parserConstants, Map<String, String> functions,
 				Map<String, Double> initValues, Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
-				Map<String, Double> independentVariables, String varX, double[] valuesX,
-				IntegratorFactory integrator, String param, double[] deriv) {
+				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator,
+				String param, double[] deriv) {
 			this.parserConstants = parserConstants;
 			this.functions = functions;
 			this.initValues = initValues;
@@ -595,12 +583,10 @@ public class Evaluator {
 			double[] valuesPlus = null;
 
 			try {
-				valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters,
-						conditionLists, dependentVariable, independentVariables, varX, valuesX,
-						integrator);
-				valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters,
-						conditionLists, dependentVariable, independentVariables, varX, valuesX,
-						integrator);
+				valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters, conditionLists,
+						dependentVariable, independentVariables, varX, valuesX, integrator);
+				valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters, conditionLists,
+						dependentVariable, independentVariables, varX, valuesX, integrator);
 			} catch (ParseException e) {
 			}
 

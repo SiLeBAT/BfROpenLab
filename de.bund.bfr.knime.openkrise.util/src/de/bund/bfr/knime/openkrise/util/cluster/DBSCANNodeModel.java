@@ -82,8 +82,8 @@ public class DBSCANNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		BufferedDataTable nodeTable = inData[0];
 
 		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
@@ -102,8 +102,8 @@ public class DBSCANNodeModel extends NodeModel {
 			throw new Exception(GeocodingNodeModel.LONGITUDE_COLUMN + " column missing");
 		}
 
-		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
+		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		Set<String> filteredOut = new LinkedHashSet<>();
 
@@ -131,8 +131,7 @@ public class DBSCANNodeModel extends NodeModel {
 				continue;
 			}
 
-			DoublePoint dp = new DoublePoint(new double[] { Math.toRadians(lat),
-					Math.toRadians(lon) });
+			DoublePoint dp = new DoublePoint(new double[] { Math.toRadians(lat), Math.toRadians(lon) });
 
 			idp.put(row.getKey(), dp);
 			points.add(dp);
@@ -186,8 +185,7 @@ public class DBSCANNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		return new DataTableSpec[] { createSpec(inSpecs[0]) };
 	}
 
@@ -203,8 +201,7 @@ public class DBSCANNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -238,22 +235,21 @@ public class DBSCANNodeModel extends NodeModel {
 			spec[i] = inSpec.getColumnSpec(i);
 		}
 
-		spec[inSpec.getNumColumns()] = new DataColumnSpecCreator(TracingColumns.CLUSTER_ID,
-				IntCell.TYPE).createSpec();
+		spec[inSpec.getNumColumns()] = new DataColumnSpecCreator(TracingColumns.CLUSTER_ID, IntCell.TYPE).createSpec();
 
 		return new DataTableSpec(spec);
 	}
 
 	private List<? extends Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
-		DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(set.getMaxDistance(),
-				set.getMinPoints(), new HaversineDistance());
+		DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(set.getMaxDistance(), set.getMinPoints(),
+				new HaversineDistance());
 
 		return dbscan.cluster(points);
 	}
 
 	private List<? extends Cluster<DoublePoint>> kMeans(List<DoublePoint> points) {
-		KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(
-				set.getNumClusters(), -1, new HaversineDistance());
+		KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(set.getNumClusters(), -1,
+				new HaversineDistance());
 		MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(km, 5);
 
 		return mkm.cluster(points);
@@ -269,8 +265,7 @@ public class DBSCANNodeModel extends NodeModel {
 			double d2LatSin = Math.sin((p2[0] - p1[0]) / 2);
 			double d2LonSin = Math.sin((p2[1] - p1[1]) / 2);
 
-			double a = d2LatSin * d2LatSin + Math.cos(p1[0]) * Math.cos(p2[0]) * d2LonSin
-					* d2LonSin;
+			double a = d2LatSin * d2LatSin + Math.cos(p1[0]) * Math.cos(p2[0]) * d2LonSin * d2LonSin;
 
 			return 2 * AVERAGE_RADIUS_OF_EARTH * Math.asin(Math.sqrt(a));
 		}

@@ -62,8 +62,8 @@ import de.bund.bfr.knime.ui.DoubleTextField;
  * 
  * @author Christian Thoens
  */
-public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane implements
-		ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
+public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
+		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private boolean isDiff;
 	private Reader reader;
@@ -92,8 +92,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane implem
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
 		varTable = (BufferedDataTable) input[1];
@@ -123,10 +122,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane implem
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		configPanel = new ChartConfigPanel(false, false, true);
-		configPanel.init(reader.getDepVar(),
-				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
-				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables().values())),
-				set.getMinStartValues(), set.getMaxStartValues());
+		configPanel.init(reader.getDepVar(), new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
+				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables().values())), set.getMinStartValues(),
+				set.getMaxStartValues());
 		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamValues(set.getStartValues());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
@@ -190,8 +188,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane implem
 			if (isDiff) {
 				reader = new DiffFunctionReader(functionObject, varTable, conditionTable);
 			} else {
-				reader = new FunctionReader(functionObject, varTable, set.getViewSettings()
-						.getVarX());
+				reader = new FunctionReader(functionObject, varTable, set.getViewSettings().getVarX());
 			}
 
 			((JPanel) getTab("Options")).removeAll();

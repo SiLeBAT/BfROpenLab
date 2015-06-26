@@ -36,9 +36,8 @@ public class Delivery {
 	private Set<String> allNextIds;
 	private Set<String> allPreviousIds;
 
-	public Delivery(String id, String supplierId, String recipientId, Integer departureDay,
-			Integer departureMonth, Integer departureYear, Integer arrivalDay,
-			Integer arrivalMonth, Integer arrivalYear) {
+	public Delivery(String id, String supplierId, String recipientId, Integer departureDay, Integer departureMonth,
+			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear) {
 		this.id = id;
 		this.supplierId = supplierId;
 		this.recipientId = recipientId;
@@ -106,8 +105,8 @@ public class Delivery {
 	}
 
 	public Delivery copy() {
-		Delivery copy = new Delivery(id, supplierId, recipientId, departureDay, departureMonth,
-				departureYear, arrivalDay, arrivalMonth, arrivalYear);
+		Delivery copy = new Delivery(id, supplierId, recipientId, departureDay, departureMonth, departureYear,
+				arrivalDay, arrivalMonth, arrivalYear);
 
 		copy.allNextIds = new LinkedHashSet<>(allNextIds);
 		copy.allPreviousIds = new LinkedHashSet<>(allPreviousIds);

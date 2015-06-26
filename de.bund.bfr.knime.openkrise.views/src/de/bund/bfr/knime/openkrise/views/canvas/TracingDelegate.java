@@ -81,9 +81,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	private JCheckBox showForwardBox;
 	private JMenuItem defaultHighlightItem;
 
-	public TracingDelegate(ICanvas<V> canvas, Map<String, V> nodeSaveMap,
-			Map<String, Edge<V>> edgeSaveMap, Map<Edge<V>, Set<Edge<V>>> joinMap,
-			Map<String, Delivery> deliveries) {
+	public TracingDelegate(ICanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
+			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
 		this.edgeSaveMap = edgeSaveMap;
@@ -104,8 +103,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		defaultHighlightItem.addActionListener(this);
 
 		canvas.getOptionsPanel().addOption("Enforce Temporal Order", enforceTemporalOrderBox);
-		canvas.getOptionsPanel().addOption("Show Cross Contaminated " + canvas.getNaming().Edges(),
-				showForwardBox);
+		canvas.getOptionsPanel().addOption("Show Cross Contaminated " + canvas.getNaming().Edges(), showForwardBox);
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
 		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));
@@ -124,8 +122,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
 		for (V node : nodeSaveMap.values()) {
 			if (nodeWeights.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.WEIGHT,
-						nullToZero(nodeWeights.get(node.getId())));
+				node.getProperties().put(TracingColumns.WEIGHT, nullToZero(nodeWeights.get(node.getId())));
 			}
 		}
 
@@ -147,8 +144,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
 		for (Edge<V> edge : edgeSaveMap.values()) {
 			if (edgeWeights.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.WEIGHT,
-						nullToZero(edgeWeights.get(edge.getId())));
+				edge.getProperties().put(TracingColumns.WEIGHT, nullToZero(edgeWeights.get(edge.getId())));
 			}
 		}
 
@@ -257,8 +253,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
 
 		for (V node : nodeSaveMap.values()) {
-			observedNodes.put(node.getId(),
-					(Boolean) node.getProperties().get(TracingColumns.OBSERVED));
+			observedNodes.put(node.getId(), (Boolean) node.getProperties().get(TracingColumns.OBSERVED));
 		}
 
 		return observedNodes;
@@ -267,8 +262,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
 		for (V node : nodeSaveMap.values()) {
 			if (observedNodes.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.OBSERVED,
-						nullToFalse(observedNodes.get(node.getId())));
+				node.getProperties().put(TracingColumns.OBSERVED, nullToFalse(observedNodes.get(node.getId())));
 			}
 		}
 
@@ -281,8 +275,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
 
 		for (Edge<V> edge : edgeSaveMap.values()) {
-			observedEdges.put(edge.getId(),
-					(Boolean) edge.getProperties().get(TracingColumns.OBSERVED));
+			observedEdges.put(edge.getId(), (Boolean) edge.getProperties().get(TracingColumns.OBSERVED));
 		}
 
 		return observedEdges;
@@ -291,8 +284,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
 		for (Edge<V> edge : edgeSaveMap.values()) {
 			if (observedEdges.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.OBSERVED,
-						nullToFalse(observedEdges.get(edge.getId())));
+				edge.getProperties().put(TracingColumns.OBSERVED, nullToFalse(observedEdges.get(edge.getId())));
 			}
 		}
 
@@ -342,8 +334,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 	public void edgePropertiesItemClicked() {
 		if (canvas.isJoinEdges()) {
-			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(canvas,
-					canvas.getSelectedEdges(), canvas.getEdgeSchema(), true);
+			PropertiesDialog<V> dialog = PropertiesDialog.createEdgeDialog(canvas, canvas.getSelectedEdges(),
+					canvas.getEdgeSchema(), true);
 
 			dialog.setVisible(true);
 		} else {
@@ -369,8 +361,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog.createEdgeDialog(canvas,
-				allPicked, canvas.getEdgeSchema(), false);
+		EditablePropertiesDialog<V> dialog = EditablePropertiesDialog.createEdgeDialog(canvas, allPicked,
+				canvas.getEdgeSchema(), false);
 
 		dialog.setVisible(true);
 
@@ -389,8 +381,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		applyTracing();
 		canvas.applyShowEdgesInMetaNode();
 		canvas.applyHighlights();
-		canvas.getViewer().getGraphLayout()
-				.setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
+		canvas.getViewer().getGraphLayout().setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
 
 		canvas.setSelectedNodeIds(selectedNodeIds);
 		canvas.setSelectedEdgeIds(selectedEdgeIds);
@@ -399,10 +390,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 	public void applyInvisibility() {
 		if (!isShowForward()) {
-			CanvasUtils.removeInvisibleElements(canvas.getNodes(),
-					canvas.getNodeHighlightConditions());
-			CanvasUtils.removeInvisibleElements(canvas.getEdges(),
-					canvas.getEdgeHighlightConditions());
+			CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
+			CanvasUtils.removeInvisibleElements(canvas.getEdges(), canvas.getEdgeHighlightConditions());
 			CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes());
 			return;
 		}
@@ -412,8 +401,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		Set<Edge<V>> removedEdges = new LinkedHashSet<>();
 
 		CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
-		removedEdges.addAll(CanvasUtils.removeInvisibleElements(canvas.getEdges(),
-				canvas.getEdgeHighlightConditions()));
+		removedEdges
+				.addAll(CanvasUtils.removeInvisibleElements(canvas.getEdges(), canvas.getEdgeHighlightConditions()));
 		removedEdges.addAll(CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes()));
 
 		Set<String> forwardEdges = new LinkedHashSet<>();
@@ -423,8 +412,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 
 		for (Edge<V> edge : canvas.getEdges()) {
-			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveriesByDelivery().get(
-					edge.getId()));
+			forwardEdges.removeAll(tracingWithoutCC.getForwardDeliveriesByDelivery().get(edge.getId()));
 		}
 
 		for (Edge<V> edge : removedEdges) {
@@ -440,9 +428,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == defaultHighlightItem) {
 			if (JOptionPane.showConfirmDialog(canvas.getComponent(),
-					"All current highlight conditions will be replaced "
-							+ "by default hightlight conditions?", "Please Confirm",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					"All current highlight conditions will be replaced " + "by default hightlight conditions?",
+					"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
 				canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
 			}
@@ -477,30 +464,24 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		for (V node : canvas.getNodes()) {
 			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) node.getProperties().get(
-					TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) node.getProperties().get(
-					TracingColumns.KILL_CONTAMINATION);
+			Boolean contaminationValue = (Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
+			Boolean killValue = (Boolean) node.getProperties().get(TracingColumns.KILL_CONTAMINATION);
 
 			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
 			tracing.setCrossContaminationOfStation(node.getId(),
 					contaminationValue != null ? contaminationValue : false);
-			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue
-					: false);
+			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue : false);
 		}
 
 		for (Edge<V> edge : edges) {
 			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) edge.getProperties().get(
-					TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) edge.getProperties().get(
-					TracingColumns.KILL_CONTAMINATION);
+			Boolean contaminationValue = (Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
+			Boolean killValue = (Boolean) edge.getProperties().get(TracingColumns.KILL_CONTAMINATION);
 
 			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
 			tracing.setCrossContaminationOfDelivery(edge.getId(),
 					contaminationValue != null ? contaminationValue : false);
-			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue
-					: false);
+			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue : false);
 		}
 
 		return tracing.getResult(isEnforceTemporalOrder());
@@ -553,8 +534,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		double maxScore = 0.0;
 
 		for (V node : canvas.getNodes()) {
-			double score = tracing.getStationScores().containsKey(node.getId()) ? tracing
-					.getStationScores().get(node.getId()) : 0.0;
+			double score = tracing.getStationScores().containsKey(node.getId())
+					? tracing.getStationScores().get(node.getId()) : 0.0;
 
 			maxScore = Math.max(maxScore, score);
 			node.getProperties().put(TracingColumns.SCORE, score);
@@ -563,8 +544,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 
 		for (Edge<V> edge : edges) {
-			double score = tracing.getDeliveryScores().containsKey(edge.getId()) ? tracing
-					.getDeliveryScores().get(edge.getId()) : 0.0;
+			double score = tracing.getDeliveryScores().containsKey(edge.getId())
+					? tracing.getDeliveryScores().get(edge.getId()) : 0.0;
 
 			maxScore = Math.max(maxScore, score);
 			edge.getProperties().put(TracingColumns.SCORE, score);
@@ -623,9 +604,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE,
-					TracingColumns.NORMALIZED_SCORE, TracingColumns.BACKWARD,
-					TracingColumns.FORWARD);
+			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE, TracingColumns.NORMALIZED_SCORE,
+					TracingColumns.BACKWARD, TracingColumns.FORWARD);
 			String error = "The following columns cannot be used with \"Invisible\" option:\n"
 					+ Joiner.on(", ").join(tracingColumns);
 
@@ -638,10 +618,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				} else if (condition instanceof ValueHighlightCondition) {
 					valueCondition = (ValueHighlightCondition) condition;
 				} else if (condition instanceof LogicalValueHighlightCondition) {
-					logicalCondition = ((LogicalValueHighlightCondition) condition)
-							.getLogicalCondition();
-					valueCondition = ((LogicalValueHighlightCondition) condition)
-							.getValueCondition();
+					logicalCondition = ((LogicalValueHighlightCondition) condition).getLogicalCondition();
+					valueCondition = ((LogicalValueHighlightCondition) condition).getValueCondition();
 				}
 
 				if (logicalCondition != null) {
@@ -694,25 +672,20 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 			int dx = 10;
 			String s1 = "Created with";
-			int sw1 = (int) font.getStringBounds(s1, ((Graphics2D) g).getFontRenderContext())
-					.getWidth();
+			int sw1 = (int) font.getStringBounds(s1, ((Graphics2D) g).getFontRenderContext()).getWidth();
 			String s2 = "by";
-			int sw2 = (int) font.getStringBounds(s2, ((Graphics2D) g).getFontRenderContext())
-					.getWidth();
+			int sw2 = (int) font.getStringBounds(s2, ((Graphics2D) g).getFontRenderContext()).getWidth();
 			FoodChainLabLogo logo1 = new FoodChainLabLogo();
 			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
 			BfrLogo logo2 = new BfrLogo();
 			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
 
 			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
-			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5
-					* dx, height);
+			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5
-					* dx, height);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setFont(font);
-			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight - dFont
-					+ fontAscent);
+			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight - dFont + fontAscent);
 			logo1.setDimension(new Dimension(iw1, logoHeight));
 			logo1.paintIcon(null, g, w - iw1 - sw2 - iw2 - 3 * dx, h - logoHeight - dLogo);
 			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont + fontAscent);
@@ -734,14 +707,12 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
 
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(),
-						e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(),
-						e.getY());
+				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY());
+				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
 
 				if (node != null) {
-					EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-							e.getComponent(), node, canvas.getNodeSchema().getMap());
+					EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(e.getComponent(), node,
+							canvas.getNodeSchema().getMap());
 
 					dialog.setVisible(true);
 
@@ -750,8 +721,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 					}
 				} else if (edge != null) {
 					if (!canvas.isJoinEdges()) {
-						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(
-								e.getComponent(), edge, canvas.getEdgeSchema().getMap());
+						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(e.getComponent(),
+								edge, canvas.getEdgeSchema().getMap());
 
 						dialog.setVisible(true);
 
@@ -759,8 +730,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 							canvas.applyChanges();
 						}
 					} else {
-						SinglePropertiesDialog dialog = new SinglePropertiesDialog(
-								e.getComponent(), edge, canvas.getEdgeSchema());
+						SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,
+								canvas.getEdgeSchema());
 
 						dialog.setVisible(true);
 					}

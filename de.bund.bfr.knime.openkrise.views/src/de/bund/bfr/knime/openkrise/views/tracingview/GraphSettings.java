@@ -34,8 +34,7 @@ import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GraphSettings extends NodeSettings {
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SCALE_X = "GraphScaleX";
 	private static final String CFG_SCALE_Y = "GraphScaleY";
@@ -73,15 +72,13 @@ public class GraphSettings extends NodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
-					settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_POSITIONS));
+			nodePositions = (Map<String, Point2D>) SERIALIZER.fromXml(settings.getString(CFG_NODE_POSITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 

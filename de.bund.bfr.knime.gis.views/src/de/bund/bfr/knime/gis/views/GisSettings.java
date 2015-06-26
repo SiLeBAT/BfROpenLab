@@ -91,9 +91,8 @@ public class GisSettings extends Settings {
 		}
 
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
-					settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -118,14 +117,13 @@ public class GisSettings extends Settings {
 		}
 
 		try {
-			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_NODES));
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 

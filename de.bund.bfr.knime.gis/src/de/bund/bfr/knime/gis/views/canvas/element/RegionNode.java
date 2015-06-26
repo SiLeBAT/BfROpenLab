@@ -61,8 +61,7 @@ public class RegionNode extends Node {
 	public Rectangle2D getBoundingBox() {
 		Envelope bounds = polygon.getEnvelopeInternal();
 
-		return new Rectangle2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(),
-				bounds.getHeight());
+		return new Rectangle2D.Double(bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight());
 	}
 
 	public Shape getTransformedPolygon() {
@@ -74,8 +73,7 @@ public class RegionNode extends Node {
 	}
 
 	public boolean containsPoint(Point2D point) {
-		return polygon.contains(polygon.getFactory().createPoint(
-				new Coordinate(point.getX(), point.getY())));
+		return polygon.contains(polygon.getFactory().createPoint(new Coordinate(point.getX(), point.getY())));
 	}
 
 	@Override

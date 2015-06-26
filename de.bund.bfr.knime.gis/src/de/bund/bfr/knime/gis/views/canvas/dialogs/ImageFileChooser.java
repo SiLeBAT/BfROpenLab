@@ -28,10 +28,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageFileChooser extends JFileChooser {
 
-	public static final FileFilter PNG_FILTER = new FileNameExtensionFilter(
-			"Portable Network Graphics (*.png)", "png");
-	public static final FileFilter SVG_FILTER = new FileNameExtensionFilter(
-			"SVG Vector Graphic (*.svg)", "svg");
+	public static final FileFilter PNG_FILTER = new FileNameExtensionFilter("Portable Network Graphics (*.png)", "png");
+	public static final FileFilter SVG_FILTER = new FileNameExtensionFilter("SVG Vector Graphic (*.svg)", "svg");
 
 	private static final long serialVersionUID = 1L;
 
@@ -60,13 +58,10 @@ public class ImageFileChooser extends JFileChooser {
 	@Override
 	public void approveSelection() {
 		File f = getSelectedFile();
-		String message = "The file " + f.getName()
-				+ " already exists. Do you want to overwrite it?";
+		String message = "The file " + f.getName() + " already exists. Do you want to overwrite it?";
 
-		if (f.exists()
-				&& getDialogType() == SAVE_DIALOG
-				&& JOptionPane.showConfirmDialog(this, message, "Existing file",
-						JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+		if (f.exists() && getDialogType() == SAVE_DIALOG && JOptionPane.showConfirmDialog(this, message,
+				"Existing file", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
 			return;
 		}
 

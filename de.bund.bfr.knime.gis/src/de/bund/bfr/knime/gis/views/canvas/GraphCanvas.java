@@ -53,19 +53,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private static final long serialVersionUID = 1L;
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
-		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), naming, allowCollapse);
+		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), naming, allowCollapse);
 	}
 
-	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
-			boolean allowCollapse) {
+	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
 	}
 
 	public void initLayout() {
@@ -87,8 +86,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout()
-				.getGraph());
+		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
 		Point2D upperLeft = transform.applyInverse(0, 0);
 		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width, 0);
 		double x1 = upperLeft.getX();
@@ -174,14 +172,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		GraphNode newNode = new GraphNode(id, properties, null);
 
-		viewer.getGraphLayout().setLocation(newNode,
-				CanvasUtils.getCenter(getNodePositions(nodes).values()));
+		viewer.getGraphLayout().setLocation(newNode, CanvasUtils.getCenter(getNodePositions(nodes).values()));
 
 		return newNode;
 	}
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes,
-			boolean avoidIterations) {
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes, boolean avoidIterations) {
 		if (selectedNodes == null) {
 			selectedNodes = new LinkedHashSet<>();
 		}
@@ -190,10 +186,10 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
-			if (JOptionPane.showConfirmDialog(this, layoutType
-					+ " cannot be applied on a subset of " + naming.nodes() + ". Apply "
-					+ layoutType + " on all " + naming.nodes() + "?", "Confirm",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (JOptionPane.showConfirmDialog(this,
+					layoutType + " cannot be applied on a subset of " + naming.nodes() + ". Apply " + layoutType
+							+ " on all " + naming.nodes() + "?",
+					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				selectedNodes = new LinkedHashSet<>();
 			} else {
 				return;
@@ -226,8 +222,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node,
-							CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
@@ -237,8 +232,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 			for (GraphNode node : nodes) {
 				if (!selectedNodes.contains(node)) {
-					layout.setLocation(node,
-							CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
@@ -254,8 +248,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		viewer.setGraphLayout(layout);
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
-			new Thread(new LayoutThread((IterativeContext) layout,
-					!selectedNodes.isEmpty() ? selectedNodes : nodes)).start();
+			new Thread(new LayoutThread((IterativeContext) layout, !selectedNodes.isEmpty() ? selectedNodes : nodes))
+					.start();
 		} else {
 			setNodePositions(getNodePositions());
 		}
@@ -269,8 +263,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Point2D diff = CanvasUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {
-				Point2D newPos = CanvasUtils.addPoints(viewer.getGraphLayout().transform(newNode),
-						diff);
+				Point2D newPos = CanvasUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff);
 
 				viewer.getGraphLayout().setLocation(newNode, newPos);
 			}
@@ -295,10 +288,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		public void run() {
 			while (true) {
 				if (!transformedByUser) {
-					Rectangle2D bounds = CanvasUtils
-							.getBounds(getNodePositions(usedNodes).values());
-					Transform newTransform = CanvasUtils.getTransformForBounds(getCanvasSize(),
-							bounds, null);
+					Rectangle2D bounds = CanvasUtils.getBounds(getNodePositions(usedNodes).values());
+					Transform newTransform = CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null);
 
 					if (getTransform().equals(lastTransform)) {
 						setTransform(newTransform);

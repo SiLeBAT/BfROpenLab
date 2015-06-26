@@ -42,14 +42,12 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	private TracingDelegate<LocationNode> tracing;
 
 	public TracingOsmCanvas() {
-		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<String, Delivery>());
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), new LinkedHashMap<String, Delivery>());
 	}
 
-	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
-			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			Map<String, Delivery> deliveries) {
+	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
@@ -180,10 +178,8 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
-	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(
-			boolean toSvg) {
-		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super
-				.getVisualizationServer(toSvg);
+	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(boolean toSvg) {
+		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 

@@ -49,8 +49,7 @@ import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
-public class HighlightListDialog extends JDialog implements ActionListener, MouseListener,
-		WindowListener {
+public class HighlightListDialog extends JDialog implements ActionListener, MouseListener, WindowListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,14 +75,12 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 	private HighlightConditionList highlightConditions;
 	private boolean approved;
 
-	public HighlightListDialog(Component parent, PropertySchema schema,
-			HighlightConditionList highlightConditions) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition List",
-				DEFAULT_MODALITY_TYPE);
+	public HighlightListDialog(Component parent, PropertySchema schema, HighlightConditionList highlightConditions) {
+		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
 		this.schema = schema;
-		this.highlightConditions = new HighlightConditionList(new ArrayList<>(
-				highlightConditions.getConditions()), highlightConditions.isPrioritizeColors());
+		this.highlightConditions = new HighlightConditionList(new ArrayList<>(highlightConditions.getConditions()),
+				highlightConditions.isPrioritizeColors());
 		allowInvisible = DEFAULT_ALLOW_INVISIBLE;
 		allowThickness = DEFAULT_ALLOW_THICKNESS;
 		checkers = new ArrayList<>();
@@ -142,8 +139,7 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-				BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
@@ -217,8 +213,7 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 			int i = list.getSelectedIndex();
 
 			if (i > 0) {
-				highlightConditions.getConditions().add(i - 1,
-						highlightConditions.getConditions().remove(i));
+				highlightConditions.getConditions().add(i - 1, highlightConditions.getConditions().remove(i));
 				updateList();
 				list.setSelectedIndex(i - 1);
 			}
@@ -226,8 +221,7 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 			int i = list.getSelectedIndex();
 
 			if (i != -1 && i != list.getModel().getSize() - 1) {
-				highlightConditions.getConditions().add(i + 1,
-						highlightConditions.getConditions().remove(i));
+				highlightConditions.getConditions().add(i + 1, highlightConditions.getConditions().remove(i));
 				updateList();
 				list.setSelectedIndex(i + 1);
 			}
@@ -239,9 +233,8 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 		int i = list.getSelectedIndex();
 
 		if (e.getClickCount() == 2 && i != -1) {
-			HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema,
-					allowInvisible, allowThickness, highlightConditions.getConditions().get(i),
-					checkers);
+			HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
+					highlightConditions.getConditions().get(i), checkers);
 
 			dialog.setVisible(true);
 
@@ -300,8 +293,8 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 	}
 
 	private void addCondition(HighlightCondition condition) {
-		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema,
-				allowInvisible, allowThickness, condition, checkers);
+		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
+				condition, checkers);
 
 		dialog.setVisible(true);
 

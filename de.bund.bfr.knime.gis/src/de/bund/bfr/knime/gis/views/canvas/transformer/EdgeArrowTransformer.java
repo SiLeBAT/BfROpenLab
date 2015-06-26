@@ -30,8 +30,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.util.ArrowFactory;
 
-public class EdgeArrowTransformer<V extends Node> implements
-		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> {
+public class EdgeArrowTransformer<V extends Node> implements Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> {
 
 	private EdgeStrokeTransformer<Edge<V>> strokeTransformer;
 

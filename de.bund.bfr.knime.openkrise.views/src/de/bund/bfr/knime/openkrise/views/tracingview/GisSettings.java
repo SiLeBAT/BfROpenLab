@@ -31,8 +31,7 @@ import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GisSettings extends NodeSettings {
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SCALE_X = "OsmScaleX";
 	private static final String CFG_SCALE_Y = "OsmScaleY";
@@ -72,9 +71,8 @@ public class GisSettings extends NodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
-					settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 

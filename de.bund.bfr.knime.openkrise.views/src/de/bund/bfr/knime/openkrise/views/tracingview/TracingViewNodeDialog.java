@@ -56,8 +56,8 @@ import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements ActionListener,
-		ItemListener, ComponentListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane
+		implements ActionListener, ItemListener, ComponentListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -101,10 +101,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
-		northPanel.add(UI.createHorizontalPanel(resetWeightsButton, resetCrossButton,
-				resetFilterButton, exportAsSvgBox), BorderLayout.WEST);
-		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox),
-				BorderLayout.EAST);
+		northPanel.add(
+				UI.createHorizontalPanel(resetWeightsButton, resetCrossButton, resetFilterButton, exportAsSvgBox),
+				BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox), BorderLayout.EAST);
 		northScrollPane = new JScrollPane(northPanel);
 		panel = UI.createNorthPanel(northScrollPane);
 
@@ -112,8 +112,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		nodeTable = (BufferedDataTable) input[0];
 		edgeTable = (BufferedDataTable) input[1];
 		tracingTable = (BufferedDataTable) input[2];
@@ -199,12 +198,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 		}
 
 		if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
-			northScrollPane
-					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+			northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 			northScrollPane.getParent().revalidate();
 		} else {
-			northScrollPane
-					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			northScrollPane.getParent().revalidate();
 		}
 	}
@@ -226,8 +223,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ac
 			panel.remove(canvas.getComponent());
 		}
 
-		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable,
-				tracingTable, shapeTable, set);
+		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable,
+				set);
 
 		canvas = set.isShowGis() ? creator.createGisCanvas() : creator.createGraphCanvas();
 		switchButton.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));

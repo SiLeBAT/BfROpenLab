@@ -54,13 +54,12 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	public ValueHighlightCondition(ValueHighlightCondition c) {
-		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend, c.color, c.invisible,
-				c.useThickness, c.labelProperty);
+		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend, c.color, c.invisible, c.useThickness,
+				c.labelProperty);
 	}
 
-	public ValueHighlightCondition(String property, String type, boolean zeroAsMinimum,
-			String name, boolean showInLegend, Color color, boolean invisible,
-			boolean useThickness, String labelProperty) {
+	public ValueHighlightCondition(String property, String type, boolean zeroAsMinimum, String name,
+			boolean showInLegend, Color color, boolean invisible, boolean useThickness, String labelProperty) {
 		setProperty(property);
 		setType(type);
 		setZeroAsMinimum(zeroAsMinimum);
@@ -160,8 +159,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 			if (value instanceof Number) {
 				double doubleValue = ((Number) value).doubleValue();
 
-				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue)
-						&& doubleValue >= 0.0) {
+				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
 					values.put(element, doubleValue);
 				} else {
 					values.put(element, 0.0);
@@ -212,8 +210,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 			if (value instanceof Number) {
 				double doubleValue = ((Number) value).doubleValue();
 
-				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue)
-						&& doubleValue >= 0.0) {
+				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
 					values.add(doubleValue);
 				} else {
 					values.add(0.0);

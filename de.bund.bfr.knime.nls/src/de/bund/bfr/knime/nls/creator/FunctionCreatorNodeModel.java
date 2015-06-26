@@ -66,8 +66,8 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		return new PortObject[] { new FunctionPortObject(createFunction(set.getTerm(),
-				set.getDependentVariable(), set.getIndependentVariables())) };
+		return new PortObject[] { new FunctionPortObject(
+				createFunction(set.getTerm(), set.getDependentVariable(), set.getIndependentVariables())) };
 	}
 
 	/**
@@ -82,13 +82,12 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		if (set.getTerm() == null || set.getDependentVariable() == null
-				|| set.getIndependentVariables().isEmpty()) {
+		if (set.getTerm() == null || set.getDependentVariable() == null || set.getIndependentVariables().isEmpty()) {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
-		return new PortObjectSpec[] { new FunctionPortObjectSpec(createFunction(set.getTerm(),
-				set.getDependentVariable(), set.getIndependentVariables())) };
+		return new PortObjectSpec[] { new FunctionPortObjectSpec(
+				createFunction(set.getTerm(), set.getDependentVariable(), set.getIndependentVariables())) };
 	}
 
 	/**
@@ -103,8 +102,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -131,8 +129,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static Function createFunction(String term, String dependentVariable,
-			List<String> independentVariables) {
+	private static Function createFunction(String term, String dependentVariable, List<String> independentVariables) {
 		Map<String, String> terms = new LinkedHashMap<>();
 
 		terms.put(dependentVariable, term);

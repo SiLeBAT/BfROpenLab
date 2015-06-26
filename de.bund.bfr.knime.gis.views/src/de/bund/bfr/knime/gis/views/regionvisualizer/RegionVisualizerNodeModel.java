@@ -64,8 +64,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable table = (BufferedDataTable) inObjects[1];
-		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable,
-				table, set);
+		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable, table, set);
 		RegionCanvas gisCanvas = creator.createCanvas();
 
 		for (String id : creator.getNonExistingRegions()) {
@@ -102,8 +101,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

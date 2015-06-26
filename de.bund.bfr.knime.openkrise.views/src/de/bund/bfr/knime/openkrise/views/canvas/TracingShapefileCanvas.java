@@ -36,22 +36,20 @@ import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
-public class TracingShapefileCanvas extends LocationCanvas implements
-		ITracingGisCanvas<LocationNode> {
+public class TracingShapefileCanvas extends LocationCanvas implements ITracingGisCanvas<LocationNode> {
 
 	private static final long serialVersionUID = 1L;
 
 	private TracingDelegate<LocationNode> tracing;
 
 	public TracingShapefileCanvas() {
-		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), new ArrayList<RegionNode>(),
-				new LinkedHashMap<String, Delivery>());
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), new ArrayList<RegionNode>(), new LinkedHashMap<String, Delivery>());
 	}
 
 	public TracingShapefileCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
-			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			List<RegionNode> regions, Map<String, Delivery> deliveries) {
+			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties, List<RegionNode> regions,
+			Map<String, Delivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, regions);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
@@ -182,10 +180,8 @@ public class TracingShapefileCanvas extends LocationCanvas implements
 	}
 
 	@Override
-	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(
-			boolean toSvg) {
-		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super
-				.getVisualizationServer(toSvg);
+	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(boolean toSvg) {
+		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 

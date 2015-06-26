@@ -63,8 +63,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCond
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.ui.AutoSuggestField;
 
-public class HighlightDialog extends JDialog implements ActionListener, DocumentListener,
-		ItemListener {
+public class HighlightDialog extends JDialog implements ActionListener, DocumentListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -141,23 +140,19 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 	public static HighlightDialog createFilterDialog(Component parent, PropertySchema schema,
 			HighlightCondition condition) {
-		return new HighlightDialog(parent, schema, false, false, false, false, false, true,
-				condition, null);
+		return new HighlightDialog(parent, schema, false, false, false, false, false, true, condition, null);
 	}
 
-	public static HighlightDialog createHighlightDialog(Component parent, PropertySchema schema,
-			boolean allowInvisible, boolean allowThickness, HighlightCondition condition,
-			List<HighlightConditionChecker> checkers) {
-		return new HighlightDialog(parent, schema, true, true, allowInvisible, allowThickness,
-				true, false, condition, checkers);
+	public static HighlightDialog createHighlightDialog(Component parent, PropertySchema schema, boolean allowInvisible,
+			boolean allowThickness, HighlightCondition condition, List<HighlightConditionChecker> checkers) {
+		return new HighlightDialog(parent, schema, true, true, allowInvisible, allowThickness, true, false, condition,
+				checkers);
 	}
 
-	private HighlightDialog(Component parent, PropertySchema schema, boolean allowName,
-			boolean allowColor, boolean allowInvisible, boolean allowThickness, boolean allowLabel,
-			boolean onlyAllowLogical, HighlightCondition condition,
-			List<HighlightConditionChecker> checkers) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition",
-				DEFAULT_MODALITY_TYPE);
+	private HighlightDialog(Component parent, PropertySchema schema, boolean allowName, boolean allowColor,
+			boolean allowInvisible, boolean allowThickness, boolean allowLabel, boolean onlyAllowLogical,
+			HighlightCondition condition, List<HighlightConditionChecker> checkers) {
+		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition", DEFAULT_MODALITY_TYPE);
 		this.schema = schema;
 		this.allowName = allowName;
 		this.allowColor = allowColor;
@@ -171,10 +166,10 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(
-					Arrays.asList(Arrays.asList(new LogicalHighlightCondition(schema.getMap()
-							.keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.EQUAL_TYPE, ""))), null, true, lastColor,
-					false, false, null);
+					Arrays.asList(Arrays
+							.asList(new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
+									LogicalHighlightCondition.EQUAL_TYPE, ""))),
+					null, true, lastColor, false, false, null);
 		}
 
 		if (condition instanceof AndOrHighlightCondition) {
@@ -195,8 +190,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			conditionPanel = createLogicalValuePanel((LogicalValueHighlightCondition) condition);
 		}
 
-		conditionTypeBox = new JComboBox<>(onlyAllowLogical ? new Type[] { Type.LOGICAL_CONDITION }
-				: Type.values());
+		conditionTypeBox = new JComboBox<>(onlyAllowLogical ? new Type[] { Type.LOGICAL_CONDITION } : Type.values());
 		conditionTypeBox.setSelectedItem(type);
 		conditionTypeBox.addActionListener(this);
 		nameField = new JTextField(20);
@@ -218,8 +212,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		thicknessBox.setSelected(condition.isUseThickness());
 		labelBox = new JComboBox<>(schema.getMap().keySet().toArray(new String[0]));
 		labelBox.insertItemAt("", 0);
-		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition
-				.getLabelProperty() : "");
+		labelBox.setSelectedItem(condition.getLabelProperty() != null ? condition.getLabelProperty() : "");
 
 		setNewColor(condition.getColor());
 
@@ -320,8 +313,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			}
 		} else if (e.getSource() == cancelButton) {
 			dispose();
-		} else if (e.getSource() == conditionTypeBox
-				&& !type.equals(conditionTypeBox.getSelectedItem())) {
+		} else if (e.getSource() == conditionTypeBox && !type.equals(conditionTypeBox.getSelectedItem())) {
 			remove(conditionPanel);
 
 			switch ((Type) conditionTypeBox.getSelectedItem()) {
@@ -352,13 +344,11 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 				if (type == Type.LOGICAL_CONDITION) {
 					AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
 
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(
-							null, c));
+					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(null, c));
 				} else if (type == Type.VALUE_CONDITION) {
 					ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
 
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c,
-							null));
+					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c, null));
 				} else {
 					conditionPanel = createLogicalValuePanel(null);
 				}
@@ -392,8 +382,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			int index = logicalPropertyBoxes.indexOf(e.getSource());
 			JComboBox<String> propertyBox = logicalPropertyBoxes.get(index);
 			AutoSuggestField valueField = logicalValueFields.get(index);
-			Set<String> possibleValues = schema.getPossibleValues().get(
-					propertyBox.getSelectedItem());
+			Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedItem());
 
 			valueField.setPossibleValues(possibleValues);
 		}
@@ -446,11 +435,10 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
 		if (condition == null) {
-			condition = new AndOrHighlightCondition(
-					Arrays.asList(Arrays.asList(new LogicalHighlightCondition(schema.getMap()
-							.keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.EQUAL_TYPE, ""))), null, false, null, false,
-					false, null);
+			condition = new AndOrHighlightCondition(Arrays.asList(
+					Arrays.asList(new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
+							LogicalHighlightCondition.EQUAL_TYPE, ""))),
+					null, false, null, false, false, null);
 		}
 
 		logicalAndOrBoxes = new ArrayList<>();
@@ -476,8 +464,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
-				JComboBox<String> propertyBox = new JComboBox<>(new Vector<>(schema.getMap()
-						.keySet()));
+				JComboBox<String> propertyBox = new JComboBox<>(new Vector<>(schema.getMap().keySet()));
 				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());
@@ -524,8 +511,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		logicalAddButtons.add(addButton);
 		logicalPanel.add(addButton, UI.centerConstraints(4, row));
 
-		return new JScrollPane(UI.createNorthPanel(logicalPanel),
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+		return new JScrollPane(UI.createNorthPanel(logicalPanel), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 
@@ -613,22 +599,20 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		switch (type) {
 		case LOGICAL_CONDITION:
 		case APPLY_TO_ALL:
-			return createLogicalCondition(name, showInLegend, color, invisible, useThickness,
-					labelProperty);
+			return createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty);
 		case VALUE_CONDITION:
-			return createValueCondition(name, showInLegend, color, invisible, useThickness,
-					labelProperty);
+			return createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty);
 		case LOGICAL_VALUE_CONDITION:
-			return new LogicalValueHighlightCondition(createValueCondition(name, showInLegend,
-					color, invisible, useThickness, labelProperty), createLogicalCondition(name,
-					showInLegend, color, invisible, useThickness, labelProperty));
+			return new LogicalValueHighlightCondition(
+					createValueCondition(name, showInLegend, color, invisible, useThickness, labelProperty),
+					createLogicalCondition(name, showInLegend, color, invisible, useThickness, labelProperty));
 		}
 
 		return null;
 	}
 
-	private AndOrHighlightCondition createLogicalCondition(String name, boolean showInLegend,
-			Color color, boolean invisible, boolean useThickness, String labelProperty) {
+	private AndOrHighlightCondition createLogicalCondition(String name, boolean showInLegend, Color color,
+			boolean invisible, boolean useThickness, String labelProperty) {
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 		List<LogicalHighlightCondition> andList = new ArrayList<>();
 
@@ -651,15 +635,15 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 		conditions.add(andList);
 
-		return new AndOrHighlightCondition(conditions, name, showInLegend, color, invisible,
-				useThickness, labelProperty);
+		return new AndOrHighlightCondition(conditions, name, showInLegend, color, invisible, useThickness,
+				labelProperty);
 	}
 
-	private ValueHighlightCondition createValueCondition(String name, boolean showInLegend,
-			Color color, boolean invisible, boolean useThickness, String labelProperty) {
+	private ValueHighlightCondition createValueCondition(String name, boolean showInLegend, Color color,
+			boolean invisible, boolean useThickness, String labelProperty) {
 		return new ValueHighlightCondition((String) valuePropertyBox.getSelectedItem(),
-				(String) valueTypeBox.getSelectedItem(), zeroAsMinimumBox.isSelected(), name,
-				showInLegend, color, invisible, useThickness, labelProperty);
+				(String) valueTypeBox.getSelectedItem(), zeroAsMinimumBox.isSelected(), name, showInLegend, color,
+				invisible, useThickness, labelProperty);
 	}
 
 	private void addRemoveButtonPressed(JButton button) {
@@ -686,8 +670,8 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		}
 
 		List<List<LogicalHighlightCondition>> conditions = logicalCondition.getConditions();
-		LogicalHighlightCondition newCond = new LogicalHighlightCondition(schema.getMap().keySet()
-				.toArray(new String[0])[0], LogicalHighlightCondition.EQUAL_TYPE, "");
+		LogicalHighlightCondition newCond = new LogicalHighlightCondition(
+				schema.getMap().keySet().toArray(new String[0])[0], LogicalHighlightCondition.EQUAL_TYPE, "");
 		LogicalHighlightCondition lastCond = null;
 		boolean done = false;
 		int count = 0;
@@ -730,8 +714,7 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 				newCond.setType(lastCond.getType());
 			}
 
-			if (lastCond != null && conditions.size() != 1
-					&& conditions.get(conditions.size() - 1).size() == 1) {
+			if (lastCond != null && conditions.size() != 1 && conditions.get(conditions.size() - 1).size() == 1) {
 				conditions.add(new ArrayList<LogicalHighlightCondition>());
 				conditions.get(conditions.size() - 1).add(newCond);
 			} else {
@@ -742,12 +725,12 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 		remove(conditionPanel);
 
 		if (condition instanceof AndOrHighlightCondition) {
-			conditionPanel = createLogicalPanel(new AndOrHighlightCondition(conditions, null,
-					false, null, false, false, null));
+			conditionPanel = createLogicalPanel(
+					new AndOrHighlightCondition(conditions, null, false, null, false, false, null));
 		} else if (condition instanceof LogicalValueHighlightCondition) {
-			conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(
-					((LogicalValueHighlightCondition) condition).getValueCondition(),
-					new AndOrHighlightCondition(conditions, null, false, null, false, false, null)));
+			conditionPanel = createLogicalValuePanel(
+					new LogicalValueHighlightCondition(((LogicalValueHighlightCondition) condition).getValueCondition(),
+							new AndOrHighlightCondition(conditions, null, false, null, false, false, null)));
 		}
 
 		add(conditionPanel, BorderLayout.CENTER);
@@ -763,12 +746,9 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 
 		if (c != null) {
 			double alpha = c.getAlpha() / 255.0;
-			double r = alpha * c.getRed() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getRed()
-					/ 255.0;
-			double g = alpha * c.getGreen() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getGreen()
-					/ 255.0;
-			double b = alpha * c.getBlue() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getBlue()
-					/ 255.0;
+			double r = alpha * c.getRed() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getRed() / 255.0;
+			double g = alpha * c.getGreen() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getGreen() / 255.0;
+			double b = alpha * c.getBlue() / 255.0 + (1 - alpha) * BUTTON_BACKGROUND.getBlue() / 255.0;
 
 			colorButton.setBackground(new Color((float) r, (float) g, (float) b));
 		} else {

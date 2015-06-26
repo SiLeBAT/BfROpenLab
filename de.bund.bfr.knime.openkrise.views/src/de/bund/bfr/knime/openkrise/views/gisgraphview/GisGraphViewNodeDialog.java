@@ -87,8 +87,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
@@ -217,8 +216,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 			panel.remove(splitPane);
 		}
 
-		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(shapeTable, nodeTable,
-				edgeTable, set);
+		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(shapeTable, nodeTable, edgeTable, set);
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
@@ -232,8 +230,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 

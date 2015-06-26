@@ -42,14 +42,13 @@ public class NodeFillTransformer<V extends Node> implements Transformer<V, Paint
 		this(renderContext, new LinkedHashMap<V, List<Double>>(), new ArrayList<Color>());
 	}
 
-	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext,
-			Map<V, List<Double>> alphaValues, List<Color> colors) {
+	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext, Map<V, List<Double>> alphaValues,
+			List<Color> colors) {
 		this.renderContext = renderContext;
 		nodeColors = new LinkedHashMap<>();
 
 		for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
-			nodeColors.put(entry.getKey(),
-					CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
+			nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
 		}
 	}
 

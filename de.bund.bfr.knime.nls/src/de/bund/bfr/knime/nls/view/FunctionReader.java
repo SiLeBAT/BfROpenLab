@@ -41,13 +41,12 @@ public class FunctionReader implements Reader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable,
-			String indep) {
+	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable, String indep) {
 		this(functionObject, null, varTable, null, indep);
 	}
 
-	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
-			BufferedDataTable varTable, BufferedDataTable covarianceTable, String indep) {
+	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable, BufferedDataTable varTable,
+			BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns;
 
@@ -126,8 +125,7 @@ public class FunctionReader implements Reader {
 				}
 
 				if (covarianceTable != null) {
-					plotable.getCovariances().putAll(
-							NlsUtils.getCovariances(covarianceTable, id, f));
+					plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
 				}
 
 				if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {

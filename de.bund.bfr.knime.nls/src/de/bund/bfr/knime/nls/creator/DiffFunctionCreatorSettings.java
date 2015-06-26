@@ -54,8 +54,7 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			dependentVariables = KnimeUtils.stringToList(settings
-					.getString(CFG_DEPENDENT_VARIABLES));
+			dependentVariables = KnimeUtils.stringToList(settings.getString(CFG_DEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -70,8 +69,7 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			independentVariables = KnimeUtils.stringToList(settings
-					.getString(CFG_INDEPENDENT_VARIABLES));
+			independentVariables = KnimeUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 

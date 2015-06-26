@@ -31,8 +31,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class Transform {
 
 	public static final Transform IDENTITY_TRANSFORM = new Transform(1, 1, 0, 0);
-	public static final Transform INVALID_TRANSFORM = new Transform(Double.NaN, Double.NaN,
-			Double.NaN, Double.NaN);
+	public static final Transform INVALID_TRANSFORM = new Transform(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
 	private double scaleX;
 	private double scaleY;
@@ -47,8 +46,7 @@ public class Transform {
 	}
 
 	public Transform(AffineTransform transform) {
-		this(transform.getScaleX(), transform.getScaleY(), transform.getTranslateX(), transform
-				.getTranslateY());
+		this(transform.getScaleX(), transform.getScaleY(), transform.getTranslateX(), transform.getTranslateY());
 	}
 
 	public double getScaleX() {
@@ -69,9 +67,8 @@ public class Transform {
 
 	public boolean isValid() {
 		return !Double.isNaN(scaleX) && !Double.isNaN(scaleY) && !Double.isNaN(translationX)
-				&& !Double.isNaN(translationY) && !Double.isInfinite(scaleX)
-				&& !Double.isInfinite(scaleY) && !Double.isInfinite(translationX)
-				&& !Double.isInfinite(translationY);
+				&& !Double.isNaN(translationY) && !Double.isInfinite(scaleX) && !Double.isInfinite(scaleY)
+				&& !Double.isInfinite(translationX) && !Double.isInfinite(translationY);
 	}
 
 	public AffineTransform toAffineTransform() {

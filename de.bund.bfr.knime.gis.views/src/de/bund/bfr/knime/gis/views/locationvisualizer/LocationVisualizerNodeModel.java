@@ -72,8 +72,7 @@ public class LocationVisualizerNodeModel extends NodeModel {
 			set.getGisSettings().setGisType(GisType.MAPNIK);
 		}
 
-		Canvas<LocationNode> canvas = new LocationVisualizerCanvasCreator(shapeTable, nodeTable,
-				set).createCanvas();
+		Canvas<LocationNode> canvas = new LocationVisualizerCanvasCreator(shapeTable, nodeTable, set).createCanvas();
 
 		set.getGisSettings().setGisType(originalGisType);
 
@@ -107,8 +106,7 @@ public class LocationVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

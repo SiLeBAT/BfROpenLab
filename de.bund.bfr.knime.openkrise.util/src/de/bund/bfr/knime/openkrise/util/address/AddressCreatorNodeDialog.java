@@ -44,29 +44,29 @@ public class AddressCreatorNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	@SuppressWarnings("unchecked")
 	protected AddressCreatorNodeDialog() {
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_STREET, null), "Street Column", 0, false, true,
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(AddressCreatorNodeModel.CFG_STREET, null), "Street Column", 0, false, true,
 				StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_HOUSE_NUMBER, null), "House Number Column", 0, false,
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(AddressCreatorNodeModel.CFG_HOUSE_NUMBER, null), "House Number Column", 0,
+				false, true, StringValue.class));
+		addDialogComponent(
+				new DialogComponentColumnNameSelection(new SettingsModelString(AddressCreatorNodeModel.CFG_CITY, null),
+						"City Column", 0, false, true, StringValue.class));
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(AddressCreatorNodeModel.CFG_DISTRICT, null), "District Column", 0, false, true,
+				StringValue.class));
+		addDialogComponent(
+				new DialogComponentColumnNameSelection(new SettingsModelString(AddressCreatorNodeModel.CFG_STATE, null),
+						"State Column", 0, false, true, StringValue.class));
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(AddressCreatorNodeModel.CFG_COUNTRY, null), "Country Column", 0, false, true,
+				StringValue.class));
+		addDialogComponent(new DialogComponentColumnNameSelection(
+				new SettingsModelString(AddressCreatorNodeModel.CFG_POSTAL_CODE, null), "Postal Code Column", 0, false,
 				true, StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_CITY, null), "City Column", 0, false, true,
-				StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_DISTRICT, null), "District Column", 0, false, true,
-				StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_STATE, null), "State Column", 0, false, true,
-				StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_COUNTRY, null), "Country Column", 0, false, true,
-				StringValue.class));
-		addDialogComponent(new DialogComponentColumnNameSelection(new SettingsModelString(
-				AddressCreatorNodeModel.CFG_POSTAL_CODE, null), "Postal Code Column", 0, false,
-				true, StringValue.class));
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				AddressCreatorNodeModel.CFG_HOUSE_NUMBER_AFTER_STREET, true),
+		addDialogComponent(new DialogComponentBoolean(
+				new SettingsModelBoolean(AddressCreatorNodeModel.CFG_HOUSE_NUMBER_AFTER_STREET, true),
 				"House Number after Street Name"));
 	}
 }

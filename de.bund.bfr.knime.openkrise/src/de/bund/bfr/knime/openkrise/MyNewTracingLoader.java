@@ -77,25 +77,22 @@ public class MyNewTracingLoader {
 		// "="
 		// + DBKernel.delimitL("Produktkatalog") + "." +
 		// DBKernel.delimitL("ID");
-		String sql = DSL
-				.using(conn, SQLDialect.HSQLDB)
-				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"),
-						field("dd_month"), field("dd_year"), field("ad_day"), field("ad_month"),
-						field("ad_year")).from(table("Lieferungen"))
-				.leftOuterJoin(table("Chargen"))
-				.on(field("Lieferungen.Charge").equal(field("Chargen.ID")))
-				.leftOuterJoin(table("Produktkatalog"))
+		String sql = DSL.using(conn, SQLDialect.HSQLDB)
+				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"), field("dd_month"),
+						field("dd_year"), field("ad_day"), field("ad_month"), field("ad_year"))
+				.from(table("Lieferungen")).leftOuterJoin(table("Chargen"))
+				.on(field("Lieferungen.Charge").equal(field("Chargen.ID"))).leftOuterJoin(table("Produktkatalog"))
 				.on(field("Chargen.Artikel").equal(field("Produktkatalog.ID"))).getSQL();
 
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
-					Delivery md = new Delivery(rs.getObject("ID").toString(), rs.getObject(
-							"Station").toString(), rs.getObject("Empfänger").toString(),
-							(Integer) rs.getObject("dd_day"), (Integer) rs.getObject("dd_month"),
-							(Integer) rs.getObject("dd_year"), (Integer) rs.getObject("ad_day"),
-							(Integer) rs.getObject("ad_month"), (Integer) rs.getObject("ad_year"));
+					Delivery md = new Delivery(rs.getObject("ID").toString(), rs.getObject("Station").toString(),
+							rs.getObject("Empfänger").toString(), (Integer) rs.getObject("dd_day"),
+							(Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"),
+							(Integer) rs.getObject("ad_day"), (Integer) rs.getObject("ad_month"),
+							(Integer) rs.getObject("ad_year"));
 					allDeliveries.put(md.getId(), md);
 				} while (rs.next());
 			}
@@ -104,16 +101,15 @@ public class MyNewTracingLoader {
 		}
 
 		// Secondly: prev/next deliveries
-		sql = "SELECT " + DBKernel.delimitL("ZutatLieferungen") + "." + DBKernel.delimitL("ID")
-				+ "," + DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("ID")
-				+ " FROM " + DBKernel.delimitL("ChargenVerbindungen") + " LEFT JOIN "
-				+ DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ZutatLieferungen")
-				+ " ON " + DBKernel.delimitL("ZutatLieferungen") + "." + DBKernel.delimitL("ID")
-				+ "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat")
-				+ " LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS "
-				+ DBKernel.delimitL("ProduktLieferungen") + " ON "
-				+ DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("Charge") + "="
-				+ DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt");
+		sql = "SELECT " + DBKernel.delimitL("ZutatLieferungen") + "." + DBKernel.delimitL("ID") + ","
+				+ DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("ID") + " FROM "
+				+ DBKernel.delimitL("ChargenVerbindungen") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS "
+				+ DBKernel.delimitL("ZutatLieferungen") + " ON " + DBKernel.delimitL("ZutatLieferungen") + "."
+				+ DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "."
+				+ DBKernel.delimitL("Zutat") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS "
+				+ DBKernel.delimitL("ProduktLieferungen") + " ON " + DBKernel.delimitL("ProduktLieferungen") + "."
+				+ DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "."
+				+ DBKernel.delimitL("Produkt");
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
@@ -136,8 +132,7 @@ public class MyNewTracingLoader {
 
 	public static boolean serialPossible(Connection conn) {
 		HashSet<String> hs = new HashSet<>();
-		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM "
-				+ DBKernel.delimitL("Station");
+		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM " + DBKernel.delimitL("Station");
 		try {
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
@@ -156,8 +151,8 @@ public class MyNewTracingLoader {
 			return false;
 		}
 		hs.clear();
-		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit")
-				+ " FROM " + DBKernel.delimitL("Lieferungen");
+		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit") + " FROM "
+				+ DBKernel.delimitL("Lieferungen");
 		try {
 			boolean alwaysUEkg = true;
 			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
@@ -170,8 +165,7 @@ public class MyNewTracingLoader {
 					if (hs.contains(s))
 						return false;
 					hs.add(s);
-					if (rs.getObject("UnitEinheit") == null
-							|| !rs.getString("UnitEinheit").equals("kg"))
+					if (rs.getObject("UnitEinheit") == null || !rs.getString("UnitEinheit").equals("kg"))
 						alwaysUEkg = false;
 				} while (rs.next());
 			}

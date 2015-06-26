@@ -59,8 +59,8 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 
 			if (value != null) {
 				field.setText(value.toString());
-				field.setPreferredSize(new Dimension(field.getPreferredSize().width + 5, field
-						.getPreferredSize().height));
+				field.setPreferredSize(
+						new Dimension(field.getPreferredSize().width + 5, field.getPreferredSize().height));
 			}
 
 			field.setEditable(false);

@@ -54,8 +54,7 @@ public class GeocodingNodeFactory extends NodeFactory<GeocodingNodeModel> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<GeocodingNodeModel> createNodeView(final int viewIndex,
-			final GeocodingNodeModel nodeModel) {
+	public NodeView<GeocodingNodeModel> createNodeView(final int viewIndex, final GeocodingNodeModel nodeModel) {
 		return null;
 	}
 

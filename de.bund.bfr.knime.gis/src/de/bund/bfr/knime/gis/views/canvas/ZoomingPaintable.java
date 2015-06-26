@@ -122,8 +122,8 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && (plusFocused || minusFocused)) {
 			VisualizationViewer<?, ?> viewer = canvas.getViewer();
-			Point2D center = viewer.getRenderContext().getMultiLayerTransformer()
-					.inverseTransform(Layer.VIEW, viewer.getCenter());
+			Point2D center = viewer.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
+					viewer.getCenter());
 			MutableTransformer transformer = viewer.getRenderContext().getMultiLayerTransformer()
 					.getTransformer(Layer.LAYOUT);
 

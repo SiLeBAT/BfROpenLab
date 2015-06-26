@@ -46,13 +46,13 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 	private List<Map<String, double[]>> variableValues;
 	private int dimension;
 
-	public VectorFunctionJacobian(String formula, String[] parameters,
-			Map<String, double[]> variableValues) throws ParseException {
+	public VectorFunctionJacobian(String formula, String[] parameters, Map<String, double[]> variableValues)
+			throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtils.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)),
-				variableValues.keySet()));
+		parser = MathUtils
+				.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 
@@ -128,8 +128,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		return Double.NaN;
 	}
 
-	private static List<Map<String, double[]>> createArgumentVariationList(
-			Map<String, double[]> argumentValues) {
+	private static List<Map<String, double[]>> createArgumentVariationList(Map<String, double[]> argumentValues) {
 		int n = argumentValues.size();
 		boolean done = false;
 		List<int[]> variationList = new ArrayList<>();

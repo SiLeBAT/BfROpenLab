@@ -62,8 +62,7 @@ import de.bund.bfr.knime.ui.IntTextField;
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionListener,
-		ItemListener {
+public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionListener, ItemListener {
 
 	private DBSCANNSettings set;
 	private NodePropertySchema schema;
@@ -105,11 +104,9 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final BufferedDataTable[] input)
 			throws NotConfigurableException {
-		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0].getSpec()),
-				TracingColumns.ID);
-		schema.getPossibleValues().putAll(
-				CanvasUtils.getPossibleValues(TracingUtils.readLocationNodes(input[0], schema,
-						new LinkedHashSet<RowKey>(), false).values()));
+		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0].getSpec()), TracingColumns.ID);
+		schema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(
+				TracingUtils.readLocationNodes(input[0], schema, new LinkedHashSet<RowKey>(), false).values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());
@@ -151,18 +148,16 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 		String model = (String) modelBox.getSelectedItem();
 
 		panel.removeAll();
-		panel.add(UI.createOptionsPanel("Options",
-				Arrays.asList(new JLabel("Cluster Algorithm:"), filterButton),
+		panel.add(UI.createOptionsPanel("Options", Arrays.asList(new JLabel("Cluster Algorithm:"), filterButton),
 				Arrays.asList(modelBox, UI.createWestPanel(removeFilterButton))));
 
 		if (model.equals(DBSCANNSettings.MODEL_DBSCAN)) {
-			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(new JLabel(
-					"Min Number of Points per Cluster:"), new JLabel(
-					"Max Neighborhood Distance (km):")), Arrays
-					.asList(minPointsField, maxDistField)));
-		} else if (model.equals(DBSCANNSettings.MODEL_K_MEANS)) {
 			panel.add(UI.createOptionsPanel("Algorithm Options",
-					Arrays.asList(new JLabel("Number of Clusters")),
+					Arrays.asList(new JLabel("Min Number of Points per Cluster:"),
+							new JLabel("Max Neighborhood Distance (km):")),
+					Arrays.asList(minPointsField, maxDistField)));
+		} else if (model.equals(DBSCANNSettings.MODEL_K_MEANS)) {
+			panel.add(UI.createOptionsPanel("Algorithm Options", Arrays.asList(new JLabel("Number of Clusters")),
 					Arrays.asList(numClustersField)));
 		}
 
@@ -172,8 +167,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema,
-					set.getFilter());
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, set.getFilter());
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);

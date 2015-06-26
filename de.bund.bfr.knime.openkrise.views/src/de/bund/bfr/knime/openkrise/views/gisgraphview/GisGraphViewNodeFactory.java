@@ -51,8 +51,7 @@ public class GisGraphViewNodeFactory extends NodeFactory<GisGraphViewNodeModel> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<GisGraphViewNodeModel> createNodeView(final int viewIndex,
-			final GisGraphViewNodeModel nodeModel) {
+	public NodeView<GisGraphViewNodeModel> createNodeView(final int viewIndex, final GisGraphViewNodeModel nodeModel) {
 		return null;
 	}
 

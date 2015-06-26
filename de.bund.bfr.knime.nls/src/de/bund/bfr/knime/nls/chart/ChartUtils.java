@@ -62,8 +62,7 @@ public class ChartUtils {
 	public static void saveChartAs(JFreeChart chart, String fileName, int width, int height) {
 		if (fileName.toLowerCase().endsWith(".png")) {
 			try {
-				org.jfree.chart.ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName),
-						chart, width, height);
+				org.jfree.chart.ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName), chart, width, height);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -72,8 +71,7 @@ public class ChartUtils {
 				SVGDOMImplementation domImpl = new SVGDOMImplementation();
 				Document document = domImpl.createDocument(null, "svg", null);
 				SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-				Writer outsvg = new OutputStreamWriter(new FileOutputStream(fileName),
-						StandardCharsets.UTF_8);
+				Writer outsvg = new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8);
 
 				svgGenerator.setSVGCanvasSize(new Dimension(width, height));
 				chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));

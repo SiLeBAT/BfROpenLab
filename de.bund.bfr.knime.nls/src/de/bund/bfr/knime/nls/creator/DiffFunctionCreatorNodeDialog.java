@@ -65,8 +65,8 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements ActionListener,
-		TextListener, ItemListener {
+public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
+		implements ActionListener, TextListener, ItemListener {
 
 	private DiffFunctionCreatorSettings set;
 	private List<String> usedIndeps;
@@ -104,15 +104,13 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements Act
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(functionPanel, BorderLayout.NORTH);
-		mainPanel.add(UI.createWestPanel(UI.createHorizontalPanel(addButton, removeButton)),
-				BorderLayout.SOUTH);
+		mainPanel.add(UI.createWestPanel(UI.createHorizontalPanel(addButton, removeButton)), BorderLayout.SOUTH);
 
 		addTab("Options", mainPanel);
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
 		mainPanel.remove(functionPanel);
 		functionPanel = createFunctionPanel(Math.max(set.getTerms().size(), 1));
@@ -186,8 +184,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements Act
 			mainPanel.revalidate();
 			termField.requestFocus();
 		} else if (initFields.contains(source)) {
-			set.getInitValues().set(initFields.indexOf(source),
-					((DoubleTextField) source).getValue());
+			set.getInitValues().set(initFields.indexOf(source), ((DoubleTextField) source).getValue());
 		} else if (source == diffVarField) {
 			set.setDiffVariable(diffVarField.getValue());
 			mainPanel.remove(functionPanel);
@@ -265,8 +262,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements Act
 
 		StringTextArea termField = termFields.get(i);
 
-		if (termField == null || termField.getValue() == null
-				|| !termField.getValue().equals(set.getTerms().get(i))) {
+		if (termField == null || termField.getValue() == null || !termField.getValue().equals(set.getTerms().get(i))) {
 			termField = new StringTextArea(false, 1, 100);
 			termField.setValue(set.getTerms().get(i));
 			termField.addTextListener(this);
@@ -290,8 +286,8 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane implements Act
 		JPanel initialPanel = new JPanel();
 		JLabel initialLabel = new JLabel("Initial Value");
 
-		initialLabel.setPreferredSize(new Dimension(depVarPanel.getPreferredSize().width,
-				initialLabel.getPreferredSize().height));
+		initialLabel.setPreferredSize(
+				new Dimension(depVarPanel.getPreferredSize().width, initialLabel.getPreferredSize().height));
 		initialPanel.setLayout(new BoxLayout(initialPanel, BoxLayout.X_AXIS));
 		initialPanel.add(initialLabel);
 		initialPanel.add(new JLabel("="));

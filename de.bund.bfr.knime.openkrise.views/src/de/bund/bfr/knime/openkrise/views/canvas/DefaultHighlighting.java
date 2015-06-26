@@ -78,36 +78,33 @@ public class DefaultHighlighting {
 		LogicalHighlightCondition forward = new LogicalHighlightCondition(TracingColumns.FORWARD,
 				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(forward, "Forward Trace", true, Color.ORANGE, false,
-				false, null);
+		return new AndOrHighlightCondition(forward, "Forward Trace", true, Color.ORANGE, false, false, null);
 	}
 
 	private static HighlightCondition createBackwardCondition() {
 		LogicalHighlightCondition backward = new LogicalHighlightCondition(TracingColumns.BACKWARD,
 				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(backward, "Backward Trace", true, Color.MAGENTA, false,
-				false, null);
+		return new AndOrHighlightCondition(backward, "Backward Trace", true, Color.MAGENTA, false, false, null);
 	}
 
 	private static HighlightCondition createCrossContaminationCondition() {
-		LogicalHighlightCondition crossContamination = new LogicalHighlightCondition(
-				TracingColumns.CROSS_CONTAMINATION, LogicalHighlightCondition.EQUAL_TYPE, "1");
+		LogicalHighlightCondition crossContamination = new LogicalHighlightCondition(TracingColumns.CROSS_CONTAMINATION,
+				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(crossContamination, "Cross Contamination", true,
-				Color.BLACK, false, false, null);
+		return new AndOrHighlightCondition(crossContamination, "Cross Contamination", true, Color.BLACK, false, false,
+				null);
 	}
 
 	private static HighlightCondition createCommonLinkCondition() {
 		LogicalHighlightCondition commonLink = new LogicalHighlightCondition(TracingColumns.SCORE,
 				LogicalHighlightCondition.EQUAL_TYPE, "1");
 
-		return new AndOrHighlightCondition(commonLink, "Common Link", true, Color.YELLOW, false,
-				false, null);
+		return new AndOrHighlightCondition(commonLink, "Common Link", true, Color.YELLOW, false, false, null);
 	}
 
 	private static HighlightCondition createScoreCondition() {
-		return new ValueHighlightCondition(TracingColumns.SCORE,
-				ValueHighlightCondition.VALUE_TYPE, true, "Score", false, null, false, true, null);
+		return new ValueHighlightCondition(TracingColumns.SCORE, ValueHighlightCondition.VALUE_TYPE, true, "Score",
+				false, null, false, true, null);
 	}
 }

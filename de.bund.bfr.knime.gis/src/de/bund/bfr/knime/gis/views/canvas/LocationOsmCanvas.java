@@ -40,31 +40,29 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	private Double lastScaleX;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), naming, allowEdges);
+		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), naming, allowEdges);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(),
-				naming, false);
+		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
-	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming) {
+	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
 
-	private LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
-			boolean allowEdges) {
+	private LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		invalidArea = null;
 		lastScaleX = null;
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<LocationNode>(getNodeSize(), getNodeMaxSize()));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(new NodeShapeTransformer<LocationNode>(getNodeSize(), getNodeMaxSize()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {
@@ -72,8 +70,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 			}
 		}
 
-		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges,
-				viewer.getGraphLayout());
+		invalidArea = LocationCanvasUtils.placeNodes(this.nodes, this.edges, viewer.getGraphLayout());
 	}
 
 	@Override
@@ -89,8 +86,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	@Override
 	public void avoidOverlayChanged() {
-		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
-				getNodeSize(), isAvoidOverlay());
+		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(),
+				isAvoidOverlay());
 	}
 
 	@Override
@@ -99,8 +96,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		if (isAvoidOverlay()) {
 			if (lastScaleX == null || lastScaleX != transform.getScaleX()) {
-				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform,
-						getNodeSize(), true);
+				LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(), true);
 			}
 		}
 	}
@@ -110,14 +106,13 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		super.paintGis(g, toSvg);
 
 		if (invalidArea != null) {
-			LocationCanvasUtils.paintNonLatLonArea(g, getCanvasSize().width,
-					getCanvasSize().height, transform.apply(invalidArea));
+			LocationCanvasUtils.paintNonLatLonArea(g, getCanvasSize().width, getCanvasSize().height,
+					transform.apply(invalidArea));
 		}
 	}
 
 	@Override
 	protected LocationNode createMetaNode(String id, Collection<LocationNode> nodes) {
-		return LocationCanvasUtils.createMetaNode(id, nodes, nodeSchema, metaNodeProperty,
-				viewer.getGraphLayout());
+		return LocationCanvasUtils.createMetaNode(id, nodes, nodeSchema, metaNodeProperty, viewer.getGraphLayout());
 	}
 }

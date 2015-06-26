@@ -66,9 +66,8 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		return new PortObject[] { new FunctionPortObject(createFunction(set.getTerms(),
-				set.getDependentVariables(), set.getInitValues(), set.getIndependentVariables(),
-				set.getDiffVariable())) };
+		return new PortObject[] { new FunctionPortObject(createFunction(set.getTerms(), set.getDependentVariables(),
+				set.getInitValues(), set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -87,9 +86,9 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
-		return new PortObjectSpec[] { new FunctionPortObjectSpec(createFunction(set.getTerms(),
-				set.getDependentVariables(), set.getInitValues(), set.getIndependentVariables(),
-				set.getDiffVariable())) };
+		return new PortObjectSpec[] {
+				new FunctionPortObjectSpec(createFunction(set.getTerms(), set.getDependentVariables(),
+						set.getInitValues(), set.getIndependentVariables(), set.getDiffVariable())) };
 	}
 
 	/**
@@ -104,8 +103,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -132,8 +130,8 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static Function createFunction(List<String> terms, List<String> dependentVariables,
-			List<Double> initValues, List<String> independentVariables, String diffVariable) {
+	private static Function createFunction(List<String> terms, List<String> dependentVariables, List<Double> initValues,
+			List<String> independentVariables, String diffVariable) {
 		Map<String, String> termsMap = new LinkedHashMap<>();
 		Map<String, String> initParameterMap = new LinkedHashMap<>();
 		Map<String, Double> initValueMap = new LinkedHashMap<>();
@@ -159,7 +157,7 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 		Collections.sort(parameters);
 		Collections.sort(indeps);
 
-		return new Function(termsMap, dependentVariables.get(0), indeps, parameters, diffVariable,
-				initParameterMap, initValueMap);
+		return new Function(termsMap, dependentVariables.get(0), indeps, parameters, diffVariable, initParameterMap,
+				initValueMap);
 	}
 }

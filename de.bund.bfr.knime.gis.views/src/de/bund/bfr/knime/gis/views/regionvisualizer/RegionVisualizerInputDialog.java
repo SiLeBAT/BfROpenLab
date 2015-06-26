@@ -59,19 +59,17 @@ public class RegionVisualizerInputDialog extends JDialog implements ActionListen
 	private boolean approved;
 	private RegionVisualizerSettings set;
 
-	public RegionVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec,
-			DataTableSpec nodeSpec, RegionVisualizerSettings set) {
+	public RegionVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec, DataTableSpec nodeSpec,
+			RegionVisualizerSettings set) {
 		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
 		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
-		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec,
-				StringCell.TYPE, IntCell.TYPE));
+		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, StringCell.TYPE, IntCell.TYPE));
 		shapeRegionBox.setSelectedColumnName(set.getGisSettings().getShapeRegionColumn());
-		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
-				IntCell.TYPE));
+		nodeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeRegionBox.setSelectedColumnName(set.getGisSettings().getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
@@ -86,15 +84,14 @@ public class RegionVisualizerInputDialog extends JDialog implements ActionListen
 		mainPanel.add(UI.createOptionsPanel("Shape Table",
 				Arrays.asList(new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
 				Arrays.asList(shapeBox, shapeRegionBox)));
-		mainPanel.add(UI.createOptionsPanel("Node Table",
-				Arrays.asList(new JLabel("Region ID Column:")), Arrays.asList(nodeRegionBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
-				Arrays.asList(new JLabel())));
+		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays.asList(new JLabel("Region ID Column:")),
+				Arrays.asList(nodeRegionBox)));
+		mainPanel.add(
+				UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-				BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
 		getRootPane().setDefaultButton(okButton);

@@ -53,9 +53,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected RegionToRegionVisualizerNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] { ImagePortObject.TYPE,
-				ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+				new PortType[] { ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new RegionToRegionVisualizerSettings();
 	}
 
@@ -67,8 +66,8 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
-		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(
-				shapeTable, nodeTable, edgeTable, set);
+		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(shapeTable, nodeTable,
+				edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
 		RegionCanvas gisCanvas = creator.createGisCanvas(graphCanvas);
 
@@ -108,8 +107,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

@@ -62,8 +62,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
@@ -84,9 +83,8 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null,
-				nodeTable.getSpec(), set);
+		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog((JButton) e.getSource(),
+				shapeTable != null ? shapeTable.getSpec() : null, nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -101,8 +99,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(shapeTable,
-				nodeTable, set);
+		LocationVisualizerCanvasCreator creator = new LocationVisualizerCanvasCreator(shapeTable, nodeTable, set);
 
 		try {
 			canvas = creator.createCanvas();
@@ -111,8 +108,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 

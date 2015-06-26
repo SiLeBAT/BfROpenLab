@@ -54,14 +54,13 @@ public class RegionVisualizerCanvasCreator {
 	}
 
 	public RegionCanvas createCanvas() throws InvalidSettingsException {
-		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set
-				.getGisSettings().getShapeColumn(), set.getGisSettings().getShapeRegionColumn());
+		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set.getGisSettings().getShapeColumn(),
+				set.getGisSettings().getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
-		List<RegionNode> nodes = new ArrayList<>(ViewUtils.readRegionNodes(nodeTable,
-				nodeProperties, polygonMap, null, set.getGisSettings().getNodeRegionColumn(),
-				nonExistingRegions).values());
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set.getGisSettings()
-				.getNodeRegionColumn());
+		List<RegionNode> nodes = new ArrayList<>(ViewUtils.readRegionNodes(nodeTable, nodeProperties, polygonMap, null,
+				set.getGisSettings().getNodeRegionColumn(), nonExistingRegions).values());
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGisSettings().getNodeRegionColumn());
 		RegionCanvas canvas = new RegionCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
 
 		set.getGisSettings().setToCanvas(canvas);

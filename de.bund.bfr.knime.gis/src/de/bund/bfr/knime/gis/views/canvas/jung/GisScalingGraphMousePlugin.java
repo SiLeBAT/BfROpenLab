@@ -27,8 +27,7 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 
-public class GisScalingGraphMousePlugin extends AbstractGraphMousePlugin implements
-		MouseWheelListener {
+public class GisScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener {
 
 	private static final long TIME_OUT = (long) 2e8;
 

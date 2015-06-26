@@ -49,8 +49,7 @@ import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
-public class LocationToLocationVisualizerInputDialog extends JDialog implements ActionListener,
-		ItemListener {
+public class LocationToLocationVisualizerInputDialog extends JDialog implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -68,34 +67,27 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 	private boolean approved;
 	private LocationToLocationVisualizerSettings set;
 
-	public LocationToLocationVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec,
-			DataTableSpec nodeSpec, DataTableSpec edgeSpec, LocationToLocationVisualizerSettings set) {
+	public LocationToLocationVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec, DataTableSpec nodeSpec,
+			DataTableSpec edgeSpec, LocationToLocationVisualizerSettings set) {
 		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
-		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values()
-				: GisType.valuesWithoutShapefile());
+		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values() : GisType.valuesWithoutShapefile());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		gisBox.addItemListener(this);
-		shapeBox = new ColumnComboBox(false,
-				shapeSpec != null ? GisUtils.getShapeColumns(shapeSpec) : null);
+		shapeBox = new ColumnComboBox(false, shapeSpec != null ? GisUtils.getShapeColumns(shapeSpec) : null);
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
-		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE,
-				IntCell.TYPE));
+		nodeIdBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, StringCell.TYPE, IntCell.TYPE));
 		nodeIdBox.setSelectedColumnName(set.getGraphSettings().getNodeIdColumn());
-		nodeLatitudeBox = new ColumnComboBox(false,
-				KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
+		nodeLatitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLatitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLatitudeColumn());
-		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec,
-				DoubleCell.TYPE));
+		nodeLongitudeBox = new ColumnComboBox(false, KnimeUtils.getColumns(nodeSpec, DoubleCell.TYPE));
 		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLongitudeColumn());
-		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
-				IntCell.TYPE));
+		edgeFromBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeFromBox.setSelectedColumnName(set.getGraphSettings().getEdgeFromColumn());
-		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE,
-				IntCell.TYPE));
+		edgeToBox = new ColumnComboBox(false, KnimeUtils.getColumns(edgeSpec, StringCell.TYPE, IntCell.TYPE));
 		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
@@ -108,22 +100,21 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(UI.createOptionsPanel("GIS Options",
-				Arrays.asList(new JLabel("GIS Type"), new JLabel("Shape Column:")),
-				Arrays.asList(gisBox, shapeBox)));
-		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays
-				.asList(new JLabel("Node ID column:"), new JLabel("Latitude column:"), new JLabel(
-						"Longitude column:")), Arrays.asList(nodeIdBox, nodeLatitudeBox,
-				nodeLongitudeBox)));
-		mainPanel.add(UI.createOptionsPanel("Edge Table", Arrays.asList(new JLabel(
-				"Source Node ID Column:"), new JLabel("Target Node ID Column:")), Arrays.asList(
-				edgeFromBox, edgeToBox)));
-		mainPanel.add(UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox),
-				Arrays.asList(new JLabel())));
+				Arrays.asList(new JLabel("GIS Type"), new JLabel("Shape Column:")), Arrays.asList(gisBox, shapeBox)));
+		mainPanel
+				.add(UI.createOptionsPanel("Node Table",
+						Arrays.asList(new JLabel("Node ID column:"), new JLabel("Latitude column:"),
+								new JLabel("Longitude column:")),
+				Arrays.asList(nodeIdBox, nodeLatitudeBox, nodeLongitudeBox)));
+		mainPanel.add(UI.createOptionsPanel("Edge Table",
+				Arrays.asList(new JLabel("Source Node ID Column:"), new JLabel("Target Node ID Column:")),
+				Arrays.asList(edgeFromBox, edgeToBox)));
+		mainPanel.add(
+				UI.createOptionsPanel("Miscellaneous", Arrays.asList(exportAsSvgBox), Arrays.asList(new JLabel())));
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-				BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		setLocationRelativeTo(owner);
 		pack();
 		getRootPane().setDefaultButton(okButton);
@@ -151,11 +142,9 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 						+ " and all \"Node ID\" columns must be selected";
 
 				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
-			} else if (gisType != GisType.SHAPEFILE
-					&& (nodeIdColumn == null || nodeLatitudeColumn == null
-							|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
-				String error = "\"Latitude\", \"Longitude\""
-						+ " and all \"Node ID\" columns must be selected";
+			} else if (gisType != GisType.SHAPEFILE && (nodeIdColumn == null || nodeLatitudeColumn == null
+					|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
+				String error = "\"Latitude\", \"Longitude\"" + " and all \"Node ID\" columns must be selected";
 
 				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
@@ -169,8 +158,7 @@ public class LocationToLocationVisualizerInputDialog extends JDialog implements 
 				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
 				set.getGraphSettings().setNodeIdColumn(nodeIdBox.getSelectedColumnName());
 				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
-				set.getGisSettings().setNodeLongitudeColumn(
-						nodeLongitudeBox.getSelectedColumnName());
+				set.getGisSettings().setNodeLongitudeColumn(nodeLongitudeBox.getSelectedColumnName());
 				set.getGraphSettings().setEdgeFromColumn(edgeFromBox.getSelectedColumnName());
 				set.getGraphSettings().setEdgeToColumn(edgeToBox.getSelectedColumnName());
 				set.setExportAsSvg(exportAsSvgBox.isSelected());

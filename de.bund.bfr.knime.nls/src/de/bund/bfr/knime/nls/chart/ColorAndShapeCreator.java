@@ -34,37 +34,35 @@ public class ColorAndShapeCreator {
 	public static final int SHAPE_SIZE = 6;
 	public static final int SHAPE_DELTA = 3;
 
-	public static final Color[] COLORS = new Color[] { new Color(255, 85, 85),
-			new Color(85, 85, 255), new Color(85, 255, 85), new Color(255, 85, 255),
-			new Color(85, 255, 255), new Color(255, 175, 175), new Color(128, 128, 128),
-			new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
-			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192),
-			new Color(64, 64, 64), new Color(255, 64, 64), new Color(64, 64, 255),
-			new Color(64, 255, 64), new Color(255, 64, 255), new Color(64, 255, 255),
-			new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
-			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128),
-			new Color(0, 128, 128), new Color(255, 128, 128), new Color(128, 128, 255),
-			new Color(128, 255, 128), new Color(255, 128, 255), new Color(128, 255, 255) };
+	public static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
+			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
+			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
+			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192), new Color(64, 64, 64),
+			new Color(255, 64, 64), new Color(64, 64, 255), new Color(64, 255, 64), new Color(255, 64, 255),
+			new Color(64, 255, 255), new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
+			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128), new Color(0, 128, 128),
+			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
+			new Color(128, 255, 255) };
 
 	public static final Shape[] SHAPES = new Shape[] {
 			new Rectangle2D.Double(-SHAPE_DELTA, -SHAPE_DELTA, SHAPE_SIZE, SHAPE_SIZE),
 			new Ellipse2D.Double(-SHAPE_DELTA, -SHAPE_DELTA, SHAPE_SIZE, SHAPE_SIZE),
-			new Polygon(new int[] { 0, SHAPE_DELTA, -SHAPE_DELTA }, new int[] { -SHAPE_DELTA,
-					SHAPE_DELTA, SHAPE_DELTA }, 3),
-			new Polygon(new int[] { 0, SHAPE_DELTA, 0, -SHAPE_DELTA }, new int[] { -SHAPE_DELTA, 0,
-					SHAPE_DELTA, 0 }, 4),
+			new Polygon(new int[] { 0, SHAPE_DELTA, -SHAPE_DELTA },
+					new int[] { -SHAPE_DELTA, SHAPE_DELTA, SHAPE_DELTA }, 3),
+			new Polygon(new int[] { 0, SHAPE_DELTA, 0, -SHAPE_DELTA }, new int[] { -SHAPE_DELTA, 0, SHAPE_DELTA, 0 },
+					4),
 			new Rectangle2D.Double(-SHAPE_DELTA, -SHAPE_DELTA / 2, SHAPE_SIZE, SHAPE_SIZE / 2),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, 0 }, new int[] { -SHAPE_DELTA,
-					-SHAPE_DELTA, SHAPE_DELTA }, 3),
+			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, 0 },
+					new int[] { -SHAPE_DELTA, -SHAPE_DELTA, SHAPE_DELTA }, 3),
 			new Ellipse2D.Double(-SHAPE_DELTA, -SHAPE_DELTA / 2, SHAPE_SIZE, SHAPE_SIZE / 2),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, -SHAPE_DELTA }, new int[] {
-					-SHAPE_DELTA, 0, SHAPE_DELTA }, 3),
+			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, -SHAPE_DELTA },
+					new int[] { -SHAPE_DELTA, 0, SHAPE_DELTA }, 3),
 			new Rectangle2D.Double(-SHAPE_DELTA / 2, -SHAPE_DELTA, SHAPE_SIZE / 2, SHAPE_SIZE),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, SHAPE_DELTA }, new int[] { 0,
-					-SHAPE_DELTA, SHAPE_DELTA }, 3) };
+			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, SHAPE_DELTA },
+					new int[] { 0, -SHAPE_DELTA, SHAPE_DELTA }, 3) };
 
-	public static final String[] SHAPE_NAMES = { "Square", "Circle", "Triangle1", "Diamond",
-			"Rectangle1", "Triangle2", "Ellipse", "Triangle3", "Rectangle2", "Triangle4" };
+	public static final String[] SHAPE_NAMES = { "Square", "Circle", "Triangle1", "Diamond", "Rectangle1", "Triangle2",
+			"Ellipse", "Triangle3", "Rectangle2", "Triangle4" };
 
 	private List<Color> colorList;
 	private List<Shape> shapeList;

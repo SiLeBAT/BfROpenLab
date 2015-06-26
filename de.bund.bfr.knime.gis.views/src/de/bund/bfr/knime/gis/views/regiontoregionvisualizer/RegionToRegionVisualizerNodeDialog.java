@@ -55,8 +55,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
  * 
  * @author Christian Thoens
  */
-public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog implements
-		CanvasListener {
+public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog implements CanvasListener {
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
@@ -76,16 +75,14 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
 		set.loadSettings(settings);
 
 		updateSplitPane(false);
-		resized = set.getGraphSettings().getCanvasSize() == null
-				|| set.getGisSettings().getCanvasSize() == null;
+		resized = set.getGraphSettings().getCanvasSize() == null || set.getGisSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -97,9 +94,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		RegionToRegionVisualizerInputDialog dialog = new RegionToRegionVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(),
-				edgeTable.getSpec(), set);
+		RegionToRegionVisualizerInputDialog dialog = new RegionToRegionVisualizerInputDialog((JButton) e.getSource(),
+				shapeTable.getSpec(), nodeTable.getSpec(), edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -148,9 +144,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void edgeSelectionChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
-			gisCanvas.setSelectedEdgeIds(RegionToRegionVisualizerCanvasCreator
-					.getSelectedGisEdgeIds(gisCanvas.getEdges(), graphCanvas.getSelectedEdges(),
-							set.getGraphSettings().isJoinEdges()));
+			gisCanvas.setSelectedEdgeIds(RegionToRegionVisualizerCanvasCreator.getSelectedGisEdgeIds(
+					gisCanvas.getEdges(), graphCanvas.getSelectedEdges(), set.getGraphSettings().isJoinEdges()));
 			gisCanvas.addCanvasListener(this);
 			gisCanvas.repaint();
 		} else if (source == gisCanvas) {
@@ -174,13 +169,11 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 					String toRegion = graphEdge.getTo().getRegion();
 
 					if (!graphEdgesByRegion.containsKey(fromRegion)) {
-						graphEdgesByRegion.put(fromRegion,
-								new LinkedHashMap<String, List<Edge<GraphNode>>>());
+						graphEdgesByRegion.put(fromRegion, new LinkedHashMap<String, List<Edge<GraphNode>>>());
 					}
 
 					if (!graphEdgesByRegion.get(fromRegion).containsKey(toRegion)) {
-						graphEdgesByRegion.get(fromRegion).put(toRegion,
-								new ArrayList<Edge<GraphNode>>());
+						graphEdgesByRegion.get(fromRegion).put(toRegion, new ArrayList<Edge<GraphNode>>());
 					}
 
 					graphEdgesByRegion.get(fromRegion).get(toRegion).add(graphEdge);
@@ -191,8 +184,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 					String toRegion = gisEdge.getTo().getId();
 
 					if (graphEdgesByRegion.containsKey(fromRegion)) {
-						List<Edge<GraphNode>> graphEdges = graphEdgesByRegion.get(fromRegion).get(
-								toRegion);
+						List<Edge<GraphNode>> graphEdges = graphEdgesByRegion.get(fromRegion).get(toRegion);
 
 						if (graphEdges != null) {
 							selectedGraphEdges.addAll(graphEdges);
@@ -272,8 +264,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 			panel.remove(splitPane);
 		}
 
-		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(
-				shapeTable, nodeTable, edgeTable, set);
+		RegionToRegionVisualizerCanvasCreator creator = new RegionToRegionVisualizerCanvasCreator(shapeTable, nodeTable,
+				edgeTable, set);
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
@@ -283,8 +275,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
-						"Some regions from the table are not contained" + " in the shapefile",
-						"Warning", JOptionPane.WARNING_MESSAGE);
+						"Some regions from the table are not contained" + " in the shapefile", "Warning",
+						JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);

@@ -29,8 +29,7 @@ import org.apache.commons.math3.ode.nonstiff.ThreeEighthesIntegrator;
 public class IntegratorFactory {
 
 	public static enum Type {
-		RUNGE_KUTTA("Classical Runge Kutta"), EULER("Euler"), GILL("Gill"), MIDPOINT("Midpoint"), THREE_EIGHTHES(
-				"3/8");
+		RUNGE_KUTTA("Classical Runge Kutta"), EULER("Euler"), GILL("Gill"), MIDPOINT("Midpoint"), THREE_EIGHTHES("3/8");
 
 		private String name;
 

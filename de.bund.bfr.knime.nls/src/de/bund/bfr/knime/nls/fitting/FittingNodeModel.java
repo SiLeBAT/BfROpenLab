@@ -73,10 +73,9 @@ import de.bund.bfr.math.ParameterOptimizer;
  */
 public class FittingNodeModel extends NodeModel implements ParameterOptimizer.ProgressListener {
 
-	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE,
+	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE };
+	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
 			BufferedDataTable.TYPE };
-	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE,
-			BufferedDataTable.TYPE, BufferedDataTable.TYPE };
 
 	private boolean isDiff;
 	private FittingSettings set;
@@ -86,8 +85,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 	 * Constructor for the node model.
 	 */
 	protected FittingNodeModel(boolean isDiff, FittingSettings set) {
-		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] { BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE });
+		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE });
 		this.isDiff = isDiff;
 		this.set = set;
 		currentExec = null;
@@ -105,14 +103,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		PortObjectSpec[] outSpec;
 
 		if (isDiff) {
-			results = doEstimation(function, (BufferedDataTable) inObjects[1],
-					(BufferedDataTable) inObjects[2]);
-			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(),
-					inObjects[1].getSpec(), inObjects[2].getSpec() });
+			results = doEstimation(function, (BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
+			outSpec = configure(
+					new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec(), inObjects[2].getSpec() });
 		} else {
 			results = doEstimation(function, (BufferedDataTable) inObjects[1]);
-			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(),
-					inObjects[1].getSpec() });
+			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec() });
 		}
 
 		DataTableSpec paramSpec = (DataTableSpec) outSpec[0];
@@ -128,8 +124,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
 			for (String param1 : function.getParameters()) {
-				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result
-						.getParameterValues().get(param1));
+				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result.getParameterValues().get(param1));
 
 				DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
 
@@ -137,8 +132,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO.createCell(param1);
 
 				for (String param2 : function.getParameters()) {
-					covCells[covSpec.findColumnIndex(param2)] = IO.createCell(result
-							.getCovariances().get(param1).get(param2));
+					covCells[covSpec.findColumnIndex(param2)] = IO
+							.createCell(result.getCovariances().get(param1).get(param2));
 				}
 
 				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
@@ -146,18 +141,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			}
 
 			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
-			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO.createCell(result
-					.getSse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO.createCell(result
-					.getMse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO.createCell(result
-					.getRmse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO.createCell(result
-					.getR2());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO.createCell(result
-					.getAic());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO.createCell(result
-					.getDegreesOfFreedom());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO.createCell(result.getSse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO.createCell(result.getMse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO.createCell(result.getRmse());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO.createCell(result.getR2());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO.createCell(result.getAic());
+			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO.createCell(result.getDegreesOfFreedom());
 
 			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam), paramCells));
 			iParam++;
@@ -184,42 +173,38 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		Function function = ((FunctionPortObjectSpec) inSpecs[0]).getFunction();
 		DataTableSpec dataSpec = (DataTableSpec) inSpecs[1];
-		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec,
-				StringValue.class));
-		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec,
-				DoubleValue.class));
+		List<String> dataStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, StringValue.class));
+		List<String> dataDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(dataSpec, DoubleValue.class));
 
 		if (!dataStringColumns.contains(NlsUtils.ID_COLUMN)) {
-			throw new InvalidSettingsException("Data Table must contain String Column named \""
-					+ NlsUtils.ID_COLUMN + "\"");
+			throw new InvalidSettingsException(
+					"Data Table must contain String Column named \"" + NlsUtils.ID_COLUMN + "\"");
 		}
 
 		if (isDiff) {
 			DataTableSpec conditionSpec = (DataTableSpec) inSpecs[2];
-			List<String> conditionStringColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(
-					conditionSpec, StringValue.class));
-			List<String> conditionDoubleColumns = KnimeUtils.getColumnNames(KnimeUtils.getColumns(
-					conditionSpec, DoubleValue.class));
+			List<String> conditionStringColumns = KnimeUtils
+					.getColumnNames(KnimeUtils.getColumns(conditionSpec, StringValue.class));
+			List<String> conditionDoubleColumns = KnimeUtils
+					.getColumnNames(KnimeUtils.getColumns(conditionSpec, DoubleValue.class));
 
 			if (!dataDoubleColumns.contains(function.getTimeVariable())) {
-				throw new InvalidSettingsException("Data Table must contain Double Column named \""
-						+ function.getTimeVariable() + "\"");
+				throw new InvalidSettingsException(
+						"Data Table must contain Double Column named \"" + function.getTimeVariable() + "\"");
 			}
 
 			if (!dataDoubleColumns.contains(function.getDependentVariable())) {
-				throw new InvalidSettingsException("Data Table must contain Double Column named \""
-						+ function.getDependentVariable() + "\"");
+				throw new InvalidSettingsException(
+						"Data Table must contain Double Column named \"" + function.getDependentVariable() + "\"");
 			}
 
 			if (!conditionStringColumns.contains(NlsUtils.ID_COLUMN)) {
 				throw new InvalidSettingsException(
-						"Condition Table must contain String Column named \"" + NlsUtils.ID_COLUMN
-								+ "\"");
+						"Condition Table must contain String Column named \"" + NlsUtils.ID_COLUMN + "\"");
 			}
 
 			for (String var : function.getVariables()) {
-				if (!var.equals(function.getDependentVariable())
-						&& !conditionDoubleColumns.contains(var)) {
+				if (!var.equals(function.getDependentVariable()) && !conditionDoubleColumns.contains(var)) {
 					throw new InvalidSettingsException(
 							"Condition Table must contain Double Column named \"" + var + "\"");
 				}
@@ -227,8 +212,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		} else {
 			for (String var : function.getVariables()) {
 				if (!dataDoubleColumns.contains(var)) {
-					throw new InvalidSettingsException(
-							"Data Table must contain Double Column named \"" + var + "\"");
+					throw new InvalidSettingsException("Data Table must contain Double Column named \"" + var + "\"");
 				}
 			}
 		}
@@ -268,8 +252,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -344,9 +327,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				argumentArrays.put(entry.getKey(), Doubles.toArray(entry.getValue()));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(function.getTerms().get(
-					function.getDependentVariable()), function.getParameters().toArray(
-					new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays);
+			ParameterOptimizer optimizer = new ParameterOptimizer(
+					function.getTerms().get(function.getDependentVariable()),
+					function.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
+					argumentArrays);
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -354,13 +338,11 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			}
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getStartValues(),
-						new LinkedHashMap<String, Double>());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getStartValues(), new LinkedHashMap<String, Double>());
 			} else {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getMinStartValues(),
-						set.getMaxStartValues());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getMinStartValues(), set.getMaxStartValues());
 			}
 
 			results.put(id, optimizer);
@@ -369,8 +351,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer> doEstimation(Function function,
-			BufferedDataTable dataTable, BufferedDataTable conditionTable) throws ParseException {
+	private Map<String, ParameterOptimizer> doEstimation(Function function, BufferedDataTable dataTable,
+			BufferedDataTable conditionTable) throws ParseException {
 		if (function.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
@@ -383,10 +365,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		for (DataRow row : dataTable) {
 			String id = IO.getString(row.getCell(dataSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
-			Double time = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function
-					.getTimeVariable())));
-			Double target = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function
-					.getDependentVariable())));
+			Double time = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function.getTimeVariable())));
+			Double target = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function.getDependentVariable())));
 
 			if (id == null || !MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
 				continue;
@@ -404,8 +384,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
 		for (DataRow row : conditionTable) {
-			String id = IO
-					.getString(row.getCell(conditionSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
+			String id = IO.getString(row.getCell(conditionSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getIndependentVariables()) {
@@ -453,11 +432,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				i++;
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(terms, valueVariables,
-					initValues, initParameters, function.getParameters().toArray(new String[0]),
-					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
-					function.getDependentVariable(), function.getTimeVariable(), argumentArrays,
-					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
+			ParameterOptimizer optimizer = new ParameterOptimizer(terms, valueVariables, initValues, initParameters,
+					function.getParameters().toArray(new String[0]), Doubles.toArray(timeValues.get(id)),
+					Doubles.toArray(targetValues.get(id)), function.getDependentVariable(), function.getTimeVariable(),
+					argumentArrays, new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -467,13 +445,11 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			optimizer.addProgressListener(this);
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getStartValues(),
-						new LinkedHashMap<String, Double>());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getStartValues(), new LinkedHashMap<String, Double>());
 			} else {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getMinStartValues(),
-						set.getMaxStartValues());
+				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+						set.getMinStartValues(), set.getMaxStartValues());
 			}
 
 			results.put(id, optimizer);

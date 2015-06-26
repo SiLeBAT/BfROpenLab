@@ -74,8 +74,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 
 	private List<ClickListener> listeners;
 
-	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout,
-			boolean allowCollapse) {
+	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse) {
 		init(owner);
 
 		add(resetLayoutItem);

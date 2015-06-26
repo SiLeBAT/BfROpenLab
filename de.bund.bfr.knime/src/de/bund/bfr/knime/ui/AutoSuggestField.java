@@ -33,7 +33,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
-public class AutoSuggestField extends JComboBox<String> implements KeyListener {
+public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -136,8 +136,7 @@ public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 	}
 
-	private static void setSuggestionModel(JComboBox<String> comboBox, ComboBoxModel<String> mdl,
-			String str) {
+	private static void setSuggestionModel(JComboBox<String> comboBox, ComboBoxModel<String> mdl, String str) {
 		comboBox.setModel(mdl);
 		comboBox.setSelectedIndex(-1);
 		((JTextField) comboBox.getEditor().getEditorComponent()).setText(str);

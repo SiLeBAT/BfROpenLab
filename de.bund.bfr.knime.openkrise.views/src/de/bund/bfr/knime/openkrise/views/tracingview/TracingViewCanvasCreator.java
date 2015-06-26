@@ -97,8 +97,7 @@ public class TracingViewCanvasCreator {
 		edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
 
 		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
-		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM,
-				TracingColumns.TO);
+		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
@@ -129,12 +128,10 @@ public class TracingViewCanvasCreator {
 
 	public TracingGraphCanvas createGraphCanvas() throws NotConfigurableException {
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
-				skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
-				skippedTracingRows);
-		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges,
-				nodeSchema, edgeSchema, deliveries);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
+		TracingGraphCanvas canvas = new TracingGraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
+				edgeSchema, deliveries);
 
 		canvas.setPerformTracing(false);
 		set.setToCanvas(canvas);
@@ -146,19 +143,16 @@ public class TracingViewCanvasCreator {
 
 	public ITracingGisCanvas<?> createGisCanvas() throws NotConfigurableException {
 		Set<RowKey> invalidRows = new LinkedHashSet<>();
-		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema,
-				invalidRows, false);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
-				skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
-				skippedTracingRows);
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, invalidRows, false);
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
 		ITracingGisCanvas<?> canvas;
 
 		if (set.getGisType() == GisType.SHAPEFILE) {
 			List<RegionNode> regions = TracingUtils.readRegions(shapeTable, skippedShapeRows);
 
-			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-					edgeSchema, regions, deliveries);
+			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, regions,
+					deliveries);
 		} else {
 			TileSource tileSource;
 
@@ -182,8 +176,7 @@ public class TracingViewCanvasCreator {
 				throw new IllegalArgumentException();
 			}
 
-			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-					edgeSchema, deliveries);
+			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 			((TracingOsmCanvas) canvas).setTileSource(tileSource);
 		}
 

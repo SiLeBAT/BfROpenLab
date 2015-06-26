@@ -53,9 +53,8 @@ public class GisGraphViewNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected GisGraphViewNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE }, new PortType[] { ImagePortObject.TYPE,
-				ImagePortObject.TYPE, ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE },
+				new PortType[] { ImagePortObject.TYPE, ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new GisGraphViewSettings();
 	}
 
@@ -67,8 +66,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[2];
-		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(shapeTable, nodeTable,
-				edgeTable, set);
+		GisGraphViewCanvasCreator creator = new GisGraphViewCanvasCreator(shapeTable, nodeTable, edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
 		LocationCanvas gisCanvas = creator.createGisCanvas();
 
@@ -90,8 +88,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		return new PortObjectSpec[] { CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
+				CanvasUtils.getImageSpec(set.isExportAsSvg()), CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
@@ -106,8 +103,7 @@ public class GisGraphViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

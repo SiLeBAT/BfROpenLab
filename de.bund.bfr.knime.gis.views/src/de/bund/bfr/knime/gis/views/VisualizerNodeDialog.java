@@ -32,8 +32,8 @@ import org.knime.core.node.DataAwareNodeDialogPane;
 
 import de.bund.bfr.knime.UI;
 
-public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane implements
-		ActionListener, ComponentListener {
+public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane
+		implements ActionListener, ComponentListener {
 
 	protected JPanel panel;
 	protected boolean resized;

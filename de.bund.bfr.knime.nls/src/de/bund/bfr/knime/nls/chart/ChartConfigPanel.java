@@ -46,8 +46,8 @@ import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.knime.ui.VariablePanel;
 import de.bund.bfr.math.Transform;
 
-public class ChartConfigPanel extends JPanel implements ItemListener, TextListener, MouseListener,
-		VariablePanel.ValueListener {
+public class ChartConfigPanel extends JPanel
+		implements ItemListener, TextListener, MouseListener, VariablePanel.ValueListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -215,8 +215,7 @@ public class ChartConfigPanel extends JPanel implements ItemListener, TextListen
 
 		if (allowParameters) {
 			parameterPanel = new VariablePanel(new LinkedHashMap<String, List<Double>>(),
-					new LinkedHashMap<String, Double>(), new LinkedHashMap<String, Double>(),
-					false, true, true);
+					new LinkedHashMap<String, Double>(), new LinkedHashMap<String, Double>(), false, true, true);
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
 			outerParameterPanel.setLayout(new BorderLayout());
@@ -374,8 +373,8 @@ public class ChartConfigPanel extends JPanel implements ItemListener, TextListen
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public void init(String varY, List<String> variablesX, List<String> parameters,
-			Map<String, Double> minValues, Map<String, Double> maxValues) {
+	public void init(String varY, List<String> variablesX, List<String> parameters, Map<String, Double> minValues,
+			Map<String, Double> maxValues) {
 		if (variablesX == null) {
 			variablesX = new ArrayList<>();
 		}

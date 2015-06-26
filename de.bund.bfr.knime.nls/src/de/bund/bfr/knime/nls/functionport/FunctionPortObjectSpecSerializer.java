@@ -27,12 +27,11 @@ import org.knime.core.node.port.PortObjectSpec.PortObjectSpecSerializer;
 import org.knime.core.node.port.PortObjectSpecZipInputStream;
 import org.knime.core.node.port.PortObjectSpecZipOutputStream;
 
-public class FunctionPortObjectSpecSerializer extends
-		PortObjectSpecSerializer<FunctionPortObjectSpec> {
+public class FunctionPortObjectSpecSerializer extends PortObjectSpecSerializer<FunctionPortObjectSpec> {
 
 	@Override
-	public void savePortObjectSpec(FunctionPortObjectSpec portObjectSpec,
-			PortObjectSpecZipOutputStream out) throws IOException {
+	public void savePortObjectSpec(FunctionPortObjectSpec portObjectSpec, PortObjectSpecZipOutputStream out)
+			throws IOException {
 		ObjectOutputStream objectOut = new ObjectOutputStream(out);
 
 		objectOut.writeObject(portObjectSpec);
@@ -40,8 +39,7 @@ public class FunctionPortObjectSpecSerializer extends
 	}
 
 	@Override
-	public FunctionPortObjectSpec loadPortObjectSpec(PortObjectSpecZipInputStream in)
-			throws IOException {
+	public FunctionPortObjectSpec loadPortObjectSpec(PortObjectSpecZipInputStream in) throws IOException {
 		ObjectInputStream objectIn = new ObjectInputStream(in);
 		FunctionPortObjectSpec portObject;
 

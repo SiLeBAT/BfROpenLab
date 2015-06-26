@@ -59,8 +59,7 @@ public class TracingViewSettings extends NodeSettings {
 		}
 	}
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SHOW_GIS = "ShowGis";
 	private static final String CFG_GIS_TYPE = "GisType";
@@ -208,32 +207,30 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_NODES));
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			selectedEdges = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_EDGES));
+			selectedEdges = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER.fromXml(settings
-					.getString(CFG_COLLAPSED_NODES));
+			collapsedNodes = (Map<String, Map<String, Point2D>>) SERIALIZER
+					.fromXml(settings.getString(CFG_COLLAPSED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -243,50 +240,46 @@ public class TracingViewSettings extends NodeSettings {
 		}
 
 		try {
-			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_WEIGHTS));
+			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_NODE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_WEIGHTS));
+			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_EDGE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_CROSS_CONTAMINATIONS));
+			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
+			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_KILL_CONTAMINATIONS));
+			nodeKillContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_KILL_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_KILL_CONTAMINATIONS));
+			edgeKillContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_KILL_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_NODES));
+			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings.getString(CFG_OBSERVED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedEdges = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_EDGES));
+			observedEdges = (Map<String, Boolean>) SERIALIZER.fromXml(settings.getString(CFG_OBSERVED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -403,10 +396,10 @@ public class TracingViewSettings extends NodeSettings {
 
 		canvas.setCollapsedNodes(collapsed);
 
-		canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
-				canvas.getNodeSchema().getMap().keySet()));
-		canvas.setEdgeHighlightConditions(TracingUtils.renameColumns(edgeHighlightConditions,
-				canvas.getEdgeSchema().getMap().keySet()));
+		canvas.setNodeHighlightConditions(
+				TracingUtils.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
+		canvas.setEdgeHighlightConditions(
+				TracingUtils.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
 		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));

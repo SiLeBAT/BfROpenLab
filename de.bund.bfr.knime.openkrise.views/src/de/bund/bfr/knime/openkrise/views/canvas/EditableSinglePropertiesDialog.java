@@ -61,20 +61,18 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 
 	private boolean approved;
 
-	public EditableSinglePropertiesDialog(Component parent, Element element,
-			Map<String, Class<?>> properties) {
+	public EditableSinglePropertiesDialog(Component parent, Element element, Map<String, Class<?>> properties) {
 		super(SwingUtilities.getWindowAncestor(parent), "Properties", DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
 		Map<String, Object> values = element.getProperties();
-		double weight = values.get(TracingColumns.WEIGHT) != null ? (Double) values
-				.get(TracingColumns.WEIGHT) : 0.0;
-		boolean crossContamination = values.get(TracingColumns.CROSS_CONTAMINATION) != null ? (Boolean) values
-				.get(TracingColumns.CROSS_CONTAMINATION) : false;
-		boolean killContamination = values.get(TracingColumns.KILL_CONTAMINATION) != null ? (Boolean) values
-				.get(TracingColumns.KILL_CONTAMINATION) : false;
-		boolean observed = values.get(TracingColumns.OBSERVED) != null ? (Boolean) values
-				.get(TracingColumns.OBSERVED) : false;
+		double weight = values.get(TracingColumns.WEIGHT) != null ? (Double) values.get(TracingColumns.WEIGHT) : 0.0;
+		boolean crossContamination = values.get(TracingColumns.CROSS_CONTAMINATION) != null
+				? (Boolean) values.get(TracingColumns.CROSS_CONTAMINATION) : false;
+		boolean killContamination = values.get(TracingColumns.KILL_CONTAMINATION) != null
+				? (Boolean) values.get(TracingColumns.KILL_CONTAMINATION) : false;
+		boolean observed = values.get(TracingColumns.OBSERVED) != null ? (Boolean) values.get(TracingColumns.OBSERVED)
+				: false;
 
 		caseField = new JTextField(8);
 		caseField.setText(String.valueOf(weight));
@@ -82,19 +80,17 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		killBox = new JCheckBox("", killContamination);
 		observedBox = new JCheckBox("", observed);
 
-		JPanel inputPanel = UI.createOptionsPanel("Input", Arrays.asList(new JLabel(
-				TracingColumns.WEIGHT + ":"), new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
-				new JLabel(TracingColumns.KILL_CONTAMINATION + ":"), new JLabel(
-						TracingColumns.OBSERVED + ":")), Arrays.asList(caseField, contaminationBox,
-				killBox, observedBox));
+		JPanel inputPanel = UI.createOptionsPanel("Input",
+				Arrays.asList(new JLabel(TracingColumns.WEIGHT + ":"),
+						new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
+						new JLabel(TracingColumns.KILL_CONTAMINATION + ":"), new JLabel(TracingColumns.OBSERVED + ":")),
+				Arrays.asList(caseField, contaminationBox, killBox, observedBox));
 		List<JLabel> tracingLabels = Arrays.asList(new JLabel(TracingColumns.SCORE + ":"),
-				new JLabel(TracingColumns.NORMALIZED_SCORE + ":"), new JLabel(
-						TracingColumns.BACKWARD + ":"), new JLabel(TracingColumns.FORWARD + ":"));
-		List<JTextField> tracingFields = Arrays.asList(
-				createField(values.get(TracingColumns.SCORE)),
+				new JLabel(TracingColumns.NORMALIZED_SCORE + ":"), new JLabel(TracingColumns.BACKWARD + ":"),
+				new JLabel(TracingColumns.FORWARD + ":"));
+		List<JTextField> tracingFields = Arrays.asList(createField(values.get(TracingColumns.SCORE)),
 				createField(values.get(TracingColumns.NORMALIZED_SCORE)),
-				createField(values.get(TracingColumns.BACKWARD)),
-				createField(values.get(TracingColumns.FORWARD)));
+				createField(values.get(TracingColumns.BACKWARD)), createField(values.get(TracingColumns.FORWARD)));
 		JPanel tracingPanel = UI.createOptionsPanel("Tracing", tracingLabels, tracingFields);
 		JPanel northPanel = new JPanel();
 
@@ -141,8 +137,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		setLayout(new BorderLayout());
 		add(northPanel, BorderLayout.NORTH);
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)),
-				BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
 		UI.adjustDialog(this, 0.5, 1.0);
@@ -160,16 +155,14 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 				element.getProperties().put(TracingColumns.WEIGHT, 0.0);
 			} else {
 				try {
-					element.getProperties().put(TracingColumns.WEIGHT,
-							Double.parseDouble(caseField.getText()));
+					element.getProperties().put(TracingColumns.WEIGHT, Double.parseDouble(caseField.getText()));
 				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(this, "Please enter valid number for "
-							+ TracingColumns.WEIGHT, "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Please enter valid number for " + TracingColumns.WEIGHT,
+							"Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 
-			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-					contaminationBox.isSelected());
+			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, contaminationBox.isSelected());
 			element.getProperties().put(TracingColumns.KILL_CONTAMINATION, killBox.isSelected());
 			element.getProperties().put(TracingColumns.OBSERVED, observedBox.isSelected());
 			approved = true;
@@ -183,8 +176,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 	private static JTextField createField(Object obj) {
 		JTextField field = new JTextField(obj != null ? obj.toString() : "");
 
-		field.setPreferredSize(new Dimension(field.getPreferredSize().width + 5, field
-				.getPreferredSize().height));
+		field.setPreferredSize(new Dimension(field.getPreferredSize().width + 5, field.getPreferredSize().height));
 		field.setEditable(false);
 
 		return field;

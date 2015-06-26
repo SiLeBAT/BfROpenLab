@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class LocationToLocationVisualizerNodeFactory extends
-		NodeFactory<LocationToLocationVisualizerNodeModel> {
+public class LocationToLocationVisualizerNodeFactory extends NodeFactory<LocationToLocationVisualizerNodeModel> {
 
 	/**
 	 * {@inheritDoc}

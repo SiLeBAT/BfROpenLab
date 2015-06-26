@@ -35,8 +35,7 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 	private JSplitPane splitPane;
 	private boolean adjusted;
 
-	public ChartAllPanel(ChartCreator chartCreator, ChartSelectionPanel selectionPanel,
-			ChartConfigPanel configPanel) {
+	public ChartAllPanel(ChartCreator chartCreator, ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel) {
 		adjusted = false;
 
 		JPanel upperPanel = new JPanel();

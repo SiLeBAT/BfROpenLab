@@ -30,8 +30,7 @@ import de.bund.bfr.knime.openkrise.util.Activator;
 
 public class DBSCANNSettings extends NodeSettings {
 
-	private static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	private static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	public static final String MODEL_DBSCAN = "DBSCAN";
 	public static final String MODEL_K_MEANS = "k-means";

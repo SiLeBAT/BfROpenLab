@@ -29,21 +29,17 @@ import edu.uci.ics.jung.visualization.renderers.EdgeArrowRenderingSupport;
 public class MiddleEdgeArrowRenderingSupport<V, E> implements EdgeArrowRenderingSupport<V, E> {
 
 	@Override
-	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
-			Shape vertexShape) {
+	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
 		Line2D lineInMiddle = JungUtils.getLineInMiddle(edgeShape);
 
-		return lineInMiddle != null ? getArrowTransform(rc, lineInMiddle, null)
-				: new AffineTransform();
+		return lineInMiddle != null ? getArrowTransform(rc, lineInMiddle, null) : new AffineTransform();
 	}
 
 	@Override
-	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Line2D edgeShape,
-			Shape vertexShape) {
+	public AffineTransform getArrowTransform(RenderContext<V, E> rc, Line2D edgeShape, Shape vertexShape) {
 		float dx = (float) (edgeShape.getX2() - edgeShape.getX1());
 		float dy = (float) (edgeShape.getY2() - edgeShape.getY1());
-		AffineTransform at = AffineTransform.getTranslateInstance(edgeShape.getX1(),
-				edgeShape.getY1());
+		AffineTransform at = AffineTransform.getTranslateInstance(edgeShape.getX1(), edgeShape.getY1());
 
 		at.rotate(-Math.atan2(dx, dy) + Math.PI / 2);
 
@@ -51,14 +47,13 @@ public class MiddleEdgeArrowRenderingSupport<V, E> implements EdgeArrowRendering
 	}
 
 	@Override
-	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
-			Shape vertexShape) {
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape,
-			Shape vertexShape, boolean passedGo) {
+	public AffineTransform getReverseArrowTransform(RenderContext<V, E> rc, Shape edgeShape, Shape vertexShape,
+			boolean passedGo) {
 		throw new UnsupportedOperationException();
 	}
 }

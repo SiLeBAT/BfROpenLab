@@ -51,8 +51,7 @@ public class InteractiveFunctionFittingNodeFactory extends NodeFactory<FittingNo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FittingNodeModel> createNodeView(final int viewIndex,
-			final FittingNodeModel nodeModel) {
+	public NodeView<FittingNodeModel> createNodeView(final int viewIndex, final FittingNodeModel nodeModel) {
 		return null;
 	}
 

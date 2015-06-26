@@ -59,10 +59,9 @@ public class PropertiesDialog<V extends Node> extends JDialog implements ActionL
 	private JButton selectButton;
 	private JButton okButton;
 
-	private PropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements,
-			PropertySchema schema, Type type, boolean allowViewSelection, Set<String> idColumns) {
-		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties",
-				DEFAULT_MODALITY_TYPE);
+	private PropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements, PropertySchema schema,
+			Type type, boolean allowViewSelection, Set<String> idColumns) {
+		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 
@@ -74,14 +73,12 @@ public class PropertiesDialog<V extends Node> extends JDialog implements ActionL
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
-		scrollPane.setPreferredSize(UI.getMaxDimension(scrollPane.getPreferredSize(),
-				table.getPreferredSize()));
+		scrollPane.setPreferredSize(UI.getMaxDimension(scrollPane.getPreferredSize(), table.getPreferredSize()));
 
 		JPanel bottomPanel = new JPanel();
 
 		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(
-				UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
+		bottomPanel.add(UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
 				BorderLayout.WEST);
 		bottomPanel.add(UI.createHorizontalPanel(okButton), BorderLayout.EAST);
 
@@ -99,20 +96,15 @@ public class PropertiesDialog<V extends Node> extends JDialog implements ActionL
 		getRootPane().setDefaultButton(okButton);
 	}
 
-	public static <V extends Node> PropertiesDialog<V> createNodeDialog(ICanvas<V> parent,
-			Collection<V> nodes, NodePropertySchema schema, boolean allowViewSelection) {
+	public static <V extends Node> PropertiesDialog<V> createNodeDialog(ICanvas<V> parent, Collection<V> nodes,
+			NodePropertySchema schema, boolean allowViewSelection) {
 		return new PropertiesDialog<>(parent, nodes, schema, Type.NODE, allowViewSelection,
 				new LinkedHashSet<>(Arrays.asList(schema.getId())));
 	}
 
-	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(ICanvas<V> parent,
-			Collection<Edge<V>> edges, EdgePropertySchema schema, boolean allowViewSelection) {
-		return new PropertiesDialog<>(
-				parent,
-				edges,
-				schema,
-				Type.EDGE,
-				allowViewSelection,
+	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(ICanvas<V> parent, Collection<Edge<V>> edges,
+			EdgePropertySchema schema, boolean allowViewSelection) {
+		return new PropertiesDialog<>(parent, edges, schema, Type.EDGE, allowViewSelection,
 				new LinkedHashSet<>(Arrays.asList(schema.getId(), schema.getFrom(), schema.getTo())));
 	}
 

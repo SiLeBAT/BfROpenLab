@@ -63,11 +63,9 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
-		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable,
-				edgeTable, set);
+		GraphVisualizerCanvasCreator creator = new GraphVisualizerCanvasCreator(nodeTable, edgeTable, set);
 
-		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(),
-				creator.createGraphCanvas()) };
+		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), creator.createGraphCanvas()) };
 	}
 
 	/**
@@ -97,8 +95,7 @@ public class GraphVisualizerNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 

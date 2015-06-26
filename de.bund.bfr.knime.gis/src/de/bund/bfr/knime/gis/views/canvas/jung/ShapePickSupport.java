@@ -47,8 +47,8 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 	public V getVertex(Layout<V, E> layout, double x, double y) {
 		V closest = null;
 		double minDistance = Double.MAX_VALUE;
-		Point2D ip = vv.getRenderContext().getMultiLayerTransformer()
-				.inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
+		Point2D ip = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
+				new Point2D.Double(x, y));
 
 		x = ip.getX();
 		y = ip.getY();
@@ -91,8 +91,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 	public Collection<V> getVertices(Layout<V, E> layout, Shape shape) {
 		Set<V> pickedVertices = new HashSet<V>();
 
-		shape = vv.getRenderContext().getMultiLayerTransformer()
-				.inverseTransform(Layer.VIEW, shape);
+		shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
 
 		for (V v : layout.getGraph().getVertices()) {
 			if (!vv.getRenderContext().getVertexIncludePredicate()
@@ -118,8 +117,8 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 
 	@Override
 	public E getEdge(Layout<V, E> layout, double x, double y) {
-		Point2D ip = vv.getRenderContext().getMultiLayerTransformer()
-				.inverseTransform(Layer.VIEW, new Point2D.Double(x, y));
+		Point2D ip = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
+				new Point2D.Double(x, y));
 
 		x = ip.getX();
 		y = ip.getY();
@@ -138,8 +137,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 			float lastX = Float.NaN;
 			float lastY = Float.NaN;
 
-			for (PathIterator i = new GeneralPath(edgeShape).getPathIterator(null, 1); !i.isDone(); i
-					.next()) {
+			for (PathIterator i = new GeneralPath(edgeShape).getPathIterator(null, 1); !i.isDone(); i.next()) {
 				i.currentSegment(seg);
 
 				float newX = seg[0];

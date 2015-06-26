@@ -98,8 +98,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec)
-			throws Exception {
+	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 		ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile.getStringValue());
 		ContentFeatureCollection collection = dataStore.getFeatureSource().getFeatures();
 
@@ -110,8 +109,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		int index = 0;
 
 		try {
-			transform = CRS.findMathTransform(
-					GisUtils.getCoordinateSystem(shpFile.getStringValue()),
+			transform = CRS.findMathTransform(GisUtils.getCoordinateSystem(shpFile.getStringValue()),
 					CRS.decode("EPSG:4326"), true);
 		} catch (FileNotFoundException e) {
 			transform = new AffineTransform2D(0, 1, 1, 0, 0, 0);
@@ -205,8 +203,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		shpFile.loadSettingsFrom(settings);
 	}
 

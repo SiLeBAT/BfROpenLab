@@ -64,8 +64,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 
-public class EditablePropertiesDialog<V extends Node> extends JDialog implements ActionListener,
-		CellEditorListener, RowSorterListener, ListSelectionListener {
+public class EditablePropertiesDialog<V extends Node> extends JDialog
+		implements ActionListener, CellEditorListener, RowSorterListener, ListSelectionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -94,10 +94,9 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 
 	private Map<String, InputTable.Input> values;
 
-	private EditablePropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements,
-			PropertySchema schema, Type type, boolean allowViewSelection) {
-		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties",
-				DEFAULT_MODALITY_TYPE);
+	private EditablePropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements, PropertySchema schema,
+			Type type, boolean allowViewSelection) {
+		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 
@@ -108,8 +107,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 			idColumns.add(TracingColumns.ID);
 			break;
 		case EDGE:
-			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM,
-					TracingColumns.TO));
+			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO));
 			break;
 		}
 
@@ -160,19 +158,17 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		scrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, cornerPanel);
 		scrollPane.setRowHeaderView(inputTable);
 		scrollPane.setViewportView(table);
-		scrollPane.setPreferredSize(UI.getMaxDimension(scrollPane.getPreferredSize(),
-				table.getPreferredSize()));
+		scrollPane.setPreferredSize(UI.getMaxDimension(scrollPane.getPreferredSize(), table.getPreferredSize()));
 
 		JViewport rowHeader = scrollPane.getRowHeader();
 
-		rowHeader.setPreferredSize(new Dimension(cornerPanel.getMinimumSize().width, rowHeader
-				.getPreferredSize().height));
+		rowHeader.setPreferredSize(
+				new Dimension(cornerPanel.getMinimumSize().width, rowHeader.getPreferredSize().height));
 
 		JPanel southPanel = new JPanel();
 
 		southPanel.setLayout(new BorderLayout());
-		southPanel.add(
-				UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
+		southPanel.add(UI.createHorizontalPanel(new JLabel("Number of Elements: " + elements.size())),
 				BorderLayout.WEST);
 		southPanel.add(UI.createHorizontalPanel(okButton, cancelButton), BorderLayout.EAST);
 
@@ -187,8 +183,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		buttons.add(killButton);
 		buttons.add(filterButton);
 		setLayout(new BorderLayout());
-		add(UI.createWestPanel(UI.createHorizontalPanel(buttons.toArray(new JButton[0]))),
-				BorderLayout.NORTH);
+		add(UI.createWestPanel(UI.createHorizontalPanel(buttons.toArray(new JButton[0]))), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
 		pack();
@@ -197,8 +192,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 		getRootPane().setDefaultButton(okButton);
 	}
 
-	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(ICanvas<V> parent,
-			Collection<V> nodes, NodePropertySchema schema, boolean allowViewSelection) {
+	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(ICanvas<V> parent, Collection<V> nodes,
+			NodePropertySchema schema, boolean allowViewSelection) {
 		return new EditablePropertiesDialog<V>(parent, nodes, schema, Type.NODE, allowViewSelection);
 	}
 
@@ -225,10 +220,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 				InputTable.Input input = values.get(element.getId());
 
 				element.getProperties().put(TracingColumns.WEIGHT, input.getWeight());
-				element.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-						input.isCrossContamination());
-				element.getProperties().put(TracingColumns.KILL_CONTAMINATION,
-						input.isKillContamination());
+				element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, input.isCrossContamination());
+				element.getProperties().put(TracingColumns.KILL_CONTAMINATION, input.isKillContamination());
 				element.getProperties().put(TracingColumns.OBSERVED, input.isObserved());
 			}
 
@@ -258,16 +251,16 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 				break;
 			}
 		} else if (e.getSource() == weightButton) {
-			Object result = JOptionPane.showInputDialog(this, "Set All Values to?",
-					TracingColumns.WEIGHT, JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
+			Object result = JOptionPane.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT,
+					JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
 			Double value = null;
 
 			if (result != null) {
 				try {
 					value = Double.parseDouble(result.toString());
 				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(this, result.toString()
-							+ " is not a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, result.toString() + " is not a valid number", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 
@@ -294,8 +287,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 			}
 
 			Object result = JOptionPane.showInputDialog(this, "Set All Values to?", property,
-					JOptionPane.QUESTION_MESSAGE, null,
-					new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
+					JOptionPane.QUESTION_MESSAGE, null, new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
 
 			if (result != null) {
 				if (inputTable.isEditing()) {
@@ -384,7 +376,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog implements
 	private static Component getTableHeaderComponent(String name) {
 		JTable table = new JTable(new Object[1][1], new Object[] { name });
 
-		return table.getTableHeader().getDefaultRenderer()
-				.getTableCellRendererComponent(table, name, false, false, 0, 0);
+		return table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false, false, 0,
+				0);
 	}
 }

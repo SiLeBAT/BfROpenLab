@@ -92,8 +92,8 @@ public class AddressCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		BufferedDataTable table = inData[0];
 		DataTableSpec spec = table.getSpec();
 		DataTableSpec outSpec = createOutSpec(spec);
@@ -152,9 +152,8 @@ public class AddressCreatorNodeModel extends NodeModel {
 				postalCode = IO.getCleanString(row.getCell(postalCodeColumn));
 			}
 
-			cells[outSpec.findColumnIndex(TracingColumns.ADDRESS)] = IO.createCell(GisUtils
-					.getAddress(street, houseNumber, city, district, state, country, postalCode,
-							houseNumberAfterStreet.getBooleanValue()));
+			cells[outSpec.findColumnIndex(TracingColumns.ADDRESS)] = IO.createCell(GisUtils.getAddress(street,
+					houseNumber, city, district, state, country, postalCode, houseNumberAfterStreet.getBooleanValue()));
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
 			exec.setProgress((double) index / (double) table.getRowCount());
@@ -176,8 +175,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		return new DataTableSpec[] { createOutSpec(inSpecs[0]) };
 	}
 
@@ -199,8 +197,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		street.loadSettingsFrom(settings);
 		houseNumber.loadSettingsFrom(settings);
 		city.loadSettingsFrom(settings);
@@ -245,8 +242,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 
 		for (DataColumnSpec column : spec) {
 			if (column.getName().equals(TracingColumns.ADDRESS)) {
-				throw new InvalidSettingsException("Column \"" + TracingColumns.ADDRESS
-						+ "\" already exists");
+				throw new InvalidSettingsException("Column \"" + TracingColumns.ADDRESS + "\" already exists");
 			}
 
 			columns.add(column);

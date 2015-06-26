@@ -52,33 +52,28 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	private static final long serialVersionUID = 1L;
 
 	public RegionCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(), naming, allowEdges);
+		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), naming, allowEdges);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema, new EdgePropertySchema(),
-				naming, false);
+		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
-	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming) {
+	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming) {
 		this(nodes, edges, nodeSchema, edgeSchema, naming, true);
 	}
 
-	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges,
-			NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema, Naming naming,
-			boolean allowEdges) {
+	private RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges, NodePropertySchema nodeSchema,
+			EdgePropertySchema edgeSchema, Naming naming, boolean allowEdges) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				new NodeShapeTransformer<RegionNode>(2, null));
-		viewer.getRenderContext().setVertexDrawPaintTransformer(
-				new InvisibleTransformer<RegionNode>());
-		viewer.getRenderContext().setVertexFillPaintTransformer(
-				new InvisibleTransformer<RegionNode>());
+		viewer.getRenderContext().setVertexShapeTransformer(new NodeShapeTransformer<RegionNode>(2, null));
+		viewer.getRenderContext().setVertexDrawPaintTransformer(new InvisibleTransformer<RegionNode>());
+		viewer.getRenderContext().setVertexFillPaintTransformer(new InvisibleTransformer<RegionNode>());
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
 		for (RegionNode node : this.nodes) {
@@ -118,8 +113,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	@Override
 	public void applyHighlights() {
 		CanvasUtils.applyNodeLabels(viewer.getRenderContext(), nodes, nodeHighlightConditions);
-		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions,
-				getEdgeThickness(), getEdgeMaxThickness());
+		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions, getEdgeThickness(),
+				getEdgeMaxThickness());
 	}
 
 	@Override
@@ -159,8 +154,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		}
 
 		for (RegionNode node : nodes) {
-			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node),
-					false);
+			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node), false);
 
 			if (!color.equals(Color.WHITE) && !viewer.getPickedVertexState().isPicked(node)) {
 				((Graphics2D) g).setPaint(color);
@@ -204,17 +198,14 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 				RegionNode node = getContainingNode(e.getX(), e.getY());
-				Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(),
-						e.getX(), e.getY());
+				Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
 
 				if (edge != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
-							edge, edgeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge, edgeSchema);
 
 					dialog.setVisible(true);
 				} else if (node != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(),
-							node, nodeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), node, nodeSchema);
 
 					dialog.setVisible(true);
 				}
@@ -224,8 +215,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			RegionNode node = getContainingNode(e.getX(), e.getY());
-			Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(),
-					e.getX(), e.getY());
+			Edge<RegionNode> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
 
 			if (e.getButton() == MouseEvent.BUTTON1 && node != null && edge == null) {
 				if (!e.isShiftDown()) {

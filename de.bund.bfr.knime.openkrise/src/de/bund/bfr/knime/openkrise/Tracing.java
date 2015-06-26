@@ -156,8 +156,7 @@ public class Tracing {
 		}
 
 		for (String stationId : ccStations) {
-			if (!incomingDeliveries.containsKey(stationId)
-					|| !outgoingDeliveries.containsKey(stationId)) {
+			if (!incomingDeliveries.containsKey(stationId) || !outgoingDeliveries.containsKey(stationId)) {
 				continue;
 			}
 
@@ -215,8 +214,7 @@ public class Tracing {
 		}
 
 		for (String stationId : killContaminationStations) {
-			if (!incomingDeliveries.containsKey(stationId)
-					|| !outgoingDeliveries.containsKey(stationId)) {
+			if (!incomingDeliveries.containsKey(stationId) || !outgoingDeliveries.containsKey(stationId)) {
 				continue;
 			}
 
@@ -241,8 +239,7 @@ public class Tracing {
 
 		Result result = new Result();
 
-		for (String stationId : Sets
-				.union(incomingDeliveries.keySet(), outgoingDeliveries.keySet())) {
+		for (String stationId : Sets.union(incomingDeliveries.keySet(), outgoingDeliveries.keySet())) {
 			result.stationScores.put(stationId, getStationScore(stationId));
 			result.forwardStationsByStation.put(stationId, getForwardStations(stationId));
 			result.backwardStationsByStation.put(stationId, getBackwardStations(stationId));

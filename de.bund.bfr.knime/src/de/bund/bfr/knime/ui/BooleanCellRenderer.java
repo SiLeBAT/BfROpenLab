@@ -34,8 +34,8 @@ import javax.swing.table.TableCellRenderer;
 public class BooleanCellRenderer implements TableCellRenderer {
 
 	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-			boolean hasFocus, int row, int column) {
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
 		JPanel panel = new JPanel();
 		Boolean v = (Boolean) value;
 		Color color;
@@ -60,8 +60,8 @@ public class BooleanCellRenderer implements TableCellRenderer {
 			box.setBackground(color);
 
 			panel.setLayout(new GridBagLayout());
-			panel.add(box, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER,
-					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			panel.add(box, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+					new Insets(0, 0, 0, 0), 0, 0));
 		}
 
 		return panel;

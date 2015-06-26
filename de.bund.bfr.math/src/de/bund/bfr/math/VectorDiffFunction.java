@@ -45,9 +45,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private IntegratorFactory integrator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, double[]> variableValues,
-			double[] timeValues, String dependentVariable, String timeVariable,
-			IntegratorFactory integrator) throws ParseException {
+			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
+			String dependentVariable, String timeVariable, IntegratorFactory integrator) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
@@ -72,10 +71,9 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		}
 	}
 
-	public VectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables,
-			Double[] initValues, String[] initParameters, String[] parameters,
-			Map<String, double[]> variableValues, double[] timeValues, int dependentIndex,
-			String timeVariable, IntegratorFactory integrator) {
+	public VectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables, Double[] initValues,
+			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
+			int dependentIndex, String timeVariable, IntegratorFactory integrator) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -107,8 +105,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues,
-				timeVariable);
+		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		double[] result = new double[timeValues.length];
 

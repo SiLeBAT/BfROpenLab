@@ -51,8 +51,7 @@ public class DBSCANNodeFactory extends NodeFactory<DBSCANNodeModel> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<DBSCANNodeModel> createNodeView(final int viewIndex,
-			final DBSCANNodeModel nodeModel) {
+	public NodeView<DBSCANNodeModel> createNodeView(final int viewIndex, final DBSCANNodeModel nodeModel) {
 		return null;
 	}
 

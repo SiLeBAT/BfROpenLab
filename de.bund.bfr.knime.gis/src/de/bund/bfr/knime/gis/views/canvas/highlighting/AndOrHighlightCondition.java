@@ -48,20 +48,16 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	public AndOrHighlightCondition(AndOrHighlightCondition c) {
-		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible, c.useThickness,
-				c.labelProperty);
+		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible, c.useThickness, c.labelProperty);
 	}
 
-	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name,
-			boolean showInLegend, Color color, boolean invisible, boolean useThickness,
-			String labelProperty) {
-		this(asList(asList(condition)), name, showInLegend, color, invisible, useThickness,
-				labelProperty);
+	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name, boolean showInLegend, Color color,
+			boolean invisible, boolean useThickness, String labelProperty) {
+		this(asList(asList(condition)), name, showInLegend, color, invisible, useThickness, labelProperty);
 	}
 
-	public AndOrHighlightCondition(List<List<LogicalHighlightCondition>> conditions, String name,
-			boolean showInLegend, Color color, boolean invisible, boolean useThickness,
-			String labelProperty) {
+	public AndOrHighlightCondition(List<List<LogicalHighlightCondition>> conditions, String name, boolean showInLegend,
+			Color color, boolean invisible, boolean useThickness, String labelProperty) {
 		setConditions(conditions);
 		setName(name);
 		setShowInLegend(showInLegend);

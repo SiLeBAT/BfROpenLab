@@ -84,24 +84,21 @@ public class TracingParametersNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		BufferedDataTable nodeTable = inData[0];
 		BufferedDataTable edgeTable = inData[1];
 		BufferedDataTable tracingTable = inData[2];
-		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(
-				TracingUtils.getTableColumns(edgeTable.getSpec()), TracingColumns.ID,
-				TracingColumns.FROM, TracingColumns.TO);
+		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
 		Set<RowKey> skippedTracingRows = new LinkedHashSet<>();
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
-				skippedEdgeRows);
-		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges,
-				skippedTracingRows);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
+		Map<String, Delivery> deliveries = TracingUtils.readDeliveries(tracingTable, edges, skippedTracingRows);
 		Tracing tracing = new Tracing(deliveries.values());
 
 		for (RowKey key : skippedEdgeRows) {
@@ -127,8 +124,8 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		if (set.getEdgeWeightConditionValue() != null) {
-			edgeWeights = createConditionMap(edges, set.getEdgeWeightCondition(),
-					set.getEdgeWeightConditionValue(), 0.0);
+			edgeWeights = createConditionMap(edges, set.getEdgeWeightCondition(), set.getEdgeWeightConditionValue(),
+					0.0);
 		} else {
 			edgeWeights = getCopyWithoutNullValues(set.getEdgeWeights(), 0.0);
 		}
@@ -148,15 +145,14 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		if (set.getNodeKillConditionValue() != null) {
-			killNodes = createConditionMap(nodes.values(), set.getNodeKillCondition(),
-					set.getNodeKillConditionValue(), false);
+			killNodes = createConditionMap(nodes.values(), set.getNodeKillCondition(), set.getNodeKillConditionValue(),
+					false);
 		} else {
 			killNodes = getCopyWithoutNullValues(set.getNodeKillContaminations(), false);
 		}
 
 		if (set.getEdgeKillConditionValue() != null) {
-			killEdges = createConditionMap(edges, set.getEdgeKillCondition(),
-					set.getEdgeKillConditionValue(), false);
+			killEdges = createConditionMap(edges, set.getEdgeKillCondition(), set.getEdgeKillConditionValue(), false);
 		} else {
 			killEdges = getCopyWithoutNullValues(set.getEdgeKillContaminations(), false);
 		}
@@ -188,8 +184,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
 		Map<String, Double> nodeScores = result.getStationScores();
 		Map<String, Double> edgeScores = result.getDeliveryScores();
-		double maxScore = Math.max(Collections.max(nodeScores.values()),
-				Collections.max(edgeScores.values()));
+		double maxScore = Math.max(Collections.max(nodeScores.values()), Collections.max(edgeScores.values()));
 		double normFactor = maxScore > 0.0 ? 1.0 / maxScore : 1.0;
 		Map<String, Boolean> observedNodes;
 		Map<String, Boolean> observedEdges;
@@ -235,36 +230,32 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataContainer nodeContainer = exec.createDataContainer(nodeOutSpec);
 
 		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(
-					TracingColumns.ID)));
+			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
 			for (DataColumnSpec column : nodeTable.getSpec()) {
-				cells[nodeOutSpec.findColumnIndex(column.getName())] = row.getCell(nodeTable
-						.getSpec().findColumnIndex(column.getName()));
+				cells[nodeOutSpec.findColumnIndex(column.getName())] = row
+						.getCell(nodeTable.getSpec().findColumnIndex(column.getName()));
 			}
 
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(nodeWeights
-					.containsKey(id) ? nodeWeights.get(id) : 0.0);
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO
+					.createCell(nodeWeights.containsKey(id) ? nodeWeights.get(id) : 0.0);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossNodes.containsKey(id) ? crossNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.KILL_CONTAMINATION)] = IO
 					.createCell(killNodes.containsKey(id) ? killNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedNodes.containsKey(id) ? observedNodes.get(id) : false);
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(nodeScores
-					.containsKey(id) ? nodeScores.get(id) : 0.0);
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
+					.createCell(nodeScores.containsKey(id) ? nodeScores.get(id) : 0.0);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(nodeScores.containsKey(id) ? normFactor * nodeScores.get(id) : 0.0);
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
-					.createCell(backwardNodes.contains(id));
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardNodes
-					.contains(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardNodes.contains(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardNodes.contains(id));
 
 			nodeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index
-					/ (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
+			exec.setProgress((double) index / (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
 			index++;
 		}
 
@@ -274,36 +265,32 @@ public class TracingParametersNodeModel extends NodeModel {
 		BufferedDataContainer edgeContainer = exec.createDataContainer(edgeOutSpec);
 
 		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec().findColumnIndex(
-					TracingColumns.ID)));
+			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec().findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
 			for (DataColumnSpec column : edgeTable.getSpec()) {
-				cells[edgeOutSpec.findColumnIndex(column.getName())] = row.getCell(edgeTable
-						.getSpec().findColumnIndex(column.getName()));
+				cells[edgeOutSpec.findColumnIndex(column.getName())] = row
+						.getCell(edgeTable.getSpec().findColumnIndex(column.getName()));
 			}
 
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO.createCell(edgeWeights
-					.containsKey(id) ? edgeWeights.get(id) : 0.0);
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO
+					.createCell(edgeWeights.containsKey(id) ? edgeWeights.get(id) : 0.0);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.CROSS_CONTAMINATION)] = IO
 					.createCell(crossEdges.containsKey(id) ? crossEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.KILL_CONTAMINATION)] = IO
 					.createCell(killEdges.containsKey(id) ? killEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedEdges.containsKey(id) ? observedEdges.get(id) : false);
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(edgeScores
-					.containsKey(id) ? edgeScores.get(id) : 0.0);
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
+					.createCell(edgeScores.containsKey(id) ? edgeScores.get(id) : 0.0);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(edgeScores.containsKey(id) ? normFactor * edgeScores.get(id) : 0.0);
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO
-					.createCell(backwardEdges.contains(id));
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardEdges
-					.contains(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardEdges.contains(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardEdges.contains(id));
 
 			edgeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index
-					/ (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
+			exec.setProgress((double) index / (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
 			index++;
 		}
 
@@ -342,8 +329,7 @@ public class TracingParametersNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -370,8 +356,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
-			throws InvalidSettingsException {
+	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
@@ -386,23 +371,21 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		for (DataColumnSpec column : nodeSpec) {
 			if (newColumns.containsKey(column.getName())) {
-				throw new InvalidSettingsException("Column name \"" + column.getName()
-						+ "\" is not allowed in input table");
+				throw new InvalidSettingsException(
+						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
 
 			newNodeSpec.add(column);
 		}
 
 		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
-			newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue())
-					.createSpec());
+			newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 		}
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
-			throws InvalidSettingsException {
+	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
 		Map<String, DataType> newColumns = new LinkedHashMap<>();
 
@@ -417,16 +400,15 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		for (DataColumnSpec column : edgeSpec) {
 			if (newColumns.containsKey(column.getName())) {
-				throw new InvalidSettingsException("Column name \"" + column.getName()
-						+ "\" is not allowed in input table");
+				throw new InvalidSettingsException(
+						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
 
 			newEdgeSpec.add(column);
 		}
 
 		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
-			newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue())
-					.createSpec());
+			newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));

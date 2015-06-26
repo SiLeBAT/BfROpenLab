@@ -86,17 +86,15 @@ public class CanvasUtils {
 
 	private static final int NODE_TEXTURE_SIZE = 3;
 	private static final int EDGE_TEXTURE_SIZE = 5;
-	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85),
-			new Color(85, 85, 255), new Color(85, 255, 85), new Color(255, 85, 255),
-			new Color(85, 255, 255), new Color(255, 175, 175), new Color(128, 128, 128),
-			new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
-			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192),
-			new Color(64, 64, 64), new Color(255, 64, 64), new Color(64, 64, 255),
-			new Color(64, 255, 64), new Color(255, 64, 255), new Color(64, 255, 255),
-			new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
-			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128),
-			new Color(0, 128, 128), new Color(255, 128, 128), new Color(128, 128, 255),
-			new Color(128, 255, 128), new Color(255, 128, 255), new Color(128, 255, 255) };
+	private static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
+			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
+			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
+			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192), new Color(64, 64, 64),
+			new Color(255, 64, 64), new Color(64, 64, 255), new Color(64, 255, 64), new Color(255, 64, 255),
+			new Color(64, 255, 255), new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
+			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128), new Color(0, 128, 128),
+			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
+			new Color(128, 255, 255) };
 
 	private CanvasUtils() {
 	}
@@ -115,8 +113,7 @@ public class CanvasUtils {
 		return bounds;
 	}
 
-	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D bounds,
-			Double zoomStep) {
+	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D bounds, Double zoomStep) {
 		double widthRatio = canvasSize.width / bounds.getWidth();
 		double heightRatio = canvasSize.height / bounds.getHeight();
 		double canvasCenterX = canvasSize.width / 2.0;
@@ -140,8 +137,8 @@ public class CanvasUtils {
 		return new Transform(scaleX, scaleY, translationX, translationY);
 	}
 
-	public static List<HighlightCondition> createCategorialHighlighting(
-			Collection<? extends Element> elements, String property) {
+	public static List<HighlightCondition> createCategorialHighlighting(Collection<? extends Element> elements,
+			String property) {
 		Set<Object> categories = new LinkedHashSet<>();
 
 		for (Element element : elements) {
@@ -164,8 +161,8 @@ public class CanvasUtils {
 			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
 					LogicalHighlightCondition.EQUAL_TYPE, category.toString());
 
-			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category,
-					true, color, false, false, null));
+			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category, true, color, false,
+					false, null));
 			index++;
 		}
 
@@ -173,8 +170,8 @@ public class CanvasUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes,
-			Collection<Edge<V>> edges, Collection<V> newNodes, Collection<Edge<V>> newEdges) {
+	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes, Collection<Edge<V>> edges,
+			Collection<V> newNodes, Collection<Edge<V>> newEdges) {
 		Map<String, V> nodesById = new LinkedHashMap<>();
 
 		for (V node : nodes) {
@@ -194,27 +191,25 @@ public class CanvasUtils {
 		String newId = null;
 
 		while (true) {
-			newId = (String) JOptionPane.showInputDialog(parent, "Specify ID for Meta " + nodeName,
-					nodeName + " ID", JOptionPane.QUESTION_MESSAGE, null, null, "");
+			newId = (String) JOptionPane.showInputDialog(parent, "Specify ID for Meta " + nodeName, nodeName + " ID",
+					JOptionPane.QUESTION_MESSAGE, null, null, "");
 
 			if (newId == null || !usedIds.contains(newId)) {
 				break;
 			}
 
-			JOptionPane.showMessageDialog(parent, "ID already exists, please specify different ID",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(parent, "ID already exists, please specify different ID", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 		return newId;
 	}
 
-	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(
-			Component parent, Collection<String> nodeProperties, Collection<String> uncollapsedIds,
-			Map<String, V> nodes) {
+	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(Component parent,
+			Collection<String> nodeProperties, Collection<String> uncollapsedIds, Map<String, V> nodes) {
 		String[] properties = nodeProperties.toArray(new String[0]);
-		String result = (String) JOptionPane.showInputDialog(parent,
-				"Select Property for Collapse?", "Collapse by Property",
-				JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+		String result = (String) JOptionPane.showInputDialog(parent, "Select Property for Collapse?",
+				"Collapse by Property", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
 
 		if (result == null) {
 			return new LinkedHashMap<>();
@@ -328,15 +323,13 @@ public class CanvasUtils {
 		return joined;
 	}
 
-	public static void addMapToMap(Map<String, Object> map, PropertySchema schema,
-			Map<String, Object> addMap) {
+	public static void addMapToMap(Map<String, Object> map, PropertySchema schema, Map<String, Object> addMap) {
 		for (String property : schema.getMap().keySet()) {
 			addObjectToMap(map, property, schema.getMap().get(property), addMap.get(property));
 		}
 	}
 
-	public static void addObjectToMap(Map<String, Object> map, String property, Class<?> type,
-			Object obj) {
+	public static void addObjectToMap(Map<String, Object> map, String property, Class<?> type, Object obj) {
 		if (type == String.class) {
 			String value = (String) obj;
 
@@ -405,8 +398,7 @@ public class CanvasUtils {
 		return ids;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Collection<T> elements,
-			Collection<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
@@ -428,8 +420,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Map<String, T> elements,
-			Collection<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {
@@ -484,21 +475,18 @@ public class CanvasUtils {
 		return DoubleMath.mean(Doubles.toArray(values));
 	}
 
-	public static <V extends Node> void applyNodeHighlights(
-			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize,
-				false);
+	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
+		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize, false);
 	}
 
-	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext,
-			Collection<V> nodes, HighlightConditionList nodeHighlightConditions) {
+	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
+			HighlightConditionList nodeHighlightConditions) {
 		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, null, true);
 	}
 
-	public static <V extends Node> void applyEdgeHighlights(
-			RenderContext<V, Edge<V>> renderContext, Collection<Edge<V>> edges,
-			HighlightConditionList edgeHighlightConditions, int edgeThickness,
+	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
+			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		List<Color> colors = new ArrayList<>();
 		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
@@ -559,19 +547,17 @@ public class CanvasUtils {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
-		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext,
-				alphaValues, colors));
+		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext, alphaValues, colors));
 
-		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(
-				edgeThickness, edgeMaxThickness, thicknessValues);
+		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(edgeThickness, edgeMaxThickness,
+				thicknessValues);
 
 		renderContext.setEdgeStrokeTransformer(strokeTransformer);
 		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(strokeTransformer));
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
 	}
 
-	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas,
-			boolean forEdges) {
+	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas, boolean forEdges) {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
@@ -605,9 +591,7 @@ public class CanvasUtils {
 
 			for (int i = 0; i < size; i++) {
 				for (int j = 0; j < size; j++) {
-					img.setRGB(i, j,
-							cs.get((i / EDGE_TEXTURE_SIZE + j / EDGE_TEXTURE_SIZE) % cs.size())
-									.getRGB());
+					img.setRGB(i, j, cs.get((i / EDGE_TEXTURE_SIZE + j / EDGE_TEXTURE_SIZE) % cs.size()).getRGB());
 				}
 			}
 		} else {
@@ -689,8 +673,7 @@ public class CanvasUtils {
 		return removed;
 	}
 
-	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes,
-			Collection<Edge<V>> edges) {
+	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes, Collection<Edge<V>> edges) {
 		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
 		for (V node : nodes) {
@@ -766,8 +749,7 @@ public class CanvasUtils {
 
 	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
 		if (asSvg) {
-			return new ImagePortObject(
-					new SvgImageContent(CanvasUtils.getSvgDocument(canvas), true),
+			return new ImagePortObject(new SvgImageContent(CanvasUtils.getSvgDocument(canvas), true),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			BufferedImage img = CanvasUtils.getBufferedImage(canvas);
@@ -788,9 +770,8 @@ public class CanvasUtils {
 		}
 	}
 
-	private static <V extends Node> void applyNodeHighlights(
-			RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
+	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
 			boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
@@ -854,10 +835,8 @@ public class CanvasUtils {
 		}
 
 		if (!labelsOnly) {
-			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize,
-					nodeMaxSize, thicknessValues));
-			renderContext.setVertexFillPaintTransformer(new NodeFillTransformer<>(renderContext,
-					alphaValues, colors));
+			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize, nodeMaxSize, thicknessValues));
+			renderContext.setVertexFillPaintTransformer(new NodeFillTransformer<>(renderContext, alphaValues, colors));
 		}
 
 		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));

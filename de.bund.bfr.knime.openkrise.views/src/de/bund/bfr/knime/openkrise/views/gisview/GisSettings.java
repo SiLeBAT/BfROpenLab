@@ -40,8 +40,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisSettings extends NodeSettings {
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
 	private static final String CFG_SCALE_X = "ScaleX";
@@ -102,9 +101,8 @@ public class GisSettings extends NodeSettings {
 		}
 
 		try {
-			transform = new Transform(settings.getDouble(CFG_SCALE_X),
-					settings.getDouble(CFG_SCALE_Y), settings.getDouble(CFG_TRANSLATION_X),
-					settings.getDouble(CFG_TRANSLATION_Y));
+			transform = new Transform(settings.getDouble(CFG_SCALE_X), settings.getDouble(CFG_SCALE_Y),
+					settings.getDouble(CFG_TRANSLATION_X), settings.getDouble(CFG_TRANSLATION_Y));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -149,14 +147,13 @@ public class GisSettings extends NodeSettings {
 		}
 
 		try {
-			selectedNodes = (List<String>) SERIALIZER.fromXml(settings
-					.getString(CFG_SELECTED_NODES));
+			selectedNodes = (List<String>) SERIALIZER.fromXml(settings.getString(CFG_SELECTED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeHighlightConditions = (HighlightConditionList) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -228,8 +225,8 @@ public class GisSettings extends NodeSettings {
 		canvas.setAvoidOverlay(avoidOverlay);
 
 		if (applySelectionAndHighlighting) {
-			canvas.setNodeHighlightConditions(TracingUtils.renameColumns(nodeHighlightConditions,
-					canvas.getNodeSchema().getMap().keySet()));
+			canvas.setNodeHighlightConditions(
+					TracingUtils.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		}
 

@@ -99,8 +99,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
 
 		expertBox.removeActionListener(this);
@@ -116,8 +115,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			throw new InvalidSettingsException("");
 		}
 
-		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()
-				|| minimumFields == null || maximumFields == null) {
+		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid() || minimumFields == null
+				|| maximumFields == null) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -181,11 +180,11 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
 
-		List<JComponent> leftComps = new ArrayList<JComponent>(Arrays.asList(new JLabel(
-				"Maximal Evaluations to Find Start Values"), new JLabel(
-				"Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox));
-		List<JComponent> rightComps = new ArrayList<JComponent>(Arrays.asList(nParamSpaceField,
-				nLevenbergField, new JLabel()));
+		List<JComponent> leftComps = new ArrayList<JComponent>(
+				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
+						new JLabel("Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox));
+		List<JComponent> rightComps = new ArrayList<JComponent>(
+				Arrays.asList(nParamSpaceField, nLevenbergField, new JLabel()));
 
 		if (isDiff) {
 			stepSizeField = new DoubleTextField(false, 8);
@@ -257,11 +256,9 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 		JPanel panel = new JPanel();
 
-		panel.setBorder(BorderFactory
-				.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
+		panel.setBorder(BorderFactory.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
 		panel.setLayout(new BorderLayout());
-		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton, limitsBox)),
-				BorderLayout.NORTH);
+		panel.add(UI.createWestPanel(UI.createHorizontalPanel(clearButton, limitsBox)), BorderLayout.NORTH);
 		panel.add(new JScrollPane(rangePanel), BorderLayout.CENTER);
 
 		return panel;

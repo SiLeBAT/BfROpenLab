@@ -81,14 +81,13 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectAllBox.setSelected(false);
 		selectAllBox.addItemListener(this);
 
-		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
-				colorAndShapes.getColorList(), colorAndShapes.getShapeNameList()));
+		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues, colorAndShapes.getColorList(),
+				colorAndShapes.getShapeNameList()));
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
 		selectTable.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
-		selectTable
-				.setRowSorter(new SelectTableRowSorter((SelectTableModel) selectTable.getModel()));
+		selectTable.setRowSorter(new SelectTableRowSorter((SelectTableModel) selectTable.getModel()));
 		selectTable.getColumn(ChartUtils.ID).setMinWidth(0);
 		selectTable.getColumn(ChartUtils.ID).setMaxWidth(0);
 		selectTable.getColumn(ChartUtils.ID).setPreferredWidth(0);
@@ -97,8 +96,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor().addCellEditorListener(this);
 		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(new ColorEditor());
 		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(new ColorRenderer());
-		selectTable.getColumn(ChartUtils.SHAPE).setCellEditor(
-				new DefaultCellEditor(new JComboBox<>(ColorAndShapeCreator.SHAPE_NAMES)));
+		selectTable.getColumn(ChartUtils.SHAPE)
+				.setCellEditor(new DefaultCellEditor(new JComboBox<>(ColorAndShapeCreator.SHAPE_NAMES)));
 		selectTable.getColumn(ChartUtils.COLOR).getCellEditor().addCellEditorListener(this);
 		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor().addCellEditorListener(this);
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -111,17 +110,14 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			}
 
 			TableCellRenderer renderer = col.getHeaderRenderer();
-			Component comp = selectTable
-					.getTableHeader()
-					.getDefaultRenderer()
-					.getTableCellRendererComponent(selectTable, col.getHeaderValue(), false, false,
-							0, 0);
+			Component comp = selectTable.getTableHeader().getDefaultRenderer()
+					.getTableCellRendererComponent(selectTable, col.getHeaderValue(), false, false, 0, 0);
 			int width = comp.getPreferredSize().width;
 
 			for (int r = 0; r < selectTable.getRowCount(); r++) {
 				renderer = selectTable.getCellRenderer(r, c);
-				comp = renderer.getTableCellRendererComponent(selectTable,
-						selectTable.getValueAt(r, c), false, false, r, c);
+				comp = renderer.getTableCellRendererComponent(selectTable, selectTable.getValueAt(r, c), false, false,
+						r, c);
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
@@ -195,8 +191,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
-			shapes.put((String) selectTable.getValueAt(i, 0),
-					shapeMap.get(selectTable.getValueAt(i, 3)));
+			shapes.put((String) selectTable.getValueAt(i, 0), shapeMap.get(selectTable.getValueAt(i, 3)));
 		}
 
 		return shapes;
@@ -409,8 +404,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object color,
-				boolean isSelected, boolean hasFocus, int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			setBackground((Color) color);
 
 			return this;
@@ -429,8 +424,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					Color newColor = JColorChooser.showDialog(colorButton, "Choose Color",
-							colorButton.getBackground());
+					Color newColor = JColorChooser.showDialog(colorButton, "Choose Color", colorButton.getBackground());
 
 					if (newColor != null) {
 						colorButton.setBackground(newColor);
@@ -443,8 +437,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table, Object value,
-				boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			colorButton.setBackground((Color) value);
 
 			return colorButton;
@@ -468,8 +462,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		}
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 			int statusColumn = -1;
 
 			for (int i = 0; i < table.getColumnCount(); i++) {
@@ -540,8 +534,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			List<? extends SortKey> sortKeys = getSortKeys();
 
 			if (sortKeys.size() > 0) {
-				if (sortKeys.get(0).getColumn() == column
-						&& sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+				if (sortKeys.get(0).getColumn() == column && sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
 					setSortKeys(null);
 					return;
 				}

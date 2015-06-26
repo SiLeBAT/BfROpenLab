@@ -61,25 +61,21 @@ public class GisUtils {
 	}
 
 	public static Polygon createBorderPolygon(Rectangle2D rect, double d) {
-		Coordinate[] outerRing = new Coordinate[] {
-				new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
+		Coordinate[] outerRing = new Coordinate[] { new Coordinate(rect.getMinX() - d, rect.getMinY() - d),
 				new Coordinate(rect.getMaxX() + d, rect.getMinY() - d),
 				new Coordinate(rect.getMaxX() + d, rect.getMaxY() + d),
 				new Coordinate(rect.getMinX() - d, rect.getMaxY() + d),
 				new Coordinate(rect.getMinX() - d, rect.getMinY() - d) };
 		Coordinate[] innerRing = new Coordinate[] { new Coordinate(rect.getMinX(), rect.getMinY()),
-				new Coordinate(rect.getMaxX(), rect.getMinY()),
-				new Coordinate(rect.getMaxX(), rect.getMaxY()),
-				new Coordinate(rect.getMinX(), rect.getMaxY()),
-				new Coordinate(rect.getMinX(), rect.getMinY()) };
+				new Coordinate(rect.getMaxX(), rect.getMinY()), new Coordinate(rect.getMaxX(), rect.getMaxY()),
+				new Coordinate(rect.getMinX(), rect.getMaxY()), new Coordinate(rect.getMinX(), rect.getMinY()) };
 
 		return FACTORY.createPolygon(FACTORY.createLinearRing(outerRing),
 				new LinearRing[] { FACTORY.createLinearRing(innerRing) });
 	}
 
 	public static Point2D latLonToViz(Point2D latLon) {
-		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0), OsmMercator.LatToY(
-				latLon.getX(), 0));
+		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0), OsmMercator.LatToY(latLon.getX(), 0));
 	}
 
 	public static MultiPolygon latLonToViz(MultiPolygon polygon) {
@@ -87,13 +83,11 @@ public class GisUtils {
 
 		for (int i = 0; i < polygon.getNumGeometries(); i++) {
 			Polygon poly = (Polygon) polygon.getGeometryN(i);
-			LinearRing exterior = FACTORY.createLinearRing(latLonToViz(poly.getExteriorRing()
-					.getCoordinates()));
+			LinearRing exterior = FACTORY.createLinearRing(latLonToViz(poly.getExteriorRing().getCoordinates()));
 			LinearRing[] interior = new LinearRing[poly.getNumInteriorRing()];
 
 			for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-				interior[j] = FACTORY.createLinearRing(latLonToViz(poly.getInteriorRingN(j)
-						.getCoordinates()));
+				interior[j] = FACTORY.createLinearRing(latLonToViz(poly.getInteriorRingN(j).getCoordinates()));
 			}
 
 			transformed[i] = FACTORY.createPolygon(exterior, interior);
@@ -116,10 +110,9 @@ public class GisUtils {
 		return new ShapefileDataStore(KnimeUtils.getFile(shpFile).toURI().toURL());
 	}
 
-	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile) throws IOException,
-			FactoryException {
-		try (BufferedReader reader = new BufferedReader(new FileReader(
-				KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj")))) {
+	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile) throws IOException, FactoryException {
+		try (BufferedReader reader = new BufferedReader(
+				new FileReader(KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj")))) {
 			StringBuilder wkt = new StringBuilder();
 			String line;
 
@@ -168,9 +161,8 @@ public class GisUtils {
 		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
 	}
 
-	public static String getAddress(String street, String houseNumber, String city,
-			String district, String state, String country, String postalCode,
-			boolean houseNumberAfterStreet) {
+	public static String getAddress(String street, String houseNumber, String city, String district, String state,
+			String country, String postalCode, boolean houseNumberAfterStreet) {
 		List<String> parts = new ArrayList<>();
 
 		if (street != null && houseNumber != null) {

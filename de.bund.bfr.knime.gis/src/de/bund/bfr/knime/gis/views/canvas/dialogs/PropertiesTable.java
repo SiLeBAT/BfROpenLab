@@ -41,8 +41,7 @@ public class PropertiesTable extends JTable {
 
 	private List<? extends Element> elements;
 
-	public PropertiesTable(List<? extends Element> elements, PropertySchema schema,
-			Set<String> idColumns) {
+	public PropertiesTable(List<? extends Element> elements, PropertySchema schema, Set<String> idColumns) {
 		this.elements = elements;
 
 		List<String> columnNames = new ArrayList<>();

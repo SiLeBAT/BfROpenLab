@@ -77,13 +77,11 @@ public class UI {
 
 	public static void adjustDialog(JDialog dialog, double widthFraction, double heightFraction) {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
-				dialog.getGraphicsConfiguration());
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(dialog.getGraphicsConfiguration());
 		int maxWidth = (int) ((screenSize.width - insets.left - insets.right) * widthFraction);
 		int maxHeight = (int) ((screenSize.height - insets.top - insets.bottom) * heightFraction);
 
-		dialog.setSize(Math.min(dialog.getWidth(), maxWidth),
-				Math.min(dialog.getHeight(), maxHeight));
+		dialog.setSize(Math.min(dialog.getWidth(), maxWidth), Math.min(dialog.getHeight(), maxHeight));
 
 		int minX = insets.left;
 		int minY = insets.top;
@@ -203,8 +201,8 @@ public class UI {
 		JPanel p = new JPanel();
 
 		p.setLayout(new GridBagLayout());
-		p.add(comp, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START,
-				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+		p.add(comp, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 
 		return p;
 	}
@@ -218,14 +216,13 @@ public class UI {
 			}
 
 			TableCellRenderer renderer = col.getHeaderRenderer();
-			Component comp = table.getTableHeader().getDefaultRenderer()
-					.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
+			Component comp = table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table,
+					col.getHeaderValue(), false, false, 0, 0);
 			int width = comp.getPreferredSize().width + 20;
 
 			for (int r = 0; r < table.getRowCount(); r++) {
 				renderer = table.getCellRenderer(r, c);
-				comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, c), false,
-						false, r, c);
+				comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, c), false, false, r, c);
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
@@ -252,8 +249,8 @@ public class UI {
 	}
 
 	public static GridBagConstraints centerConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 0, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static GridBagConstraints westConstraints(int x, int y) {
@@ -261,13 +258,13 @@ public class UI {
 	}
 
 	public static GridBagConstraints westConstraints(int x, int y, int w, int h) {
-		return new GridBagConstraints(x, y, w, h, 0, 0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, w, h, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static GridBagConstraints fillConstraints(int x, int y) {
-		return new GridBagConstraints(x, y, 1, 1, 1, 0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0);
+		return new GridBagConstraints(x, y, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(2, 2, 2, 2), 0, 0);
 	}
 
 	public static JPanel createTablePanel(JTable table) {
@@ -302,8 +299,8 @@ public class UI {
 			String clipboardContent = null;
 
 			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-						.getContents(table).getTransferData(DataFlavor.stringFlavor);
+				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getContents(table)
+						.getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
 				return;
@@ -344,8 +341,8 @@ public class UI {
 			String clipboardContent = null;
 
 			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard()
-						.getContents(table).getTransferData(DataFlavor.stringFlavor);
+				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getContents(table)
+						.getTransferData(DataFlavor.stringFlavor);
 			} catch (IOException | UnsupportedFlavorException ex) {
 				ex.printStackTrace();
 				return;

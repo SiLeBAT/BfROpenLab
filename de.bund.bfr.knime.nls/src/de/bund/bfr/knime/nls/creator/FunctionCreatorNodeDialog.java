@@ -79,8 +79,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
 		mainPanel.remove(functionPanel);
 		functionPanel = createFunctionPanel();
@@ -165,8 +164,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 		depVarField.setValue(set.getDependentVariable());
 		depVarField.addTextListener(this);
 
-		if (termField == null || termField.getValue() == null
-				|| !termField.getValue().equals(set.getTerm())) {
+		if (termField == null || termField.getValue() == null || !termField.getValue().equals(set.getTerm())) {
 			termField = new StringTextArea(false, 3, 100);
 			termField.setValue(set.getTerm());
 			termField.addTextListener(this);

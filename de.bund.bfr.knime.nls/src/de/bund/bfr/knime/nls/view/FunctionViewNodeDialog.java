@@ -46,9 +46,8 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
-		ChartCreator.ZoomListener {
+public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
+		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private FunctionReader reader;
 	private ViewSettings set;
@@ -75,15 +74,13 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		set.loadSettings(settings);
 		functionObject = (FunctionPortObject) input[0];
 		paramTable = (BufferedDataTable) input[1];
 		varTable = (BufferedDataTable) input[2];
 		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable,
-				set.getVarX());
+		reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -97,11 +94,9 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false);
-		configPanel.init(reader.getDepVar(),
-				new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())), null,
-				null, null);
-		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(),
-				reader.getDoubleColumns());
+		configPanel.init(reader.getDepVar(), new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
+				null, null, null);
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());
 
@@ -137,8 +132,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable,
-					set.getVarX());
+			reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

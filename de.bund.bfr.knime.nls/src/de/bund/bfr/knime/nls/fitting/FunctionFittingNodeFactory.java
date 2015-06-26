@@ -51,8 +51,7 @@ public class FunctionFittingNodeFactory extends NodeFactory<FittingNodeModel> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FittingNodeModel> createNodeView(final int viewIndex,
-			final FittingNodeModel nodeModel) {
+	public NodeView<FittingNodeModel> createNodeView(final int viewIndex, final FittingNodeModel nodeModel) {
 		return null;
 	}
 

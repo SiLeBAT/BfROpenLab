@@ -569,38 +569,38 @@ public class FoodChainLabLogo implements Icon {
 		g.setTransform(trans_0_0_4);
 		// _0_0_5
 		AffineTransform trans_0_0_5 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				-12.638666152954102f, 35.61139678955078f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, -12.638666152954102f,
+				35.61139678955078f));
 		paintShapeNode_0_0_5(g);
 		g.setTransform(trans_0_0_5);
 		// _0_0_6
 		AffineTransform trans_0_0_6 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				47.6943473815918f, 31.508752822875977f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, 47.6943473815918f,
+				31.508752822875977f));
 		paintShapeNode_0_0_6(g);
 		g.setTransform(trans_0_0_6);
 		// _0_0_7
 		AffineTransform trans_0_0_7 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				141.08985900878906f, 34.88740158081055f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, 141.08985900878906f,
+				34.88740158081055f));
 		paintShapeNode_0_0_7(g);
 		g.setTransform(trans_0_0_7);
 		// _0_0_8
 		AffineTransform trans_0_0_8 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				119.36997985839844f, -50.30281448364258f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, 119.36997985839844f,
+				-50.30281448364258f));
 		paintShapeNode_0_0_8(g);
 		g.setTransform(trans_0_0_8);
 		// _0_0_9
 		AffineTransform trans_0_0_9 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				-11.914666175842285f, -50.54414749145508f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, -11.914666175842285f,
+				-50.54414749145508f));
 		paintShapeNode_0_0_9(g);
 		g.setTransform(trans_0_0_9);
 		// _0_0_10
 		AffineTransform trans_0_0_10 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				178.9476318359375f, 16.99625015258789f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, 178.9476318359375f,
+				16.99625015258789f));
 		paintShapeNode_0_0_10(g);
 		g.setTransform(trans_0_0_10);
 		// _0_0_11
@@ -615,8 +615,8 @@ public class FoodChainLabLogo implements Icon {
 		g.setTransform(trans_0_0_12);
 		// _0_0_13
 		AffineTransform trans_0_0_13 = g.getTransform();
-		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f,
-				73.03421783447266f, -6.380380630493164f));
+		g.transform(new AffineTransform(0.1682351529598236f, 0.0f, 0.0f, 0.1682351529598236f, 73.03421783447266f,
+				-6.380380630493164f));
 		paintShapeNode_0_0_13(g);
 		g.setTransform(trans_0_0_13);
 	}

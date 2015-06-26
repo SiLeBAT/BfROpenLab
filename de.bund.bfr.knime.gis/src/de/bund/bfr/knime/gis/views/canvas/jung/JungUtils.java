@@ -41,18 +41,15 @@ public class JungUtils {
 	private JungUtils() {
 	}
 
-	public static <V, E> Shape getTransformedEdgeShape(RenderContext<V, E> rc, Layout<V, E> layout,
-			E e) {
+	public static <V, E> Shape getTransformedEdgeShape(RenderContext<V, E> rc, Layout<V, E> layout, E e) {
 		Graph<V, E> graph = layout.getGraph();
 		Pair<V> endpoints = graph.getEndpoints(e);
 		V v1 = endpoints.getFirst();
 		V v2 = endpoints.getSecond();
 
 		if (!rc.getEdgeIncludePredicate().evaluate(Context.<Graph<V, E>, E> getInstance(graph, e))
-				|| !rc.getVertexIncludePredicate().evaluate(
-						Context.<Graph<V, E>, V> getInstance(graph, v1))
-				|| !rc.getVertexIncludePredicate().evaluate(
-						Context.<Graph<V, E>, V> getInstance(graph, v2))) {
+				|| !rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V> getInstance(graph, v1))
+				|| !rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V> getInstance(graph, v2))) {
 			return null;
 		}
 
@@ -105,8 +102,7 @@ public class JungUtils {
 				}
 			}
 
-			return new Line2D.Float(minP, new Point2D.Float((float) (minP.getX() + 1.0),
-					(float) minP.getY()));
+			return new Line2D.Float(minP, new Point2D.Float((float) (minP.getX() + 1.0), (float) minP.getY()));
 		} else {
 			for (int i = 0; i < points.size() - 1; i++) {
 				Point2D p1 = points.get(i);
@@ -115,9 +111,8 @@ public class JungUtils {
 				if (p2.distance(last) < p2.distance(first)) {
 					Line2D ortho = getOrthogonal(new Line2D.Float(first, last));
 					Point2D pp1 = getIntersection(new Line2D.Float(p1, p2), ortho);
-					Point2D pp2 = new Point2D.Float(
-							(float) (pp1.getX() + last.getX() - first.getX()), (float) (pp1.getY()
-									+ last.getY() - first.getY()));
+					Point2D pp2 = new Point2D.Float((float) (pp1.getX() + last.getX() - first.getX()),
+							(float) (pp1.getY() + last.getY() - first.getY()));
 
 					return new Line2D.Float(pp1, pp2);
 				}

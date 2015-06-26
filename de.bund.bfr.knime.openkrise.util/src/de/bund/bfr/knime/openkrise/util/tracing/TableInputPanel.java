@@ -58,8 +58,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 
-public class TableInputPanel<T> extends JPanel implements ActionListener, RowSorterListener,
-		CellEditorListener, ListSelectionListener {
+public class TableInputPanel<T> extends JPanel
+		implements ActionListener, RowSorterListener, CellEditorListener, ListSelectionListener {
 
 	public static enum Type {
 		NODE, EDGE
@@ -98,8 +98,8 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 		add(tablePanel, BorderLayout.CENTER);
 	}
 
-	public void update(Collection<? extends Element> elements, PropertySchema schema,
-			Map<String, T> values, AndOrHighlightCondition condition, T valueForAll) {
+	public void update(Collection<? extends Element> elements, PropertySchema schema, Map<String, T> values,
+			AndOrHighlightCondition condition, T valueForAll) {
 		this.elements = elements;
 		this.schema = schema;
 		this.values = values;
@@ -144,8 +144,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 			try {
 				return (T) new Double(Double.parseDouble(setAllField.getText()));
 			} catch (NumberFormatException e) {
-				throw new InvalidSettingsException("\"" + setAllField.getText()
-						+ "\" is not a valid number");
+				throw new InvalidSettingsException("\"" + setAllField.getText() + "\" is not a valid number");
 			}
 		}
 
@@ -159,8 +158,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema,
-					condition);
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, condition);
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);
@@ -168,8 +166,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 			if (dialog.isApproved()) {
 				condition = (AndOrHighlightCondition) dialog.getHighlightCondition();
 				tablePanel.removeAll();
-				tablePanel.add(createInputPanel(filterElements(elements, condition)),
-						BorderLayout.CENTER);
+				tablePanel.add(createInputPanel(filterElements(elements, condition)), BorderLayout.CENTER);
 				tablePanel.revalidate();
 				updateSetAll(setAllBox.isSelected());
 			}
@@ -262,11 +259,11 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 		setAllField.setEnabled(false);
 
 		if (classType == Boolean.class) {
-			return UI.createWestPanel(UI.createHorizontalPanel(filterButton, removeFilterButton,
-					clearButton, setAllBox));
+			return UI.createWestPanel(
+					UI.createHorizontalPanel(filterButton, removeFilterButton, clearButton, setAllBox));
 		} else if (classType == Double.class) {
-			return UI.createWestPanel(UI.createHorizontalPanel(filterButton, removeFilterButton,
-					clearButton, setAllBox, setAllField));
+			return UI.createWestPanel(
+					UI.createHorizontalPanel(filterButton, removeFilterButton, clearButton, setAllBox, setAllField));
 		}
 
 		return null;
@@ -280,8 +277,7 @@ public class TableInputPanel<T> extends JPanel implements ActionListener, RowSor
 			idColumns.add(TracingColumns.ID);
 			break;
 		case EDGE:
-			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM,
-					TracingColumns.TO));
+			idColumns.addAll(Arrays.asList(TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO));
 			break;
 		}
 

@@ -59,8 +59,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
@@ -76,8 +75,8 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		RegionVisualizerInputDialog dialog = new RegionVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable.getSpec(), nodeTable.getSpec(), set);
+		RegionVisualizerInputDialog dialog = new RegionVisualizerInputDialog((JButton) e.getSource(),
+				shapeTable.getSpec(), nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -92,24 +91,22 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 			panel.remove(canvas);
 		}
 
-		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable,
-				nodeTable, set);
+		RegionVisualizerCanvasCreator creator = new RegionVisualizerCanvasCreator(shapeTable, nodeTable, set);
 
 		try {
 			canvas = creator.createCanvas();
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
 				JOptionPane.showMessageDialog(panel,
-						"Some regions from the table are not contained" + " in the shapefile",
-						"Warning", JOptionPane.WARNING_MESSAGE);
+						"Some regions from the table are not contained" + " in the shapefile", "Warning",
+						JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (InvalidSettingsException e) {
 			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 

@@ -52,9 +52,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 	private BufferedDataTable edgeTable;
 	private LocationToLocationVisualizerSettings set;
 
-	public LocationToLocationVisualizerCanvasCreator(BufferedDataTable shapeTable,
-			BufferedDataTable nodeTable, BufferedDataTable edgeTable,
-			LocationToLocationVisualizerSettings set) {
+	public LocationToLocationVisualizerCanvasCreator(BufferedDataTable shapeTable, BufferedDataTable nodeTable,
+			BufferedDataTable edgeTable, LocationToLocationVisualizerSettings set) {
 		this.shapeTable = shapeTable;
 		this.nodeTable = nodeTable;
 		this.edgeTable = edgeTable;
@@ -64,22 +63,21 @@ public class LocationToLocationVisualizerCanvasCreator {
 	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
-		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties, set
-				.getGraphSettings().getNodeIdColumn(), null);
+		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties,
+				set.getGraphSettings().getNodeIdColumn(), null);
 		List<Edge<GraphNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes, null,
-				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
-						.getEdgeToColumn());
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges, edgeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set
-				.getGraphSettings().getNodeIdColumn());
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty, set
-				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty,
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
 
 		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
-		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-				edgeSchema, Naming.DEFAULT_NAMING, true);
+		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+				Naming.DEFAULT_NAMING, true);
 
 		set.getGraphSettings().setToCanvas(canvas);
 
@@ -90,16 +88,15 @@ public class LocationToLocationVisualizerCanvasCreator {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = ViewUtils.readLocationNodes(nodeTable, nodeProperties,
-				set.getGraphSettings().getNodeIdColumn(), set.getGisSettings()
-						.getNodeLatitudeColumn(), set.getGisSettings().getNodeLongitudeColumn());
-		List<Edge<LocationNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes,
-				null, set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings()
-						.getEdgeToColumn());
+				set.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeLatitudeColumn(),
+				set.getGisSettings().getNodeLongitudeColumn());
+		List<Edge<LocationNode>> edges = ViewUtils.readEdges(edgeTable, edgeProperties, nodes, null,
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
 		String edgeIdProperty = ViewUtils.createNewIdProperty(edges, edgeProperties);
-		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties, set
-				.getGraphSettings().getNodeIdColumn());
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty, set
-				.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
+		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
+				set.getGraphSettings().getNodeIdColumn());
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty,
+				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
 
 		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
@@ -107,11 +104,10 @@ public class LocationToLocationVisualizerCanvasCreator {
 		Canvas<LocationNode> canvas;
 
 		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
-			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings()
-					.getShapeColumn());
+			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn());
 
-			canvas = new LocationCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-					edgeSchema, Naming.DEFAULT_NAMING, regions);
+			canvas = new LocationCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					Naming.DEFAULT_NAMING, regions);
 		} else {
 			TileSource tileSource;
 
@@ -135,8 +131,8 @@ public class LocationToLocationVisualizerCanvasCreator {
 				throw new IllegalArgumentException();
 			}
 
-			canvas = new LocationOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema,
-					edgeSchema, Naming.DEFAULT_NAMING);
+			canvas = new LocationOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					Naming.DEFAULT_NAMING);
 			((LocationOsmCanvas) canvas).setTileSource(tileSource);
 		}
 

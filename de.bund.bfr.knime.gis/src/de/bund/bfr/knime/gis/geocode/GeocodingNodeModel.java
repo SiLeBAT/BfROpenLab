@@ -108,8 +108,8 @@ public class GeocodingNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		BufferedDataTable table = inData[0];
 		DataTableSpec spec = table.getSpec();
 		DataTableSpec outSpec = configure(new DataTableSpec[] { spec })[0];
@@ -146,8 +146,7 @@ public class GeocodingNodeModel extends NodeModel {
 			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_BKG)) {
 				result = performBkgGeocoding(address);
 			} else {
-				throw new IllegalArgumentException("Unknown Service Provider: "
-						+ set.getServiceProvider());
+				throw new IllegalArgumentException("Unknown Service Provider: " + set.getServiceProvider());
 			}
 
 			if (result.getLatitude() == null || result.getLongitude() == null) {
@@ -160,8 +159,7 @@ public class GeocodingNodeModel extends NodeModel {
 			cells[outSpec.findColumnIndex(DISTRICT_COLUMN)] = IO.createCell(result.getDistrict());
 			cells[outSpec.findColumnIndex(STATE_COLUMN)] = IO.createCell(result.getState());
 			cells[outSpec.findColumnIndex(COUNTRY_COLUMN)] = IO.createCell(result.getCountry());
-			cells[outSpec.findColumnIndex(POSTAL_CODE_COLUMN)] = IO.createCell(result
-					.getPostalCode());
+			cells[outSpec.findColumnIndex(POSTAL_CODE_COLUMN)] = IO.createCell(result.getPostalCode());
 			cells[outSpec.findColumnIndex(LATITUDE_COLUMN)] = IO.createCell(result.getLatitude());
 			cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO.createCell(result.getLongitude());
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -191,19 +189,17 @@ public class GeocodingNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (int i = 0; i < inSpecs[0].getNumColumns(); i++) {
 			String name = inSpecs[0].getColumnSpec(i).getName();
 
 			if (name.equals(URL_COLUMN) || name.equals(STREET_COLUMN) || name.equals(CITY_COLUMN)
-					|| name.equals(DISTRICT_COLUMN) || name.equals(STATE_COLUMN)
-					|| name.equals(COUNTRY_COLUMN) || name.equals(POSTAL_CODE_COLUMN)
-					|| name.equals(LATITUDE_COLUMN) || name.equals(LONGITUDE_COLUMN)) {
-				throw new InvalidSettingsException("Column name \"" + name
-						+ "\" not allowed in input table");
+					|| name.equals(DISTRICT_COLUMN) || name.equals(STATE_COLUMN) || name.equals(COUNTRY_COLUMN)
+					|| name.equals(POSTAL_CODE_COLUMN) || name.equals(LATITUDE_COLUMN)
+					|| name.equals(LONGITUDE_COLUMN)) {
+				throw new InvalidSettingsException("Column name \"" + name + "\" not allowed in input table");
 			}
 
 			columns.add(inSpecs[0].getColumnSpec(i));
@@ -234,8 +230,7 @@ public class GeocodingNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -262,8 +257,8 @@ public class GeocodingNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private GeocodingResult performMapQuestGeocoding(String address) throws IOException,
-			ParserConfigurationException, XPathExpressionException, URISyntaxException,
+	private GeocodingResult performMapQuestGeocoding(String address)
+			throws IOException, ParserConfigurationException, XPathExpressionException, URISyntaxException,
 			SAXException, InvalidSettingsException, CanceledExecutionException {
 		if (address == null) {
 			return new GeocodingResult();
@@ -277,8 +272,7 @@ public class GeocodingNodeModel extends NodeModel {
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		URI uri = new URI("http", "open.mapquestapi.com", "/geocoding/v1/address", "location="
-				+ address, null);
+		URI uri = new URI("http", "open.mapquestapi.com", "/geocoding/v1/address", "location=" + address, null);
 		String url = uri.toASCIIString() + "&key=" + mapQuestKey + "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 
@@ -287,8 +281,7 @@ public class GeocodingNodeModel extends NodeModel {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(yc.getInputStream());
-		int n = evaluateXPathToNodeList(doc, "/response/results/result/locations/location")
-				.getLength();
+		int n = evaluateXPathToNodeList(doc, "/response/results/result/locations/location").getLength();
 		List<String> streets = new ArrayList<>();
 		List<String> cities = new ArrayList<>();
 		List<String> districts = new ArrayList<>();
@@ -314,8 +307,8 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i),
-					states.get(i), countries.get(i), postalCodes.get(i), false));
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i), states.get(i),
+					countries.get(i), postalCodes.get(i), false));
 		}
 
 		int index = getIndex(address, choices);
@@ -324,25 +317,23 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		return new GeocodingResult(url, streets.get(index), cities.get(index),
-				districts.get(index), states.get(index), countries.get(index),
-				postalCodes.get(index), latitudes.get(index), longitudes.get(index));
+		return new GeocodingResult(url, streets.get(index), cities.get(index), districts.get(index), states.get(index),
+				countries.get(index), postalCodes.get(index), latitudes.get(index), longitudes.get(index));
 	}
 
 	private GeocodingResult performGisgraphyGeocoding(String address, String countryCode)
-			throws IOException, ParserConfigurationException, XPathExpressionException,
-			URISyntaxException, SAXException, CanceledExecutionException {
+			throws IOException, ParserConfigurationException, XPathExpressionException, URISyntaxException,
+			SAXException, CanceledExecutionException {
 		if (address == null || countryCode == null) {
 			return new GeocodingResult();
 		}
 
-		String server = set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY) ? set
-				.getGisgraphyServer().replace("http://", "")
-				: "services.gisgraphy.com/geocoding/geocode";
+		String server = set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)
+				? set.getGisgraphyServer().replace("http://", "") : "services.gisgraphy.com/geocoding/geocode";
 		String authority = server.substring(0, server.indexOf("/"));
 		String path = server.substring(server.indexOf("/"));
-		URI uri = new URI("http", authority, path, "address=" + address + "&country=" + countryCode
-				+ "&postal=true", null);
+		URI uri = new URI("http", authority, path, "address=" + address + "&country=" + countryCode + "&postal=true",
+				null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -359,8 +350,7 @@ public class GeocodingNodeModel extends NodeModel {
 			dialog.setAlwaysOnTop(true);
 			dialog.setVisible(true);
 
-			if (options.getValue() instanceof Integer
-					&& (Integer) options.getValue() == JOptionPane.YES_OPTION) {
+			if (options.getValue() instanceof Integer && (Integer) options.getValue() == JOptionPane.YES_OPTION) {
 				return new GeocodingResult();
 			} else {
 				throw e;
@@ -391,8 +381,8 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), null,
-					states.get(i), countryCodes.get(i), postalCodes.get(i), false));
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), null, states.get(i),
+					countryCodes.get(i), postalCodes.get(i), false));
 		}
 
 		int index = getIndex(address + ", " + countryCode, choices);
@@ -401,28 +391,25 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		return new GeocodingResult(url, streets.get(index), cities.get(index), null,
-				states.get(index), countryCodes.get(index), postalCodes.get(index),
-				latitudes.get(index), longitudes.get(index));
+		return new GeocodingResult(url, streets.get(index), cities.get(index), null, states.get(index),
+				countryCodes.get(index), postalCodes.get(index), latitudes.get(index), longitudes.get(index));
 	}
 
-	private GeocodingResult performBkgGeocoding(String address) throws MalformedURLException,
-			IOException, ParserConfigurationException, XPathExpressionException,
+	private GeocodingResult performBkgGeocoding(String address)
+			throws MalformedURLException, IOException, ParserConfigurationException, XPathExpressionException,
 			URISyntaxException, SAXException, InvalidSettingsException, CanceledExecutionException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
 
-		String uuid = Activator.getDefault().getPreferenceStore()
-				.getString(GeocodingPreferencePage.BKG_UUID);
+		String uuid = Activator.getDefault().getPreferenceStore().getString(GeocodingPreferencePage.BKG_UUID);
 
 		if (uuid == null || uuid.isEmpty()) {
-			throw new InvalidSettingsException(
-					"UUID in preferences missing. Please enter it under KNIME->Geocoding.");
+			throw new InvalidSettingsException("UUID in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		URI uri = new URI("http", "sg.geodatenzentrum.de", "/gdz_geokodierung__" + uuid
-				+ "/geosearch", "query=" + address, null);
+		URI uri = new URI("http", "sg.geodatenzentrum.de", "/gdz_geokodierung__" + uuid + "/geosearch",
+				"query=" + address, null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 
@@ -458,8 +445,8 @@ public class GeocodingNodeModel extends NodeModel {
 		List<String> choices = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i),
-					states.get(i), DE, postalCodes.get(i), false));
+			choices.add(GisUtils.getAddress(streets.get(i), null, cities.get(i), districts.get(i), states.get(i), DE,
+					postalCodes.get(i), false));
 		}
 
 		int index = getIndex(address, choices);
@@ -468,9 +455,8 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult(url);
 		}
 
-		return new GeocodingResult(url, streets.get(index), cities.get(index),
-				districts.get(index), states.get(index), DE, postalCodes.get(index),
-				latitudes.get(index), longitudes.get(index));
+		return new GeocodingResult(url, streets.get(index), cities.get(index), districts.get(index), states.get(index),
+				DE, postalCodes.get(index), latitudes.get(index), longitudes.get(index));
 	}
 
 	private int getIndex(String address, List<String> choices) throws CanceledExecutionException {
@@ -503,10 +489,8 @@ public class GeocodingNodeModel extends NodeModel {
 		return result.trim().isEmpty() ? null : result.trim();
 	}
 
-	private static NodeList evaluateXPathToNodeList(Document doc, String query)
-			throws XPathExpressionException {
-		return (NodeList) XPathFactory.newInstance().newXPath().compile(query)
-				.evaluate(doc, XPathConstants.NODESET);
+	private static NodeList evaluateXPathToNodeList(Document doc, String query) throws XPathExpressionException {
+		return (NodeList) XPathFactory.newInstance().newXPath().compile(query).evaluate(doc, XPathConstants.NODESET);
 	}
 
 	private static class GeocodingResult {
@@ -529,8 +513,8 @@ public class GeocodingNodeModel extends NodeModel {
 			this(url, null, null, null, null, null, null, null, null);
 		}
 
-		public GeocodingResult(String url, String street, String city, String district,
-				String state, String country, String postalCode, Double latitude, Double longitude) {
+		public GeocodingResult(String url, String street, String city, String district, String state, String country,
+				String postalCode, Double latitude, Double longitude) {
 			this.url = url;
 			this.street = street;
 			this.city = city;

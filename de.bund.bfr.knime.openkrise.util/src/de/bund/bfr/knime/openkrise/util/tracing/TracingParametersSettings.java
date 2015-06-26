@@ -33,8 +33,7 @@ import de.bund.bfr.knime.openkrise.util.Activator;
 
 public class TracingParametersSettings extends NodeSettings {
 
-	private static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	private static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 	private static final String CFG_NODE_WEIGHTS = "CaseWeights";
 	private static final String CFG_EDGE_WEIGHTS = "EdgeWeights";
@@ -120,122 +119,114 @@ public class TracingParametersSettings extends NodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_WEIGHTS));
+			nodeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_NODE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_WEIGHTS));
+			edgeWeights = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_EDGE_WEIGHTS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_CROSS_CONTAMINATIONS));
+			nodeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
+			edgeCrossContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_CROSS_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_KILL_CONTAMINATIONS));
+			nodeKillContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_KILL_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeKillContaminations = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_KILL_CONTAMINATIONS));
+			edgeKillContaminations = (Map<String, Boolean>) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_KILL_CONTAMINATIONS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_NODES));
+			observedNodes = (Map<String, Boolean>) SERIALIZER.fromXml(settings.getString(CFG_OBSERVED_NODES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedEdges = (Map<String, Boolean>) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_EDGES));
+			observedEdges = (Map<String, Boolean>) SERIALIZER.fromXml(settings.getString(CFG_OBSERVED_EDGES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeWeightCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_WEIGHT_CONDITION));
+			nodeWeightCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_WEIGHT_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeWeightCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_WEIGHT_CONDITION));
+			edgeWeightCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_WEIGHT_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeContaminationCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_CONTAMINATION_CONDITION));
+			nodeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_CONTAMINATION_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeContaminationCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_CONTAMINATION_CONDITION));
+			edgeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_CONTAMINATION_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeKillCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_NODE_KILL_CONDITION));
+			nodeKillCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_NODE_KILL_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeKillCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_EDGE_KILL_CONDITION));
+			edgeKillCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_EDGE_KILL_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedNodesCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_NODES_CONDITION));
+			observedNodesCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_OBSERVED_NODES_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedEdgesCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(settings
-					.getString(CFG_OBSERVED_EDGES_CONDITION));
+			observedEdgesCondition = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(settings.getString(CFG_OBSERVED_EDGES_CONDITION));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeWeightConditionValue = nanToNull(settings
-					.getDouble(CFG_NODE_WEIGHT_CONDITION_VALUE));
+			nodeWeightConditionValue = nanToNull(settings.getDouble(CFG_NODE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeWeightConditionValue = nanToNull(settings
-					.getDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE));
+			edgeWeightConditionValue = nanToNull(settings.getDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeContaminationConditionValue = falseToNull(settings
-					.getBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE));
+			nodeContaminationConditionValue = falseToNull(settings.getBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeContaminationConditionValue = falseToNull(settings
-					.getBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE));
+			edgeContaminationConditionValue = falseToNull(settings.getBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -250,14 +241,12 @@ public class TracingParametersSettings extends NodeSettings {
 		}
 
 		try {
-			observedNodesConditionValue = falseToNull(settings
-					.getBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE));
+			observedNodesConditionValue = falseToNull(settings.getBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			observedEdgesConditionValue = falseToNull(settings
-					.getBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE));
+			observedEdgesConditionValue = falseToNull(settings.getBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -279,26 +268,20 @@ public class TracingParametersSettings extends NodeSettings {
 		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addString(CFG_NODE_WEIGHT_CONDITION, SERIALIZER.toXml(nodeWeightCondition));
 		settings.addString(CFG_EDGE_WEIGHT_CONDITION, SERIALIZER.toXml(edgeWeightCondition));
-		settings.addString(CFG_NODE_CONTAMINATION_CONDITION,
-				SERIALIZER.toXml(nodeContaminationCondition));
-		settings.addString(CFG_EDGE_CONTAMINATION_CONDITION,
-				SERIALIZER.toXml(edgeContaminationCondition));
+		settings.addString(CFG_NODE_CONTAMINATION_CONDITION, SERIALIZER.toXml(nodeContaminationCondition));
+		settings.addString(CFG_EDGE_CONTAMINATION_CONDITION, SERIALIZER.toXml(edgeContaminationCondition));
 		settings.addString(CFG_NODE_KILL_CONDITION, SERIALIZER.toXml(nodeKillCondition));
 		settings.addString(CFG_EDGE_KILL_CONDITION, SERIALIZER.toXml(edgeKillCondition));
 		settings.addString(CFG_OBSERVED_NODES_CONDITION, SERIALIZER.toXml(observedNodesCondition));
 		settings.addString(CFG_OBSERVED_EDGES_CONDITION, SERIALIZER.toXml(observedEdgesCondition));
 		settings.addDouble(CFG_NODE_WEIGHT_CONDITION_VALUE, nullToNan(nodeWeightConditionValue));
 		settings.addDouble(CFG_EDGE_WEIGHT_CONDITION_VALUE, nullToNan(edgeWeightConditionValue));
-		settings.addBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE,
-				nullToFalse(nodeContaminationConditionValue));
-		settings.addBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE,
-				nullToFalse(edgeContaminationConditionValue));
+		settings.addBoolean(CFG_NODE_CONTAMINATION_CONDITION_VALUE, nullToFalse(nodeContaminationConditionValue));
+		settings.addBoolean(CFG_EDGE_CONTAMINATION_CONDITION_VALUE, nullToFalse(edgeContaminationConditionValue));
 		settings.addBoolean(CFG_NODE_KILL_CONDITION_VALUE, nullToFalse(nodeKillConditionValue));
 		settings.addBoolean(CFG_EDGE_KILL_CONDITION_VALUE, nullToFalse(edgeKillConditionValue));
-		settings.addBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE,
-				nullToFalse(observedNodesConditionValue));
-		settings.addBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE,
-				nullToFalse(observedEdgesConditionValue));
+		settings.addBoolean(CFG_OBSERVED_NODES_CONDITION_VALUE, nullToFalse(observedNodesConditionValue));
+		settings.addBoolean(CFG_OBSERVED_EDGES_CONDITION_VALUE, nullToFalse(observedEdgesConditionValue));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 	}
 

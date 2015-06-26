@@ -73,8 +73,8 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
 		if (!toSvg) {
-			BufferedImage borderImage = new BufferedImage(getCanvasSize().width,
-					getCanvasSize().height, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage borderImage = new BufferedImage(getCanvasSize().width, getCanvasSize().height,
+					BufferedImage.TYPE_INT_ARGB);
 			Graphics borderGraphics = borderImage.getGraphics();
 
 			borderGraphics.setColor(Color.BLACK);

@@ -42,14 +42,12 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	private TracingDelegate<GraphNode> tracing;
 
 	public TracingGraphCanvas() {
-		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(),
-				new NodePropertySchema(), new EdgePropertySchema(),
-				new LinkedHashMap<String, Delivery>());
+		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(), new NodePropertySchema(),
+				new EdgePropertySchema(), new LinkedHashMap<String, Delivery>());
 	}
 
-	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges,
-			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties,
-			Map<String, Delivery> deliveries) {
+	public TracingGraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeProperties,
+			EdgePropertySchema edgeProperties, Map<String, Delivery> deliveries) {
 		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, true);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
@@ -181,8 +179,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
-		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super
-				.getVisualizationServer(toSvg);
+		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super.getVisualizationServer(toSvg);
 
 		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 

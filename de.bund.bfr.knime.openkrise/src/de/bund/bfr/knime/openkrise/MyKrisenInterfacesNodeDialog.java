@@ -102,8 +102,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 			dbui.setFilename(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME));
 			dbui.setOverride(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
 
-			doAnonymize.setSelected(settings
-					.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
+			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
 
 			// if
 			// (settings.containsKey(MyKrisenInterfacesNodeModel.PARAM_RANDOM))

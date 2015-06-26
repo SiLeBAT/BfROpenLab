@@ -51,8 +51,7 @@ public class FunctionViewNodeFactory extends NodeFactory<FunctionViewNodeModel> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FunctionViewNodeModel> createNodeView(final int viewIndex,
-			final FunctionViewNodeModel nodeModel) {
+	public NodeView<FunctionViewNodeModel> createNodeView(final int viewIndex, final FunctionViewNodeModel nodeModel) {
 		return null;
 	}
 

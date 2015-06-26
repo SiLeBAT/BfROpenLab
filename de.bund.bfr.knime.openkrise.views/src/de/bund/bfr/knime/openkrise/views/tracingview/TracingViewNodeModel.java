@@ -75,10 +75,10 @@ public class TracingViewNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected TracingViewNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL }, new PortType[] {
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE,
-				ImagePortObject.TYPE, ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE_OPTIONAL },
+				new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE, ImagePortObject.TYPE,
+						ImagePortObject.TYPE, ImagePortObject.TYPE });
 		set = new TracingViewSettings();
 	}
 
@@ -91,8 +91,7 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable tracingTable = (BufferedDataTable) inObjects[2];
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[3];
-		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable, edgeTable,
-				tracingTable, shapeTable, set);
+		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable, edgeTable, tracingTable, shapeTable, set);
 
 		int index = 0;
 		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
@@ -125,8 +124,8 @@ public class TracingViewNodeModel extends NodeModel {
 
 			nodeContainer.addRowToTable(new DefaultRow(index + "", cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index
-					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
+			exec.setProgress(
+					(double) index / (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
 			index++;
 		}
 
@@ -160,11 +159,10 @@ public class TracingViewNodeModel extends NodeModel {
 				}
 			}
 
-			edgeContainer.addRowToTable(new DefaultRow((index - allEdgesCanvas.getNodes().size())
-					+ "", cells));
+			edgeContainer.addRowToTable(new DefaultRow((index - allEdgesCanvas.getNodes().size()) + "", cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index
-					/ (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
+			exec.setProgress(
+					(double) index / (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
 			index++;
 		}
 
@@ -176,8 +174,8 @@ public class TracingViewNodeModel extends NodeModel {
 			set.setGisType(GisType.MAPNIK);
 		}
 
-		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable,
-				tracingTable, shapeTable, set);
+		TracingViewCanvasCreator creator = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable,
+				set);
 		TracingGraphCanvas graphCanvas = creator.createGraphCanvas();
 		ImagePortObject graphImage = CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas);
 		ImagePortObject gisImage;
@@ -211,8 +209,8 @@ public class TracingViewNodeModel extends NodeModel {
 			setWarningMessage("Shape Table: Row " + key.getString() + " skipped");
 		}
 
-		return new PortObject[] { nodeContainer.getTable(), edgeContainer.getTable(), graphImage,
-				gisImage, combinedImage };
+		return new PortObject[] { nodeContainer.getTable(), edgeContainer.getTable(), graphImage, gisImage,
+				combinedImage };
 	}
 
 	/**
@@ -231,8 +229,7 @@ public class TracingViewNodeModel extends NodeModel {
 		DataTableSpec edgeSpec = (DataTableSpec) inSpecs[1];
 
 		return new PortObjectSpec[] { createNodeOutSpec(nodeSpec), createEdgeOutSpec(edgeSpec),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
-				CanvasUtils.getImageSpec(set.isExportAsSvg()),
+				CanvasUtils.getImageSpec(set.isExportAsSvg()), CanvasUtils.getImageSpec(set.isExportAsSvg()),
 				CanvasUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
@@ -248,8 +245,7 @@ public class TracingViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
@@ -276,8 +272,7 @@ public class TracingViewNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec)
-			throws InvalidSettingsException {
+	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
 		Map<String, DataType> columns = new LinkedHashMap<>();
 
@@ -305,25 +300,22 @@ public class TracingViewNodeModel extends NodeModel {
 			DataType oldType = columns.get(entry.getKey());
 
 			if (oldType == null) {
-				newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue())
-						.createSpec());
+				newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 			} else if (!oldType.equals(entry.getValue())) {
-				throw new InvalidSettingsException("Type of column \"" + entry.getKey()
-						+ "\" must be \"" + entry.getValue() + "\"");
+				throw new InvalidSettingsException(
+						"Type of column \"" + entry.getKey() + "\" must be \"" + entry.getValue() + "\"");
 			}
 		}
 
 		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec)
-			throws InvalidSettingsException {
+	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
 		Map<String, DataType> columns = new LinkedHashMap<>();
 
 		for (DataColumnSpec column : edgeSpec) {
-			if (column.getName().equals(TracingColumns.ID)
-					|| column.getName().equals(TracingColumns.FROM)
+			if (column.getName().equals(TracingColumns.ID) || column.getName().equals(TracingColumns.FROM)
 					|| column.getName().equals(TracingColumns.TO)) {
 				column = new DataColumnSpecCreator(column.getName(), StringCell.TYPE).createSpec();
 			}
@@ -347,26 +339,25 @@ public class TracingViewNodeModel extends NodeModel {
 			DataType oldType = columns.get(entry.getKey());
 
 			if (oldType == null) {
-				newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue())
-						.createSpec());
+				newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 			} else if (!oldType.equals(entry.getValue())) {
-				throw new InvalidSettingsException("Type of column \"" + entry.getKey()
-						+ "\" must be \"" + entry.getValue() + "\"");
+				throw new InvalidSettingsException(
+						"Type of column \"" + entry.getKey() + "\" must be \"" + entry.getValue() + "\"");
 			}
 		}
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static TracingGraphCanvas createAllEdgesCanvas(BufferedDataTable nodeTable,
-			BufferedDataTable edgeTable, BufferedDataTable tracingTable,
-			BufferedDataTable shapeTable, TracingViewSettings set) throws NotConfigurableException {
+	private static TracingGraphCanvas createAllEdgesCanvas(BufferedDataTable nodeTable, BufferedDataTable edgeTable,
+			BufferedDataTable tracingTable, BufferedDataTable shapeTable, TracingViewSettings set)
+					throws NotConfigurableException {
 		boolean joinEdges = set.isJoinEdges();
 
 		set.setJoinEdges(false);
 
-		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable, edgeTable,
-				tracingTable, shapeTable, set).createGraphCanvas();
+		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable, set)
+				.createGraphCanvas();
 
 		set.setJoinEdges(joinEdges);
 

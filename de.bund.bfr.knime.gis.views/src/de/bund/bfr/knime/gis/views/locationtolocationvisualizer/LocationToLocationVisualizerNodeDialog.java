@@ -48,8 +48,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
  * 
  * @author Christian Thoens
  */
-public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog implements
-		CanvasListener {
+public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog implements CanvasListener {
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
@@ -69,8 +68,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input)
-			throws NotConfigurableException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		shapeTable = (BufferedDataTable) input[0];
 		nodeTable = (BufferedDataTable) input[1];
 		edgeTable = (BufferedDataTable) input[2];
@@ -81,8 +79,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		}
 
 		updateSplitPane(false);
-		resized = set.getGraphSettings().getCanvasSize() == null
-				|| set.getGisSettings().getCanvasSize() == null;
+		resized = set.getGraphSettings().getCanvasSize() == null || set.getGisSettings().getCanvasSize() == null;
 	}
 
 	@Override
@@ -95,8 +92,8 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		LocationToLocationVisualizerInputDialog dialog = new LocationToLocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null,
-				nodeTable.getSpec(), edgeTable.getSpec(), set);
+				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null, nodeTable.getSpec(),
+				edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 
@@ -216,8 +213,8 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 			panel.remove(splitPane);
 		}
 
-		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(
-				shapeTable, nodeTable, edgeTable, set);
+		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(shapeTable,
+				nodeTable, edgeTable, set);
 
 		try {
 			graphCanvas = creator.createGraphCanvas();
@@ -231,8 +228,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 

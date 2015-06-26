@@ -29,8 +29,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class RegionToRegionVisualizerNodeFactory extends
-		NodeFactory<RegionToRegionVisualizerNodeModel> {
+public class RegionToRegionVisualizerNodeFactory extends NodeFactory<RegionToRegionVisualizerNodeModel> {
 
 	/**
 	 * {@inheritDoc}

@@ -161,9 +161,9 @@ public class RandomNetworkGenerator {
 							toIndex = r2.nextInt(node.getOutDegree());
 						} while (done.contains(toIndex));
 						done.add(toIndex);
-						deliveryDelivery.addRowToTable(new DefaultRow(lfd + "", IO.createCell(node
-								.getEnteringEdge(j).getIndex()), IO.createCell(node.getLeavingEdge(
-								toIndex).getIndex())));
+						deliveryDelivery.addRowToTable(
+								new DefaultRow(lfd + "", IO.createCell(node.getEnteringEdge(j).getIndex()),
+										IO.createCell(node.getLeavingEdge(toIndex).getIndex())));
 						lfd++;
 					}
 				}

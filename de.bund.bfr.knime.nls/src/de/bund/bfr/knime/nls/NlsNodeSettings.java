@@ -24,7 +24,6 @@ import de.bund.bfr.knime.XmlConverter;
 
 public abstract class NlsNodeSettings extends NodeSettings {
 
-	protected static final XmlConverter SERIALIZER = new XmlConverter(
-			Activator.class.getClassLoader());
+	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 
 }

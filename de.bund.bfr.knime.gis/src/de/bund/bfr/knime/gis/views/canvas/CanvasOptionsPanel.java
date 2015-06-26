@@ -104,8 +104,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 	private List<ChangeListener> listeners;
 
-	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges, boolean allowNodeResize,
-			boolean allowPolygons, boolean allowGisLocations) {
+	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges, boolean allowNodeResize, boolean allowPolygons,
+			boolean allowGisLocations) {
 		init();
 
 		panel = new JPanel();
@@ -127,24 +127,22 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		if (allowEdges && allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Skip Unconnected " + owner.getNaming().Nodes(),
-					skipEdgelessNodesBox));
+			panel.add(getOptionPanel("Skip Unconnected " + owner.getNaming().Nodes(), skipEdgelessNodesBox));
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Show " + owner.getNaming().Edges() + " in Meta "
-					+ owner.getNaming().Node(), showEdgesInMetaNodeBox));
+			panel.add(getOptionPanel("Show " + owner.getNaming().Edges() + " in Meta " + owner.getNaming().Node(),
+					showEdgesInMetaNodeBox));
 		}
 
 		if (allowNodeResize) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", new JLabel("Min:"),
-					nodeSizeBox, Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox));
+			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", new JLabel("Min:"), nodeSizeBox,
+					Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox));
 		}
 
 		if (allowEdges) {
 			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Edge() + " Thickness", new JLabel("Min:"),
-					edgeThicknessBox, Box.createHorizontalStrut(5), new JLabel("Max:"),
-					edgeMaxThicknessBox));
+			panel.add(getOptionPanel(owner.getNaming().Edge() + " Thickness", new JLabel("Min:"), edgeThicknessBox,
+					Box.createHorizontalStrut(5), new JLabel("Max:"), edgeMaxThicknessBox));
 		}
 
 		if (allowPolygons) {
@@ -355,8 +353,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					l.fontChanged();
 				}
 			} else {
-				JOptionPane.showMessageDialog(fontSizeBox, size + " is not a valid number",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(fontSizeBox, size + " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				fontSizeBox.setSelectedItem(fontSize);
 			}
 		} else if (e.getSource() == fontBoldBox) {
@@ -368,9 +366,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer) {
 				if (nodeMaxSize != null && (Integer) size > nodeMaxSize) {
-					JOptionPane.showMessageDialog(nodeSizeBox,
-							"Value cannot be larger than max size " + nodeMaxSize, "Error",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize,
+							"Error", JOptionPane.ERROR_MESSAGE);
 					nodeSizeBox.setSelectedItem(nodeSize);
 				} else {
 					nodeSize = (Integer) size;
@@ -380,8 +377,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(nodeSizeBox, size + " is not a valid number",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(nodeSizeBox, size + " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
 		} else if (e.getSource() == nodeMaxSizeBox
@@ -390,9 +387,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer || size == null) {
 				if (size != null && (Integer) size < nodeSize) {
-					JOptionPane.showMessageDialog(nodeMaxSizeBox,
-							"Value cannot be smaller than min size " + nodeSize, "Error",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize,
+							"Error", JOptionPane.ERROR_MESSAGE);
 					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 				} else {
 					nodeMaxSize = (Integer) size;
@@ -402,8 +398,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(nodeMaxSizeBox, size + " is not a valid number",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(nodeMaxSizeBox, size + " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 			}
 		} else if (e.getSource() == edgeThicknessBox && e.getStateChange() == ItemEvent.SELECTED) {
@@ -412,8 +408,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			if (size instanceof Integer) {
 				if (edgeMaxThickness != null && (Integer) size > edgeMaxThickness) {
 					JOptionPane.showMessageDialog(edgeThicknessBox,
-							"Value cannot be larger than max thickness " + edgeMaxThickness,
-							"Error", JOptionPane.ERROR_MESSAGE);
+							"Value cannot be larger than max thickness " + edgeMaxThickness, "Error",
+							JOptionPane.ERROR_MESSAGE);
 					edgeThicknessBox.setSelectedItem(edgeThickness);
 				} else {
 					edgeThickness = (Integer) size;
@@ -423,13 +419,12 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(edgeThicknessBox, size + " is not a valid number",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(edgeThicknessBox, size + " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				edgeThicknessBox.setSelectedItem(edgeThickness);
 			}
 		} else if (e.getSource() == edgeMaxThicknessBox
-				&& (e.getStateChange() == ItemEvent.SELECTED || edgeMaxThicknessBox
-						.getSelectedItem() == null)) {
+				&& (e.getStateChange() == ItemEvent.SELECTED || edgeMaxThicknessBox.getSelectedItem() == null)) {
 			Object size = edgeMaxThicknessBox.getSelectedItem();
 
 			if (size instanceof Integer || size == null) {
@@ -446,8 +441,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(edgeMaxThicknessBox, size + " is not a valid number",
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(edgeMaxThicknessBox, size + " is not a valid number", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 			}
 		} else if (e.getSource() == arrowInMiddleBox) {
@@ -535,8 +530,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		labelButton.addActionListener(this);
 
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
-		borderAlphaSlider.setPreferredSize(new Dimension(100,
-				borderAlphaSlider.getPreferredSize().height));
+		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
 
@@ -559,9 +553,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		if (components.length == 1) {
 			int titleWidth = border.getMinimumSize(components[0]).width;
 
-			components[0].setPreferredSize(new Dimension(Math.max(
-					components[0].getPreferredSize().width, titleWidth), components[0]
-					.getPreferredSize().height));
+			components[0].setPreferredSize(new Dimension(Math.max(components[0].getPreferredSize().width, titleWidth),
+					components[0].getPreferredSize().height));
 		}
 
 		return panel;

@@ -81,10 +81,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
 		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.WEIGHT, nodeWeightPanel);
 		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.WEIGHT, edgeWeightPanel);
-		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.CROSS_CONTAMINATION,
-				nodeContaminationPanel);
-		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.CROSS_CONTAMINATION,
-				edgeContaminationPanel);
+		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.CROSS_CONTAMINATION, nodeContaminationPanel);
+		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.CROSS_CONTAMINATION, edgeContaminationPanel);
 		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.KILL_CONTAMINATION, nodeKillPanel);
 		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
 		addTab(TracingColumns.OBSERVED + " " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
@@ -99,35 +97,33 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 
 		set.loadSettings(settings);
 
-		NodePropertySchema nodeSchema = new NodePropertySchema(
-				TracingUtils.getTableColumns(nodeTable.getSpec()), TracingColumns.ID);
-		EdgePropertySchema edgeSchema = new EdgePropertySchema(
-				TracingUtils.getTableColumns(edgeTable.getSpec()), TracingColumns.ID,
-				TracingColumns.FROM, TracingColumns.TO);
+		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
+				TracingColumns.ID);
+		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
+				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
-				skippedEdgeRows);
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);
 
 		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodes.values()));
 		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edges));
 
-		nodeWeightPanel.update(nodes.values(), nodeSchema, set.getNodeWeights(),
-				set.getNodeWeightCondition(), set.getNodeWeightConditionValue());
-		edgeWeightPanel.update(edges, edgeSchema, set.getEdgeWeights(),
-				set.getEdgeWeightCondition(), set.getEdgeWeightConditionValue());
+		nodeWeightPanel.update(nodes.values(), nodeSchema, set.getNodeWeights(), set.getNodeWeightCondition(),
+				set.getNodeWeightConditionValue());
+		edgeWeightPanel.update(edges, edgeSchema, set.getEdgeWeights(), set.getEdgeWeightCondition(),
+				set.getEdgeWeightConditionValue());
 		nodeContaminationPanel.update(nodes.values(), nodeSchema, set.getNodeCrossContaminations(),
 				set.getNodeContaminationCondition(), set.getNodeContaminationConditionValue());
 		edgeContaminationPanel.update(edges, edgeSchema, set.getEdgeCrossContaminations(),
 				set.getEdgeContaminationCondition(), set.getEdgeContaminationConditionValue());
-		nodeKillPanel.update(nodes.values(), nodeSchema, set.getNodeKillContaminations(),
-				set.getNodeKillCondition(), set.getNodeKillConditionValue());
-		edgeKillPanel.update(edges, edgeSchema, set.getEdgeKillContaminations(),
-				set.getEdgeKillCondition(), set.getEdgeKillConditionValue());
-		nodeFilterPanel.update(nodes.values(), nodeSchema, set.getObservedNodes(),
-				set.getObservedNodesCondition(), set.getObservedNodesConditionValue());
-		edgeFilterPanel.update(edges, edgeSchema, set.getObservedEdges(),
-				set.getObservedEdgesCondition(), set.getObservedEdgesConditionValue());
+		nodeKillPanel.update(nodes.values(), nodeSchema, set.getNodeKillContaminations(), set.getNodeKillCondition(),
+				set.getNodeKillConditionValue());
+		edgeKillPanel.update(edges, edgeSchema, set.getEdgeKillContaminations(), set.getEdgeKillCondition(),
+				set.getEdgeKillConditionValue());
+		nodeFilterPanel.update(nodes.values(), nodeSchema, set.getObservedNodes(), set.getObservedNodesCondition(),
+				set.getObservedNodesConditionValue());
+		edgeFilterPanel.update(edges, edgeSchema, set.getObservedEdges(), set.getObservedEdgesCondition(),
+				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 
 		if (!skippedEdgeRows.isEmpty()) {

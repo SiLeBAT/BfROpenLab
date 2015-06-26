@@ -49,7 +49,7 @@ import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements TileLoaderListener {
+public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements TileLoaderListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,8 +59,8 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	private Coordinate lastTopLeft;
 	private Coordinate lastBottomRight;
 
-	public OsmCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema,
-			EdgePropertySchema edgeSchema, Naming naming) {
+	public OsmCanvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
+			Naming naming) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
 		tileController = new TileController(new OsmTileSource.Mapnik(), new MemoryTileCache(), this);
 		lastZoom = -1;
@@ -80,8 +80,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 
 	public void loadAllTiles() {
 		int tileSize = tileController.getTileSource().getTileSize();
-		int maxTiles = (getCanvasSize().width / tileSize + 2)
-				* (getCanvasSize().height / tileSize + 2);
+		int maxTiles = (getCanvasSize().width / tileSize + 2) * (getCanvasSize().height / tileSize + 2);
 		MemoryTileCache tileCache = (MemoryTileCache) tileController.getTileCache();
 
 		tileCache.setCacheSize(Math.max(tileCache.getCacheSize(), maxTiles));
@@ -165,8 +164,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 					}
 				}
 
-				tiles.put(new Point((ix - startX) * tileSize + dx, (iy - startY) * tileSize + dy),
-						tile);
+				tiles.put(new Point((ix - startX) * tileSize + dx, (iy - startY) * tileSize + dy), tile);
 			}
 		}
 
@@ -200,15 +198,13 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 				return;
 			}
 
-			String text = tileController.getTileSource().getAttributionText(lastZoom, lastTopLeft,
-					lastBottomRight);
+			String text = tileController.getTileSource().getAttributionText(lastZoom, lastTopLeft, lastBottomRight);
 			Image img = tileController.getTileSource().getAttributionImage();
 			int startY = 0;
 
 			if (text != null && !text.isEmpty()) {
 				Font font = new Font("Default", Font.PLAIN, 9);
-				int w = (int) font.getStringBounds(text, ((Graphics2D) g).getFontRenderContext())
-						.getWidth();
+				int w = (int) font.getStringBounds(text, ((Graphics2D) g).getFontRenderContext()).getWidth();
 				int h = g.getFontMetrics(font).getHeight();
 				int d = 3;
 

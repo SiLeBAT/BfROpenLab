@@ -53,9 +53,8 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected DiffFunctionViewNodeModel() {
-		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) },
+		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE, new PortType(BufferedDataTable.class, true) },
 				new PortType[] { ImagePortObject.TYPE });
 		set = new ViewSettings();
 	}
@@ -66,8 +65,8 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		DiffFunctionReader reader = new DiffFunctionReader((FunctionPortObject) inObjects[0],
-				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2],
-				(BufferedDataTable) inObjects[3], (BufferedDataTable) inObjects[4]);
+				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3],
+				(BufferedDataTable) inObjects[4]);
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 
 		creator.setVarY(reader.getDepVar());
@@ -103,8 +102,7 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		set.loadSettings(settings);
 	}
 
