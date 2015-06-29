@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
@@ -61,15 +62,11 @@ public class IssuesDownload {
 		FileWriter writer = new FileWriter("issues.csv");
 		int index = 1;
 
-		writer.append("Id\tTitle\tCreator\tAssignee\tMilestone\tCreated\tClosed\tState");
+		writer.append("Id\tTitle\tCreator\tAssignee\tMilestone\tLabel\tCreated\tClosed\tState");
 		writer.append("\n");
 
 		for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
 				repository.listIssues(GHIssueState.CLOSED))) {
-			if (issue.getMilestone() != null && issue.getMilestone().getTitle().equals("Non-FoodChain-Lab")) {
-				continue;
-			}
-
 			List<String> parts = new ArrayList<>();
 
 			parts.add(String.valueOf(issue.getNumber()));
@@ -87,6 +84,14 @@ public class IssuesDownload {
 			} else {
 				parts.add("");
 			}
+
+			List<String> labels = new ArrayList<>();
+
+			for (GHLabel label : issue.getLabels()) {
+				labels.add(label.getName());
+			}
+
+			parts.add(Joiner.on("+").join(labels));
 
 			if (issue.getCreatedAt() != null) {
 				parts.add(new SimpleDateFormat("yyyy-MM-dd").format(issue.getCreatedAt()));
