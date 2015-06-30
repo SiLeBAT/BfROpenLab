@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.6.0.xsd">
-  <!-- Configure the database connection here -->
-  <jdbc>
-    <driver>org.hsqldb.jdbc.JDBCDriver</driver>
-    <url>jdbc:hsqldb:file:D:/KNIME/runtime-New_configuration/.fclabDB/DB</url>
-    <user>SA
-	</user>
-    <password></password>
-  </jdbc>
+	<!-- Configure the database connection here -->
+	<jdbc>
+		<driver>org.hsqldb.jdbc.JDBCDriver</driver>
+		<url>jdbc:hsqldb:file:D:/KNIME/runtime-New_configuration/.fclabDB/DB</url>
+		<user>SA</user>
+		<password></password>
+	</jdbc>
 
-  <generator>
-    <!-- The default code generator. You can override this one, to generate your own code style
-         Defaults to org.jooq.util.DefaultGenerator -->
-    <name>org.jooq.util.DefaultGenerator</name>
+	<generator>
+		<!-- The default code generator. You can override this one, to generate your own code style Defaults 
+			to org.jooq.util.DefaultGenerator -->
+		<name>org.jooq.util.DefaultGenerator</name>
 
-    <database>
-      <!-- The database type. The format here is:
-           org.util.[database].[database]Database -->
-      <name>org.jooq.util.hsqldb.HSQLDBDatabase</name>
+		<database>
+			<!-- The database type. The format here is: org.util.[database].[database]Database -->
+			<name>org.jooq.util.hsqldb.HSQLDBDatabase</name>
 
-      <!-- The database schema (or in the absence of schema support, in your RDBMS this
-           can be the owner, user, database name) to be generated -->
-      <inputSchema></inputSchema>
+			<includeExcludeColumns>true</includeExcludeColumns>
 
-      <!-- All elements that are generated from your schema
-           (A Java regular expression. Use the pipe to separate several expressions)
-           Watch out for case-sensitivity. Depending on your database, this might be important! -->
-      <includes>.*</includes>
+			<!-- The database schema (or in the absence of schema support, in your RDBMS this can be the owner, 
+				user, database name) to be generated -->
+			<inputSchema></inputSchema>
 
-      <!-- All elements that are excluded from your schema
-           (A Java regular expression. Use the pipe to separate several expressions).
-           Excludes match before includes -->
-      <excludes></excludes>
-    </database>
+			<!-- All elements that are generated from your schema (A Java regular expression. Use the pipe to 
+				separate several expressions) Watch out for case-sensitivity. Depending on your database, this might 
+				be important! -->
+			<includes>
+				Station|Produktkatalog|Chargen|Lieferungen|Chargenverbindungen|Extrafields|Importmetadata|Lookups|.*\.Station\..*|.*\.Produktkatalog\..*|.*\.Chargen\..*|.*\.Lieferungen\..*|.*\.Chargenverbindungen\..*|.*\.Extrafields\..*|.*\.Importmetadata\..*|.*\.Lookups\..*
+			</includes>
 
-    <target>
-      <!-- The destination package of your generated classes (within the destination directory) -->
-      <packageName>test.generated</packageName>
+			<!-- All elements that are excluded from your schema (A Java regular expression. Use the pipe to separate 
+				several expressions). Excludes match before includes -->
+			<excludes>PUBLIC\.ExtraFields\.\p{Upper}\p{Upper}</excludes>
+		</database>
 
-      <!-- The destination directory of your generated classes -->
-      <directory>D:/KNIME/src</directory>
-    </target>
-  </generator>
+		<target>
+			<!-- The destination package of your generated classes (within the destination directory) -->
+			<packageName>de.bund.bfr.knime.openkrise.generated</packageName>
+
+			<!-- The destination directory of your generated classes -->
+			<directory>../de.bund.bfr.knime.openkrise/src</directory>
+		</target>
+	</generator>
 </configuration>
