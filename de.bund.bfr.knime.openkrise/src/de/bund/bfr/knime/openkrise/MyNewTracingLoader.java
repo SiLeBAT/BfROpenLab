@@ -19,112 +19,55 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import static de.bund.bfr.knime.openkrise.generated.public_.Tables.CHARGEN;
+import static de.bund.bfr.knime.openkrise.generated.public_.Tables.CHARGENVERBINDUNGEN;
+import static de.bund.bfr.knime.openkrise.generated.public_.Tables.LIEFERUNGEN;
+import static de.bund.bfr.knime.openkrise.generated.public_.Tables.PRODUKTKATALOG;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
-import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
-import org.jooq.Table;
+import org.jooq.Select;
 import org.jooq.impl.DSL;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class MyNewTracingLoader {
 
-	private static HashMap<String, Delivery> allDeliveries;
-
-	private static Field<Object> field(String name) {
-		List<String> parts = new ArrayList<>();
-
-		for (String s : Splitter.on(".").split(name.replace("\"", ""))) {
-			parts.add("\"" + s + "\"");
-		}
-
-		return DSL.field(Joiner.on(".").join(parts));
-	}
-
-	private static Table<Record> table(String name) {
-		return DSL.table("\"" + name + "\"");
-	}
-
 	public static Map<String, Delivery> getNewTracingModel(MyDBI myDBi, Connection conn) {
-		allDeliveries = new HashMap<>();
-		// Firstly: get all deliveries
-		// String sql = "SELECT " + DBKernel.delimitL("ID") + "," +
-		// DBKernel.delimitL("Empfänger")
-		// + "," + DBKernel.delimitL("Station") + "," +
-		// DBKernel.delimitL("dd_day") + ","
-		// + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year")
-		// + " FROM "
-		// + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " +
-		// DBKernel.delimitL("Chargen")
-		// + " ON " + DBKernel.delimitL("Lieferungen") + "." +
-		// DBKernel.delimitL("Charge")
-		// + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID")
-		// + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON "
-		// + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-		// "="
-		// + DBKernel.delimitL("Produktkatalog") + "." +
-		// DBKernel.delimitL("ID");
-		String sql = DSL.using(conn, SQLDialect.HSQLDB)
-				.select(field("ID"), field("Empfänger"), field("Station"), field("dd_day"), field("dd_month"),
-						field("dd_year"), field("ad_day"), field("ad_month"), field("ad_year"))
-				.from(table("Lieferungen")).leftOuterJoin(table("Chargen"))
-				.on(field("Lieferungen.Charge").equal(field("Chargen.ID"))).leftOuterJoin(table("Produktkatalog"))
-				.on(field("Chargen.Artikel").equal(field("Produktkatalog.ID"))).getSQL();
+		Map<String, Delivery> allDeliveries = new HashMap<>();
 
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-			if (rs != null && rs.first()) {
-				do {
-					Delivery md = new Delivery(rs.getObject("ID").toString(), rs.getObject("Station").toString(),
-							rs.getObject("Empfänger").toString(), (Integer) rs.getObject("dd_day"),
-							(Integer) rs.getObject("dd_month"), (Integer) rs.getObject("dd_year"),
-							(Integer) rs.getObject("ad_day"), (Integer) rs.getObject("ad_month"),
-							(Integer) rs.getObject("ad_year"));
-					allDeliveries.put(md.getId(), md);
-				} while (rs.next());
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
+				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
+				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
+
+		for (Record r : deliverySelect) {
+			Delivery d = new Delivery(r.getValue(LIEFERUNGEN.ID).toString(),
+					r.getValue(PRODUKTKATALOG.STATION).toString(), r.getValue(LIEFERUNGEN.EMPFÄNGER).toString(),
+					r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH), r.getValue(LIEFERUNGEN.DD_YEAR),
+					r.getValue(LIEFERUNGEN.AD_DAY), r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR));
+
+			allDeliveries.put(d.getId(), d);
 		}
 
-		// Secondly: prev/next deliveries
-		sql = "SELECT " + DBKernel.delimitL("ZutatLieferungen") + "." + DBKernel.delimitL("ID") + ","
-				+ DBKernel.delimitL("ProduktLieferungen") + "." + DBKernel.delimitL("ID") + " FROM "
-				+ DBKernel.delimitL("ChargenVerbindungen") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS "
-				+ DBKernel.delimitL("ZutatLieferungen") + " ON " + DBKernel.delimitL("ZutatLieferungen") + "."
-				+ DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "."
-				+ DBKernel.delimitL("Zutat") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS "
-				+ DBKernel.delimitL("ProduktLieferungen") + " ON " + DBKernel.delimitL("ProduktLieferungen") + "."
-				+ DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "."
-				+ DBKernel.delimitL("Produkt");
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-			if (rs != null && rs.first()) {
-				do {
-					Delivery mdZ = allDeliveries.get(rs.getObject(1).toString());
-					Delivery mdP = allDeliveries.get(rs.getObject(2).toString());
-					if (mdZ != null && mdP != null) {
-						mdZ.getAllNextIds().add(mdP.getId());
-						mdP.getAllPreviousIds().add(mdZ.getId());
-					}
-					// if (mdP != null) mdP.addPrevious(mdZ.getId());
-				} while (rs.next());
+		Select<Record> deliveryToDeliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(CHARGENVERBINDUNGEN)
+				.leftOuterJoin(LIEFERUNGEN).on(CHARGENVERBINDUNGEN.PRODUKT.equal(LIEFERUNGEN.CHARGE));
+
+		for (Record r : deliveryToDeliverySelect) {
+			Delivery from = allDeliveries.get(r.getValue(CHARGENVERBINDUNGEN.ZUTAT).toString());
+			Delivery to = allDeliveries.get(r.getValue(LIEFERUNGEN.ID).toString());
+
+			if (from != null && to != null) {
+				from.getAllNextIds().add(to.getId());
+				to.getAllPreviousIds().add(from.getId());
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 
 		return allDeliveries;
@@ -169,13 +112,14 @@ public class MyNewTracingLoader {
 						alwaysUEkg = false;
 				} while (rs.next());
 			}
-			if (alwaysUEkg)
-				return false; // beim EFSA Importer wurde immer kg eingetragen,
-								// später beim bfrnewimporter wurde nur noch
-								// "numPU" und "typePU" benutzt und UnitEinheit
-								// müsste immer NULL sein, daher ist das ein
-								// sehr gutes Indiz daafür, dass wir es mit
-								// alten Daten zu tun haben
+			if (alwaysUEkg) {
+				return false;
+				// beim EFSA Importer wurde immer kg eingetragen, später beim
+				// bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt
+				// und UnitEinheit müsste immer NULL sein, daher ist das ein
+				// sehr gutes Indiz daafür, dass wir es mit alten Daten zu tun
+				// haben
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
