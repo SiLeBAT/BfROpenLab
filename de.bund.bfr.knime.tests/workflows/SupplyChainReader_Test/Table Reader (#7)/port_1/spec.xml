@@ -16,259 +16,259 @@
 <config key="0">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Vanillepudding;114;1;9;2014;1;9;2014;90.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Tomatendose;109;1;8;2014;1;8;2014;450.0;Stück;3001"/>
 </config>
 </config>
 <config key="1">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Sahne, süß;123;null;null;null;null;null;null;null;null;2004"/>
+<entry key="StringCell" type="xstring" value="Tomaten;116;null;null;null;null;null;null;null;null;2001"/>
 </config>
 </config>
 <config key="2">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Vanillepudding;122;null;null;null;null;null;null;null;null;2004"/>
+<entry key="StringCell" type="xstring" value="Brühe;125;23;4;2014;25;4;2014;3.0;kg;3001"/>
 </config>
 </config>
 <config key="3">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Erdbeeren TK;108;17;8;2014;18;8;2014;86.0;750g Packets;3002"/>
+<entry key="StringCell" type="xstring" value="Putenkeule;141;4;9;2014;4;9;2014;150.0;kg;3002"/>
 </config>
 </config>
 <config key="4">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Erdbeersauce;139;null;null;null;null;null;null;20.0;Liter;3002"/>
+<entry key="StringCell" type="xstring" value="Hackfleisch;110;1;9;2014;2;9;2014;90.0;500g Packets;3001"/>
 </config>
 </config>
 <config key="5">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Erdbeeren TK;108;17;8;2014;18;8;2014;40.0;750g Packets;3001"/>
+<entry key="StringCell" type="xstring" value="Schweinfleisch;117;null;null;null;null;null;null;null;null;2002"/>
 </config>
 </config>
 <config key="6">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Erdbeeren;107;27;6;2014;27;6;2014;300.0;kg;2005"/>
+<entry key="StringCell" type="xstring" value="Putenkeule;124;null;null;null;null;null;null;null;null;2002"/>
 </config>
 </config>
 <config key="7">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Brühe;125;23;4;2014;25;4;2014;3.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Salz;112;2;6;2014;4;6;2014;1.0;1kg Bags;3002"/>
 </config>
 </config>
 <config key="8">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Tomaten;116;null;null;null;null;null;null;null;null;2001"/>
+<entry key="StringCell" type="xstring" value="Paprikapulver edelsüß;148;2;6;2014;4;6;2014;2.0;100g Packets;3002"/>
 </config>
 </config>
 <config key="9">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Tomatendose;109;1;8;2014;1;8;2014;450.0;Stück;3001"/>
+<entry key="StringCell" type="xstring" value="Fleischbrühe;144;2;8;2014;3;8;2014;114.0;Liter;3002"/>
 </config>
 </config>
 <config key="10">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Putenkeule;124;null;null;null;null;null;null;null;null;2002"/>
+<entry key="StringCell" type="xstring" value="Mehl;149;2;6;2014;4;6;2014;3.0;1kg Bags;3002"/>
 </config>
 </config>
 <config key="11">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Schweinfleisch;117;null;null;null;null;null;null;null;null;2002"/>
+<entry key="StringCell" type="xstring" value="Zucker;129;19;8;2014;21;8;2014;2.0;10kg Bags;3002"/>
 </config>
 </config>
 <config key="12">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Hackfleisch;110;1;9;2014;2;9;2014;90.0;500g Packets;3001"/>
+<entry key="StringCell" type="xstring" value="Curry;147;2;6;2014;4;6;2014;2.0;100g Packets;3002"/>
 </config>
 </config>
 <config key="13">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Putenkeule;141;4;9;2014;4;9;2014;150.0;kg;3002"/>
+<entry key="StringCell" type="xstring" value="Pfeffer;700;2;6;2014;4;6;2014;1.0;100g Packets;3002"/>
 </config>
 </config>
 <config key="14">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Paprikapulver edelsüß;148;2;6;2014;4;6;2014;2.0;100g Packets;3002"/>
+<entry key="StringCell" type="xstring" value="Weichweizengries;138;3;8;2014;8;8;2014;24.0;1kg Cartons;3002"/>
 </config>
 </config>
 <config key="15">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Salz;112;2;6;2014;4;6;2014;1.0;1kg Bags;3002"/>
+<entry key="StringCell" type="xstring" value="Pfeffer;113;1;5;2014;3;5;2014;1.0;1kg Bags;3001"/>
 </config>
 </config>
 <config key="16">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Curry;120;null;null;null;null;null;null;null;null;2003"/>
+<entry key="StringCell" type="xstring" value="Paprikapulver edelsüß;121;null;null;null;null;null;null;null;null;2003"/>
 </config>
 </config>
 <config key="17">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Paprikapulver edelsüß;121;null;null;null;null;null;null;null;null;2003"/>
+<entry key="StringCell" type="xstring" value="Salz;118;null;null;null;null;null;null;null;null;2003"/>
 </config>
 </config>
 <config key="18">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Salz;118;null;null;null;null;null;null;null;null;2003"/>
+<entry key="StringCell" type="xstring" value="Curry;120;null;null;null;null;null;null;null;null;2003"/>
 </config>
 </config>
 <config key="19">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Weichweizengries;138;3;8;2014;8;8;2014;24.0;1kg Cartons;3002"/>
+<entry key="StringCell" type="xstring" value="Pfeffer;119;null;null;null;null;null;null;null;null;2003"/>
 </config>
 </config>
 <config key="20">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Pfeffer;113;1;5;2014;3;5;2014;1.0;1kg Bags;3001"/>
+<entry key="StringCell" type="xstring" value="Sahne;115;1;9;2014;1;9;2014;45.0;Liter;3001"/>
 </config>
 </config>
 <config key="21">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Curry;147;2;6;2014;4;6;2014;2.0;100g Packets;3002"/>
+<entry key="StringCell" type="xstring" value="Vanillepudding;114;1;9;2014;1;9;2014;90.0;kg;3001"/>
 </config>
 </config>
 <config key="22">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Pfeffer;700;2;6;2014;4;6;2014;1.0;100g Packets;3002"/>
+<entry key="StringCell" type="xstring" value="Sahne, süß;123;null;null;null;null;null;null;null;null;2004"/>
 </config>
 </config>
 <config key="23">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Mehl;149;2;6;2014;4;6;2014;3.0;1kg Bags;3002"/>
+<entry key="StringCell" type="xstring" value="Vanillepudding;122;null;null;null;null;null;null;null;null;2004"/>
 </config>
 </config>
 <config key="24">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Zucker;129;19;8;2014;21;8;2014;2.0;10kg Bags;3002"/>
+<entry key="StringCell" type="xstring" value="Erdbeeren TK;108;17;8;2014;18;8;2014;86.0;750g Packets;3002"/>
 </config>
 </config>
 <config key="25">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Sahne;115;1;9;2014;1;9;2014;45.0;Liter;3001"/>
+<entry key="StringCell" type="xstring" value="Erdbeersauce;139;null;null;null;null;null;null;20.0;Liter;3002"/>
 </config>
 </config>
 <config key="26">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Pfeffer;119;null;null;null;null;null;null;null;null;2003"/>
+<entry key="StringCell" type="xstring" value="Erdbeeren TK;108;17;8;2014;18;8;2014;40.0;750g Packets;3001"/>
 </config>
 </config>
 <config key="27">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Fleischbrühe;144;2;8;2014;3;8;2014;114.0;Liter;3002"/>
+<entry key="StringCell" type="xstring" value="Erdbeeren;107;27;6;2014;27;6;2014;300.0;kg;2005"/>
 </config>
 </config>
 <config key="28">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Nudeln;111;12;8;2014;13;8;2014;150.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Petersilie;104;2;9;2014;2;9;2014;6.0;kg;3001"/>
 </config>
 </config>
 <config key="29">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Salz;112;1;5;2014;3;5;2014;1.0;1kg Bags;3001"/>
+<entry key="StringCell" type="xstring" value="Sellerie;102;1;9;2014;1;9;2014;60.0;kg;3001"/>
 </config>
 </config>
 <config key="30">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Lauch;103;1;9;2014;1;9;2014;24.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Mören;101;1;9;2014;1;9;2014;60.0;kg;3001"/>
 </config>
 </config>
 <config key="31">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Kartoffeln;100;10;8;2014;10;8;2014;300.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Salz;112;1;5;2014;3;5;2014;1.0;1kg Bags;3001"/>
 </config>
 </config>
 <config key="32">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Fett;151;1;9;2014;2;9;2014;3.0;kg;3002"/>
+<entry key="StringCell" type="xstring" value="Nudeln;111;12;8;2014;13;8;2014;150.0;kg;3001"/>
 </config>
 </config>
 <config key="33">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Weißwein;145;27;8;2014;29;8;2014;38.0;Liter;3002"/>
+<entry key="StringCell" type="xstring" value="Kartoffeln;100;10;8;2014;10;8;2014;300.0;kg;3001"/>
 </config>
 </config>
 <config key="34">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="30"/>
+<entry key="StringCell" type="xstring" value="Lauch;103;1;9;2014;1;9;2014;24.0;kg;3001"/>
 </config>
 </config>
 <config key="35">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Sellerie;102;1;9;2014;1;9;2014;60.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Zwiebel;142;30;8;2014;30;8;2014;300.0;Stück;3002"/>
 </config>
 </config>
 <config key="36">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Mören;101;1;9;2014;1;9;2014;60.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Eier;134;5;9;2014;5;9;2014;400.0;Stück;3002"/>
 </config>
 </config>
 <config key="37">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Petersilie;104;2;9;2014;2;9;2014;6.0;kg;3001"/>
+<entry key="StringCell" type="xstring" value="Milch;136;4;9;2014;4;9;2014;152.0;Liter;3002"/>
 </config>
 </config>
 <config key="38">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Zwiebel;142;30;8;2014;30;8;2014;300.0;Stück;3002"/>
+<entry key="StringCell" type="xstring" value="Fruchtquark;140;1;9;2014;2;9;2014;90.0;kg;3002"/>
 </config>
 </config>
 <config key="39">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Milch;136;4;9;2014;4;9;2014;152.0;Liter;3002"/>
+<entry key="StringCell" type="xstring" value="Knoblauch;143;30;8;2014;30;8;2014;300.0;Stück;3002"/>
 </config>
 </config>
 <config key="40">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Eier;134;5;9;2014;5;9;2014;400.0;Stück;3002"/>
+<entry key="StringCell" type="xstring" value="Fett;151;1;9;2014;2;9;2014;3.0;kg;3002"/>
 </config>
 </config>
 <config key="41">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Knoblauch;143;30;8;2014;30;8;2014;300.0;Stück;3002"/>
+<entry key="StringCell" type="xstring" value="Weißwein;145;27;8;2014;29;8;2014;38.0;Liter;3002"/>
 </config>
 </config>
 <config key="42">
 <entry key="datacell" type="xstring" value="org.knime.core.data.def.StringCell"/>
 <config key="org.knime.core.data.def.StringCell">
-<entry key="StringCell" type="xstring" value="Fruchtquark;140;1;9;2014;2;9;2014;90.0;kg;3002"/>
+<entry key="StringCell" type="xstring" value="30"/>
 </config>
 </config>
 <config key="43">

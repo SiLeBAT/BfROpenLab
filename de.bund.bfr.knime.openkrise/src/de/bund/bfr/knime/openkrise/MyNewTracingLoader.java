@@ -27,8 +27,8 @@ import static de.bund.bfr.knime.openkrise.generated.public_.Tables.PRODUKTKATALO
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jooq.Record;
@@ -42,7 +42,7 @@ import de.bund.bfr.knime.openkrise.db.MyDBI;
 public class MyNewTracingLoader {
 
 	public static Map<String, Delivery> getNewTracingModel(MyDBI myDBi, Connection conn) {
-		Map<String, Delivery> allDeliveries = new HashMap<>();
+		Map<String, Delivery> allDeliveries = new LinkedHashMap<>();
 
 		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
 				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
