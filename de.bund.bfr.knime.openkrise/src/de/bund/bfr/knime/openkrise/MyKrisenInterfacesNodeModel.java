@@ -45,9 +45,11 @@ import java.util.Map;
 
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.Select;
+import org.jooq.TableField;
 import org.jooq.impl.DSL;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -258,7 +260,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				if (extraCol.startsWith("_")) {
 					String attribute = extraCol.substring(1);
 					Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
-							.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal("Station"),
+							.from(EXTRAFIELDS)
+							.where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()),
 									EXTRAFIELDS.ID.equal(Integer.parseInt(sID)), EXTRAFIELDS.ATTRIBUTE.equal(attribute))
 							.fetch();
 
@@ -500,36 +503,28 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DEADSTART, BooleanCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DEADEND, BooleanCell.TYPE).createSpec());
 
-		if (containsValues(conn, "Station", "VATnumber"))
+		if (containsValues(conn, STATION.VATNUMBER))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_VAT, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "Betriebsart"))
+		if (containsValues(conn, STATION.BETRIEBSART))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_TOB, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "AnzahlFaelle"))
+		if (containsValues(conn, STATION.ANZAHLFAELLE))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NUMCASES, IntCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "DatumBeginn"))
+		if (containsValues(conn, STATION.DATUMBEGINN))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATESTART, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "DatumHoehepunkt"))
+		if (containsValues(conn, STATION.DATUMHOEHEPUNKT))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEPEAK, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "DatumEnde"))
+		if (containsValues(conn, STATION.DATUMENDE))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DATEEND, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Station", "ImportSources"))
+		if (containsValues(conn, STATION.IMPORTSOURCES))
 			columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
 		// due to backward compatibility:
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTY, StringCell.TYPE).createSpec());
 
 		// ExtraFields
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn, "SELECT DISTINCT(" + DBKernel.delimitL("attribute") + ") FROM "
-					+ DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Station'",
-					false);
-			if (rs != null && rs.first()) {
-				do {
-					columns.add(new DataColumnSpecCreator("_" + rs.getString(1), StringCell.TYPE).createSpec());
-				} while (rs.next());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(EXTRAFIELDS.ATTRIBUTE)
+				.from(EXTRAFIELDS).where(EXTRAFIELDS.TABLENAME.equal(STATION.getName()))) {
+			columns.add(new DataColumnSpecCreator("_" + r.value1(), StringCell.TYPE).createSpec());
 		}
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
@@ -546,83 +541,64 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ARRIVAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
 
-		if (containsValues(conn, "Produktkatalog", "Prozessierung"))
+		if (containsValues(conn, PRODUKTKATALOG.PROZESSIERUNG))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_PROCESSING, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Produktkatalog", "IntendedUse"))
+		if (containsValues(conn, PRODUKTKATALOG.INTENDEDUSE))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_USAGE, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Chargen", "ChargenNr"))
+		if (containsValues(conn, CHARGEN.CHARGENNR))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Chargen", new String[] { "MHD_day", "MHD_month", "MHD_year" }))
+		if (containsValues(conn, CHARGEN.MHD_DAY, CHARGEN.MHD_MONTH, CHARGEN.MHD_YEAR))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEEXP, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Chargen", new String[] { "pd_day", "pd_month", "pd_year" }))
+		if (containsValues(conn, CHARGEN.PD_DAY, CHARGEN.PD_MONTH, CHARGEN.PD_YEAR))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEMANU, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "Unitmenge"))
+		if (containsValues(conn, LIEFERUNGEN.UNITMENGE))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE).createSpec());
-		boolean acv = containsValues(conn, "Lieferungen", "numPU");
-		if (acv)
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE).createSpec());
-		if (acv && containsValues(conn, "Lieferungen", "typePU"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Chargen", "OriginCountry"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "EndChain"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "Explanation_EndChain"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "Contact_Questions_Remarks"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "Further_Traceback"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Chargen", "MicrobioSample"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
-		if (containsValues(conn, "Lieferungen", "ImportSources"))
-			columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
-		if (containsValues(conn, "Chargen", "ChargenNr"))
+		if (containsValues(conn, LIEFERUNGEN.NUMPU)) {
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_NUM_PU, DoubleCell.TYPE).createSpec());
+			if (containsValues(conn, LIEFERUNGEN.TYPEPU))
+				columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
+		}
+
+		if (containsValues(conn, CHARGEN.ORIGINCOUNTRY))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
+		if (containsValues(conn, LIEFERUNGEN.ENDCHAIN))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
+		if (containsValues(conn, LIEFERUNGEN.EXPLANATION_ENDCHAIN))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
+		if (containsValues(conn, LIEFERUNGEN.CONTACT_QUESTIONS_REMARKS))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
+		if (containsValues(conn, LIEFERUNGEN.FURTHER_TRACEBACK))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
+		if (containsValues(conn, CHARGEN.MICROBIOSAMPLE))
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
+		if (containsValues(conn, LIEFERUNGEN.IMPORTSOURCES))
+			columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
+		if (containsValues(conn, CHARGEN.CHARGENNR))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
 
 		// ExtraFields
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn,
-					"SELECT DISTINCT(CONCAT(" + DBKernel.delimitL("tablename") + ",'.',"
-							+ DBKernel.delimitL("attribute") + ")) FROM " + DBKernel.delimitL("ExtraFields") + " WHERE "
-							+ DBKernel.delimitL("tablename") + "='Produktkatalog'" + " OR "
-							+ DBKernel.delimitL("tablename") + "='Chargen'" + " OR " + DBKernel.delimitL("tablename")
-							+ "='Lieferungen'",
-					false);
-			if (rs != null && rs.first()) {
-				do {
-					columns.add(new DataColumnSpecCreator("_" + rs.getString(1), StringCell.TYPE).createSpec());
-				} while (rs.next());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
+				.selectDistinct(EXTRAFIELDS.TABLENAME, EXTRAFIELDS.ATTRIBUTE).from(EXTRAFIELDS)
+				.where(EXTRAFIELDS.TABLENAME.equal(PRODUKTKATALOG.getName()))
+				.or(EXTRAFIELDS.TABLENAME.equal(CHARGEN.getName()))
+				.or(EXTRAFIELDS.TABLENAME.equal(LIEFERUNGEN.getName()))) {
+			columns.add(new DataColumnSpecCreator("_" + r.value1() + "." + r.value2(), StringCell.TYPE).createSpec());
 		}
 
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
-	private boolean containsValues(Connection conn, String tablename, String columnname) {
-		return containsValues(conn, tablename, new String[] { columnname });
-	}
-
-	private boolean containsValues(Connection conn, String tablename, String[] columnnames) {
-		boolean result = false;
-		if (conn != null) {
-			try {
-				StringBuilder count = new StringBuilder("COUNT(DISTINCT " + DBKernel.delimitL(columnnames[0]) + ")");
-				for (int i = 1; i < columnnames.length; i++) {
-					count.append("+COUNT(DISTINCT " + DBKernel.delimitL(columnnames[i]) + ")");
+	private boolean containsValues(Connection conn, TableField<?, ?>... fields) {
+		for (TableField<?, ?> field : fields) {
+			for (Record1<?> r : DSL.using(conn, SQLDialect.HSQLDB).selectDistinct(field).from(field.getTable())) {
+				if (r.value1() != null) {
+					return true;
 				}
-				ResultSet rs = DBKernel.getResultSet(conn,
-						"SELECT (" + count + ") FROM " + DBKernel.delimitL(tablename), false);
-				if (rs != null && rs.first() && rs.getInt(1) > 0)
-					result = true;
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
-		return result;
+
+		return false;
 	}
 
 	private String getBL(String bl) {
