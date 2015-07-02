@@ -475,8 +475,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private String sdfFormat(Integer day, Integer month, Integer year) {
 		if (year == null)
 			return null;
+
 		String thisYear = new SimpleDateFormat("yyyy").format(new Date());
-		if (year != null && year.toString().length() == 2)
+
+		if (year.toString().length() == 2)
 			year = year > Integer.parseInt(thisYear.substring(2)) ? 1900 : 2000 + year;
 
 		if (month == null) {
@@ -635,9 +637,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		boolean result = false;
 		if (conn != null) {
 			try {
-				String count = "COUNT(DISTINCT " + DBKernel.delimitL(columnnames[0]) + ")";
+				StringBuilder count = new StringBuilder("COUNT(DISTINCT " + DBKernel.delimitL(columnnames[0]) + ")");
 				for (int i = 1; i < columnnames.length; i++) {
-					count += "+COUNT(DISTINCT " + DBKernel.delimitL(columnnames[i]) + ")";
+					count.append("+COUNT(DISTINCT " + DBKernel.delimitL(columnnames[i]) + ")");
 				}
 				ResultSet rs = DBKernel.getResultSet(conn,
 						"SELECT (" + count + ") FROM " + DBKernel.delimitL(tablename), false);
