@@ -125,37 +125,40 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		} else {
 			String f = KnimeUtils.getFile(filename + "/DB").getAbsolutePath();
 			Connection conn = override ? getNewLocalConnection("SA", "", f) : getLocalConn();
+			Map<String, Delivery> allDeliveries = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 			output33Nodes = exec.createDataContainer(getSpec33Nodes(conn));
 			output33Links = exec.createDataContainer(getSpec33Links(conn));
 			// if (doAnonymize) doAnonymizeHard(conn);
 
-			String warningMessage = "Starting Plausibility Checks...";
-			System.err.println(warningMessage);
 			boolean warningsThere = false;
 			// Date_In <= Date_Out???
-			String sql = "SELECT \"ChargenVerbindungen\".\"ID\" AS \"ID\", \"L1\".\"Serial\" AS \"ID_In\", \"L2\".\"Serial\" AS \"ID_Out\", \"L1\".\"dd_day\" AS \"Day_In\",\"L2\".\"dd_day\" AS \"Day_Out\", \"L1\".\"dd_month\" AS \"Month_In\",\"L2\".\"dd_month\" AS \"Month_Out\", \"L1\".\"dd_year\" AS \"Year_In\",\"L2\".\"dd_year\" AS \"Year_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND (\"L2\".\"dd_year\" < \"L1\".\"dd_year\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" < \"L1\".\"dd_month\" OR \"L2\".\"dd_year\" = \"L1\".\"dd_year\" AND \"L2\".\"dd_month\" = \"L1\".\"dd_month\" AND \"L2\".\"dd_day\" < \"L1\".\"dd_day\")";
-			ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
-			if (rsp != null && rsp.first()) {
-				do {
-					warningMessage = "Dates correct?? In: " + rsp.getString("ID_In") + " (" + rsp.getInt("Day_In") + "."
-							+ rsp.getInt("Month_In") + "." + rsp.getInt("Year_In") + ") vs. Out: "
-							+ rsp.getString("ID_Out") + " (" + rsp.getInt("Day_Out") + "." + rsp.getInt("Month_Out")
-							+ "." + rsp.getInt("Year_Out") + ")";
-					System.err.println(warningMessage);
-					this.setWarningMessage(warningMessage);
-					warningsThere = true;
-				} while (rsp.next());
+			for (Delivery d : allDeliveries.values()) {
+				for (String nextId : d.getAllNextIds()) {
+					Delivery next = allDeliveries.get(nextId);
+
+					if (!d.isBefore(next)) {
+						String warningMessage = "Dates correct?? In: " + d.getId() + " ("
+								+ sdfFormat(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
+								+ next.getId() + " ("
+								+ sdfFormat(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
+								+ ")";
+
+						System.err.println(warningMessage);
+						this.setWarningMessage(warningMessage);
+						warningsThere = true;
+					}
+				}
 			}
 			// Sum(In) <=> Sum(Out)???
-			sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
-			rsp = DBKernel.getResultSet(conn, sql, false);
+			String sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
+			ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
 			if (rsp != null && rsp.first()) {
 				do {
 					if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
 						double in = rsp.getDouble("Amount_In");
 						double out = rsp.getDouble("Amount_Out");
 						if (in > out * 2 || out > in * 2) { // 1.1
-							warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
+							String warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
 									+ ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
 							System.err.println(warningMessage);
 							this.setWarningMessage(warningMessage);
@@ -166,14 +169,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			}
 			// numPU, typePU
 			sql = "SELECT GROUP_CONCAT(\"id1\") AS \"ids_in\",SUM(\"Amount_In\") AS \"Amount_In\",MIN(\"Amount_Out\") AS \"Amount_Out\",MIN(\"id2\") AS \"ids_out\",\"Type_In\",\"Type_Out\" FROM "
-					+
-
-			" (SELECT MIN(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM "
+					+ " (SELECT MIN(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM "
 					+ " \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" "
 					+ " WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND \"L1\".\"typePU\" = \"L2\".\"typePU\" GROUP BY \"L1\".\"ID\",\"L1\".\"typePU\",\"L2\".\"typePU\") "
-					+
-
-			" WHERE \"Type_In\" = \"Type_Out\" " + " GROUP BY \"id2\",\"Type_In\",\"Type_Out\"";
+					+ " WHERE \"Type_In\" = \"Type_Out\" " + " GROUP BY \"id2\",\"Type_In\",\"Type_Out\"";
 			// System.err.println(sql);
 			rsp = DBKernel.getResultSet(conn, sql, false);
 			if (rsp != null && rsp.first()) {
@@ -182,7 +181,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 						double in = rsp.getDouble("Amount_In");
 						double out = rsp.getDouble("Amount_Out");
 						if (in > out * 2 || out > in * 2) { // 1.1
-							warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
+							String warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
 									+ ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
 							System.err.println(warningMessage);
 							this.setWarningMessage(warningMessage);
@@ -193,15 +192,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			}
 			if (warningsThere)
 				this.setWarningMessage("Look into the console - there are plausibility issues...");
-			System.err.println("Plausibility Checks - Fin!");
-
-			System.err.println("Starting Tracing...");
-			Map<String, Delivery> allDeliveries = MyNewTracingLoader.getNewTracingModel(DBKernel.myDBi, conn);
 
 			boolean useSerialAsID = MyNewTracingLoader.serialPossible(conn);
 			HashMap<String, String> hmStationIDs = new HashMap<>();
 			HashMap<String, String> hmDeliveryIDs = new HashMap<>();
-			System.err.println("Starting Nodes33...");
 			int nodeIndex = 0;
 			boolean isBVLFormat = false;
 			DataTableSpec nodeSpec = output33Nodes.getTableSpec();
@@ -218,8 +212,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				// if (!antiArticle ||
 				// !checkCompanyReceivedArticle(stationID,
 				// articleFilterList) || !checkCase(stationID)) {
-				String country = clean(r.getValue(STATION.LAND));// getBL(clean(rs.getString("Land"),
-																	// 3);
+				String country = clean(r.getValue(STATION.LAND));
+				// getBL(clean(rs.getString("Land"),
+				// 3);
 				String zip = clean(r.getValue(STATION.PLZ));
 				// Integer cp = rs.getObject("CasePriority") == null ? null
 				// : rs.getInt("CasePriority");
@@ -303,10 +298,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				exec.checkCanceled();
 			}
 
-			// mnt.mergeStations(toBeMerged);
-			// System.err.println(mnt.getStationScore(-1));
-
-			System.err.println("Starting Links33...");
 			// Alle Lieferungen -> Links33
 
 			int edgeIndex = 0;
@@ -395,15 +386,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 										EXTRAFIELDS.ID.equal(Integer.parseInt(lID)), EXTRAFIELDS.ATTRIBUTE.equal(fn))
 								.fetch();
 
-						// ResultSet rs2 = DBKernel.getResultSet(conn,
-						// "SELECT " + DBKernel.delimitL("value") + " FROM " +
-						// DBKernel.delimitL("ExtraFields")
-						// + " WHERE " + DBKernel.delimitL("tablename") + "='" +
-						// tn + "' AND "
-						// + DBKernel.delimitL("id") + "=" + lID + " AND " +
-						// DBKernel.delimitL("attribute")
-						// + "='" + fn + "'",
-						// false);
 						if (!result.isEmpty()) {
 							fillCell(edgeSpec, cells, extraCol, createCell(result.get(0).value1()));
 						} else {
@@ -437,13 +419,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		output33Nodes.close();
 		output33Links.close();
 		deliveryDelivery.close();
-		// getDataModel(buf.getTable());
 
-		System.err.println("Fin!");
 		return new BufferedDataTable[] { output33Nodes.getTable(), output33Links.getTable(),
-				deliveryDelivery.getTable() }; // outputWordle.getTable(),
-												// outputBurow.getTable(),
-												// outputBurowNew.getTable(),
+				deliveryDelivery.getTable() };
 	}
 
 	private void fillCell(DataTableSpec spec, DataCell[] cells, String columnname, DataCell value) {

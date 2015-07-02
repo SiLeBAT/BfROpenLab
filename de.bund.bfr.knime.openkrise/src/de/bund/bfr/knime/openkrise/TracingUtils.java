@@ -291,13 +291,6 @@ public class TracingUtils {
 		for (Edge<V> edge : edges) {
 			String departureDate = (String) edge.getProperties().get(TracingColumns.DELIVERY_DEPARTURE);
 			String arrivalDate = (String) edge.getProperties().get(TracingColumns.DELIVERY_ARRIVAL);
-
-			if (departureDate == null || departureDate.isEmpty()) {
-				departureDate = arrivalDate;
-			} else if (arrivalDate == null || arrivalDate.isEmpty()) {
-				arrivalDate = departureDate;
-			}
-
 			Delivery delivery = new Delivery(edge.getId(), edge.getFrom().getId(), edge.getTo().getId(),
 					getDay(departureDate), getMonth(departureDate), getYear(departureDate), getDay(arrivalDate),
 					getMonth(arrivalDate), getYear(arrivalDate));

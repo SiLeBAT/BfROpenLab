@@ -50,6 +50,17 @@ public class Delivery {
 
 		allNextIds = new LinkedHashSet<>();
 		allPreviousIds = new LinkedHashSet<>();
+
+		// if one of the dates is missing, just use the other date
+		if (this.arrivalYear == null) {
+			this.arrivalDay = this.departureDay;
+			this.arrivalMonth = this.departureMonth;
+			this.arrivalYear = this.departureYear;
+		} else if (this.departureYear == null) {
+			this.departureDay = this.arrivalDay;
+			this.departureMonth = this.arrivalMonth;
+			this.departureYear = this.arrivalYear;
+		}
 	}
 
 	public String getSupplierId() {
@@ -112,5 +123,32 @@ public class Delivery {
 		copy.allPreviousIds = new LinkedHashSet<>(allPreviousIds);
 
 		return copy;
+	}
+
+	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
+	public boolean isBefore(Delivery next) {
+		if (arrivalYear == null || next.departureYear == null) {
+			return true;
+		} else if (next.departureYear > arrivalYear) {
+			return true;
+		} else if (next.departureYear < arrivalYear) {
+			return false;
+		}
+
+		if (arrivalMonth == null || next.departureMonth == null) {
+			return true;
+		} else if (next.departureMonth > arrivalMonth) {
+			return true;
+		} else if (next.departureMonth < arrivalMonth) {
+			return false;
+		}
+
+		if (arrivalDay == null || next.departureDay == null) {
+			return true;
+		} else if (next.departureDay >= arrivalDay) {
+			return true;
+		}
+
+		return false;
 	}
 }

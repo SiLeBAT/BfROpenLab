@@ -170,7 +170,7 @@ public class Tracing {
 
 					Delivery out = deliveryMap.get(outId);
 
-					if (!enforceTemporalOrder || (isInTemporalOrder(in, out))) {
+					if (!enforceTemporalOrder || in.isBefore(out)) {
 						in.getAllNextIds().add(outId);
 						out.getAllPreviousIds().add(inId);
 					}
@@ -196,7 +196,7 @@ public class Tracing {
 				for (String out1Id : in1.getAllNextIds()) {
 					Delivery out1 = deliveryMap.get(out1Id);
 
-					if (!enforceTemporalOrder || (isInTemporalOrder(in2, out1))) {
+					if (!enforceTemporalOrder || in2.isBefore(out1)) {
 						in2.getAllNextIds().add(out1Id);
 						out1.getAllPreviousIds().add(in2Id);
 					}
@@ -205,7 +205,7 @@ public class Tracing {
 				for (String out2Id : in2.getAllNextIds()) {
 					Delivery out2 = deliveryMap.get(out2Id);
 
-					if (!enforceTemporalOrder || (isInTemporalOrder(in1, out2))) {
+					if (!enforceTemporalOrder || in1.isBefore(out2)) {
 						in1.getAllNextIds().add(out2Id);
 						out2.getAllPreviousIds().add(in1Id);
 					}
@@ -420,42 +420,6 @@ public class Tracing {
 		}
 
 		return result;
-	}
-
-	// e.g. Jan 2012 vs. 18.Jan 2012 - be generous
-	private static boolean isInTemporalOrder(Delivery in, Delivery out) {
-		Integer yearIn = in.getArrivalYear();
-		Integer yearOut = out.getDepartureYear();
-
-		if (yearIn == null || yearOut == null) {
-			return true;
-		} else if (yearOut > yearIn) {
-			return true;
-		} else if (yearOut < yearIn) {
-			return false;
-		}
-
-		Integer monthIn = in.getArrivalMonth();
-		Integer monthOut = out.getDepartureMonth();
-
-		if (monthIn == null || monthOut == null) {
-			return true;
-		} else if (monthOut > monthIn) {
-			return true;
-		} else if (monthOut < monthIn) {
-			return false;
-		}
-
-		Integer dayIn = in.getArrivalDay();
-		Integer dayOut = out.getDepartureDay();
-
-		if (dayIn == null || dayOut == null) {
-			return true;
-		} else if (dayOut >= dayIn) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private static Map<String, Set<String>> getIncomingDeliveries(Collection<Delivery> deliveries) {
