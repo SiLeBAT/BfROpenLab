@@ -106,12 +106,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          version="0.0.0"/>
 
    <plugin
-         id="org.graphstream"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.commons.math3"
          download-size="0"
          install-size="0"
