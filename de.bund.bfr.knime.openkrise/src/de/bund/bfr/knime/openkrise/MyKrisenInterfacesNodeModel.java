@@ -36,11 +36,12 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.jooq.Record;
 import org.jooq.Record1;
@@ -104,7 +105,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
 		Connection conn = override
-				? getNewLocalConnection("SA", "", KnimeUtils.getFile(filename + "/DB").getAbsolutePath())
+				? createLocalConnection("SA", "", KnimeUtils.getFile(filename + "/DB").getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !doAnonymize && serialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
@@ -130,9 +131,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 				if (!d.isBefore(next)) {
 					setWarningMessage("Dates correct?? In: " + d.getId() + " ("
-							+ sdfFormat(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
+							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
 							+ next.getId() + " ("
-							+ sdfFormat(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
+							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
 							+ ")");
 					warningsThere = true;
 				}
@@ -299,10 +300,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_ITEMNUM,
 					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_DEPARTURE,
-					createCell(sdfFormat(r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH),
+					createCell(formatDate(r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH),
 							r.getValue(LIEFERUNGEN.DD_YEAR))));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_ARRIVAL,
-					createCell(sdfFormat(r.getValue(LIEFERUNGEN.AD_DAY), r.getValue(LIEFERUNGEN.AD_MONTH),
+					createCell(formatDate(r.getValue(LIEFERUNGEN.AD_DAY), r.getValue(LIEFERUNGEN.AD_MONTH),
 							r.getValue(LIEFERUNGEN.AD_YEAR))));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_SERIAL, createCell(r.getValue(LIEFERUNGEN.SERIAL)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_PROCESSING,
@@ -312,10 +313,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_LOTNUM,
 					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_DATEEXP,
-					createCell(sdfFormat(r.getValue(CHARGEN.MHD_DAY), r.getValue(CHARGEN.MHD_MONTH),
+					createCell(formatDate(r.getValue(CHARGEN.MHD_DAY), r.getValue(CHARGEN.MHD_MONTH),
 							r.getValue(CHARGEN.MHD_YEAR))));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_DATEMANU, createCell(
-					sdfFormat(r.getValue(CHARGEN.PD_DAY), r.getValue(CHARGEN.PD_MONTH), r.getValue(CHARGEN.PD_YEAR))));
+					formatDate(r.getValue(CHARGEN.PD_DAY), r.getValue(CHARGEN.PD_MONTH), r.getValue(CHARGEN.PD_YEAR))));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_AMOUNT,
 					createCell(getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT))));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_NUM_PU, createCell(r.getValue(LIEFERUNGEN.NUMPU)));
@@ -486,7 +487,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return "NN";
 	}
 
-	private static String sdfFormat(Integer day, Integer month, Integer year) {
+	private static String formatDate(Integer day, Integer month, Integer year) {
 		if (year == null)
 			return null;
 
@@ -633,17 +634,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return false;
 	}
 
-	private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword,
-			final String dbFile) throws Exception {
-		Connection result = null;
+	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFile)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+
 		String connStr = "jdbc:hsqldb:file:" + dbFile;
-		try {
-			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
-			result.setReadOnly(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Connection result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
+
+		result.setReadOnly(true);
+
 		return result;
 	}
 
@@ -727,56 +726,37 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private static boolean serialPossible(Connection conn) {
-		HashSet<String> hs = new HashSet<>();
-		String sql = "SELECT " + DBKernel.delimitL("Serial") + " FROM " + DBKernel.delimitL("Station");
-		try {
-			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-			if (rs != null && rs.first()) {
-				do {
-					if (rs.getObject("Serial") == null) {
-						return false;
-					}
-					String s = rs.getString("Serial");
-					if (hs.contains(s))
-						return false;
-					hs.add(s);
-				} while (rs.next());
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-		hs.clear();
-		sql = "SELECT " + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("UnitEinheit") + " FROM "
-				+ DBKernel.delimitL("Lieferungen");
-		try {
-			boolean alwaysUEkg = true;
-			ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-			if (rs != null && rs.first()) {
-				do {
-					if (rs.getObject("Serial") == null) {
-						return false;
-					}
-					String s = rs.getString("Serial");
-					if (hs.contains(s))
-						return false;
-					hs.add(s);
-					if (rs.getObject("UnitEinheit") == null || !rs.getString("UnitEinheit").equals("kg"))
-						alwaysUEkg = false;
-				} while (rs.next());
-			}
-			if (alwaysUEkg) {
+		Set<String> stationSerials = new LinkedHashSet<>();
+
+		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).select(STATION.SERIAL).from(STATION)) {
+			if (r.value1() == null || !stationSerials.add(r.value1())) {
 				return false;
-				// beim EFSA Importer wurde immer kg eingetragen, später beim
-				// bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt
-				// und UnitEinheit müsste immer NULL sein, daher ist das ein
-				// sehr gutes Indiz daafür, dass wir es mit alten Daten zu tun
-				// haben
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		}
+
+		Set<String> deliverySerials = new LinkedHashSet<>();
+		boolean alwaysKg = true;
+
+		for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
+				.select(LIEFERUNGEN.SERIAL, LIEFERUNGEN.UNITEINHEIT).from(LIEFERUNGEN)) {
+			if (r.value1() == null || !deliverySerials.add(r.value1())) {
+				return false;
+			}
+
+			if (!"kg".equals(r.value2())) {
+				alwaysKg = false;
+			}
+		}
+
+		if (alwaysKg) {
+			// beim EFSA Importer wurde immer kg eingetragen, später beim
+			// bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt
+			// und UnitEinheit müsste immer NULL sein, daher ist das ein
+			// sehr gutes Indiz dafür, dass wir es mit alten Daten zu tun
+			// haben
 			return false;
 		}
+
 		return true;
 	}
 }
