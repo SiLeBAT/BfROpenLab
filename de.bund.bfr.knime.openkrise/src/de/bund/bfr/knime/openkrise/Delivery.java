@@ -32,12 +32,17 @@ public class Delivery {
 	private Integer arrivalDay;
 	private Integer arrivalMonth;
 	private Integer arrivalYear;
+	private String lotNumber;
+	private Double amount;
+	private String unit;
+	private Double amountInKg;
 
 	private Set<String> allNextIds;
 	private Set<String> allPreviousIds;
 
 	public Delivery(String id, String supplierId, String recipientId, Integer departureDay, Integer departureMonth,
-			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear) {
+			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear, String lotNumber,
+			Double amount, String unit, Double amountInKg) {
 		this.id = id;
 		this.supplierId = supplierId;
 		this.recipientId = recipientId;
@@ -47,6 +52,10 @@ public class Delivery {
 		this.arrivalDay = arrivalDay;
 		this.arrivalMonth = arrivalMonth;
 		this.arrivalYear = arrivalYear;
+		this.lotNumber = lotNumber;
+		this.amount = amount;
+		this.unit = unit;
+		this.amountInKg = amountInKg;
 
 		allNextIds = new LinkedHashSet<>();
 		allPreviousIds = new LinkedHashSet<>();
@@ -61,6 +70,12 @@ public class Delivery {
 			this.departureMonth = this.arrivalMonth;
 			this.departureYear = this.arrivalYear;
 		}
+	}
+
+	public Delivery(String id, String supplierId, String recipientId, Integer departureDay, Integer departureMonth,
+			Integer departureYear, Integer arrivalDay, Integer arrivalMonth, Integer arrivalYear) {
+		this(id, supplierId, recipientId, departureDay, departureMonth, departureYear, arrivalDay, arrivalMonth,
+				arrivalYear, null, null, null, null);
 	}
 
 	public String getSupplierId() {
@@ -107,6 +122,22 @@ public class Delivery {
 		return arrivalYear;
 	}
 
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public Double getAmountInKg() {
+		return amountInKg;
+	}
+
 	public Set<String> getAllNextIds() {
 		return allNextIds;
 	}
@@ -117,7 +148,7 @@ public class Delivery {
 
 	public Delivery copy() {
 		Delivery copy = new Delivery(id, supplierId, recipientId, departureDay, departureMonth, departureYear,
-				arrivalDay, arrivalMonth, arrivalYear);
+				arrivalDay, arrivalMonth, arrivalYear, lotNumber, amount, unit, amountInKg);
 
 		copy.allNextIds = new LinkedHashSet<>(allNextIds);
 		copy.allPreviousIds = new LinkedHashSet<>(allPreviousIds);

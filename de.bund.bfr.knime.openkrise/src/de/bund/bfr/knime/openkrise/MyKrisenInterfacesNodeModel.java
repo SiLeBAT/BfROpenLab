@@ -123,7 +123,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		Map<String, Delivery> allDeliveries = getNewTracingModel(conn, stationIds, deliveryIds);
 		boolean warningsThere = false;
 
-		// Date_In <= Date_Out???
+		// check for temporal inconsistencies
 		for (Delivery d : allDeliveries.values()) {
 			for (String nextId : d.getAllNextIds()) {
 				Delivery next = allDeliveries.get(nextId);
@@ -138,8 +138,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				}
 			}
 		}
-		// Sum(In) <=> Sum(Out)???
-		String sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\",sum(\"Amount_In\") AS \"Amount_In\",min(\"Amount_Out\") AS \"Amount_Out\",min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
+
+		// check for inconsistencies regarding the amounts
+		String sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\", " + "sum(\"Amount_In\") AS \"Amount_In\", "
+				+ "min(\"Amount_Out\") AS \"Amount_Out\", "
+				+ "min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\","
+				+ "GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
 		ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
 		if (rsp != null && rsp.first()) {
 			do {
@@ -147,10 +151,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					double in = rsp.getDouble("Amount_In");
 					double out = rsp.getDouble("Amount_Out");
 					if (in > out * 2 || out > in * 2) { // 1.1
-						String warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
-								+ ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
-						System.err.println(warningMessage);
-						this.setWarningMessage(warningMessage);
+						setWarningMessage("Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: "
+								+ rsp.getString("ids_out") + " (" + out + ")");
 						warningsThere = true;
 					}
 				}
@@ -169,10 +171,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					double in = rsp.getDouble("Amount_In");
 					double out = rsp.getDouble("Amount_Out");
 					if (in > out * 2 || out > in * 2) { // 1.1
-						String warningMessage = "Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in
-								+ ") vs. Out: " + rsp.getString("ids_out") + " (" + out + ")";
-						System.err.println(warningMessage);
-						this.setWarningMessage(warningMessage);
+						setWarningMessage("Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: "
+								+ rsp.getString("ids_out") + " (" + out + ")");
 						warningsThere = true;
 					}
 				}
@@ -187,27 +187,34 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		DataTableSpec stationSpec = getStationSpec(conn);
 		BufferedDataContainer stationContainer = exec.createDataContainer(stationSpec);
 		int stationIndex = 0;
+		boolean bvlFormat = false;
 
 		for (Record r : DSL.using(conn, SQLDialect.HSQLDB).select().from(STATION)) {
 			String id = stationIds.get(r.getValue(STATION.ID));
-			String district = null;
-			String bll = clean(r.getValue(STATION.BUNDESLAND));
+			String district = clean(r.getValue(STATION.DISTRICT));
+			String state = clean(r.getValue(STATION.BUNDESLAND));
 			String country = clean(r.getValue(STATION.LAND));
 			String zip = clean(r.getValue(STATION.PLZ));
 
-			// BVL-Format
-			if (stationIndex == 0 && bll != null && (bll.equals("Altenburger Land") || bll.equals("Wesel"))) {
-				district = bll;
-				bll = country;
-				if (zip != null && zip.length() == 4)
-					country = "BE";
-				else
-					country = "DE";
+			// TODO: Remove BVL-Format stuff. Corrupt databases should not be
+			// fixed here
+			if (stationIndex == 0 && state != null && (state.equals("Altenburger Land") || state.equals("Wesel"))) {
+				bvlFormat = true;
 			}
 
-			String bl = getBL(bll);
-			String company = (r.getValue(STATION.NAME) == null || doAnonymize)
-					? getAnonymizedStation(bl, r.getValue(STATION.ID), country) : clean(r.getValue(STATION.NAME));
+			if (bvlFormat) {
+				district = state;
+				state = country;
+
+				if (zip != null && zip.length() == 4) {
+					country = "BE";
+				} else {
+					country = "DE";
+				}
+			}
+
+			String company = r.getValue(STATION.NAME) == null || doAnonymize
+					? getISO3166_2(country, state) + "#" + r.getValue(STATION.ID) : clean(r.getValue(STATION.NAME));
 			DataCell[] cells = new DataCell[stationSpec.getNumColumns()];
 
 			fillCell(stationSpec, cells, TracingColumns.ID, createCell(id));
@@ -223,7 +230,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(stationSpec, cells, TracingColumns.STATION_DISTRICT,
 					doAnonymize ? DataType.getMissingCell() : createCell(district));
 			fillCell(stationSpec, cells, TracingColumns.STATION_STATE,
-					doAnonymize ? DataType.getMissingCell() : createCell(bll));
+					doAnonymize ? DataType.getMissingCell() : createCell(state));
 			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTRY,
 					doAnonymize ? DataType.getMissingCell() : createCell(country));
 			fillCell(stationSpec, cells, TracingColumns.STATION_VAT,
@@ -243,7 +250,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					isStationEnd(allDeliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(stationSpec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTY,
-					doAnonymize ? DataType.getMissingCell() : createCell(bll));
+					doAnonymize ? DataType.getMissingCell() : createCell(district));
 
 			// Extras
 			for (String extraCol : stationSpec.getColumnNames()) {
@@ -465,22 +472,18 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return s.replace("\n", "|").replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").trim();
 	}
 
-	private static String getISO3166_2(String country, String bl) {
-		Locale locale = Locale.ENGLISH;// Locale.GERMAN;
+	private static String getISO3166_2(String country, String state) {
 		for (String code : Locale.getISOCountries()) {
-			if (new Locale("", code).getDisplayCountry(locale).equals(country)) {
+			if (new Locale("", code).getDisplayCountry(Locale.ENGLISH).equals(country)) {
 				return code;
 			}
 		}
-		if (bl != null && bl.length() > 1)
-			return getBL(bl);
-		return "N.N";
-	}
 
-	private static String getAnonymizedStation(String bl, int stationID, String country) {
-		return getISO3166_2(country, bl) + "#" + stationID;// bl + stationID +
-															// "(" + country +
-															// ")";
+		if (state != null && state.length() >= 2) {
+			return state.substring(0, 2);
+		}
+
+		return "NN";
 	}
 
 	private static String sdfFormat(Integer day, Integer month, Integer year) {
@@ -630,20 +633,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return false;
 	}
 
-	private static String getBL(String bl) {
-		return getBL(bl, 2);
-	}
-
-	private static String getBL(String bl, int numCharsMax) {
-		String result = bl;
-		if (result == null || result.trim().isEmpty() || result.trim().equalsIgnoreCase("null"))
-			result = "NN";
-		if (result.length() > numCharsMax) {
-			result = result.substring(0, numCharsMax);
-		}
-		return result;
-	}
-
 	private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword,
 			final String dbFile) throws Exception {
 		Connection result = null;
@@ -706,12 +695,16 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			Integer id = r.getValue(LIEFERUNGEN.ID);
 			Integer from = r.getValue(PRODUKTKATALOG.STATION);
 			Integer to = r.getValue(LIEFERUNGEN.EMPFÄNGER);
+			String lotNumber = r.getValue(CHARGEN.CHARGENNR) != null ? r.getValue(CHARGEN.CHARGENNR)
+					: r.getValue(CHARGEN.ID).toString();
+			Double amountInKg = getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT));
 
 			if (id != null && from != null && to != null) {
 				Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
 						r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH),
 						r.getValue(LIEFERUNGEN.DD_YEAR), r.getValue(LIEFERUNGEN.AD_DAY),
-						r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR));
+						r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR), lotNumber,
+						r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU), amountInKg);
 
 				allDeliveries.put(d.getId(), d);
 			}
