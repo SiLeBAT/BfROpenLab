@@ -106,7 +106,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		Connection conn = override
 				? getNewLocalConnection("SA", "", KnimeUtils.getFile(filename + "/DB").getAbsolutePath())
 				: DBKernel.getLocalConn(true);
-		boolean useSerialAsID = serialPossible(conn);
+		boolean useSerialAsID = !doAnonymize && serialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
 		Map<Integer, String> deliveryIds = new LinkedHashMap<>();
 
@@ -129,14 +129,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				Delivery next = allDeliveries.get(nextId);
 
 				if (!d.isBefore(next)) {
-					String warningMessage = "Dates correct?? In: " + d.getId() + " ("
+					setWarningMessage("Dates correct?? In: " + d.getId() + " ("
 							+ sdfFormat(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
 							+ next.getId() + " ("
 							+ sdfFormat(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
-							+ ")";
-
-					System.err.println(warningMessage);
-					this.setWarningMessage(warningMessage);
+							+ ")");
 					warningsThere = true;
 				}
 			}
@@ -181,8 +178,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				}
 			} while (rsp.next());
 		}
-		if (warningsThere)
-			this.setWarningMessage("Look into the console - there are plausibility issues...");
+
+		if (warningsThere) {
+			setWarningMessage("Look into the console - there are plausibility issues...");
+		}
 
 		// Stations
 		DataTableSpec stationSpec = getStationSpec(conn);
