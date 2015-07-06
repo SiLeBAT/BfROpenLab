@@ -19,6 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -28,45 +31,69 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.util.FilesHistoryPanel;
+
+import de.bund.bfr.knime.UI;
 
 /**
  * <code>NodeDialog</code> for the "MyKrisenInterfaces" Node.
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
+public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements ItemListener {
 
-	private DbConfigurationUi dbui;
-	private JCheckBox doAnonymize;
+	private static final String FILE_HISTORY_ID = "SupplyChainReaderFileHistory";
+
+	private JCheckBox anonymizeBox;
+
+	private JCheckBox overrideBox;
+	private FilesHistoryPanel connField;
 
 	protected MyKrisenInterfacesNodeDialog() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel tracingPanel = new JPanel();
 
-		dbui = new DbConfigurationUi();
-		doAnonymize = new JCheckBox();
-		doAnonymize.setText("Anonymize Data");
-		panel.add(doAnonymize);
+		anonymizeBox = new JCheckBox("Anonymize Data");
+		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
+		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(anonymizeBox)));
 
-		addTab("Tracing/Filtering", panel);
-		addTab("Database connection", dbui);
+		JPanel dbPanel = new JPanel();
+
+		overrideBox = new JCheckBox("Use External Database");
+		overrideBox.addItemListener(this);
+		connField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
+		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
+		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(overrideBox)));
+		dbPanel.add(UI.createTitledPanel(connField, "Database Path"));
+
+		addTab("Tracing", UI.createNorthPanel(tracingPanel));
+		addTab("Database Connection", UI.createNorthPanel(dbPanel));
 	}
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
-		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, dbui.getFilename());
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride());
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected());
+		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, anonymizeBox.isSelected());
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, connField.getSelectedFile());
+		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, overrideBox.isSelected());
 	}
 
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
 		try {
-			dbui.setFilename(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME));
-			dbui.setOverride(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
-			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
-		} catch (InvalidSettingsException ex) {
-			ex.printStackTrace(System.err);
+			anonymizeBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
+			overrideBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
+			connField.setSelectedFile(removeNameOfDB(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME)));
+			connField.setEnabled(overrideBox.isSelected());
+		} catch (InvalidSettingsException e) {
+			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		connField.setEnabled(overrideBox.isSelected());
+	}
+
+	private static String removeNameOfDB(String path) {
+		return path.endsWith("/DB") ? path.substring(0, path.length() - 3) : path;
 	}
 }
