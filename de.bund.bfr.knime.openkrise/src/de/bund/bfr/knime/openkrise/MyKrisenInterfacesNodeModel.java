@@ -420,10 +420,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			Integer id = r.getValue(LIEFERUNGEN.ID);
 			Integer from = r.getValue(PRODUKTKATALOG.STATION);
 			Integer to = r.getValue(LIEFERUNGEN.EMPFÄNGER);
-			String lotNumber = r.getValue(CHARGEN.CHARGENNR) != null ? r.getValue(CHARGEN.CHARGENNR)
-					: r.getValue(CHARGEN.ID).toString();
-			Double amountInKg1 = getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT));
-			Double amountInKg2 = getAmountInKg(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU));
 			boolean invalid = false;
 
 			if (from == null) {
@@ -439,6 +435,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			if (invalid) {
 				continue;
 			}
+
+			String lotNumber = r.getValue(CHARGEN.CHARGENNR) != null ? r.getValue(CHARGEN.CHARGENNR)
+					: r.getValue(CHARGEN.ID).toString();
+			Double amountInKg1 = getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT));
+			Double amountInKg2 = getAmountInKg(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU));
 
 			if (amountInKg1 != null && amountInKg2 != null && !amountInKg1.equals(amountInKg2)) {
 				setWarningMessage("Delivery " + id + " has two different amounts: " + amountInKg1 + "kg vs. "
