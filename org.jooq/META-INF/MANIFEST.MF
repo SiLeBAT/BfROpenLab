@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JOOQ
 Bundle-SymbolicName: org.jooq
-Bundle-Version: 3.6.1
-Bundle-ClassPath: lib/jooq-3.6.1.jar
+Bundle-Version: 3.6.2
+Bundle-ClassPath: lib/jooq-3.6.2.jar
 Export-Package: org.jooq,
  org.jooq.api.annotation,
  org.jooq.conf,
