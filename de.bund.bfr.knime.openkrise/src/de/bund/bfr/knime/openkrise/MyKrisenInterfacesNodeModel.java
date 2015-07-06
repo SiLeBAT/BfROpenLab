@@ -30,11 +30,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -71,6 +71,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+
+import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -121,16 +123,16 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					useSerialAsID ? r.getValue(LIEFERUNGEN.SERIAL) : r.getValue(LIEFERUNGEN.ID).toString());
 		}
 
-		Map<String, Delivery> allDeliveries = getNewTracingModel(conn, stationIds, deliveryIds);
+		Map<String, Delivery> deliveries = getNewTracingModel(conn, stationIds, deliveryIds);
 		boolean warningsThere = false;
 
 		// check for temporal inconsistencies
-		for (Delivery d : allDeliveries.values()) {
+		for (Delivery d : deliveries.values()) {
 			for (String nextId : d.getAllNextIds()) {
-				Delivery next = allDeliveries.get(nextId);
+				Delivery next = deliveries.get(nextId);
 
 				if (!d.isBefore(next)) {
-					setWarningMessage("Dates correct?? In: " + d.getId() + " ("
+					setWarningMessage("Dates are incorrect for following deliveries: " + d.getId() + " ("
 							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
 							+ next.getId() + " ("
 							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
@@ -141,44 +143,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		// check for inconsistencies regarding the amounts
-		String sql = "select GROUP_CONCAT(\"id1\") AS \"ids_in\", " + "sum(\"Amount_In\") AS \"Amount_In\", "
-				+ "min(\"Amount_Out\") AS \"Amount_Out\", "
-				+ "min(\"id2\") as \"ids_out\" from (SELECT min(\"L1\".\"Serial\") AS \"id1\","
-				+ "GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",min(\"L1\".\"Unitmenge\") AS \"Amount_In\",sum(\"L2\".\"Unitmenge\") AS \"Amount_Out\" FROM \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL GROUP BY \"L1\".\"ID\") GROUP BY \"id2\"";
-		ResultSet rsp = DBKernel.getResultSet(conn, sql, false);
-		if (rsp != null && rsp.first()) {
-			do {
-				if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
-					double in = rsp.getDouble("Amount_In");
-					double out = rsp.getDouble("Amount_Out");
-					if (in > out * 2 || out > in * 2) { // 1.1
-						setWarningMessage("Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: "
-								+ rsp.getString("ids_out") + " (" + out + ")");
-						warningsThere = true;
-					}
-				}
-			} while (rsp.next());
-		}
-		// numPU, typePU
-		sql = "SELECT GROUP_CONCAT(\"id1\") AS \"ids_in\",SUM(\"Amount_In\") AS \"Amount_In\",MIN(\"Amount_Out\") AS \"Amount_Out\",MIN(\"id2\") AS \"ids_out\",\"Type_In\",\"Type_Out\" FROM "
-				+ " (SELECT MIN(\"L1\".\"Serial\") AS \"id1\",GROUP_CONCAT(\"L2\".\"Serial\") AS \"id2\",MIN(\"L1\".\"numPU\") AS \"Amount_In\",\"L1\".\"typePU\" AS \"Type_In\",SUM(\"L2\".\"numPU\") AS \"Amount_Out\",\"L2\".\"typePU\" AS \"Type_Out\" FROM "
-				+ " \"Lieferungen\" AS \"L1\" LEFT JOIN \"ChargenVerbindungen\" ON \"L1\".\"ID\"=\"ChargenVerbindungen\".\"Zutat\" LEFT JOIN \"Lieferungen\" AS \"L2\" ON \"L2\".\"Charge\"=\"ChargenVerbindungen\".\"Produkt\" "
-				+ " WHERE \"ChargenVerbindungen\".\"ID\" IS NOT NULL AND \"L1\".\"typePU\" = \"L2\".\"typePU\" GROUP BY \"L1\".\"ID\",\"L1\".\"typePU\",\"L2\".\"typePU\") "
-				+ " WHERE \"Type_In\" = \"Type_Out\" " + " GROUP BY \"id2\",\"Type_In\",\"Type_Out\"";
-		rsp = DBKernel.getResultSet(conn, sql, false);
-		if (rsp != null && rsp.first()) {
-			do {
-				if (rsp.getObject("Amount_In") != null && rsp.getObject("Amount_Out") != null) {
-					double in = rsp.getDouble("Amount_In");
-					double out = rsp.getDouble("Amount_Out");
-					if (in > out * 2 || out > in * 2) { // 1.1
-						setWarningMessage("Amounts correct?? In: " + rsp.getString("ids_in") + " (" + in + ") vs. Out: "
-								+ rsp.getString("ids_out") + " (" + out + ")");
-						warningsThere = true;
-					}
-				}
-			} while (rsp.next());
-		}
+		checkAmounts(deliveries);
 
 		if (warningsThere) {
 			setWarningMessage("Look into the console - there are plausibility issues...");
@@ -244,11 +209,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(stationSpec, cells, TracingColumns.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
-					isSimpleSupplier(allDeliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					isSimpleSupplier(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(stationSpec, cells, TracingColumns.STATION_DEADSTART,
-					isStationStart(allDeliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					isStationStart(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(stationSpec, cells, TracingColumns.STATION_DEADEND,
-					isStationEnd(allDeliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					isStationEnd(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(stationSpec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTY,
 					doAnonymize ? DataType.getMissingCell() : createCell(district));
@@ -372,7 +337,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 						new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec()));
 		int deliveryConnectionsIndex = 0;
 
-		for (Delivery delivery : allDeliveries.values()) {
+		for (Delivery delivery : deliveries.values()) {
 			for (String next : delivery.getAllNextIds()) {
 				deliveryConnectionsContainer.addRowToTable(new DefaultRow(deliveryConnectionsIndex++ + "",
 						createCell(delivery.getId()), createCell(next)));
@@ -443,6 +408,206 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
+	private Map<String, Delivery> getNewTracingModel(Connection conn, Map<Integer, String> stationIds,
+			Map<Integer, String> deliveryIds) {
+		Map<String, Delivery> allDeliveries = new LinkedHashMap<>();
+
+		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
+				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
+				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
+
+		for (Record r : deliverySelect) {
+			Integer id = r.getValue(LIEFERUNGEN.ID);
+			Integer from = r.getValue(PRODUKTKATALOG.STATION);
+			Integer to = r.getValue(LIEFERUNGEN.EMPFÄNGER);
+			String lotNumber = r.getValue(CHARGEN.CHARGENNR) != null ? r.getValue(CHARGEN.CHARGENNR)
+					: r.getValue(CHARGEN.ID).toString();
+			Double amountInKg1 = getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT));
+			Double amountInKg2 = getAmountInKg(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU));
+			boolean invalid = false;
+
+			if (from == null) {
+				setWarningMessage("Delivery " + id + " has no supplier");
+				invalid = true;
+			}
+
+			if (to == null) {
+				setWarningMessage("Delivery " + id + " has no recipient");
+				invalid = true;
+			}
+
+			if (invalid) {
+				continue;
+			}
+
+			if (amountInKg1 != null && amountInKg2 != null && !amountInKg1.equals(amountInKg2)) {
+				setWarningMessage("Delivery " + id + " has two different amounts: " + amountInKg1 + "kg vs. "
+						+ amountInKg2 + "kg");
+			}
+
+			Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
+					r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH), r.getValue(LIEFERUNGEN.DD_YEAR),
+					r.getValue(LIEFERUNGEN.AD_DAY), r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR),
+					lotNumber, r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU),
+					amountInKg1 != null ? amountInKg1 : amountInKg2);
+
+			allDeliveries.put(d.getId(), d);
+		}
+
+		Select<Record> deliveryToDeliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(CHARGENVERBINDUNGEN)
+				.leftOuterJoin(LIEFERUNGEN).on(CHARGENVERBINDUNGEN.PRODUKT.equal(LIEFERUNGEN.CHARGE));
+
+		for (Record r : deliveryToDeliverySelect) {
+			Delivery from = allDeliveries.get(deliveryIds.get(r.getValue(CHARGENVERBINDUNGEN.ZUTAT)));
+			Delivery to = allDeliveries.get(deliveryIds.get(r.getValue(LIEFERUNGEN.ID)));
+
+			if (from == null || to == null) {
+				continue;
+			}
+
+			if (from.getId().equals(to.getId())) {
+				setWarningMessage("Delivery " + from.getId() + " cannot be an ingredient of itself");
+				continue;
+			}
+
+			from.getAllNextIds().add(to.getId());
+			to.getAllPreviousIds().add(from.getId());
+		}
+
+		return allDeliveries;
+	}
+
+	private void checkAmounts(Map<String, Delivery> deliveries) {
+		Map<String, Set<Delivery>> deliveriesByLot = new LinkedHashMap<>();
+
+		for (Delivery d : deliveries.values()) {
+			if (!deliveriesByLot.containsKey(d.getLotNumber())) {
+				deliveriesByLot.put(d.getLotNumber(), new LinkedHashSet<Delivery>());
+			}
+
+			deliveriesByLot.get(d.getLotNumber()).add(d);
+		}
+
+		for (Map.Entry<String, Set<Delivery>> lot : deliveriesByLot.entrySet()) {
+			Set<String> ingredients = new LinkedHashSet<>();
+			Double kgOut = 0.0;
+			Double amountOut = 0.0;
+			String unitOut = null;
+
+			for (Delivery d : lot.getValue()) {
+				ingredients = d.getAllPreviousIds();
+
+				if (kgOut != null) {
+					if (d.getAmountInKg() != null) {
+						kgOut += d.getAmountInKg();
+					} else {
+						kgOut = null;
+					}
+				}
+
+				if (amountOut != null) {
+					if (d.getAmount() != null && d.getUnit() != null
+							&& (unitOut == null || unitOut.equals(d.getUnit()))) {
+						amountOut += d.getAmount();
+						unitOut = d.getUnit();
+					} else {
+						amountOut = null;
+					}
+				}
+			}
+
+			if (ingredients.isEmpty()) {
+				continue;
+			}
+
+			Double kgIn = 0.0;
+			Double amountIn = 0.0;
+			String unitIn = null;
+
+			for (String prev : ingredients) {
+				Delivery d = deliveries.get(prev);
+
+				if (kgIn != null) {
+					if (d.getAmountInKg() != null) {
+						kgIn += d.getAmountInKg();
+					} else {
+						kgIn = null;
+					}
+				}
+
+				if (amountIn != null) {
+					if (d.getAmount() != null && d.getUnit() != null
+							&& (unitIn == null || unitIn.equals(d.getUnit()))) {
+						amountIn += d.getAmount();
+						unitIn = d.getUnit();
+					} else {
+						amountIn = null;
+					}
+				}
+			}
+
+			if (amountIn != null && unitIn != null && amountOut != null && unitOut != null && unitIn.equals(unitOut)
+					&& areTooDifferent(amountIn, amountOut)) {
+				setWarningMessage("Amounts might be incorrect for lot " + lot.getKey() + ": In = " + amountIn + " "
+						+ unitIn + " vs. Out = " + amountOut + " " + unitOut);
+			} else if (kgIn != null && kgOut != null && areTooDifferent(kgIn, kgOut)) {
+				setWarningMessage("Amounts might be incorrect for lot " + lot.getKey() + ": In = " + kgIn + " "
+						+ "kg vs. Out = " + kgOut + " kg");
+			}
+		}
+	}
+
+	private boolean areTooDifferent(double amount1, double amount2) {
+		return Math.max(amount1, amount2) > 2.0 * Math.min(amount1, amount2);
+	}
+
+	private static Double getAmountInKg(Double value, String unit) {
+		if (value == null || unit == null) {
+			return null;
+		}
+
+		List<String> units = Arrays.asList("kg", "g", "t");
+		String unitPart = null;
+
+		for (String part : Splitter.on(" ").split(unit)) {
+			if (part.matches(".*\\d.*") || units.contains(part.toLowerCase())) {
+				if (unitPart != null) {
+					return null;
+				}
+
+				unitPart = part;
+			}
+		}
+
+		if (unitPart == null) {
+			return null;
+		}
+
+		String numberPart = null;
+		Double factor = null;
+
+		if (unitPart.toLowerCase().endsWith("kg")) {
+			numberPart = unitPart.substring(0, unitPart.length() - 2);
+			factor = 1.0;
+		} else if (unitPart.toLowerCase().endsWith("g")) {
+			numberPart = unitPart.substring(0, unitPart.length() - 1);
+			factor = 0.001;
+		} else if (unitPart.toLowerCase().endsWith("t")) {
+			numberPart = unitPart.substring(0, unitPart.length() - 1);
+			factor = 1.000;
+		}
+
+		try {
+			if (numberPart.isEmpty()) {
+				return factor * value;
+			}
+
+			return Double.parseDouble(numberPart) * factor * value;
+		} catch (NullPointerException | NumberFormatException e) {
+			return null;
+		}
+	}
+
 	private static void fillCell(DataTableSpec spec, DataCell[] cells, String columnname, DataCell value) {
 		int index = spec.findColumnIndex(columnname);
 		if (index >= 0)
@@ -503,20 +668,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		return year + "-" + new DecimalFormat("00").format(month) + "-" + new DecimalFormat("00").format(day);
-	}
-
-	private static Double getAmountInKg(Double u3, String bu3) {
-		if (u3 != null && bu3 != null) {
-			if (bu3.equalsIgnoreCase("t")) {
-				return u3 * 1000.0;
-			} else if (bu3.equalsIgnoreCase("kg")) {
-				return u3;
-			} else if (bu3.equalsIgnoreCase("g")) {
-				return u3 / 1000.0;
-			}
-		}
-
-		return null;
 	}
 
 	private static DataTableSpec getStationSpec(Connection conn) {
@@ -680,49 +831,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		return true;
-	}
-
-	private static Map<String, Delivery> getNewTracingModel(Connection conn, Map<Integer, String> stationIds,
-			Map<Integer, String> deliveryIds) {
-		Map<String, Delivery> allDeliveries = new LinkedHashMap<>();
-
-		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
-				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
-				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
-
-		for (Record r : deliverySelect) {
-			Integer id = r.getValue(LIEFERUNGEN.ID);
-			Integer from = r.getValue(PRODUKTKATALOG.STATION);
-			Integer to = r.getValue(LIEFERUNGEN.EMPFÄNGER);
-			String lotNumber = r.getValue(CHARGEN.CHARGENNR) != null ? r.getValue(CHARGEN.CHARGENNR)
-					: r.getValue(CHARGEN.ID).toString();
-			Double amountInKg = getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT));
-
-			if (id != null && from != null && to != null) {
-				Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
-						r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH),
-						r.getValue(LIEFERUNGEN.DD_YEAR), r.getValue(LIEFERUNGEN.AD_DAY),
-						r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR), lotNumber,
-						r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU), amountInKg);
-
-				allDeliveries.put(d.getId(), d);
-			}
-		}
-
-		Select<Record> deliveryToDeliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(CHARGENVERBINDUNGEN)
-				.leftOuterJoin(LIEFERUNGEN).on(CHARGENVERBINDUNGEN.PRODUKT.equal(LIEFERUNGEN.CHARGE));
-
-		for (Record r : deliveryToDeliverySelect) {
-			Delivery from = allDeliveries.get(deliveryIds.get(r.getValue(CHARGENVERBINDUNGEN.ZUTAT)));
-			Delivery to = allDeliveries.get(deliveryIds.get(r.getValue(LIEFERUNGEN.ID)));
-
-			if (from != null && to != null) {
-				from.getAllNextIds().add(to.getId());
-				to.getAllPreviousIds().add(from.getId());
-			}
-		}
-
-		return allDeliveries;
 	}
 
 	private static boolean serialPossible(Connection conn) {
