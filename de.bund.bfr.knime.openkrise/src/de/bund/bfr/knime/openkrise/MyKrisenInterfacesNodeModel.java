@@ -69,6 +69,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeModelWarningListener;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
@@ -83,15 +84,17 @@ import de.bund.bfr.knime.openkrise.db.DBKernel;
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeModel extends NodeModel {
+public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelWarningListener {
 
-	static final String PARAM_FILENAME = "filename";
-	static final String PARAM_OVERRIDE = "override";
-	static final String PARAM_ANONYMIZE = "anonymize";
+	protected static final String PARAM_FILENAME = "filename";
+	protected static final String PARAM_OVERRIDE = "override";
+	protected static final String PARAM_ANONYMIZE = "anonymize";
 
 	private String filename;
 	private boolean override;
-	private boolean doAnonymize;
+	private boolean anonymize;
+
+	private boolean warningsOccured;
 
 	/**
 	 * Constructor for the node model.
@@ -106,10 +109,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
+		warningsOccured = false;
+		addWarningListener(this);
+
 		Connection conn = override
 				? createLocalConnection("SA", "", KnimeUtils.getFile(filename + "/DB").getAbsolutePath())
 				: DBKernel.getLocalConn(true);
-		boolean useSerialAsID = !doAnonymize && serialPossible(conn);
+		boolean useSerialAsID = !anonymize && isSerialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
 		Map<Integer, String> deliveryIds = new LinkedHashMap<>();
 
@@ -124,7 +130,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		Map<String, Delivery> deliveries = getNewTracingModel(conn, stationIds, deliveryIds);
-		boolean warningsThere = false;
 
 		// check for temporal inconsistencies
 		for (Delivery d : deliveries.values()) {
@@ -132,22 +137,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				Delivery next = deliveries.get(nextId);
 
 				if (!d.isBefore(next)) {
-					setWarningMessage("Dates are incorrect for following deliveries: " + d.getId() + " ("
-							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: "
-							+ next.getId() + " ("
+					setWarningMessage("Dates are incorrect for following deliveries: In: \"" + d.getId() + "\" ("
+							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ") vs. Out: \""
+							+ next.getId() + "\" ("
 							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
 							+ ")");
-					warningsThere = true;
 				}
 			}
 		}
 
 		// check for inconsistencies regarding the amounts
 		checkAmounts(deliveries);
-
-		if (warningsThere) {
-			setWarningMessage("Look into the console - there are plausibility issues...");
-		}
 
 		// Stations
 		DataTableSpec stationSpec = getStationSpec(conn);
@@ -179,7 +179,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				}
 			}
 
-			String company = r.getValue(STATION.NAME) == null || doAnonymize
+			String company = r.getValue(STATION.NAME) == null || anonymize
 					? getISO3166_2(country, state) + "#" + r.getValue(STATION.ID) : clean(r.getValue(STATION.NAME));
 			DataCell[] cells = new DataCell[stationSpec.getNumColumns()];
 
@@ -187,20 +187,20 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(stationSpec, cells, TracingColumns.STATION_NODE, createCell(company));
 			fillCell(stationSpec, cells, TracingColumns.STATION_NAME, createCell(company));
 			fillCell(stationSpec, cells, TracingColumns.STATION_STREET,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_HOUSENO,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.HAUSNUMMER)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.HAUSNUMMER)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_ZIP, createCell(zip));
 			fillCell(stationSpec, cells, TracingColumns.STATION_CITY,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.ORT)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.ORT)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_DISTRICT,
-					doAnonymize ? DataType.getMissingCell() : createCell(district));
+					anonymize ? DataType.getMissingCell() : createCell(district));
 			fillCell(stationSpec, cells, TracingColumns.STATION_STATE,
-					doAnonymize ? DataType.getMissingCell() : createCell(state));
+					anonymize ? DataType.getMissingCell() : createCell(state));
 			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTRY,
-					doAnonymize ? DataType.getMissingCell() : createCell(country));
+					anonymize ? DataType.getMissingCell() : createCell(country));
 			fillCell(stationSpec, cells, TracingColumns.STATION_VAT,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.VATNUMBER)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(STATION.VATNUMBER)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_TOB, createCell(r.getValue(STATION.BETRIEBSART)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_NUMCASES, createCell(r.getValue(STATION.ANZAHLFAELLE)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_DATESTART, createCell(r.getValue(STATION.DATUMBEGINN)));
@@ -216,7 +216,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					isStationEnd(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(stationSpec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTY,
-					doAnonymize ? DataType.getMissingCell() : createCell(district));
+					anonymize ? DataType.getMissingCell() : createCell(district));
 
 			// Extras
 			for (String extraCol : stationSpec.getColumnNames()) {
@@ -263,7 +263,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_ITEMNAME,
 					createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_ITEMNUM,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_DEPARTURE,
 					createCell(formatDate(r.getValue(LIEFERUNGEN.DD_DAY), r.getValue(LIEFERUNGEN.DD_MONTH),
 							r.getValue(LIEFERUNGEN.DD_YEAR))));
@@ -276,7 +276,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_USAGE,
 					createCell(r.getValue(PRODUKTKATALOG.INTENDEDUSE)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_LOTNUM,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_DATEEXP,
 					createCell(formatDate(r.getValue(CHARGEN.MHD_DAY), r.getValue(CHARGEN.MHD_MONTH),
 							r.getValue(CHARGEN.MHD_YEAR))));
@@ -301,7 +301,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(deliverySpec, cells, TracingColumns.FILESOURCES,
 					createCell(r.getValue(LIEFERUNGEN.IMPORTSOURCES)));
 			fillCell(deliverySpec, cells, TracingColumns.DELIVERY_CHARGENUM,
-					doAnonymize ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
+					anonymize ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 
 			// Extras
 			for (String extraCol : deliverySpec.getColumnNames()) {
@@ -346,6 +346,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		deliveryConnectionsContainer.close();
 
+		if (warningsOccured) {
+			setWarningMessage("Look into the console - there are plausibility issues...");
+			warningsOccured = false;
+		}
+
 		return new BufferedDataTable[] { stationContainer.getTable(), deliveryContainer.getTable(),
 				deliveryConnectionsContainer.getTable() };
 	}
@@ -372,7 +377,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(PARAM_FILENAME, filename);
 		settings.addBoolean(PARAM_OVERRIDE, override);
-		settings.addBoolean(PARAM_ANONYMIZE, doAnonymize);
+		settings.addBoolean(PARAM_ANONYMIZE, anonymize);
 	}
 
 	/**
@@ -382,7 +387,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		filename = settings.getString(PARAM_FILENAME);
 		override = settings.getBoolean(PARAM_OVERRIDE);
-		doAnonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
+		anonymize = settings.getBoolean(PARAM_ANONYMIZE, false);
 	}
 
 	/**
@@ -423,12 +428,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			boolean invalid = false;
 
 			if (from == null) {
-				setWarningMessage("Delivery " + id + " has no supplier");
+				setWarningMessage("Delivery \"" + id + "\" has no supplier");
 				invalid = true;
 			}
 
 			if (to == null) {
-				setWarningMessage("Delivery " + id + " has no recipient");
+				setWarningMessage("Delivery \"" + id + "\" has no recipient");
 				invalid = true;
 			}
 
@@ -442,7 +447,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			Double amountInKg2 = getAmountInKg(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU));
 
 			if (amountInKg1 != null && amountInKg2 != null && !amountInKg1.equals(amountInKg2)) {
-				setWarningMessage("Delivery " + id + " has two different amounts: " + amountInKg1 + "kg vs. "
+				setWarningMessage("Delivery \"" + id + "\" has two different amounts: " + amountInKg1 + "kg vs. "
 						+ amountInKg2 + "kg");
 			}
 
@@ -467,7 +472,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			}
 
 			if (from.getId().equals(to.getId())) {
-				setWarningMessage("Delivery " + from.getId() + " cannot be an ingredient of itself");
+				setWarningMessage("Delivery \"" + from.getId() + "\" cannot be an ingredient of itself");
 				continue;
 			}
 
@@ -549,16 +554,16 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			if (amountIn != null && unitIn != null && amountOut != null && unitOut != null && unitIn.equals(unitOut)
 					&& areTooDifferent(amountIn, amountOut)) {
-				setWarningMessage("Amounts might be incorrect for lot " + lot.getKey() + ": In = " + amountIn + " "
+				setWarningMessage("Amounts might be incorrect for lot \"" + lot.getKey() + "\": In = " + amountIn + " "
 						+ unitIn + " vs. Out = " + amountOut + " " + unitOut);
 			} else if (kgIn != null && kgOut != null && areTooDifferent(kgIn, kgOut)) {
-				setWarningMessage("Amounts might be incorrect for lot " + lot.getKey() + ": In = " + kgIn + " "
+				setWarningMessage("Amounts might be incorrect for lot \"" + lot.getKey() + "\": In = " + kgIn + " "
 						+ "kg vs. Out = " + kgOut + " kg");
 			}
 		}
 	}
 
-	private boolean areTooDifferent(double amount1, double amount2) {
+	private static boolean areTooDifferent(double amount1, double amount2) {
 		return Math.max(amount1, amount2) > 2.0 * Math.min(amount1, amount2);
 	}
 
@@ -834,7 +839,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return true;
 	}
 
-	private static boolean serialPossible(Connection conn) {
+	private static boolean isSerialPossible(Connection conn) {
 		Set<String> stationSerials = new LinkedHashSet<>();
 
 		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).select(STATION.SERIAL).from(STATION)) {
@@ -867,5 +872,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
 		return true;
+	}
+
+	@Override
+	public void warningChanged(String warning) {
+		warningsOccured = true;
 	}
 }
