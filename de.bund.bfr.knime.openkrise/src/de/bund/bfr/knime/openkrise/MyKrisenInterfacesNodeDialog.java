@@ -65,7 +65,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(overrideBox)));
 		dbPanel.add(UI.createTitledPanel(connField, "Database Path"));
 
-		addTab("Tracing", UI.createNorthPanel(tracingPanel));
+		addTab("Options", UI.createNorthPanel(tracingPanel));
 		addTab("Database Connection", UI.createNorthPanel(dbPanel));
 	}
 
