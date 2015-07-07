@@ -22,20 +22,13 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.Dimension;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -59,52 +52,21 @@ public class ChartUtils {
 	private ChartUtils() {
 	}
 
-	public static void saveChartAs(JFreeChart chart, String fileName, int width, int height) {
-		if (fileName.toLowerCase().endsWith(".png")) {
-			try {
-				org.jfree.chart.ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName), chart, width, height);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else if (fileName.toLowerCase().endsWith(".svg")) {
-			try {
-				SVGDOMImplementation domImpl = new SVGDOMImplementation();
-				Document document = domImpl.createDocument(null, "svg", null);
-				SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-				Writer outsvg = new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8);
-
-				svgGenerator.setSVGCanvasSize(new Dimension(width, height));
-				chart.draw(svgGenerator, new Rectangle2D.Double(0, 0, width, height));
-				svgGenerator.stream(outsvg, true);
-				outsvg.close();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (SVGGraphics2DIOException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	public static PNGImageContent convertToPNGImageContent(JFreeChart chart, int width, int height) {
+		BufferedImage img;
+
+		if (chart != null) {
+			img = chart.createBufferedImage(width, height);
+		} else {
+			img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		}
+
 		try {
-			BufferedImage img;
-
-			if (chart != null) {
-				img = chart.createBufferedImage(width, height);
-			} else {
-				img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			}
-
 			return new PNGImageContent(org.jfree.chart.ChartUtilities.encodeAsPNG(img));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
-
-		return null;
 	}
 
 	public static SvgImageContent convertToSVGImageContent(JFreeChart chart, int width, int height) {
