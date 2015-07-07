@@ -262,8 +262,8 @@ public class LocationCanvasUtils {
 		properties.put(nodeSchema.getLatitude(), null);
 		properties.put(nodeSchema.getLongitude(), null);
 
-		List<Double> xList = new ArrayList<Double>();
-		List<Double> yList = new ArrayList<Double>();
+		List<Double> xList = new ArrayList<>();
+		List<Double> yList = new ArrayList<>();
 
 		for (LocationNode node : nodes) {
 			xList.add(node.getCenter().getX());

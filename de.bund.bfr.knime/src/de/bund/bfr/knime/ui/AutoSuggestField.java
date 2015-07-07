@@ -80,7 +80,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 
 				if (text.isEmpty()) {
 					String[] array = list.toArray(new String[list.size()]);
-					ComboBoxModel<String> m = new DefaultComboBoxModel<String>(array);
+					ComboBoxModel<String> m = new DefaultComboBoxModel<>(array);
 
 					setSuggestionModel(AutoSuggestField.this, m, "");
 					hidePopup();

@@ -194,12 +194,12 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 
 	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(ICanvas<V> parent, Collection<V> nodes,
 			NodePropertySchema schema, boolean allowViewSelection) {
-		return new EditablePropertiesDialog<V>(parent, nodes, schema, Type.NODE, allowViewSelection);
+		return new EditablePropertiesDialog<>(parent, nodes, schema, Type.NODE, allowViewSelection);
 	}
 
 	public static <V extends Node> EditablePropertiesDialog<V> createEdgeDialog(ICanvas<V> parent,
 			Collection<Edge<V>> edges, EdgePropertySchema schema, boolean allowViewSelection) {
-		return new EditablePropertiesDialog<V>(parent, edges, schema, Type.EDGE, allowViewSelection);
+		return new EditablePropertiesDialog<>(parent, edges, schema, Type.EDGE, allowViewSelection);
 	}
 
 	public boolean isApproved() {

@@ -89,7 +89,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 
 	@Override
 	public Collection<V> getVertices(Layout<V, E> layout, Shape shape) {
-		Set<V> pickedVertices = new HashSet<V>();
+		Set<V> pickedVertices = new HashSet<>();
 
 		shape = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW, shape);
 
