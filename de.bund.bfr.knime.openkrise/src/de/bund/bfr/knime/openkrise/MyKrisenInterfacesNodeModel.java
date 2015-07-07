@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -79,6 +78,8 @@ import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
 
 /**
  * This is the model implementation of MyKrisenInterfaces.
@@ -110,7 +111,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 		Connection conn = set.isUseExternalDb()
 				? createLocalConnection("SA", "",
-						KnimeUtils.getFile(removeNameOfDB(set.getDbPath()) + "/DB").getAbsolutePath())
+						KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !set.isAnonymize() && isSerialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
@@ -804,12 +805,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		return false;
 	}
 
-	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFile)
+	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFolder)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+		MyDBI db = new MyDBTablesNew();
+		db.establishNewConnection(dbUsername, dbPassword, dbFolder + File.separator, false);
+		db.updateCheck("");
 
-		String connStr = "jdbc:hsqldb:file:" + dbFile;
-		Connection result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
+		Connection result = db.getConn();
 
 		result.setReadOnly(true);
 

@@ -1399,7 +1399,7 @@ public class DBKernel {
 		return getDBVersionFromDB(null);
 	}
 
-	private static String getDBVersionFromDB(Connection conn) {
+	public static String getDBVersionFromDB(Connection conn) {
 		String result = null;
 		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") + " WHERE " + delimitL("Parameter") + " = 'DBVersion'", true);
 		try {
@@ -1416,7 +1416,7 @@ public class DBKernel {
 		setDBVersion(null, dbVersion);
 	}
 
-	static void setDBVersion(Connection conn, final String dbVersion) {
+	public static void setDBVersion(Connection conn, final String dbVersion) {
 		if (!DBKernel.sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + dbVersion + "')", true, false)) {
 			DBKernel.sendRequest(conn,
 					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion + "'" + " WHERE " + DBKernel.delimitL("Parameter")
