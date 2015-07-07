@@ -21,6 +21,8 @@ package de.bund.bfr.knime.openkrise;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -81,9 +83,10 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 		try {
 			anonymizeBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
 			overrideBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
-			connField.setSelectedFile(removeNameOfDB(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME)));
+			connField.setSelectedFile(MyKrisenInterfacesNodeModel
+					.removeNameOfDB(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME)));
 			connField.setEnabled(overrideBox.isSelected());
-		} catch (InvalidSettingsException e) {
+		} catch (InvalidSettingsException | InvalidPathException | MalformedURLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -91,9 +94,5 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		connField.setEnabled(overrideBox.isSelected());
-	}
-
-	private static String removeNameOfDB(String path) {
-		return path.endsWith("\\DB") || path.endsWith("/DB") ? path.substring(0, path.length() - 3) : path;
 	}
 }

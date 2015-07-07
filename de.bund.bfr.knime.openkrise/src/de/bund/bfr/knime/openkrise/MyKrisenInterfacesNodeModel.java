@@ -28,6 +28,8 @@ import static de.bund.bfr.knime.openkrise.generated.public_.Tables.STATION;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -113,7 +115,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		addWarningListener(this);
 
 		Connection conn = override
-				? createLocalConnection("SA", "", KnimeUtils.getFile(filename + "/DB").getAbsolutePath())
+				? createLocalConnection("SA", "",
+						KnimeUtils.getFile(removeNameOfDB(filename) + "/DB").getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !anonymize && isSerialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
@@ -413,6 +416,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 			throws IOException, CanceledExecutionException {
 	}
 
+	protected static String removeNameOfDB(String path) throws InvalidPathException, MalformedURLException {
+		if ((path.endsWith("\\DB") || path.endsWith("/DB")) && KnimeUtils.getFile(path + ".properties").exists()) {
+			return path.substring(0, path.length() - 3);
+		}
+
+		return path;
+	}
+
 	private Map<String, Delivery> getNewTracingModel(Connection conn, Map<Integer, String> stationIds,
 			Map<Integer, String> deliveryIds) {
 		Map<String, Delivery> allDeliveries = new LinkedHashMap<>();
@@ -600,7 +611,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 			factor = 0.001;
 		} else if (unitPart.toLowerCase().endsWith("t")) {
 			numberPart = unitPart.substring(0, unitPart.length() - 1);
-			factor = 1.000;
+			factor = 1000.0;
 		}
 
 		try {
