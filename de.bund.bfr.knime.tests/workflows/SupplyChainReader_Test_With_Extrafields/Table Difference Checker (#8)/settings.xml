@@ -246,7 +246,7 @@
 <entry key="ignoreDomain" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_SimpleSupplier">
+<config key="columnConfig_DeadEnd">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">
@@ -261,7 +261,7 @@
 <entry key="ignoreDomain" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_DeadEnd">
+<config key="columnConfig_SimpleSupplier">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">

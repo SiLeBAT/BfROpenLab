@@ -1008,18 +1008,6 @@ RUUF/gLwqBnf5AUlEwAAAABJRU5ErkJggg==" xlink:actuate="onLoad"/>
             <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
                   y1="289" y2="289"/>
             <line clip-path="url(#clipPath26)" fill="none" x1="81" x2="89"
-                  y1="40" y2="40"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="89" x2="203"
-                  y1="40" y2="270"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
-                  y1="270" y2="270"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="81" x2="89"
-                  y1="50" y2="50"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="89" x2="203"
-                  y1="50" y2="390"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
-                  y1="390" y2="390"/>
-            <line clip-path="url(#clipPath26)" fill="none" x1="81" x2="89"
                   y1="400" y2="400"/>
             <line clip-path="url(#clipPath26)" fill="none" x1="89" x2="203"
                   y1="400" y2="409"/>
@@ -1037,6 +1025,18 @@ RUUF/gLwqBnf5AUlEwAAAABJRU5ErkJggg==" xlink:actuate="onLoad"/>
                   y1="160" y2="169"/>
             <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
                   y1="169" y2="169"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="81" x2="89"
+                  y1="50" y2="50"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="89" x2="203"
+                  y1="50" y2="390"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
+                  y1="390" y2="390"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="81" x2="89"
+                  y1="40" y2="40"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="89" x2="203"
+                  y1="40" y2="270"/>
+            <line clip-path="url(#clipPath26)" fill="none" x1="203" x2="211"
+                  y1="270" y2="270"/>
         </g>
     </g>
 </svg>

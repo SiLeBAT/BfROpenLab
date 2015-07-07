@@ -6,9 +6,10 @@
 <entry key="memory_policy" type="xstring" value="CacheSmallInMemory"/>
 </config>
 <config key="model">
-<entry key="filename" type="xstring" value="D:\KNIME\runtime-New_configuration\SupplyChainReader_Test_Without_Serials\Supply Chain Reader (#1)\drop\FCL-DB"/>
-<entry key="override" type="xboolean" value="true"/>
+<entry key="EnsureBackwardCompatibility" type="xboolean" value="true"/>
 <entry key="anonymize" type="xboolean" value="false"/>
+<entry key="override" type="xboolean" value="true"/>
+<entry key="filename" type="xstring" value="D:\KNIME\runtime-New_configuration\SupplyChainReader_Test_Without_Serials\Supply Chain Reader (#1)\drop\FCL-DB"/>
 </config>
 <config key="variables">
 <config key="filename">

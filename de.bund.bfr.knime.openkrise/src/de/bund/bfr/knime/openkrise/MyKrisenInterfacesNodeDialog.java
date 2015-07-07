@@ -46,53 +46,63 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 
 	private static final String FILE_HISTORY_ID = "SupplyChainReaderFileHistory";
 
-	private JCheckBox anonymizeBox;
+	private MyKrisenInterfacesSettings set;
 
-	private JCheckBox overrideBox;
-	private FilesHistoryPanel connField;
+	private JCheckBox backwardBox;
+	private JCheckBox anonymizeBox;
+	private JCheckBox dbBox;
+	private FilesHistoryPanel dbField;
 
 	protected MyKrisenInterfacesNodeDialog() {
 		JPanel tracingPanel = new JPanel();
 
+		backwardBox = new JCheckBox("Ensure Backward Compatibility");
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
+		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(backwardBox)));
 		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(anonymizeBox)));
 
 		JPanel dbPanel = new JPanel();
 
-		overrideBox = new JCheckBox("Use External Database");
-		overrideBox.addItemListener(this);
-		connField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
+		dbBox = new JCheckBox("Use External Database");
+		dbBox.addItemListener(this);
+		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
-		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(overrideBox)));
-		dbPanel.add(UI.createTitledPanel(connField, "Database Path"));
+		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(dbBox)));
+		dbPanel.add(UI.createTitledPanel(dbField, "Database Path"));
 
 		addTab("Options", UI.createNorthPanel(tracingPanel));
 		addTab("Database Connection", UI.createNorthPanel(dbPanel));
-	}
 
-	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, anonymizeBox.isSelected());
-		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILENAME, connField.getSelectedFile());
-		settings.addBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, overrideBox.isSelected());
+		set = new MyKrisenInterfacesSettings();
 	}
 
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
+		set.loadSettings(settings);
+		backwardBox.setSelected(set.isEnsureBackwardCompatibility());
+		anonymizeBox.setSelected(set.isAnonymize());
+		dbBox.setSelected(set.isUseExternalDb());
+		dbField.setEnabled(dbBox.isSelected());
+
 		try {
-			anonymizeBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
-			overrideBox.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_OVERRIDE));
-			connField.setSelectedFile(MyKrisenInterfacesNodeModel
-					.removeNameOfDB(settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILENAME)));
-			connField.setEnabled(overrideBox.isSelected());
-		} catch (InvalidSettingsException | InvalidPathException | MalformedURLException e) {
+			dbField.setSelectedFile(MyKrisenInterfacesNodeModel.removeNameOfDB(set.getDbPath()));
+		} catch (InvalidPathException | MalformedURLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
+	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		set.setEnsureBackwardCompatibility(backwardBox.isSelected());
+		set.setAnonymize(anonymizeBox.isSelected());
+		set.setUseExternalDb(dbBox.isSelected());
+		set.setDbPath(dbField.getSelectedFile());
+		set.saveSettings(settings);
+	}
+
+	@Override
 	public void itemStateChanged(ItemEvent e) {
-		connField.setEnabled(overrideBox.isSelected());
+		dbField.setEnabled(dbBox.isSelected());
 	}
 }
