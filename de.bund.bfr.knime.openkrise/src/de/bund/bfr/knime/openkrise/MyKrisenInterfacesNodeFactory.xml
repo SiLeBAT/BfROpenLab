@@ -14,10 +14,25 @@
 			The data model is needed for all nodes that perform tracing ("Tracing View" and "Tracing").
 		</intro>
 
-		<option name="Anonymize Data">
-			If checked, the data is anonymized. That means addresses, names of companies
-			and names of products are removed.
-		</option>
+		<tab name="Options">
+			<option name="Ensure Backward Compatibility">
+				If checked, columns from old FoodChain-Lab versions (e.g. "node", "County")
+				are provided in the output. Otherwise these columns are skipped.
+			</option>
+			<option name="Anonymize Data">
+				If checked, the data is anonymized. That means addresses, names of companies
+				and names of products are removed.
+			</option>
+		</tab>
+		<tab name="Database Connection">
+			<option name="Use External Database">
+				If checked, the Supply Chain Reader uses the database specified below.
+				Otherwise the default database is used.
+			</option>
+			<option name="Database Path">
+				Folder where the database is located.
+			</option>
+		</tab>
 	</fullDescription>
 
 	<ports>
