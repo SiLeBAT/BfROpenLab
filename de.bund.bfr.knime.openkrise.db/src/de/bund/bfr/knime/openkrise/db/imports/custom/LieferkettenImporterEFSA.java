@@ -80,12 +80,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 	public void mergeIDs() {
 		System.err.println("Merging...");
-		try {
+		try (HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(new FileInputStream(DBKernel.HSHDB_PATH + "mergeList.xls")))) {
 			//FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\mergeList.xls");
-			FileInputStream is = new FileInputStream(DBKernel.HSHDB_PATH + "mergeList.xls");
-			POIFSFileSystem fs = new POIFSFileSystem(is);
-			HSSFWorkbook wb = new HSSFWorkbook(fs);
-
 			HSSFSheet mergeSheet = wb.getSheet("mergeList");
 			int numRows = mergeSheet.getLastRowNum() + 1;
 			for (int i = 1; i < numRows; i++) {
@@ -115,12 +111,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		System.err.println("loadNodeIDs10000...");
 
 		nodeIds = new HashMap<String, Integer>();
-		try {
+		try (HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(new FileInputStream(DBKernel.HSHDB_PATH + "nodesids10000.xls")))) {
 			//FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
-			FileInputStream is = new FileInputStream(DBKernel.HSHDB_PATH + "nodesids10000.xls");
-			POIFSFileSystem fs = new POIFSFileSystem(is);
-			HSSFWorkbook wb = new HSSFWorkbook(fs);
-
 			HSSFSheet defaultSheet = wb.getSheet("default");
 			int numRows = defaultSheet.getLastRowNum() + 1;
 			for (int i = 1; i < numRows; i++) {

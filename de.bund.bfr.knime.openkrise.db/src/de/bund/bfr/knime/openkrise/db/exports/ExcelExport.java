@@ -79,7 +79,7 @@ public class ExcelExport extends FileFilter {
 		//filename = "C:/Users/Armin/Documents/private/freelance/BfR/Data/100716/Matrices_BLS-Liste.xls";
   	Runnable runnable = new Runnable() {
       public void run() {
-		    try {
+		    try (HSSFWorkbook wb = new HSSFWorkbook()) {
       		if (progress != null) {
       			progress.setVisible(true);
       			progress.setStringPainted(true);
@@ -88,8 +88,7 @@ public class ExcelExport extends FileFilter {
       			progress.setMaximum(myDB.getRowCount());
       			progress.setValue(0);
       		}
-		
-      		HSSFWorkbook wb = new HSSFWorkbook();
+		      		
 		    	HSSFSheet sheet = wb.createSheet(myDB.getActualTable().getTablename());
 		    	// Create Titel
 		    	cs = wb.createCellStyle();

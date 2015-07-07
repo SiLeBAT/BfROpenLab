@@ -123,8 +123,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 						is = new FileInputStream(filename);
 					}
 
-					POIFSFileSystem fs = new POIFSFileSystem(is);
-					HSSFWorkbook wb = new HSSFWorkbook(fs);
+					try (HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(is))) {					
 					HSSFSheet sheet;
 					HSSFRow row;
 
@@ -430,6 +429,9 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 						ib.setVisible(true);
 					} else {
 						System.out.println("GeneralXLSImporter (" + filename + "):\n" + log);
+					}
+					} catch (Exception e) {
+						MyLogger.handleException(e);
 					}
 				} catch (Exception e) {
 					MyLogger.handleException(e);

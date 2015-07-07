@@ -166,6 +166,7 @@ public class PlausibleAction extends AbstractAction {
 		}
 		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
 	}
+	@SuppressWarnings("unused")
 	private boolean checkTables4Id(Integer stationId)  {
 		String sql = "SELECT " + DBKernel.delimitL("Artikelnummer") + "," + DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("ChargenNr") + "," +
 				DBKernel.delimitL("MHD_day") + "," + DBKernel.delimitL("MHD_month") + "," + DBKernel.delimitL("MHD_year") + "," +
