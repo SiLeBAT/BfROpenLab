@@ -94,6 +94,6 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 	}
 
 	private static String removeNameOfDB(String path) {
-		return path.endsWith("/DB") ? path.substring(0, path.length() - 3) : path;
+		return path.endsWith("\\DB") || path.endsWith("/DB") ? path.substring(0, path.length() - 3) : path;
 	}
 }
