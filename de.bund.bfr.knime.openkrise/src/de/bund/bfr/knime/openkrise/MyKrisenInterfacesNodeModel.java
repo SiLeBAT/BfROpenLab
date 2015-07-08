@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -79,6 +78,8 @@ import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
+import de.bund.bfr.knime.openkrise.db.MyDBTablesNew;
 
 /**
  * This is the model implementation of MyKrisenInterfaces.
@@ -110,7 +111,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 		Connection conn = set.isUseExternalDb()
 				? createLocalConnection("SA", "",
-						KnimeUtils.getFile(removeNameOfDB(set.getDbPath()) + "/DB").getAbsolutePath())
+						KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !set.isAnonymize() && isSerialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
@@ -313,9 +314,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
 			Map<String, Delivery> deliveries, ExecutionContext exec) throws CanceledExecutionException {
-		DataTableSpec stationSpec = getStationSpec(conn);
-		BufferedDataContainer stationContainer = exec.createDataContainer(stationSpec);
-		int stationIndex = 0;
+		DataTableSpec spec = getStationSpec(conn);
+		BufferedDataContainer container = exec.createDataContainer(spec);
+		int index = 0;
 		boolean bvlFormat = false;
 
 		for (Record r : DSL.using(conn, SQLDialect.HSQLDB).select().from(STATION)) {
@@ -327,7 +328,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 			// TODO: Remove BVL-Format stuff. Corrupt databases should not be
 			// fixed here
-			if (stationIndex == 0 && state != null && (state.equals("Altenburger Land") || state.equals("Wesel"))) {
+			if (index == 0 && state != null && (state.equals("Altenburger Land") || state.equals("Wesel"))) {
 				bvlFormat = true;
 			}
 
@@ -344,45 +345,44 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 			String company = r.getValue(STATION.NAME) == null || set.isAnonymize()
 					? getISO3166_2(country, state) + "#" + r.getValue(STATION.ID) : clean(r.getValue(STATION.NAME));
-			DataCell[] cells = new DataCell[stationSpec.getNumColumns()];
+			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-			fillCell(stationSpec, cells, TracingColumns.ID, createCell(id));
-			fillCell(stationSpec, cells, TracingColumns.STATION_NODE, createCell(company));
-			fillCell(stationSpec, cells, TracingColumns.STATION_NAME, createCell(company));
-			fillCell(stationSpec, cells, TracingColumns.STATION_STREET,
+			fillCell(spec, cells, TracingColumns.ID, createCell(id));
+			fillCell(spec, cells, TracingColumns.STATION_NODE, createCell(company));
+			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
+			fillCell(spec, cells, TracingColumns.STATION_STREET,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_HOUSENO,
+			fillCell(spec, cells, TracingColumns.STATION_HOUSENO,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.HAUSNUMMER)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_ZIP, createCell(zip));
-			fillCell(stationSpec, cells, TracingColumns.STATION_CITY,
+			fillCell(spec, cells, TracingColumns.STATION_ZIP, createCell(zip));
+			fillCell(spec, cells, TracingColumns.STATION_CITY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.ORT)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_DISTRICT,
+			fillCell(spec, cells, TracingColumns.STATION_DISTRICT,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
-			fillCell(stationSpec, cells, TracingColumns.STATION_STATE,
+			fillCell(spec, cells, TracingColumns.STATION_STATE,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(state));
-			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTRY,
+			fillCell(spec, cells, TracingColumns.STATION_COUNTRY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(country));
-			fillCell(stationSpec, cells, TracingColumns.STATION_VAT,
+			fillCell(spec, cells, TracingColumns.STATION_VAT,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.VATNUMBER)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_TOB, createCell(r.getValue(STATION.BETRIEBSART)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_NUMCASES, createCell(r.getValue(STATION.ANZAHLFAELLE)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_DATESTART, createCell(r.getValue(STATION.DATUMBEGINN)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_DATEPEAK,
-					createCell(r.getValue(STATION.DATUMHOEHEPUNKT)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
+			fillCell(spec, cells, TracingColumns.STATION_TOB, createCell(r.getValue(STATION.BETRIEBSART)));
+			fillCell(spec, cells, TracingColumns.STATION_NUMCASES, createCell(r.getValue(STATION.ANZAHLFAELLE)));
+			fillCell(spec, cells, TracingColumns.STATION_DATESTART, createCell(r.getValue(STATION.DATUMBEGINN)));
+			fillCell(spec, cells, TracingColumns.STATION_DATEPEAK, createCell(r.getValue(STATION.DATUMHOEHEPUNKT)));
+			fillCell(spec, cells, TracingColumns.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
+			fillCell(spec, cells, TracingColumns.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
+			fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
 					isSimpleSupplier(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
-			fillCell(stationSpec, cells, TracingColumns.STATION_DEADSTART,
+			fillCell(spec, cells, TracingColumns.STATION_DEADSTART,
 					isStationStart(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
-			fillCell(stationSpec, cells, TracingColumns.STATION_DEADEND,
+			fillCell(spec, cells, TracingColumns.STATION_DEADEND,
 					isStationEnd(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
-			fillCell(stationSpec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
-			fillCell(stationSpec, cells, TracingColumns.STATION_COUNTY,
+			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
+			fillCell(spec, cells, TracingColumns.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
 
 			// Extras
-			for (String extraCol : stationSpec.getColumnNames()) {
+			for (String extraCol : spec.getColumnNames()) {
 				if (extraCol.startsWith("_")) {
 					String attribute = extraCol.substring(1);
 					Result<Record1<String>> result = DSL.using(conn, SQLDialect.HSQLDB).select(EXTRAFIELDS.VALUE)
@@ -393,20 +393,20 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 							.fetch();
 
 					if (!result.isEmpty()) {
-						fillCell(stationSpec, cells, extraCol, createCell(result.get(0).value1()));
+						fillCell(spec, cells, extraCol, createCell(result.get(0).value1()));
 					} else {
-						fillCell(stationSpec, cells, extraCol, DataType.getMissingCell());
+						fillCell(spec, cells, extraCol, DataType.getMissingCell());
 					}
 				}
 			}
 
-			stationContainer.addRowToTable(new DefaultRow("Row" + stationIndex++, cells));
+			container.addRowToTable(new DefaultRow("Row" + index++, cells));
 			exec.checkCanceled();
 		}
 
-		stationContainer.close();
+		container.close();
 
-		return stationContainer.getTable();
+		return container.getTable();
 	}
 
 	private BufferedDataTable getDeliveryTable(Connection conn, Map<Integer, String> stationIds,
@@ -804,12 +804,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		return false;
 	}
 
-	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFile)
+	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFolder)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+		MyDBI db = new MyDBTablesNew();
+		db.establishNewConnection(dbUsername, dbPassword, dbFolder + File.separator, false);
+		db.updateCheck("");
 
-		String connStr = "jdbc:hsqldb:file:" + dbFile;
-		Connection result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
+		Connection result = db.getConn();
 
 		result.setReadOnly(true);
 
