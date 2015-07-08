@@ -66,7 +66,7 @@ public abstract class MyDBI {
 
 	public abstract void recreateTriggers();
 
-	public abstract void updateCheck(final String fromVersion, final String toVersion);
+	public abstract void updateCheck(final String toVersion);
 
 	public abstract boolean isReadOnly();
 
@@ -274,7 +274,7 @@ public abstract class MyDBI {
 		establishNewConnection(getSA(), getSAP(), dbPath, true);
 	}
 
-	private void establishNewConnection(final String dbUsername, final String dbPassword, final String dbPath, final boolean suppressWarnings) {
+	public void establishNewConnection(final String dbUsername, final String dbPassword, final String dbPath, final boolean suppressWarnings) {
 		closeDBConnections(false);
 		try {
 			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
@@ -364,12 +364,24 @@ public abstract class MyDBI {
 		return result;
 	}
 
-	private void setVersion2DB(final String softwareVersion) {
+	void setVersion2DB(final String softwareVersion) {
 		if (!sendRequest("INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + softwareVersion + "')", true, false)) {
 			sendRequest(
 					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + softwareVersion + "'" + " WHERE "
 							+ DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
 		}
+	}
+	String getVersion4DB() {
+		String result = null;
+		ResultSet rs = getResultSet("SELECT \"Wert\" FROM \"Infotabelle\" WHERE \"Parameter\" = 'DBVersion'", true);
+		try {
+			if (rs != null && rs.first()) {
+				result = rs.getString(1);
+			}
+		} catch (Exception e) {
+			MyLogger.handleException(e);
+		}
+		return result;
 	}
 
 	void refreshHashTables() {

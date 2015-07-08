@@ -74,16 +74,45 @@ public class MyDBTablesNew extends MyDBI {
 	}
 
 	@Override
-	public void updateCheck(String fromVersion, String toVersion) {
-		if (fromVersion.equals("1.7.7") && toVersion.equals("1.7.8")) {
-			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(16383)", false);
-			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(16383)", false);
+	public void updateCheck(final String toVersion) {
+		String fromVersion = getVersion4DB();
+		if (toVersion.equals(fromVersion)) return;
+		if (fromVersion.equals("1.8.2")) {
+			fromVersion = "1.8.2.0";
+			setVersion2DB(fromVersion);
+			if (toVersion.equals(fromVersion)) return;
 		}
-		else if (fromVersion.equals("1.7.8") && toVersion.equals("1.7.9")) {
-			DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
-			DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
-			new SQLScriptImporter().doImport("/de/bund/bfr/knime/openkrise/db/res/002_EstModelPrimView_179.sql", null, false);
-			new SQLScriptImporter().doImport("/de/bund/bfr/knime/openkrise/db/res/002_EstModelSecView_179.sql", null, false);
+		if (fromVersion.equals("1.8.2.0")) {
+			fromVersion = "1.8.2.0.0";
+			setVersion2DB(fromVersion);
+			if (toVersion.equals(fromVersion)) return;
+		}
+		if (fromVersion.equals("1.8.2.0.0")) {
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_day") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_month") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_year") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("ChargenVerbindungen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Produktkatalog") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			getTable("ExtraFields").createTable(getConn());
+			getTable("ImportMetadata").createTable(getConn());
+			fromVersion = "1.8.3";
+			setVersion2DB(fromVersion);
+			if (toVersion.equals(fromVersion)) return;
+		}
+		if (fromVersion.equals("1.8.3")) {
+			recreateTriggers();
+			fromVersion = "1.8.4";
+			setVersion2DB(fromVersion);
+			if (toVersion.equals(fromVersion)) return;
+		}
+		if (fromVersion.equals("1.8.4")) {
+			getTable("LookUps").createTable(getConn());
+			fromVersion = "1.8.5";
+			setVersion2DB(fromVersion);
+			if (toVersion.equals(fromVersion)) return;
 		}
 	}
 
@@ -143,30 +172,30 @@ public class MyDBTablesNew extends MyDBI {
 	public void recreateTriggers() {
 		for(String key : allTables.keySet()) {
 			String tableName = allTables.get(key).getTablename();
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), true);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), true, false);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), true, false);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), true, false);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), true, false);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), true, false);
+			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), true, false);
 			if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
-				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +    
+				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
+				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
 			}
 		}
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), true);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), true);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), true);
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
+		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), true, false);
+		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), true, false);
+		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), true, false);
+		sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
+	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false);    	
 	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
 	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
+		sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
+	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false);   
 	}
 
 	@SuppressWarnings("unchecked")
