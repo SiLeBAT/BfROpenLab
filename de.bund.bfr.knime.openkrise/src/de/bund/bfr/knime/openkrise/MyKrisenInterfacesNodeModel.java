@@ -110,8 +110,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		addWarningListener(this);
 
 		Connection conn = set.isUseExternalDb()
-				? createLocalConnection("SA", "",
-						KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
+				? createLocalConnection("SA", "", KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true);
 		boolean useSerialAsID = !set.isAnonymize() && isSerialPossible(conn);
 		Map<Integer, String> stationIds = new LinkedHashMap<>();
