@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.kohsuke.github.GHIssue;
@@ -59,11 +60,12 @@ public class IssuesDownload {
 		GitHub github = GitHub.connectUsingPassword(user, password);
 		GHRepository repository = github.getUser(repoInfo[0]).getRepository(repoInfo[1]);
 
+		List<String> columns = Arrays.asList("Id", "Title", "Creator", "Assignee", "Milestone", "Label", "Created",
+				"Closed", "State");
 		FileWriter writer = new FileWriter("issues.csv");
 		int index = 1;
 
-		writer.append("Id\tTitle\tCreator\tAssignee\tMilestone\tLabel\tCreated\tClosed\tState");
-		writer.append("\n");
+		writer.append(Joiner.on("\t").join(columns) + "\n");
 
 		for (GHIssue issue : Iterables.concat(repository.listIssues(GHIssueState.OPEN),
 				repository.listIssues(GHIssueState.CLOSED))) {
