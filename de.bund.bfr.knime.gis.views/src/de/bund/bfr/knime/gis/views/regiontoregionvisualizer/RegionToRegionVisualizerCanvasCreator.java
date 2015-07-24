@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import org.knime.core.node.InvalidSettingsException;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
@@ -102,70 +100,15 @@ public class RegionToRegionVisualizerCanvasCreator {
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
-		canvas.setSelectedNodeIds(getSelectedGisNodeIds(canvas.getNodes(), graphCanvas.getSelectedNodes()));
-		canvas.setSelectedEdgeIds(getSelectedGisEdgeIds(canvas.getEdges(), graphCanvas.getSelectedEdges(),
-				set.getGraphSettings().isJoinEdges()));
+		canvas.setSelectedNodeIds(
+				RegionToRegionUtils.getSelectedGisNodeIds(canvas.getNodes(), graphCanvas.getSelectedNodes()));
+		canvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGisEdgeIds(canvas.getEdges(),
+				graphCanvas.getSelectedEdges(), set.getGraphSettings().isJoinEdges()));
 
 		return canvas;
 	}
 
 	public Set<String> getNonExistingRegions() {
 		return nonExistingRegions;
-	}
-
-	public static Set<String> getSelectedGisNodeIds(Set<RegionNode> gisNodes, Set<GraphNode> selectedGraphNodes) {
-		Set<String> selectedGisNodeIds = new LinkedHashSet<>();
-		Map<String, RegionNode> gisNodesByRegion = new LinkedHashMap<>();
-
-		for (RegionNode gisNode : gisNodes) {
-			gisNodesByRegion.put(gisNode.getId(), gisNode);
-		}
-
-		for (GraphNode graphNode : selectedGraphNodes) {
-			RegionNode gisNode = gisNodesByRegion.get(graphNode.getRegion());
-
-			if (gisNode != null) {
-				selectedGisNodeIds.add(gisNode.getId());
-			}
-		}
-
-		return selectedGisNodeIds;
-	}
-
-	public static Set<String> getSelectedGisEdgeIds(Set<Edge<RegionNode>> gisEdges,
-			Set<Edge<GraphNode>> graphSelectedEdges, boolean joinEdges) {
-		Set<String> selectedGisEdgeIds = new LinkedHashSet<>();
-
-		if (!joinEdges) {
-			selectedGisEdgeIds.addAll(CanvasUtils.getElementIds(graphSelectedEdges));
-		} else {
-			Map<String, Map<String, Edge<RegionNode>>> gisEdgesByRegion = new LinkedHashMap<>();
-
-			for (Edge<RegionNode> gisEdge : gisEdges) {
-				String fromRegion = gisEdge.getFrom().getId();
-				String toRegion = gisEdge.getTo().getId();
-
-				if (!gisEdgesByRegion.containsKey(fromRegion)) {
-					gisEdgesByRegion.put(fromRegion, new LinkedHashMap<String, Edge<RegionNode>>());
-				}
-
-				gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
-			}
-
-			for (Edge<GraphNode> graphEdge : graphSelectedEdges) {
-				String fromRegion = graphEdge.getFrom().getRegion();
-				String toRegion = graphEdge.getTo().getRegion();
-
-				if (gisEdgesByRegion.containsKey(fromRegion)) {
-					Edge<RegionNode> gisEdge = gisEdgesByRegion.get(fromRegion).get(toRegion);
-
-					if (gisEdge != null) {
-						selectedGisEdgeIds.add(gisEdge.getId());
-					}
-				}
-			}
-		}
-
-		return selectedGisEdgeIds;
 	}
 }
