@@ -58,6 +58,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
@@ -491,7 +492,7 @@ public class CanvasUtils {
 		List<Color> colors = new ArrayList<>();
 		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
-		Map<Edge<V>, Set<String>> labelLists = new LinkedHashMap<>();
+		LinkedHashMultimap<Edge<V>, String> labelLists = LinkedHashMultimap.create();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
 
 		for (Edge<V> edge : edges) {
@@ -531,11 +532,7 @@ public class CanvasUtils {
 
 				for (Edge<V> edge : edges) {
 					if (values.get(edge) != 0.0 && edge.getProperties().get(property) != null) {
-						if (!labelLists.containsKey(edge)) {
-							labelLists.put(edge, new LinkedHashSet<String>());
-						}
-
-						labelLists.get(edge).add(edge.getProperties().get(property).toString());
+						labelLists.put(edge, edge.getProperties().get(property).toString());
 					}
 				}
 			}
@@ -543,7 +540,7 @@ public class CanvasUtils {
 
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
-		for (Map.Entry<Edge<V>, Set<String>> entry : labelLists.entrySet()) {
+		for (Map.Entry<Edge<V>, Collection<String>> entry : labelLists.asMap().entrySet()) {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
@@ -776,7 +773,7 @@ public class CanvasUtils {
 		List<Color> colors = new ArrayList<>();
 		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
-		Map<V, Set<String>> labelLists = new LinkedHashMap<>();
+		LinkedHashMultimap<V, String> labelLists = LinkedHashMultimap.create();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		if (!labelsOnly) {
@@ -818,11 +815,7 @@ public class CanvasUtils {
 
 				for (V node : nodes) {
 					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
-						if (!labelLists.containsKey(node)) {
-							labelLists.put(node, new LinkedHashSet<String>());
-						}
-
-						labelLists.get(node).add(node.getProperties().get(property).toString());
+						labelLists.put(node, node.getProperties().get(property).toString());
 					}
 				}
 			}
@@ -830,7 +823,7 @@ public class CanvasUtils {
 
 		Map<V, String> labels = new LinkedHashMap<>();
 
-		for (Map.Entry<V, Set<String>> entry : labelLists.entrySet()) {
+		for (Map.Entry<V, Collection<String>> entry : labelLists.asMap().entrySet()) {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
