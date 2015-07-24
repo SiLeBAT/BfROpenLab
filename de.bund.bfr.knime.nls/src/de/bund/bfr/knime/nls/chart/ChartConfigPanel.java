@@ -214,8 +214,7 @@ public class ChartConfigPanel extends JPanel
 		mainPanel.add(outerVariablesPanel);
 
 		if (allowParameters) {
-			parameterPanel = new VariablePanel(new LinkedHashMap<String, List<Double>>(),
-					new LinkedHashMap<String, Double>(), new LinkedHashMap<String, Double>(), false, true, true);
+			parameterPanel = new VariablePanel(null, null, null, false, true, true);
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
 			outerParameterPanel.setLayout(new BorderLayout());

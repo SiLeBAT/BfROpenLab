@@ -60,9 +60,9 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 	private static final int SLIDER_MAX = 100;
 
 	private Map<String, List<Double>> variables;
+	private Map<String, List<Boolean>> selectedValues;
 	private Map<String, Double> minValues;
 	private Map<String, Double> maxValues;
-	private Map<String, List<Boolean>> selectedValues;
 
 	private BiMap<String, JButton> valueButtons;
 	private BiMap<String, JLabel> valueLabels;
@@ -76,6 +76,18 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
 			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
+		if (variables == null) {
+			variables = new LinkedHashMap<>();
+		}
+
+		if (minValues == null) {
+			minValues = new LinkedHashMap<>();
+		}
+
+		if (maxValues == null) {
+			maxValues = new LinkedHashMap<>();
+		}
+
 		this.variables = variables;
 		this.minValues = minValues;
 		this.maxValues = maxValues;
@@ -90,10 +102,6 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		setLayout(new GridBagLayout());
 
 		int row = 0;
-
-		if (variables == null) {
-			return;
-		}
 
 		for (Map.Entry<String, List<Double>> entry : variables.entrySet()) {
 			String var = entry.getKey();
