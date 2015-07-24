@@ -21,12 +21,14 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
+
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -39,16 +41,18 @@ public class NodeFillTransformer<V extends Node> implements Transformer<V, Paint
 	private Map<V, Paint> nodeColors;
 
 	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext) {
-		this(renderContext, new LinkedHashMap<V, List<Double>>(), new ArrayList<Color>());
+		this(renderContext, null, null);
 	}
 
-	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext, Map<V, List<Double>> alphaValues,
+	public NodeFillTransformer(RenderContext<V, Edge<V>> renderContext, ListMultimap<V, Double> alphaValues,
 			List<Color> colors) {
 		this.renderContext = renderContext;
 		nodeColors = new LinkedHashMap<>();
 
-		for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
-			nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
+		if (alphaValues != null && colors != null) {
+			for (Map.Entry<V, List<Double>> entry : Multimaps.asMap(alphaValues).entrySet()) {
+				nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
+			}
 		}
 	}
 

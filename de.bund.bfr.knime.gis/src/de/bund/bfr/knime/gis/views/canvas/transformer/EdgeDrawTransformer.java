@@ -21,12 +21,14 @@ package de.bund.bfr.knime.gis.views.canvas.transformer;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
+
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -39,16 +41,18 @@ public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>,
 	private Map<Edge<V>, Paint> edgeColors;
 
 	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext) {
-		this(renderContext, new LinkedHashMap<Edge<V>, List<Double>>(), new ArrayList<Color>());
+		this(renderContext, null, null);
 	}
 
-	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext, Map<Edge<V>, List<Double>> alphaValues,
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext, ListMultimap<Edge<V>, Double> alphaValues,
 			List<Color> colors) {
 		this.renderContext = renderContext;
 		edgeColors = new LinkedHashMap<>();
 
-		for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
-			edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
+		if (alphaValues != null && colors != null) {
+			for (Map.Entry<Edge<V>, List<Double>> entry : Multimaps.asMap(alphaValues).entrySet()) {
+				edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
+			}
 		}
 	}
 

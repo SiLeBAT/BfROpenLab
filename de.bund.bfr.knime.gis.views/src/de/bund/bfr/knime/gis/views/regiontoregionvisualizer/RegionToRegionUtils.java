@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -54,7 +55,7 @@ public class RegionToRegionUtils {
 
 	public static Set<String> getSelectedGraphNodeIds(Set<GraphNode> graphNodes, Set<RegionNode> selectedGisNodes) {
 		Set<String> selectedGraphNodeIds = new LinkedHashSet<>();
-		LinkedHashMultimap<String, String> graphNodesByRegion = LinkedHashMultimap.create();
+		SetMultimap<String, String> graphNodesByRegion = LinkedHashMultimap.create();
 
 		for (GraphNode graphNode : graphNodes) {
 			graphNodesByRegion.put(graphNode.getRegion(), graphNode.getId());
@@ -73,7 +74,7 @@ public class RegionToRegionUtils {
 			return CanvasUtils.getElementIds(graphSelectedEdges);
 		}
 
-		LinkedHashMultimap<List<String>, String> gisEdgesByRegion = LinkedHashMultimap.create();
+		SetMultimap<List<String>, String> gisEdgesByRegion = LinkedHashMultimap.create();
 
 		for (Edge<RegionNode> gisEdge : gisEdges) {
 			String fromRegion = gisEdge.getFrom().getId();
@@ -100,7 +101,7 @@ public class RegionToRegionUtils {
 			return CanvasUtils.getElementIds(gisSelectedEdges);
 		}
 
-		LinkedHashMultimap<List<String>, String> graphEdgesByRegion = LinkedHashMultimap.create();
+		SetMultimap<List<String>, String> graphEdgesByRegion = LinkedHashMultimap.create();
 
 		for (Edge<GraphNode> graphEdge : graphEdges) {
 			String fromRegion = graphEdge.getFrom().getRegion();

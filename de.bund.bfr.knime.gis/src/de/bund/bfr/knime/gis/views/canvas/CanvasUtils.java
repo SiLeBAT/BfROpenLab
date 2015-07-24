@@ -58,7 +58,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
@@ -490,13 +493,12 @@ public class CanvasUtils {
 			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		List<Color> colors = new ArrayList<>();
-		Map<Edge<V>, List<Double>> alphaValues = new LinkedHashMap<>();
+		ListMultimap<Edge<V>, Double> alphaValues = ArrayListMultimap.create();
 		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
-		LinkedHashMultimap<Edge<V>, String> labelLists = LinkedHashMultimap.create();
+		SetMultimap<Edge<V>, String> labelLists = LinkedHashMultimap.create();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
 
 		for (Edge<V> edge : edges) {
-			alphaValues.put(edge, new ArrayList<Double>());
 			thicknessValues.put(edge, 0.0);
 		}
 
@@ -538,6 +540,8 @@ public class CanvasUtils {
 			}
 		}
 
+		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(edgeThickness, edgeMaxThickness,
+				thicknessValues);
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
 		for (Map.Entry<Edge<V>, Collection<String>> entry : labelLists.asMap().entrySet()) {
@@ -545,10 +549,6 @@ public class CanvasUtils {
 		}
 
 		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext, alphaValues, colors));
-
-		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(edgeThickness, edgeMaxThickness,
-				thicknessValues);
-
 		renderContext.setEdgeStrokeTransformer(strokeTransformer);
 		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(strokeTransformer));
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
@@ -771,14 +771,13 @@ public class CanvasUtils {
 			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
 			boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
-		Map<V, List<Double>> alphaValues = new LinkedHashMap<>();
+		ListMultimap<V, Double> alphaValues = ArrayListMultimap.create();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
-		LinkedHashMultimap<V, String> labelLists = LinkedHashMultimap.create();
+		SetMultimap<V, String> labelLists = LinkedHashMultimap.create();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		if (!labelsOnly) {
 			for (V node : nodes) {
-				alphaValues.put(node, new ArrayList<Double>());
 				thicknessValues.put(node, 0.0);
 			}
 		}
