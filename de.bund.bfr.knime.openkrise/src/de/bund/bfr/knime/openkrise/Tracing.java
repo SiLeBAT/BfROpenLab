@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 public class Tracing {
@@ -41,8 +43,8 @@ public class Tracing {
 	private Set<String> killContaminationDeliveries;
 
 	private transient Map<String, Delivery> deliveryMap;
-	private transient Map<String, Set<String>> incomingDeliveries;
-	private transient Map<String, Set<String>> outgoingDeliveries;
+	private transient SetMultimap<String, String> incomingDeliveries;
+	private transient SetMultimap<String, String> outgoingDeliveries;
 	private transient Map<String, Set<String>> backwardDeliveries;
 	private transient Map<String, Set<String>> forwardDeliveries;
 	private transient double weightDenom;
@@ -144,9 +146,18 @@ public class Tracing {
 			}
 		}
 
+		incomingDeliveries = LinkedHashMultimap.create();
+		outgoingDeliveries = LinkedHashMultimap.create();
+
+		for (Delivery d : deliveries) {
+			incomingDeliveries.put(d.getRecipientId(), d.getId());
+		}
+
+		for (Delivery d : deliveries) {
+			outgoingDeliveries.put(d.getSupplierId(), d.getId());
+		}
+
 		weightDenom = Math.max(positiveWeightSum, negativeWeightSum);
-		incomingDeliveries = getIncomingDeliveries(deliveries);
-		outgoingDeliveries = getOutgoingDeliveries(deliveries);
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
 		deliveryMap = new LinkedHashMap<>();
@@ -313,10 +324,8 @@ public class Tracing {
 	private Set<String> getForwardStations(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
-		if (outgoingDeliveries.containsKey(stationID)) {
-			for (String id : outgoingDeliveries.get(stationID)) {
-				stations.addAll(getForwardStations(deliveryMap.get(id)));
-			}
+		for (String id : outgoingDeliveries.get(stationID)) {
+			stations.addAll(getForwardStations(deliveryMap.get(id)));
 		}
 
 		return stations;
@@ -325,10 +334,8 @@ public class Tracing {
 	private Set<String> getBackwardStations(String stationID) {
 		Set<String> stations = new LinkedHashSet<>();
 
-		if (incomingDeliveries.containsKey(stationID)) {
-			for (String id : incomingDeliveries.get(stationID)) {
-				stations.addAll(getBackwardStations(deliveryMap.get(id)));
-			}
+		for (String id : incomingDeliveries.get(stationID)) {
+			stations.addAll(getBackwardStations(deliveryMap.get(id)));
 		}
 
 		return stations;
@@ -337,11 +344,9 @@ public class Tracing {
 	private Set<String> getForwardDeliveries(String stationID) {
 		Set<String> forward = new LinkedHashSet<>();
 
-		if (outgoingDeliveries.containsKey(stationID)) {
-			for (String id : outgoingDeliveries.get(stationID)) {
-				forward.add(id);
-				forward.addAll(getForwardDeliveries(deliveryMap.get(id)));
-			}
+		for (String id : outgoingDeliveries.get(stationID)) {
+			forward.add(id);
+			forward.addAll(getForwardDeliveries(deliveryMap.get(id)));
 		}
 
 		return forward;
@@ -350,11 +355,9 @@ public class Tracing {
 	private Set<String> getBackwardDeliveries(String stationID) {
 		Set<String> backward = new LinkedHashSet<>();
 
-		if (incomingDeliveries.containsKey(stationID)) {
-			for (String id : incomingDeliveries.get(stationID)) {
-				backward.add(id);
-				backward.addAll(getBackwardDeliveries(deliveryMap.get(id)));
-			}
+		for (String id : incomingDeliveries.get(stationID)) {
+			backward.add(id);
+			backward.addAll(getBackwardDeliveries(deliveryMap.get(id)));
 		}
 
 		return backward;
@@ -417,38 +420,6 @@ public class Tracing {
 
 		for (String id : getForwardDeliveries(d)) {
 			result.add(deliveryMap.get(id).getRecipientId());
-		}
-
-		return result;
-	}
-
-	private static Map<String, Set<String>> getIncomingDeliveries(Collection<Delivery> deliveries) {
-		Map<String, Set<String>> result = new LinkedHashMap<>();
-
-		for (Delivery d : deliveries) {
-			String recipient = d.getRecipientId();
-
-			if (!result.containsKey(recipient)) {
-				result.put(recipient, new LinkedHashSet<String>());
-			}
-
-			result.get(recipient).add(d.getId());
-		}
-
-		return result;
-	}
-
-	private static Map<String, Set<String>> getOutgoingDeliveries(Collection<Delivery> deliveries) {
-		Map<String, Set<String>> result = new LinkedHashMap<>();
-
-		for (Delivery d : deliveries) {
-			String recipient = d.getSupplierId();
-
-			if (!result.containsKey(recipient)) {
-				result.put(recipient, new LinkedHashSet<String>());
-			}
-
-			result.get(recipient).add(d.getId());
 		}
 
 		return result;
