@@ -19,11 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.knime.core.util.Pair;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -74,13 +74,13 @@ public class RegionToRegionUtils {
 			return CanvasUtils.getElementIds(graphSelectedEdges);
 		}
 
-		SetMultimap<List<String>, String> gisEdgesByRegion = LinkedHashMultimap.create();
+		SetMultimap<Pair<String, String>, String> gisEdgesByRegion = LinkedHashMultimap.create();
 
 		for (Edge<RegionNode> gisEdge : gisEdges) {
 			String fromRegion = gisEdge.getFrom().getId();
 			String toRegion = gisEdge.getTo().getId();
 
-			gisEdgesByRegion.put(Arrays.asList(fromRegion, toRegion), gisEdge.getId());
+			gisEdgesByRegion.put(new Pair<>(fromRegion, toRegion), gisEdge.getId());
 		}
 
 		Set<String> selectedGisEdgeIds = new LinkedHashSet<>();
@@ -89,7 +89,7 @@ public class RegionToRegionUtils {
 			String fromRegion = graphEdge.getFrom().getRegion();
 			String toRegion = graphEdge.getTo().getRegion();
 
-			selectedGisEdgeIds.addAll(gisEdgesByRegion.get(Arrays.asList(fromRegion, toRegion)));
+			selectedGisEdgeIds.addAll(gisEdgesByRegion.get(new Pair<>(fromRegion, toRegion)));
 		}
 
 		return selectedGisEdgeIds;
@@ -101,13 +101,13 @@ public class RegionToRegionUtils {
 			return CanvasUtils.getElementIds(gisSelectedEdges);
 		}
 
-		SetMultimap<List<String>, String> graphEdgesByRegion = LinkedHashMultimap.create();
+		SetMultimap<Pair<String, String>, String> graphEdgesByRegion = LinkedHashMultimap.create();
 
 		for (Edge<GraphNode> graphEdge : graphEdges) {
 			String fromRegion = graphEdge.getFrom().getRegion();
 			String toRegion = graphEdge.getTo().getRegion();
 
-			graphEdgesByRegion.put(Arrays.asList(fromRegion, toRegion), graphEdge.getId());
+			graphEdgesByRegion.put(new Pair<>(fromRegion, toRegion), graphEdge.getId());
 		}
 
 		Set<String> selectedGraphEdgeIds = new LinkedHashSet<>();
@@ -116,7 +116,7 @@ public class RegionToRegionUtils {
 			String fromRegion = gisEdge.getFrom().getId();
 			String toRegion = gisEdge.getTo().getId();
 
-			selectedGraphEdgeIds.addAll(graphEdgesByRegion.get(Arrays.asList(fromRegion, toRegion)));
+			selectedGraphEdgeIds.addAll(graphEdgesByRegion.get(new Pair<>(fromRegion, toRegion)));
 		}
 
 		return selectedGraphEdgeIds;

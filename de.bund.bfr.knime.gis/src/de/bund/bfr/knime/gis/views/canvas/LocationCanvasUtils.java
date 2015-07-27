@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 import com.vividsolutions.jts.geom.Polygon;
@@ -121,8 +123,8 @@ public class LocationCanvasUtils {
 		Polygon invalidArea = null;
 
 		Set<LocationNode> invalidNodes = new LinkedHashSet<>();
-		Map<LocationNode, Set<LocationNode>> invalidToValid = new LinkedHashMap<>();
-		Map<LocationNode, Set<LocationNode>> invalidToInvalid = new LinkedHashMap<>();
+		SetMultimap<LocationNode, LocationNode> invalidToValid = LinkedHashMultimap.create();
+		SetMultimap<LocationNode, LocationNode> invalidToInvalid = LinkedHashMultimap.create();
 		List<Point2D> positions = new ArrayList<>();
 
 		for (LocationNode node : nodes) {
@@ -131,8 +133,6 @@ public class LocationCanvasUtils {
 				positions.add(node.getCenter());
 			} else {
 				invalidNodes.add(node);
-				invalidToValid.put(node, new LinkedHashSet<LocationNode>());
-				invalidToInvalid.put(node, new LinkedHashSet<LocationNode>());
 			}
 		}
 
@@ -143,17 +143,17 @@ public class LocationCanvasUtils {
 
 			if (invalidNodes.contains(edge.getFrom())) {
 				if (invalidNodes.contains(edge.getTo())) {
-					invalidToInvalid.get(edge.getFrom()).add(edge.getTo());
+					invalidToInvalid.put(edge.getFrom(), edge.getTo());
 				} else {
-					invalidToValid.get(edge.getFrom()).add(edge.getTo());
+					invalidToValid.put(edge.getFrom(), edge.getTo());
 				}
 			}
 
 			if (invalidNodes.contains(edge.getTo())) {
 				if (invalidNodes.contains(edge.getFrom())) {
-					invalidToInvalid.get(edge.getTo()).add(edge.getFrom());
+					invalidToInvalid.put(edge.getTo(), edge.getFrom());
 				} else {
-					invalidToValid.get(edge.getTo()).add(edge.getFrom());
+					invalidToValid.put(edge.getTo(), edge.getFrom());
 				}
 			}
 		}

@@ -209,31 +209,25 @@ public class CanvasUtils {
 		return newId;
 	}
 
-	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(Component parent,
+	public static <V extends Node> SetMultimap<Object, V> openCollapseByPropertyDialog(Component parent,
 			Collection<String> nodeProperties, Collection<String> uncollapsedIds, Map<String, V> nodes) {
 		String[] properties = nodeProperties.toArray(new String[0]);
 		String result = (String) JOptionPane.showInputDialog(parent, "Select Property for Collapse?",
 				"Collapse by Property", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
 
 		if (result == null) {
-			return new LinkedHashMap<>();
+			return LinkedHashMultimap.create();
 		}
 
-		Map<Object, Set<V>> nodesByProperty = new LinkedHashMap<>();
+		SetMultimap<Object, V> nodesByProperty = LinkedHashMultimap.create();
 
 		for (String id : uncollapsedIds) {
 			V node = nodes.get(id);
 			Object value = node.getProperties().get(result);
 
-			if (value == null) {
-				continue;
+			if (value != null) {
+				nodesByProperty.put(value, node);
 			}
-
-			if (!nodesByProperty.containsKey(value)) {
-				nodesByProperty.put(value, new LinkedHashSet<V>());
-			}
-
-			nodesByProperty.get(value).add(node);
 		}
 
 		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
@@ -245,7 +239,7 @@ public class CanvasUtils {
 		dialog.setVisible(true);
 
 		if (!dialog.isApproved()) {
-			return new LinkedHashMap<>();
+			return LinkedHashMultimap.create();
 		}
 
 		nodesByProperty.keySet().retainAll(dialog.getFiltered());

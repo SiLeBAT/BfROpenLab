@@ -61,6 +61,8 @@ import org.apache.batik.svggen.SVGGraphics2D;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.KnimeUtils;
@@ -932,7 +934,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			}
 		}
 
-		Map<Object, Set<V>> nodesByProperty = CanvasUtils.openCollapseByPropertyDialog(this,
+		SetMultimap<Object, V> nodesByProperty = CanvasUtils.openCollapseByPropertyDialog(this,
 				nodeSchema.getMap().keySet(), idsToCollapse, nodeSaveMap);
 		Set<String> newCollapsedIds = new LinkedHashSet<>();
 
@@ -940,7 +942,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			return;
 		}
 
-		for (Map.Entry<Object, Set<V>> entry : nodesByProperty.entrySet()) {
+		for (Map.Entry<Object, Set<V>> entry : Multimaps.asMap(nodesByProperty).entrySet()) {
 			String newId = KnimeUtils.createNewValue(entry.getKey().toString(), nodeSaveMap.keySet());
 
 			collapsedNodes.put(newId, CanvasUtils.getElementIds(entry.getValue()));
