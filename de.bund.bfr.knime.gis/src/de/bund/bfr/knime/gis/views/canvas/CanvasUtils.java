@@ -34,6 +34,7 @@ import java.awt.image.RescaleOp;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,6 +55,7 @@ import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
+import org.knime.core.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -61,6 +63,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
@@ -209,14 +212,14 @@ public class CanvasUtils {
 		return newId;
 	}
 
-	public static <V extends Node> SetMultimap<Object, V> openCollapseByPropertyDialog(Component parent,
+	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(Component parent,
 			Collection<String> nodeProperties, Collection<String> uncollapsedIds, Map<String, V> nodes) {
 		String[] properties = nodeProperties.toArray(new String[0]);
 		String result = (String) JOptionPane.showInputDialog(parent, "Select Property for Collapse?",
 				"Collapse by Property", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
 
 		if (result == null) {
-			return LinkedHashMultimap.create();
+			return new LinkedHashMap<>();
 		}
 
 		SetMultimap<Object, V> nodesByProperty = LinkedHashMultimap.create();
@@ -239,12 +242,12 @@ public class CanvasUtils {
 		dialog.setVisible(true);
 
 		if (!dialog.isApproved()) {
-			return LinkedHashMultimap.create();
+			return new LinkedHashMap<>();
 		}
 
 		nodesByProperty.keySet().retainAll(dialog.getFiltered());
 
-		return nodesByProperty;
+		return Multimaps.asMap(nodesByProperty);
 	}
 
 	public static Point2D addPoints(Point2D p1, Point2D p2) {
@@ -276,46 +279,32 @@ public class CanvasUtils {
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
 			EdgePropertySchema properties, Set<String> usedIds) {
-		Map<V, Map<V, Set<Edge<V>>>> edgeMap = new LinkedHashMap<>();
+		SetMultimap<Pair<V, V>, Edge<V>> edgeMap = LinkedHashMultimap.create();
 
 		for (Edge<V> edge : edges) {
-			V from = edge.getFrom();
-			V to = edge.getTo();
-
-			if (!edgeMap.containsKey(from)) {
-				edgeMap.put(from, new LinkedHashMap<V, Set<Edge<V>>>());
-			}
-
-			if (!edgeMap.get(from).containsKey(to)) {
-				edgeMap.get(from).put(to, new LinkedHashSet<Edge<V>>());
-			}
-
-			edgeMap.get(from).get(to).add(edge);
+			edgeMap.put(new Pair<>(edge.getFrom(), edge.getTo()), edge);
 		}
 
 		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<>();
 		int index = 0;
 
-		for (Map.Entry<V, Map<V, Set<Edge<V>>>> entry1 : edgeMap.entrySet()) {
-			V from = entry1.getKey();
+		for (Map.Entry<Pair<V, V>, Set<Edge<V>>> entry : Multimaps.asMap(edgeMap).entrySet()) {
+			V from = entry.getKey().getFirst();
+			V to = entry.getKey().getSecond();
+			Map<String, Object> prop = new LinkedHashMap<>();
 
-			for (Map.Entry<V, Set<Edge<V>>> entry2 : entry1.getValue().entrySet()) {
-				V to = entry2.getKey();
-				Map<String, Object> prop = new LinkedHashMap<>();
-
-				for (Edge<V> edge : entry2.getValue()) {
-					CanvasUtils.addMapToMap(prop, properties, edge.getProperties());
-				}
-
-				while (!usedIds.add(index + "")) {
-					index++;
-				}
-
-				prop.put(properties.getId(), index + "");
-				prop.put(properties.getFrom(), from.getId());
-				prop.put(properties.getTo(), to.getId());
-				joined.put(new Edge<>(index + "", prop, from, to), entry2.getValue());
+			for (Edge<V> edge : entry.getValue()) {
+				CanvasUtils.addMapToMap(prop, properties, edge.getProperties());
 			}
+
+			while (!usedIds.add(index + "")) {
+				index++;
+			}
+
+			prop.put(properties.getId(), index + "");
+			prop.put(properties.getFrom(), from.getId());
+			prop.put(properties.getTo(), to.getId());
+			joined.put(new Edge<>(index + "", prop, from, to), entry.getValue());
 		}
 
 		return joined;
@@ -431,28 +420,19 @@ public class CanvasUtils {
 	}
 
 	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
-		Map<String, Set<String>> values = new LinkedHashMap<>();
+		SetMultimap<String, String> values = LinkedHashMultimap.create();
 
 		for (Element e : elements) {
 			for (Map.Entry<String, Object> entry : e.getProperties().entrySet()) {
-				if (entry.getValue() == null) {
-					continue;
-				}
-
-				if (!values.containsKey(entry.getKey())) {
-					values.put(entry.getKey(), new LinkedHashSet<String>());
-				}
-
 				if (entry.getValue() instanceof Boolean) {
-					values.get(entry.getKey()).add(Boolean.FALSE.toString());
-					values.get(entry.getKey()).add(Boolean.TRUE.toString());
-				} else {
-					values.get(entry.getKey()).add(entry.getValue().toString());
+					values.putAll(entry.getKey(), Arrays.asList(Boolean.FALSE.toString(), Boolean.TRUE.toString()));
+				} else if (entry.getValue() != null) {
+					values.put(entry.getKey(), entry.getValue().toString());
 				}
 			}
 		}
 
-		return values;
+		return Multimaps.asMap(values);
 	}
 
 	public static Double getMeanValue(Collection<? extends Element> elements, String property) {
@@ -542,7 +522,8 @@ public class CanvasUtils {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
-		renderContext.setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(renderContext, alphaValues, colors));
+		renderContext.setEdgeDrawPaintTransformer(
+				new EdgeDrawTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
 		renderContext.setEdgeStrokeTransformer(strokeTransformer);
 		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(strokeTransformer));
 		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
@@ -822,7 +803,8 @@ public class CanvasUtils {
 
 		if (!labelsOnly) {
 			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize, nodeMaxSize, thicknessValues));
-			renderContext.setVertexFillPaintTransformer(new NodeFillTransformer<>(renderContext, alphaValues, colors));
+			renderContext.setVertexFillPaintTransformer(
+					new NodeFillTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
 		}
 
 		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));

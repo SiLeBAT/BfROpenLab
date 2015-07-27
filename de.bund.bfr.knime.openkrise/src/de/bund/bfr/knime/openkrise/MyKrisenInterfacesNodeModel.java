@@ -75,6 +75,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -599,17 +602,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 	}
 
 	private void checkAmounts(Map<String, Delivery> deliveries) {
-		Map<String, Set<Delivery>> deliveriesByLot = new LinkedHashMap<>();
+		SetMultimap<String, Delivery> deliveriesByLot = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries.values()) {
-			if (!deliveriesByLot.containsKey(d.getLotNumber())) {
-				deliveriesByLot.put(d.getLotNumber(), new LinkedHashSet<Delivery>());
-			}
-
-			deliveriesByLot.get(d.getLotNumber()).add(d);
+			deliveriesByLot.put(d.getLotNumber(), d);
 		}
 
-		for (Map.Entry<String, Set<Delivery>> lot : deliveriesByLot.entrySet()) {
+		for (Map.Entry<String, Set<Delivery>> lot : Multimaps.asMap(deliveriesByLot).entrySet()) {
 			Set<String> ingredients = new LinkedHashSet<>();
 			Double kgOut = 0.0;
 			Double amountOut = 0.0;

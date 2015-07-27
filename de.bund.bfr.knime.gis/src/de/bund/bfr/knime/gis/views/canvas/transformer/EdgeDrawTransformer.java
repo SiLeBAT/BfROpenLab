@@ -27,9 +27,6 @@ import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
-
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -44,13 +41,13 @@ public class EdgeDrawTransformer<V extends Node> implements Transformer<Edge<V>,
 		this(renderContext, null, null);
 	}
 
-	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext, ListMultimap<Edge<V>, Double> alphaValues,
+	public EdgeDrawTransformer(RenderContext<V, Edge<V>> renderContext, Map<Edge<V>, List<Double>> alphaValues,
 			List<Color> colors) {
 		this.renderContext = renderContext;
 		edgeColors = new LinkedHashMap<>();
 
 		if (alphaValues != null && colors != null) {
-			for (Map.Entry<Edge<V>, List<Double>> entry : Multimaps.asMap(alphaValues).entrySet()) {
+			for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
 				edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
 			}
 		}
