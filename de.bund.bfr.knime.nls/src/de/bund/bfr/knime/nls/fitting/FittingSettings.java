@@ -30,6 +30,8 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class FittingSettings extends NlsNodeSettings {
 
+	private static final String CFG_FIT_ALL_AT_ONCE = "FitAllAtOnce";
+	private static final String CFG_USE_DIFFERENT_INITIAL_VALUES = "UseDifferentInitialValues";
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
@@ -40,6 +42,8 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_START_VALUES = "StartValues";
 	private static final String CFG_STEP_SIZE = "StepSize";
 
+	private boolean fitAllAtOnce;
+	private boolean useDifferentInitialValues;
 	private boolean expertSettings;
 	private int nParameterSpace;
 	private int nLevenberg;
@@ -51,6 +55,8 @@ public class FittingSettings extends NlsNodeSettings {
 	private double stepSize;
 
 	public FittingSettings() {
+		fitAllAtOnce = false;
+		useDifferentInitialValues = false;
 		expertSettings = false;
 		setExpertParametersToDefault();
 	}
@@ -58,6 +64,16 @@ public class FittingSettings extends NlsNodeSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			fitAllAtOnce = settings.getBoolean(CFG_FIT_ALL_AT_ONCE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			useDifferentInitialValues = settings.getBoolean(CFG_USE_DIFFERENT_INITIAL_VALUES);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			expertSettings = settings.getBoolean(CFG_EXPERT_SETTINGS);
 		} catch (InvalidSettingsException e) {
@@ -110,6 +126,8 @@ public class FittingSettings extends NlsNodeSettings {
 			setExpertParametersToDefault();
 		}
 
+		settings.addBoolean(CFG_FIT_ALL_AT_ONCE, fitAllAtOnce);
+		settings.addBoolean(CFG_USE_DIFFERENT_INITIAL_VALUES, useDifferentInitialValues);
 		settings.addBoolean(CFG_EXPERT_SETTINGS, expertSettings);
 		settings.addInt(CFG_N_PARAMETER_SPACE, nParameterSpace);
 		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
@@ -119,6 +137,22 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addString(CFG_MAX_START_VALUES, SERIALIZER.toXml(maxStartValues));
 		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
 		settings.addDouble(CFG_STEP_SIZE, stepSize);
+	}
+
+	public boolean isFitAllAtOnce() {
+		return fitAllAtOnce;
+	}
+
+	public void setFitAllAtOnce(boolean fitAllAtOnce) {
+		this.fitAllAtOnce = fitAllAtOnce;
+	}
+
+	public boolean isUseDifferentInitialValues() {
+		return useDifferentInitialValues;
+	}
+
+	public void setUseDifferentInitialValues(boolean useDifferentInitialValues) {
+		this.useDifferentInitialValues = useDifferentInitialValues;
 	}
 
 	public boolean isExpertSettings() {

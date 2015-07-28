@@ -20,12 +20,14 @@
 package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -65,6 +66,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	private JPanel mainPanel;
 	private JPanel expertPanel;
 
+	private JCheckBox fitAllAtOnceBox;
+	private JCheckBox useDifferentInitValuesBox;
 	private JCheckBox expertBox;
 
 	private DoubleTextField stepSizeField;
@@ -82,18 +85,34 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	protected FittingNodeDialog(boolean isDiff) {
 		this.isDiff = isDiff;
 		set = new FittingSettings();
+
+		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
+		fitAllAtOnceBox.addActionListener(this);
+		useDifferentInitValuesBox = new JCheckBox("Use Different Initial Values");
 		expertBox = new JCheckBox("Expert Settings");
 		expertBox.addActionListener(this);
 
+		JPanel p = isDiff
+				? UI.createOptionsPanel(null, Arrays.asList(fitAllAtOnceBox, useDifferentInitValuesBox, expertBox),
+						Collections.nCopies(3, new JLabel()))
+				: UI.createHorizontalPanel(expertBox);
+
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(UI.createHorizontalPanel(expertBox), BorderLayout.NORTH);
+		mainPanel.add(p, BorderLayout.NORTH);
+
 		addTab("Options", UI.createNorthPanel(mainPanel));
 	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs) throws NotConfigurableException {
 		set.loadSettings(settings);
+
+		fitAllAtOnceBox.removeActionListener(this);
+		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
+		fitAllAtOnceBox.addActionListener(this);
+		useDifferentInitValuesBox.setSelected(set.isUseDifferentInitialValues());
+		useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
 
 		expertBox.removeActionListener(this);
 		expertBox.setSelected(set.isExpertSettings());
@@ -124,14 +143,16 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			maxStartValues.put(entry.getKey(), entry.getValue().getValue());
 		}
 
-		set.setStepSize(isDiff ? stepSizeField.getValue() : Double.NaN);
+		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
+		set.setUseDifferentInitialValues(useDifferentInitValuesBox.isSelected());
+		set.setExpertSettings(expertBox.isSelected());
 		set.setnParameterSpace(nParamSpaceField.getValue());
 		set.setnLevenberg(nLevenbergField.getValue());
-		set.setEnforceLimits(limitsBox.isSelected());
-		set.setExpertSettings(expertBox.isSelected());
 		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
+		set.setEnforceLimits(limitsBox.isSelected());
 		set.setMinStartValues(minStartValues);
 		set.setMaxStartValues(maxStartValues);
+		set.setStepSize(stepSizeField.getValue());
 
 		set.saveSettings(settings);
 	}
@@ -161,7 +182,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		mainPanel.setPreferredSize(preferredSize);
 	}
 
-	private JComponent createRegressionPanel() {
+	private Component createRegressionPanel() {
 		nParamSpaceField = new IntTextField(false, 8);
 		nParamSpaceField.setMinValue(0);
 		nParamSpaceField.setMaxValue(1000000);
@@ -172,17 +193,17 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		nLevenbergField.setValue(set.getnLevenberg());
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
+		stepSizeField = new DoubleTextField(false, 8);
+		stepSizeField.setMinValue(Double.MIN_NORMAL);
+		stepSizeField.setValue(set.getStepSize());
 
-		List<JComponent> leftComps = new ArrayList<JComponent>(
+		List<Component> leftComps = new ArrayList<Component>(
 				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
 						new JLabel("Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox));
-		List<JComponent> rightComps = new ArrayList<JComponent>(
+		List<Component> rightComps = new ArrayList<Component>(
 				Arrays.asList(nParamSpaceField, nLevenbergField, new JLabel()));
 
 		if (isDiff) {
-			stepSizeField = new DoubleTextField(false, 8);
-			stepSizeField.setMinValue(Double.MIN_NORMAL);
-			stepSizeField.setValue(set.getStepSize());
 			leftComps.add(0, new JLabel("Integration Step Size"));
 			rightComps.add(0, stepSizeField);
 		}
@@ -190,7 +211,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		return UI.createOptionsPanel("Nonlinear Regression Parameters", leftComps, rightComps);
 	}
 
-	private JComponent createRangePanel(FunctionPortObjectSpec spec) {
+	private Component createRangePanel(FunctionPortObjectSpec spec) {
 		limitsBox = new JCheckBox("Enforce start values as limits");
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
@@ -259,7 +280,9 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == expertBox) {
+		if (e.getSource() == fitAllAtOnceBox) {
+			useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
+		} else if (e.getSource() == expertBox) {
 			if (expertBox.isSelected()) {
 				expertPanel.setVisible(true);
 			} else {
