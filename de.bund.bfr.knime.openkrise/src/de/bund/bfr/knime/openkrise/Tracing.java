@@ -146,24 +146,17 @@ public class Tracing {
 			}
 		}
 
-		incomingDeliveries = LinkedHashMultimap.create();
-		outgoingDeliveries = LinkedHashMultimap.create();
-
-		for (Delivery d : deliveries) {
-			incomingDeliveries.put(d.getRecipientId(), d.getId());
-		}
-
-		for (Delivery d : deliveries) {
-			outgoingDeliveries.put(d.getSupplierId(), d.getId());
-		}
-
 		weightDenom = Math.max(positiveWeightSum, negativeWeightSum);
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
 		deliveryMap = new LinkedHashMap<>();
+		incomingDeliveries = LinkedHashMultimap.create();
+		outgoingDeliveries = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries) {
 			deliveryMap.put(d.getId(), d.copy());
+			incomingDeliveries.put(d.getRecipientId(), d.getId());
+			outgoingDeliveries.put(d.getSupplierId(), d.getId());
 		}
 
 		for (String stationId : ccStations) {
