@@ -98,16 +98,6 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		double[] values = new double[dependentVariables.length];
-
-		for (int i = 0; i < dependentVariables.length; i++) {
-			if (initValues[i] != null) {
-				values[i] = initValues[i];
-			} else {
-				values[i] = point[Arrays.asList(parameters).indexOf(initParameters[i])];
-			}
-		}
-
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		int n = 0;
 
@@ -127,6 +117,15 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 			}
 
 			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, vv, timeVariable);
+			double[] values = new double[dependentVariables.length];
+
+			for (int i = 0; i < dependentVariables.length; i++) {
+				if (initValues[i] != null) {
+					values[i] = initValues[i];
+				} else {
+					values[i] = point[Arrays.asList(parameters).indexOf(initParameters[i])];
+				}
+			}
 
 			result[index++] = values[dependentIndex];
 
