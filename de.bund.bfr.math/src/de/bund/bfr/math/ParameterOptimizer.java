@@ -102,6 +102,17 @@ public class ParameterOptimizer {
 				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
 	}
 
+	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
+			String[] initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
+			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
+			IntegratorFactory integrator) throws ParseException {
+		this(parameters, expand(targetValues));
+		optimizerFunction = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
+				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
+		optimizerFunctionJacobian = new MultiVectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
+				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
+	}
+
 	public Map<String, Double> getMinValues() {
 		return minValues;
 	}
@@ -427,6 +438,24 @@ public class ParameterOptimizer {
 		for (String param : parameters) {
 			covariances.put(param, new LinkedHashMap<String, Double>());
 		}
+	}
+
+	private static double[] expand(List<double[]> values) {
+		int n = 0;
+
+		for (double[] v : values) {
+			n += v.length;
+		}
+
+		double[] result = new double[n];
+		int index = 0;
+
+		for (double[] v : values) {
+			System.arraycopy(v, 0, result, index, v.length);
+			index += v.length;
+		}
+
+		return result;
 	}
 
 	private static class StartValues {

@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.util.Pair;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.primitives.Doubles;
@@ -103,11 +104,17 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		PortObjectSpec[] outSpec;
 
 		if (isDiff) {
-			results = doEstimation(function, (BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
+			if (set.isFitAllAtOnce()) {
+				results = doMultiDiffFitting(function, (BufferedDataTable) inObjects[1],
+						(BufferedDataTable) inObjects[2]);
+			} else {
+				results = doDiffFitting(function, (BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
+			}
+
 			outSpec = configure(
 					new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec(), inObjects[2].getSpec() });
 		} else {
-			results = doEstimation(function, (BufferedDataTable) inObjects[1]);
+			results = doFitting(function, (BufferedDataTable) inObjects[1]);
 			outSpec = configure(new PortObjectSpec[] { inObjects[0].getSpec(), inObjects[1].getSpec() });
 		}
 
@@ -279,23 +286,22 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, ParameterOptimizer> doEstimation(Function function, BufferedDataTable table)
+	private Map<String, ParameterOptimizer> doFitting(Function function, BufferedDataTable table)
 			throws ParseException {
 		if (function.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
 		}
 
-		DataTableSpec spec = table.getSpec();
 		Set<String> ids = new LinkedHashSet<>();
 		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
 
 		for (DataRow row : table) {
-			String id = IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN)));
+			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : function.getVariables()) {
-				values.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
+				values.put(var, IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var))));
 			}
 
 			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
@@ -351,62 +357,17 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer> doEstimation(Function function, BufferedDataTable dataTable,
+	private Map<String, ParameterOptimizer> doDiffFitting(Function function, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
 		if (function.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
 
-		DataTableSpec dataSpec = dataTable.getSpec();
-		DataTableSpec conditionSpec = conditionTable.getSpec();
-		Set<String> ids = new LinkedHashSet<>();
-		Map<String, List<Double>> timeValues = new LinkedHashMap<>();
-		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
-
-		for (DataRow row : dataTable) {
-			String id = IO.getString(row.getCell(dataSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
-			Double time = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function.getTimeVariable())));
-			Double target = IO.getDouble(row.getCell(dataSpec.findColumnIndex(function.getDependentVariable())));
-
-			if (id == null || !MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
-				continue;
-			}
-
-			if (ids.add(id)) {
-				timeValues.put(id, new ArrayList<Double>());
-				targetValues.put(id, new ArrayList<Double>());
-			}
-
-			timeValues.get(id).add(time);
-			targetValues.get(id).add(target);
-		}
-
-		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
-
-		for (DataRow row : conditionTable) {
-			String id = IO.getString(row.getCell(conditionSpec.findColumnIndex(NlsUtils.ID_COLUMN)));
-			Map<String, Double> values = new LinkedHashMap<>();
-
-			for (String var : function.getIndependentVariables()) {
-				values.put(var, IO.getDouble(row.getCell(conditionSpec.findColumnIndex(var))));
-			}
-
-			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
-				continue;
-			}
-
-			if (!argumentValues.containsKey(id)) {
-				argumentValues.put(id, new LinkedHashMap<String, List<Double>>());
-
-				for (String indep : function.getIndependentVariables()) {
-					argumentValues.get(id).put(indep, new ArrayList<Double>());
-				}
-			}
-
-			for (String indep : function.getIndependentVariables()) {
-				argumentValues.get(id).get(indep).add(values.get(indep));
-			}
-		}
+		Pair<Map<String, List<Double>>, Map<String, List<Double>>> data = readDataTable(dataTable, function);
+		Set<String> ids = data.getFirst().keySet();
+		Map<String, List<Double>> timeValues = data.getFirst();
+		Map<String, List<Double>> targetValues = data.getSecond();
+		Map<String, Map<String, List<Double>>> argumentValues = readConditionTable(conditionTable, function);
 
 		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
 
@@ -456,6 +417,137 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		}
 
 		return results;
+	}
+
+	private Map<String, ParameterOptimizer> doMultiDiffFitting(Function function, BufferedDataTable dataTable,
+			BufferedDataTable conditionTable) throws ParseException {
+		if (function.getTimeVariable() == null) {
+			return new LinkedHashMap<>();
+		}
+
+		Pair<Map<String, List<Double>>, Map<String, List<Double>>> data = readDataTable(dataTable, function);
+		Set<String> ids = data.getFirst().keySet();
+		Map<String, List<Double>> timeValues = data.getFirst();
+		Map<String, List<Double>> targetValues = data.getSecond();
+		Map<String, Map<String, List<Double>>> argumentValues = readConditionTable(conditionTable, function);
+
+		List<double[]> timeArrays = new ArrayList<>();
+		List<double[]> targetArrays = new ArrayList<>();
+		Map<String, List<double[]>> variableArrays = new LinkedHashMap<>();
+
+		for (String var : function.getIndependentVariables()) {
+			variableArrays.put(var, new ArrayList<double[]>());
+		}
+
+		for (String id : ids) {
+			timeArrays.add(Doubles.toArray(timeValues.get(id)));
+			targetArrays.add(Doubles.toArray(targetValues.get(id)));
+
+			for (String var : function.getIndependentVariables()) {
+				variableArrays.get(var).add(Doubles.toArray(argumentValues.get(id).get(var)));
+			}
+		}
+
+		int n = function.getTerms().size();
+		String[] terms = new String[n];
+		String[] valueVariables = new String[n];
+		Double[] initValues = new Double[n];
+		String[] initParameters = new String[n];
+		int i = 0;
+
+		for (String var : function.getTerms().keySet()) {
+			terms[i] = function.getTerms().get(var);
+			valueVariables[i] = var;
+			initValues[i] = function.getInitValues().get(var);
+			initParameters[i] = function.getInitParameters().get(var);
+			i++;
+		}
+
+		ParameterOptimizer optimizer = new ParameterOptimizer(terms, valueVariables, initValues, initParameters,
+				function.getParameters().toArray(new String[0]), timeArrays, targetArrays,
+				function.getDependentVariable(), function.getTimeVariable(), variableArrays,
+				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
+
+		if (set.isEnforceLimits()) {
+			optimizer.getMinValues().putAll(set.getMinStartValues());
+			optimizer.getMaxValues().putAll(set.getMaxStartValues());
+		}
+
+		optimizer.addProgressListener(this);
+
+		if (!set.getStartValues().isEmpty()) {
+			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+					set.getStartValues(), new LinkedHashMap<String, Double>());
+		} else {
+			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+					set.getMinStartValues(), set.getMaxStartValues());
+		}
+
+		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
+
+		for (String id : ids) {
+			results.put(id, optimizer);
+		}
+
+		return results;
+	}
+
+	private static Pair<Map<String, List<Double>>, Map<String, List<Double>>> readDataTable(BufferedDataTable table,
+			Function f) {
+		Set<String> ids = new LinkedHashSet<>();
+		Map<String, List<Double>> timeValues = new LinkedHashMap<>();
+		Map<String, List<Double>> targetValues = new LinkedHashMap<>();
+
+		for (DataRow row : table) {
+			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
+			Double time = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getTimeVariable())));
+			Double target = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getDependentVariable())));
+
+			if (id == null || !MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
+				continue;
+			}
+
+			if (ids.add(id)) {
+				timeValues.put(id, new ArrayList<Double>());
+				targetValues.put(id, new ArrayList<Double>());
+			}
+
+			timeValues.get(id).add(time);
+			targetValues.get(id).add(target);
+		}
+
+		return new Pair<>(timeValues, targetValues);
+	}
+
+	private static Map<String, Map<String, List<Double>>> readConditionTable(BufferedDataTable table, Function f) {
+		Map<String, Map<String, List<Double>>> argumentValues = new LinkedHashMap<>();
+
+		for (DataRow row : table) {
+			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
+			Map<String, Double> values = new LinkedHashMap<>();
+
+			for (String var : f.getIndependentVariables()) {
+				values.put(var, IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var))));
+			}
+
+			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
+				continue;
+			}
+
+			if (!argumentValues.containsKey(id)) {
+				argumentValues.put(id, new LinkedHashMap<String, List<Double>>());
+
+				for (String indep : f.getIndependentVariables()) {
+					argumentValues.get(id).put(indep, new ArrayList<Double>());
+				}
+			}
+
+			for (String indep : f.getIndependentVariables()) {
+				argumentValues.get(id).get(indep).add(values.get(indep));
+			}
+		}
+
+		return argumentValues;
 	}
 
 	@Override
