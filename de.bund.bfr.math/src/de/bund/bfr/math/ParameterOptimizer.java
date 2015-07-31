@@ -467,6 +467,29 @@ public class ParameterOptimizer {
 		public Integer getDegreesOfFreedom() {
 			return degreesOfFreedom;
 		}
+
+		public Result copy() {
+			Result r = new Result();
+
+			r.parameterValues = new LinkedHashMap<>(parameterValues);
+			r.parameterStandardErrors = new LinkedHashMap<>(parameterStandardErrors);
+			r.parameterTValues = new LinkedHashMap<>(parameterTValues);
+			r.parameterPValues = new LinkedHashMap<>(parameterPValues);
+			r.covariances = new LinkedHashMap<>();
+
+			for (Map.Entry<String, Map<String, Double>> entry : covariances.entrySet()) {
+				r.covariances.put(entry.getKey(), new LinkedHashMap<>(entry.getValue()));
+			}
+
+			r.sse = sse;
+			r.mse = mse;
+			r.rmse = rmse;
+			r.r2 = r2;
+			r.aic = aic;
+			r.degreesOfFreedom = degreesOfFreedom;
+
+			return r;
+		}
 	}
 
 	public static interface ProgressListener {

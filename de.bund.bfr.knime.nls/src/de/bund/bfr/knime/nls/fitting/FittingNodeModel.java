@@ -509,8 +509,25 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
 
-		for (String id : ids) {
-			results.put(id, result);
+		for (int i = 0; i < ids.size(); i++) {
+			ParameterOptimizer.Result r = result.copy();
+
+			if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
+				String oldName = function.getDependentVariable() + "_" + i;
+				String newName = function.getInitParameters().get(function.getDependentVariable());
+
+				r.getParameterValues().put(newName, r.getParameterValues().remove(oldName));
+				r.getParameterStandardErrors().put(newName, r.getParameterStandardErrors().remove(oldName));
+				r.getParameterTValues().put(newName, r.getParameterTValues().remove(oldName));
+				r.getParameterPValues().put(newName, r.getParameterPValues().remove(oldName));
+				r.getCovariances().put(newName, r.getCovariances().remove(oldName));
+
+				for (Map<String, Double> c : r.getCovariances().values()) {
+					c.put(newName, c.remove(oldName));
+				}
+			}
+
+			results.put(ids.get(i), r);
 		}
 
 		return results;
