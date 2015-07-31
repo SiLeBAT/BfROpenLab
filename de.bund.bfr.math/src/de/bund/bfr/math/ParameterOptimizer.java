@@ -75,7 +75,7 @@ public class ParameterOptimizer {
 
 	}
 
-	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
+	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
 			IntegratorFactory integrator) throws ParseException {
@@ -86,7 +86,7 @@ public class ParameterOptimizer {
 				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
 	}
 
-	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
+	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
 			IntegratorFactory integrator) throws ParseException {

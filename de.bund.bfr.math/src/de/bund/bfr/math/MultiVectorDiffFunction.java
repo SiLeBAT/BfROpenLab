@@ -37,7 +37,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	private DJep parser;
 	private Node[] functions;
 	private String[] dependentVariables;
-	private Double[] initValues;
+	private double[] initValues;
 	private List<String[]> initParameters;
 	private String[] parameters;
 	private Map<String, List<double[]>> variableValues;
@@ -46,7 +46,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	private String timeVariable;
 	private IntegratorFactory integrator;
 
-	public MultiVectorDiffFunction(String[] formulas, String[] dependentVariables, Double[] initValues,
+	public MultiVectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
 					throws ParseException {
@@ -74,7 +74,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		}
 	}
 
-	public MultiVectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables, Double[] initValues,
+	public MultiVectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, int dependentIndex, String timeVariable, IntegratorFactory integrator) {
 		this.parser = parser;
@@ -120,7 +120,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 			double[] values = new double[dependentVariables.length];
 
 			for (int i = 0; i < dependentVariables.length; i++) {
-				if (initValues[i] != null) {
+				if (!Double.isNaN(initValues[i])) {
 					values[i] = initValues[i];
 				} else {
 					values[i] = point[Arrays.asList(parameters).indexOf(initParameters.get(j)[i])];

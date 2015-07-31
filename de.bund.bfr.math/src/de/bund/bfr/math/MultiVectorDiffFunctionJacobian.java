@@ -42,7 +42,7 @@ public class MultiVectorDiffFunctionJacobian implements MultivariateMatrixFuncti
 	private int nParams;
 	private int nValues;
 
-	public MultiVectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables, Double[] initValues,
+	public MultiVectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
 					throws ParseException {
