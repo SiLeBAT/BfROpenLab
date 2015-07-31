@@ -43,7 +43,7 @@ public class MultiVectorDiffFunctionJacobian implements MultivariateMatrixFuncti
 	private int nValues;
 
 	public MultiVectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
+			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
 					throws ParseException {
 		nParams = parameters.length;

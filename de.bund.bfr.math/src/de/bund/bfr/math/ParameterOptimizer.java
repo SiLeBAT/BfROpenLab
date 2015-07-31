@@ -53,19 +53,6 @@ public class ParameterOptimizer {
 	private String[] parameters;
 	private double[] targetValues;
 
-	private boolean successful;
-	private Map<String, Double> parameterValues;
-	private Map<String, Double> parameterStandardErrors;
-	private Map<String, Double> parameterTValues;
-	private Map<String, Double> parameterPValues;
-	private Map<String, Map<String, Double>> covariances;
-	private Double sse;
-	private Double mse;
-	private Double rmse;
-	private Double r2;
-	private Double aic;
-	private Integer degreesOfFreedom;
-
 	private Map<String, Double> minValues;
 	private Map<String, Double> maxValues;
 
@@ -75,12 +62,9 @@ public class ParameterOptimizer {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
 
-		successful = false;
 		minValues = new LinkedHashMap<>();
 		maxValues = new LinkedHashMap<>();
 		progressListeners = new ArrayList<>();
-
-		resetResults();
 	}
 
 	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
@@ -103,7 +87,7 @@ public class ParameterOptimizer {
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
+			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
 			IntegratorFactory integrator) throws ParseException {
 		this(parameters, expand(targetValues));
@@ -129,7 +113,7 @@ public class ParameterOptimizer {
 		progressListeners.remove(listener);
 	}
 
-	public void optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
+	public Result optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues) {
 		double[] paramMin = new double[parameters.length];
 		int[] paramStepCount = new int[parameters.length];
@@ -175,61 +159,12 @@ public class ParameterOptimizer {
 
 		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize, nLevenberg);
 
-		optimize(startValuesList, stopWhenSuccessful);
+		return optimize(startValuesList, stopWhenSuccessful);
 	}
 
-	public boolean isSuccessful() {
-		return successful;
-	}
-
-	public Map<String, Double> getParameterValues() {
-		return parameterValues;
-	}
-
-	public Map<String, Double> getParameterStandardErrors() {
-		return parameterStandardErrors;
-	}
-
-	public Map<String, Double> getParameterTValues() {
-		return parameterTValues;
-	}
-
-	public Map<String, Double> getParameterPValues() {
-		return parameterPValues;
-	}
-
-	public Map<String, Map<String, Double>> getCovariances() {
-		return covariances;
-	}
-
-	public Double getSse() {
-		return sse;
-	}
-
-	public Double getMse() {
-		return mse;
-	}
-
-	public Double getRmse() {
-		return rmse;
-	}
-
-	public Double getR2() {
-		return r2;
-	}
-
-	public Double getAic() {
-		return aic;
-	}
-
-	public Integer getDegreesOfFreedom() {
-		return degreesOfFreedom;
-	}
-
-	private void optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful) {
+	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-
-		successful = false;
+		Result result = null;
 
 		for (StartValues startValues : startValuesList) {
 			try {
@@ -237,20 +172,15 @@ public class ParameterOptimizer {
 						.optimize(createLeastSquaresProblem(startValues.getValues()));
 				double cost = optimizerResults.getCost();
 
-				if (!successful || cost * cost < sse) {
-					setResults(optimizerResults);
+				if (result == null || cost * cost < result.sse) {
+					result = getResults(optimizerResults);
 
-					if (sse == 0.0) {
-						successful = true;
+					if (result.sse == 0.0) {
 						break;
 					}
 
-					if (r2 != null && r2 > 0.0) {
-						successful = true;
-
-						if (stopWhenSuccessful) {
-							break;
-						}
+					if (result.r2 != null && result.r2 > 0.0 && stopWhenSuccessful) {
+						break;
 					}
 				}
 			} catch (TooManyEvaluationsException e) {
@@ -259,9 +189,7 @@ public class ParameterOptimizer {
 			}
 		}
 
-		if (!successful) {
-			resetResults();
-		}
+		return result;
 	}
 
 	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount, double[] paramStepSize,
@@ -366,78 +294,83 @@ public class ParameterOptimizer {
 		return builder.build();
 	}
 
-	private void setResults(LeastSquaresOptimizer.Optimum optimizerResults) {
-		resetResults();
+	private Result getResults() {
+		Result r = new Result();
 
+		r.parameterValues = new LinkedHashMap<>();
+		r.parameterStandardErrors = new LinkedHashMap<>();
+		r.parameterTValues = new LinkedHashMap<>();
+		r.parameterPValues = new LinkedHashMap<>();
+		r.covariances = new LinkedHashMap<>();
+		r.sse = null;
+		r.mse = null;
+		r.rmse = null;
+		r.r2 = null;
+		r.aic = null;
+		r.degreesOfFreedom = null;
+
+		for (String param : parameters) {
+			r.covariances.put(param, new LinkedHashMap<String, Double>());
+		}
+
+		return r;
+	}
+
+	private Result getResults(LeastSquaresOptimizer.Optimum optimizerResults) {
+		Result r = getResults();
 		double cost = optimizerResults.getCost();
 
-		sse = cost * cost;
-		degreesOfFreedom = targetValues.length - parameters.length;
-		r2 = MathUtils.getR2(sse, targetValues);
-		aic = MathUtils.getAic(parameters.length, targetValues.length, sse);
+		r.sse = cost * cost;
+		r.degreesOfFreedom = targetValues.length - parameters.length;
+		r.r2 = MathUtils.getR2(r.sse, targetValues);
+		r.aic = MathUtils.getAic(parameters.length, targetValues.length, r.sse);
 
 		for (int i = 0; i < parameters.length; i++) {
-			parameterValues.put(parameters[i], optimizerResults.getPoint().getEntry(i));
+			r.parameterValues.put(parameters[i], optimizerResults.getPoint().getEntry(i));
 		}
 
-		if (degreesOfFreedom <= 0) {
-			return;
+		if (r.degreesOfFreedom <= 0) {
+			return r;
 		}
 
-		mse = sse / degreesOfFreedom;
-		rmse = Math.sqrt(mse);
+		r.mse = r.sse / r.degreesOfFreedom;
+		r.rmse = Math.sqrt(r.mse);
 
 		double[][] covMatrix;
 
 		try {
 			covMatrix = optimizerResults.getCovariances(COV_THRESHOLD).getData();
 		} catch (SingularMatrixException e) {
-			return;
+			return r;
 		}
 
-		parameterStandardErrors = new LinkedHashMap<>();
-		parameterTValues = new LinkedHashMap<>();
-		parameterPValues = new LinkedHashMap<>();
-		covariances = new LinkedHashMap<>();
+		r.parameterStandardErrors = new LinkedHashMap<>();
+		r.parameterTValues = new LinkedHashMap<>();
+		r.parameterPValues = new LinkedHashMap<>();
+		r.covariances = new LinkedHashMap<>();
 
 		for (int i = 0; i < parameters.length; i++) {
-			double error = Math.sqrt(mse * covMatrix[i][i]);
+			double error = Math.sqrt(r.mse * covMatrix[i][i]);
 
-			parameterStandardErrors.put(parameters[i], error);
+			r.parameterStandardErrors.put(parameters[i], error);
 
 			double tValue = optimizerResults.getPoint().getEntry(i) / error;
 
-			parameterTValues.put(parameters[i], tValue);
-			parameterPValues.put(parameters[i], MathUtils.getPValue(tValue, degreesOfFreedom));
+			r.parameterTValues.put(parameters[i], tValue);
+			r.parameterPValues.put(parameters[i], MathUtils.getPValue(tValue, r.degreesOfFreedom));
 		}
 
 		for (int i = 0; i < parameters.length; i++) {
 			Map<String, Double> cov = new LinkedHashMap<>();
 
 			for (int j = 0; j < parameters.length; j++) {
-				cov.put(parameters[j], mse * covMatrix[i][j]);
+				cov.put(parameters[j], r.mse * covMatrix[i][j]);
 			}
 
-			covariances.put(parameters[i], cov);
+			r.covariances.put(parameters[i], cov);
 		}
-	}
 
-	private void resetResults() {
-		parameterValues = new LinkedHashMap<>();
-		parameterStandardErrors = new LinkedHashMap<>();
-		parameterTValues = new LinkedHashMap<>();
-		parameterPValues = new LinkedHashMap<>();
-		covariances = new LinkedHashMap<>();
-		sse = null;
-		mse = null;
-		rmse = null;
-		r2 = null;
-		aic = null;
-		degreesOfFreedom = null;
-
-		for (String param : parameters) {
-			covariances.put(param, new LinkedHashMap<String, Double>());
-		}
+		return r;
 	}
 
 	private static double[] expand(List<double[]> values) {
@@ -474,6 +407,65 @@ public class ParameterOptimizer {
 
 		public double getError() {
 			return error;
+		}
+	}
+
+	public static class Result {
+
+		private Map<String, Double> parameterValues;
+		private Map<String, Double> parameterStandardErrors;
+		private Map<String, Double> parameterTValues;
+		private Map<String, Double> parameterPValues;
+		private Map<String, Map<String, Double>> covariances;
+		private Double sse;
+		private Double mse;
+		private Double rmse;
+		private Double r2;
+		private Double aic;
+		private Integer degreesOfFreedom;
+
+		public Map<String, Double> getParameterValues() {
+			return parameterValues;
+		}
+
+		public Map<String, Double> getParameterStandardErrors() {
+			return parameterStandardErrors;
+		}
+
+		public Map<String, Double> getParameterTValues() {
+			return parameterTValues;
+		}
+
+		public Map<String, Double> getParameterPValues() {
+			return parameterPValues;
+		}
+
+		public Map<String, Map<String, Double>> getCovariances() {
+			return covariances;
+		}
+
+		public Double getSse() {
+			return sse;
+		}
+
+		public Double getMse() {
+			return mse;
+		}
+
+		public Double getRmse() {
+			return rmse;
+		}
+
+		public Double getR2() {
+			return r2;
+		}
+
+		public Double getAic() {
+			return aic;
+		}
+
+		public Integer getDegreesOfFreedom() {
+			return degreesOfFreedom;
 		}
 	}
 

@@ -38,7 +38,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	private Node[] functions;
 	private String[] dependentVariables;
 	private Double[] initValues;
-	private String[] initParameters;
+	private List<String[]> initParameters;
 	private String[] parameters;
 	private Map<String, List<double[]>> variableValues;
 	private List<double[]> timeValues;
@@ -47,7 +47,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	private IntegratorFactory integrator;
 
 	public MultiVectorDiffFunction(String[] formulas, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
+			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
 					throws ParseException {
 		this.dependentVariables = dependentVariables;
@@ -75,7 +75,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	}
 
 	public MultiVectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables, Double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
+			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, int dependentIndex, String timeVariable, IntegratorFactory integrator) {
 		this.parser = parser;
 		this.functions = functions;
@@ -123,7 +123,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 				if (initValues[i] != null) {
 					values[i] = initValues[i];
 				} else {
-					values[i] = point[Arrays.asList(parameters).indexOf(initParameters[i])];
+					values[i] = point[Arrays.asList(parameters).indexOf(initParameters.get(j)[i])];
 				}
 			}
 

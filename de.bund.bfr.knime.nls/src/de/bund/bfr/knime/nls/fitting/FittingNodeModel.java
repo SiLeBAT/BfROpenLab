@@ -100,7 +100,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		currentExec = exec;
 
 		Function function = ((FunctionPortObject) inObjects[0]).getFunction();
-		Map<String, ParameterOptimizer> results;
+		Map<String, ParameterOptimizer.Result> results;
 		PortObjectSpec[] outSpec;
 
 		if (isDiff) {
@@ -125,9 +125,9 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		int iParam = 0;
 		int iCov = 0;
 
-		for (Map.Entry<String, ParameterOptimizer> entry : results.entrySet()) {
+		for (Map.Entry<String, ParameterOptimizer.Result> entry : results.entrySet()) {
 			String id = entry.getKey();
-			ParameterOptimizer result = entry.getValue();
+			ParameterOptimizer.Result result = entry.getValue();
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
 			for (String param1 : function.getParameters()) {
@@ -286,7 +286,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, ParameterOptimizer> doFitting(Function function, BufferedDataTable table)
+	private Map<String, ParameterOptimizer.Result> doFitting(Function function, BufferedDataTable table)
 			throws ParseException {
 		if (function.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
@@ -324,7 +324,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			}
 		}
 
-		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
+		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
 
 		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
@@ -344,20 +344,18 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			}
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getStartValues(), new LinkedHashMap<String, Double>());
+				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<String, Double>()));
 			} else {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getMinStartValues(), set.getMaxStartValues());
+				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
 			}
-
-			results.put(id, optimizer);
 		}
 
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer> doDiffFitting(Function function, BufferedDataTable dataTable,
+	private Map<String, ParameterOptimizer.Result> doDiffFitting(Function function, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
 		if (function.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
@@ -369,7 +367,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		Map<String, List<Double>> targetValues = data.getSecond();
 		Map<String, Map<String, List<Double>>> argumentValues = readConditionTable(conditionTable, function);
 
-		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
+		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
 
 		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
@@ -406,66 +404,90 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			optimizer.addProgressListener(this);
 
 			if (!set.getStartValues().isEmpty()) {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getStartValues(), new LinkedHashMap<String, Double>());
+				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<String, Double>()));
 			} else {
-				optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-						set.getMinStartValues(), set.getMaxStartValues());
+				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
 			}
-
-			results.put(id, optimizer);
 		}
 
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer> doMultiDiffFitting(Function function, BufferedDataTable dataTable,
+	private Map<String, ParameterOptimizer.Result> doMultiDiffFitting(Function function, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
 		if (function.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
 
 		Pair<Map<String, List<Double>>, Map<String, List<Double>>> data = readDataTable(dataTable, function);
-		Set<String> ids = data.getFirst().keySet();
+		List<String> ids = new ArrayList<>(data.getFirst().keySet());
 		Map<String, List<Double>> timeValues = data.getFirst();
 		Map<String, List<Double>> targetValues = data.getSecond();
 		Map<String, Map<String, List<Double>>> argumentValues = readConditionTable(conditionTable, function);
 
+		int n = function.getTerms().size();
+		String[] terms = new String[n];
+		String[] valueVariables = new String[n];
+		Double[] initValues = new Double[n];
+		List<String> vars = new ArrayList<>(function.getTerms().keySet());
+
+		for (int i = 0; i < vars.size(); i++) {
+			String var = vars.get(i);
+
+			terms[i] = function.getTerms().get(var);
+			valueVariables[i] = var;
+			initValues[i] = function.getInitValues().get(var);
+		}
+
 		List<double[]> timeArrays = new ArrayList<>();
 		List<double[]> targetArrays = new ArrayList<>();
 		Map<String, List<double[]>> variableArrays = new LinkedHashMap<>();
+		List<String> parameters = new ArrayList<>(function.getParameters());
+		List<String[]> initParameters = new ArrayList<>();
+		boolean hasInitValueForDepVar = function.getInitValues().get(function.getDependentVariable()) != null;
+
+		if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
+			parameters.remove(function.getInitParameters().get(function.getDependentVariable()));
+		}
 
 		for (String var : function.getIndependentVariables()) {
 			variableArrays.put(var, new ArrayList<double[]>());
 		}
 
-		for (String id : ids) {
+		for (int i = 0; i < ids.size(); i++) {
+			String id = ids.get(i);
+
 			timeArrays.add(Doubles.toArray(timeValues.get(id)));
 			targetArrays.add(Doubles.toArray(targetValues.get(id)));
 
 			for (String var : function.getIndependentVariables()) {
 				variableArrays.get(var).add(Doubles.toArray(argumentValues.get(id).get(var)));
 			}
-		}
 
-		int n = function.getTerms().size();
-		String[] terms = new String[n];
-		String[] valueVariables = new String[n];
-		Double[] initValues = new Double[n];
-		String[] initParameters = new String[n];
-		int i = 0;
+			if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
+				parameters.add(function.getDependentVariable() + "_" + i);
+			}
 
-		for (String var : function.getTerms().keySet()) {
-			terms[i] = function.getTerms().get(var);
-			valueVariables[i] = var;
-			initValues[i] = function.getInitValues().get(var);
-			initParameters[i] = function.getInitParameters().get(var);
-			i++;
+			String[] initParams = new String[n];
+
+			for (int j = 0; j < vars.size(); j++) {
+				String var = vars.get(j);
+
+				if (var.equals(function.getDependentVariable()) && set.isUseDifferentInitialValues()) {
+					initParams[j] = var + "_" + i;
+				} else {
+					initParams[j] = function.getInitParameters().get(var);
+				}
+			}
+
+			initParameters.add(initParams);
 		}
 
 		ParameterOptimizer optimizer = new ParameterOptimizer(terms, valueVariables, initValues, initParameters,
-				function.getParameters().toArray(new String[0]), timeArrays, targetArrays,
-				function.getDependentVariable(), function.getTimeVariable(), variableArrays,
+				parameters.toArray(new String[0]), timeArrays, targetArrays, function.getDependentVariable(),
+				function.getTimeVariable(), variableArrays,
 				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
 
 		if (set.isEnforceLimits()) {
@@ -475,18 +497,20 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		optimizer.addProgressListener(this);
 
+		ParameterOptimizer.Result result;
+
 		if (!set.getStartValues().isEmpty()) {
-			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 					set.getStartValues(), new LinkedHashMap<String, Double>());
 		} else {
-			optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 					set.getMinStartValues(), set.getMaxStartValues());
 		}
 
-		Map<String, ParameterOptimizer> results = new LinkedHashMap<>();
+		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
 
 		for (String id : ids) {
-			results.put(id, optimizer);
+			results.put(id, result);
 		}
 
 		return results;
