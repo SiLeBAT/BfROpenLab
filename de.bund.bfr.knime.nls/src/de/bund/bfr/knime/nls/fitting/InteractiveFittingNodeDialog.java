@@ -25,7 +25,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -70,7 +74,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private ChartConfigPanel configPanel;
 	private JCheckBox enforceLimitsBox;
 	private JCheckBox fitAllAtOnceBox;
-	private JCheckBox useDifferentInitValuesBox;
+	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
 	private DoubleTextField stepSizeField;
 
 	private FunctionPortObject functionObject;
@@ -109,8 +113,16 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		Set<String> initValuesWithDifferentStart = new LinkedHashSet<>();
+
+		for (Map.Entry<String, JCheckBox> entry : useDifferentInitValuesBoxes.entrySet()) {
+			if (entry.getValue().isSelected()) {
+				initValuesWithDifferentStart.add(entry.getKey());
+			}
+		}
+
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
-		set.setUseDifferentInitialValues(useDifferentInitValuesBox.isSelected());
+		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setEnforceLimits(enforceLimitsBox.isSelected());
 		set.setStartValues(configPanel.getParamValues());
 		set.setMinStartValues(configPanel.getMinValues());
@@ -124,9 +136,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
-		useDifferentInitValuesBox = new JCheckBox("Use Different Initial Values");
-		useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
-		useDifferentInitValuesBox.setSelected(set.isUseDifferentInitialValues());
+		useDifferentInitValuesBoxes = new LinkedHashMap<>();
 		fitAllAtOnceBox.addActionListener(this);
 
 		stepSizeField = new DoubleTextField(false, 8);
@@ -152,8 +162,19 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		if (isDiff) {
 			leftComponents.add(fitAllAtOnceBox);
 			rightComponents.add(new JLabel());
-			leftComponents.add(useDifferentInitValuesBox);
-			rightComponents.add(new JLabel());
+
+			for (Map.Entry<String, String> entry : functionObject.getFunction().getInitParameters().entrySet()) {
+				if (functionObject.getFunction().getInitValues().get(entry.getKey()) == null) {
+					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
+
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getValue()));
+					box.setEnabled(fitAllAtOnceBox.isSelected());
+					leftComponents.add(box);
+					rightComponents.add(new JLabel());
+					useDifferentInitValuesBoxes.put(entry.getKey(), box);
+				}
+			}
+
 			leftComponents.add(new JLabel("Integration Step Size"));
 			rightComponents.add(stepSizeField);
 		}
@@ -223,7 +244,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fitAllAtOnceBox) {
-			useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
+			for (JCheckBox box : useDifferentInitValuesBoxes.values()) {
+				box.setEnabled(fitAllAtOnceBox.isSelected());
+			}
 		}
 	}
 }

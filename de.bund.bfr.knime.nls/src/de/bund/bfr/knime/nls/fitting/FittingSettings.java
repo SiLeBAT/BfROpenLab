@@ -20,7 +20,9 @@
 package de.bund.bfr.knime.nls.fitting;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -31,7 +33,7 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 public class FittingSettings extends NlsNodeSettings {
 
 	private static final String CFG_FIT_ALL_AT_ONCE = "FitAllAtOnce";
-	private static final String CFG_USE_DIFFERENT_INITIAL_VALUES = "UseDifferentInitialValues";
+	private static final String CFG_INIT_VALUES_WITH_DIFFERENT_START = "InitValuesWithDifferentStart";
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
@@ -43,7 +45,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_STEP_SIZE = "StepSize";
 
 	private boolean fitAllAtOnce;
-	private boolean useDifferentInitialValues;
+	private Set<String> initValuesWithDifferentStart;
 	private boolean expertSettings;
 	private int nParameterSpace;
 	private int nLevenberg;
@@ -56,7 +58,7 @@ public class FittingSettings extends NlsNodeSettings {
 
 	public FittingSettings() {
 		fitAllAtOnce = false;
-		useDifferentInitialValues = false;
+		initValuesWithDifferentStart = new LinkedHashSet<>();
 		expertSettings = false;
 		setExpertParametersToDefault();
 	}
@@ -70,7 +72,8 @@ public class FittingSettings extends NlsNodeSettings {
 		}
 
 		try {
-			useDifferentInitialValues = settings.getBoolean(CFG_USE_DIFFERENT_INITIAL_VALUES);
+			initValuesWithDifferentStart = (Set<String>) SERIALIZER
+					.fromXml(settings.getString(CFG_INIT_VALUES_WITH_DIFFERENT_START));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -127,7 +130,7 @@ public class FittingSettings extends NlsNodeSettings {
 		}
 
 		settings.addBoolean(CFG_FIT_ALL_AT_ONCE, fitAllAtOnce);
-		settings.addBoolean(CFG_USE_DIFFERENT_INITIAL_VALUES, useDifferentInitialValues);
+		settings.addString(CFG_INIT_VALUES_WITH_DIFFERENT_START, SERIALIZER.toXml(initValuesWithDifferentStart));
 		settings.addBoolean(CFG_EXPERT_SETTINGS, expertSettings);
 		settings.addInt(CFG_N_PARAMETER_SPACE, nParameterSpace);
 		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
@@ -147,12 +150,12 @@ public class FittingSettings extends NlsNodeSettings {
 		this.fitAllAtOnce = fitAllAtOnce;
 	}
 
-	public boolean isUseDifferentInitialValues() {
-		return useDifferentInitialValues;
+	public Set<String> getInitValuesWithDifferentStart() {
+		return initValuesWithDifferentStart;
 	}
 
-	public void setUseDifferentInitialValues(boolean useDifferentInitialValues) {
-		this.useDifferentInitialValues = useDifferentInitialValues;
+	public void setInitValuesWithDifferentStart(Set<String> initValuesWithDifferentStart) {
+		this.initValuesWithDifferentStart = initValuesWithDifferentStart;
 	}
 
 	public boolean isExpertSettings() {

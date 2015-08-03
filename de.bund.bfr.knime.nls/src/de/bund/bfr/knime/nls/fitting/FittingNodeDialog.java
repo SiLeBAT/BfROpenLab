@@ -29,8 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,6 +51,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
@@ -67,7 +70,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	private JPanel expertPanel;
 
 	private JCheckBox fitAllAtOnceBox;
-	private JCheckBox useDifferentInitValuesBox;
+	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
 	private JCheckBox expertBox;
 
 	private DoubleTextField stepSizeField;
@@ -86,39 +89,53 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		this.isDiff = isDiff;
 		set = new FittingSettings();
 
-		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
-		fitAllAtOnceBox.addActionListener(this);
-		useDifferentInitValuesBox = new JCheckBox("Use Different Initial Values");
-		expertBox = new JCheckBox("Expert Settings");
-		expertBox.addActionListener(this);
-
-		JPanel p = isDiff
-				? UI.createOptionsPanel(null, Arrays.asList(fitAllAtOnceBox, useDifferentInitValuesBox, expertBox),
-						Collections.nCopies(3, new JLabel()))
-				: UI.createHorizontalPanel(expertBox);
-
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(p, BorderLayout.NORTH);
 
 		addTab("Options", UI.createNorthPanel(mainPanel));
 	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs) throws NotConfigurableException {
+		Function f = ((FunctionPortObjectSpec) specs[0]).getFunction();
+
 		set.loadSettings(settings);
 
-		fitAllAtOnceBox.removeActionListener(this);
+		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		fitAllAtOnceBox.addActionListener(this);
-		useDifferentInitValuesBox.setSelected(set.isUseDifferentInitialValues());
-		useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
-
-		expertBox.removeActionListener(this);
+		useDifferentInitValuesBoxes = new LinkedHashMap<>();
+		expertBox = new JCheckBox("Expert Settings");
 		expertBox.setSelected(set.isExpertSettings());
 		expertBox.addActionListener(this);
 
-		updateExpertPanel((FunctionPortObjectSpec) specs[0]);
+		JPanel p;
+
+		if (isDiff) {
+			List<JCheckBox> boxes = new ArrayList<>();
+
+			boxes.add(fitAllAtOnceBox);
+
+			for (Map.Entry<String, String> entry : f.getInitParameters().entrySet()) {
+				if (f.getInitValues().get(entry.getKey()) == null) {
+					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
+
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getValue()));
+					box.setEnabled(fitAllAtOnceBox.isSelected());
+					boxes.add(box);
+					useDifferentInitValuesBoxes.put(entry.getKey(), box);
+				}
+			}
+
+			boxes.add(expertBox);
+			p = UI.createOptionsPanel(null, boxes, Collections.nCopies(boxes.size(), new JLabel()));
+		} else {
+			p = UI.createHorizontalPanel(expertBox);
+		}
+
+		mainPanel.add(p, BorderLayout.NORTH);
+
+		updateExpertPanel(f);
 	}
 
 	@Override
@@ -132,8 +149,15 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			throw new InvalidSettingsException("");
 		}
 
+		Set<String> initValuesWithDifferentStart = new LinkedHashSet<>();
 		Map<String, Double> minStartValues = new LinkedHashMap<>();
 		Map<String, Double> maxStartValues = new LinkedHashMap<>();
+
+		for (Map.Entry<String, JCheckBox> entry : useDifferentInitValuesBoxes.entrySet()) {
+			if (entry.getValue().isSelected()) {
+				initValuesWithDifferentStart.add(entry.getKey());
+			}
+		}
 
 		for (Map.Entry<String, DoubleTextField> entry : minimumFields.entrySet()) {
 			minStartValues.put(entry.getKey(), entry.getValue().getValue());
@@ -144,7 +168,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		}
 
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
-		set.setUseDifferentInitialValues(useDifferentInitValuesBox.isSelected());
+		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setExpertSettings(expertBox.isSelected());
 		set.setnParameterSpace(nParamSpaceField.getValue());
 		set.setnLevenberg(nLevenbergField.getValue());
@@ -157,7 +181,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		set.saveSettings(settings);
 	}
 
-	private void updateExpertPanel(FunctionPortObjectSpec spec) {
+	private void updateExpertPanel(Function f) {
 		if (expertPanel != null) {
 			mainPanel.remove(expertPanel);
 		}
@@ -165,7 +189,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		expertPanel = new JPanel();
 		expertPanel.setLayout(new BoxLayout(expertPanel, BoxLayout.Y_AXIS));
 		expertPanel.add(createRegressionPanel());
-		expertPanel.add(createRangePanel(spec));
+		expertPanel.add(createRangePanel(f));
 
 		mainPanel.add(expertPanel, BorderLayout.CENTER);
 		mainPanel.revalidate();
@@ -211,7 +235,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		return UI.createOptionsPanel("Nonlinear Regression Parameters", leftComps, rightComps);
 	}
 
-	private Component createRangePanel(FunctionPortObjectSpec spec) {
+	private Component createRangePanel(Function f) {
 		limitsBox = new JCheckBox("Enforce start values as limits");
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
@@ -226,7 +250,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		JPanel modelPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		List<String> params = spec.getFunction().getParameters();
+		List<String> params = f.getParameters();
 
 		leftPanel.setLayout(new GridLayout(params.size(), 1));
 		rightPanel.setLayout(new GridLayout(params.size(), 1));
@@ -281,7 +305,9 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fitAllAtOnceBox) {
-			useDifferentInitValuesBox.setEnabled(fitAllAtOnceBox.isSelected());
+			for (JCheckBox box : useDifferentInitValuesBoxes.values()) {
+				box.setEnabled(fitAllAtOnceBox.isSelected());
+			}
 		} else if (e.getSource() == expertBox) {
 			if (expertBox.isSelected()) {
 				expertPanel.setVisible(true);

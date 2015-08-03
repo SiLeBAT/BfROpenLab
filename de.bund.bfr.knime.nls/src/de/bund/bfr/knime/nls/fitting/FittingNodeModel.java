@@ -288,16 +288,16 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, ParameterOptimizer.Result> doFitting(Function function, BufferedDataTable table)
+	private Map<String, ParameterOptimizer.Result> doFitting(Function f, BufferedDataTable table)
 			throws ParseException {
-		if (function.getTimeVariable() != null) {
+		if (f.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
 		}
 
 		ListMultimap<String, Double> targetValues = ArrayListMultimap.create();
 		Map<String, ListMultimap<String, Double>> argumentValues = new LinkedHashMap<>();
 
-		for (String indep : function.getIndependentVariables()) {
+		for (String indep : f.getIndependentVariables()) {
 			ListMultimap<String, Double> argValues = ArrayListMultimap.create();
 
 			argumentValues.put(indep, argValues);
@@ -307,7 +307,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
 			Map<String, Double> values = new LinkedHashMap<>();
 
-			for (String var : function.getVariables()) {
+			for (String var : f.getVariables()) {
 				values.put(var, IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var))));
 			}
 
@@ -315,9 +315,9 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				continue;
 			}
 
-			targetValues.put(id, values.get(function.getDependentVariable()));
+			targetValues.put(id, values.get(f.getDependentVariable()));
 
-			for (String indep : function.getIndependentVariables()) {
+			for (String indep : f.getIndependentVariables()) {
 				argumentValues.get(indep).put(id, values.get(indep));
 			}
 		}
@@ -327,14 +327,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		for (String id : readIds(table)) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
-			for (String indep : function.getIndependentVariables()) {
+			for (String indep : f.getIndependentVariables()) {
 				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(
-					function.getTerms().get(function.getDependentVariable()),
-					function.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
-					argumentArrays);
+			ParameterOptimizer optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
+					f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays);
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -353,43 +351,42 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer.Result> doDiffFitting(Function function, BufferedDataTable dataTable,
+	private Map<String, ParameterOptimizer.Result> doDiffFitting(Function f, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
-		if (function.getTimeVariable() == null) {
+		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
 
-		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, function);
+		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, f);
 		ListMultimap<String, Double> timeValues = data.getFirst();
 		ListMultimap<String, Double> targetValues = data.getSecond();
-		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, function);
+		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
 
 		for (String id : readIds(dataTable)) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
-			for (String indep : function.getIndependentVariables()) {
+			for (String indep : f.getIndependentVariables()) {
 				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
 			}
 
-			List<String> valueVariables = new ArrayList<>(function.getTerms().keySet());
+			List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
 			List<String> terms = new ArrayList<>();
 			List<Double> initValues = new ArrayList<>();
 			List<String> initParameters = new ArrayList<>();
 
 			for (String var : valueVariables) {
-				terms.add(function.getTerms().get(var));
-				initValues.add(
-						function.getInitValues().containsKey(var) ? function.getInitValues().get(var) : Double.NaN);
-				initParameters.add(function.getInitParameters().get(var));
+				terms.add(f.getTerms().get(var));
+				initValues.add(f.getInitValues().containsKey(var) ? f.getInitValues().get(var) : Double.NaN);
+				initParameters.add(f.getInitParameters().get(var));
 			}
 
 			ParameterOptimizer optimizer = new ParameterOptimizer(terms.toArray(new String[0]),
 					valueVariables.toArray(new String[0]), Doubles.toArray(initValues),
-					initParameters.toArray(new String[0]), function.getParameters().toArray(new String[0]),
+					initParameters.toArray(new String[0]), f.getParameters().toArray(new String[0]),
 					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
-					function.getDependentVariable(), function.getTimeVariable(), argumentArrays,
+					f.getDependentVariable(), f.getTimeVariable(), argumentArrays,
 					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
 
 			if (set.isEnforceLimits()) {
@@ -411,39 +408,40 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer.Result> doMultiDiffFitting(Function function, BufferedDataTable dataTable,
+	private Map<String, ParameterOptimizer.Result> doMultiDiffFitting(Function f, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
-		if (function.getTimeVariable() == null) {
+		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
 		}
 
 		List<String> ids = readIds(dataTable);
-		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, function);
+		Pair<ListMultimap<String, Double>, ListMultimap<String, Double>> data = readDataTable(dataTable, f);
 		ListMultimap<String, Double> timeValues = data.getFirst();
 		ListMultimap<String, Double> targetValues = data.getSecond();
-		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, function);
+		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
 
-		List<String> valueVariables = new ArrayList<>(function.getTerms().keySet());
+		List<String> valueVariables = new ArrayList<>(f.getTerms().keySet());
 		List<String> terms = new ArrayList<>();
 		List<Double> initValues = new ArrayList<>();
 
 		for (String var : valueVariables) {
-			terms.add(function.getTerms().get(var));
-			initValues.add(function.getInitValues().containsKey(var) ? function.getInitValues().get(var) : Double.NaN);
+			terms.add(f.getTerms().get(var));
+			initValues.add(f.getInitValues().containsKey(var) ? f.getInitValues().get(var) : Double.NaN);
 		}
 
 		List<double[]> timeArrays = new ArrayList<>();
 		List<double[]> targetArrays = new ArrayList<>();
 		Map<String, List<double[]>> variableArrays = new LinkedHashMap<>();
-		List<String> parameters = new ArrayList<>(function.getParameters());
+		List<String> parameters = new ArrayList<>(f.getParameters());
 		List<String[]> initParameters = new ArrayList<>();
-		boolean hasInitValueForDepVar = function.getInitValues().get(function.getDependentVariable()) != null;
 
-		if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
-			parameters.remove(function.getInitParameters().get(function.getDependentVariable()));
+		for (String var : set.getInitValuesWithDifferentStart()) {
+			if (f.getInitValues().get(var) == null) {
+				parameters.remove(f.getInitParameters().get(var));
+			}
 		}
 
-		for (String var : function.getIndependentVariables()) {
+		for (String var : f.getIndependentVariables()) {
 			variableArrays.put(var, new ArrayList<double[]>());
 		}
 
@@ -453,21 +451,23 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			timeArrays.add(Doubles.toArray(timeValues.get(id)));
 			targetArrays.add(Doubles.toArray(targetValues.get(id)));
 
-			for (String var : function.getIndependentVariables()) {
+			for (String var : f.getIndependentVariables()) {
 				variableArrays.get(var).add(Doubles.toArray(argumentValues.get(var).get(id)));
 			}
 
-			if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
-				parameters.add(function.getDependentVariable() + "_" + i);
+			for (String var : set.getInitValuesWithDifferentStart()) {
+				if (f.getInitValues().get(var) == null) {
+					parameters.add(var + "_" + i);
+				}
 			}
 
 			List<String> initParams = new ArrayList<>();
 
 			for (String var : valueVariables) {
-				if (var.equals(function.getDependentVariable()) && set.isUseDifferentInitialValues()) {
+				if (set.getInitValuesWithDifferentStart().contains(var) && f.getInitValues().get(var) == null) {
 					initParams.add(var + "_" + i);
 				} else {
-					initParams.add(function.getInitParameters().get(var));
+					initParams.add(f.getInitParameters().get(var));
 				}
 			}
 
@@ -476,8 +476,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		ParameterOptimizer optimizer = new ParameterOptimizer(terms.toArray(new String[0]),
 				valueVariables.toArray(new String[0]), Doubles.toArray(initValues), initParameters,
-				parameters.toArray(new String[0]), timeArrays, targetArrays, function.getDependentVariable(),
-				function.getTimeVariable(), variableArrays,
+				parameters.toArray(new String[0]), timeArrays, targetArrays, f.getDependentVariable(),
+				f.getTimeVariable(), variableArrays,
 				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
 
 		if (set.isEnforceLimits()) {
@@ -502,18 +502,20 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		for (int i = 0; i < ids.size(); i++) {
 			ParameterOptimizer.Result r = result.copy();
 
-			if (!hasInitValueForDepVar && set.isUseDifferentInitialValues()) {
-				String oldName = function.getDependentVariable() + "_" + i;
-				String newName = function.getInitParameters().get(function.getDependentVariable());
+			for (String var : set.getInitValuesWithDifferentStart()) {
+				if (f.getInitValues().get(var) == null) {
+					String oldName = var + "_" + i;
+					String newName = f.getInitParameters().get(var);
 
-				r.getParameterValues().put(newName, r.getParameterValues().remove(oldName));
-				r.getParameterStandardErrors().put(newName, r.getParameterStandardErrors().remove(oldName));
-				r.getParameterTValues().put(newName, r.getParameterTValues().remove(oldName));
-				r.getParameterPValues().put(newName, r.getParameterPValues().remove(oldName));
-				r.getCovariances().put(newName, r.getCovariances().remove(oldName));
+					r.getParameterValues().put(newName, r.getParameterValues().remove(oldName));
+					r.getParameterStandardErrors().put(newName, r.getParameterStandardErrors().remove(oldName));
+					r.getParameterTValues().put(newName, r.getParameterTValues().remove(oldName));
+					r.getParameterPValues().put(newName, r.getParameterPValues().remove(oldName));
+					r.getCovariances().put(newName, r.getCovariances().remove(oldName));
 
-				for (Map<String, Double> c : r.getCovariances().values()) {
-					c.put(newName, c.remove(oldName));
+					for (Map<String, Double> c : r.getCovariances().values()) {
+						c.put(newName, c.remove(oldName));
+					}
 				}
 			}
 
