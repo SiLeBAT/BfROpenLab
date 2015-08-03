@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.awt.Color;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +33,7 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.nls.chart.NamedShape;
 import de.bund.bfr.math.Transform;
 
 public class ViewSettings extends NlsNodeSettings {
@@ -55,7 +55,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private static final String CFG_SELECT_ALL = "SelectAll";
 	private static final String CFG_SELECTED_IDS = "SelectedIDs";
 	private static final String CFG_COLORS = "Colors";
-	private static final String CFG_SHAPES = "Shapes";
+	private static final String CFG_SHAPES = "Shapes2";
 
 	private boolean minToZero;
 	private boolean manualRange;
@@ -74,7 +74,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private boolean selectAll;
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
+	private Map<String, NamedShape> shapes;
 
 	public ViewSettings() {
 		minToZero = false;
@@ -186,7 +186,7 @@ public class ViewSettings extends NlsNodeSettings {
 		}
 
 		try {
-			shapes = (Map<String, Shape>) SERIALIZER.fromXml(settings.getString(CFG_SHAPES));
+			shapes = (Map<String, NamedShape>) SERIALIZER.fromXml(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 		}
 	}
@@ -418,11 +418,11 @@ public class ViewSettings extends NlsNodeSettings {
 		this.colors = colors;
 	}
 
-	public Map<String, Shape> getShapes() {
+	public Map<String, NamedShape> getShapes() {
 		return shapes;
 	}
 
-	public void setShapes(Map<String, Shape> shapes) {
+	public void setShapes(Map<String, NamedShape> shapes) {
 		this.shapes = shapes;
 	}
 

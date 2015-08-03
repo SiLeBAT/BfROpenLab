@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.nls.chart;
 
 import java.awt.Color;
-import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -54,7 +53,7 @@ public class ChartCreator extends ChartPanel {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
+	private Map<String, NamedShape> shapes;
 	private boolean selectAll;
 	private List<String> selectedIds;
 
@@ -311,7 +310,7 @@ public class ChartCreator extends ChartPanel {
 		this.colors = colors;
 	}
 
-	public void setShapes(Map<String, Shape> shapes) {
+	public void setShapes(Map<String, NamedShape> shapes) {
 		this.shapes = shapes;
 	}
 
@@ -329,7 +328,7 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataSet(XYPlot plot, Plotable plotable, String id, Color defaultColor, Shape defaultShape) {
+	private void plotDataSet(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {
 		XYDataset dataSet = createDataSet(plotable, id);
 		XYItemRenderer renderer = createRenderer(plotable, id, defaultColor, defaultShape);
 
@@ -338,7 +337,7 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor, Shape defaultShape,
+	private void plotFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
 			double minX, double maxX) throws ParseException {
 		XYDataset dataSet = createFunctionDataSet(plotable, id, minX, maxX);
 		XYItemRenderer renderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, dataSet);
@@ -348,8 +347,8 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor, Shape defaultShape,
-			double minX, double maxX) throws ParseException {
+	private void plotDataFunction(XYPlot plot, Plotable plotable, String id, Color defaultColor,
+			NamedShape defaultShape, double minX, double maxX) throws ParseException {
 		XYDataset functionDataSet = createFunctionDataSet(plotable, id, minX, maxX);
 		XYItemRenderer functionRenderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape,
 				functionDataSet);
@@ -369,7 +368,7 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor, Shape defaultShape,
+	private void plotDataDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
 			double minX, double maxX) throws ParseException {
 		XYDataset diffDataSet = createDiffDataSet(plotable, id, minX, maxX);
 		XYItemRenderer diffRenderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, diffDataSet);
@@ -404,9 +403,9 @@ public class ChartCreator extends ChartPanel {
 		return null;
 	}
 
-	private XYItemRenderer createRenderer(Plotable plotable, String id, Color defaultColor, Shape defaultShape) {
+	private XYItemRenderer createRenderer(Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {
 		Color color = colors.get(id);
-		Shape shape = shapes.get(id);
+		NamedShape shape = shapes.get(id);
 
 		if (color == null) {
 			color = defaultColor;
@@ -420,7 +419,7 @@ public class ChartCreator extends ChartPanel {
 
 		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 		renderer.setSeriesPaint(0, color);
-		renderer.setSeriesShape(0, shape);
+		renderer.setSeriesShape(0, shape.getShape());
 
 		return renderer;
 	}
@@ -461,10 +460,10 @@ public class ChartCreator extends ChartPanel {
 		return null;
 	}
 
-	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id, Color defaultColor, Shape defaultShape,
-			XYDataset dataSet) {
+	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id, Color defaultColor,
+			NamedShape defaultShape, XYDataset dataSet) {
 		Color color = colors.get(id);
-		Shape shape = shapes.get(id);
+		NamedShape shape = shapes.get(id);
 
 		if (color == null) {
 			color = defaultColor;
@@ -480,7 +479,7 @@ public class ChartCreator extends ChartPanel {
 			functionRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 			functionRenderer.setSeriesPaint(0, color);
 			functionRenderer.setSeriesFillPaint(0, color);
-			functionRenderer.setSeriesShape(0, shape);
+			functionRenderer.setSeriesShape(0, shape.getShape());
 
 			return functionRenderer;
 		} else {
@@ -488,7 +487,7 @@ public class ChartCreator extends ChartPanel {
 
 			functionRenderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 			functionRenderer.setSeriesPaint(0, color);
-			functionRenderer.setSeriesShape(0, shape);
+			functionRenderer.setSeriesShape(0, shape.getShape());
 
 			return functionRenderer;
 		}

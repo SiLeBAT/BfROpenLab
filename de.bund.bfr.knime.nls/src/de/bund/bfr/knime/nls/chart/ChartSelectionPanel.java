@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -82,7 +81,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectAllBox.addItemListener(this);
 
 		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues, colorAndShapes.getColorList(),
-				colorAndShapes.getShapeNameList()));
+				colorAndShapes.getShapeList()));
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
@@ -97,7 +96,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(new ColorEditor());
 		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(new ColorRenderer());
 		selectTable.getColumn(ChartUtils.SHAPE)
-				.setCellEditor(new DefaultCellEditor(new JComboBox<>(ColorAndShapeCreator.SHAPE_NAMES)));
+				.setCellEditor(new DefaultCellEditor(new JComboBox<>(NamedShape.values())));
 		selectTable.getColumn(ChartUtils.COLOR).getCellEditor().addCellEditorListener(this);
 		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor().addCellEditorListener(this);
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -186,25 +185,22 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		}
 	}
 
-	public Map<String, Shape> getShapes() {
-		Map<String, Shape> shapes = new LinkedHashMap<>(selectTable.getRowCount());
-		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
+	public Map<String, NamedShape> getShapes() {
+		Map<String, NamedShape> shapes = new LinkedHashMap<>(selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
-			shapes.put((String) selectTable.getValueAt(i, 0), shapeMap.get(selectTable.getValueAt(i, 3)));
+			shapes.put((String) selectTable.getValueAt(i, 0), (NamedShape) selectTable.getValueAt(i, 3));
 		}
 
 		return shapes;
 	}
 
-	public void setShapes(Map<String, Shape> shapes) {
-		Map<Shape, String> shapeMap = colorAndShapes.getNameByShapeMap();
-
+	public void setShapes(Map<String, NamedShape> shapes) {
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
-			Shape shape = shapes.get(selectTable.getValueAt(i, 0));
+			NamedShape shape = shapes.get(selectTable.getValueAt(i, 0));
 
 			if (shape != null) {
-				selectTable.setValueAt(shapeMap.get(shape), i, 3);
+				selectTable.setValueAt(shape, i, 3);
 			}
 		}
 	}
@@ -264,7 +260,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		private Map<String, List<String>> stringColumns;
 		private Map<String, List<Double>> doubleColumns;
 		private List<Color> colors;
-		private List<String> shapes;
+		private List<NamedShape> shapes;
 
 		private int idIndex;
 		private int selectedIndex;
@@ -274,7 +270,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		private Map<Integer, String> doubleByIndex;
 
 		public SelectTableModel(List<String> ids, Map<String, List<String>> stringColumns,
-				Map<String, List<Double>> doubleColumns, List<Color> colors, List<String> shapes) {
+				Map<String, List<Double>> doubleColumns, List<Color> colors, List<NamedShape> shapes) {
 			if (stringColumns == null) {
 				stringColumns = new LinkedHashMap<>();
 			}
@@ -383,7 +379,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			} else if (column == colorIndex) {
 				colors.set(row, (Color) value);
 			} else if (column == shapeIndex) {
-				shapes.set(row, (String) value);
+				shapes.set(row, (NamedShape) value);
 			}
 
 			fireTableCellUpdated(row, column);

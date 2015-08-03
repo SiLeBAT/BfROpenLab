@@ -20,14 +20,8 @@
 package de.bund.bfr.knime.nls.chart;
 
 import java.awt.Color;
-import java.awt.Polygon;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ColorAndShapeCreator {
 
@@ -44,51 +38,21 @@ public class ColorAndShapeCreator {
 			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
 			new Color(128, 255, 255) };
 
-	public static final Shape[] SHAPES = new Shape[] {
-			new Rectangle2D.Double(-SHAPE_DELTA, -SHAPE_DELTA, SHAPE_SIZE, SHAPE_SIZE),
-			new Ellipse2D.Double(-SHAPE_DELTA, -SHAPE_DELTA, SHAPE_SIZE, SHAPE_SIZE),
-			new Polygon(new int[] { 0, SHAPE_DELTA, -SHAPE_DELTA },
-					new int[] { -SHAPE_DELTA, SHAPE_DELTA, SHAPE_DELTA }, 3),
-			new Polygon(new int[] { 0, SHAPE_DELTA, 0, -SHAPE_DELTA }, new int[] { -SHAPE_DELTA, 0, SHAPE_DELTA, 0 },
-					4),
-			new Rectangle2D.Double(-SHAPE_DELTA, -SHAPE_DELTA / 2, SHAPE_SIZE, SHAPE_SIZE / 2),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, 0 },
-					new int[] { -SHAPE_DELTA, -SHAPE_DELTA, SHAPE_DELTA }, 3),
-			new Ellipse2D.Double(-SHAPE_DELTA, -SHAPE_DELTA / 2, SHAPE_SIZE, SHAPE_SIZE / 2),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, -SHAPE_DELTA },
-					new int[] { -SHAPE_DELTA, 0, SHAPE_DELTA }, 3),
-			new Rectangle2D.Double(-SHAPE_DELTA / 2, -SHAPE_DELTA, SHAPE_SIZE / 2, SHAPE_SIZE),
-			new Polygon(new int[] { -SHAPE_DELTA, SHAPE_DELTA, SHAPE_DELTA },
-					new int[] { 0, -SHAPE_DELTA, SHAPE_DELTA }, 3) };
-
-	public static final String[] SHAPE_NAMES = { "Square", "Circle", "Triangle1", "Diamond", "Rectangle1", "Triangle2",
-			"Ellipse", "Triangle3", "Rectangle2", "Triangle4" };
-
 	private List<Color> colorList;
-	private List<Shape> shapeList;
-	private List<String> shapeNameList;
-	private Map<String, Shape> shapeByNameMap;
-	private Map<Shape, String> nameByShapeMap;
+	private List<NamedShape> shapeList;
 
 	public ColorAndShapeCreator(int n) {
 		colorList = new ArrayList<>();
 		shapeList = new ArrayList<>();
-		shapeNameList = new ArrayList<>();
-		shapeByNameMap = new LinkedHashMap<>();
-		nameByShapeMap = new LinkedHashMap<>();
 
 		for (int i = 0; i < n; i++) {
 			colorList.add(COLORS[i % COLORS.length]);
 		}
 
-		for (int i = 0; i < n; i++) {
-			shapeList.add(SHAPES[i % SHAPES.length]);
-			shapeNameList.add(SHAPE_NAMES[i % SHAPE_NAMES.length]);
-		}
+		NamedShape[] shapes = NamedShape.values();
 
-		for (int i = 0; i < SHAPES.length; i++) {
-			shapeByNameMap.put(SHAPE_NAMES[i], SHAPES[i]);
-			nameByShapeMap.put(SHAPES[i], SHAPE_NAMES[i]);
+		for (int i = 0; i < n; i++) {
+			shapeList.add(shapes[i % shapes.length]);
 		}
 	}
 
@@ -96,19 +60,7 @@ public class ColorAndShapeCreator {
 		return colorList;
 	}
 
-	public List<Shape> getShapeList() {
+	public List<NamedShape> getShapeList() {
 		return shapeList;
-	}
-
-	public List<String> getShapeNameList() {
-		return shapeNameList;
-	}
-
-	public Map<String, Shape> getShapeByNameMap() {
-		return shapeByNameMap;
-	}
-
-	public Map<Shape, String> getNameByShapeMap() {
-		return nameByShapeMap;
 	}
 }
