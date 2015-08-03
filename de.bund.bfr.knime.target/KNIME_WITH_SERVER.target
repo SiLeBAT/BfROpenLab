@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 2.11 TP (NO EMF)" sequenceNumber="22">
+<?pde version="3.8"?><target name="KNIME 2.12 TP WITH SERVER" sequenceNumber="10">
 <locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.knime.features.reporting.designer.feature.group" version="2.12.0.0047514"/>
+<unit id="org.knime.features.ext.svg.feature.group" version="2.12.0.0047737"/>
+<unit id="org.knime.features.ext.osm.feature.group" version="2.12.0.0047514"/>
+<unit id="org.knime.features.quickform.feature.group" version="2.12.0.0047514"/>
+<unit id="org.knime.features.xml.feature.group" version="2.12.0.0047898"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="2.12.0.0047985"/>
+<unit id="org.knime.features.js.feature.group" version="2.12.0.0048123"/>
+<unit id="org.knime.features.ext.jep.feature.group" version="2.12.0.0047514"/>
+<unit id="org.knime.features.ext.jfreechart.feature.group" version="2.12.0.0047514"/>
+<unit id="org.knime.features.ext.poi.feature.group" version="2.12.0.0048059"/>
+<repository location="http://www.knime.org/update/2.12"/>
+</location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
 <unit id="org.knime.features.base.feature.group" version="0.0.0"/>
-<repository location="http://www.knime.org/update/2.11"/>
+<repository location="http://www.knime.org/update/2.12"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.1.xx-201411061404-e37-RELEASE"/>
 <repository location="http://dist.springsource.org/release/GRECLIPSE/e3.7/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.features.ext.poi.feature.group" version="2.11.3.0046666"/>
-<unit id="org.knime.features.ext.osm.feature.group" version="2.11.0.0045412"/>
-<unit id="org.knime.features.testingapplication.feature.group" version="2.11.2.0046096"/>
-<unit id="org.knime.features.js.feature.group" version="2.11.3.0046666"/>
-<unit id="com.knime.features.reporting.designer.feature.group" version="2.11.0.0045346"/>
-<unit id="org.knime.features.ext.jep.feature.group" version="2.11.0.0045346"/>
-<unit id="org.knime.features.xml.feature.group" version="2.11.1.0045686"/>
-<unit id="org.knime.features.quickform.feature.group" version="2.11.0.0045686"/>
-<unit id="org.knime.features.ext.svg.feature.group" version="2.11.0.0045346"/>
-<unit id="org.knime.features.ext.jfreechart.feature.group" version="2.11.0.0045434"/>
-<repository location="http://www.knime.org/update/2.11"/>
+<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.2.0.201507311533"/>
+<repository location="http://tech.knime.org/update/community-contributions/trusted/2.12"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.0.0.201410081603"/>
-<repository location="http://tech.knime.org/update/community-contributions/trusted/2.11"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.knime.features.explorer.sharedspace.feature.group" version="3.5.0.0044222"/>
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="3.10.0.0045346"/>
-<unit id="com.knime.features.reportbatch.feature.group" version="3.5.0.0044188"/>
-<unit id="com.knime.features.enterprise.client.feature.group" version="3.10.0.0045686"/>
-<unit id="com.knime.features.workbench.repository.custom.feature.group" version="3.5.0.0045346"/>
-<repository location="http://www.knime.org/commercial/server/3.10"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.m2e.feature.feature.group" version="1.5.1.20150109-1820"/>
-<repository location="http://download.eclipse.org/releases/luna"/>
+<unit id="com.knime.features.enterprise.client.feature.group" version="4.1.0.0048121"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.1.0.0048041"/>
+<unit id="com.knime.features.workbench.repository.custom.feature.group" version="3.6.0.0047514"/>
+<unit id="com.knime.features.explorer.sharedspace.feature.group" version="3.6.0.0048041"/>
+<repository location="http://update.knime.org/server/4.1"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
