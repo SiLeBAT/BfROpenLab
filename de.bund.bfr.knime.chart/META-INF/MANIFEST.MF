@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: KNIME Chart
+Bundle-SymbolicName: de.bund.bfr.knime.chart;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: de.bund.bfr.knime.chart.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.base;bundle-version="2.10.0",
+ org.knime.ext.jfreechart;visibility:=reexport,
+ org.knime.ext.svg;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Export-Package: de.bund.bfr.knime.chart
