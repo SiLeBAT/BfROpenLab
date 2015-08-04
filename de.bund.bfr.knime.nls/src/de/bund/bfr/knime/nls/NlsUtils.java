@@ -22,8 +22,10 @@ package de.bund.bfr.knime.nls;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -36,6 +38,7 @@ import org.knime.core.node.BufferedDataTable;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.math.MathUtils;
 
 public class NlsUtils {
@@ -280,5 +283,25 @@ public class NlsUtils {
 		}
 
 		return result;
+	}
+
+	public static Set<String> getVariables(Collection<Plotable> plotables) {
+		Set<String> variables = new LinkedHashSet<>();
+
+		for (Plotable plotable : plotables) {
+			variables.addAll(plotable.getIndependentVariables().keySet());
+		}
+
+		return variables;
+	}
+
+	public static Set<String> getParameters(Collection<Plotable> plotables) {
+		Set<String> parameters = new LinkedHashSet<>();
+
+		for (Plotable plotable : plotables) {
+			parameters.addAll(plotable.getParameters().keySet());
+		}
+
+		return parameters;
 	}
 }

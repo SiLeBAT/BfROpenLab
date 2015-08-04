@@ -87,18 +87,18 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectTable.getTableHeader().setResizingAllowed(false);
 		selectTable.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter((SelectTableModel) selectTable.getModel()));
-		selectTable.getColumn(ChartUtils.ID).setMinWidth(0);
-		selectTable.getColumn(ChartUtils.ID).setMaxWidth(0);
-		selectTable.getColumn(ChartUtils.ID).setPreferredWidth(0);
-		selectTable.getColumn(ChartUtils.SELECTED).setCellEditor(new CheckBoxEditor());
-		selectTable.getColumn(ChartUtils.SELECTED).setCellRenderer(new CheckBoxRenderer());
-		selectTable.getColumn(ChartUtils.SELECTED).getCellEditor().addCellEditorListener(this);
-		selectTable.getColumn(ChartUtils.COLOR).setCellEditor(new ColorEditor());
-		selectTable.getColumn(ChartUtils.COLOR).setCellRenderer(new ColorRenderer());
-		selectTable.getColumn(ChartUtils.SHAPE)
+		selectTable.getColumn(NlsChartUtils.ID).setMinWidth(0);
+		selectTable.getColumn(NlsChartUtils.ID).setMaxWidth(0);
+		selectTable.getColumn(NlsChartUtils.ID).setPreferredWidth(0);
+		selectTable.getColumn(NlsChartUtils.SELECTED).setCellEditor(new CheckBoxEditor());
+		selectTable.getColumn(NlsChartUtils.SELECTED).setCellRenderer(new CheckBoxRenderer());
+		selectTable.getColumn(NlsChartUtils.SELECTED).getCellEditor().addCellEditorListener(this);
+		selectTable.getColumn(NlsChartUtils.COLOR).setCellEditor(new ColorEditor());
+		selectTable.getColumn(NlsChartUtils.COLOR).setCellRenderer(new ColorRenderer());
+		selectTable.getColumn(NlsChartUtils.SHAPE)
 				.setCellEditor(new DefaultCellEditor(new JComboBox<>(NamedShape.values())));
-		selectTable.getColumn(ChartUtils.COLOR).getCellEditor().addCellEditorListener(this);
-		selectTable.getColumn(ChartUtils.SHAPE).getCellEditor().addCellEditorListener(this);
+		selectTable.getColumn(NlsChartUtils.COLOR).getCellEditor().addCellEditorListener(this);
+		selectTable.getColumn(NlsChartUtils.SHAPE).getCellEditor().addCellEditorListener(this);
 		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		for (int c = 0; c < selectTable.getColumnCount(); c++) {
@@ -123,7 +123,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			col.setPreferredWidth(width + 10);
 		}
 
-		selectColumnWidth = selectTable.getColumn(ChartUtils.SELECTED).getPreferredWidth();
+		selectColumnWidth = selectTable.getColumn(NlsChartUtils.SELECTED).getPreferredWidth();
 
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(selectAllBox), BorderLayout.NORTH);
@@ -222,13 +222,13 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (selectAllBox.isSelected()) {
-			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(0);
-			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(0);
-			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(0);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(0);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(0);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(0);
 		} else {
-			selectTable.getColumn(ChartUtils.SELECTED).setMinWidth(selectColumnWidth);
-			selectTable.getColumn(ChartUtils.SELECTED).setMaxWidth(selectColumnWidth);
-			selectTable.getColumn(ChartUtils.SELECTED).setPreferredWidth(selectColumnWidth);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(selectColumnWidth);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(selectColumnWidth);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(selectColumnWidth);
 		}
 
 		fireSelectionChanged();
@@ -313,13 +313,13 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		@Override
 		public String getColumnName(int column) {
 			if (column == idIndex) {
-				return ChartUtils.ID;
+				return NlsChartUtils.ID;
 			} else if (column == selectedIndex) {
-				return ChartUtils.SELECTED;
+				return NlsChartUtils.SELECTED;
 			} else if (column == colorIndex) {
-				return ChartUtils.COLOR;
+				return NlsChartUtils.COLOR;
 			} else if (column == shapeIndex) {
-				return ChartUtils.SHAPE;
+				return NlsChartUtils.SHAPE;
 			} else if (stringByIndex.containsKey(column)) {
 				return stringByIndex.get(column);
 			} else if (doubleByIndex.containsKey(column)) {
@@ -463,7 +463,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			int statusColumn = -1;
 
 			for (int i = 0; i < table.getColumnCount(); i++) {
-				if (table.getColumnName(i).equals(ChartUtils.STATUS)) {
+				if (table.getColumnName(i).equals(NlsChartUtils.STATUS)) {
 					statusColumn = i;
 					break;
 				}

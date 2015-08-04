@@ -35,8 +35,8 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -70,7 +70,7 @@ public class FunctionViewNodeModel extends NodeModel {
 		creator.setVarY(reader.getDepVar());
 		set.setToChartCreator(creator);
 
-		return new PortObject[] { ChartUtils.getImage(creator.createChart(), set.isExportAsSvg()) };
+		return new PortObject[] { ChartUtils.getImage(creator.createChart(), set.isExportAsSvg(), 640, 480) };
 	}
 
 	/**

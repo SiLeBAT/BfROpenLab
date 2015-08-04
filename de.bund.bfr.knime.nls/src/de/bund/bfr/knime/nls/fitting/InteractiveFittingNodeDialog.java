@@ -48,9 +48,9 @@ import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.view.DiffFunctionReader;
@@ -144,8 +144,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		stepSizeField.setValue(set.getStepSize());
 
 		configPanel = new ChartConfigPanel(false, false, true);
-		configPanel.init(reader.getDepVar(), new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
-				new ArrayList<>(ChartUtils.getParameters(reader.getPlotables().values())), set.getMinStartValues(),
+		configPanel.init(reader.getDepVar(), new ArrayList<>(NlsUtils.getVariables(reader.getPlotables().values())),
+				new ArrayList<>(NlsUtils.getParameters(reader.getPlotables().values())), set.getMinStartValues(),
 				set.getMaxStartValues());
 		set.getViewSettings().setToConfigPanel(configPanel);
 		configPanel.setParamValues(set.getStartValues());

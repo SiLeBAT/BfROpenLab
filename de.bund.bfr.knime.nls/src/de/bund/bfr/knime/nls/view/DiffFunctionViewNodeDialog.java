@@ -38,7 +38,7 @@ import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.ChartUtils;
+import de.bund.bfr.knime.nls.chart.NlsChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -96,8 +96,8 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false);
-		configPanel.init(reader.getDepVar(), new ArrayList<>(ChartUtils.getVariables(reader.getPlotables().values())),
-				null, null, null);
+		configPanel.init(reader.getDepVar(),
+				new ArrayList<>(NlsChartUtils.getVariables(reader.getPlotables().values())), null, null, null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());

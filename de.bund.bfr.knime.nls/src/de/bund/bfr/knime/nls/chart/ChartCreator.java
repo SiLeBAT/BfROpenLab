@@ -42,6 +42,7 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.ui.ColorAndShapeUtils;
 import de.bund.bfr.knime.ui.NamedShape;
 import de.bund.bfr.math.Transform;
