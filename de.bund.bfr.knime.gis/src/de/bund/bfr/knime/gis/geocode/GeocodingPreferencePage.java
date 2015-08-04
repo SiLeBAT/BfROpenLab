@@ -43,7 +43,7 @@ public class GeocodingPreferencePage extends FieldEditorPreferencePage implement
 
 	@Override
 	protected void createFieldEditors() {
-		addField(new TrimmingStringFieldEditor(MAPQUEST_KEY, "MapQuest Application Key", getFieldEditorParent()));
+		addField(new TrimmingStringFieldEditor(MAPQUEST_KEY, "MapQuest API Key", getFieldEditorParent()));
 		addField(new TrimmingStringFieldEditor(BKG_UUID, "\"Bundesamt für Kartographie und Geodäsie\" UUID",
 				getFieldEditorParent()));
 	}

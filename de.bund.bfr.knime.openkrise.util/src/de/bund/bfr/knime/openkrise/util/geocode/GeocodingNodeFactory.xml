@@ -11,10 +11,10 @@
 		<intro>
 			This node provides latitude and longitude for given addresses by using the MapQuest Open
 			Geocoding API or an installation of the Gisgraphy Geocoder. The services from MapQuest and
-			"Bundesamt fÃ¼r Kartographie und GeodÃ¤sie" require a key/UUID, which have to be entered in the
+			"Bundesamt für Kartographie und Geodäsie" require a key/UUID, which have to be entered in the
 			KNIME preferences under KNIME->Geocoding. The MapQuest key can be obtained from
-			<a href="http://developer.mapquest.com/web/info/account/app-keys">http://developer.mapquest.com/web/info/account/app-keys.</a>
-			Please contact the "Bundesamt fÃ¼r Kartographie und GeodÃ¤sie" to get the UUID for its service
+			<a href="https://developer.mapquest.com/">https://developer.mapquest.com/.</a>
+			Please contact the "Bundesamt für Kartographie und Geodäsie" to get the UUID for its service
 			"gdz_geokodierung".
 		</intro>
 
@@ -43,10 +43,10 @@
 
 	<ports>
 		<inPort index="0" name="Addresses">
-			Table with addresses
+			Table with addresses.
 		</inPort>
 		<outPort index="0" name="Coordinates">
-			Table with latitudes and longitudes
+			Table with latitudes and longitudes.
 		</outPort>
 	</ports>
 </knimeNode>
