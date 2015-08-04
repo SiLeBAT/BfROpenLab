@@ -120,7 +120,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 				if (f.getInitValues().get(entry.getKey()) == null) {
 					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
 
-					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getValue()));
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getKey()));
 					box.setEnabled(fitAllAtOnceBox.isSelected());
 					boxes.add(box);
 					useDifferentInitValuesBoxes.put(entry.getKey(), box);

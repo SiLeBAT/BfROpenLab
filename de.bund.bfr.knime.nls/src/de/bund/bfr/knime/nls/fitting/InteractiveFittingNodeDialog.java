@@ -167,7 +167,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 				if (functionObject.getFunction().getInitValues().get(entry.getKey()) == null) {
 					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
 
-					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getValue()));
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getKey()));
 					box.setEnabled(fitAllAtOnceBox.isSelected());
 					leftComponents.add(box);
 					rightComponents.add(new JLabel());
