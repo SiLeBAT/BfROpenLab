@@ -17,13 +17,13 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.chart;
+package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ColorAndShapeCreator {
+public class ColorAndShapeUtils {
 
 	public static final int SHAPE_SIZE = 6;
 	public static final int SHAPE_DELTA = 3;
@@ -38,29 +38,25 @@ public class ColorAndShapeCreator {
 			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
 			new Color(128, 255, 255) };
 
-	private List<Color> colorList;
-	private List<NamedShape> shapeList;
-
-	public ColorAndShapeCreator(int n) {
-		colorList = new ArrayList<>();
-		shapeList = new ArrayList<>();
+	public static List<Color> createColorList(int n) {
+		List<Color> colorList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			colorList.add(COLORS[i % COLORS.length]);
 		}
+
+		return colorList;
+	}
+
+	public static List<NamedShape> createShapeList(int n) {
+		List<NamedShape> shapeList = new ArrayList<>();
 
 		NamedShape[] shapes = NamedShape.values();
 
 		for (int i = 0; i < n; i++) {
 			shapeList.add(shapes[i % shapes.length]);
 		}
-	}
 
-	public List<Color> getColorList() {
-		return colorList;
-	}
-
-	public List<NamedShape> getShapeList() {
 		return shapeList;
 	}
 }

@@ -42,6 +42,8 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.ui.ColorAndShapeUtils;
+import de.bund.bfr.knime.ui.NamedShape;
 import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends ChartPanel {
@@ -129,7 +131,8 @@ public class ChartCreator extends ChartPanel {
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
 		int index = 0;
-		ColorAndShapeCreator colorAndShapeCreator = new ColorAndShapeCreator(idsToPaint.size());
+		List<Color> defaultColors = ColorAndShapeUtils.createColorList(idsToPaint.size());
+		List<NamedShape> defaultShapes = ColorAndShapeUtils.createShapeList(idsToPaint.size());
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -199,20 +202,19 @@ public class ChartCreator extends ChartPanel {
 
 			switch (plotable.getType()) {
 			case DATA:
-				plotDataSet(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
-						colorAndShapeCreator.getShapeList().get(index));
+				plotDataSet(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index));
 				break;
 			case FUNCTION:
-				plotFunction(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
-						colorAndShapeCreator.getShapeList().get(index), usedMinX, usedMaxX);
+				plotFunction(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
+						usedMaxX);
 				break;
 			case DATA_FUNCTION:
-				plotDataFunction(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
-						colorAndShapeCreator.getShapeList().get(index), usedMinX, usedMaxX);
+				plotDataFunction(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
+						usedMaxX);
 				break;
 			case DATA_DIFF:
-				plotDataDiff(plot, plotable, id, colorAndShapeCreator.getColorList().get(index),
-						colorAndShapeCreator.getShapeList().get(index), usedMinX, usedMaxX);
+				plotDataDiff(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
+						usedMaxX);
 				break;
 			}
 

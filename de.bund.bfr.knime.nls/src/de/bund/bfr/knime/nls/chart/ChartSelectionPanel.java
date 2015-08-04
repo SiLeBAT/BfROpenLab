@@ -58,13 +58,14 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.ColorAndShapeUtils;
+import de.bund.bfr.knime.ui.NamedShape;
 
 public class ChartSelectionPanel extends JPanel implements ItemListener, CellEditorListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private List<SelectionListener> listeners;
-	private ColorAndShapeCreator colorAndShapes;
 
 	private JTable selectTable;
 	private JCheckBox selectAllBox;
@@ -74,14 +75,13 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 	public ChartSelectionPanel(List<String> ids, Map<String, List<String>> stringValues,
 			Map<String, List<Double>> doubleValues) {
 		listeners = new ArrayList<>();
-		colorAndShapes = new ColorAndShapeCreator(ids.size());
 
 		selectAllBox = new JCheckBox("Select All");
 		selectAllBox.setSelected(false);
 		selectAllBox.addItemListener(this);
 
-		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues, colorAndShapes.getColorList(),
-				colorAndShapes.getShapeList()));
+		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
+				ColorAndShapeUtils.createColorList(ids.size()), ColorAndShapeUtils.createShapeList(ids.size())));
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
