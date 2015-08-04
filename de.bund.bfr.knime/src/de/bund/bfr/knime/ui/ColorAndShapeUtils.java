@@ -50,7 +50,6 @@ public class ColorAndShapeUtils {
 
 	public static List<NamedShape> createShapeList(int n) {
 		List<NamedShape> shapeList = new ArrayList<>();
-
 		NamedShape[] shapes = NamedShape.values();
 
 		for (int i = 0; i < n; i++) {
