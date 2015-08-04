@@ -351,7 +351,7 @@ public class GeocodingNodeModel extends NodeModel {
 			dialog.setVisible(true);
 
 			if (options.getValue() instanceof Integer && (Integer) options.getValue() == JOptionPane.YES_OPTION) {
-				return new GeocodingResult();
+				return new GeocodingResult(url);
 			} else {
 				throw e;
 			}
