@@ -139,7 +139,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 		if (warningsOccured) {
 			setWarningMessage("Look into the console - there are plausibility issues...");
-			warningsOccured = false;
 		}
 
 		return new BufferedDataTable[] { stationTable, deliveryTable, deliveryConnectionsTable };
@@ -330,7 +329,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 			// TODO: Remove BVL-Format stuff. Corrupt databases should not be
 			// fixed here
-			if (index == 0 && state != null && (state.equals("Altenburger Land") || state.equals("Wesel"))) {
+			if (index == 0 && ("Altenburger Land".equals(state) || "Wesel".equals(state))) {
 				bvlFormat = true;
 			}
 
