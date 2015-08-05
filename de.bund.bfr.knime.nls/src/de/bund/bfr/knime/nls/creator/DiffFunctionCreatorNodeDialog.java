@@ -46,6 +46,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
+import com.google.common.base.Objects;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.StringTextArea;
@@ -233,8 +235,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 	private JPanel createFormulaPanel(int i) {
 		StringTextField depVarField = depVarFields.get(i);
 
-		if (depVarField == null || depVarField.getValue() == null
-				|| !depVarField.getValue().equals(set.getDependentVariables().get(i))) {
+		if (depVarField == null || !Objects.equal(depVarField.getValue(), set.getDependentVariables().get(i))) {
 			depVarField = new StringTextField(false, 5);
 			depVarField.setValue(set.getDependentVariables().get(i));
 			depVarField.addTextListener(this);
@@ -255,7 +256,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 
 		StringTextArea termField = termFields.get(i);
 
-		if (termField == null || termField.getValue() == null || !termField.getValue().equals(set.getTerms().get(i))) {
+		if (termField == null || !Objects.equal(termField.getValue(), set.getTerms().get(i))) {
 			termField = new StringTextArea(false, 1, 100);
 			termField.setValue(set.getTerms().get(i));
 			termField.addTextListener(this);
