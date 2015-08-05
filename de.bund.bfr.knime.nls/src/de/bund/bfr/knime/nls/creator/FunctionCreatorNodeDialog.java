@@ -26,6 +26,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -39,8 +40,6 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
-
-import com.google.common.base.Objects;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextArea;
@@ -166,7 +165,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 		depVarField.setValue(set.getDependentVariable());
 		depVarField.addTextListener(this);
 
-		if (termField == null || !Objects.equal(termField.getValue(), set.getTerm())) {
+		if (termField == null || !Objects.equals(termField.getValue(), set.getTerm())) {
 			termField = new StringTextArea(false, 3, 100);
 			termField.setValue(set.getTerm());
 			termField.addTextListener(this);
