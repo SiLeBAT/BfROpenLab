@@ -66,8 +66,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		return new PortObject[] { new FunctionPortObject(
-				createFunction(set.getTerm(), set.getDependentVariable(), set.getIndependentVariables())) };
+		return new PortObject[] { new FunctionPortObject(createFunction(set)) };
 	}
 
 	/**
@@ -86,8 +85,7 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Function not specified");
 		}
 
-		return new PortObjectSpec[] { new FunctionPortObjectSpec(
-				createFunction(set.getTerm(), set.getDependentVariable(), set.getIndependentVariables())) };
+		return new PortObjectSpec[] { new FunctionPortObjectSpec(createFunction(set)) };
 	}
 
 	/**
@@ -129,18 +127,19 @@ public class FunctionCreatorNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static Function createFunction(String term, String dependentVariable, List<String> independentVariables) {
+	private static Function createFunction(FunctionCreatorSettings set) {
 		Map<String, String> terms = new LinkedHashMap<>();
 
-		terms.put(dependentVariable, term);
+		terms.put(set.getDependentVariable(), set.getTerm());
 
-		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(term));
+		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(set.getTerm()));
+		List<String> indeps = new ArrayList<>(set.getIndependentVariables());
 
-		parameters.removeAll(independentVariables);
+		parameters.removeAll(indeps);
 		Collections.sort(parameters);
-		Collections.sort(independentVariables);
+		Collections.sort(indeps);
 
-		return new Function(terms, dependentVariable, independentVariables, parameters);
+		return new Function(terms, set.getDependentVariable(), indeps, parameters);
 	}
 
 }

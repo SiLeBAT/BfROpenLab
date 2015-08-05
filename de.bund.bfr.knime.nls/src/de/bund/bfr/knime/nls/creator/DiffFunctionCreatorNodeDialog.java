@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+
+import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
@@ -135,6 +138,19 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 
 		if (MathUtils.getSymbols(set.getTerms()).isEmpty()) {
 			throw new InvalidSettingsException("Formula Invalid");
+		}
+
+		if (set.getDependentVariables().contains(set.getDiffVariable())) {
+			throw new InvalidSettingsException("Invalid Diff Variable");
+		}
+
+		for (String depVar : set.getDependentVariables()) {
+			for (String symbol : Iterables.concat(MathUtils.getSymbols(set.getTerms()), set.getDependentVariables(),
+					Arrays.asList(set.getDiffVariable()))) {
+				if (symbol.matches(depVar + "_\\d+")) {
+					throw new InvalidSettingsException(symbol + " is not allowed as name");
+				}
+			}
 		}
 
 		set.saveSettings(settings);
@@ -332,8 +348,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 	}
 
 	private JPanel createDiffVarPanel() {
-		if (diffVarField == null || diffVarField.getValue() == null
-				|| !diffVarField.getValue().equals(set.getDiffVariable())) {
+		if (diffVarField == null || !Objects.equals(diffVarField.getValue(), set.getDiffVariable())) {
 			diffVarField = new StringTextField(false, 5);
 			diffVarField.setValue(set.getDiffVariable());
 			diffVarField.addTextListener(this);

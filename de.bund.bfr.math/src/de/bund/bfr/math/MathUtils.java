@@ -21,7 +21,6 @@ package de.bund.bfr.math;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -89,7 +88,7 @@ public class MathUtils {
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
 	}
 
-	public static Set<String> getSymbols(List<String> terms) {
+	public static Set<String> getSymbols(Collection<String> terms) {
 		Set<String> symbols = new LinkedHashSet<>();
 
 		for (String term : terms) {
