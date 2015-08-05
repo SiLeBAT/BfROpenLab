@@ -82,7 +82,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 	private boolean isDiff;
 	private FittingSettings set;
+
 	private ExecutionContext currentExec;
+	private int numberOfFittings;
+	private int currentFitting;
 
 	/**
 	 * Constructor for the node model.
@@ -323,8 +326,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		}
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
+		List<String> ids = readIds(table);
 
-		for (String id : readIds(table)) {
+		numberOfFittings = ids.size();
+		currentFitting = 0;
+
+		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (String indep : f.getIndependentVariables()) {
@@ -339,6 +346,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				optimizer.getMaxValues().putAll(set.getMaxStartValues());
 			}
 
+			optimizer.addProgressListener(this);
+
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 						set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<String, Double>()));
@@ -346,6 +355,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
 			}
+
+			currentFitting++;
 		}
 
 		return results;
@@ -363,8 +374,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
+		List<String> ids = readIds(dataTable);
 
-		for (String id : readIds(dataTable)) {
+		numberOfFittings = ids.size();
+		currentFitting = 0;
+
+		for (String id : ids) {
 			Map<String, double[]> argumentArrays = new LinkedHashMap<>();
 
 			for (String indep : f.getIndependentVariables()) {
@@ -403,6 +418,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
 						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
 			}
+
+			currentFitting++;
 		}
 
 		return results;
@@ -486,6 +503,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		}
 
 		optimizer.addProgressListener(this);
+		numberOfFittings = 1;
+		currentFitting = 0;
 
 		ParameterOptimizer.Result result;
 
@@ -587,9 +606,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 	@Override
 	public void progressChanged(double progress) {
-		if (currentExec != null) {
-			currentExec.setProgress(progress);
-		}
+		currentExec.setProgress((progress + currentFitting) / numberOfFittings);
 	}
 
 }

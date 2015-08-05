@@ -209,11 +209,9 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	private Component createRegressionPanel() {
 		nParamSpaceField = new IntTextField(false, 8);
 		nParamSpaceField.setMinValue(0);
-		nParamSpaceField.setMaxValue(1000000);
 		nParamSpaceField.setValue(set.getnParameterSpace());
 		nLevenbergField = new IntTextField(false, 8);
 		nLevenbergField.setMinValue(0);
-		nLevenbergField.setMaxValue(100);
 		nLevenbergField.setValue(set.getnLevenberg());
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());

@@ -165,8 +165,11 @@ public class ParameterOptimizer {
 	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = null;
+		int count = 0;
 
 		for (StartValues startValues : startValuesList) {
+			fireProgressChanged(0.5 * count++ / startValuesList.size() + 0.5);
+
 			try {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
 						.optimize(createLeastSquaresProblem(startValues.getValues()));
@@ -183,9 +186,7 @@ public class ParameterOptimizer {
 						break;
 					}
 				}
-			} catch (TooManyEvaluationsException e) {
-				break;
-			} catch (ConvergenceException e) {
+			} catch (TooManyEvaluationsException | ConvergenceException e) {
 			}
 		}
 
@@ -216,11 +217,7 @@ public class ParameterOptimizer {
 		Arrays.fill(paramStepIndex, 0);
 
 		while (!done) {
-			for (ProgressListener listener : progressListeners) {
-				listener.progressChanged((double) count / (double) allStepSize);
-			}
-
-			count++;
+			fireProgressChanged(0.5 * count++ / allStepSize);
 
 			double[] values = new double[parameters.length];
 
@@ -389,6 +386,12 @@ public class ParameterOptimizer {
 		}
 
 		return result;
+	}
+
+	private void fireProgressChanged(double progress) {
+		for (ProgressListener listener : progressListeners) {
+			listener.progressChanged(progress);
+		}
 	}
 
 	private static class StartValues {
