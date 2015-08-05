@@ -176,6 +176,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 			functionPanel = createFunctionPanel(set.getTerms().size());
 			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
+			mainPanel.repaint();
 			termField.requestFocus();
 		} else if (initFields.contains(source)) {
 			set.getInitValues().set(initFields.indexOf(source), ((DoubleTextField) source).getValue());
@@ -186,6 +187,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 			functionPanel = createFunctionPanel(set.getTerms().size());
 			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
+			mainPanel.repaint();
 			diffVarField.requestFocus();
 		}
 	}

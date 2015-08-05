@@ -123,6 +123,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 			functionPanel = createFunctionPanel();
 			mainPanel.add(functionPanel, BorderLayout.NORTH);
 			mainPanel.revalidate();
+			mainPanel.repaint();
 			termField.requestFocus();
 		}
 	}
