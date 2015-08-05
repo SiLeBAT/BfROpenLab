@@ -43,8 +43,7 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.chart.ChartUtils;
-import de.bund.bfr.knime.ui.ColorAndShapeUtils;
-import de.bund.bfr.knime.ui.NamedShape;
+import de.bund.bfr.knime.chart.NamedShape;
 import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends ChartPanel {
@@ -132,8 +131,8 @@ public class ChartCreator extends ChartPanel {
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
 		int index = 0;
-		List<Color> defaultColors = ColorAndShapeUtils.createColorList(idsToPaint.size());
-		List<NamedShape> defaultShapes = ColorAndShapeUtils.createShapeList(idsToPaint.size());
+		List<Color> defaultColors = ChartUtils.createColorList(idsToPaint.size());
+		List<NamedShape> defaultShapes = ChartUtils.createShapeList(idsToPaint.size());
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);

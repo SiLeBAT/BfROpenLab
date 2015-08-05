@@ -58,8 +58,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.ui.ColorAndShapeUtils;
-import de.bund.bfr.knime.ui.NamedShape;
+import de.bund.bfr.knime.chart.ChartUtils;
+import de.bund.bfr.knime.chart.NamedShape;
 
 public class ChartSelectionPanel extends JPanel implements ItemListener, CellEditorListener {
 
@@ -81,7 +81,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectAllBox.addItemListener(this);
 
 		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
-				ColorAndShapeUtils.createColorList(ids.size()), ColorAndShapeUtils.createShapeList(ids.size())));
+				ChartUtils.createColorList(ids.size()), ChartUtils.createShapeList(ids.size())));
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);

@@ -19,10 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.chart;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -42,6 +45,40 @@ import org.w3c.dom.svg.SVGDocument;
 public class ChartUtils {
 
 	private ChartUtils() {
+	}
+
+	public static final int SHAPE_SIZE = 6;
+	public static final int SHAPE_DELTA = 3;
+
+	public static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
+			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
+			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
+			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192), new Color(64, 64, 64),
+			new Color(255, 64, 64), new Color(64, 64, 255), new Color(64, 255, 64), new Color(255, 64, 255),
+			new Color(64, 255, 255), new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
+			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128), new Color(0, 128, 128),
+			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
+			new Color(128, 255, 255) };
+
+	public static List<Color> createColorList(int n) {
+		List<Color> colorList = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			colorList.add(COLORS[i % COLORS.length]);
+		}
+
+		return colorList;
+	}
+
+	public static List<NamedShape> createShapeList(int n) {
+		List<NamedShape> shapeList = new ArrayList<>();
+		NamedShape[] shapes = NamedShape.values();
+
+		for (int i = 0; i < n; i++) {
+			shapeList.add(shapes[i % shapes.length]);
+		}
+
+		return shapeList;
 	}
 
 	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {

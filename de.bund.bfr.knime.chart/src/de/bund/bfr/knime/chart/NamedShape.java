@@ -17,10 +17,10 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.ui;
+package de.bund.bfr.knime.chart;
 
-import static de.bund.bfr.knime.ui.ColorAndShapeUtils.SHAPE_DELTA;
-import static de.bund.bfr.knime.ui.ColorAndShapeUtils.SHAPE_SIZE;
+import static de.bund.bfr.knime.chart.ChartUtils.SHAPE_SIZE;
+import static de.bund.bfr.knime.chart.ChartUtils.SHAPE_DELTA;
 
 import java.awt.Polygon;
 import java.awt.Shape;
