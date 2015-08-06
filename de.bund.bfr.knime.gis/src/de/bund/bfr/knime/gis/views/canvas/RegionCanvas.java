@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 /**
  * @author Christian Thoens
  */
-public class RegionCanvas extends ShapefileCanvas<RegionNode> {
+public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -71,6 +72,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
+		viewer.getPickedVertexState().addItemListener(this);
+		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexShapeTransformer(new NodeShapeTransformer<RegionNode>(2, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(new InvisibleTransformer<RegionNode>());
 		viewer.getRenderContext().setVertexFillPaintTransformer(new InvisibleTransformer<RegionNode>());
@@ -92,8 +95,6 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		super.itemStateChanged(e);
-
 		if (e.getItem() instanceof RegionNode) {
 			flushImage();
 			viewer.repaint();

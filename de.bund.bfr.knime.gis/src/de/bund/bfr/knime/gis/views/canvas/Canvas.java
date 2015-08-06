@@ -27,8 +27,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -82,6 +80,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.EdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
+import de.bund.bfr.knime.gis.views.canvas.jung.PickingChangeListener;
+import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.ShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
@@ -95,12 +95,11 @@ import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, ItemListener, MouseListener,
-		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, MouseListener,
+		PickingChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -155,8 +154,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer = new VisualizationViewer<>(new StaticLayout<>(new DirectedSparseMultigraph<V, Edge<V>>()));
 		viewer.setBackground(Color.WHITE);
 		viewer.addMouseListener(this);
-		viewer.getPickedVertexState().addItemListener(this);
-		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(new NodeFillTransformer<>(viewer.getRenderContext()));
 		viewer.getRenderContext().setVertexStrokeTransformer(new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(viewer.getRenderContext()));
@@ -171,6 +168,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
+		graphMouse.addPickingChangeListener(this);
 
 		viewer.setGraphMouse(graphMouse);
 
@@ -397,6 +395,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				viewer.getPickedVertexState().pick(node, true);
 			}
 		}
+
+		nodePickingChanged();
 	}
 
 	@Override
@@ -417,6 +417,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
+
+		edgePickingChanged();
 	}
 
 	@Override
@@ -505,14 +507,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getItem() instanceof Node) {
-			popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
-			fireNodeSelectionChanged();
-		} else if (e.getItem() instanceof Edge) {
-			popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-			fireEdgeSelectionChanged();
-		}
+	public void nodePickingChanged() {
+		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		fireNodeSelectionChanged();
+	}
+
+	@Override
+	public void edgePickingChanged() {
+		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
+		fireEdgeSelectionChanged();
 	}
 
 	@Override
@@ -599,6 +602,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
+
+		edgePickingChanged();
 	}
 
 	@Override
@@ -610,6 +615,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
+
+		edgePickingChanged();
 	}
 
 	@Override
@@ -621,16 +628,20 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				viewer.getPickedEdgeState().pick(edge, true);
 			}
 		}
+
+		edgePickingChanged();
 	}
 
 	@Override
 	public void clearSelectedNodesItemClicked() {
 		viewer.getPickedVertexState().clear();
+		nodePickingChanged();
 	}
 
 	@Override
 	public void clearSelectedEdgesItemClicked() {
 		viewer.getPickedEdgeState().clear();
+		edgePickingChanged();
 	}
 
 	@Override
@@ -965,6 +976,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			applyChanges();
 			fireCollapsedNodesChanged();
 			viewer.getPickedVertexState().clear();
+			nodePickingChanged();
 		}
 	}
 
@@ -973,6 +985,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
 
 		graphMouse.setMode(optionsPanel.getEditingMode());
+		graphMouse.addPickingChangeListener(this);
 
 		viewer.setGraphMouse(graphMouse);
 	}

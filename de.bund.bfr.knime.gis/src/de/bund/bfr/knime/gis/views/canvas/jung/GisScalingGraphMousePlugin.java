@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
@@ -32,26 +31,17 @@ public class GisScalingGraphMousePlugin extends AbstractGraphMousePlugin impleme
 	private static final long TIME_OUT = (long) 2e8;
 
 	private ScalingControl scaler;
-	private float in = 1.1f;
-	private float out = 1 / 1.1f;
+	private float in;
+	private float out;
 
 	private long lastScrollTime;
 
-	public GisScalingGraphMousePlugin(ScalingControl scaler, int modifiers) {
-		this(scaler, modifiers, 1.1f, 1 / 1.1f);
-	}
-
-	public GisScalingGraphMousePlugin(ScalingControl scaler, int modifiers, float in, float out) {
-		super(modifiers);
+	public GisScalingGraphMousePlugin(ScalingControl scaler, float in, float out) {
+		super(0);
 		this.scaler = scaler;
 		this.in = in;
 		this.out = out;
 		lastScrollTime = 0;
-	}
-
-	@Override
-	public boolean checkModifiers(MouseEvent e) {
-		return e.getModifiers() == modifiers || (e.getModifiers() & modifiers) != 0;
 	}
 
 	@Override
