@@ -349,11 +349,15 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			optimizer.addProgressListener(this);
 
 			if (!set.getStartValues().isEmpty()) {
-				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<String, Double>()));
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getStartValues(), new LinkedHashMap<String, Double>(),
+								set.getMaxLevenbergEvaluations(), set.getMaxLevenbergIterations()));
 			} else {
-				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
+								set.getMaxLevenbergIterations()));
 			}
 
 			currentFitting++;
@@ -412,11 +416,15 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			optimizer.addProgressListener(this);
 
 			if (!set.getStartValues().isEmpty()) {
-				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<String, Double>()));
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getStartValues(), new LinkedHashMap<String, Double>(),
+								set.getMaxLevenbergEvaluations(), set.getMaxLevenbergIterations()));
 			} else {
-				results.put(id, optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-						set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues()));
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
+								set.getMaxLevenbergIterations()));
 			}
 
 			currentFitting++;
@@ -510,10 +518,12 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getStartValues(), new LinkedHashMap<String, Double>());
+					set.getStartValues(), new LinkedHashMap<String, Double>(), set.getMaxLevenbergEvaluations(),
+					set.getMaxLevenbergIterations());
 		} else {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getMinStartValues(), set.getMaxStartValues());
+					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
+					set.getMaxLevenbergIterations());
 		}
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();

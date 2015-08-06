@@ -412,15 +412,11 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 	}
 
 	private void updateOptionsPanel() {
-		if (allowInvisible && invisibleBox.isSelected()) {
-			colorBox.setEnabled(false);
-			thicknessBox.setEnabled(false);
-			labelBox.setEnabled(false);
-		} else {
-			colorBox.setEnabled(true);
-			thicknessBox.setEnabled(true);
-			labelBox.setEnabled(true);
-		}
+		boolean invisible = allowInvisible && invisibleBox.isSelected();
+
+		colorBox.setEnabled(!invisible);
+		thicknessBox.setEnabled(!invisible);
+		labelBox.setEnabled(!invisible);
 
 		if (allowColor && colorBox.isEnabled() && colorBox.isSelected()) {
 			setNewColor(lastColor);

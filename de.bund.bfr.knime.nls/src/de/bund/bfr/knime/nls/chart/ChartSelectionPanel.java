@@ -221,16 +221,11 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (selectAllBox.isSelected()) {
-			selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(0);
-			selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(0);
-			selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(0);
-		} else {
-			selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(selectColumnWidth);
-			selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(selectColumnWidth);
-			selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(selectColumnWidth);
-		}
+		int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
 
+		selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
+		selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
+		selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
 		fireSelectionChanged();
 	}
 

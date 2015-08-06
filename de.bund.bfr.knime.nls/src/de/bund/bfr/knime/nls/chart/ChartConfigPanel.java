@@ -450,19 +450,11 @@ public class ChartConfigPanel extends JPanel
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == manualRangeBox) {
-			if (manualRangeBox.isSelected()) {
-				minToZeroBox.setEnabled(false);
-				minXField.setEnabled(true);
-				minYField.setEnabled(true);
-				maxXField.setEnabled(true);
-				maxYField.setEnabled(true);
-			} else {
-				minToZeroBox.setEnabled(true);
-				minXField.setEnabled(false);
-				minYField.setEnabled(false);
-				maxXField.setEnabled(false);
-				maxYField.setEnabled(false);
-			}
+			minToZeroBox.setEnabled(!manualRangeBox.isSelected());
+			minXField.setEnabled(manualRangeBox.isSelected());
+			minYField.setEnabled(manualRangeBox.isSelected());
+			maxXField.setEnabled(manualRangeBox.isSelected());
+			maxYField.setEnabled(manualRangeBox.isSelected());
 		}
 
 		if (e.getSource() instanceof JCheckBox

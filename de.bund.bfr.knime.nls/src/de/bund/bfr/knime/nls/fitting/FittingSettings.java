@@ -38,6 +38,8 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_N_PARAMETER_SPACE = "NParameterSpace";
 	private static final String CFG_N_LEVENBERG = "NLevenberg";
 	private static final String CFG_STOP_WHEN_SUCCESSFUL = "StopWhenSuccessful";
+	private static final String CFG_MAX_LEVENBERG_EVALUATIONS = "MaxLevenbergEvaluations";
+	private static final String CFG_MAX_LEVENBERG_ITERATIONS = "MaxLevenbergIterations";
 	private static final String CFG_ENFORCE_LIMITS = "EnforceLimits";
 	private static final String CFG_MIN_START_VALUES = "MinStartValues";
 	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
@@ -50,6 +52,8 @@ public class FittingSettings extends NlsNodeSettings {
 	private int nParameterSpace;
 	private int nLevenberg;
 	private boolean stopWhenSuccessful;
+	private int maxLevenbergEvaluations;
+	private int maxLevenbergIterations;
 	private boolean enforceLimits;
 	private Map<String, Double> minStartValues;
 	private Map<String, Double> maxStartValues;
@@ -98,6 +102,16 @@ public class FittingSettings extends NlsNodeSettings {
 		}
 
 		try {
+			maxLevenbergEvaluations = settings.getInt(CFG_MAX_LEVENBERG_EVALUATIONS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			maxLevenbergIterations = settings.getInt(CFG_MAX_LEVENBERG_ITERATIONS);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
 			enforceLimits = settings.getBoolean(CFG_ENFORCE_LIMITS);
 		} catch (InvalidSettingsException e) {
 		}
@@ -135,6 +149,8 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addInt(CFG_N_PARAMETER_SPACE, nParameterSpace);
 		settings.addInt(CFG_N_LEVENBERG, nLevenberg);
 		settings.addBoolean(CFG_STOP_WHEN_SUCCESSFUL, stopWhenSuccessful);
+		settings.addInt(CFG_MAX_LEVENBERG_EVALUATIONS, maxLevenbergEvaluations);
+		settings.addInt(CFG_MAX_LEVENBERG_ITERATIONS, maxLevenbergIterations);
 		settings.addBoolean(CFG_ENFORCE_LIMITS, enforceLimits);
 		settings.addString(CFG_MIN_START_VALUES, SERIALIZER.toXml(minStartValues));
 		settings.addString(CFG_MAX_START_VALUES, SERIALIZER.toXml(maxStartValues));
@@ -190,6 +206,22 @@ public class FittingSettings extends NlsNodeSettings {
 		this.stopWhenSuccessful = stopWhenSuccessful;
 	}
 
+	public int getMaxLevenbergEvaluations() {
+		return maxLevenbergEvaluations;
+	}
+
+	public void setMaxLevenbergEvaluations(int maxLevenbergEvaluations) {
+		this.maxLevenbergEvaluations = maxLevenbergEvaluations;
+	}
+
+	public int getMaxLevenbergIterations() {
+		return maxLevenbergIterations;
+	}
+
+	public void setMaxLevenbergIterations(int maxLevenbergIterations) {
+		this.maxLevenbergIterations = maxLevenbergIterations;
+	}
+
 	public boolean isEnforceLimits() {
 		return enforceLimits;
 	}
@@ -234,6 +266,8 @@ public class FittingSettings extends NlsNodeSettings {
 		nParameterSpace = 10000;
 		nLevenberg = 10;
 		stopWhenSuccessful = false;
+		maxLevenbergEvaluations = 10000;
+		maxLevenbergIterations = 10000;
 		enforceLimits = false;
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();

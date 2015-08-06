@@ -91,13 +91,7 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == okButton) {
 			approved = true;
-
-			if (allBox.isSelected()) {
-				filtered = new LinkedHashSet<>(elements);
-			} else {
-				filtered = new LinkedHashSet<>(list.getSelectedValuesList());
-			}
-
+			filtered = new LinkedHashSet<>(allBox.isSelected() ? elements : list.getSelectedValuesList());
 			dispose();
 		} else if (e.getSource() == cancelButton) {
 			dispose();

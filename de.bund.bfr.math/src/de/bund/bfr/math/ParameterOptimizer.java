@@ -31,6 +31,7 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
@@ -44,7 +45,6 @@ import org.nfunk.jep.ParseException;
 public class ParameterOptimizer {
 
 	private static final double EPSILON = 0.00001;
-	private static final int MAX_EVAL = 10000;
 	private static final double COV_THRESHOLD = 1e-14;
 
 	private MultivariateVectorFunction optimizerFunction;
@@ -114,7 +114,8 @@ public class ParameterOptimizer {
 	}
 
 	public Result optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
-			Map<String, Double> minStartValues, Map<String, Double> maxStartValues) {
+			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxLevenbergEvaluation,
+			int maxLevenbergIterations) {
 		double[] paramMin = new double[parameters.length];
 		int[] paramStepCount = new int[parameters.length];
 		double[] paramStepSize = new double[parameters.length];
@@ -159,10 +160,11 @@ public class ParameterOptimizer {
 
 		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize, nLevenberg);
 
-		return optimize(startValuesList, stopWhenSuccessful);
+		return optimize(startValuesList, stopWhenSuccessful, maxLevenbergEvaluation, maxLevenbergIterations);
 	}
 
-	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful) {
+	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful, int maxEvaluations,
+			int maxIterations) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = null;
 		int count = 0;
@@ -172,7 +174,7 @@ public class ParameterOptimizer {
 
 			try {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
-						.optimize(createLeastSquaresProblem(startValues.getValues()));
+						.optimize(createLeastSquaresProblem(startValues.getValues(), maxEvaluations, maxIterations));
 				double cost = optimizerResults.getCost();
 
 				if (result == null || cost * cost < result.sse) {
@@ -186,11 +188,11 @@ public class ParameterOptimizer {
 						break;
 					}
 				}
-			} catch (TooManyEvaluationsException | ConvergenceException e) {
+			} catch (TooManyEvaluationsException | TooManyIterationsException | ConvergenceException e) {
 			}
 		}
 
-		return result;
+		return result != null ? result : getResults();
 	}
 
 	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount, double[] paramStepSize,
@@ -258,9 +260,9 @@ public class ParameterOptimizer {
 		return valuesList.subList(0, n);
 	}
 
-	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues) {
+	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues, int maxEvaluations, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
-				.maxEvaluations(MAX_EVAL).maxIterations(MAX_EVAL).target(targetValues).start(startValues);
+				.maxEvaluations(maxEvaluations).maxIterations(maxIterations).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder = builder.parameterValidator(new ParameterValidator() {
