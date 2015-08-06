@@ -24,8 +24,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -34,6 +32,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
@@ -53,10 +52,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	private List<PickingChangeListener> listeners;
 
 	public PickingGraphMousePlugin() {
-		super(InputEvent.BUTTON1_MASK);
+		super(0);
 
 		listeners = new ArrayList<>();
-		cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 		lensPaintable = new Paintable() {
 
 			@Override
@@ -87,27 +85,29 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@SuppressWarnings("unchecked")
 	public void mousePressed(MouseEvent e) {
 		down = e.getPoint();
+
 		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
-		if (e.getButton() == MouseEvent.BUTTON1 && pickSupport != null && pickedVertexState != null) {
-			Layout<V, E> layout = vv.getGraphLayout();
-			if (!e.isShiftDown()) {
-				rect.setFrameFromDiagonal(down, down);
-				Point2D ip = e.getPoint();
+		Layout<V, E> layout = vv.getGraphLayout();
 
-				vertex = pickSupport.getVertex(layout, ip.getX(), ip.getY());
-				if (vertex != null) {
-					if (pickedVertexState.isPicked(vertex) == false) {
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			rect.setFrameFromDiagonal(down, down);
+
+			if (!e.isShiftDown()) {
+				if ((vertex = pickSupport.getVertex(layout, e.getX(), e.getY())) != null) {
+					if (!pickedVertexState.isPicked(vertex)) {
 						pickedVertexState.clear();
 						pickedVertexState.pick(vertex, true);
 						fireNodePickingChanged();
 					}
-				} else if ((edge = pickSupport.getEdge(layout, ip.getX(), ip.getY())) != null) {
-					pickedEdgeState.clear();
-					pickedEdgeState.pick(edge, true);
-					fireEdgePickingChanged();
+				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
+					if (!pickedEdgeState.isPicked(edge)) {
+						pickedEdgeState.clear();
+						pickedEdgeState.pick(edge, true);
+						fireEdgePickingChanged();
+					}
 				} else {
 					vv.addPostRenderPaintable(lensPaintable);
 					pickedEdgeState.clear();
@@ -116,19 +116,20 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 					fireEdgePickingChanged();
 				}
 			} else {
-				vv.addPostRenderPaintable(lensPaintable);
-				rect.setFrameFromDiagonal(down, down);
-				Point2D ip = e.getPoint();
-				vertex = pickSupport.getVertex(layout, ip.getX(), ip.getY());
-				if (vertex != null) {
-					boolean wasThere = pickedVertexState.pick(vertex, !pickedVertexState.isPicked(vertex));
-					fireNodePickingChanged();
-					if (wasThere) {
+				if ((vertex = pickSupport.getVertex(layout, e.getX(), e.getY())) != null) {
+					if (pickedVertexState.pick(vertex, !pickedVertexState.isPicked(vertex))) {
 						vertex = null;
 					}
-				} else if ((edge = pickSupport.getEdge(layout, ip.getX(), ip.getY())) != null) {
-					pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge));
+
+					fireNodePickingChanged();
+				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
+					if (pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge))) {
+						edge = null;
+					}
+
 					fireEdgePickingChanged();
+				} else {
+					vv.addPostRenderPaintable(lensPaintable);
 				}
 			}
 		}
@@ -138,19 +139,17 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@SuppressWarnings("unchecked")
 	public void mouseReleased(MouseEvent e) {
 		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
-		Layout<V, E> layout = vv.getGraphLayout();
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
-		Point2D out = e.getPoint();
 
 		rect.setFrameFromDiagonal(down, e.getPoint());
 
-		if (down != null && down.distance(out) > 5 && e.getButton() == MouseEvent.BUTTON1) {
+		if (down != null && down.distance(e.getPoint()) > 5 && e.getButton() == MouseEvent.BUTTON1) {
 			if (!e.isShiftDown()) {
 				pickedVertexState.clear();
 			}
 
-			for (V v : pickSupport.getVertices(layout, rect)) {
+			for (V v : pickSupport.getVertices(vv.getGraphLayout(), rect)) {
 				pickedVertexState.pick(v, true);
 			}
 
@@ -169,21 +168,21 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
 		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+
 		if (vertex != null) {
-			Point p = e.getPoint();
-			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(p);
+			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
 			Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
+			Point2D move = CanvasUtils.substractPoints(graphPoint, graphDown);
 			Layout<V, E> layout = vv.getGraphLayout();
-			double dx = graphPoint.getX() - graphDown.getX();
-			double dy = graphPoint.getY() - graphDown.getY();
 			PickedState<V> ps = vv.getPickedVertexState();
 
 			for (V v : ps.getPicked()) {
-				Point2D vp = layout.transform(v);
-				vp.setLocation(vp.getX() + dx, vp.getY() + dy);
-				layout.setLocation(v, vp);
+				layout.setLocation(v, CanvasUtils.addPoints(layout.transform(v), move));
 			}
-			down = p;
+
+			down = e.getPoint();
+		} else if (edge != null) {
+			down = e.getPoint();
 		} else {
 			rect.setFrameFromDiagonal(down, e.getPoint());
 		}
@@ -197,7 +196,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		((Component) e.getSource()).setCursor(cursor);
+		((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 
 	@Override
