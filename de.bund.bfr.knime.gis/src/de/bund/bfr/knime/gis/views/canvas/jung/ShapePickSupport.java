@@ -157,7 +157,7 @@ public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 			}
 		}
 
-		return minDistance <= 10 ? closest : null;
+		return minDistance < 7 ? closest : null;
 	}
 
 	private static float getDistanceToLine(float x1, float y1, float x2, float y2, float x, float y) {
