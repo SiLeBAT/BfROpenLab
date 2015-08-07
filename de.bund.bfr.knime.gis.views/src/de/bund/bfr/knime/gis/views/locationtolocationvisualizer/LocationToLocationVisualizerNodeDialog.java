@@ -157,6 +157,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void nodePositionsChanged(Canvas<?> source) {
+	}
+
+	@Override
 	public void edgeJoinChanged(Canvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

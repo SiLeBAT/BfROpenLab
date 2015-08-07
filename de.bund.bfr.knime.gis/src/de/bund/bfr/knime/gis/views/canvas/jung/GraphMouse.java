@@ -74,6 +74,16 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 		((PickingGraphMousePlugin<V, E>) pickingPlugin).removePickingChangeListener(listener);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void addPickingMoveListener(PickingMoveListener listener) {
+		((PickingGraphMousePlugin<V, E>) pickingPlugin).addPickingMoveListener(listener);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void removePickingMoveListener(PickingMoveListener listener) {
+		((PickingGraphMousePlugin<V, E>) pickingPlugin).removePickingMoveListener(listener);
+	}
+
 	public boolean isPickingDeactivated() {
 		return pickingDeactivated;
 	}

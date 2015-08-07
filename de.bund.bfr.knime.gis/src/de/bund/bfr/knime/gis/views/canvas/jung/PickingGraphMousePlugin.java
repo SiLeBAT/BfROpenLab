@@ -49,12 +49,16 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	private Rectangle2D rect = new Rectangle2D.Float();
 	private Paintable lensPaintable;
 
-	private List<PickingChangeListener> listeners;
+	private List<PickingChangeListener> changeListeners;
+	private List<PickingMoveListener> moveListeners;
+
+	private boolean nodesMoved;
 
 	public PickingGraphMousePlugin() {
 		super(0);
 
-		listeners = new ArrayList<>();
+		changeListeners = new ArrayList<>();
+		moveListeners = new ArrayList<>();
 		lensPaintable = new Paintable() {
 
 			@Override
@@ -74,17 +78,26 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	}
 
 	public void addPickingChangeListener(PickingChangeListener listener) {
-		listeners.add(listener);
+		changeListeners.add(listener);
 	}
 
 	public void removePickingChangeListener(PickingChangeListener listener) {
-		listeners.remove(listener);
+		changeListeners.remove(listener);
+	}
+
+	public void addPickingMoveListener(PickingMoveListener listener) {
+		moveListeners.add(listener);
+	}
+
+	public void removePickingMoveListener(PickingMoveListener listener) {
+		moveListeners.remove(listener);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mousePressed(MouseEvent e) {
 		down = e.getPoint();
+		nodesMoved = false;
 
 		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
@@ -156,7 +169,12 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 			fireNodePickingChanged();
 		}
 
+		if (nodesMoved) {
+			fireNodesMoved();
+		}
+
 		down = null;
+		nodesMoved = false;
 		vertex = null;
 		edge = null;
 		rect.setFrame(0, 0, 0, 0);
@@ -181,6 +199,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 			}
 
 			down = e.getPoint();
+			nodesMoved = true;
 		} else if (edge != null) {
 			down = e.getPoint();
 		} else {
@@ -209,14 +228,20 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	}
 
 	private void fireNodePickingChanged() {
-		for (PickingChangeListener listener : listeners) {
+		for (PickingChangeListener listener : changeListeners) {
 			listener.nodePickingChanged();
 		}
 	}
 
 	private void fireEdgePickingChanged() {
-		for (PickingChangeListener listener : listeners) {
+		for (PickingChangeListener listener : changeListeners) {
 			listener.edgePickingChanged();
+		}
+	}
+
+	private void fireNodesMoved() {
+		for (PickingMoveListener listener : moveListeners) {
+			listener.nodesMoved();
 		}
 	}
 }

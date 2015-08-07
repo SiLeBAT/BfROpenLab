@@ -34,6 +34,8 @@ import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.PickingMoveListener;
 import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
@@ -48,7 +50,7 @@ import edu.uci.ics.jung.graph.Graph;
 /**
  * @author Christian Thoens
  */
-public class GraphCanvas extends Canvas<GraphNode> {
+public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,6 +59,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				new EdgePropertySchema(), naming, allowCollapse);
 	}
 
+	@SuppressWarnings("unchecked")
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
@@ -65,6 +68,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext()
 				.setVertexShapeTransformer(new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
+		((GraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
 	}
 
 	public void initLayout() {
@@ -145,12 +149,26 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		super.clearCollapsedNodesItemClicked();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void editingModeChanged() {
+		super.editingModeChanged();
+		((GraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
+	}
+
 	@Override
 	public void borderAlphaChanged() {
 	}
 
 	@Override
 	public void avoidOverlayChanged() {
+	}
+
+	@Override
+	public void nodesMoved() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodePositionsChanged(this);
+		}
 	}
 
 	@Override
@@ -252,6 +270,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					.start();
 		} else {
 			setNodePositions(getNodePositions());
+			nodesMoved();
 		}
 	}
 
@@ -301,6 +320,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 				if (layoutProcess.done()) {
 					setNodePositions(getNodePositions());
+					nodesMoved();
 					break;
 				}
 

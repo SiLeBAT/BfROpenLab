@@ -17,25 +17,9 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.jung;
 
-public interface CanvasListener {
+public interface PickingMoveListener {
 
-	void nodeSelectionChanged(Canvas<?> source);
-
-	void edgeSelectionChanged(Canvas<?> source);
-
-	void nodeHighlightingChanged(Canvas<?> source);
-
-	void edgeHighlightingChanged(Canvas<?> source);
-
-	void nodePositionsChanged(Canvas<?> source);
-
-	void edgeJoinChanged(Canvas<?> source);
-
-	void skipEdgelessChanged(Canvas<?> source);
-
-	void showEdgesInMetaNodeChanged(Canvas<?> source);
-
-	void collapsedNodesChanged(Canvas<?> source);
+	void nodesMoved();
 }

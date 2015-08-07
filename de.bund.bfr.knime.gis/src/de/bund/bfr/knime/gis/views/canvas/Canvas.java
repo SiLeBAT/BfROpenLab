@@ -124,10 +124,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	protected HighlightConditionList nodeHighlightConditions;
 	protected HighlightConditionList edgeHighlightConditions;
 
+	protected List<CanvasListener> canvasListeners;
+
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
-
-	private List<CanvasListener> canvasListeners;
 
 	public Canvas(List<V> nodes, List<Edge<V>> edges, NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema,
 			Naming naming) {
