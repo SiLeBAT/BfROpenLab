@@ -450,7 +450,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		applyChanges();
-		fireNodeHighlightingChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodeHighlightingChanged(this);
+		}
 	}
 
 	@Override
@@ -462,7 +465,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
-		fireEdgeHighlightingChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeHighlightingChanged(this);
+		}
 	}
 
 	@Override
@@ -509,13 +515,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void nodePickingChanged() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
-		fireNodeSelectionChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodeSelectionChanged(this);
+		}
 	}
 
 	@Override
 	public void edgePickingChanged() {
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-		fireEdgeSelectionChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeSelectionChanged(this);
+		}
 	}
 
 	@Override
@@ -998,19 +1010,28 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void joinEdgesChanged() {
 		applyChanges();
-		fireEdgeJoinChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.edgeJoinChanged(this);
+		}
 	}
 
 	@Override
 	public void skipEdgelessNodesChanged() {
 		applyChanges();
-		fireSkipEdgelessChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.skipEdgelessChanged(this);
+		}
 	}
 
 	@Override
 	public void showEdgesInMetaNodeChanged() {
 		applyChanges();
-		fireShowEdgesInMetaNodeChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.showEdgesInMetaNodeChanged(this);
+		}
 	}
 
 	@Override
@@ -1267,48 +1288,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	protected abstract void applyTransform();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
-
-	private void fireNodeSelectionChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeSelectionChanged(this);
-		}
-	}
-
-	private void fireEdgeSelectionChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeSelectionChanged(this);
-		}
-	}
-
-	private void fireNodeHighlightingChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeHighlightingChanged(this);
-		}
-	}
-
-	private void fireEdgeHighlightingChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeHighlightingChanged(this);
-		}
-	}
-
-	private void fireEdgeJoinChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeJoinChanged(this);
-		}
-	}
-
-	private void fireSkipEdgelessChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.skipEdgelessChanged(this);
-		}
-	}
-
-	private void fireShowEdgesInMetaNodeChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.showEdgesInMetaNodeChanged(this);
-		}
-	}
 
 	private void fireCollapsedNodesChanged() {
 		for (CanvasListener listener : canvasListeners) {
