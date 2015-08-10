@@ -20,14 +20,21 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 
 public class TracingChange {
 
@@ -36,6 +43,10 @@ public class TracingChange {
 		private Set<String> nodesWithChangedSelection;
 
 		private Set<String> edgesWithChangedSelection;
+
+		private HighlightingDiff nodeHighlightingDiff;
+
+		private HighlightingDiff edgeHighlightingDiff;
 
 		private Set<Map.Entry<String, Point2D>> changedNodePositions;
 
@@ -52,6 +63,18 @@ public class TracingChange {
 
 		public Builder selectedEdges(Set<String> selectedEdgesBefore, Set<String> selectedEdgesAfter) {
 			edgesWithChangedSelection = symDiff(selectedEdgesBefore, selectedEdgesAfter);
+			return this;
+		}
+
+		public Builder nodeHighlighting(HighlightConditionList nodeHighlightingBefore,
+				HighlightConditionList nodeHighlightingAfter) {
+			nodeHighlightingDiff = new HighlightingDiff(nodeHighlightingBefore, nodeHighlightingAfter);
+			return this;
+		}
+
+		public Builder edgeHighlighting(HighlightConditionList edgeHighlightingBefore,
+				HighlightConditionList edgeHighlightingAfter) {
+			edgeHighlightingDiff = new HighlightingDiff(edgeHighlightingBefore, edgeHighlightingAfter);
 			return this;
 		}
 
@@ -73,6 +96,30 @@ public class TracingChange {
 	}
 
 	public void undo(ITracingCanvas<?> canvas) {
+		if (builder.nodeHighlightingDiff != null) {
+			canvas.setNodeHighlightConditions(builder.nodeHighlightingDiff.undo(canvas.getNodeHighlightConditions()));
+		}
+
+		if (builder.edgeHighlightingDiff != null) {
+			canvas.setEdgeHighlightConditions(builder.edgeHighlightingDiff.undo(canvas.getEdgeHighlightConditions()));
+		}
+
+		undoRedo(canvas);
+	}
+
+	public void redo(ITracingCanvas<?> canvas) {
+		if (builder.nodeHighlightingDiff != null) {
+			canvas.setNodeHighlightConditions(builder.nodeHighlightingDiff.redo(canvas.getNodeHighlightConditions()));
+		}
+
+		if (builder.edgeHighlightingDiff != null) {
+			canvas.setEdgeHighlightConditions(builder.edgeHighlightingDiff.redo(canvas.getEdgeHighlightConditions()));
+		}
+
+		undoRedo(canvas);
+	}
+
+	public void undoRedo(ITracingCanvas<?> canvas) {
 		if (builder.nodesWithChangedSelection != null) {
 			canvas.setSelectedNodeIds(symDiff(canvas.getSelectedNodeIds(), builder.nodesWithChangedSelection));
 		}
@@ -104,5 +151,73 @@ public class TracingChange {
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {
 		return new LinkedHashSet<>(Sets.symmetricDifference(before, after));
+	}
+
+	private static class HighlightingDiff {
+
+		private BiMap<Integer, Integer> highlightingOrderChanges;
+		private List<HighlightCondition> removedConditions;
+		private List<HighlightCondition> addedConditions;
+		private boolean prioritizeColorsChanged;
+
+		public HighlightingDiff(HighlightConditionList highlightingBefore, HighlightConditionList highlightingAfter) {
+			highlightingOrderChanges = HashBiMap.create();
+			removedConditions = new ArrayList<>();
+			addedConditions = new ArrayList<>();
+			prioritizeColorsChanged = highlightingBefore.isPrioritizeColors() != highlightingAfter.isPrioritizeColors();
+
+			List<HighlightCondition> before = highlightingBefore.getConditions();
+			List<HighlightCondition> after = highlightingAfter.getConditions();
+			Set<HighlightCondition> intersect = Sets.intersection(new LinkedHashSet<>(before),
+					new LinkedHashSet<>(after));
+
+			for (HighlightCondition c : intersect) {
+				highlightingOrderChanges.put(before.indexOf(c), after.indexOf(c));
+			}
+
+			for (HighlightCondition c : before) {
+				if (!intersect.contains(c)) {
+					removedConditions.add(c);
+				}
+			}
+
+			for (HighlightCondition c : after) {
+				if (!intersect.contains(c)) {
+					addedConditions.add(c);
+				}
+			}
+		}
+
+		public HighlightConditionList undo(HighlightConditionList highlighting) {
+			int n = highlightingOrderChanges.size() + removedConditions.size();
+			List<HighlightCondition> oldConditions = highlighting.getConditions();
+			List<HighlightCondition> conditions = new ArrayList<>(Collections.nCopies(n, (HighlightCondition) null));
+
+			for (Map.Entry<Integer, Integer> entry : highlightingOrderChanges.entrySet()) {
+				conditions.set(entry.getKey(), oldConditions.get(entry.getValue()));
+			}
+
+			for (HighlightCondition c : removedConditions) {
+				conditions.set(conditions.indexOf(null), c);
+			}
+
+			return new HighlightConditionList(conditions, highlighting.isPrioritizeColors() != prioritizeColorsChanged);
+		}
+
+		public HighlightConditionList redo(HighlightConditionList highlighting) {
+			int n = highlightingOrderChanges.size() + addedConditions.size();
+			List<HighlightCondition> oldConditions = highlighting.getConditions();
+			List<HighlightCondition> conditions = new ArrayList<>(Collections.nCopies(n, (HighlightCondition) null));
+
+			for (Map.Entry<Integer, Integer> entry : highlightingOrderChanges.entrySet()) {
+				conditions.set(entry.getValue(), oldConditions.get(entry.getKey()));
+			}
+
+			for (HighlightCondition c : addedConditions) {
+				conditions.set(conditions.indexOf(null), c);
+			}
+
+			return new HighlightConditionList(conditions, highlighting.isPrioritizeColors() != prioritizeColorsChanged);
+		}
 	}
 }

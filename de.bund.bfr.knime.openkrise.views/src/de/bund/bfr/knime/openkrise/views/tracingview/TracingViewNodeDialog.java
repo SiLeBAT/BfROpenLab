@@ -28,6 +28,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingChange;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
@@ -82,6 +85,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	private Set<String> selectedNodes;
 	private Set<String> selectedEdges;
+	private HighlightConditionList nodeHighlighting;
+	private HighlightConditionList edgeHighlighting;
 	private Map<String, Point2D> nodePositions;
 
 	private JButton undoButton;
@@ -103,6 +108,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 		selectedNodes = null;
 		selectedEdges = null;
+		nodeHighlighting = null;
+		edgeHighlighting = null;
 		nodePositions = null;
 
 		undoButton = new JButton("Undo");
@@ -168,6 +175,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 		selectedNodes = canvas.getSelectedNodeIds();
 		selectedEdges = canvas.getSelectedEdgeIds();
+		nodeHighlighting = canvas.getNodeHighlightConditions();
+		edgeHighlighting = canvas.getEdgeHighlightConditions();
 
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = ((GraphCanvas) canvas).getNodePositions();
@@ -259,7 +268,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		Set<String> newSelection = canvas.getSelectedNodeIds();
 
 		changes.add(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
-		selectedNodes = newSelection;
+		selectedNodes = new LinkedHashSet<>(newSelection);
 	}
 
 	@Override
@@ -267,15 +276,23 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		Set<String> newSelection = canvas.getSelectedEdgeIds();
 
 		changes.add(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
-		selectedEdges = newSelection;
+		selectedEdges = new LinkedHashSet<>(newSelection);
 	}
 
 	@Override
 	public void nodeHighlightingChanged(Canvas<?> source) {
+		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
+
+		changes.add(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
+		nodeHighlighting = new HighlightConditionList(newHighlighting);
 	}
 
 	@Override
 	public void edgeHighlightingChanged(Canvas<?> source) {
+		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
+
+		changes.add(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
+		edgeHighlighting = new HighlightConditionList(newHighlighting);
 	}
 
 	@Override
@@ -283,7 +300,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
 		changes.add(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
-		nodePositions = newPositions;
+		nodePositions = new LinkedHashMap<>(newPositions);
 	}
 
 	@Override
