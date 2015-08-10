@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -187,6 +188,39 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public Point2D getValueRange(Collection<? extends Element> elements) {
 		return new Point2D.Double(0.0, 1.0);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + Objects.hashCode(color);
+		result = prime * result + Objects.hashCode(conditions);
+		result = prime * result + (invisible ? 1231 : 1237);
+		result = prime * result + Objects.hashCode(labelProperty);
+		result = prime * result + Objects.hashCode(name);
+		result = prime * result + (showInLegend ? 1231 : 1237);
+		result = prime * result + (useThickness ? 1231 : 1237);
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		AndOrHighlightCondition c = (AndOrHighlightCondition) obj;
+
+		return Objects.equals(conditions, c.conditions) && Objects.equals(name, c.name)
+				&& showInLegend == c.showInLegend && Objects.equals(color, c.color) && invisible == c.invisible
+				&& useThickness == c.useThickness && Objects.equals(labelProperty, c.labelProperty);
 	}
 
 	@Override

@@ -107,13 +107,17 @@ public class Transform {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Transform) {
-			Transform t = (Transform) obj;
-
-			return scaleX == t.scaleX && scaleY == t.scaleY && translationX == t.translationX
-					&& translationY == t.translationY;
+		if (this == obj) {
+			return true;
 		}
 
-		return false;
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		Transform t = (Transform) obj;
+
+		return scaleX == t.scaleX && scaleY == t.scaleY && translationX == t.translationX
+				&& translationY == t.translationY;
 	}
 }

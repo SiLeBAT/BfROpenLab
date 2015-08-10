@@ -366,7 +366,11 @@ public class Evaluator {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof FunctionConf)) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (obj == null || obj.getClass() != getClass()) {
 				return false;
 			}
 
@@ -406,7 +410,11 @@ public class Evaluator {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof ErrorFunctionConf) || !super.equals(obj)) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (!super.equals(obj) || obj.getClass() != getClass()) {
 				return false;
 			}
 
@@ -467,7 +475,11 @@ public class Evaluator {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof DiffFunctionConf)) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (obj == null || obj.getClass() != getClass()) {
 				return false;
 			}
 
@@ -525,7 +537,11 @@ public class Evaluator {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof ErrorDiffFunctionConf) || !super.equals(obj)) {
+			if (this == obj) {
+				return true;
+			}
+
+			if (!super.equals(obj) || obj.getClass() != getClass()) {
 				return false;
 			}
 

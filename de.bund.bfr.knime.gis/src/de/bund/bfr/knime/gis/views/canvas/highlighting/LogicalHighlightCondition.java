@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,6 +131,33 @@ public class LogicalHighlightCondition implements Serializable {
 		}
 
 		return values;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + Objects.hashCode(property);
+		result = prime * result + Objects.hashCode(type);
+		result = prime * result + Objects.hashCode(value);
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		LogicalHighlightCondition c = (LogicalHighlightCondition) obj;
+
+		return Objects.equals(property, c.property) && Objects.equals(type, c.type) && Objects.equals(value, c.value);
 	}
 
 	private boolean isEqual(Object nodeValue) {

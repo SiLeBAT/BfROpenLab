@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -189,6 +190,32 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 		}
 
 		return new Point2D.Double(min, max);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + Objects.hashCode(logicalCondition);
+		result = prime * result + Objects.hashCode(valueCondition);
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) obj;
+
+		return Objects.equals(valueCondition, c.valueCondition) && Objects.equals(logicalCondition, c.logicalCondition);
 	}
 
 	@Override

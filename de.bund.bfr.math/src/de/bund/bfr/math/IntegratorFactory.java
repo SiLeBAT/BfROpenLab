@@ -82,7 +82,11 @@ public class IntegratorFactory {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof IntegratorFactory)) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
 			return false;
 		}
 

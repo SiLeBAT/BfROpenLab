@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -232,6 +233,42 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		}
 
 		return new Point2D.Double(min, max);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + Objects.hashCode(color);
+		result = prime * result + (invisible ? 1231 : 1237);
+		result = prime * result + Objects.hashCode(labelProperty);
+		result = prime * result + Objects.hashCode(name);
+		result = prime * result + Objects.hashCode(property);
+		result = prime * result + (showInLegend ? 1231 : 1237);
+		result = prime * result + Objects.hashCode(type);
+		result = prime * result + (useThickness ? 1231 : 1237);
+		result = prime * result + (zeroAsMinimum ? 1231 : 1237);
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		ValueHighlightCondition c = (ValueHighlightCondition) obj;
+
+		return Objects.equals(property, c.property) && Objects.equals(type, c.type) && zeroAsMinimum == c.zeroAsMinimum
+				&& Objects.equals(name, c.name) && showInLegend == c.showInLegend && Objects.equals(color, c.color)
+				&& invisible == c.invisible && useThickness == c.useThickness
+				&& Objects.equals(labelProperty, c.labelProperty);
 	}
 
 	@Override
