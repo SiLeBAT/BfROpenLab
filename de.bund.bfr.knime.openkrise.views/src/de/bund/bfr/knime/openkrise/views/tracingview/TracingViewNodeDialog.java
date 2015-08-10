@@ -26,6 +26,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -46,9 +51,12 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingChange;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 /**
@@ -57,7 +65,7 @@ import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ItemListener, ComponentListener {
+		implements ActionListener, ItemListener, ComponentListener, CanvasListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -70,7 +78,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private BufferedDataTable shapeTable;
 
 	private TracingViewSettings set;
+	private Deque<TracingChange> changes;
 
+	private Set<String> selectedNodes;
+	private Set<String> selectedEdges;
+	private Map<String, Point2D> nodePositions;
+
+	private JButton undoButton;
 	private JButton resetWeightsButton;
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
@@ -85,7 +99,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	 */
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
+		changes = new LinkedList<>();
 
+		selectedNodes = null;
+		selectedEdges = null;
+		nodePositions = null;
+
+		undoButton = new JButton("Undo");
+		undoButton.addActionListener(this);
 		resetWeightsButton = new JButton("Reset Weights");
 		resetWeightsButton.addActionListener(this);
 		resetCrossButton = new JButton("Reset Cross Contamination");
@@ -101,9 +122,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
-		northPanel.add(
-				UI.createHorizontalPanel(resetWeightsButton, resetCrossButton, resetFilterButton, exportAsSvgBox),
-				BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(undoButton, resetWeightsButton, resetCrossButton, resetFilterButton,
+				exportAsSvgBox), BorderLayout.WEST);
 		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox), BorderLayout.EAST);
 		northScrollPane = new JScrollPane(northPanel);
 		panel = UI.createNorthPanel(northScrollPane);
@@ -118,6 +138,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		tracingTable = (BufferedDataTable) input[2];
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
+		changes.clear();
 
 		gisBox.removeItemListener(this);
 		gisBox.removeAllItems();
@@ -144,6 +165,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		if (warning != null) {
 			new Thread(new NodeDialogWarningThread(panel, warning)).start();
 		}
+
+		selectedNodes = canvas.getSelectedNodeIds();
+		selectedEdges = canvas.getSelectedEdgeIds();
+
+		if (canvas instanceof GraphCanvas) {
+			nodePositions = ((GraphCanvas) canvas).getNodePositions();
+		}
 	}
 
 	@Override
@@ -156,24 +184,32 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void actionPerformed(ActionEvent e) {
 		updateSettings();
 
-		if (e.getSource() == resetWeightsButton) {
-			set.getNodeWeights().clear();
-			set.getEdgeWeights().clear();
-		} else if (e.getSource() == resetCrossButton) {
-			set.getNodeCrossContaminations().clear();
-			set.getEdgeCrossContaminations().clear();
-		} else if (e.getSource() == resetFilterButton) {
-			set.getObservedNodes().clear();
-			set.getObservedEdges().clear();
-		} else if (e.getSource() == switchButton) {
-			set.setShowGis(!set.isShowGis());
-			gisBox.setEnabled(set.isShowGis());
-		}
+		if (e.getSource() == undoButton) {
+			if (!changes.isEmpty()) {
+				canvas.removeCanvasListener(this);
+				changes.removeLast().undo(canvas);
+				canvas.addCanvasListener(this);
+			}
+		} else {
+			if (e.getSource() == resetWeightsButton) {
+				set.getNodeWeights().clear();
+				set.getEdgeWeights().clear();
+			} else if (e.getSource() == resetCrossButton) {
+				set.getNodeCrossContaminations().clear();
+				set.getEdgeCrossContaminations().clear();
+			} else if (e.getSource() == resetFilterButton) {
+				set.getObservedNodes().clear();
+				set.getObservedEdges().clear();
+			} else if (e.getSource() == switchButton) {
+				set.setShowGis(!set.isShowGis());
+				gisBox.setEnabled(set.isShowGis());
+			}
 
-		try {
-			updateCanvas();
-		} catch (NotConfigurableException ex) {
-			ex.printStackTrace();
+			try {
+				updateCanvas();
+			} catch (NotConfigurableException ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -218,6 +254,54 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void componentHidden(ComponentEvent e) {
 	}
 
+	@Override
+	public void nodeSelectionChanged(Canvas<?> source) {
+		Set<String> newSelection = canvas.getSelectedNodeIds();
+
+		changes.add(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
+		selectedNodes = newSelection;
+	}
+
+	@Override
+	public void edgeSelectionChanged(Canvas<?> source) {
+		Set<String> newSelection = canvas.getSelectedEdgeIds();
+
+		changes.add(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
+		selectedEdges = newSelection;
+	}
+
+	@Override
+	public void nodeHighlightingChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void edgeHighlightingChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void nodePositionsChanged(Canvas<?> source) {
+		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
+
+		changes.add(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
+		nodePositions = newPositions;
+	}
+
+	@Override
+	public void edgeJoinChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void skipEdgelessChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
+	}
+
+	@Override
+	public void collapsedNodesChanged(Canvas<?> source) {
+	}
+
 	private String updateCanvas() throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
@@ -227,6 +311,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 				set);
 
 		canvas = set.isShowGis() ? creator.createGisCanvas() : creator.createGraphCanvas();
+		canvas.addCanvasListener(this);
 		switchButton.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 		switchButton.setEnabled(creator.hasGisCoordinates());
 

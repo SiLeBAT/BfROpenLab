@@ -1252,7 +1252,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			Point2D pos = layout.transform(node);
 
 			if (pos != null) {
-				map.put(node.getId(), pos);
+				map.put(node.getId(), new Point2D.Double(pos.getX(), pos.getY()));
 			}
 		}
 
