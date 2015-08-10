@@ -236,6 +236,11 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
+	public HighlightCondition copy() {
+		return new ValueHighlightCondition(this);
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -275,5 +280,4 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	public String toString() {
 		return getName() != null ? getName() : "Value Condition";
 	}
-
 }

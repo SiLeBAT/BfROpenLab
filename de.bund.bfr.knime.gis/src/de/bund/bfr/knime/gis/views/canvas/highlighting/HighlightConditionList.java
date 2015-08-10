@@ -60,6 +60,16 @@ public class HighlightConditionList implements Serializable {
 		this.prioritizeColors = prioritizeColors;
 	}
 
+	public HighlightConditionList copy() {
+		List<HighlightCondition> conditionsCopy = new ArrayList<>();
+
+		for (HighlightCondition condition : conditions) {
+			conditionsCopy.add(condition.copy());
+		}
+
+		return new HighlightConditionList(conditionsCopy, prioritizeColors);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

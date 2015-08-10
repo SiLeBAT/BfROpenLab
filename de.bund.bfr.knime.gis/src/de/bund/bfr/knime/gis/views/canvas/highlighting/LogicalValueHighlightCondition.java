@@ -193,6 +193,12 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
+	public HighlightCondition copy() {
+		return new LogicalValueHighlightCondition((ValueHighlightCondition) valueCondition.copy(),
+				(AndOrHighlightCondition) logicalCondition.copy());
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

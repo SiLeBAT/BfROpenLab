@@ -173,13 +173,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			new Thread(new NodeDialogWarningThread(panel, warning)).start();
 		}
 
-		selectedNodes = canvas.getSelectedNodeIds();
-		selectedEdges = canvas.getSelectedEdgeIds();
-		nodeHighlighting = canvas.getNodeHighlightConditions();
-		edgeHighlighting = canvas.getEdgeHighlightConditions();
+		selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
+		selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
+		nodeHighlighting = canvas.getNodeHighlightConditions().copy();
+		edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
 
 		if (canvas instanceof GraphCanvas) {
-			nodePositions = ((GraphCanvas) canvas).getNodePositions();
+			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
 		}
 	}
 
@@ -284,7 +284,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
 
 		changes.add(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
-		nodeHighlighting = new HighlightConditionList(newHighlighting);
+		nodeHighlighting = newHighlighting.copy();
 	}
 
 	@Override
@@ -292,7 +292,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
 
 		changes.add(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
-		edgeHighlighting = new HighlightConditionList(newHighlighting);
+		edgeHighlighting = newHighlighting.copy();
 	}
 
 	@Override

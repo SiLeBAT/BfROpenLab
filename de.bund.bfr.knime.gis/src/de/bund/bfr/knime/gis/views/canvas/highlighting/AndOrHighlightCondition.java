@@ -191,6 +191,24 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
+	public HighlightCondition copy() {
+		AndOrHighlightCondition copy = new AndOrHighlightCondition(this);
+		copy.conditions = new ArrayList<>();
+
+		for (List<LogicalHighlightCondition> list : conditions) {
+			List<LogicalHighlightCondition> listCopy = new ArrayList<>();
+
+			for (LogicalHighlightCondition c : list) {
+				listCopy.add(new LogicalHighlightCondition(c));
+			}
+
+			copy.conditions.add(listCopy);
+		}
+
+		return copy;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
