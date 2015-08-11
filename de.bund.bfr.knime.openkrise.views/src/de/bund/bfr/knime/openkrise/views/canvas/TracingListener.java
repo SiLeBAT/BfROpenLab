@@ -17,25 +17,27 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.openkrise.views.canvas;
 
-public interface CanvasListener {
+public interface TracingListener {
 
-	void nodeSelectionChanged(ICanvas<?> source);
+	void nodePropertiesChanged(ITracingCanvas<?> canvas);
 
-	void edgeSelectionChanged(ICanvas<?> source);
+	void edgePropertiesChanged(ITracingCanvas<?> canvas);
 
-	void nodeHighlightingChanged(ICanvas<?> source);
+	void nodeWeightsChanged(ITracingCanvas<?> canvas);
 
-	void edgeHighlightingChanged(ICanvas<?> source);
+	void edgeWeightsChanged(ITracingCanvas<?> canvas);
 
-	void nodePositionsChanged(ICanvas<?> source);
+	void nodeCrossContaminationsChanged(ITracingCanvas<?> canvas);
 
-	void edgeJoinChanged(ICanvas<?> source);
+	void edgeCrossContaminationsChanged(ITracingCanvas<?> canvas);
 
-	void skipEdgelessChanged(ICanvas<?> source);
+	void nodeKillContaminationsChanged(ITracingCanvas<?> canvas);
 
-	void showEdgesInMetaNodeChanged(ICanvas<?> source);
+	void edgeKillContaminationsChanged(ITracingCanvas<?> canvas);
 
-	void collapsedNodesChanged(ICanvas<?> source);
+	void observedNodesChanged(ITracingCanvas<?> canvas);
+
+	void observedEdgesChanged(ITracingCanvas<?> canvas);
 }

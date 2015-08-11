@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -69,19 +70,20 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
 	private static boolean DEFAULT_SHOW_FORWARD = false;
 
-	private ICanvas<V> canvas;
+	private ITracingCanvas<V> canvas;
 	private Map<String, V> nodeSaveMap;
 	private Map<String, Edge<V>> edgeSaveMap;
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
 	private Map<String, Delivery> deliveries;
 
+	private List<TracingListener> listeners;
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
 	private JMenuItem defaultHighlightItem;
 
-	public TracingDelegate(ICanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
+	public TracingDelegate(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
 			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
 		this.canvas = canvas;
 		this.nodeSaveMap = nodeSaveMap;
@@ -89,6 +91,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		this.joinMap = joinMap;
 		this.deliveries = deliveries;
 
+		listeners = new ArrayList<>();
 		performTracing = DEFAULT_PERFORM_TRACING;
 
 		enforceTemporalOrderBox = new JCheckBox("Activate");
@@ -107,6 +110,18 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
 		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));
+	}
+
+	public void addTracingListener(TracingListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeTracingListener(TracingListener listener) {
+		listeners.remove(listener);
+	}
+
+	public List<TracingListener> getTracingListeners() {
+		return listeners;
 	}
 
 	public Map<String, Double> getNodeWeights() {
@@ -129,6 +144,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		if (performTracing) {
 			canvas.applyChanges();
 		}
+
+		for (TracingListener listener : listeners) {
+			listener.nodeWeightsChanged(canvas);
+		}
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -150,6 +169,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (performTracing) {
 			canvas.applyChanges();
+		}
+
+		for (TracingListener listener : listeners) {
+			listener.edgeWeightsChanged(canvas);
 		}
 	}
 
@@ -175,6 +198,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		if (performTracing) {
 			canvas.applyChanges();
 		}
+
+		for (TracingListener listener : listeners) {
+			listener.nodeCrossContaminationsChanged(canvas);
+		}
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -198,6 +225,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (performTracing) {
 			canvas.applyChanges();
+		}
+
+		for (TracingListener listener : listeners) {
+			listener.edgeCrossContaminationsChanged(canvas);
 		}
 	}
 
@@ -223,6 +254,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		if (performTracing) {
 			canvas.applyChanges();
 		}
+
+		for (TracingListener listener : listeners) {
+			listener.nodeKillContaminationsChanged(canvas);
+		}
 	}
 
 	public Map<String, Boolean> getEdgeKillContaminations() {
@@ -247,6 +282,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		if (performTracing) {
 			canvas.applyChanges();
 		}
+
+		for (TracingListener listener : listeners) {
+			listener.edgeKillContaminationsChanged(canvas);
+		}
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
@@ -269,6 +308,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		if (performTracing) {
 			canvas.applyChanges();
 		}
+
+		for (TracingListener listener : listeners) {
+			listener.observedNodesChanged(canvas);
+		}
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -290,6 +333,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (performTracing) {
 			canvas.applyChanges();
+		}
+
+		for (TracingListener listener : listeners) {
+			listener.observedEdgesChanged(canvas);
 		}
 	}
 
@@ -329,6 +376,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
+
+			for (TracingListener listener : listeners) {
+				listener.nodePropertiesChanged(canvas);
+			}
 		}
 	}
 
@@ -346,6 +397,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 			if (dialog.isApproved()) {
 				canvas.applyChanges();
+
+				for (TracingListener listener : listeners) {
+					listener.edgePropertiesChanged(canvas);
+				}
 			}
 		}
 	}
@@ -368,6 +423,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
+
+			for (TracingListener listener : listeners) {
+				listener.edgePropertiesChanged(canvas);
+			}
 		}
 	}
 
@@ -696,9 +755,9 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 	public static class PickingPlugin<V extends Node> extends PickingGraphMousePlugin<V, Edge<V>> {
 
-		private ICanvas<V> canvas;
+		private ITracingCanvas<V> canvas;
 
-		public PickingPlugin(ICanvas<V> canvas) {
+		public PickingPlugin(ITracingCanvas<V> canvas) {
 			this.canvas = canvas;
 		}
 
@@ -718,6 +777,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 					if (dialog.isApproved()) {
 						canvas.applyChanges();
+
+						for (TracingListener listener : canvas.getTracingListeners()) {
+							listener.nodePropertiesChanged(canvas);
+						}
 					}
 				} else if (edge != null) {
 					if (!canvas.isJoinEdges()) {
@@ -728,6 +791,10 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 						if (dialog.isApproved()) {
 							canvas.applyChanges();
+
+							for (TracingListener listener : canvas.getTracingListeners()) {
+								listener.edgePropertiesChanged(canvas);
+							}
 						}
 					} else {
 						SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,

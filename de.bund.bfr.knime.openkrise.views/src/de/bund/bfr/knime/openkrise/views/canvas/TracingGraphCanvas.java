@@ -53,6 +53,21 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	}
 
 	@Override
+	public void addTracingListener(TracingListener listener) {
+		tracing.addTracingListener(listener);
+	}
+
+	@Override
+	public void removeTracingListener(TracingListener listener) {
+		tracing.removeTracingListener(listener);
+	}
+
+	@Override
+	public List<TracingListener> getTracingListeners() {
+		return tracing.getTracingListeners();
+	}
+
+	@Override
 	public Map<String, Double> getNodeWeights() {
 		return tracing.getNodeWeights();
 	}

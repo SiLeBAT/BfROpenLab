@@ -53,6 +53,21 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
+	public void addTracingListener(TracingListener listener) {
+		tracing.addTracingListener(listener);
+	}
+
+	@Override
+	public void removeTracingListener(TracingListener listener) {
+		tracing.removeTracingListener(listener);
+	}
+
+	@Override
+	public List<TracingListener> getTracingListeners() {
+		return tracing.getTracingListeners();
+	}
+
+	@Override
 	public Map<String, Double> getNodeWeights() {
 		return tracing.getNodeWeights();
 	}

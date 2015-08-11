@@ -36,9 +36,9 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.gisview.ResizeListener;
@@ -101,7 +101,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void nodeSelectionChanged(Canvas<?> source) {
+	public void nodeSelectionChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedNodeIds(graphCanvas.getSelectedNodeIds());
@@ -114,7 +114,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void edgeSelectionChanged(Canvas<?> source) {
+	public void edgeSelectionChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSelectedEdgeIds(graphCanvas.getSelectedEdgeIds());
@@ -127,7 +127,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void nodeHighlightingChanged(Canvas<?> source) {
+	public void nodeHighlightingChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setNodeHighlightConditions(graphCanvas.getNodeHighlightConditions());
@@ -140,7 +140,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void edgeHighlightingChanged(Canvas<?> source) {
+	public void edgeHighlightingChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setEdgeHighlightConditions(graphCanvas.getEdgeHighlightConditions());
@@ -153,11 +153,11 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void nodePositionsChanged(Canvas<?> source) {
+	public void nodePositionsChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void edgeJoinChanged(Canvas<?> source) {
+	public void edgeJoinChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setJoinEdges(graphCanvas.isJoinEdges());
@@ -170,7 +170,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void skipEdgelessChanged(Canvas<?> source) {
+	public void skipEdgelessChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setSkipEdgelessNodes(graphCanvas.isSkipEdgelessNodes());
@@ -183,7 +183,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
+	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setShowEdgesInMetaNode(graphCanvas.isShowEdgesInMetaNode());
@@ -196,7 +196,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void collapsedNodesChanged(Canvas<?> source) {
+	public void collapsedNodesChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
 			gisCanvas.setCollapsedNodes(graphCanvas.getCollapsedNodes());

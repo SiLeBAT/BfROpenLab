@@ -53,13 +53,14 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingChange;
+import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 /**
@@ -68,7 +69,7 @@ import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ItemListener, ComponentListener, CanvasListener {
+		implements ActionListener, ItemListener, ComponentListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -283,7 +284,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeSelectionChanged(Canvas<?> source) {
+	public void nodeSelectionChanged(ICanvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedNodeIds();
 
 		changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
@@ -291,7 +292,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeSelectionChanged(Canvas<?> source) {
+	public void edgeSelectionChanged(ICanvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedEdgeIds();
 
 		changeOccured(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
@@ -299,7 +300,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeHighlightingChanged(Canvas<?> source) {
+	public void nodeHighlightingChanged(ICanvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
 
 		changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
@@ -307,7 +308,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeHighlightingChanged(Canvas<?> source) {
+	public void edgeHighlightingChanged(ICanvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
 
 		changeOccured(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
@@ -315,7 +316,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodePositionsChanged(Canvas<?> source) {
+	public void nodePositionsChanged(ICanvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
 		changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
@@ -323,19 +324,59 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeJoinChanged(Canvas<?> source) {
+	public void edgeJoinChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void skipEdgelessChanged(Canvas<?> source) {
+	public void skipEdgelessChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void showEdgesInMetaNodeChanged(Canvas<?> source) {
+	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void collapsedNodesChanged(Canvas<?> source) {
+	public void collapsedNodesChanged(ICanvas<?> source) {
+	}
+
+	@Override
+	public void nodePropertiesChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void edgePropertiesChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void nodeWeightsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void edgeWeightsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void nodeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void edgeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void nodeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void edgeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void observedNodesChanged(ITracingCanvas<?> canvas) {
+	}
+
+	@Override
+	public void observedEdgesChanged(ITracingCanvas<?> canvas) {
 	}
 
 	private String updateCanvas() throws NotConfigurableException {
@@ -348,6 +389,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 		canvas = set.isShowGis() ? creator.createGisCanvas() : creator.createGraphCanvas();
 		canvas.addCanvasListener(this);
+		canvas.addTracingListener(this);
 		switchButton.setText("Switch to " + (set.isShowGis() ? "Graph" : "GIS"));
 		switchButton.setEnabled(creator.hasGisCoordinates());
 
