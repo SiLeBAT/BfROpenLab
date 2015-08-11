@@ -81,7 +81,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private BufferedDataTable shapeTable;
 
 	private TracingViewSettings set;
-	private Deque<TracingChange> changes;
+	private Deque<TracingChange> undoStack;
+	private Deque<TracingChange> redoStack;
 
 	private Set<String> selectedNodes;
 	private Set<String> selectedEdges;
@@ -90,6 +91,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private Map<String, Point2D> nodePositions;
 
 	private JButton undoButton;
+	private JButton redoButton;
 	private JButton resetWeightsButton;
 	private JButton resetCrossButton;
 	private JButton resetFilterButton;
@@ -104,7 +106,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	 */
 	protected TracingViewNodeDialog() {
 		set = new TracingViewSettings();
-		changes = new LinkedList<>();
+		undoStack = new LinkedList<>();
+		redoStack = new LinkedList<>();
 
 		selectedNodes = null;
 		selectedEdges = null;
@@ -113,7 +116,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		nodePositions = null;
 
 		undoButton = new JButton("Undo");
+		undoButton.setEnabled(false);
 		undoButton.addActionListener(this);
+		redoButton = new JButton("Redo");
+		redoButton.setEnabled(false);
+		redoButton.addActionListener(this);
 		resetWeightsButton = new JButton("Reset Weights");
 		resetWeightsButton.addActionListener(this);
 		resetCrossButton = new JButton("Reset Cross Contamination");
@@ -129,8 +136,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new BorderLayout());
-		northPanel.add(UI.createHorizontalPanel(undoButton, resetWeightsButton, resetCrossButton, resetFilterButton,
-				exportAsSvgBox), BorderLayout.WEST);
+		northPanel.add(UI.createHorizontalPanel(undoButton, redoButton, resetWeightsButton, resetCrossButton,
+				resetFilterButton, exportAsSvgBox), BorderLayout.WEST);
 		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox), BorderLayout.EAST);
 		northScrollPane = new JScrollPane(northPanel);
 		panel = UI.createNorthPanel(northScrollPane);
@@ -145,7 +152,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		tracingTable = (BufferedDataTable) input[2];
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
-		changes.clear();
+		undoStack.clear();
 
 		gisBox.removeItemListener(this);
 		gisBox.removeAllItems();
@@ -173,14 +180,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			new Thread(new NodeDialogWarningThread(panel, warning)).start();
 		}
 
-		selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
-		selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
-		nodeHighlighting = canvas.getNodeHighlightConditions().copy();
-		edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
-
-		if (canvas instanceof GraphCanvas) {
-			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
-		}
+		updateStatusVariables();
 	}
 
 	@Override
@@ -194,21 +194,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		updateSettings();
 
 		if (e.getSource() == undoButton) {
-			if (!changes.isEmpty()) {
-				canvas.removeCanvasListener(this);
+			TracingChange change = undoStack.pop();
 
-				changes.removeLast().undo(canvas);
-				selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
-				selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
-				nodeHighlighting = canvas.getNodeHighlightConditions().copy();
-				edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
+			undoButton.setEnabled(!undoStack.isEmpty());
 
-				if (canvas instanceof GraphCanvas) {
-					nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
-				}
+			canvas.removeCanvasListener(this);
+			change.undo(canvas);
+			canvas.addCanvasListener(this);
 
-				canvas.addCanvasListener(this);
-			}
+			updateStatusVariables();
+			redoStack.push(change);
+			redoButton.setEnabled(true);
+		} else if (e.getSource() == redoButton) {
+			TracingChange change = redoStack.pop();
+
+			redoButton.setEnabled(!redoStack.isEmpty());
+
+			canvas.removeCanvasListener(this);
+			change.redo(canvas);
+			canvas.addCanvasListener(this);
+
+			updateStatusVariables();
+			undoStack.push(change);
+			undoButton.setEnabled(true);
 		} else {
 			if (e.getSource() == resetWeightsButton) {
 				set.getNodeWeights().clear();
@@ -277,7 +285,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void nodeSelectionChanged(Canvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedNodeIds();
 
-		changes.add(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
+		changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
 		selectedNodes = new LinkedHashSet<>(newSelection);
 	}
 
@@ -285,7 +293,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void edgeSelectionChanged(Canvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedEdgeIds();
 
-		changes.add(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
+		changeOccured(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
 		selectedEdges = new LinkedHashSet<>(newSelection);
 	}
 
@@ -293,7 +301,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void nodeHighlightingChanged(Canvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
 
-		changes.add(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
+		changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
 		nodeHighlighting = newHighlighting.copy();
 	}
 
@@ -301,7 +309,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void edgeHighlightingChanged(Canvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
 
-		changes.add(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
+		changeOccured(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
 		edgeHighlighting = newHighlighting.copy();
 	}
 
@@ -309,7 +317,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void nodePositionsChanged(Canvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
-		changes.add(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
+		changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
 		nodePositions = new LinkedHashMap<>(newPositions);
 	}
 
@@ -373,6 +381,24 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			set.getGraphSettings().setFromCanvas((GraphCanvas) canvas);
 		} else if (canvas instanceof IGisCanvas) {
 			set.getGisSettings().setFromCanvas((IGisCanvas<?>) canvas);
+		}
+	}
+
+	private void changeOccured(TracingChange change) {
+		undoStack.push(change);
+		undoButton.setEnabled(true);
+		redoStack.clear();
+		redoButton.setEnabled(false);
+	}
+
+	private void updateStatusVariables() {
+		selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
+		selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
+		nodeHighlighting = canvas.getNodeHighlightConditions().copy();
+		edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
+
+		if (canvas instanceof GraphCanvas) {
+			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
 		}
 	}
 }
