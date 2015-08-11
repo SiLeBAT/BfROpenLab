@@ -90,6 +90,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private HighlightConditionList nodeHighlighting;
 	private HighlightConditionList edgeHighlighting;
 	private Map<String, Point2D> nodePositions;
+	private Map<String, Double> nodeWeights;
+	private Map<String, Double> edgeWeights;
+	private Map<String, Boolean> nodeCrossContaminations;
+	private Map<String, Boolean> edgeCrossContaminations;
+	private Map<String, Boolean> nodeKillContaminations;
+	private Map<String, Boolean> edgeKillContaminations;
+	private Map<String, Boolean> observedNodes;
+	private Map<String, Boolean> observedEdges;
 
 	private JButton undoButton;
 	private JButton redoButton;
@@ -115,12 +123,18 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		nodeHighlighting = null;
 		edgeHighlighting = null;
 		nodePositions = null;
+		nodeWeights = null;
+		edgeWeights = null;
+		nodeCrossContaminations = null;
+		edgeCrossContaminations = null;
+		nodeKillContaminations = null;
+		edgeKillContaminations = null;
+		observedNodes = null;
+		observedEdges = null;
 
 		undoButton = new JButton("Undo");
-		undoButton.setEnabled(false);
 		undoButton.addActionListener(this);
 		redoButton = new JButton("Redo");
-		redoButton.setEnabled(false);
 		redoButton.addActionListener(this);
 		resetWeightsButton = new JButton("Reset Weights");
 		resetWeightsButton.addActionListener(this);
@@ -153,6 +167,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		tracingTable = (BufferedDataTable) input[2];
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
+
+		undoButton.setEnabled(false);
+		redoButton.setEnabled(false);
 		undoStack.clear();
 		redoStack.clear();
 
@@ -201,8 +218,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			undoButton.setEnabled(!undoStack.isEmpty());
 
 			canvas.removeCanvasListener(this);
+			canvas.removeTracingListener(this);
 			change.undo(canvas);
 			canvas.addCanvasListener(this);
+			canvas.addTracingListener(this);
 
 			updateStatusVariables();
 			redoStack.push(change);
@@ -213,8 +232,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			redoButton.setEnabled(!redoStack.isEmpty());
 
 			canvas.removeCanvasListener(this);
+			canvas.removeTracingListener(this);
 			change.redo(canvas);
 			canvas.addCanvasListener(this);
+			canvas.addTracingListener(this);
 
 			updateStatusVariables();
 			undoStack.push(change);
@@ -287,40 +308,45 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void nodeSelectionChanged(ICanvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedNodeIds();
 
-		changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build());
-		selectedNodes = new LinkedHashSet<>(newSelection);
+		if (changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection).build())) {
+			selectedNodes = new LinkedHashSet<>(newSelection);
+		}
 	}
 
 	@Override
 	public void edgeSelectionChanged(ICanvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedEdgeIds();
 
-		changeOccured(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build());
-		selectedEdges = new LinkedHashSet<>(newSelection);
+		if (changeOccured(new TracingChange.Builder().selectedEdges(selectedEdges, newSelection).build())) {
+			selectedEdges = new LinkedHashSet<>(newSelection);
+		}
 	}
 
 	@Override
 	public void nodeHighlightingChanged(ICanvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getNodeHighlightConditions();
 
-		changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build());
-		nodeHighlighting = newHighlighting.copy();
+		if (changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newHighlighting).build())) {
+			nodeHighlighting = newHighlighting.copy();
+		}
 	}
 
 	@Override
 	public void edgeHighlightingChanged(ICanvas<?> source) {
 		HighlightConditionList newHighlighting = canvas.getEdgeHighlightConditions();
 
-		changeOccured(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build());
-		edgeHighlighting = newHighlighting.copy();
+		if (changeOccured(new TracingChange.Builder().edgeHighlighting(edgeHighlighting, newHighlighting).build())) {
+			edgeHighlighting = newHighlighting.copy();
+		}
 	}
 
 	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
-		changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build());
-		nodePositions = new LinkedHashMap<>(newPositions);
+		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build())) {
+			nodePositions = new LinkedHashMap<>(newPositions);
+		}
 	}
 
 	@Override
@@ -341,42 +367,114 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void nodePropertiesChanged(ITracingCanvas<?> canvas) {
+		Map<String, Double> newWeights = canvas.getNodeWeights();
+		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
+		Map<String, Boolean> newKillContaminations = canvas.getNodeKillContaminations();
+		Map<String, Boolean> newObserved = canvas.getObservedNodes();
+
+		if (changeOccured(new TracingChange.Builder().nodeWeights(nodeWeights, newWeights)
+				.nodeCrossContaminations(nodeCrossContaminations, newCrossContaminations)
+				.nodeKillContaminations(nodeKillContaminations, newKillContaminations)
+				.observedNodes(observedNodes, newObserved).build())) {
+			nodeWeights = new LinkedHashMap<>(newWeights);
+			nodeCrossContaminations = new LinkedHashMap<>(newCrossContaminations);
+			nodeKillContaminations = new LinkedHashMap<>(newKillContaminations);
+			observedNodes = new LinkedHashMap<>(newObserved);
+		}
 	}
 
 	@Override
 	public void edgePropertiesChanged(ITracingCanvas<?> canvas) {
+		Map<String, Double> newWeights = canvas.getEdgeWeights();
+		Map<String, Boolean> newCrossContaminations = canvas.getEdgeCrossContaminations();
+		Map<String, Boolean> newKillContaminations = canvas.getEdgeKillContaminations();
+		Map<String, Boolean> newObserved = canvas.getObservedEdges();
+
+		if (changeOccured(new TracingChange.Builder().edgeWeights(edgeWeights, newWeights)
+				.edgeCrossContaminations(edgeCrossContaminations, newCrossContaminations)
+				.edgeKillContaminations(edgeKillContaminations, newKillContaminations)
+				.observedEdges(observedEdges, newObserved).build())) {
+			edgeWeights = new LinkedHashMap<>(newWeights);
+			edgeCrossContaminations = new LinkedHashMap<>(newCrossContaminations);
+			edgeKillContaminations = new LinkedHashMap<>(newKillContaminations);
+			observedEdges = new LinkedHashMap<>(newObserved);
+		}
 	}
 
 	@Override
 	public void nodeWeightsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Double> newWeights = canvas.getNodeWeights();
+
+		if (changeOccured(new TracingChange.Builder().nodeWeights(nodeWeights, newWeights).build())) {
+			nodeWeights = new LinkedHashMap<>(newWeights);
+		}
 	}
 
 	@Override
 	public void edgeWeightsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Double> newWeights = canvas.getEdgeWeights();
+
+		if (changeOccured(new TracingChange.Builder().edgeWeights(edgeWeights, newWeights).build())) {
+			edgeWeights = new LinkedHashMap<>(newWeights);
+		}
 	}
 
 	@Override
 	public void nodeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
+
+		if (changeOccured(new TracingChange.Builder()
+				.nodeCrossContaminations(nodeCrossContaminations, newCrossContaminations).build())) {
+			nodeCrossContaminations = new LinkedHashMap<>(newCrossContaminations);
+		}
 	}
 
 	@Override
 	public void edgeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newCrossContaminations = canvas.getEdgeCrossContaminations();
+
+		if (changeOccured(new TracingChange.Builder()
+				.edgeCrossContaminations(edgeCrossContaminations, newCrossContaminations).build())) {
+			edgeCrossContaminations = new LinkedHashMap<>(newCrossContaminations);
+		}
 	}
 
 	@Override
 	public void nodeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newKillContaminations = canvas.getNodeKillContaminations();
+
+		if (changeOccured(new TracingChange.Builder()
+				.nodeKillContaminations(nodeKillContaminations, newKillContaminations).build())) {
+			nodeKillContaminations = new LinkedHashMap<>(newKillContaminations);
+		}
 	}
 
 	@Override
 	public void edgeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newKillContaminations = canvas.getEdgeKillContaminations();
+
+		if (changeOccured(new TracingChange.Builder()
+				.edgeKillContaminations(edgeKillContaminations, newKillContaminations).build())) {
+			edgeKillContaminations = new LinkedHashMap<>(newKillContaminations);
+		}
 	}
 
 	@Override
 	public void observedNodesChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newObserved = canvas.getObservedNodes();
+
+		if (changeOccured(new TracingChange.Builder().observedNodes(observedNodes, newObserved).build())) {
+			observedNodes = new LinkedHashMap<>(newObserved);
+		}
 	}
 
 	@Override
 	public void observedEdgesChanged(ITracingCanvas<?> canvas) {
+		Map<String, Boolean> newObserved = canvas.getObservedEdges();
+
+		if (changeOccured(new TracingChange.Builder().observedEdges(observedEdges, newObserved).build())) {
+			observedEdges = new LinkedHashMap<>(newObserved);
+		}
 	}
 
 	private String updateCanvas() throws NotConfigurableException {
@@ -427,11 +525,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private void changeOccured(TracingChange change) {
+	private boolean changeOccured(TracingChange change) {
+		if (change.isIdentity()) {
+			return false;
+		}
+
 		undoStack.push(change);
 		undoButton.setEnabled(true);
 		redoStack.clear();
 		redoButton.setEnabled(false);
+
+		return true;
 	}
 
 	private void updateStatusVariables() {
@@ -443,5 +547,14 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
 		}
+
+		nodeWeights = new LinkedHashMap<>(canvas.getNodeWeights());
+		edgeWeights = new LinkedHashMap<>(canvas.getEdgeWeights());
+		nodeCrossContaminations = new LinkedHashMap<>(canvas.getNodeCrossContaminations());
+		edgeCrossContaminations = new LinkedHashMap<>(canvas.getEdgeCrossContaminations());
+		nodeKillContaminations = new LinkedHashMap<>(canvas.getNodeKillContaminations());
+		edgeKillContaminations = new LinkedHashMap<>(canvas.getEdgeKillContaminations());
+		observedNodes = new LinkedHashMap<>(canvas.getObservedNodes());
+		observedEdges = new LinkedHashMap<>(canvas.getObservedEdges());
 	}
 }
