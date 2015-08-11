@@ -101,6 +101,10 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
+	public void selectionChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodeSelectionChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

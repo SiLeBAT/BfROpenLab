@@ -21,6 +21,8 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 
 public interface PickingChangeListener {
 
+	void pickingChanged();
+
 	void nodePickingChanged();
 
 	void edgePickingChanged();

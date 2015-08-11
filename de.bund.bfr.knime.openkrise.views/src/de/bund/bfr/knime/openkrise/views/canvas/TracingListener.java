@@ -21,23 +21,23 @@ package de.bund.bfr.knime.openkrise.views.canvas;
 
 public interface TracingListener {
 
-	void nodePropertiesChanged(ITracingCanvas<?> canvas);
+	void nodePropertiesChanged(ITracingCanvas<?> source);
 
-	void edgePropertiesChanged(ITracingCanvas<?> canvas);
+	void edgePropertiesChanged(ITracingCanvas<?> source);
 
-	void nodeWeightsChanged(ITracingCanvas<?> canvas);
+	void nodeWeightsChanged(ITracingCanvas<?> source);
 
-	void edgeWeightsChanged(ITracingCanvas<?> canvas);
+	void edgeWeightsChanged(ITracingCanvas<?> source);
 
-	void nodeCrossContaminationsChanged(ITracingCanvas<?> canvas);
+	void nodeCrossContaminationsChanged(ITracingCanvas<?> source);
 
-	void edgeCrossContaminationsChanged(ITracingCanvas<?> canvas);
+	void edgeCrossContaminationsChanged(ITracingCanvas<?> source);
 
-	void nodeKillContaminationsChanged(ITracingCanvas<?> canvas);
+	void nodeKillContaminationsChanged(ITracingCanvas<?> source);
 
-	void edgeKillContaminationsChanged(ITracingCanvas<?> canvas);
+	void edgeKillContaminationsChanged(ITracingCanvas<?> source);
 
-	void observedNodesChanged(ITracingCanvas<?> canvas);
+	void observedNodesChanged(ITracingCanvas<?> source);
 
-	void observedEdgesChanged(ITracingCanvas<?> canvas);
+	void observedEdgesChanged(ITracingCanvas<?> source);
 }

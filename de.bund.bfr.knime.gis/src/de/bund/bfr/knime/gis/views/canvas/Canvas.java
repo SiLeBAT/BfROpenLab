@@ -516,6 +516,16 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void pickingChanged() {
+		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.selectionChanged(this);
+		}
+	}
+
+	@Override
 	public void nodePickingChanged() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 

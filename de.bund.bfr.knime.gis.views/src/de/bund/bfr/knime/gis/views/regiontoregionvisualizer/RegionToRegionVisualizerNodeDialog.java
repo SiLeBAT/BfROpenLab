@@ -98,6 +98,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
+	public void selectionChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodeSelectionChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

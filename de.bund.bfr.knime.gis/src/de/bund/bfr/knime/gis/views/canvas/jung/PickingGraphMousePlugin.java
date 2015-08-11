@@ -124,12 +124,17 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 				} else {
 					vv.addPostRenderPaintable(lensPaintable);
 
-					if (!pickedVertexState.getPicked().isEmpty()) {
+					boolean nodesPicked = !pickedVertexState.getPicked().isEmpty();
+					boolean edgesPicked = !pickedEdgeState.getPicked().isEmpty();
+
+					if (nodesPicked && edgesPicked) {
+						pickedVertexState.clear();
+						pickedEdgeState.clear();
+						firePickingChanged();
+					} else if (nodesPicked) {
 						pickedVertexState.clear();
 						fireNodePickingChanged();
-					}
-
-					if (!pickedEdgeState.getPicked().isEmpty()) {
+					} else if (edgesPicked) {
 						pickedEdgeState.clear();
 						fireEdgePickingChanged();
 					}
@@ -231,6 +236,12 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+	}
+
+	private void firePickingChanged() {
+		for (PickingChangeListener listener : changeListeners) {
+			listener.pickingChanged();
+		}
 	}
 
 	private void fireNodePickingChanged() {

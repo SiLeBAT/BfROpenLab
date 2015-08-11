@@ -21,6 +21,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 public interface CanvasListener {
 
+	void selectionChanged(ICanvas<?> source);
+
 	void nodeSelectionChanged(ICanvas<?> source);
 
 	void edgeSelectionChanged(ICanvas<?> source);

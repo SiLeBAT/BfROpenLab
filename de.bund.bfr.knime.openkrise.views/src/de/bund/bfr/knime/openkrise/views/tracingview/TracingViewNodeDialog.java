@@ -315,6 +315,18 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void selectionChanged(ICanvas<?> source) {
+		Set<String> newNodeSelection = canvas.getSelectedNodeIds();
+		Set<String> newEdgeSelection = canvas.getSelectedEdgeIds();
+
+		if (changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newNodeSelection)
+				.selectedEdges(selectedEdges, newEdgeSelection).build())) {
+			selectedNodes = new LinkedHashSet<>(newNodeSelection);
+			selectedEdges = new LinkedHashSet<>(newEdgeSelection);
+		}
+	}
+
+	@Override
 	public void nodeSelectionChanged(ICanvas<?> source) {
 		Set<String> newSelection = canvas.getSelectedNodeIds();
 
@@ -376,7 +388,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodePropertiesChanged(ITracingCanvas<?> canvas) {
+	public void nodePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
 		Map<String, Boolean> newKillContaminations = canvas.getNodeKillContaminations();
@@ -394,7 +406,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgePropertiesChanged(ITracingCanvas<?> canvas) {
+	public void edgePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getEdgeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getEdgeCrossContaminations();
 		Map<String, Boolean> newKillContaminations = canvas.getEdgeKillContaminations();
@@ -412,7 +424,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeWeightsChanged(ITracingCanvas<?> canvas) {
+	public void nodeWeightsChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 
 		if (changeOccured(new TracingChange.Builder().nodeWeights(nodeWeights, newWeights).build())) {
@@ -421,7 +433,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeWeightsChanged(ITracingCanvas<?> canvas) {
+	public void edgeWeightsChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getEdgeWeights();
 
 		if (changeOccured(new TracingChange.Builder().edgeWeights(edgeWeights, newWeights).build())) {
@@ -430,7 +442,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+	public void nodeCrossContaminationsChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
 
 		if (changeOccured(new TracingChange.Builder()
@@ -440,7 +452,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeCrossContaminationsChanged(ITracingCanvas<?> canvas) {
+	public void edgeCrossContaminationsChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newCrossContaminations = canvas.getEdgeCrossContaminations();
 
 		if (changeOccured(new TracingChange.Builder()
@@ -450,7 +462,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+	public void nodeKillContaminationsChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newKillContaminations = canvas.getNodeKillContaminations();
 
 		if (changeOccured(new TracingChange.Builder()
@@ -460,7 +472,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeKillContaminationsChanged(ITracingCanvas<?> canvas) {
+	public void edgeKillContaminationsChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newKillContaminations = canvas.getEdgeKillContaminations();
 
 		if (changeOccured(new TracingChange.Builder()
@@ -470,7 +482,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void observedNodesChanged(ITracingCanvas<?> canvas) {
+	public void observedNodesChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newObserved = canvas.getObservedNodes();
 
 		if (changeOccured(new TracingChange.Builder().observedNodes(observedNodes, newObserved).build())) {
@@ -479,7 +491,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void observedEdgesChanged(ITracingCanvas<?> canvas) {
+	public void observedEdgesChanged(ITracingCanvas<?> source) {
 		Map<String, Boolean> newObserved = canvas.getObservedEdges();
 
 		if (changeOccured(new TracingChange.Builder().observedEdges(observedEdges, newObserved).build())) {
