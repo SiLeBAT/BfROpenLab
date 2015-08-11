@@ -48,10 +48,6 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		this((LogicalHighlightCondition) null, null, true, null, false, false, null);
 	}
 
-	public AndOrHighlightCondition(AndOrHighlightCondition c) {
-		this(c.conditions, c.name, c.showInLegend, c.color, c.invisible, c.useThickness, c.labelProperty);
-	}
-
 	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name, boolean showInLegend, Color color,
 			boolean invisible, boolean useThickness, String labelProperty) {
 		this(asList(asList(condition)), name, showInLegend, color, invisible, useThickness, labelProperty);
@@ -191,21 +187,21 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public HighlightCondition copy() {
-		AndOrHighlightCondition copy = new AndOrHighlightCondition(this);
-		copy.conditions = new ArrayList<>();
+	public AndOrHighlightCondition copy() {
+		List<List<LogicalHighlightCondition>> conditionsCopy = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> list : conditions) {
 			List<LogicalHighlightCondition> listCopy = new ArrayList<>();
 
 			for (LogicalHighlightCondition c : list) {
-				listCopy.add(new LogicalHighlightCondition(c));
+				listCopy.add(c.copy());
 			}
 
-			copy.conditions.add(listCopy);
+			conditionsCopy.add(listCopy);
 		}
 
-		return copy;
+		return new AndOrHighlightCondition(conditionsCopy, name, showInLegend, color, invisible, useThickness,
+				labelProperty);
 	}
 
 	@Override

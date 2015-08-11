@@ -54,11 +54,6 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		this(null, null, false, null, true, null, false, false, null);
 	}
 
-	public ValueHighlightCondition(ValueHighlightCondition c) {
-		this(c.property, c.type, c.zeroAsMinimum, c.name, c.showInLegend, c.color, c.invisible, c.useThickness,
-				c.labelProperty);
-	}
-
 	public ValueHighlightCondition(String property, String type, boolean zeroAsMinimum, String name,
 			boolean showInLegend, Color color, boolean invisible, boolean useThickness, String labelProperty) {
 		setProperty(property);
@@ -236,8 +231,9 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public HighlightCondition copy() {
-		return new ValueHighlightCondition(this);
+	public ValueHighlightCondition copy() {
+		return new ValueHighlightCondition(property, type, zeroAsMinimum, name, showInLegend, color, invisible,
+				useThickness, labelProperty);
 	}
 
 	@Override

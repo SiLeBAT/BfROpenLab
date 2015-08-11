@@ -772,10 +772,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				"Highlight Categories", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
 
 		if (result != null) {
-			HighlightConditionList newHighlighting = new HighlightConditionList(nodeHighlightConditions);
-
-			newHighlighting.getConditions().addAll(CanvasUtils.createCategorialHighlighting(nodes, result));
-			setNodeHighlightConditions(newHighlighting);
+			nodeHighlightConditions.getConditions().addAll(CanvasUtils.createCategorialHighlighting(nodes, result));
+			setNodeHighlightConditions(nodeHighlightConditions);
 		}
 	}
 
@@ -786,10 +784,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				"Highlight Categories", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
 
 		if (result != null) {
-			HighlightConditionList newHighlighting = new HighlightConditionList(edgeHighlightConditions);
-
-			newHighlighting.getConditions().addAll(CanvasUtils.createCategorialHighlighting(edges, result));
-			setEdgeHighlightConditions(newHighlighting);
+			edgeHighlightConditions.getConditions().addAll(CanvasUtils.createCategorialHighlighting(edges, result));
+			setEdgeHighlightConditions(edgeHighlightConditions);
 		}
 	}
 

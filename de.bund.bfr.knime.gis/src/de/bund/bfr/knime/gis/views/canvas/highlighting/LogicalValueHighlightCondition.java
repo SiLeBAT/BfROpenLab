@@ -43,10 +43,6 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 		this(new ValueHighlightCondition(), new AndOrHighlightCondition());
 	}
 
-	public LogicalValueHighlightCondition(LogicalValueHighlightCondition c) {
-		this(c.valueCondition, c.logicalCondition);
-	}
-
 	public LogicalValueHighlightCondition(ValueHighlightCondition valueCondition,
 			AndOrHighlightCondition logicalCondition) {
 		this.valueCondition = valueCondition;
@@ -194,8 +190,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 	@Override
 	public HighlightCondition copy() {
-		return new LogicalValueHighlightCondition((ValueHighlightCondition) valueCondition.copy(),
-				(AndOrHighlightCondition) logicalCondition.copy());
+		return new LogicalValueHighlightCondition(valueCondition.copy(), logicalCondition.copy());
 	}
 
 	@Override

@@ -473,57 +473,45 @@ public class TracingUtils {
 	}
 
 	public static HighlightConditionList renameColumns(HighlightConditionList list, Set<String> columns) {
-		HighlightConditionList newList = new HighlightConditionList(list);
-		List<HighlightCondition> newL = new ArrayList<>();
+		List<HighlightCondition> conditions = new ArrayList<>();
 
 		for (HighlightCondition c : list.getConditions()) {
 			if (c instanceof AndOrHighlightCondition) {
-				newL.add(renameColumn((AndOrHighlightCondition) c, columns));
+				conditions.add(renameColumn((AndOrHighlightCondition) c, columns));
 			} else if (c instanceof ValueHighlightCondition) {
-				newL.add(renameColumn((ValueHighlightCondition) c, columns));
+				conditions.add(renameColumn((ValueHighlightCondition) c, columns));
 			} else if (c instanceof LogicalValueHighlightCondition) {
-				newL.add(new LogicalValueHighlightCondition(
+				conditions.add(new LogicalValueHighlightCondition(
 						renameColumn(((LogicalValueHighlightCondition) c).getValueCondition(), columns),
 						renameColumn(((LogicalValueHighlightCondition) c).getLogicalCondition(), columns)));
 			}
 		}
 
-		newList.setConditions(newL);
-
-		return newList;
+		return new HighlightConditionList(conditions, list.isPrioritizeColors());
 	}
 
 	private static AndOrHighlightCondition renameColumn(AndOrHighlightCondition c, Set<String> columns) {
-		AndOrHighlightCondition newC = new AndOrHighlightCondition(c);
-		List<List<LogicalHighlightCondition>> newL1 = new ArrayList<>();
+		List<List<LogicalHighlightCondition>> newConditions = new ArrayList<>();
 
-		newC.setLabelProperty(renameColumn(c.getLabelProperty(), columns));
+		for (List<LogicalHighlightCondition> andList : c.getConditions()) {
+			List<LogicalHighlightCondition> newAndList = new ArrayList<>();
 
-		for (List<LogicalHighlightCondition> l2 : c.getConditions()) {
-			List<LogicalHighlightCondition> newL2 = new ArrayList<>();
-
-			for (LogicalHighlightCondition l3 : l2) {
-				LogicalHighlightCondition newL3 = new LogicalHighlightCondition(l3);
-
-				newL3.setProperty(renameColumn(l3.getProperty(), columns));
-				newL2.add(newL3);
+			for (LogicalHighlightCondition l : andList) {
+				newAndList.add(new LogicalHighlightCondition(renameColumn(l.getProperty(), columns), l.getType(),
+						l.getValue()));
 			}
 
-			newL1.add(newL2);
+			newConditions.add(newAndList);
 		}
 
-		newC.setConditions(newL1);
-
-		return newC;
+		return new AndOrHighlightCondition(newConditions, c.getName(), c.isShowInLegend(), c.getColor(),
+				c.isInvisible(), c.isUseThickness(), (renameColumn(c.getLabelProperty(), columns)));
 	}
 
 	private static ValueHighlightCondition renameColumn(ValueHighlightCondition c, Set<String> columns) {
-		ValueHighlightCondition newC = new ValueHighlightCondition(c);
-
-		newC.setProperty(renameColumn(c.getProperty(), columns));
-		newC.setLabelProperty(renameColumn(c.getLabelProperty(), columns));
-
-		return newC;
+		return new ValueHighlightCondition(renameColumn(c.getProperty(), columns), c.getType(), c.isZeroAsMinimum(),
+				c.getName(), c.isShowInLegend(), c.getColor(), c.isInvisible(), c.isUseThickness(),
+				renameColumn(c.getLabelProperty(), columns));
 	}
 
 	private static String renameColumn(String column, Set<String> columns) {
