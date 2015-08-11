@@ -54,6 +54,7 @@
       <plugin id="com.sun.jna"/>
       <plugin id="com.thoughtworks.xstream"/>
       <plugin id="de.bund.bfr.knime"/>
+      <plugin id="de.bund.bfr.knime.chart"/>
       <plugin id="de.bund.bfr.knime.gis"/>
       <plugin id="de.bund.bfr.knime.gis.util"/>
       <plugin id="de.bund.bfr.knime.gis.views"/>
@@ -66,11 +67,11 @@
       <plugin id="edu.uci.ics.jung"/>
       <plugin id="javax.activation"/>
       <plugin id="javax.ejb"/>
+      <plugin id="javax.javaee-api"/>
       <plugin id="javax.mail.glassfish"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.transaction" fragment="true"/>
       <plugin id="javax.xml"/>
-      <plugin id="javax.xml.rpc"/>
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.batik.bridge"/>
       <plugin id="org.apache.batik.css"/>
@@ -104,8 +105,6 @@
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.apache.xmlbeans"/>
-      <plugin id="org.codehaus.jackson.core"/>
-      <plugin id="org.codehaus.jackson.mapper"/>
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.ant.optional.junit" fragment="true"/>
       <plugin id="org.eclipse.compare"/>
@@ -163,7 +162,6 @@
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.help.base"/>
       <plugin id="org.eclipse.help.ui"/>
-      <plugin id="org.eclipse.jdt.compiler.apt" fragment="true"/>
       <plugin id="org.eclipse.jdt.compiler.tool" fragment="true"/>
       <plugin id="org.eclipse.jdt.core"/>
       <plugin id="org.eclipse.jdt.core.manipulation"/>
@@ -203,7 +201,7 @@
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.fife.rsyntaxtextarea"/>
       <plugin id="org.geotools"/>
-      <plugin id="org.graphstream"/>
+      <plugin id="org.glassfish.javax.json"/>
       <plugin id="org.hamcrest.core"/>
       <plugin id="org.jooq"/>
       <plugin id="org.junit"/>
