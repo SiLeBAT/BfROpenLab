@@ -40,7 +40,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
@@ -119,8 +119,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 	}
 
 	@Override
-	protected GraphMouse<RegionNode, Edge<RegionNode>> createGraphMouse() {
-		return new GraphMouse<>(new RegionPickingPlugin(), 2.0, true);
+	protected PickingGraphMousePlugin<RegionNode, Edge<RegionNode>> createPickingPlugin() {
+		return new RegionPickingPlugin();
 	}
 
 	@Override

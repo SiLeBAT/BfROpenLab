@@ -94,7 +94,10 @@ import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.GraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
@@ -165,7 +168,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
 		viewer.setPickSupport(new ShapePickSupport<>(viewer));
 
-		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
+		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
 		graphMouse.addPickingChangeListener(this);
@@ -988,14 +991,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {
-		GraphMouse<V, Edge<V>> graphMouse = createGraphMouse();
-
-		graphMouse.setMode(optionsPanel.getEditingMode());
-		graphMouse.addPickingChangeListener(this);
-
-		viewer.setGraphMouse(graphMouse);
+		((GraphMouse<V, Edge<V>>) viewer.getGraphMouse()).setMode(optionsPanel.getEditingMode());
 	}
 
 	@Override
@@ -1273,8 +1272,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		return dialog;
 	}
 
-	protected GraphMouse<V, Edge<V>> createGraphMouse() {
-		return new GraphMouse<>(new PickingPlugin(), 1.1, false);
+	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+		return new PickingPlugin();
+	}
+
+	protected GraphMousePlugin createScalingPlugin() {
+		return new ScalingGraphMousePlugin(new LayoutScalingControl(), 0, 1 / 1.1f, 1.1f);
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {

@@ -150,11 +150,9 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		super.clearCollapsedNodesItemClicked();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {
 		super.editingModeChanged();
-		((GraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
 	}
 
 	@Override
