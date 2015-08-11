@@ -196,7 +196,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		if (e.getSource() == undoButton) {
 			if (!changes.isEmpty()) {
 				canvas.removeCanvasListener(this);
+
 				changes.removeLast().undo(canvas);
+				selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
+				selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
+				nodeHighlighting = canvas.getNodeHighlightConditions().copy();
+				edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
+
+				if (canvas instanceof GraphCanvas) {
+					nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
+				}
+
 				canvas.addCanvasListener(this);
 			}
 		} else {

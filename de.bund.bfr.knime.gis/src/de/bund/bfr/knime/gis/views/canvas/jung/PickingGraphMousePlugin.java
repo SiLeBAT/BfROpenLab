@@ -123,10 +123,16 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 					}
 				} else {
 					vv.addPostRenderPaintable(lensPaintable);
-					pickedEdgeState.clear();
-					pickedVertexState.clear();
-					fireNodePickingChanged();
-					fireEdgePickingChanged();
+
+					if (!pickedVertexState.getPicked().isEmpty()) {
+						pickedVertexState.clear();
+						fireNodePickingChanged();
+					}
+
+					if (!pickedEdgeState.getPicked().isEmpty()) {
+						pickedEdgeState.clear();
+						fireEdgePickingChanged();
+					}
 				}
 			} else {
 				if ((vertex = pickSupport.getVertex(layout, e.getX(), e.getY())) != null) {

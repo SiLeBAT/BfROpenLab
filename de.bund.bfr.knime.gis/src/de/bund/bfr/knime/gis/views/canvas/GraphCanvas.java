@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingMoveListener;
 import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
@@ -112,7 +113,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		}
 
 		layout.setSize(viewer.getSize());
-		viewer.setGraphLayout(layout);
+		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 	}
 
 	@Override
@@ -263,7 +264,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 			return;
 		}
 
-		viewer.setGraphLayout(layout);
+		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
 			new Thread(new LayoutThread((IterativeContext) layout, !selectedNodes.isEmpty() ? selectedNodes : nodes))
