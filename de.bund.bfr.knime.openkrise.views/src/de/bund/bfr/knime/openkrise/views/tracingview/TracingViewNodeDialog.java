@@ -223,6 +223,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
 
+			if (!(canvas instanceof GraphCanvas)) {
+				set.getGraphSettings()
+						.setNodePositions(change.undoRedoNodePositions(set.getGraphSettings().getNodePositions()));
+			}
+
 			updateStatusVariables();
 			redoStack.push(change);
 			redoButton.setEnabled(true);
@@ -236,6 +241,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			change.redo(canvas);
 			canvas.addCanvasListener(this);
 			canvas.addTracingListener(this);
+
+			if (!(canvas instanceof GraphCanvas)) {
+				set.getGraphSettings()
+						.setNodePositions(change.undoRedoNodePositions(set.getGraphSettings().getNodePositions()));
+			}
 
 			updateStatusVariables();
 			undoStack.push(change);

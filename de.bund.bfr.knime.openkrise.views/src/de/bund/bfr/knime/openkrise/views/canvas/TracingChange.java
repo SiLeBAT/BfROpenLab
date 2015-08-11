@@ -185,7 +185,11 @@ public class TracingChange {
 		undoRedo(canvas);
 	}
 
-	public void undoRedo(ITracingCanvas<?> canvas) {
+	public Map<String, Point2D> undoRedoNodePositions(Map<String, Point2D> nodePositions) {
+		return createMap(symDiff(nodePositions.entrySet(), builder.changedNodePositions));
+	}
+
+	private void undoRedo(ITracingCanvas<?> canvas) {
 		if (!builder.nodesWithChangedSelection.isEmpty()) {
 			canvas.setSelectedNodeIds(symDiff(canvas.getSelectedNodeIds(), builder.nodesWithChangedSelection));
 		}
@@ -195,7 +199,7 @@ public class TracingChange {
 		}
 
 		if (canvas instanceof GraphCanvas && !builder.changedNodePositions.isEmpty()) {
-			((GraphCanvas) canvas).setNodePositions(undoNodePositions(((GraphCanvas) canvas).getNodePositions()));
+			((GraphCanvas) canvas).setNodePositions(undoRedoNodePositions(((GraphCanvas) canvas).getNodePositions()));
 		}
 
 		if (!builder.changedNodeWeights.isEmpty()) {
@@ -235,10 +239,6 @@ public class TracingChange {
 			canvas.setObservedEdges(
 					createMap(symDiff(canvas.getObservedEdges().entrySet(), builder.changedObservedEdges)));
 		}
-	}
-
-	public Map<String, Point2D> undoNodePositions(Map<String, Point2D> nodePositions) {
-		return createMap(symDiff(nodePositions.entrySet(), builder.changedNodePositions));
 	}
 
 	public boolean isIdentity() {
