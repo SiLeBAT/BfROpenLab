@@ -153,6 +153,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		shapeTable = (BufferedDataTable) input[3];
 		set.loadSettings(settings);
 		undoStack.clear();
+		redoStack.clear();
 
 		gisBox.removeItemListener(this);
 		gisBox.removeAllItems();
