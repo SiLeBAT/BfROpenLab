@@ -47,6 +47,7 @@ public class TracingChange {
 		private HighlightingDiff edgeHighlightingDiff;
 
 		private Set<Map.Entry<String, Point2D>> changedNodePositions;
+		private Set<Map.Entry<String, Set<String>>> changedCollapsedNodes;
 
 		private Set<Map.Entry<String, Double>> changedNodeWeights;
 		private Set<Map.Entry<String, Double>> changedEdgeWeights;
@@ -66,6 +67,7 @@ public class TracingChange {
 			nodeHighlightingDiff = null;
 			edgeHighlightingDiff = null;
 			changedNodePositions = new LinkedHashSet<>();
+			changedCollapsedNodes = new LinkedHashSet<>();
 			changedNodeWeights = new LinkedHashSet<>();
 			changedEdgeWeights = new LinkedHashSet<>();
 			changedNodeCrossContams = new LinkedHashSet<>();
@@ -101,6 +103,12 @@ public class TracingChange {
 		public Builder nodePositions(Map<String, Point2D> nodePositionsBefore,
 				Map<String, Point2D> nodePositionsAfter) {
 			changedNodePositions = symDiff(nodePositionsBefore.entrySet(), nodePositionsAfter.entrySet());
+			return this;
+		}
+
+		public Builder collapsedNodes(Map<String, Set<String>> collapsedNodesBefore,
+				Map<String, Set<String>> collapsedNodesAfter) {
+			changedCollapsedNodes = symDiff(collapsedNodesBefore.entrySet(), collapsedNodesAfter.entrySet());
 			return this;
 		}
 
@@ -162,34 +170,44 @@ public class TracingChange {
 	}
 
 	public void undo(ITracingCanvas<?> canvas) {
-		if (builder.nodeHighlightingDiff != null && !builder.nodeHighlightingDiff.isIdentity()) {
-			canvas.setNodeHighlightConditions(builder.nodeHighlightingDiff.undo(canvas.getNodeHighlightConditions()));
-		}
-
-		if (builder.edgeHighlightingDiff != null && !builder.edgeHighlightingDiff.isIdentity()) {
-			canvas.setEdgeHighlightConditions(builder.edgeHighlightingDiff.undo(canvas.getEdgeHighlightConditions()));
-		}
-
-		undoRedo(canvas);
+		undoRedo(canvas, true);
 	}
 
 	public void redo(ITracingCanvas<?> canvas) {
-		if (builder.nodeHighlightingDiff != null && !builder.nodeHighlightingDiff.isIdentity()) {
-			canvas.setNodeHighlightConditions(builder.nodeHighlightingDiff.redo(canvas.getNodeHighlightConditions()));
-		}
-
-		if (builder.edgeHighlightingDiff != null && !builder.edgeHighlightingDiff.isIdentity()) {
-			canvas.setEdgeHighlightConditions(builder.edgeHighlightingDiff.redo(canvas.getEdgeHighlightConditions()));
-		}
-
-		undoRedo(canvas);
+		undoRedo(canvas, false);
 	}
 
 	public Map<String, Point2D> undoRedoNodePositions(Map<String, Point2D> nodePositions) {
 		return createMap(symDiff(nodePositions.entrySet(), builder.changedNodePositions));
 	}
 
-	private void undoRedo(ITracingCanvas<?> canvas) {
+	private void undoRedo(ITracingCanvas<?> canvas, boolean undo) {
+		if (!builder.changedCollapsedNodes.isEmpty()) {
+			canvas.setCollapsedNodes(
+					createMap(symDiff(canvas.getCollapsedNodes().entrySet(), builder.changedCollapsedNodes)));
+		}
+
+		if (builder.nodeHighlightingDiff != null && !builder.nodeHighlightingDiff.isIdentity()) {
+			if (undo) {
+				canvas.setNodeHighlightConditions(
+						builder.nodeHighlightingDiff.undo(canvas.getNodeHighlightConditions()));
+			} else {
+				canvas.setNodeHighlightConditions(
+						builder.nodeHighlightingDiff.redo(canvas.getNodeHighlightConditions()));
+			}
+
+		}
+
+		if (builder.edgeHighlightingDiff != null && !builder.edgeHighlightingDiff.isIdentity()) {
+			if (undo) {
+				canvas.setEdgeHighlightConditions(
+						builder.edgeHighlightingDiff.undo(canvas.getEdgeHighlightConditions()));
+			} else {
+				canvas.setEdgeHighlightConditions(
+						builder.edgeHighlightingDiff.redo(canvas.getEdgeHighlightConditions()));
+			}
+		}
+
 		if (!builder.nodesWithChangedSelection.isEmpty()) {
 			canvas.setSelectedNodeIds(symDiff(canvas.getSelectedNodeIds(), builder.nodesWithChangedSelection));
 		}
@@ -245,11 +263,11 @@ public class TracingChange {
 		return builder.nodesWithChangedSelection.isEmpty() && builder.edgesWithChangedSelection.isEmpty()
 				&& (builder.nodeHighlightingDiff == null || builder.nodeHighlightingDiff.isIdentity())
 				&& (builder.edgeHighlightingDiff == null || builder.edgeHighlightingDiff.isIdentity())
-				&& builder.changedNodePositions.isEmpty() && builder.changedNodeWeights.isEmpty()
-				&& builder.changedEdgeWeights.isEmpty() && builder.changedNodeCrossContams.isEmpty()
-				&& builder.changedEdgeCrossContams.isEmpty() && builder.changedNodeKillContams.isEmpty()
-				&& builder.changedEdgeKillContams.isEmpty() && builder.changedObservedNodes.isEmpty()
-				&& builder.changedObservedEdges.isEmpty();
+				&& builder.changedNodePositions.isEmpty() && builder.changedCollapsedNodes.isEmpty()
+				&& builder.changedNodeWeights.isEmpty() && builder.changedEdgeWeights.isEmpty()
+				&& builder.changedNodeCrossContams.isEmpty() && builder.changedEdgeCrossContams.isEmpty()
+				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
+				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty();
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

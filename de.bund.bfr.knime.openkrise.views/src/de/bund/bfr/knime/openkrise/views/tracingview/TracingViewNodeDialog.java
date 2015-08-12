@@ -90,6 +90,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private HighlightConditionList nodeHighlighting;
 	private HighlightConditionList edgeHighlighting;
 	private Map<String, Point2D> nodePositions;
+	private Map<String, Set<String>> collapsedNodes;
 	private Map<String, Double> nodeWeights;
 	private Map<String, Double> edgeWeights;
 	private Map<String, Boolean> nodeCrossContaminations;
@@ -123,6 +124,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		nodeHighlighting = null;
 		edgeHighlighting = null;
 		nodePositions = null;
+		collapsedNodes = null;
 		nodeWeights = null;
 		edgeWeights = null;
 		nodeCrossContaminations = null;
@@ -385,10 +387,23 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
+		Map<String, Set<String>> newCollapsed = canvas.getCollapsedNodes();
+
+		if (changeOccured(new TracingChange.Builder().collapsedNodes(collapsedNodes, newCollapsed).build())) {
+			collapsedNodes = copy(newCollapsed);
+		}
 	}
 
 	@Override
 	public void collapsedNodesAndPickingChanged(ICanvas<?> source) {
+		Set<String> newSelection = canvas.getSelectedNodeIds();
+		Map<String, Set<String>> newCollapsed = canvas.getCollapsedNodes();
+
+		if (changeOccured(new TracingChange.Builder().selectedNodes(selectedNodes, newSelection)
+				.collapsedNodes(collapsedNodes, newCollapsed).build())) {
+			selectedNodes = new LinkedHashSet<>(newSelection);
+			collapsedNodes = copy(newCollapsed);
+		}
 	}
 
 	@Override
@@ -569,6 +584,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
 		nodeHighlighting = canvas.getNodeHighlightConditions().copy();
 		edgeHighlighting = canvas.getEdgeHighlightConditions().copy();
+		collapsedNodes = copy(canvas.getCollapsedNodes());
 
 		if (canvas instanceof GraphCanvas) {
 			nodePositions = new LinkedHashMap<>(((GraphCanvas) canvas).getNodePositions());
@@ -582,5 +598,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		edgeKillContaminations = new LinkedHashMap<>(canvas.getEdgeKillContaminations());
 		observedNodes = new LinkedHashMap<>(canvas.getObservedNodes());
 		observedEdges = new LinkedHashMap<>(canvas.getObservedEdges());
+	}
+
+	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {
+		Map<String, Set<String>> copy = new LinkedHashMap<>();
+
+		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
+			copy.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
+		}
+
+		return copy;
 	}
 }
