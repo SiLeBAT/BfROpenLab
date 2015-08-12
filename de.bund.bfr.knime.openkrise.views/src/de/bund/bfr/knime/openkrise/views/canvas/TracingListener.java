@@ -40,4 +40,8 @@ public interface TracingListener {
 	void observedNodesChanged(ITracingCanvas<?> source);
 
 	void observedEdgesChanged(ITracingCanvas<?> source);
+
+	void enforceTemporalOrderChanged(ITracingCanvas<?> source);
+
+	void showForwardChanged(ITracingCanvas<?> source);
 }

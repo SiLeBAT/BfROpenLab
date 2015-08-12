@@ -61,6 +61,13 @@ public class TracingChange {
 		private Set<Map.Entry<String, Boolean>> changedObservedNodes;
 		private Set<Map.Entry<String, Boolean>> changedObservedEdges;
 
+		private boolean edgeJoinChanged;
+		private boolean skipEdgelessChanged;
+		private boolean showEdgesInMetaChanged;
+
+		private boolean enforceTempChanged;
+		private boolean showForwardChanged;
+
 		public Builder() {
 			nodesWithChangedSelection = new LinkedHashSet<>();
 			edgesWithChangedSelection = new LinkedHashSet<>();
@@ -76,6 +83,12 @@ public class TracingChange {
 			changedEdgeKillContams = new LinkedHashSet<>();
 			changedObservedNodes = new LinkedHashSet<>();
 			changedObservedEdges = new LinkedHashSet<>();
+
+			edgeJoinChanged = false;
+			skipEdgelessChanged = false;
+			showEdgesInMetaChanged = false;
+			enforceTempChanged = false;
+			showForwardChanged = false;
 		}
 
 		public Builder selectedNodes(Set<String> selectedNodesBefore, Set<String> selectedNodesAfter) {
@@ -158,6 +171,31 @@ public class TracingChange {
 			return this;
 		}
 
+		public Builder joinEdges(boolean joinEdgesBefore, boolean joinEdgesAfter) {
+			edgeJoinChanged = joinEdgesBefore != joinEdgesAfter;
+			return this;
+		}
+
+		public Builder skipEdgelessNodes(boolean skipEdgelessBefore, boolean skipEdgelessAfter) {
+			skipEdgelessChanged = skipEdgelessBefore != skipEdgelessAfter;
+			return this;
+		}
+
+		public Builder showEdgesInMetaNode(boolean showEdgesInMetaBefore, boolean showEdgesInMetaAfter) {
+			showEdgesInMetaChanged = showEdgesInMetaBefore != showEdgesInMetaAfter;
+			return this;
+		}
+
+		public Builder enforceTemporalOrder(boolean enforceTempBefore, boolean enforceTempAfter) {
+			enforceTempChanged = enforceTempBefore != enforceTempAfter;
+			return this;
+		}
+
+		public Builder showForwardChanged(boolean showForwardBefore, boolean showForwardAfter) {
+			showForwardChanged = showForwardBefore != showForwardAfter;
+			return this;
+		}
+
 		public TracingChange build() {
 			return new TracingChange(this);
 		}
@@ -182,6 +220,26 @@ public class TracingChange {
 	}
 
 	private void undoRedo(ITracingCanvas<?> canvas, boolean undo) {
+		if (builder.edgeJoinChanged) {
+			canvas.setJoinEdges(!canvas.isJoinEdges());
+		}
+
+		if (builder.skipEdgelessChanged) {
+			canvas.setSkipEdgelessNodes(!canvas.isSkipEdgelessNodes());
+		}
+
+		if (builder.showEdgesInMetaChanged) {
+			canvas.setShowEdgesInMetaNode(!canvas.isShowEdgesInMetaNode());
+		}
+
+		if (builder.enforceTempChanged) {
+			canvas.setEnforceTemporalOrder(!canvas.isEnforceTemporalOrder());
+		}
+
+		if (builder.showForwardChanged) {
+			canvas.setShowForward(!canvas.isShowForward());
+		}
+
 		if (!builder.changedCollapsedNodes.isEmpty()) {
 			canvas.setCollapsedNodes(
 					createMap(symDiff(canvas.getCollapsedNodes().entrySet(), builder.changedCollapsedNodes)));
@@ -267,7 +325,9 @@ public class TracingChange {
 				&& builder.changedNodeWeights.isEmpty() && builder.changedEdgeWeights.isEmpty()
 				&& builder.changedNodeCrossContams.isEmpty() && builder.changedEdgeCrossContams.isEmpty()
 				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
-				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty();
+				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
+				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
+				&& !builder.enforceTempChanged && !builder.showForwardChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

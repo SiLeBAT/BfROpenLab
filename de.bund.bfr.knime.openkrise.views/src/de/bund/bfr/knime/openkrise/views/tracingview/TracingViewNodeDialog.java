@@ -100,6 +100,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private Map<String, Boolean> observedNodes;
 	private Map<String, Boolean> observedEdges;
 
+	private boolean joinEdges;
+	private boolean skipEdgelessNodes;
+	private boolean showEdgesInMetaNode;
+	private boolean enforeTemporalOrder;
+	private boolean showForward;
+
 	private JButton undoButton;
 	private JButton redoButton;
 	private JButton resetWeightsButton;
@@ -133,6 +139,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		edgeKillContaminations = null;
 		observedNodes = null;
 		observedEdges = null;
+		joinEdges = false;
+		skipEdgelessNodes = false;
+		showEdgesInMetaNode = false;
+		enforeTemporalOrder = false;
+		showForward = false;
 
 		undoButton = new JButton("Undo");
 		undoButton.addActionListener(this);
@@ -375,14 +386,30 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void edgeJoinChanged(ICanvas<?> source) {
+		boolean newEdgeJoin = canvas.isJoinEdges();
+
+		if (changeOccured(new TracingChange.Builder().joinEdges(joinEdges, newEdgeJoin).build())) {
+			joinEdges = newEdgeJoin;
+		}
 	}
 
 	@Override
 	public void skipEdgelessChanged(ICanvas<?> source) {
+		boolean newSkipEdgeless = canvas.isSkipEdgelessNodes();
+
+		if (changeOccured(new TracingChange.Builder().skipEdgelessNodes(skipEdgelessNodes, newSkipEdgeless).build())) {
+			skipEdgelessNodes = newSkipEdgeless;
+		}
 	}
 
 	@Override
 	public void showEdgesInMetaNodeChanged(ICanvas<?> source) {
+		boolean newShowEdgesInMeta = canvas.isShowEdgesInMetaNode();
+
+		if (changeOccured(
+				new TracingChange.Builder().showEdgesInMetaNode(showEdgesInMetaNode, newShowEdgesInMeta).build())) {
+			showEdgesInMetaNode = newShowEdgesInMeta;
+		}
 	}
 
 	@Override
@@ -518,6 +545,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
+	@Override
+	public void enforceTemporalOrderChanged(ITracingCanvas<?> source) {
+		boolean newEnforceTemp = canvas.isEnforceTemporalOrder();
+
+		if (changeOccured(
+				new TracingChange.Builder().enforceTemporalOrder(enforeTemporalOrder, newEnforceTemp).build())) {
+			enforeTemporalOrder = newEnforceTemp;
+		}
+	}
+
+	@Override
+	public void showForwardChanged(ITracingCanvas<?> source) {
+		boolean newShowForward = canvas.isShowForward();
+
+		if (changeOccured(new TracingChange.Builder().showForwardChanged(showForward, newShowForward).build())) {
+			showForward = newShowForward;
+		}
+	}
+
 	private String updateCanvas() throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
@@ -598,6 +644,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		edgeKillContaminations = new LinkedHashMap<>(canvas.getEdgeKillContaminations());
 		observedNodes = new LinkedHashMap<>(canvas.getObservedNodes());
 		observedEdges = new LinkedHashMap<>(canvas.getObservedEdges());
+
+		joinEdges = canvas.isJoinEdges();
+		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
+		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
+		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
+		showForward = canvas.isShowForward();
 	}
 
 	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {

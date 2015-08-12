@@ -501,9 +501,17 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			if (performTracing) {
 				canvas.applyChanges();
 			}
+
+			for (TracingListener listener : listeners) {
+				listener.enforceTemporalOrderChanged(canvas);
+			}
 		} else if (e.getSource() == showForwardBox) {
 			if (performTracing) {
 				canvas.applyChanges();
+			}
+
+			for (TracingListener listener : listeners) {
+				listener.showForwardChanged(canvas);
 			}
 		}
 	}
