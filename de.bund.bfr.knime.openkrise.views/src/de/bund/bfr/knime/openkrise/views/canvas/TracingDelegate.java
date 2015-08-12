@@ -442,8 +442,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		canvas.applyHighlights();
 		canvas.getViewer().getGraphLayout().setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
 
-		canvas.setSelectedNodeIds(selectedNodeIds);
-		canvas.setSelectedEdgeIds(selectedEdgeIds);
+		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
+		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
 		canvas.getViewer().repaint();
 	}
 

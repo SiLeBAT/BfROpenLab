@@ -40,4 +40,6 @@ public interface CanvasListener {
 	void showEdgesInMetaNodeChanged(ICanvas<?> source);
 
 	void collapsedNodesChanged(ICanvas<?> source);
+
+	void collapsedNodesAndPickingChanged(ICanvas<?> source);
 }

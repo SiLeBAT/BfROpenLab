@@ -388,6 +388,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void collapsedNodesAndPickingChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();

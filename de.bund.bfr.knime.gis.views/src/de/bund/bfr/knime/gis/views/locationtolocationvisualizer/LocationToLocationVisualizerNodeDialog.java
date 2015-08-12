@@ -107,6 +107,17 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 
 	@Override
 	public void selectionChanged(ICanvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSelectedNodeIds(graphCanvas.getSelectedNodeIds());
+			gisCanvas.setSelectedEdgeIds(graphCanvas.getSelectedEdgeIds());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSelectedNodeIds(gisCanvas.getSelectedNodeIds());
+			graphCanvas.setSelectedEdgeIds(gisCanvas.getSelectedEdgeIds());
+			graphCanvas.addCanvasListener(this);
+		}
 	}
 
 	@Override
@@ -213,6 +224,21 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		} else if (source == gisCanvas) {
 			graphCanvas.removeCanvasListener(this);
 			graphCanvas.setCollapsedNodes(gisCanvas.getCollapsedNodes());
+			graphCanvas.addCanvasListener(this);
+		}
+	}
+
+	@Override
+	public void collapsedNodesAndPickingChanged(ICanvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setCollapsedNodes(graphCanvas.getCollapsedNodes());
+			gisCanvas.setSelectedNodeIds(graphCanvas.getSelectedNodeIds());
+			gisCanvas.addCanvasListener(this);
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setCollapsedNodes(gisCanvas.getCollapsedNodes());
+			graphCanvas.setSelectedNodeIds(gisCanvas.getSelectedNodeIds());
 			graphCanvas.addCanvasListener(this);
 		}
 	}

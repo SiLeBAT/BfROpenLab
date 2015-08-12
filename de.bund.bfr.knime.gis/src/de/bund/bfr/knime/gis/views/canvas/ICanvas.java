@@ -123,9 +123,13 @@ public interface ICanvas<V extends Node> {
 
 	void setSelectedNodeIds(Set<String> selectedNodeIds);
 
+	void setSelectedNodeIdsWithoutListener(Set<String> selectedNodeIds);
+
 	Set<String> getSelectedEdgeIds();
 
 	void setSelectedEdgeIds(Set<String> selectedEdgeIds);
+
+	void setSelectedEdgeIdsWithoutListener(Set<String> selectedEdgeIds);
 
 	HighlightConditionList getNodeHighlightConditions();
 

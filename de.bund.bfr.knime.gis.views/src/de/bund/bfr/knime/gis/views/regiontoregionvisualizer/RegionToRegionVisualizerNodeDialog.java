@@ -99,6 +99,22 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 	@Override
 	public void selectionChanged(ICanvas<?> source) {
+		if (source == graphCanvas) {
+			gisCanvas.removeCanvasListener(this);
+			gisCanvas.setSelectedNodeIds(
+					RegionToRegionUtils.getSelectedGisNodeIds(gisCanvas.getNodes(), graphCanvas.getSelectedNodes()));
+			gisCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGisEdgeIds(gisCanvas.getEdges(),
+					graphCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+			gisCanvas.addCanvasListener(this);
+			gisCanvas.repaint();
+		} else if (source == gisCanvas) {
+			graphCanvas.removeCanvasListener(this);
+			graphCanvas.setSelectedNodeIds(
+					RegionToRegionUtils.getSelectedGraphNodeIds(graphCanvas.getNodes(), gisCanvas.getSelectedNodes()));
+			graphCanvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGraphEdgeIds(graphCanvas.getEdges(),
+					gisCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
+			graphCanvas.addCanvasListener(this);
+		}
 	}
 
 	@Override
@@ -195,6 +211,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
+	}
+
+	@Override
+	public void collapsedNodesAndPickingChanged(ICanvas<?> source) {
 	}
 
 	private void updateSplitPane(boolean showWarning) {

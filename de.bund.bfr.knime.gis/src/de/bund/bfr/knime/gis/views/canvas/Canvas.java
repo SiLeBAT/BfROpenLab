@@ -435,6 +435,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void setSelectedNodeIdsWithoutListener(Set<String> selectedNodeIds) {
+		viewer.getPickedVertexState().clear();
+
+		for (V node : nodes) {
+			if (selectedNodeIds.contains(node.getId())) {
+				viewer.getPickedVertexState().pick(node, true);
+			}
+		}
+
+		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
+	}
+
+	@Override
 	public Set<String> getSelectedEdgeIds() {
 		return CanvasUtils.getElementIds(getSelectedEdges());
 	}
@@ -442,6 +455,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setSelectedEdgeIds(Set<String> selectedEdgeIds) {
 		setSelectedEdges(CanvasUtils.getElementsById(edges, selectedEdgeIds));
+	}
+
+	@Override
+	public void setSelectedEdgeIdsWithoutListener(Set<String> selectedEdgeIds) {
+		viewer.getPickedEdgeState().clear();
+
+		for (Edge<V> edge : edges) {
+			if (selectedEdgeIds.contains(edge.getId())) {
+				viewer.getPickedEdgeState().pick(edge, true);
+			}
+		}
+
+		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 	}
 
 	@Override
@@ -483,7 +509,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
-		fireCollapsedNodesChanged();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.collapsedNodesChanged(this);
+		}
 	}
 
 	@Override
@@ -775,7 +804,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		if (dialog.isApproved()) {
 			setSelectedEdges(CanvasUtils.getHighlightedElements(edges, dialog.getHighlightConditions()));
 		}
-
 	}
 
 	@Override
@@ -909,8 +937,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
-		fireCollapsedNodesChanged();
-		setSelectedNodeIds(new LinkedHashSet<>(Arrays.asList(newId)));
+		setSelectedNodeIdsWithoutListener(new LinkedHashSet<>(Arrays.asList(newId)));
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -931,8 +959,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 
 		applyChanges();
-		fireCollapsedNodesChanged();
-		setSelectedNodeIds(newIds);
+		setSelectedNodeIdsWithoutListener(newIds);
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -980,8 +1008,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 
 		applyChanges();
-		fireCollapsedNodesChanged();
-		setSelectedNodeIds(newCollapsedIds);
+		setSelectedNodeIdsWithoutListener(newCollapsedIds);
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -995,9 +1023,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 			collapsedNodes.clear();
 			applyChanges();
-			fireCollapsedNodesChanged();
 			viewer.getPickedVertexState().clear();
-			nodePickingChanged();
+			popup.setNodeSelectionEnabled(false);
+			fireCollapsedNodesAndPickingChanged();
 		}
 	}
 
@@ -1139,8 +1167,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		applyHighlights();
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
 
-		setSelectedNodeIds(selectedNodeIds);
-		setSelectedEdgeIds(selectedEdgeIds);
+		setSelectedNodeIdsWithoutListener(selectedNodeIds);
+		setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
 		viewer.repaint();
 	}
 
@@ -1298,9 +1326,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
 
-	private void fireCollapsedNodesChanged() {
+	private void fireCollapsedNodesAndPickingChanged() {
 		for (CanvasListener listener : canvasListeners) {
-			listener.collapsedNodesChanged(this);
+			listener.collapsedNodesAndPickingChanged(this);
 		}
 	}
 
