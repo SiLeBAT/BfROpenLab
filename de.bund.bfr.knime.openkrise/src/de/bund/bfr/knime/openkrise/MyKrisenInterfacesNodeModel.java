@@ -132,7 +132,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		Map<String, Delivery> deliveries = getDeliveries(conn, stationIds, deliveryIds);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec);
 		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec);
-		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(conn, deliveries, exec);
+		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
 
 		checkDates(deliveries);
 		checkAmounts(deliveries);
@@ -208,6 +208,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 
 	private DataTableSpec getStationSpec(Connection conn) {
 		List<DataColumnSpec> columns = new ArrayList<>();
+
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
@@ -495,8 +496,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel implements NodeModelW
 		return container.getTable();
 	}
 
-	private BufferedDataTable getDeliveryConnectionsTable(Connection conn, Map<String, Delivery> deliveries,
-			ExecutionContext exec) throws CanceledExecutionException {
+	private BufferedDataTable getDeliveryConnectionsTable(Map<String, Delivery> deliveries, ExecutionContext exec)
+			throws CanceledExecutionException {
 		BufferedDataContainer container = exec.createDataContainer(
 				new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
 						new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec()));
