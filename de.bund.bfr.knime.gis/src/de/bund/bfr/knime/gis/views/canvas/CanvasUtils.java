@@ -259,6 +259,10 @@ public class CanvasUtils {
 	}
 
 	public static Point2D getCenter(Collection<Point2D> points) {
+		if (points.isEmpty()) {
+			return null;
+		}
+
 		double x = 0.0;
 		double y = 0.0;
 
@@ -407,7 +411,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
+	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {

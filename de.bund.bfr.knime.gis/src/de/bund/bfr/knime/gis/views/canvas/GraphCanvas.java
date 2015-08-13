@@ -83,11 +83,24 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
+		Map<String, Point2D> positions = new LinkedHashMap<>(nodePositions);
 		int n = 0;
 
 		for (GraphNode node : nodeSaveMap.values()) {
-			if (nodePositions.get(node.getId()) == null) {
-				n++;
+			if (positions.get(node.getId()) == null) {
+				Set<String> containedNodes = collapsedNodes.get(node.getId());
+
+				if (containedNodes != null) {
+					Point2D center = CanvasUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
+
+					if (center != null) {
+						positions.put(node.getId(), center);
+					} else {
+						n++;
+					}
+				} else {
+					n++;
+				}
 			}
 		}
 
@@ -100,7 +113,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		int i = 0;
 
 		for (GraphNode node : nodeSaveMap.values()) {
-			Point2D pos = nodePositions.get(node.getId());
+			Point2D pos = positions.get(node.getId());
 
 			if (pos != null) {
 				layout.setLocation(node, pos);
