@@ -36,10 +36,11 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.quickform.nodes"/>
       <import plugin="org.knime.ext.poi"/>
       <import plugin="org.knime.base" version="2.10.0" match="greaterOrEqual"/>
-      <import plugin="org.knime.ext.svg"/>
       <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
+      <import plugin="org.knime.ext.svg"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.apache.commons.math3"/>
    </requires>
 
    <plugin
@@ -101,12 +102,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="quick.dbtable"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.math3"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
