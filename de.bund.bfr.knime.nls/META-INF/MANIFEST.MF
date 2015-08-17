@@ -15,11 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.math,
  de.bund.bfr.knime.chart
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.nls,
- de.bund.bfr.knime.nls.chart,
- de.bund.bfr.knime.nls.creator,
- de.bund.bfr.knime.nls.fitting,
- de.bund.bfr.knime.nls.functionport,
- de.bund.bfr.knime.nls.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

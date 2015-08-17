@@ -14,11 +14,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.gis,
  de.bund.bfr.knime.gis.util
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.gis.views,
- de.bund.bfr.knime.gis.views.graphvisualizer,
- de.bund.bfr.knime.gis.views.locationtolocationvisualizer,
- de.bund.bfr.knime.gis.views.locationvisualizer,
- de.bund.bfr.knime.gis.views.regiontoregionvisualizer,
- de.bund.bfr.knime.gis.views.regionvisualizer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

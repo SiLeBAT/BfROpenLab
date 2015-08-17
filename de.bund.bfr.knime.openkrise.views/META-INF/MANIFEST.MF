@@ -13,9 +13,5 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="16.0.0",
  de.bund.bfr.knime.openkrise
 Bundle-ActivationPolicy: lazy
-Export-Package: de.bund.bfr.knime.openkrise.views,
- de.bund.bfr.knime.openkrise.views.gisgraphview,
- de.bund.bfr.knime.openkrise.views.gisview,
- de.bund.bfr.knime.openkrise.views.tracingview
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 
