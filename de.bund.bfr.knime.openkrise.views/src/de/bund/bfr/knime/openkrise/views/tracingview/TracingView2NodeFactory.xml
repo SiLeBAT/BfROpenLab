@@ -44,6 +44,12 @@
 			</option>
 		</tab>
 		<tab name="Upper Options Bar">
+			<option name="Undo">
+				Undo the last change.
+			</option>
+			<option name="Redo">
+				Redo the last undone change.
+			</option>
 			<option name="Reset Weights">
 				Resets the "Weight" property for all stations and deliveries to the input
 				values.
@@ -102,6 +108,9 @@
 			</option>
 			<option name="Skip Unconnected Stations">
 				If checked, stations without any connected deliveries are not shown.
+			</option>
+			<option name="Show Deliveries in Meta Station">
+				If checked, deliveries from a meta station to itself are shown.
 			</option>
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
