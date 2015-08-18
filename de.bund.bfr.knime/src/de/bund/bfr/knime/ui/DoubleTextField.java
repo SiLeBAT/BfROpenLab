@@ -55,7 +55,10 @@ public class DoubleTextField extends TypedTextField implements FocusListener {
 	}
 
 	public void setValue(Double value) {
+		getDocument().removeDocumentListener(this);
 		setText(value != null ? value.toString() : "");
+		getDocument().addDocumentListener(this);
+		textChanged();
 		formatText();
 		setCaretPosition(0);
 	}

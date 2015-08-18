@@ -28,6 +28,8 @@ import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.google.common.base.Strings;
+
 public class StringTextArea extends JTextArea implements DocumentListener {
 
 	private static final long serialVersionUID = 1L;
@@ -36,7 +38,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 
 	private boolean optional;
 
-	private boolean isValueValid;
+	private boolean valueValid;
 	private String value;
 
 	public StringTextArea(boolean optional, int rows, int columns) {
@@ -58,7 +60,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 	}
 
 	public boolean isValueValid() {
-		return isValueValid;
+		return valueValid;
 	}
 
 	public String getValue() {
@@ -67,13 +69,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 
 	public void setValue(String value) {
 		getDocument().removeDocumentListener(this);
-
-		if (value != null) {
-			setText(value);
-		} else {
-			setText("");
-		}
-
+		setText(Strings.nullToEmpty(value));
 		getDocument().addDocumentListener(this);
 		textChanged();
 	}
@@ -95,7 +91,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 
 	@Override
 	public Color getForeground() {
-		if (!isValueValid && isEnabled()) {
+		if (!valueValid && isEnabled()) {
 			return Color.RED;
 		}
 
@@ -104,7 +100,7 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 
 	@Override
 	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
+		if (!valueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
 			return Color.RED;
 		}
 
@@ -112,14 +108,8 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 	}
 
 	private void textChanged() {
-		value = getText();
-
-		if (value.trim().isEmpty() && !optional) {
-			isValueValid = false;
-			value = null;
-		} else {
-			isValueValid = true;
-		}
+		value = Strings.emptyToNull(getText().trim());
+		valueValid = value != null || optional;
 
 		for (TextListener listener : listeners) {
 			listener.textChanged(this);

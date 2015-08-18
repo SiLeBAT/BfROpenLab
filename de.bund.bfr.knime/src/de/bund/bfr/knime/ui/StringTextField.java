@@ -37,7 +37,10 @@ public class StringTextField extends TypedTextField {
 	}
 
 	public void setValue(String value) {
+		getDocument().removeDocumentListener(this);
 		setText(Strings.nullToEmpty(value));
+		getDocument().addDocumentListener(this);
+		textChanged();
 	}
 
 	@Override
