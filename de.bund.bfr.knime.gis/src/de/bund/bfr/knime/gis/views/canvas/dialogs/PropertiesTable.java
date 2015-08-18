@@ -32,7 +32,7 @@ import javax.swing.table.AbstractTableModel;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
-import de.bund.bfr.knime.ui.BooleanCellRenderer;
+import de.bund.bfr.knime.ui.BooleanObjectCellRenderer;
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class PropertiesTable extends JTable {
@@ -67,7 +67,7 @@ public class PropertiesTable extends JTable {
 		setRowSorter(new IdSorter(getModel(), idColumns));
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		setDefaultRenderer(Boolean.class, new BooleanCellRenderer());
+		setDefaultRenderer(Boolean.class, new BooleanObjectCellRenderer());
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
 		UI.packColumns(this, 200);
 	}

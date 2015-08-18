@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 
 public class VariablePanel extends JPanel implements ActionListener, TextListener, ChangeListener, MouseListener {
@@ -76,21 +77,9 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
 			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
-		if (variables == null) {
-			variables = new LinkedHashMap<>();
-		}
-
-		if (minValues == null) {
-			minValues = new LinkedHashMap<>();
-		}
-
-		if (maxValues == null) {
-			maxValues = new LinkedHashMap<>();
-		}
-
-		this.variables = variables;
-		this.minValues = minValues;
-		this.maxValues = maxValues;
+		this.variables = KnimeUtils.nullToEmpty(variables);
+		this.minValues = KnimeUtils.nullToEmpty(minValues);
+		this.maxValues = KnimeUtils.nullToEmpty(maxValues);
 		this.instantSliders = instantSliders;
 		selectedValues = new LinkedHashMap<>();
 		valueListeners = new ArrayList<>();
@@ -103,7 +92,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 		int row = 0;
 
-		for (Map.Entry<String, List<Double>> entry : variables.entrySet()) {
+		for (Map.Entry<String, List<Double>> entry : this.variables.entrySet()) {
 			String var = entry.getKey();
 
 			selectedValues.put(var, new ArrayList<>(Collections.nCopies(entry.getValue().size(), true)));
@@ -120,8 +109,8 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 				JSlider slider = new JSlider(0, SLIDER_MAX);
 				JButton rangeButton = new JButton("Set Limits");
 				Double value = null;
-				Double min = minValues.get(var);
-				Double max = maxValues.get(var);
+				Double min = this.minValues.get(var);
+				Double max = this.maxValues.get(var);
 
 				if (!entry.getValue().isEmpty()) {
 					value = entry.getValue().get(0);

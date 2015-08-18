@@ -24,7 +24,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,14 +56,10 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 	public void setPossibleValues(Set<String> possibleValues) {
 		String selected = (String) getSelectedItem();
 
-		if (possibleValues == null) {
-			possibleValues = new LinkedHashSet<>();
-		}
-
-		this.list = new ArrayList<>(possibleValues);
+		this.list = possibleValues != null ? new ArrayList<>(possibleValues) : new ArrayList<String>();
 		removeAllItems();
 
-		for (String s : possibleValues) {
+		for (String s : list) {
 			addItem(s);
 		}
 
@@ -74,6 +69,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 	@Override
 	public void keyTyped(final KeyEvent e) {
 		EventQueue.invokeLater(new Runnable() {
+
 			@Override
 			public void run() {
 				String text = ((JTextField) e.getComponent()).getText();

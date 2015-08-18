@@ -251,11 +251,7 @@ public class ChartConfigPanel extends JPanel
 	}
 
 	public double getMinX() {
-		if (minXField.isValueValid()) {
-			return minXField.getValue();
-		}
-
-		return DEFAULT_MINX;
+		return minXField.isValueValid() ? minXField.getValue() : DEFAULT_MINX;
 	}
 
 	public void setMinX(double minX) {
@@ -263,11 +259,7 @@ public class ChartConfigPanel extends JPanel
 	}
 
 	public double getMinY() {
-		if (minYField.isValueValid()) {
-			return minYField.getValue();
-		}
-
-		return DEFAULT_MINY;
+		return minYField.isValueValid() ? minYField.getValue() : DEFAULT_MINY;
 	}
 
 	public void setMinY(double minY) {
@@ -275,11 +267,7 @@ public class ChartConfigPanel extends JPanel
 	}
 
 	public double getMaxX() {
-		if (maxXField.isValueValid()) {
-			return maxXField.getValue();
-		}
-
-		return DEFAULT_MAXX;
+		return maxXField.isValueValid() ? maxXField.getValue() : DEFAULT_MAXX;
 	}
 
 	public void setMaxX(double maxX) {
@@ -287,11 +275,7 @@ public class ChartConfigPanel extends JPanel
 	}
 
 	public double getMaxY() {
-		if (maxYField.isValueValid()) {
-			return maxYField.getValue();
-		}
-
-		return DEFAULT_MAXY;
+		return maxYField.isValueValid() ? maxYField.getValue() : DEFAULT_MAXY;
 	}
 
 	public void setMaxY(double maxY) {
@@ -374,39 +358,23 @@ public class ChartConfigPanel extends JPanel
 
 	public void init(String varY, List<String> variablesX, List<String> parameters, Map<String, Double> minValues,
 			Map<String, Double> maxValues) {
-		if (variablesX == null) {
-			variablesX = new ArrayList<>();
-		}
-
-		if (parameters == null) {
-			parameters = new ArrayList<>();
-		}
-
-		if (minValues == null) {
-			minValues = new LinkedHashMap<>();
-		}
-
-		if (maxValues == null) {
-			maxValues = new LinkedHashMap<>();
-		}
-
 		yBox.removeAllItems();
 		yBox.addItem(varY);
 		yBox.setSelectedIndex(0);
 		xBox.removeItemListener(this);
 		xBox.removeAllItems();
 
-		for (String var : variablesX) {
-			xBox.addItem(var);
-		}
+		if (variablesX != null && !variablesX.isEmpty()) {
+			for (String var : variablesX) {
+				xBox.addItem(var);
+			}
 
-		if (!variablesX.isEmpty()) {
 			xBox.setSelectedIndex(0);
 		}
 
 		xBox.addItemListener(this);
 
-		if (!parameters.isEmpty()) {
+		if (parameters != null && !parameters.isEmpty()) {
 			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
 
 			for (String param : parameters) {

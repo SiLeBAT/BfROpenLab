@@ -45,11 +45,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 
 	public ColumnComboBox(boolean optional, List<DataColumnSpec> columns) {
 		this.optional = optional;
-		this.columns = columns;
-
-		if (this.columns == null) {
-			this.columns = new ArrayList<>();
-		}
+		this.columns = columns != null ? columns : new ArrayList<DataColumnSpec>();
 
 		selectionBox = new JComboBox<>(new Vector<>(this.columns));
 		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());
@@ -73,12 +69,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		enableBox.setEnabled(enabled);
-
-		if (enabled) {
-			selectionBox.setEnabled(enableBox.isSelected());
-		} else {
-			selectionBox.setEnabled(false);
-		}
+		selectionBox.setEnabled(enabled && enableBox.isSelected());
 	}
 
 	public void removeAllColumns() {
@@ -92,11 +83,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	}
 
 	public DataColumnSpec getSelectedColumn() {
-		if (!selectionBox.isEnabled()) {
-			return null;
-		}
-
-		return (DataColumnSpec) selectionBox.getSelectedItem();
+		return selectionBox.isEnabled() ? (DataColumnSpec) selectionBox.getSelectedItem() : null;
 	}
 
 	public void setSelectedColumn(DataColumnSpec column) {
@@ -115,11 +102,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 	public String getSelectedColumnName() {
 		DataColumnSpec selection = getSelectedColumn();
 
-		if (selection != null) {
-			return selection.getName();
-		}
-
-		return null;
+		return selection != null ? selection.getName() : null;
 	}
 
 	public void setSelectedColumnName(String columnName) {

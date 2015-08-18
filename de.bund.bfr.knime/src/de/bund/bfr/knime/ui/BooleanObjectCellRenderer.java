@@ -31,32 +31,20 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
-public class BooleanCellRenderer implements TableCellRenderer {
+public class BooleanObjectCellRenderer implements TableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 		JPanel panel = new JPanel();
-		Boolean v = (Boolean) value;
-		Color color;
-
-		if (isSelected) {
-			color = UIManager.getDefaults().getColor("List.selectionBackground");
-		} else {
-			color = table.getBackground();
-		}
+		Color color = isSelected ? UIManager.getDefaults().getColor("List.selectionBackground") : table.getBackground();
 
 		panel.setBackground(color);
 
-		if (v != null) {
+		if (value instanceof Boolean) {
 			JCheckBox box = new JCheckBox();
 
-			if (v.booleanValue()) {
-				box.setSelected(true);
-			} else {
-				box.setSelected(false);
-			}
-
+			box.setSelected((Boolean) value);
 			box.setBackground(color);
 
 			panel.setLayout(new GridBagLayout());
@@ -66,5 +54,4 @@ public class BooleanCellRenderer implements TableCellRenderer {
 
 		return panel;
 	}
-
 }

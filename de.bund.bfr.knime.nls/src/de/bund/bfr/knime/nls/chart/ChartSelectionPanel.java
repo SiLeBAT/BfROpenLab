@@ -57,6 +57,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
@@ -266,17 +267,9 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 		public SelectTableModel(List<String> ids, Map<String, List<String>> stringColumns,
 				Map<String, List<Double>> doubleColumns, List<Color> colors, List<NamedShape> shapes) {
-			if (stringColumns == null) {
-				stringColumns = new LinkedHashMap<>();
-			}
-
-			if (doubleColumns == null) {
-				doubleColumns = new LinkedHashMap<>();
-			}
-
 			this.ids = ids;
-			this.stringColumns = stringColumns;
-			this.doubleColumns = doubleColumns;
+			this.stringColumns = KnimeUtils.nullToEmpty(stringColumns);
+			this.doubleColumns = KnimeUtils.nullToEmpty(doubleColumns);
 			this.colors = colors;
 			this.shapes = shapes;
 
@@ -291,11 +284,11 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			colorIndex = columnCount++;
 			shapeIndex = columnCount++;
 
-			for (String column : stringColumns.keySet()) {
+			for (String column : this.stringColumns.keySet()) {
 				stringByIndex.put(columnCount++, column);
 			}
 
-			for (String column : doubleColumns.keySet()) {
+			for (String column : this.doubleColumns.keySet()) {
 				doubleByIndex.put(columnCount++, column);
 			}
 		}
