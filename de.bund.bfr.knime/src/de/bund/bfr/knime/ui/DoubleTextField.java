@@ -19,37 +19,23 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-public class DoubleTextField extends JTextField implements DocumentListener, FocusListener {
+public class DoubleTextField extends TypedTextField implements FocusListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private double minValue;
 	private double maxValue;
-	private boolean optional;
 
-	private boolean isValueValid;
 	private Double value;
 
-	private List<TextListener> listeners;
-
 	public DoubleTextField(boolean optional, int columns) {
-		super(columns);
+		super(optional, columns);
 		this.minValue = Double.NEGATIVE_INFINITY;
 		this.maxValue = Double.POSITIVE_INFINITY;
-		this.optional = optional;
-		getDocument().addDocumentListener(this);
 		addFocusListener(this);
-		listeners = new ArrayList<>();
 		textChanged();
 		formatText();
 	}
@@ -64,51 +50,18 @@ public class DoubleTextField extends JTextField implements DocumentListener, Foc
 		textChanged();
 	}
 
-	public void addTextListener(TextListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeTextListener(TextListener listener) {
-		listeners.remove(listener);
-	}
-
-	public boolean isValueValid() {
-		return isValueValid;
-	}
-
 	public Double getValue() {
 		return value;
 	}
 
 	public void setValue(Double value) {
-		if (value != null) {
-			setText(value.toString());
-		} else {
-			setText("");
-		}
-
+		setText(value != null ? value.toString() : "");
 		formatText();
 		setCaretPosition(0);
 	}
 
 	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
 	public void focusGained(FocusEvent e) {
-		selectAll();
 	}
 
 	@Override
@@ -116,57 +69,27 @@ public class DoubleTextField extends JTextField implements DocumentListener, Foc
 		formatText();
 	}
 
-	@Override
-	public Color getForeground() {
-		if (!isValueValid && isEnabled()) {
-			return Color.RED;
-		}
-
-		return super.getForeground();
-	}
-
-	@Override
-	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
-			return Color.RED;
-		}
-
-		return super.getBackground();
-	}
-
 	protected void formatText() {
-		if (value != null) {
-			setText(getText().replace(",", "."));
-		}
+		getDocument().removeDocumentListener(this);
+		setText(getText().replace(",", "."));
+		getDocument().addDocumentListener(this);
 	}
 
-	private void textChanged() {
+	@Override
+	protected void textChanged() {
 		if (getText().trim().isEmpty()) {
 			value = null;
-
-			if (optional) {
-				isValueValid = true;
-			} else {
-				isValueValid = false;
-			}
+			valueValid = isOptional();
 		} else {
 			try {
 				value = Double.parseDouble(getText().replace(",", "."));
-
-				if (value >= minValue && value <= maxValue) {
-					isValueValid = true;
-				} else {
-					isValueValid = false;
-				}
+				valueValid = value >= minValue && value <= maxValue;
 			} catch (NumberFormatException e) {
 				value = null;
-				isValueValid = false;
+				valueValid = false;
 			}
 		}
 
-		for (TextListener listener : listeners) {
-			listener.textChanged(this);
-		}
+		super.textChanged();
 	}
-
 }

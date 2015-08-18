@@ -19,43 +19,17 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Strings;
 
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-public class StringTextField extends JTextField implements DocumentListener {
+public class StringTextField extends TypedTextField {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<TextListener> listeners;
-
-	private boolean optional;
-
-	private boolean isValueValid;
 	private String value;
 
 	public StringTextField(boolean optional, int columns) {
-		super(columns);
-		this.optional = optional;
-		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<>();
+		super(optional, columns);
 		textChanged();
-	}
-
-	public void addTextListener(TextListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeTextListener(TextListener listener) {
-		listeners.remove(listener);
-	}
-
-	public boolean isValueValid() {
-		return isValueValid;
 	}
 
 	public String getValue() {
@@ -63,64 +37,13 @@ public class StringTextField extends JTextField implements DocumentListener {
 	}
 
 	public void setValue(String value) {
-		getDocument().removeDocumentListener(this);
-
-		if (value != null) {
-			setText(value);
-		} else {
-			setText("");
-		}
-
-		getDocument().addDocumentListener(this);
-		textChanged();
+		setText(Strings.nullToEmpty(value));
 	}
 
 	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
+	protected void textChanged() {
+		value = Strings.emptyToNull(getText().trim());
+		valueValid = value != null || isOptional();
+		super.textChanged();
 	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public Color getForeground() {
-		if (!isValueValid && isEnabled()) {
-			return Color.RED;
-		}
-
-		return super.getForeground();
-	}
-
-	@Override
-	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
-			return Color.RED;
-		}
-
-		return super.getBackground();
-	}
-
-	private void textChanged() {
-		value = getText().trim();
-		value = value.isEmpty() ? null : value;
-
-		if (value == null && !optional) {
-			isValueValid = false;
-		} else {
-			isValueValid = true;
-		}
-
-		for (TextListener listener : listeners) {
-			listener.textChanged(this);
-		}
-	}
-
 }

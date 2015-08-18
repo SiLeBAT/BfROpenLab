@@ -19,34 +19,19 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-public class IntTextField extends JTextField implements DocumentListener {
+public class IntTextField extends TypedTextField {
 
 	private static final long serialVersionUID = 1L;
 
 	private int minValue;
 	private int maxValue;
-	private boolean optional;
 
-	private boolean isValueValid;
 	private Integer value;
 
-	private List<TextListener> listeners;
-
 	public IntTextField(boolean optional, int columns) {
-		super(columns);
+		super(optional, columns);
 		this.minValue = Integer.MIN_VALUE;
 		this.maxValue = Integer.MAX_VALUE;
-		this.optional = optional;
-		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<>();
 		textChanged();
 	}
 
@@ -60,90 +45,29 @@ public class IntTextField extends JTextField implements DocumentListener {
 		textChanged();
 	}
 
-	public void addTextListener(TextListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeTextListener(TextListener listener) {
-		listeners.remove(listener);
-	}
-
-	public boolean isValueValid() {
-		return isValueValid;
-	}
-
 	public Integer getValue() {
 		return value;
 	}
 
 	public void setValue(Integer value) {
-		if (value != null) {
-			setText(value.toString());
-		} else {
-			setText("");
-		}
+		setText(value != null ? value.toString() : "");
 	}
 
 	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public Color getForeground() {
-		if (!isValueValid && isEnabled()) {
-			return Color.RED;
-		}
-
-		return super.getForeground();
-	}
-
-	@Override
-	public Color getBackground() {
-		if (!isValueValid && isEnabled() && getDocument() != null && getText().trim().isEmpty()) {
-			return Color.RED;
-		}
-
-		return super.getBackground();
-	}
-
-	private void textChanged() {
+	protected void textChanged() {
 		if (getText().trim().isEmpty()) {
 			value = null;
-
-			if (optional) {
-				isValueValid = true;
-			} else {
-				isValueValid = false;
-			}
+			valueValid = isOptional();
 		} else {
 			try {
 				value = Integer.parseInt(getText());
-
-				if (value >= minValue && value <= maxValue) {
-					isValueValid = true;
-				} else {
-					isValueValid = false;
-				}
+				valueValid = value >= minValue && value <= maxValue;
 			} catch (NumberFormatException e) {
 				value = null;
-				isValueValid = false;
+				valueValid = false;
 			}
 		}
 
-		for (TextListener listener : listeners) {
-			listener.textChanged(this);
-		}
+		super.textChanged();
 	}
-
 }
