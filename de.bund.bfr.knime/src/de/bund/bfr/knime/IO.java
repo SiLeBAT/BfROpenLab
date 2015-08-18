@@ -30,49 +30,31 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
+import com.google.common.base.Strings;
+
 public class IO {
 
 	private IO() {
 	}
 
 	public static DataCell createCell(String s) {
-		if (s != null) {
-			return new StringCell(s);
-		}
-
-		return DataType.getMissingCell();
+		return s != null ? new StringCell(s) : DataType.getMissingCell();
 	}
 
 	public static DataCell createCell(Integer i) {
-		if (i != null) {
-			return new IntCell(i);
-		}
-
-		return DataType.getMissingCell();
+		return i != null ? new IntCell(i) : DataType.getMissingCell();
 	}
 
 	public static DataCell createCell(Double d) {
-		if (d != null) {
-			return new DoubleCell(d);
-		}
-
-		return DataType.getMissingCell();
+		return d != null ? new DoubleCell(d) : DataType.getMissingCell();
 	}
 
 	public static DataCell createCell(Boolean b) {
-		if (b != null) {
-			return BooleanCell.get(b);
-		}
-
-		return DataType.getMissingCell();
+		return b != null ? BooleanCell.get(b) : DataType.getMissingCell();
 	}
 
 	public static String getToString(DataCell cell) {
-		if (cell.isMissing()) {
-			return null;
-		}
-
-		return cell.toString();
+		return !cell.isMissing() ? cell.toString() : null;
 	}
 
 	public static String getToCleanString(DataCell cell) {
@@ -80,11 +62,7 @@ public class IO {
 	}
 
 	public static String getString(DataCell cell) {
-		if (cell instanceof StringValue) {
-			return ((StringValue) cell).getStringValue();
-		}
-
-		return null;
+		return cell instanceof StringValue ? ((StringValue) cell).getStringValue() : null;
 	}
 
 	public static String getCleanString(DataCell cell) {
@@ -92,36 +70,21 @@ public class IO {
 	}
 
 	public static Integer getInt(DataCell cell) {
-		if (cell instanceof IntValue) {
-			return ((IntValue) cell).getIntValue();
-		}
-
-		return null;
+		return cell instanceof IntValue ? ((IntValue) cell).getIntValue() : null;
 	}
 
 	public static Double getDouble(DataCell cell) {
-		if (cell instanceof DoubleValue) {
-			return ((DoubleValue) cell).getDoubleValue();
-		}
-
-		return null;
+		return cell instanceof DoubleValue ? ((DoubleValue) cell).getDoubleValue() : null;
 	}
 
 	public static Boolean getBoolean(DataCell cell) {
-		if (cell instanceof BooleanValue) {
-			return ((BooleanValue) cell).getBooleanValue();
-		}
-
-		return null;
+		return cell instanceof BooleanValue ? ((BooleanValue) cell).getBooleanValue() : null;
 	}
 
 	private static String clean(String s) {
-		if (s == null) {
-			return null;
-		}
-
-		String cleaned = s.replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").replace("\n", " ").trim();
-
-		return cleaned.isEmpty() ? null : cleaned;
+		return s != null
+				? Strings.emptyToNull(
+						s.replaceAll("\\p{C}", "").replace("\u00A0", "").replace("\t", " ").replace("\n", " ").trim())
+				: null;
 	}
 }
