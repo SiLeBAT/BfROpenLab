@@ -406,17 +406,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private XYItemRenderer createRenderer(Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {
-		Color color = colors.get(id);
-		NamedShape shape = shapes.get(id);
-
-		if (color == null) {
-			color = defaultColor;
-		}
-
-		if (shape == null) {
-			shape = defaultShape;
-		}
-
+		Color color = colors.containsKey(id) ? colors.get(id) : defaultColor;
+		NamedShape shape = shapes.containsKey(id) ? shapes.get(id) : defaultShape;
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines, true);
 
 		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
@@ -464,16 +455,8 @@ public class ChartCreator extends ChartPanel {
 
 	private XYItemRenderer createFunctionRenderer(Plotable plotable, String id, Color defaultColor,
 			NamedShape defaultShape, XYDataset dataSet) {
-		Color color = colors.get(id);
-		NamedShape shape = shapes.get(id);
-
-		if (color == null) {
-			color = defaultColor;
-		}
-
-		if (shape == null) {
-			shape = defaultShape;
-		}
+		Color color = colors.containsKey(id) ? colors.get(id) : defaultColor;
+		NamedShape shape = shapes.containsKey(id) ? shapes.get(id) : defaultShape;
 
 		if (dataSet instanceof YIntervalSeriesCollection) {
 			DeviationRenderer functionRenderer = new DeviationRenderer(true, false);

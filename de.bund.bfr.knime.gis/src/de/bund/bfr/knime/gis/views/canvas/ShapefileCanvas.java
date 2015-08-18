@@ -97,11 +97,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 		Rectangle2D bounds = null;
 
 		for (RegionNode node : nodes) {
-			if (bounds == null) {
-				bounds = node.getBoundingBox();
-			} else {
-				bounds = bounds.createUnion(node.getBoundingBox());
-			}
+			bounds = bounds != null ? bounds.createUnion(node.getBoundingBox()) : node.getBoundingBox();
 		}
 
 		return bounds;

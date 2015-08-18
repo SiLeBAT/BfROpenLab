@@ -32,6 +32,7 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
@@ -208,19 +209,16 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes, boolean avoidIterations) {
-		if (selectedNodes == null) {
-			selectedNodes = new LinkedHashSet<>();
-		}
-
+		Set<GraphNode> nodesForLayout = new LinkedHashSet<>(KnimeUtils.nullToEmpty(selectedNodes));
 		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
 		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
-		if (!selectedNodes.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
+		if (!nodesForLayout.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this,
 					layoutType + " cannot be applied on a subset of " + naming.nodes() + ". Apply " + layoutType
 							+ " on all " + naming.nodes() + "?",
 					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				selectedNodes = new LinkedHashSet<>();
+				nodesForLayout.clear();
 			} else {
 				return;
 			}
@@ -246,12 +244,12 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 			throw new IllegalArgumentException("Unknown LayoutType: " + layoutType);
 		}
 
-		if (!selectedNodes.isEmpty()) {
+		if (!nodesForLayout.isEmpty()) {
 			Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
 					transform.getTranslationY() / transform.getScaleY());
 
 			for (GraphNode node : nodes) {
-				if (!selectedNodes.contains(node)) {
+				if (!nodesForLayout.contains(node)) {
 					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
@@ -261,7 +259,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 					(int) (viewer.getSize().height / transform.getScaleY())));
 
 			for (GraphNode node : nodes) {
-				if (!selectedNodes.contains(node)) {
+				if (!nodesForLayout.contains(node)) {
 					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
@@ -278,7 +276,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
-			new Thread(new LayoutThread((IterativeContext) layout, !selectedNodes.isEmpty() ? selectedNodes : nodes))
+			new Thread(new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes))
 					.start();
 		} else {
 			setNodePositions(getNodePositions());
