@@ -135,6 +135,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			ParameterOptimizer.Result result = entry.getValue();
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
+			if (result.getSse() == null) {
+				setWarningMessage("Fitting of data set with ID \"" + id + "\" failed");
+			}
+
 			for (String param1 : function.getParameters()) {
 				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result.getParameterValues().get(param1));
 
