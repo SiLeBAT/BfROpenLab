@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 
+import de.bund.bfr.knime.KnimeUtils;
+
 public class ColumnComboBox extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
@@ -45,7 +47,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 
 	public ColumnComboBox(boolean optional, List<DataColumnSpec> columns) {
 		this.optional = optional;
-		this.columns = columns != null ? columns : new ArrayList<DataColumnSpec>();
+		this.columns = new ArrayList<>(KnimeUtils.nullToEmpty(columns));
 
 		selectionBox = new JComboBox<>(new Vector<>(this.columns));
 		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());

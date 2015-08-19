@@ -24,8 +24,6 @@ import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +36,9 @@ import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 public class KnimeUtils {
@@ -127,15 +128,18 @@ public class KnimeUtils {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> List<T> nullToEmpty(List<T> list) {
-		return list != null ? list : new ArrayList<T>();
+		return list != null ? list : (List<T>) ImmutableList.of();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Set<T> nullToEmpty(Set<T> set) {
-		return set != null ? set : new LinkedHashSet<T>();
+		return set != null ? set : (Set<T>) ImmutableSet.of();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
-		return map != null ? map : new LinkedHashMap<V, K>();
+		return map != null ? map : (Map<V, K>) ImmutableMap.of();
 	}
 }

@@ -32,6 +32,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
+import de.bund.bfr.knime.KnimeUtils;
+
 public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
@@ -56,7 +58,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 	public void setPossibleValues(Set<String> possibleValues) {
 		String selected = (String) getSelectedItem();
 
-		this.list = possibleValues != null ? new ArrayList<>(possibleValues) : new ArrayList<String>();
+		this.list = new ArrayList<>(KnimeUtils.nullToEmpty(possibleValues));
 		removeAllItems();
 
 		for (String s : list) {

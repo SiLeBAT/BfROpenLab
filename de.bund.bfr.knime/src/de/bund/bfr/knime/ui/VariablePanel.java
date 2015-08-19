@@ -78,8 +78,8 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
 			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
 		this.variables = KnimeUtils.nullToEmpty(variables);
-		this.minValues = KnimeUtils.nullToEmpty(minValues);
-		this.maxValues = KnimeUtils.nullToEmpty(maxValues);
+		this.minValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(minValues));
+		this.maxValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(maxValues));
 		this.instantSliders = instantSliders;
 		selectedValues = new LinkedHashMap<>();
 		valueListeners = new ArrayList<>();
