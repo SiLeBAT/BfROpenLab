@@ -74,7 +74,6 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private ChartCreator chartCreator;
 	private ChartConfigPanel configPanel;
 	private JCheckBox enforceLimitsBox;
-	private IntTextField maxEvaluationsField;
 	private IntTextField maxIterationsField;
 	private JCheckBox fitAllAtOnceBox;
 	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
@@ -124,14 +123,13 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		if (!maxEvaluationsField.isValueValid() || !maxIterationsField.isValueValid()) {
+		if (!maxIterationsField.isValueValid()) {
 			throw new InvalidSettingsException("");
 		}
 
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setEnforceLimits(enforceLimitsBox.isSelected());
-		set.setMaxLevenbergEvaluations(maxEvaluationsField.getValue());
 		set.setMaxLevenbergIterations(maxIterationsField.getValue());
 		set.setStartValues(configPanel.getParamValues());
 		set.setMinStartValues(configPanel.getMinValues());
@@ -143,9 +141,6 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private JComponent createMainComponent() {
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
-		maxEvaluationsField = new IntTextField(false, 8);
-		maxEvaluationsField.setMinValue(1);
-		maxEvaluationsField.setValue(set.getMaxLevenbergEvaluations());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
 		maxIterationsField.setValue(set.getMaxLevenbergIterations());
@@ -172,10 +167,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		createChart();
 
 		List<Component> leftComponents = new ArrayList<Component>(
-				Arrays.asList(enforceLimitsBox, new JLabel("Maximal Evaluations in each run of Levenberg Algorithm"),
-						new JLabel("Maximal Iterations in each run of Levenberg Algorithm")));
-		List<Component> rightComponents = new ArrayList<Component>(
-				Arrays.asList(new JLabel(), maxEvaluationsField, maxIterationsField));
+				Arrays.asList(enforceLimitsBox, new JLabel("Maximal Iterations in each run of Levenberg Algorithm")));
+		List<Component> rightComponents = new ArrayList<Component>(Arrays.asList(new JLabel(), maxIterationsField));
 
 		if (isDiff) {
 			leftComponents.add(fitAllAtOnceBox);

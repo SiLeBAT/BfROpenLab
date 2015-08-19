@@ -356,12 +356,11 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getStartValues(), new LinkedHashMap<String, Double>(),
-								set.getMaxLevenbergEvaluations(), set.getMaxLevenbergIterations()));
+								set.getMaxLevenbergIterations()));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
-								set.getMaxLevenbergIterations()));
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
 			}
 
 			currentFitting++;
@@ -423,12 +422,11 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 								set.getStartValues(), new LinkedHashMap<String, Double>(),
-								set.getMaxLevenbergEvaluations(), set.getMaxLevenbergIterations()));
+								set.getMaxLevenbergIterations()));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
-								set.getMaxLevenbergIterations()));
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
 			}
 
 			currentFitting++;
@@ -522,12 +520,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getStartValues(), new LinkedHashMap<String, Double>(), set.getMaxLevenbergEvaluations(),
-					set.getMaxLevenbergIterations());
+					set.getStartValues(), new LinkedHashMap<String, Double>(), set.getMaxLevenbergIterations());
 		} else {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergEvaluations(),
-					set.getMaxLevenbergIterations());
+					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations());
 		}
 
 		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();

@@ -114,8 +114,7 @@ public class ParameterOptimizer {
 	}
 
 	public Result optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
-			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxLevenbergEvaluation,
-			int maxLevenbergIterations) {
+			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
 		double[] paramMin = new double[parameters.length];
 		int[] paramStepCount = new int[parameters.length];
 		double[] paramStepSize = new double[parameters.length];
@@ -160,11 +159,10 @@ public class ParameterOptimizer {
 
 		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize, nLevenberg);
 
-		return optimize(startValuesList, stopWhenSuccessful, maxLevenbergEvaluation, maxLevenbergIterations);
+		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
 	}
 
-	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful, int maxEvaluations,
-			int maxIterations) {
+	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful, int maxIterations) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = null;
 		int count = 0;
@@ -174,7 +172,7 @@ public class ParameterOptimizer {
 
 			try {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
-						.optimize(createLeastSquaresProblem(startValues.getValues(), maxEvaluations, maxIterations));
+						.optimize(createLeastSquaresProblem(startValues.getValues(), maxIterations));
 				double cost = optimizerResults.getCost();
 
 				if (result == null || cost * cost < result.sse) {
@@ -260,9 +258,9 @@ public class ParameterOptimizer {
 		return valuesList.subList(0, n);
 	}
 
-	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues, int maxEvaluations, int maxIterations) {
+	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
-				.maxEvaluations(maxEvaluations).maxIterations(maxIterations).target(targetValues).start(startValues);
+				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder = builder.parameterValidator(new ParameterValidator() {

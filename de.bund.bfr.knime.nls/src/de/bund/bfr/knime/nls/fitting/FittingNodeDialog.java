@@ -77,7 +77,6 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 	private IntTextField nParamSpaceField;
 	private IntTextField nLevenbergField;
 	private JCheckBox stopWhenSuccessBox;
-	private IntTextField maxEvaluationsField;
 	private IntTextField maxIterationsField;
 	private JButton clearButton;
 	private JCheckBox limitsBox;
@@ -146,8 +145,8 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 			throw new InvalidSettingsException("");
 		}
 
-		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid() || !maxEvaluationsField.isValueValid()
-				|| !maxIterationsField.isValueValid() || minimumFields == null || maximumFields == null) {
+		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid() || !maxIterationsField.isValueValid()
+				|| minimumFields == null || maximumFields == null) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -175,7 +174,6 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		set.setnParameterSpace(nParamSpaceField.getValue());
 		set.setnLevenberg(nLevenbergField.getValue());
 		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
-		set.setMaxLevenbergEvaluations(maxEvaluationsField.getValue());
 		set.setMaxLevenbergIterations(maxIterationsField.getValue());
 		set.setEnforceLimits(limitsBox.isSelected());
 		set.setMinStartValues(minStartValues);
@@ -219,9 +217,6 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		nLevenbergField.setValue(set.getnLevenberg());
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
-		maxEvaluationsField = new IntTextField(false, 8);
-		maxEvaluationsField.setMinValue(1);
-		maxEvaluationsField.setValue(set.getMaxLevenbergEvaluations());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
 		maxIterationsField.setValue(set.getMaxLevenbergIterations());
@@ -232,10 +227,9 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		List<Component> leftComps = new ArrayList<Component>(
 				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
 						new JLabel("Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox,
-						new JLabel("Maximal Evaluations in each run of Levenberg Algorithm"),
 						new JLabel("Maximal Iterations in each run of Levenberg Algorithm")));
-		List<Component> rightComps = new ArrayList<Component>(Arrays.asList(nParamSpaceField, nLevenbergField,
-				new JLabel(), maxEvaluationsField, maxIterationsField));
+		List<Component> rightComps = new ArrayList<Component>(
+				Arrays.asList(nParamSpaceField, nLevenbergField, new JLabel(), maxIterationsField));
 
 		if (isDiff) {
 			leftComps.add(0, new JLabel("Integration Step Size"));
