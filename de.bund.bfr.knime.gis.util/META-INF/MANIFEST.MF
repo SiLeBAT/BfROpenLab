@@ -6,10 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.util.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core,
- org.knime.workbench.repository,
- org.knime.base;bundle-version="2.12.0",
+Require-Bundle: org.knime.base;bundle-version="2.12.0",
  de.bund.bfr.knime.gis
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
