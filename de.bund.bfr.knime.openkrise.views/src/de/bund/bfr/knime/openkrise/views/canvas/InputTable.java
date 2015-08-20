@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
@@ -32,7 +33,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -64,113 +65,17 @@ public class InputTable extends JTable {
 			inputs.add(new Input(weight, crossContamination, killContamination, observed));
 		}
 
-		setModel(new InputTableModel(inputs));
+		DefaultTableModel model = new DefaultTableModel(inputs.size(), 0);
+
+		model.addColumn(INPUT, new Vector<>(inputs));
+
+		setModel(model);
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		getColumn(INPUT).setCellRenderer(new InputRenderer());
 		getColumn(INPUT).setCellEditor(new InputEditor());
 	}
 
-	public static class Input {
-
-		private double weight;
-		private boolean crossContamination;
-		private boolean killContamination;
-		private boolean observed;
-
-		public Input(double weight, boolean crossContamination, boolean killContamination, boolean observed) {
-			this.weight = weight;
-			this.crossContamination = crossContamination;
-			this.killContamination = killContamination;
-			this.observed = observed;
-		}
-
-		public double getWeight() {
-			return weight;
-		}
-
-		public void setWeight(double weight) {
-			this.weight = weight;
-		}
-
-		public boolean isCrossContamination() {
-			return crossContamination;
-		}
-
-		public void setCrossContamination(boolean crossContamination) {
-			this.crossContamination = crossContamination;
-		}
-
-		public boolean isKillContamination() {
-			return killContamination;
-		}
-
-		public void setKillContamination(boolean killContamination) {
-			this.killContamination = killContamination;
-		}
-
-		public boolean isObserved() {
-			return observed;
-		}
-
-		public void setObserved(boolean observed) {
-			this.observed = observed;
-		}
-
-		@Override
-		public String toString() {
-			return "Input [weight=" + weight + ", crossContamination=" + crossContamination + ", observed=" + observed
-					+ "]";
-		}
-	}
-
-	private static class InputTableModel extends AbstractTableModel {
-
-		private static final long serialVersionUID = 1L;
-
-		private List<Input> inputs;
-
-		public InputTableModel(List<Input> inputs) {
-			this.inputs = inputs;
-		}
-
-		@Override
-		public int getRowCount() {
-			return inputs.size();
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 1;
-		}
-
-		@Override
-		public String getColumnName(int column) {
-			return INPUT;
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return Input.class;
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			return inputs.get(rowIndex);
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			inputs.set(rowIndex, (Input) aValue);
-			fireTableCellUpdated(rowIndex, columnIndex);
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-	}
-
-	private static class InputRenderer implements TableCellRenderer {
+	private class InputRenderer implements TableCellRenderer {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
@@ -188,7 +93,7 @@ public class InputTable extends JTable {
 			return panel;
 		}
 
-		private static Component getTableRendererComponent(Object value, Class<?> columnClass, boolean isSelected,
+		private Component getTableRendererComponent(Object value, Class<?> columnClass, boolean isSelected,
 				boolean hasFocus) {
 			JTable table = new JTable(new Object[][] { { value } }, new Object[] { "" });
 
@@ -199,7 +104,7 @@ public class InputTable extends JTable {
 		}
 	}
 
-	private static class InputEditor extends AbstractCellEditor implements TableCellEditor, CellEditorListener {
+	private class InputEditor extends AbstractCellEditor implements TableCellEditor, CellEditorListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -211,10 +116,10 @@ public class InputTable extends JTable {
 		private JTextField weightField;
 
 		public InputEditor() {
-			weightTable = new JTable(new SimpleModel(Double.class));
-			ccTable = new JTable(new SimpleModel(Boolean.class));
-			killTable = new JTable(new SimpleModel(Boolean.class));
-			observedTable = new JTable(new SimpleModel(Boolean.class));
+			weightTable = new JTable(new DefaultTableModel(1, 1));
+			ccTable = new JTable(new DefaultTableModel(1, 1));
+			killTable = new JTable(new DefaultTableModel(1, 1));
+			observedTable = new JTable(new DefaultTableModel(1, 1));
 		}
 
 		@Override
@@ -316,45 +221,56 @@ public class InputTable extends JTable {
 		}
 	}
 
-	private static class SimpleModel extends AbstractTableModel {
+	public static class Input {
 
-		private static final long serialVersionUID = 1L;
+		private double weight;
+		private boolean crossContamination;
+		private boolean killContamination;
+		private boolean observed;
 
-		private Class<?> valueClass;
-		private Object value;
+		public Input(double weight, boolean crossContamination, boolean killContamination, boolean observed) {
+			this.weight = weight;
+			this.crossContamination = crossContamination;
+			this.killContamination = killContamination;
+			this.observed = observed;
+		}
 
-		public SimpleModel(Class<?> valueClass) {
-			this.valueClass = valueClass;
+		public double getWeight() {
+			return weight;
+		}
+
+		public void setWeight(double weight) {
+			this.weight = weight;
+		}
+
+		public boolean isCrossContamination() {
+			return crossContamination;
+		}
+
+		public void setCrossContamination(boolean crossContamination) {
+			this.crossContamination = crossContamination;
+		}
+
+		public boolean isKillContamination() {
+			return killContamination;
+		}
+
+		public void setKillContamination(boolean killContamination) {
+			this.killContamination = killContamination;
+		}
+
+		public boolean isObserved() {
+			return observed;
+		}
+
+		public void setObserved(boolean observed) {
+			this.observed = observed;
 		}
 
 		@Override
-		public int getRowCount() {
-			return 1;
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 1;
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return valueClass;
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			return value;
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			value = aValue;
+		public String toString() {
+			return "Input [weight=" + weight + ", crossContamination=" + crossContamination + ", observed=" + observed
+					+ "]";
 		}
 	}
 }
