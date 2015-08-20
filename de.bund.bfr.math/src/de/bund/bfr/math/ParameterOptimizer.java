@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
@@ -37,9 +38,11 @@ import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.ParameterValidator;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem.Evaluation;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
+import org.apache.commons.math3.optim.ConvergenceChecker;
 import org.nfunk.jep.ParseException;
 
 public class ParameterOptimizer {
@@ -162,17 +165,30 @@ public class ParameterOptimizer {
 		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
 	}
 
-	private Result optimize(List<StartValues> startValuesList, boolean stopWhenSuccessful, int maxIterations) {
+	private Result optimize(final List<StartValues> startValuesList, final boolean stopWhenSuccessful,
+			final int maxIterations) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = null;
-		int count = 0;
+		final AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {
-			fireProgressChanged(0.5 * count++ / startValuesList.size() + 0.5);
+			fireProgressChanged(0.5 * count.get() / startValuesList.size() + 0.5);
 
 			try {
-				LeastSquaresOptimizer.Optimum optimizerResults = optimizer
-						.optimize(createLeastSquaresProblem(startValues.getValues(), maxIterations));
+				LeastSquaresBuilder builder = createLeastSquaresBuilder(startValues.getValues(), maxIterations);
+
+				builder.checker(new ConvergenceChecker<LeastSquaresProblem.Evaluation>() {
+
+					@Override
+					public boolean converged(int iteration, Evaluation previous, Evaluation current) {
+						double currentProgress = (double) iteration / (double) maxIterations;
+
+						fireProgressChanged(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
+						return iteration == maxIterations;
+					}
+				});
+
+				LeastSquaresOptimizer.Optimum optimizerResults = optimizer.optimize(builder.build());
 				double cost = optimizerResults.getCost();
 
 				if (result == null || cost * cost < result.sse) {
@@ -188,6 +204,8 @@ public class ParameterOptimizer {
 				}
 			} catch (TooManyEvaluationsException | TooManyIterationsException | ConvergenceException e) {
 			}
+
+			count.incrementAndGet();
 		}
 
 		return result != null ? result : getResults();
@@ -217,7 +235,7 @@ public class ParameterOptimizer {
 		Arrays.fill(paramStepIndex, 0);
 
 		while (!done) {
-			fireProgressChanged(0.5 * count++ / allStepSize);
+			fireProgressChanged(0.5 * count / allStepSize);
 
 			double[] values = new double[parameters.length];
 
@@ -245,6 +263,9 @@ public class ParameterOptimizer {
 					break;
 				}
 			}
+
+			fireProgressChanged(0.5 * count / allStepSize);
+			count++;
 		}
 
 		Collections.sort(valuesList, new Comparator<StartValues>() {
@@ -258,12 +279,12 @@ public class ParameterOptimizer {
 		return valuesList.subList(0, n);
 	}
 
-	private LeastSquaresProblem createLeastSquaresProblem(double[] startValues, int maxIterations) {
+	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
 				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
-			builder = builder.parameterValidator(new ParameterValidator() {
+			builder.parameterValidator(new ParameterValidator() {
 
 				@Override
 				public RealVector validate(RealVector params) {
@@ -288,7 +309,7 @@ public class ParameterOptimizer {
 			});
 		}
 
-		return builder.build();
+		return builder;
 	}
 
 	private Result getResults() {
