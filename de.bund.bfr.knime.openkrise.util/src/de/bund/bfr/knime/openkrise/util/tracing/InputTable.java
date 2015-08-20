@@ -24,19 +24,28 @@ import java.util.EventObject;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
 public class InputTable extends JTable {
 
-	public static final String INPUT_COLUMN = "Input";
-
 	private static final long serialVersionUID = 1L;
 
-	public InputTable(Class<?> type, int rowCount) {
-		super(new InputTableModel(type, rowCount));
+	private static final String INPUT_COLUMN = "Input";
+
+	public InputTable(final Class<?> type, final int rowCount) {
+		super(new DefaultTableModel(new Object[] { INPUT_COLUMN }, rowCount) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				return type;
+			}
+		});
+
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
 	}
@@ -51,55 +60,5 @@ public class InputTable extends JTable {
 		}
 
 		return result;
-	}
-
-	private static class InputTableModel extends AbstractTableModel {
-
-		private static final long serialVersionUID = 1L;
-
-		private Class<?> type;
-		private Object[] values;
-
-		public InputTableModel(Class<?> type, int rowCount) {
-			this.type = type;
-			values = new Object[rowCount];
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 1;
-		}
-
-		@Override
-		public int getRowCount() {
-			return values.length;
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			return values[rowIndex];
-		}
-
-		@Override
-		public String getColumnName(int column) {
-			return INPUT_COLUMN;
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return type;
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			values[rowIndex] = aValue;
-			fireTableCellUpdated(rowIndex, columnIndex);
-		}
-
 	}
 }
