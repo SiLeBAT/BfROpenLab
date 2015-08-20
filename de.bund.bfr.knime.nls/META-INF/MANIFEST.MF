@@ -9,8 +9,8 @@ Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
- org.knime.base;bundle-version="2.10.0",
- com.google.guava;bundle-version="16.0.0",
+ org.knime.base;bundle-version="2.12.0",
+ com.google.guava,
  de.bund.bfr.knime,
  de.bund.bfr.math,
  de.bund.bfr.knime.chart
