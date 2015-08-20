@@ -250,7 +250,7 @@ public class FittingSettings extends NlsNodeSettings {
 		nParameterSpace = 10000;
 		nLevenberg = 10;
 		stopWhenSuccessful = false;
-		maxLevenbergIterations = 10000;
+		maxLevenbergIterations = 100;
 		enforceLimits = false;
 		minStartValues = new LinkedHashMap<>();
 		maxStartValues = new LinkedHashMap<>();
