@@ -356,6 +356,5 @@ public class InputTable extends JTable {
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			value = aValue;
 		}
-
 	}
 }

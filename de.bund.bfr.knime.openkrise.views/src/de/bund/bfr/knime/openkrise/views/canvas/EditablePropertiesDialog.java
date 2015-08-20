@@ -20,9 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,7 +39,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -146,13 +143,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		filterButton = new JButton("Set All " + TracingColumns.OBSERVED);
 		filterButton.addActionListener(this);
 
-		JPanel cornerPanel = new JPanel();
-
-		cornerPanel.setLayout(new GridLayout(1, 3));
-		cornerPanel.add(getTableHeaderComponent(TracingColumns.WEIGHT));
-		cornerPanel.add(getTableHeaderComponent(TracingColumns.CROSS_CONTAMINATION));
-		cornerPanel.add(getTableHeaderComponent(TracingColumns.KILL_CONTAMINATION));
-		cornerPanel.add(getTableHeaderComponent(TracingColumns.OBSERVED));
+		InputTableHeader cornerPanel = new InputTableHeader();
 
 		scrollPane = new JScrollPane();
 		scrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, cornerPanel);
@@ -371,12 +362,5 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		}
 
 		applyValues();
-	}
-
-	private static Component getTableHeaderComponent(String name) {
-		JTable table = new JTable(new Object[1][1], new Object[] { name });
-
-		return table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false, false, 0,
-				0);
 	}
 }
