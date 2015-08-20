@@ -19,12 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.CHARGEN;
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.CHARGENVERBINDUNGEN;
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.EXTRAFIELDS;
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.LIEFERUNGEN;
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.PRODUKTKATALOG;
-import static de.bund.bfr.knime.openkrise.generated.public_.Tables.STATION;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGENVERBINDUNGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.EXTRAFIELDS;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.LIEFERUNGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.PRODUKTKATALOG;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.STATION;
 
 import java.io.File;
 import java.io.IOException;
