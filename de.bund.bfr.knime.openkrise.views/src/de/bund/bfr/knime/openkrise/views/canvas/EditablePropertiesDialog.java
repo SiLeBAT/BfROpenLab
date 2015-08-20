@@ -108,6 +108,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 			break;
 		}
 
+		InputTableHeader inputTableHeader = new InputTableHeader();
 		PropertySchema uneditableSchema = new PropertySchema(new LinkedHashMap<>(schema.getMap()));
 
 		uneditableSchema.getMap().remove(TracingColumns.WEIGHT);
@@ -120,7 +121,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		table.getRowSorter().addRowSorterListener(this);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
-		inputTable = new InputTable(elementList);
+		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
 		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		inputTable.getSelectionModel().addListSelectionListener(this);
@@ -143,10 +144,8 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		filterButton = new JButton("Set All " + TracingColumns.OBSERVED);
 		filterButton.addActionListener(this);
 
-		InputTableHeader cornerPanel = new InputTableHeader();
-
 		scrollPane = new JScrollPane();
-		scrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, cornerPanel);
+		scrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, inputTableHeader);
 		scrollPane.setRowHeaderView(inputTable);
 		scrollPane.setViewportView(table);
 		scrollPane.setPreferredSize(UI.getMaxDimension(scrollPane.getPreferredSize(), table.getPreferredSize()));
@@ -154,7 +153,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		JViewport rowHeader = scrollPane.getRowHeader();
 
 		rowHeader.setPreferredSize(
-				new Dimension(cornerPanel.getMinimumSize().width, rowHeader.getPreferredSize().height));
+				new Dimension(inputTableHeader.getPreferredSize().width, rowHeader.getPreferredSize().height));
 
 		JPanel southPanel = new JPanel();
 

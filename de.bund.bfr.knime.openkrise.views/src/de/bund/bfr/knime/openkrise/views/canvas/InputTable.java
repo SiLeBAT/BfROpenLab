@@ -21,7 +21,11 @@ package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -49,7 +53,11 @@ public class InputTable extends JTable {
 
 	private static final Color GRID_COLOR = new JTable().getGridColor();
 
-	public InputTable(List<? extends Element> elements) {
+	private InputTableHeader header;
+
+	public InputTable(InputTableHeader header, List<? extends Element> elements) {
+		this.header = header;
+
 		List<Input> inputs = new ArrayList<>();
 
 		for (Element e : elements) {
@@ -84,23 +92,31 @@ public class InputTable extends JTable {
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
-			panel.setLayout(new GridLayout(1, 4, 1, 0));
-			panel.add(getTableRendererComponent(input.getWeight(), Double.class, isSelected, hasFocus));
-			panel.add(getTableRendererComponent(input.isCrossContamination(), Boolean.class, isSelected, hasFocus));
-			panel.add(getTableRendererComponent(input.isKillContamination(), Boolean.class, isSelected, hasFocus));
-			panel.add(getTableRendererComponent(input.isObserved(), Boolean.class, isSelected, hasFocus));
+			panel.setLayout(new RowLayout(4, 1));
+			panel.add(getTableRendererComponent(input.getWeight(), Double.class, isSelected, hasFocus,
+					header.getComponent(0).getPreferredSize().width - 1));
+			panel.add(getTableRendererComponent(input.isCrossContamination(), Boolean.class, isSelected, hasFocus,
+					header.getComponent(1).getPreferredSize().width - 1));
+			panel.add(getTableRendererComponent(input.isKillContamination(), Boolean.class, isSelected, hasFocus,
+					header.getComponent(2).getPreferredSize().width - 1));
+			panel.add(getTableRendererComponent(input.isObserved(), Boolean.class, isSelected, hasFocus,
+					header.getComponent(3).getPreferredSize().width - 1));
 
 			return panel;
 		}
 
 		private Component getTableRendererComponent(Object value, Class<?> columnClass, boolean isSelected,
-				boolean hasFocus) {
+				boolean hasFocus, int width) {
 			JTable table = new JTable(new Object[][] { { value } }, new Object[] { "" });
 
 			table.setDefaultRenderer(Double.class, new DoubleCellRenderer());
 
-			return table.getDefaultRenderer(columnClass).getTableCellRendererComponent(table, value, isSelected,
+			Component c = table.getDefaultRenderer(columnClass).getTableCellRendererComponent(table, value, isSelected,
 					hasFocus, 0, 0);
+
+			c.setPreferredSize(new Dimension(width, c.getPreferredSize().height));
+
+			return c;
 		}
 	}
 
@@ -175,17 +191,33 @@ public class InputTable extends JTable {
 			ccTable.setValueAt(input.isCrossContamination(), 0, 0);
 			killTable.setValueAt(input.isKillContamination(), 0, 0);
 			observedTable.setValueAt(input.isObserved(), 0, 0);
+
 			weightField = (JTextField) weightEditor.getTableCellEditorComponent(weightTable, input.getWeight(),
 					isSelected, 0, 0);
+			Component ccField = ccEditor.getTableCellEditorComponent(ccTable, input.isCrossContamination(), isSelected,
+					0, 0);
+			Component killField = killEditor.getTableCellEditorComponent(killTable, input.isKillContamination(),
+					isSelected, 0, 0);
+			Component observedField = observedEditor.getTableCellEditorComponent(observedTable, input.isObserved(),
+					isSelected, 0, 0);
+
+			weightField.setPreferredSize(new Dimension(header.getComponent(0).getPreferredSize().width - 1,
+					weightField.getPreferredSize().height));
+			ccField.setPreferredSize(new Dimension(header.getComponent(1).getPreferredSize().width - 1,
+					ccField.getPreferredSize().height));
+			killField.setPreferredSize(new Dimension(header.getComponent(2).getPreferredSize().width - 1,
+					killField.getPreferredSize().height));
+			observedField.setPreferredSize(new Dimension(header.getComponent(3).getPreferredSize().width - 1,
+					observedField.getPreferredSize().height));
 
 			JPanel panel = new JPanel();
 
 			panel.setBackground(GRID_COLOR);
-			panel.setLayout(new GridLayout(1, 4, 1, 0));
+			panel.setLayout(new RowLayout(4, 1));
 			panel.add(weightField);
-			panel.add(ccEditor.getTableCellEditorComponent(ccTable, input.isCrossContamination(), isSelected, 0, 0));
-			panel.add(killEditor.getTableCellEditorComponent(killTable, input.isKillContamination(), isSelected, 0, 0));
-			panel.add(observedEditor.getTableCellEditorComponent(observedTable, input.isObserved(), isSelected, 0, 0));
+			panel.add(ccField);
+			panel.add(killField);
+			panel.add(observedField);
 
 			return panel;
 		}
@@ -218,6 +250,68 @@ public class InputTable extends JTable {
 
 		@Override
 		public void editingCanceled(ChangeEvent e) {
+		}
+	}
+
+	private static class RowLayout implements LayoutManager, Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		private int columns;
+		private int gap;
+
+		public RowLayout(int columns, int gap) {
+			this.columns = columns;
+			this.gap = gap;
+		}
+
+		@Override
+		public void layoutContainer(Container c) {
+			Insets insets = c.getInsets();
+			int height = c.getHeight() - (insets.top + insets.bottom);
+			int[] widths = new int[columns];
+
+			for (int column = 0; column < columns; column++) {
+				widths[column] = c.getComponent(column).getPreferredSize().width;
+			}
+
+			int x = insets.left;
+
+			for (int column = 0; column < columns; column++) {
+				c.getComponent(column).setBounds(x, insets.top, widths[column], height);
+				x += (widths[column] + gap);
+			}
+		}
+
+		@Override
+		public Dimension minimumLayoutSize(Container c) {
+			Insets insets = c.getInsets();
+			int height = 0;
+			int width = 0;
+
+			for (int column = 0; column < columns; column++) {
+				height = Math.max(height, c.getComponent(column).getPreferredSize().height);
+				width += c.getComponent(column).getPreferredSize().width;
+			}
+
+			height += insets.top + insets.bottom;
+			width += (gap * (columns - 1)) + insets.right + insets.left;
+
+			return new Dimension(width, height);
+
+		}
+
+		@Override
+		public Dimension preferredLayoutSize(Container c) {
+			return minimumLayoutSize(c);
+		}
+
+		@Override
+		public void addLayoutComponent(String s, Component c) {
+		}
+
+		@Override
+		public void removeLayoutComponent(Component c) {
 		}
 	}
 

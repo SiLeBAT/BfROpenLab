@@ -20,8 +20,8 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.Component;
-import java.awt.GridLayout;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
@@ -32,7 +32,7 @@ public class InputTableHeader extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	public InputTableHeader() {
-		setLayout(new GridLayout(1, 4));
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(getTableHeaderComponent(TracingColumns.WEIGHT));
 		add(getTableHeaderComponent(TracingColumns.CROSS_CONTAMINATION));
 		add(getTableHeaderComponent(TracingColumns.KILL_CONTAMINATION));
