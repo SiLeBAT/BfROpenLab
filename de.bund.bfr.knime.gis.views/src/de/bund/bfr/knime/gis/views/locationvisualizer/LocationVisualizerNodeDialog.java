@@ -33,9 +33,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
-import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -47,7 +47,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
  */
 public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 
-	private Canvas<LocationNode> canvas;
+	private GisCanvas<LocationNode> canvas;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;

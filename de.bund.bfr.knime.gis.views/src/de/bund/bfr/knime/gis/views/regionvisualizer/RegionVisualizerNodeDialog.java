@@ -34,8 +34,10 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 /**
  * <code>NodeDialog</code> for the "RegionVisualizer" Node.
@@ -44,7 +46,7 @@ import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
  */
 public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 
-	private RegionCanvas canvas;
+	private GisCanvas<RegionNode> canvas;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;

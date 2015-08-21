@@ -34,10 +34,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
@@ -53,7 +53,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
-	private Canvas<LocationNode> gisCanvas;
+	private GisCanvas<LocationNode> gisCanvas;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;

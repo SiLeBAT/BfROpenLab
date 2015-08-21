@@ -46,7 +46,7 @@ import org.knime.core.data.def.StringCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
-import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class LocationToLocationVisualizerInputDialog extends JDialog implements ActionListener, ItemListener {

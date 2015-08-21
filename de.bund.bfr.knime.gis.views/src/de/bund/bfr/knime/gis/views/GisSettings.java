@@ -36,6 +36,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GisSettings extends Settings {
 
+	private static final String CFG_GIS_TYPE = "GisType";
 	private static final String CFG_SHAPE_COLUMN = "ShapeColumn";
 	private static final String CFG_SHOW_LEGEND = "ShowLegend";
 	private static final String CFG_SCALE_X = "ScaleX";
@@ -51,6 +52,7 @@ public class GisSettings extends Settings {
 	private static final String CFG_NODE_HIGHLIGHT_CONDITIONS = "NodeHighlightConditions";
 	private static final String CFG_LABEL = "Label";
 
+	private GisType gisType;
 	private String shapeColumn;
 	private boolean showLegend;
 	private Transform transform;
@@ -64,6 +66,7 @@ public class GisSettings extends Settings {
 	private String label;
 
 	public GisSettings() {
+		gisType = GisType.SHAPEFILE;
 		shapeColumn = null;
 		showLegend = false;
 		transform = Transform.INVALID_TRANSFORM;
@@ -80,6 +83,11 @@ public class GisSettings extends Settings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			gisType = GisType.valueOf(settings.getString(CFG_GIS_TYPE));
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
+		}
+
 		try {
 			shapeColumn = settings.getString(CFG_SHAPE_COLUMN);
 		} catch (InvalidSettingsException e) {
@@ -140,6 +148,7 @@ public class GisSettings extends Settings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addString(CFG_GIS_TYPE, gisType.name());
 		settings.addString(CFG_SHAPE_COLUMN, shapeColumn);
 		settings.addBoolean(CFG_SHOW_LEGEND, showLegend);
 		settings.addDouble(CFG_SCALE_X, transform.getScaleX());
@@ -192,6 +201,14 @@ public class GisSettings extends Settings {
 		if (transform.isValid()) {
 			canvas.setTransform(transform);
 		}
+	}
+
+	public GisType getGisType() {
+		return gisType;
+	}
+
+	public void setGisType(GisType gisType) {
+		this.gisType = gisType;
 	}
 
 	public String getShapeColumn() {

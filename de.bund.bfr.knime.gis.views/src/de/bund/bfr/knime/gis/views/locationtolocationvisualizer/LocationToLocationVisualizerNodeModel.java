@@ -35,9 +35,9 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
@@ -77,7 +77,7 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		LocationToLocationVisualizerCanvasCreator creator = new LocationToLocationVisualizerCanvasCreator(shapeTable,
 				nodeTable, edgeTable, set);
 		GraphCanvas graphCanvas = creator.createGraphCanvas();
-		Canvas<LocationNode> gisCanvas = creator.createGisCanvas();
+		GisCanvas<LocationNode> gisCanvas = creator.createGisCanvas();
 
 		set.getGisSettings().setGisType(originalGisType);
 

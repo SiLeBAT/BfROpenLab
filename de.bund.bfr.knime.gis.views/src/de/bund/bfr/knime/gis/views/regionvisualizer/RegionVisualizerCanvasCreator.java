@@ -30,10 +30,13 @@ import org.knime.core.node.InvalidSettingsException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
+import de.bund.bfr.knime.gis.views.canvas.RegionOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 public class RegionVisualizerCanvasCreator {
@@ -53,7 +56,7 @@ public class RegionVisualizerCanvasCreator {
 		nonExistingRegions = new LinkedHashSet<>();
 	}
 
-	public RegionCanvas createCanvas() throws InvalidSettingsException {
+	public GisCanvas<RegionNode> createCanvas() throws InvalidSettingsException {
 		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set.getGisSettings().getShapeColumn(),
 				set.getGisSettings().getShapeRegionColumn());
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
@@ -61,7 +64,14 @@ public class RegionVisualizerCanvasCreator {
 				set.getGisSettings().getNodeRegionColumn(), nonExistingRegions).values());
 		NodePropertySchema nodeSchema = new NodePropertySchema(nodeProperties,
 				set.getGisSettings().getNodeRegionColumn());
-		RegionCanvas canvas = new RegionCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
+		GisCanvas<RegionNode> canvas;
+
+		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			canvas = new RegionCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
+		} else {
+			canvas = new RegionOsmCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
+			((RegionOsmCanvas) canvas).setTileSource(set.getGisSettings().getGisType().getTileSource());
+		}
 
 		set.getGisSettings().setToCanvas(canvas);
 

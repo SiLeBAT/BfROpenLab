@@ -19,10 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -31,31 +27,6 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 
 public class LocationSettings extends GisSettings {
 
-	public enum GisType {
-		SHAPEFILE("Shapefile"), MAPNIK("Mapnik"), CYCLE_MAP("Cycle Map"), BING_AERIAL("Bing Aerial"), MAPQUEST(
-				"MapQuest"), MAPQUEST_AERIAL("MapQuest Aerial");
-
-		private String name;
-
-		private GisType(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
-		public static GisType[] valuesWithoutShapefile() {
-			List<GisType> types = new ArrayList<>(Arrays.asList(values()));
-
-			types.remove(SHAPEFILE);
-
-			return types.toArray(new GisType[0]);
-		}
-	}
-
-	private static final String CFG_GIS_TYPE = "GisType";
 	private static final String CFG_NODE_LATITUDE_COLUMN = "NodeLatitudeColumn";
 	private static final String CFG_NODE_LONGITUDE_COLUMN = "NodeLongitudeColumn";
 	private static final String CFG_NODE_SIZE = "GisLocationSize";
@@ -64,7 +35,6 @@ public class LocationSettings extends GisSettings {
 	private static final String CFG_EDGE_MAX_THICKNESS = "GisEdgeMaxThickness";
 	private static final String CFG_AVOID_OVERLAY = "AvoidOverlay";
 
-	private GisType gisType;
 	private String nodeLatitudeColumn;
 	private String nodeLongitudeColumn;
 	private int nodeSize;
@@ -74,7 +44,6 @@ public class LocationSettings extends GisSettings {
 	private boolean avoidOverlay;
 
 	public LocationSettings() {
-		gisType = GisType.SHAPEFILE;
 		nodeLatitudeColumn = null;
 		nodeLongitudeColumn = null;
 		nodeSize = 4;
@@ -87,11 +56,6 @@ public class LocationSettings extends GisSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		super.loadSettings(settings);
-
-		try {
-			gisType = GisType.valueOf(settings.getString(CFG_GIS_TYPE));
-		} catch (InvalidSettingsException | IllegalArgumentException e) {
-		}
 
 		try {
 			nodeLatitudeColumn = settings.getString(CFG_NODE_LATITUDE_COLUMN);
@@ -132,7 +96,6 @@ public class LocationSettings extends GisSettings {
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
 		super.saveSettings(settings);
-		settings.addString(CFG_GIS_TYPE, gisType.name());
 		settings.addString(CFG_NODE_LATITUDE_COLUMN, nodeLatitudeColumn);
 		settings.addString(CFG_NODE_LONGITUDE_COLUMN, nodeLongitudeColumn);
 		settings.addInt(CFG_NODE_SIZE, nodeSize);
@@ -160,14 +123,6 @@ public class LocationSettings extends GisSettings {
 		canvas.setEdgeThickness(edgeThickness);
 		canvas.setEdgeMaxThickness(edgeMaxThickness);
 		canvas.setAvoidOverlay(avoidOverlay);
-	}
-
-	public GisType getGisType() {
-		return gisType;
-	}
-
-	public void setGisType(GisType gisType) {
-		this.gisType = gisType;
 	}
 
 	public String getNodeLatitudeColumn() {

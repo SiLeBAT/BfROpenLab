@@ -31,10 +31,10 @@ import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
-import de.bund.bfr.knime.gis.views.LocationSettings.GisType;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
@@ -84,7 +84,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public Canvas<LocationNode> createGisCanvas() throws InvalidSettingsException {
+	public GisCanvas<LocationNode> createGisCanvas() throws InvalidSettingsException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
 		Map<String, LocationNode> nodes = ViewUtils.readLocationNodes(nodeTable, nodeProperties,
@@ -101,7 +101,7 @@ public class LocationToLocationVisualizerCanvasCreator {
 		nodeSchema.setLatitude(set.getGisSettings().getNodeLatitudeColumn());
 		nodeSchema.setLongitude(set.getGisSettings().getNodeLongitudeColumn());
 
-		Canvas<LocationNode> canvas;
+		GisCanvas<LocationNode> canvas;
 
 		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
 			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn());

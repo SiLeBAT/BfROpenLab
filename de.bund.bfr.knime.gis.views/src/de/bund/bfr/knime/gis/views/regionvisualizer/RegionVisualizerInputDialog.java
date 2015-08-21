@@ -27,6 +27,7 @@ import java.util.Arrays;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -42,12 +43,14 @@ import org.knime.core.data.def.StringCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisUtils;
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class RegionVisualizerInputDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private JComboBox<GisType> gisBox;
 	private ColumnComboBox shapeBox;
 	private ColumnComboBox shapeRegionBox;
 	private ColumnComboBox nodeRegionBox;
@@ -65,6 +68,8 @@ public class RegionVisualizerInputDialog extends JDialog implements ActionListen
 		this.set = set;
 		approved = false;
 
+		gisBox = new JComboBox<>(GisType.values());
+		gisBox.setSelectedItem(set.getGisSettings().getGisType());
 		shapeBox = new ColumnComboBox(false, GisUtils.getShapeColumns(shapeSpec));
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeRegionBox = new ColumnComboBox(false, KnimeUtils.getColumns(shapeSpec, StringCell.TYPE, IntCell.TYPE));
@@ -82,8 +87,8 @@ public class RegionVisualizerInputDialog extends JDialog implements ActionListen
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(UI.createOptionsPanel("Shape Table",
-				Arrays.asList(new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
-				Arrays.asList(shapeBox, shapeRegionBox)));
+				Arrays.asList(new JLabel("GIS Type"), new JLabel("Shape Column:"), new JLabel("Region ID Column:")),
+				Arrays.asList(gisBox, shapeBox, shapeRegionBox)));
 		mainPanel.add(UI.createOptionsPanel("Node Table", Arrays.asList(new JLabel("Region ID Column:")),
 				Arrays.asList(nodeRegionBox)));
 		mainPanel.add(
@@ -118,6 +123,7 @@ public class RegionVisualizerInputDialog extends JDialog implements ActionListen
 				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
 			} else {
 				approved = true;
+				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
 				set.getGisSettings().setShapeColumn(shapeColumn.getName());
 				set.getGisSettings().setShapeRegionColumn(shapeRegionColumn.getName());
 				set.getGisSettings().setNodeRegionColumn(nodeRegionColumn.getName());
