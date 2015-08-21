@@ -47,8 +47,6 @@ import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.AbstractTableModel;
@@ -461,13 +459,8 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 				String statusValue = (String) table.getValueAt(row, statusColumn);
 
 				if (statusValue.equals(Plotable.Status.OK.toString())) {
-					if (isSelected) {
-						setForeground(table.getSelectionForeground());
-						setBackground(table.getSelectionBackground());
-					} else {
-						setForeground(table.getForeground());
-						setBackground(table.getBackground());
-					}
+					setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+					setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 				} else if (statusValue.equals(Plotable.Status.FAILED.toString())) {
 					setForeground(Color.RED);
 					setBackground(Color.RED);
@@ -476,22 +469,12 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 					setBackground(Color.YELLOW);
 				}
 			} else {
-				if (isSelected) {
-					setForeground(table.getSelectionForeground());
-					setBackground(table.getSelectionBackground());
-				} else {
-					setForeground(table.getForeground());
-					setBackground(table.getBackground());
-				}
+				setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+				setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 			}
 
 			setSelected((value != null && ((Boolean) value).booleanValue()));
-
-			if (hasFocus) {
-				setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-			} else {
-				setBorder(new EmptyBorder(1, 1, 1, 1));
-			}
+			setBorder(hasFocus ? UI.TABLE_CELL_FOCUS_BORDER : UI.TABLE_CELL_BORDER);
 
 			return this;
 		}

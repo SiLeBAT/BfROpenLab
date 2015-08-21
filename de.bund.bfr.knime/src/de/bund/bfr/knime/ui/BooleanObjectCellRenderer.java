@@ -21,15 +21,14 @@ package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
+
+import de.bund.bfr.knime.UI;
 
 public class BooleanObjectCellRenderer implements TableCellRenderer {
 
@@ -37,9 +36,10 @@ public class BooleanObjectCellRenderer implements TableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 		JPanel panel = new JPanel();
-		Color color = isSelected ? UIManager.getDefaults().getColor("List.selectionBackground") : table.getBackground();
+		Color color = isSelected ? table.getSelectionBackground() : table.getBackground();
 
 		panel.setBackground(color);
+		panel.setBorder(hasFocus ? UI.TABLE_CELL_FOCUS_BORDER : UI.TABLE_CELL_BORDER);
 
 		if (value instanceof Boolean) {
 			JCheckBox box = new JCheckBox();
@@ -48,8 +48,7 @@ public class BooleanObjectCellRenderer implements TableCellRenderer {
 			box.setBackground(color);
 
 			panel.setLayout(new GridBagLayout());
-			panel.add(box, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-					new Insets(0, 0, 0, 0), 0, 0));
+			panel.add(box, UI.centerConstraints(0, 0));
 		}
 
 		return panel;

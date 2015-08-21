@@ -43,6 +43,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -50,6 +53,9 @@ public class UI {
 
 	private UI() {
 	}
+
+	public static final Border TABLE_CELL_BORDER = new EmptyBorder(1, 1, 1, 1);
+	public static final Border TABLE_CELL_FOCUS_BORDER = UIManager.getBorder("Table.focusCellHighlightBorder");
 
 	public static <V> void select(JComboBox<V> box, V item) {
 		if (hasItem(box, item)) {
