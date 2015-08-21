@@ -108,7 +108,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 			break;
 		}
 
-		InputTableHeader inputTableHeader = new InputTableHeader();
+		InputTable.Header inputTableHeader = new InputTable.Header();
 		PropertySchema uneditableSchema = new PropertySchema(new LinkedHashMap<>(schema.getMap()));
 
 		uneditableSchema.getMap().remove(TracingColumns.WEIGHT);

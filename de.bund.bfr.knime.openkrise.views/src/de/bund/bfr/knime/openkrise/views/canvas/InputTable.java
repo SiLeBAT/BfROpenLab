@@ -53,9 +53,9 @@ public class InputTable extends JTable {
 
 	private static final Color GRID_COLOR = new JTable().getGridColor();
 
-	private InputTableHeader header;
+	private Header header;
 
-	public InputTable(InputTableHeader header, List<? extends Element> elements) {
+	public InputTable(Header header, List<? extends Element> elements) {
 		this.header = header;
 
 		List<Input> inputs = new ArrayList<>();
@@ -312,6 +312,26 @@ public class InputTable extends JTable {
 
 		@Override
 		public void removeLayoutComponent(Component c) {
+		}
+	}
+
+	public static class Header extends JPanel {
+
+		private static final long serialVersionUID = 1L;
+
+		public Header() {
+			setLayout(new RowLayout(4, 0));
+			add(getTableHeaderComponent(TracingColumns.WEIGHT));
+			add(getTableHeaderComponent(TracingColumns.CROSS_CONTAMINATION));
+			add(getTableHeaderComponent(TracingColumns.KILL_CONTAMINATION));
+			add(getTableHeaderComponent(TracingColumns.OBSERVED));
+		}
+
+		private static Component getTableHeaderComponent(String name) {
+			JTable table = new JTable(new Object[1][1], new Object[] { name });
+
+			return table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false, false,
+					0, 0);
 		}
 	}
 
