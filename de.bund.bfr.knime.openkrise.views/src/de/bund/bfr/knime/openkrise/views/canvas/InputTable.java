@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.io.Serializable;
@@ -329,9 +330,12 @@ public class InputTable extends JTable {
 
 		private static Component getTableHeaderComponent(String name) {
 			JTable table = new JTable(new Object[1][1], new Object[] { name });
+			Component c = table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false,
+					false, 0, 0);
 
-			return table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false, false,
-					0, 0);
+			c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle() | Font.BOLD, c.getFont().getSize()));
+
+			return c;
 		}
 	}
 
