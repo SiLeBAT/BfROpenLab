@@ -368,12 +368,12 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			setLayout(new BorderLayout());
 			add(centerPanel, BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
-			pack();
 
-			setResizable(false);
-			setLocationRelativeTo(VariablePanel.this);
+			pack();
 			UI.adjustDialog(this);
+			setLocationRelativeTo(VariablePanel.this);
 			getRootPane().setDefaultButton(okButton);
+			setResizable(false);
 		}
 
 		public boolean isApproved() {
@@ -447,12 +447,12 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 					Arrays.asList(new JLabel("Min:"), new JLabel("Max:")), Arrays.asList(minField, maxField))),
 					BorderLayout.CENTER);
 			add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
-			pack();
 
-			setResizable(false);
-			setLocationRelativeTo(VariablePanel.this);
+			pack();
 			UI.adjustDialog(this);
+			setLocationRelativeTo(VariablePanel.this);
 			getRootPane().setDefaultButton(okButton);
+			setResizable(false);
 		}
 
 		public boolean isApproved() {

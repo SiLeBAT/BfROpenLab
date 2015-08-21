@@ -99,7 +99,7 @@ public class UI {
 	}
 
 	public static void adjustDialog(JDialog dialog) {
-		adjustDialog(dialog, 1.0, 1.0);
+		adjustDialog(dialog, 0.8, 0.8);
 	}
 
 	public static Dimension getMaxDimension(Dimension d1, Dimension d2) {

@@ -90,9 +90,10 @@ public class PropertiesDialog<V extends Node> extends JDialog implements ActionL
 
 		add(scrollPane, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
+
 		pack();
-		setLocationRelativeTo(parent.getComponent());
 		UI.adjustDialog(this);
+		setLocationRelativeTo(parent.getComponent());
 		getRootPane().setDefaultButton(okButton);
 	}
 

@@ -82,7 +82,7 @@ public class SinglePropertiesDialog extends JDialog implements ActionListener {
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
-		UI.adjustDialog(this, 0.5, 1.0);
+		UI.adjustDialog(this, 0.5, 0.8);
 		getRootPane().setDefaultButton(okButton);
 	}
 

@@ -75,8 +75,8 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 	private HighlightConditionList highlightConditions;
 	private boolean approved;
 
-	public HighlightListDialog(Component parent, PropertySchema schema, HighlightConditionList highlightConditions) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition List", DEFAULT_MODALITY_TYPE);
+	public HighlightListDialog(Component owner, PropertySchema schema, HighlightConditionList highlightConditions) {
+		super(SwingUtilities.getWindowAncestor(owner), "Highlight Condition List", DEFAULT_MODALITY_TYPE);
 		addWindowListener(this);
 		this.schema = schema;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(highlightConditions.getConditions()),
@@ -140,9 +140,10 @@ public class HighlightListDialog extends JDialog implements ActionListener, Mous
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
+
 		pack();
-		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
 	}
 

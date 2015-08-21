@@ -140,7 +140,7 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
 		setLocationRelativeTo(parent);
-		UI.adjustDialog(this, 0.5, 1.0);
+		UI.adjustDialog(this, 0.5, 0.8);
 		getRootPane().setDefaultButton(okButton);
 	}
 

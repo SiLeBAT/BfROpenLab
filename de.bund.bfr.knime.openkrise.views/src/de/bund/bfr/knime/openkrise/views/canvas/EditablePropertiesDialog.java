@@ -176,9 +176,10 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		add(UI.createWestPanel(UI.createHorizontalPanel(buttons.toArray(new JButton[0]))), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
+
 		pack();
-		setLocationRelativeTo(parent.getComponent());
 		UI.adjustDialog(this);
+		setLocationRelativeTo(parent.getComponent());
 		getRootPane().setDefaultButton(okButton);
 	}
 

@@ -52,8 +52,8 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 	private List<HighlightCondition> highlightConditions;
 	private boolean approved;
 
-	public HighlightSelectionDialog(Component parent, List<HighlightCondition> highlightConditions) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Conditions", DEFAULT_MODALITY_TYPE);
+	public HighlightSelectionDialog(Component owner, List<HighlightCondition> highlightConditions) {
+		super(SwingUtilities.getWindowAncestor(owner), "Highlight Conditions", DEFAULT_MODALITY_TYPE);
 		this.highlightConditions = null;
 		approved = false;
 
@@ -83,9 +83,10 @@ public class HighlightSelectionDialog extends JDialog implements ActionListener 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
+
 		pack();
-		setLocationRelativeTo(parent);
 		UI.adjustDialog(this);
+		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
 	}
 

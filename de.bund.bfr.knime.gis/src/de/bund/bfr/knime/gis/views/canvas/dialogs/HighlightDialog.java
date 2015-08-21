@@ -138,21 +138,21 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 	private HighlightCondition condition;
 	private boolean approved;
 
-	public static HighlightDialog createFilterDialog(Component parent, PropertySchema schema,
+	public static HighlightDialog createFilterDialog(Component owner, PropertySchema schema,
 			HighlightCondition condition) {
-		return new HighlightDialog(parent, schema, false, false, false, false, false, true, condition, null);
+		return new HighlightDialog(owner, schema, false, false, false, false, false, true, condition, null);
 	}
 
-	public static HighlightDialog createHighlightDialog(Component parent, PropertySchema schema, boolean allowInvisible,
+	public static HighlightDialog createHighlightDialog(Component owner, PropertySchema schema, boolean allowInvisible,
 			boolean allowThickness, HighlightCondition condition, List<HighlightConditionChecker> checkers) {
-		return new HighlightDialog(parent, schema, true, true, allowInvisible, allowThickness, true, false, condition,
+		return new HighlightDialog(owner, schema, true, true, allowInvisible, allowThickness, true, false, condition,
 				checkers);
 	}
 
-	private HighlightDialog(Component parent, PropertySchema schema, boolean allowName, boolean allowColor,
+	private HighlightDialog(Component owner, PropertySchema schema, boolean allowName, boolean allowColor,
 			boolean allowInvisible, boolean allowThickness, boolean allowLabel, boolean onlyAllowLogical,
 			HighlightCondition condition, List<HighlightConditionChecker> checkers) {
-		super(SwingUtilities.getWindowAncestor(parent), "Highlight Condition", DEFAULT_MODALITY_TYPE);
+		super(SwingUtilities.getWindowAncestor(owner), "Highlight Condition", DEFAULT_MODALITY_TYPE);
 		this.schema = schema;
 		this.allowName = allowName;
 		this.allowColor = allowColor;
@@ -282,10 +282,11 @@ public class HighlightDialog extends JDialog implements ActionListener, Document
 			add(upperPanel, BorderLayout.NORTH);
 		}
 
-		pack();
-		setLocationRelativeTo(parent);
-		UI.adjustDialog(this);
 		updateOptionsPanel();
+
+		pack();
+		UI.adjustDialog(this);
+		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
 	}
 
