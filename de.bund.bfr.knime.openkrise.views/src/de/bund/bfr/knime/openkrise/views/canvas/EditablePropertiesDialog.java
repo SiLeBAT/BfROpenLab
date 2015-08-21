@@ -20,7 +20,9 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -49,6 +52,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
+import javax.swing.plaf.UIResource;
+import javax.swing.table.TableCellRenderer;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -121,6 +126,14 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		table.getRowSorter().addRowSorterListener(this);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
+
+		TableCellRenderer boldHeaderRenderer = new BoldHeaderRenderer(table.getTableHeader().getDefaultRenderer());
+
+		table.getColumn(TracingColumns.SCORE).setHeaderRenderer(boldHeaderRenderer);
+		table.getColumn(TracingColumns.NORMALIZED_SCORE).setHeaderRenderer(boldHeaderRenderer);
+		table.getColumn(TracingColumns.BACKWARD).setHeaderRenderer(boldHeaderRenderer);
+		table.getColumn(TracingColumns.FORWARD).setHeaderRenderer(boldHeaderRenderer);
+
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
 		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -362,5 +375,24 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		}
 
 		applyValues();
+	}
+
+	private static class BoldHeaderRenderer implements UIResource, TableCellRenderer {
+
+		private TableCellRenderer original;
+
+		public BoldHeaderRenderer(TableCellRenderer original) {
+			this.original = original;
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			Component c = original.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			c.setFont(c.getFont().deriveFont(Font.BOLD));
+
+			return c;
+		}
 	}
 }

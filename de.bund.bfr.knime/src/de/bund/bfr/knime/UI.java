@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -251,7 +250,7 @@ public class UI {
 	}
 
 	public static void setFontSize(Component c, int fontSize) {
-		c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle(), fontSize));
+		c.setFont(c.getFont().deriveFont((float) fontSize));
 	}
 
 	public static GridBagConstraints centerConstraints(int x, int y) {

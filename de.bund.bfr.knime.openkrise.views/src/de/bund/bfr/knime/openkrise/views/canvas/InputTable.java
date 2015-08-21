@@ -333,7 +333,7 @@ public class InputTable extends JTable {
 			Component c = table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, name, false,
 					false, 0, 0);
 
-			c.setFont(new Font(c.getFont().getName(), c.getFont().getStyle() | Font.BOLD, c.getFont().getSize()));
+			c.setFont(c.getFont().deriveFont(Font.BOLD));
 
 			return c;
 		}
