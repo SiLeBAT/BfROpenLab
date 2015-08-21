@@ -34,7 +34,7 @@ public class NodeShapeTransformer<V> implements Transformer<V, Shape> {
 	private double denom;
 
 	public NodeShapeTransformer(int size, Integer maxSize) {
-		this(size, maxSize, new LinkedHashMap<V, Double>());
+		this(size, maxSize, new LinkedHashMap<V, Double>(0));
 	}
 
 	public NodeShapeTransformer(int size, Integer maxSize, Map<V, Double> thicknessValues) {

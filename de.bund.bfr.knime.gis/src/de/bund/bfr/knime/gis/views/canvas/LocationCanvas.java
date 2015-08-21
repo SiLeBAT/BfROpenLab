@@ -42,13 +42,13 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	private Double lastScaleX;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, new ArrayList<RegionNode>(), allowEdges);
+		this(new ArrayList<LocationNode>(0), new ArrayList<Edge<LocationNode>>(0), new NodePropertySchema(),
+				new EdgePropertySchema(), naming, new ArrayList<RegionNode>(0), allowEdges);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming,
 			List<RegionNode> regions) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(), naming, regions, false);
+		this(nodes, new ArrayList<Edge<LocationNode>>(0), nodeSchema, new EdgePropertySchema(), naming, regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,

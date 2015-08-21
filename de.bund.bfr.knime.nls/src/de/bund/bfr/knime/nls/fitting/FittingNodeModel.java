@@ -355,7 +355,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<String, Double>(),
+								set.getStartValues(), new LinkedHashMap<String, Double>(0),
 								set.getMaxLevenbergIterations()));
 			} else {
 				results.put(id,

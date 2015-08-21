@@ -53,12 +53,12 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 	private static final long serialVersionUID = 1L;
 
 	public RegionCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<RegionNode>(), new ArrayList<Edge<RegionNode>>(), new NodePropertySchema(),
+		this(new ArrayList<RegionNode>(0), new ArrayList<Edge<RegionNode>>(0), new NodePropertySchema(),
 				new EdgePropertySchema(), naming, allowEdges);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<RegionNode>>(), nodeSchema, new EdgePropertySchema(), naming, false);
+		this(nodes, new ArrayList<Edge<RegionNode>>(0), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
 	public RegionCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges, NodePropertySchema nodeSchema,

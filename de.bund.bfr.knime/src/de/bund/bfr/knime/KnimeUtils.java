@@ -128,14 +128,14 @@ public class KnimeUtils {
 	}
 
 	public static <T> List<T> nullToEmpty(List<T> list) {
-		return list != null ? list : new ArrayList<T>();
+		return list != null ? list : new ArrayList<T>(0);
 	}
 
 	public static <T> Set<T> nullToEmpty(Set<T> set) {
-		return set != null ? set : new LinkedHashSet<T>();
+		return set != null ? set : new LinkedHashSet<T>(0);
 	}
 
 	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
-		return map != null ? map : new LinkedHashMap<V, K>();
+		return map != null ? map : new LinkedHashMap<V, K>(0);
 	}
 }

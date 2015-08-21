@@ -40,12 +40,12 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	private Double lastScaleX;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(), new ArrayList<Edge<LocationNode>>(), new NodePropertySchema(),
+		this(new ArrayList<LocationNode>(0), new ArrayList<Edge<LocationNode>>(0), new NodePropertySchema(),
 				new EdgePropertySchema(), naming, allowEdges);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(), nodeSchema, new EdgePropertySchema(), naming, false);
+		this(nodes, new ArrayList<Edge<LocationNode>>(0), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,

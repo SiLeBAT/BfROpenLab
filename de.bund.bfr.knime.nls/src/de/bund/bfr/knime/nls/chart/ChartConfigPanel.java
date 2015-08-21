@@ -378,7 +378,7 @@ public class ChartConfigPanel extends JPanel
 			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
 
 			for (String param : parameters) {
-				paramMap.put(param, new ArrayList<Double>());
+				paramMap.put(param, new ArrayList<Double>(0));
 			}
 
 			outerParameterPanel.remove(parameterPanel);

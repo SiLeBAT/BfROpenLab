@@ -32,7 +32,7 @@ public class HighlightConditionList implements Serializable {
 	private boolean prioritizeColors;
 
 	public HighlightConditionList() {
-		this(new ArrayList<HighlightCondition>(), false);
+		this(new ArrayList<HighlightCondition>(0), false);
 	}
 
 	public HighlightConditionList(List<HighlightCondition> conditions, boolean prioritizeColors) {

@@ -29,7 +29,7 @@ public class EdgePropertySchema extends PropertySchema {
 	private String to;
 
 	public EdgePropertySchema() {
-		this(new LinkedHashMap<String, Class<?>>(), null, null, null);
+		this(new LinkedHashMap<String, Class<?>>(0), null, null, null);
 	}
 
 	public EdgePropertySchema(Map<String, Class<?>> map, String id, String from, String to) {

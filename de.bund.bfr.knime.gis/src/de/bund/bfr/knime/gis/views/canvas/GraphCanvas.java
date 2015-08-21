@@ -58,7 +58,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 	private static final long serialVersionUID = 1L;
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
-		this(new ArrayList<GraphNode>(), new ArrayList<Edge<GraphNode>>(), new NodePropertySchema(),
+		this(new ArrayList<GraphNode>(0), new ArrayList<Edge<GraphNode>>(0), new NodePropertySchema(),
 				new EdgePropertySchema(), naming, allowCollapse);
 	}
 

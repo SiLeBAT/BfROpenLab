@@ -180,7 +180,7 @@ public class ViewUtils {
 			Geometry shape = GisUtils.getShape(row.getCell(shapeIndex));
 
 			if (shape instanceof MultiPolygon) {
-				nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(), (MultiPolygon) shape));
+				nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(0), (MultiPolygon) shape));
 				index++;
 			}
 		}

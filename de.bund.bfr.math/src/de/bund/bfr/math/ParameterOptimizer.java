@@ -328,7 +328,7 @@ public class ParameterOptimizer {
 		r.degreesOfFreedom = null;
 
 		for (String param : parameters) {
-			r.covariances.put(param, new LinkedHashMap<String, Double>());
+			r.covariances.put(param, new LinkedHashMap<String, Double>(0));
 		}
 
 		return r;
