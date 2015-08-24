@@ -38,6 +38,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.OsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 /**
@@ -74,6 +75,10 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 		for (String id : creator.getNonExistingRegions()) {
 			setWarningMessage("Region \"" + id + "\" is not contained in the shapefile");
+		}
+
+		if (gisCanvas instanceof OsmCanvas) {
+			((OsmCanvas<?>) gisCanvas).loadAllTiles();
 		}
 
 		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),

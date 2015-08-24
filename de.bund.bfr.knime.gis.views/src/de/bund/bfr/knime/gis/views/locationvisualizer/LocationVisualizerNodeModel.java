@@ -38,6 +38,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
+import de.bund.bfr.knime.gis.views.canvas.OsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
@@ -75,6 +76,10 @@ public class LocationVisualizerNodeModel extends NodeModel {
 		GisCanvas<LocationNode> canvas = new LocationVisualizerCanvasCreator(shapeTable, nodeTable, set).createCanvas();
 
 		set.getGisSettings().setGisType(originalGisType);
+
+		if (canvas instanceof OsmCanvas) {
+			((OsmCanvas<?>) canvas).loadAllTiles();
+		}
 
 		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), canvas) };
 	}

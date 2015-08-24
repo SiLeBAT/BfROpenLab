@@ -39,6 +39,7 @@ import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.OsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 
 /**
@@ -80,6 +81,10 @@ public class LocationToLocationVisualizerNodeModel extends NodeModel {
 		GisCanvas<LocationNode> gisCanvas = creator.createGisCanvas();
 
 		set.getGisSettings().setGisType(originalGisType);
+
+		if (gisCanvas instanceof OsmCanvas) {
+			((OsmCanvas<?>) gisCanvas).loadAllTiles();
+		}
 
 		return new PortObject[] { CanvasUtils.getImage(set.isExportAsSvg(), graphCanvas),
 				CanvasUtils.getImage(set.isExportAsSvg(), gisCanvas) };
