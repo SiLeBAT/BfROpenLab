@@ -166,9 +166,9 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 
-		rect.setFrameFromDiagonal(down, e.getPoint());
-
 		if (down != null && down.distance(e.getPoint()) > 5 && e.getButton() == MouseEvent.BUTTON1) {
+			rect.setFrameFromDiagonal(down, e.getPoint());
+
 			if (!e.isShiftDown()) {
 				pickedVertexState.clear();
 			}
