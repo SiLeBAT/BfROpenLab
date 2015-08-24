@@ -29,11 +29,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
@@ -154,30 +149,8 @@ public class TracingViewCanvasCreator {
 			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, regions,
 					deliveries);
 		} else {
-			TileSource tileSource;
-
-			switch (set.getGisType()) {
-			case MAPNIK:
-				tileSource = new OsmTileSource.Mapnik();
-				break;
-			case CYCLE_MAP:
-				tileSource = new OsmTileSource.CycleMap();
-				break;
-			case BING_AERIAL:
-				tileSource = new BingAerialTileSource();
-				break;
-			case MAPQUEST:
-				tileSource = new MapQuestOsmTileSource();
-				break;
-			case MAPQUEST_AERIAL:
-				tileSource = new MapQuestOpenAerialTileSource();
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
-
 			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
-			((TracingOsmCanvas) canvas).setTileSource(tileSource);
+			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());
 		}
 
 		canvas.setPerformTracing(false);
