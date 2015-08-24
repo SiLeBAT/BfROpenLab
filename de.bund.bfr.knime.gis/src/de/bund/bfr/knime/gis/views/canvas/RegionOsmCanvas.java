@@ -27,6 +27,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -90,6 +91,17 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 		if (e.getItem() instanceof RegionNode) {
 			flushImage();
 			viewer.repaint();
+		}
+	}
+
+	@Override
+	public void resetLayoutItemClicked() {
+		Rectangle2D bounds = RegionCanvasUtils.getBounds(nodes);
+
+		if (bounds != null) {
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
+		} else {
+			super.resetLayoutItemClicked();
 		}
 	}
 
