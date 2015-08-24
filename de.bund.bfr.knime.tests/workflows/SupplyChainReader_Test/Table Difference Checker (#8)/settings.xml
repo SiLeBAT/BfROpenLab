@@ -216,7 +216,7 @@
 <entry key="ignoreDomain" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_DeadEnd">
+<config key="columnConfig_SimpleSupplier">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">
@@ -231,7 +231,7 @@
 <entry key="ignoreDomain" type="xboolean" value="false"/>
 </config>
 </config>
-<config key="columnConfig_SimpleSupplier">
+<config key="columnConfig_DeadEnd">
 <entry key="checkerFactory" type="xstring" value="org.knime.testing.internal.diffcheckers.EqualityChecker$Factory"/>
 <config key="internals">
 <config key="ignoreColumnProperties_Internals">
@@ -280,7 +280,7 @@
 <entry key="node-bundle-name" type="xstring" value="Test-Node extension for KNIME Workbench"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.testing"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="2.11.2.0046096"/>
+<entry key="node-bundle-version" type="xstring" value="2.12.0.0047985"/>
 <config key="factory_settings"/>
 <entry key="name" type="xstring" value="Table Difference Checker"/>
 <entry key="hasContent" type="xboolean" value="false"/>
