@@ -31,6 +31,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
@@ -45,7 +46,6 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingShapefileCanvas;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 public class TracingViewCanvasCreator {
 

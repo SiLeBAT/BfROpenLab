@@ -26,7 +26,7 @@ import java.util.Map;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 
-import de.bund.bfr.knime.gis.views.GisType;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;

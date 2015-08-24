@@ -53,6 +53,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.NodeDialogWarningThread;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -61,7 +62,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingChange;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings.GisType;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -189,7 +189,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		gisBox.removeItemListener(this);
 		gisBox.removeAllItems();
 
-		for (GisType type : TracingViewSettings.GisType.values()) {
+		for (GisType type : GisType.values()) {
 			if (shapeTable != null || type != GisType.SHAPEFILE) {
 				gisBox.addItem(type);
 			}

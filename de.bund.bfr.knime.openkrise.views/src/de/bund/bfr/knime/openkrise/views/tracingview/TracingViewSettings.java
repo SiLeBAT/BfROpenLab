@@ -32,14 +32,10 @@ import java.util.Set;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
@@ -47,41 +43,6 @@ import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class TracingViewSettings extends NodeSettings {
-
-	public enum GisType {
-		SHAPEFILE("Shapefile", null),
-
-		MAPNIK("Mapnik", new OsmTileSource.Mapnik()),
-
-		CYCLE_MAP("Cycle Map", new OsmTileSource.CycleMap()),
-
-		BING_AERIAL("Bing Aerial", new BingAerialTileSource()),
-
-		MAPQUEST("MapQuest", new MapQuestOsmTileSource()),
-
-		MAPQUEST_AERIAL("MapQuest Aerial", new MapQuestOpenAerialTileSource());
-
-		private String name;
-		private TileSource tileSource;
-
-		private GisType(String name, TileSource tileSource) {
-			this.name = name;
-			this.tileSource = tileSource;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public TileSource getTileSource() {
-			return tileSource;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
 
 	protected static final XmlConverter SERIALIZER = new XmlConverter(Activator.class.getClassLoader());
 

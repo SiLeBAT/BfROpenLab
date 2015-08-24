@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views;
+package de.bund.bfr.knime.gis;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -42,8 +42,8 @@ import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.GisUtils;
-import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.ui.ColumnComboBox;
 
 public class RegionVisualizerInputDialog extends JDialog implements ActionListener {

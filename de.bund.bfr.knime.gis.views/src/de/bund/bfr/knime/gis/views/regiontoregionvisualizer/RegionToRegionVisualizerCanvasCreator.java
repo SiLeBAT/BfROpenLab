@@ -30,7 +30,7 @@ import org.knime.core.node.InvalidSettingsException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-import de.bund.bfr.knime.gis.views.GisType;
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
