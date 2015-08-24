@@ -9,10 +9,10 @@
 
 	<fullDescription>
 		<intro>
-			This node provides latitude and longitude for given addresses by using the MapQuest Open
-			Geocoding API or an installation of the Gisgraphy Geocoder. The services from MapQuest and
-			"Bundesamt für Kartographie und Geodäsie" require a key/UUID, which have to be entered in the
-			KNIME preferences under KNIME->Geocoding. The MapQuest key can be obtained from
+			This node provides latitude and longitude for given addresses by using a Geocoding service. The
+			services from MapQuest and "Bundesamt für Kartographie und Geodäsie" require a key/UUID, which
+			have to be entered in the KNIME preferences under KNIME->Geocoding. The MapQuest key can be
+			obtained from
 			<a href="https://developer.mapquest.com/">https://developer.mapquest.com/.</a>
 			Please contact the "Bundesamt für Kartographie und Geodäsie" to get the UUID for its service
 			"gdz_geokodierung".

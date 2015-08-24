@@ -140,8 +140,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 			if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
 				result = performMapQuestGeocoding(address);
-			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
-					|| set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 				result = performGisgraphyGeocoding(address, countryCode);
 			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_BKG)) {
 				result = performBkgGeocoding(address);
@@ -328,8 +327,7 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult();
 		}
 
-		String server = set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)
-				? set.getGisgraphyServer().replace("http://", "") : "services.gisgraphy.com/geocoding/geocode";
+		String server = set.getGisgraphyServer().replace("http://", "");
 		String authority = server.substring(0, server.indexOf("/"));
 		String path = server.substring(server.indexOf("/"));
 		URI uri = new URI("http", authority, path, "address=" + address + "&country=" + countryCode + "&postal=true",

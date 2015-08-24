@@ -124,8 +124,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		set.setRequestDelay(Integer.parseInt(delayField.getText()));
 		set.setMultipleResults((String) multipleBox.getSelectedItem());
 
-		if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)
-				|| set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+		if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			if (countryCodeBox.getSelectedColumnName() == null) {
 				throw new InvalidSettingsException("No Country Code specified");
 			}
@@ -152,13 +151,6 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		if (provider.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
 			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(new JLabel("Address:")),
 					Arrays.asList(addressBox)));
-			panel.add(UI.createOptionsPanel("Other Options",
-					Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")),
-					Arrays.asList(delayField, multipleBox)));
-		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY_PUBLIC)) {
-			panel.add(UI.createOptionsPanel("Addresses",
-					Arrays.asList(new JLabel("Address:"), new JLabel("Country Code:")),
-					Arrays.asList(addressBox, countryCodeBox)));
 			panel.add(UI.createOptionsPanel("Other Options",
 					Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")),
 					Arrays.asList(delayField, multipleBox)));

@@ -28,11 +28,9 @@ import de.bund.bfr.knime.NodeSettings;
 public class GeocodingSettings extends NodeSettings {
 
 	public static final String PROVIDER_MAPQUEST = "MapQuest";
-	public static final String PROVIDER_GISGRAPHY_PUBLIC = "Gisgraphy Public Server";
 	public static final String PROVIDER_GISGRAPHY = "Gisgraphy";
 	public static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
-	public static final String[] PROVIDER_CHOICES = { PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY_PUBLIC, PROVIDER_GISGRAPHY,
-			PROVIDER_BKG };
+	public static final String[] PROVIDER_CHOICES = { PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY, PROVIDER_BKG };
 
 	public static final String MULTIPLE_DO_NOT_USE = "Do not use";
 	public static final String MULTIPLE_USE_FIRST = "Use first";
