@@ -36,10 +36,12 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
+import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 /**
  * <code>NodeDialog</code> for the "RegionToRegionVisualizer" Node.
@@ -50,7 +52,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 
 	private JSplitPane splitPane;
 	private GraphCanvas graphCanvas;
-	private RegionCanvas gisCanvas;
+	private GisCanvas<RegionNode> gisCanvas;
 
 	private BufferedDataTable shapeTable;
 	private BufferedDataTable nodeTable;

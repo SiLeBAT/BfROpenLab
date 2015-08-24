@@ -30,12 +30,15 @@ import org.knime.core.node.InvalidSettingsException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
+import de.bund.bfr.knime.gis.views.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
+import de.bund.bfr.knime.gis.views.canvas.RegionOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
@@ -79,7 +82,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public RegionCanvas createGisCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
+	public GisCanvas<RegionNode> createGisCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
 		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable,
 				set.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeRegionColumn());
 		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set.getGisSettings().getShapeColumn(),
@@ -95,8 +98,16 @@ public class RegionToRegionVisualizerCanvasCreator {
 				set.getGraphSettings().getNodeIdColumn());
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(edgeProperties, edgeIdProperty,
 				set.getGraphSettings().getEdgeFromColumn(), set.getGraphSettings().getEdgeToColumn());
-		RegionCanvas canvas = new RegionCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-				Naming.DEFAULT_NAMING);
+		GisCanvas<RegionNode> canvas;
+
+		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
+			canvas = new RegionCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					Naming.DEFAULT_NAMING);
+		} else {
+			canvas = new RegionOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					Naming.DEFAULT_NAMING);
+			((RegionOsmCanvas) canvas).setTileSource(set.getGisSettings().getGisType().getTileSource());
+		}
 
 		set.getGraphSettings().setToCanvas(canvas);
 		set.getGisSettings().setToCanvas(canvas);
