@@ -19,24 +19,17 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
@@ -122,44 +115,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 
 	@Override
 	protected void paintGis(Graphics g, boolean toSvg) {
-		for (RegionNode node : viewer.getPickedVertexState().getPicked()) {
-			g.setColor(Color.BLUE);
-			((Graphics2D) g).fill(node.getTransformedPolygon());
-		}
-
-		List<Color> nodeColors = new ArrayList<>();
-		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<>();
-		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		for (RegionNode node : nodes) {
-			nodeAlphas.put(node, new ArrayList<Double>());
-		}
-
-		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
-			Map<RegionNode, Double> values = condition.getValues(nodes);
-
-			nodeColors.add(condition.getColor());
-
-			for (RegionNode node : nodes) {
-				List<Double> alphas = nodeAlphas.get(node);
-
-				if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
-					alphas.add(values.get(node));
-				} else {
-					alphas.add(0.0);
-				}
-			}
-		}
-
-		for (RegionNode node : nodes) {
-			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node), false);
-
-			if (!color.equals(Color.WHITE) && !viewer.getPickedVertexState().isPicked(node)) {
-				((Graphics2D) g).setPaint(color);
-				((Graphics2D) g).fill(node.getTransformedPolygon());
-			}
-		}
-
+		RegionCanvasUtils.paintRegions(g, nodes, getSelectedNodes(), nodeHighlightConditions);
 		super.paintGis(g, toSvg);
 	}
 
