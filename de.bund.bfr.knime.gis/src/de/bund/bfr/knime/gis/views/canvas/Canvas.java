@@ -1311,7 +1311,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new PickingPlugin();
+		return new PickingPlugin<>(this);
 	}
 
 	protected GraphMousePlugin createScalingPlugin() {
@@ -1332,20 +1332,29 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 	}
 
-	protected class PickingPlugin extends PickingGraphMousePlugin<V, Edge<V>> {
+	public static class PickingPlugin<V extends Node> extends PickingGraphMousePlugin<V, Edge<V>> {
+
+		protected Canvas<V> canvas;
+
+		public PickingPlugin(Canvas<V> canvas) {
+			this.canvas = canvas;
+		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
 				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY());
 				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
 
 				if (node != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), node, nodeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), node,
+							canvas.getNodeSchema());
 
 					dialog.setVisible(true);
 				} else if (edge != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge, edgeSchema);
+					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,
+							canvas.getEdgeSchema());
 
 					dialog.setVisible(true);
 				}
