@@ -19,9 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.geocode;
 
+import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -142,36 +145,25 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	}
 
 	private void updatePanel() {
-		String provider = (String) providerBox.getSelectedItem();
+		List<JLabel> addressLabels = new ArrayList<>(Arrays.asList(new JLabel("Address:")));
+		List<ColumnComboBox> addressBoxes = new ArrayList<>(Arrays.asList(addressBox));
+		List<JLabel> otherLabels = new ArrayList<>(
+				Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")));
+		List<Component> otherFields = new ArrayList<Component>(Arrays.asList(delayField, multipleBox));
+
+		if (providerBox.getSelectedItem().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+			addressLabels.add(new JLabel("Country Code:"));
+			addressBoxes.add(countryCodeBox);
+			otherLabels.add(0, new JLabel("Server Address:"));
+			otherFields.add(0, serverField);
+		}
 
 		panel.removeAll();
 		panel.add(UI.createOptionsPanel("Provider", Arrays.asList(new JLabel("Service Provider")),
 				Arrays.asList(providerBox)));
-
-		if (provider.equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
-			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(new JLabel("Address:")),
-					Arrays.asList(addressBox)));
-			panel.add(UI.createOptionsPanel("Other Options",
-					Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")),
-					Arrays.asList(delayField, multipleBox)));
-		} else if (provider.equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
-			panel.add(UI.createOptionsPanel("Addresses",
-					Arrays.asList(new JLabel("Address:"), new JLabel("Country Code:")),
-					Arrays.asList(addressBox, countryCodeBox)));
-			panel.add(UI.createOptionsPanel("Other Options",
-					Arrays.asList(new JLabel("Server Address:"), new JLabel("Delay between Request (ms):"),
-							new JLabel("When multiple Results:")),
-					Arrays.asList(serverField, delayField, multipleBox)));
-		} else if (provider.equals(GeocodingSettings.PROVIDER_BKG)) {
-			panel.add(UI.createOptionsPanel("Addresses", Arrays.asList(new JLabel("Address:")),
-					Arrays.asList(addressBox)));
-			panel.add(UI.createOptionsPanel("Other Options",
-					Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")),
-					Arrays.asList(delayField, multipleBox)));
-		}
-
+		panel.add(UI.createOptionsPanel("Addresses", addressLabels, addressBoxes));
+		panel.add(UI.createOptionsPanel("Other Options", otherLabels, otherFields));
 		panel.revalidate();
-
 	}
 
 	@Override
