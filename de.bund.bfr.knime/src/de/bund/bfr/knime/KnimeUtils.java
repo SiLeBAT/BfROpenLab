@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -137,5 +138,13 @@ public class KnimeUtils {
 
 	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
 		return map != null ? map : new LinkedHashMap<V, K>(0);
+	}
+
+	public static <T extends Comparable<? super T>> List<T> toSortedList(Collection<T> values) {
+		List<T> list = new ArrayList<>(values);
+
+		Collections.sort(list);
+
+		return list;
 	}
 }

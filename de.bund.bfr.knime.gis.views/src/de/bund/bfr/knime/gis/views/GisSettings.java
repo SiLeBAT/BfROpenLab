@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.Transform;
@@ -167,16 +167,13 @@ public class GisSettings extends Settings {
 	}
 
 	public void setFromCanvas(Canvas<?> canvas, boolean resized) {
-		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
-
-		Collections.sort(selectedNodes);
-
 		showLegend = canvas.isShowLegend();
 		transform = canvas.getTransform();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
 		borderAlpha = canvas.getBorderAlpha();
 		editingMode = canvas.getEditingMode();
+		selectedNodes = KnimeUtils.toSortedList(canvas.getSelectedNodeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		label = canvas.getLabel();
 

@@ -22,20 +22,20 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.GisType;
+import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
@@ -317,12 +317,6 @@ public class TracingViewSettings extends NodeSettings {
 	}
 
 	public void setFromCanvas(ITracingCanvas<?> canvas, boolean resized) {
-		selectedNodes = new ArrayList<>(canvas.getSelectedNodeIds());
-		selectedEdges = new ArrayList<>(canvas.getSelectedEdgeIds());
-
-		Collections.sort(selectedNodes);
-		Collections.sort(selectedEdges);
-
 		showLegend = canvas.isShowLegend();
 		joinEdges = canvas.isJoinEdges();
 		arrowInMiddle = canvas.isArrowInMiddle();
@@ -330,24 +324,15 @@ public class TracingViewSettings extends NodeSettings {
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
 
+		selectedNodes = KnimeUtils.toSortedList(canvas.getSelectedNodeIds());
+		selectedEdges = KnimeUtils.toSortedList(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
 		editingMode = canvas.getEditingMode();
+		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
 		if (resized) {
 			canvasSize = canvas.getCanvasSize();
-		}
-
-		collapsedNodes = new LinkedHashMap<>();
-
-		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
-			Map<String, Point2D> ids = new LinkedHashMap<>();
-
-			for (String id : entry.getValue()) {
-				ids.put(id, null);
-			}
-
-			collapsedNodes.put(entry.getKey(), ids);
 		}
 
 		nodeWeights = canvas.getNodeWeights();
@@ -368,27 +353,20 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setJoinEdges(joinEdges);
 		canvas.setArrowInMiddle(arrowInMiddle);
 		canvas.setLabel(label);
-
-		if (canvasSize != null) {
-			canvas.setCanvasSize(canvasSize);
-		}
-
-		Map<String, Set<String>> collapsed = new LinkedHashMap<>();
-
-		for (Map.Entry<String, Map<String, Point2D>> entry : collapsedNodes.entrySet()) {
-			collapsed.put(entry.getKey(), entry.getValue().keySet());
-		}
-
-		canvas.setCollapsedNodes(collapsed);
+		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
+		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
+		canvas.setCollapsedNodes(BackwardUtils.toNewCollapseFormat(collapsedNodes));
 
 		canvas.setNodeHighlightConditions(
 				TracingUtils.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
 		canvas.setEdgeHighlightConditions(
 				TracingUtils.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
-		canvas.setSkipEdgelessNodes(skipEdgelessNodes);
-		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
+
+		if (canvasSize != null) {
+			canvas.setCanvasSize(canvasSize);
+		}
 
 		canvas.setNodeWeights(nodeWeights);
 		canvas.setEdgeWeights(edgeWeights);
