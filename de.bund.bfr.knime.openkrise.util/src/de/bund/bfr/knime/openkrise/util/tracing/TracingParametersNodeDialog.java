@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
+import javax.swing.JTabbedPane;
 
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
@@ -78,15 +79,23 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		edgeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
+		JTabbedPane nodePane = new JTabbedPane();
+
+		nodePane.addTab(TracingColumns.WEIGHT, nodeWeightPanel);
+		nodePane.addTab(TracingColumns.CROSS_CONTAMINATION, nodeContaminationPanel);
+		nodePane.addTab(TracingColumns.KILL_CONTAMINATION, nodeKillPanel);
+		nodePane.addTab(TracingColumns.OBSERVED, nodeFilterPanel);
+
+		JTabbedPane edgePane = new JTabbedPane();
+
+		edgePane.addTab(TracingColumns.WEIGHT, edgeWeightPanel);
+		edgePane.addTab(TracingColumns.CROSS_CONTAMINATION, edgeContaminationPanel);
+		edgePane.addTab(TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
+		edgePane.addTab(TracingColumns.OBSERVED, edgeFilterPanel);
+
 		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.WEIGHT, nodeWeightPanel);
-		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.WEIGHT, edgeWeightPanel);
-		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.CROSS_CONTAMINATION, nodeContaminationPanel);
-		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.CROSS_CONTAMINATION, edgeContaminationPanel);
-		addTab(TracingUtils.NAMING.Node() + " " + TracingColumns.KILL_CONTAMINATION, nodeKillPanel);
-		addTab(TracingUtils.NAMING.Edge() + " " + TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
-		addTab(TracingColumns.OBSERVED + " " + TracingUtils.NAMING.Nodes(), nodeFilterPanel);
-		addTab(TracingColumns.OBSERVED + " " + TracingUtils.NAMING.Edges(), edgeFilterPanel);
+		addTab(TracingUtils.NAMING.Node() + " Properties", nodePane);
+		addTab(TracingUtils.NAMING.Edge() + " Properties", edgePane);
 	}
 
 	@Override

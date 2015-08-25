@@ -10,35 +10,48 @@
 	<fullDescription>
 		<intro>
 			This node can visualize a supply chain. The three mandatory input ports expect a station
-			table, an delivery table and a data table. These tables are provided by the Supply Chain
-			Analyzer. Tracing can be performed by setting the following three properties for stations or
-			deliveries: "Weight", "Cross Contamination" and "Observed". Based on the properties the following
-			values are computed: "Score", "Forward", "Backward". The results of the tracing or any other data
-			from input tables can be visualized by using highlighting (as explained below).
+			table, an delivery table and a delivery relations table. These tables are provided by the Supply
+			Chain Analyzer. Tracing can be performed by setting the following four properties for stations
+			and deliveries: "Case Weight", "Cross Contamination", "Kill Contamination" and "Observed". You
+			can change the property values by double clicking on a station/delivery or by using
+			"Station/Delivery Selection -> Show Properties" from the context menu. Based on these properties
+			the following values are computed: "Score", "Normalized Score", "Forward", "Backward". The
+			results of the tracing or any other data from input tables can be visualized by using
+			highlighting (as explained below).
 		</intro>
 
-		<tab name="Properties">
-			<option name="Station Weights">
+		<tab name="Station Properties">
+			<option name="Weight">
 				Weights for stations. The computed scores are based on these weights.
 			</option>
-			<option name="Delivery Weights">
-				Weights for deliveries. The computed scores are based on these weights.
-			</option>
-			<option name="Station Cross Contamination">
+			<option name="Cross Contamination">
 				Set cross contamination for stations. That means all incoming deliveries can
 				contaminate all outgoing deliveries (see "Enforce Temporal Order").
 			</option>
-			<option name="Delivery Cross Contamination">
+			<option name="Kill Contamination">
+				Set kill contamination for stations. That means contaminations from incoming
+				deliveries are killed. Outgoing deliveries are therefore uncontaminated.
+			</option>
+			<option name="Observed">
+				For all stations/deliveries that can reached by forward/backward tracing from
+				stations selected here, the "Forward"/"Backward" property is set to true.
+			</option>
+		</tab>
+		<tab name="Delivery Properties">
+			<option name="Weight">
+				Weights for deliveries. The computed scores are based on these weights.
+			</option>
+			<option name="Cross Contamination">
 				Set cross contamination for deliveries. Similar to "Station Cross
 				Contamination", but unselected (no cross contamination) incoming deliveries and outgoing
 				deliveries, that are only connected to unselected incoming deliveries, are excluded from the
 				cross contamination.
 			</option>
-			<option name="Observed Stations">
-				For all stations/deliveries that can reached by forward/backward tracing from
-				stations selected here, the "Forward"/"Backward" is set to true.
+			<option name="Kill Contamination">
+				Set kill contamination for deliveries. That means contaminations from these
+				deliveries are killed. Connected outgoing deliveries are therefore uncontaminated.
 			</option>
-			<option name="Observed Deliveries">
+			<option name="Observed">
 				For all stations/deliveries that can reached by forward/backward tracing from
 				deliveries selected here, the "Forward"/"Backward" is set to true.
 			</option>
