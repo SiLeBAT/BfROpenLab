@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
-import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
@@ -124,7 +122,6 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		elementList = new ArrayList<>(elements);
 		table = new PropertiesTable(elementList, uneditableSchema, idColumns);
 		table.getRowSorter().addRowSorterListener(this);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
 
 		TableCellRenderer boldHeaderRenderer = new BoldHeaderRenderer(table.getTableHeader().getDefaultRenderer());
@@ -136,8 +133,6 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
-		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		inputTable.getSelectionModel().addListSelectionListener(this);
 		values = new LinkedHashMap<>();
 		updateValues();
 
@@ -323,21 +318,9 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() == inputTable.getSelectionModel()) {
-			int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
-			int hScroll = scrollPane.getHorizontalScrollBar().getValue();
-
-			table.getSelectionModel().setSelectionInterval(i, i);
-			table.setVisible(false);
-			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
-			scrollPane.getHorizontalScrollBar().setValue(hScroll);
-			table.setVisible(true);
-		} else if (e.getSource() == table.getSelectionModel()) {
-			int i = table.getSelectionModel().getAnchorSelectionIndex();
-
-			inputTable.getSelectionModel().removeListSelectionListener(this);
-			inputTable.getSelectionModel().setSelectionInterval(i, i);
-			inputTable.getSelectionModel().addListSelectionListener(this);
+		if (e.getSource() == table.getSelectionModel()) {
+			inputTable.getSelectionModel().setSelectionInterval(table.getSelectionModel().getMinSelectionIndex(),
+					table.getSelectionModel().getMaxSelectionIndex());
 		}
 	}
 
