@@ -61,6 +61,7 @@ import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.TableTransferHandler;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -141,6 +142,7 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
 		inputTable.getSelectionModel().addListSelectionListener(this);
+		inputTable.setTransferHandler(new TableTransferHandler(table));
 		values = new LinkedHashMap<>();
 		updateValues();
 
