@@ -48,6 +48,7 @@ public class InputTable extends JTable {
 
 		setRowHeight(new JCheckBox().getPreferredSize().height);
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
+		setTransferHandler(null);
 	}
 
 	@Override

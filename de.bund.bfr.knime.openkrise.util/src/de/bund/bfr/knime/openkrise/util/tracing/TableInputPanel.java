@@ -231,7 +231,10 @@ public class TableInputPanel<T> extends JPanel
 			int i = inputTable.getSelectionModel().getAnchorSelectionIndex();
 			int hScroll = scrollPane.getHorizontalScrollBar().getValue();
 
+			table.getSelectionModel().removeListSelectionListener(this);
 			table.getSelectionModel().setSelectionInterval(i, i);
+			table.getSelectionModel().addListSelectionListener(this);
+
 			table.setVisible(false);
 			table.scrollRectToVisible(new Rectangle(table.getCellRect(i, 0, true)));
 			scrollPane.getHorizontalScrollBar().setValue(hScroll);
@@ -288,6 +291,7 @@ public class TableInputPanel<T> extends JPanel
 		table.getRowSorter().toggleSortOrder(0);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(this);
+		table.setTransferHandler(null);
 		inputTable.getDefaultEditor(classType).addCellEditorListener(this);
 		inputTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		inputTable.getSelectionModel().addListSelectionListener(this);
