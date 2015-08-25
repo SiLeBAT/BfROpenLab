@@ -21,8 +21,12 @@ package de.bund.bfr.knime.gis.views.canvas.backward;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.Maps;
 
 public class BackwardUtils {
 
@@ -33,7 +37,7 @@ public class BackwardUtils {
 		Map<String, Set<String>> newMap = new LinkedHashMap<>();
 
 		for (Map.Entry<String, Map<String, Point2D>> entry : map.entrySet()) {
-			newMap.put(entry.getKey(), entry.getValue().keySet());
+			newMap.put(entry.getKey(), new LinkedHashSet<>(entry.getValue().keySet()));
 		}
 
 		return newMap;
@@ -43,13 +47,8 @@ public class BackwardUtils {
 		Map<String, Map<String, Point2D>> oldMap = new LinkedHashMap<>();
 
 		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
-			Map<String, Point2D> ids = new LinkedHashMap<>();
-
-			for (String id : entry.getValue()) {
-				ids.put(id, null);
-			}
-
-			oldMap.put(entry.getKey(), ids);
+			oldMap.put(entry.getKey(),
+					new LinkedHashMap<>(Maps.asMap(entry.getValue(), Functions.constant((Point2D) null))));
 		}
 
 		return oldMap;
