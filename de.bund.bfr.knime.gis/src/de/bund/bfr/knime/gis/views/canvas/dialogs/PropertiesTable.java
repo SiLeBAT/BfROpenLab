@@ -113,6 +113,12 @@ public class PropertiesTable extends JTable {
 		}
 
 		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			columnValueTuples.get(rowIndex).set(columnIndex, aValue);
+			fireTableCellUpdated(rowIndex, columnIndex);
+		}
+
+		@Override
 		public String getColumnName(int column) {
 			return columnNames.get(column);
 		}

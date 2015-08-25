@@ -52,6 +52,8 @@ import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 import javax.swing.plaf.UIResource;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -111,18 +113,21 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 			break;
 		}
 
-		InputTable.Header inputTableHeader = new InputTable.Header();
-		PropertySchema uneditableSchema = new PropertySchema(new LinkedHashMap<>(schema.getMap()));
-
-		uneditableSchema.getMap().remove(TracingColumns.WEIGHT);
-		uneditableSchema.getMap().remove(TracingColumns.CROSS_CONTAMINATION);
-		uneditableSchema.getMap().remove(TracingColumns.KILL_CONTAMINATION);
-		uneditableSchema.getMap().remove(TracingColumns.OBSERVED);
-
 		elementList = new ArrayList<>(elements);
-		table = new PropertiesTable(elementList, uneditableSchema, idColumns);
+		table = new PropertiesTable(elementList, schema, idColumns);
 		table.getRowSorter().addRowSorterListener(this);
 		table.getSelectionModel().addListSelectionListener(this);
+
+		TableColumnModel columnModel = table.getColumnModel();
+
+		columnModel.moveColumn(columnModel.getColumnIndex(TracingColumns.WEIGHT), 0);
+		columnModel.moveColumn(columnModel.getColumnIndex(TracingColumns.CROSS_CONTAMINATION), 1);
+		columnModel.moveColumn(columnModel.getColumnIndex(TracingColumns.KILL_CONTAMINATION), 2);
+		columnModel.moveColumn(columnModel.getColumnIndex(TracingColumns.OBSERVED), 3);
+		setInvisible(table.getColumn(TracingColumns.WEIGHT));
+		setInvisible(table.getColumn(TracingColumns.CROSS_CONTAMINATION));
+		setInvisible(table.getColumn(TracingColumns.KILL_CONTAMINATION));
+		setInvisible(table.getColumn(TracingColumns.OBSERVED));
 
 		TableCellRenderer boldHeaderRenderer = new BoldHeaderRenderer(table.getTableHeader().getDefaultRenderer());
 
@@ -131,8 +136,11 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		table.getColumn(TracingColumns.BACKWARD).setHeaderRenderer(boldHeaderRenderer);
 		table.getColumn(TracingColumns.FORWARD).setHeaderRenderer(boldHeaderRenderer);
 
+		InputTable.Header inputTableHeader = new InputTable.Header();
+
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
+		inputTable.getSelectionModel().addListSelectionListener(this);
 		values = new LinkedHashMap<>();
 		updateValues();
 
@@ -319,8 +327,15 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == table.getSelectionModel()) {
+			inputTable.getSelectionModel().removeListSelectionListener(this);
 			inputTable.getSelectionModel().setSelectionInterval(table.getSelectionModel().getMinSelectionIndex(),
 					table.getSelectionModel().getMaxSelectionIndex());
+			inputTable.getSelectionModel().addListSelectionListener(this);
+		} else if (e.getSource() == inputTable.getSelectionModel()) {
+			table.getSelectionModel().removeListSelectionListener(this);
+			table.getSelectionModel().setSelectionInterval(inputTable.getSelectionModel().getMinSelectionIndex(),
+					inputTable.getSelectionModel().getMaxSelectionIndex());
+			table.getSelectionModel().addListSelectionListener(this);
 		}
 	}
 
@@ -329,8 +344,15 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 
 		for (int row = 0; row < table.getRowCount(); row++) {
 			String id = (String) table.getValueAt(row, idColumn);
+			InputTable.Input input = (InputTable.Input) inputTable.getValueAt(row, 0);
 
-			values.put(id, (InputTable.Input) inputTable.getValueAt(row, 0));
+			values.put(id, input);
+			table.setValueAt(input.getWeight(), row, table.getColumnModel().getColumnIndex(TracingColumns.WEIGHT));
+			table.setValueAt(input.isCrossContamination(), row,
+					table.getColumnModel().getColumnIndex(TracingColumns.CROSS_CONTAMINATION));
+			table.setValueAt(input.isKillContamination(), row,
+					table.getColumnModel().getColumnIndex(TracingColumns.KILL_CONTAMINATION));
+			table.setValueAt(input.isObserved(), row, table.getColumnModel().getColumnIndex(TracingColumns.OBSERVED));
 		}
 	}
 
@@ -358,6 +380,12 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 		}
 
 		applyValues();
+	}
+
+	private static void setInvisible(TableColumn column) {
+		column.setMinWidth(0);
+		column.setMaxWidth(0);
+		column.setPreferredWidth(0);
 	}
 
 	private static class BoldHeaderRenderer implements UIResource, TableCellRenderer {
