@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -277,8 +276,8 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
-			EventQueue.invokeLater(
-					new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes));
+			new Thread(new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes))
+					.start();
 		} else {
 			setNodePositions(getNodePositions());
 			nodesMoved();
