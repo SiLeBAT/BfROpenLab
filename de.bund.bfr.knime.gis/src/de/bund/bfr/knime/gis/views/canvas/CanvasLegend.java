@@ -24,10 +24,8 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -48,8 +46,8 @@ public class CanvasLegend<V extends Node> {
 	private static final int LEGEND_DY = 3;
 
 	private Canvas<V> owner;
-	private Map<String, Image> nodeLegend;
-	private Map<String, Image> edgeLegend;
+	private Map<String, LegendColor> nodeLegend;
+	private Map<String, LegendColor> edgeLegend;
 
 	public CanvasLegend(Canvas<V> owner, HighlightConditionList nodeHighlightConditions, Collection<V> nodes,
 			HighlightConditionList edgeHighlightConditions, Collection<Edge<V>> edges) {
@@ -62,20 +60,13 @@ public class CanvasLegend<V extends Node> {
 			Color color = condition.getColor();
 
 			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
-				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH,
-						BufferedImage.TYPE_INT_RGB);
-				Graphics g = image.getGraphics();
-
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " [" + toRangeString(condition.getValueRange(nodes)) + "]";
-					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+					nodeLegend.put(name + " [" + toRangeString(condition.getValueRange(nodes)) + "]",
+							new LegendColor(Color.WHITE, color));
 				} else {
-					g.setColor(color);
+					nodeLegend.put(name, new LegendColor(color));
 				}
-
-				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
-				nodeLegend.put(name, image);
 			}
 		}
 
@@ -84,20 +75,13 @@ public class CanvasLegend<V extends Node> {
 			Color color = condition.getColor();
 
 			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
-				BufferedImage image = new BufferedImage(LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH,
-						BufferedImage.TYPE_INT_RGB);
-				Graphics g = image.getGraphics();
-
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
-					name += " [" + toRangeString(condition.getValueRange(edges)) + "]";
-					((Graphics2D) g).setPaint(new GradientPaint(0, 0, Color.WHITE, LEGEND_COLOR_BOX_WIDTH, 0, color));
+					edgeLegend.put(name + " [" + toRangeString(condition.getValueRange(edges)) + "]",
+							new LegendColor(Color.BLACK, color));
 				} else {
-					g.setColor(color);
+					edgeLegend.put(name, new LegendColor(color));
 				}
-
-				g.fillRect(0, 0, LEGEND_COLOR_BOX_WIDTH, LEGEND_COLOR_BOX_WIDTH);
-				edgeLegend.put(name, image);
 			}
 		}
 	}
@@ -158,16 +142,16 @@ public class CanvasLegend<V extends Node> {
 
 		g.setFont(legendFont);
 
-		for (Map.Entry<String, Image> entry : nodeLegend.entrySet()) {
-			g.drawImage(entry.getValue(), xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
+		for (Map.Entry<String, LegendColor> entry : nodeLegend.entrySet()) {
+			entry.getValue().paint(g, xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.setColor(Color.BLACK);
 			g.drawRect(xNodeColor, yNode, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(entry.getKey(), xNodeName, yNode + fontAscent);
 			yNode += legendHeight + LEGEND_DY;
 		}
 
-		for (Map.Entry<String, Image> entry : edgeLegend.entrySet()) {
-			g.drawImage(entry.getValue(), xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight, null);
+		for (Map.Entry<String, LegendColor> entry : edgeLegend.entrySet()) {
+			entry.getValue().paint(g, xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.setColor(Color.BLACK);
 			g.drawRect(xEdgeColor, yEdge, LEGEND_COLOR_BOX_WIDTH, legendHeight);
 			g.drawString(entry.getKey(), xEdgeName, yEdge + fontAscent);
@@ -179,5 +163,37 @@ public class CanvasLegend<V extends Node> {
 		NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
 
 		return format.format(p.getX()) + " -> " + format.format(p.getY());
+	}
+
+	private static class LegendColor {
+
+		private Color color;
+
+		private Color fromColor;
+		private Color toColor;
+
+		public LegendColor(Color color) {
+			this.color = color;
+
+			fromColor = null;
+			toColor = null;
+		}
+
+		public LegendColor(Color fromColor, Color toColor) {
+			this.fromColor = fromColor;
+			this.toColor = toColor;
+
+			color = null;
+		}
+
+		public void paint(Graphics g, int x, int y, int width, int height) {
+			if (color != null) {
+				g.setColor(color);
+			} else {
+				((Graphics2D) g).setPaint(new GradientPaint(x, 0, fromColor, x + width, 0, toColor));
+			}
+
+			g.fillRect(x, y, width, height);
+		}
 	}
 }
