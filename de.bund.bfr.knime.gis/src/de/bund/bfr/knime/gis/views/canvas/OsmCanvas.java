@@ -113,7 +113,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg) {
+	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
 		for (Map.Entry<Point, Tile> entry : getTiles(false).entrySet()) {
 			entry.getValue().paint(g, entry.getKey().x, entry.getKey().y);
 		}

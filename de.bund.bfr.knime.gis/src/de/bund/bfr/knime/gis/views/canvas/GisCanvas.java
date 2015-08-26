@@ -82,7 +82,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		return new ZoomingPaintable(this, 2.0);
 	}
 
-	protected abstract void paintGis(Graphics g, boolean toSvg);
+	protected abstract void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground);
 
 	private void paintGisImage(Graphics g) {
 		int width = getCanvasSize().width;
@@ -91,7 +91,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		if (image == null || image.getWidth() != width || image.getHeight() != height) {
 			flushImage();
 			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			paintGis(image.getGraphics(), false);
+			paintGis(image.getGraphics(), false, true);
 		}
 
 		g.drawImage(image, 0, 0, null);
@@ -127,7 +127,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		@Override
 		public void paint(Graphics g) {
 			if (toSvg) {
-				paintGis(g, true);
+				paintGis(g, true, true);
 			} else {
 				paintGisImage(g);
 			}

@@ -129,8 +129,8 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg) {
-		super.paintGis(g, toSvg);
+	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+		super.paintGis(g, toSvg, onWhiteBackground);
 		RegionCanvasUtils.paintRegions(g, nodes, getSelectedNodes(), nodeHighlightConditions);
 	}
 

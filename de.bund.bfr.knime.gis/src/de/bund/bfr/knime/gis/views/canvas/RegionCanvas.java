@@ -114,9 +114,9 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg) {
+	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
 		RegionCanvasUtils.paintRegions(g, nodes, getSelectedNodes(), nodeHighlightConditions);
-		super.paintGis(g, toSvg);
+		super.paintGis(g, toSvg, false);
 	}
 
 	@Override

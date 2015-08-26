@@ -102,8 +102,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg) {
-		super.paintGis(g, toSvg);
+	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+		super.paintGis(g, toSvg, onWhiteBackground);
 
 		if (invalidArea != null) {
 			LocationCanvasUtils.paintNonLatLonArea(g, getCanvasSize().width, getCanvasSize().height,
