@@ -69,7 +69,7 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 
 	@Override
 	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new GisPickingPlugin<>(this);
+		return new PickingPlugin<>(this);
 	}
 
 	@Override
@@ -97,9 +97,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		g.drawImage(image, 0, 0, null);
 	}
 
-	public static class GisPickingPlugin<V extends Node> extends PickingPlugin<V> {
+	public static class PickingPlugin<V extends Node> extends Canvas.PickingPlugin<V> {
 
-		public GisPickingPlugin(GisCanvas<V> canvas) {
+		public PickingPlugin(GisCanvas<V> canvas) {
 			super(canvas);
 		}
 

@@ -97,7 +97,7 @@ public class RegionCanvasUtils {
 		}
 	}
 
-	public static class PickingPlugin<V extends RegionNode> extends GisCanvas.GisPickingPlugin<V> {
+	public static class PickingPlugin<V extends RegionNode> extends GisCanvas.PickingPlugin<V> {
 
 		public PickingPlugin(GisCanvas<V> canvas) {
 			super(canvas);
