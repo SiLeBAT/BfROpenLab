@@ -34,7 +34,6 @@ import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 public class LocationVisualizerCanvasCreator {
 
@@ -62,9 +61,8 @@ public class LocationVisualizerCanvasCreator {
 		GisCanvas<LocationNode> canvas;
 
 		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
-			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn());
-
-			canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING, regions);
+			canvas = new LocationCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING,
+					ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn()));
 		} else {
 			canvas = new LocationOsmCanvas(nodes, nodeSchema, Naming.DEFAULT_NAMING);
 			((LocationOsmCanvas) canvas).setTileSource(set.getGisSettings().getGisType().getTileSource());

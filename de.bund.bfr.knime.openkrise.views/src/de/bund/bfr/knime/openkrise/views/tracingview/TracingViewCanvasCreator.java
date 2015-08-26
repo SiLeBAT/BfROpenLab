@@ -38,7 +38,6 @@ import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
@@ -144,10 +143,8 @@ public class TracingViewCanvasCreator {
 		ITracingGisCanvas<?> canvas;
 
 		if (set.getGisType() == GisType.SHAPEFILE) {
-			List<RegionNode> regions = TracingUtils.readRegions(shapeTable, skippedShapeRows);
-
-			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, regions,
-					deliveries);
+			canvas = new TracingShapefileCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
+					TracingUtils.readRegions(shapeTable, skippedShapeRows), deliveries);
 		} else {
 			canvas = new TracingOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema, deliveries);
 			((TracingOsmCanvas) canvas).setTileSource(set.getGisType().getTileSource());

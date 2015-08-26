@@ -25,12 +25,6 @@ import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
-
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
@@ -43,7 +37,6 @@ import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 
 public class LocationToLocationVisualizerCanvasCreator {
 
@@ -104,36 +97,13 @@ public class LocationToLocationVisualizerCanvasCreator {
 		GisCanvas<LocationNode> canvas;
 
 		if (set.getGisSettings().getGisType() == GisType.SHAPEFILE) {
-			List<RegionNode> regions = ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn());
-
 			canvas = new LocationCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
-					Naming.DEFAULT_NAMING, regions);
+					Naming.DEFAULT_NAMING,
+					ViewUtils.readRegionNodes(shapeTable, set.getGisSettings().getShapeColumn()));
 		} else {
-			TileSource tileSource;
-
-			switch (set.getGisSettings().getGisType()) {
-			case MAPNIK:
-				tileSource = new OsmTileSource.Mapnik();
-				break;
-			case CYCLE_MAP:
-				tileSource = new OsmTileSource.CycleMap();
-				break;
-			case BING_AERIAL:
-				tileSource = new BingAerialTileSource();
-				break;
-			case MAPQUEST:
-				tileSource = new MapQuestOsmTileSource();
-				break;
-			case MAPQUEST_AERIAL:
-				tileSource = new MapQuestOpenAerialTileSource();
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
-
 			canvas = new LocationOsmCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 					Naming.DEFAULT_NAMING);
-			((LocationOsmCanvas) canvas).setTileSource(tileSource);
+			((LocationOsmCanvas) canvas).setTileSource(set.getGisSettings().getGisType().getTileSource());
 		}
 
 		set.getGraphSettings().setToCanvas(canvas);
