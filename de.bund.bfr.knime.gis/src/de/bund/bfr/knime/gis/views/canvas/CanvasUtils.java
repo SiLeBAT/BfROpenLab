@@ -56,7 +56,6 @@ import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.knime.core.util.Pair;
-import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.google.common.base.Joiner;
@@ -702,8 +701,7 @@ public class CanvasUtils {
 		width = Math.max(width, 1);
 		height = Math.max(height, 1);
 
-		SVGDOMImplementation domImpl = new SVGDOMImplementation();
-		Document document = domImpl.createDocument(null, "svg", null);
+		SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
 		SVGGraphics2D g = new SVGGraphics2D(document);
 		int x = 0;
 
@@ -720,7 +718,7 @@ public class CanvasUtils {
 		g.dispose();
 		document.replaceChild(g.getRoot(), document.getDocumentElement());
 
-		return (SVGDocument) document;
+		return document;
 	}
 
 	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
@@ -728,13 +726,12 @@ public class CanvasUtils {
 			return new ImagePortObject(new SvgImageContent(CanvasUtils.getSvgDocument(canvas), true),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
-			BufferedImage img = CanvasUtils.getBufferedImage(canvas);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+				ImageIO.write(CanvasUtils.getBufferedImage(canvas), "png", out);
 
-			ImageIO.write(img, "png", out);
-
-			return new ImagePortObject(new PNGImageContent(out.toByteArray()),
-					new ImagePortObjectSpec(PNGImageContent.TYPE));
+				return new ImagePortObject(new PNGImageContent(out.toByteArray()),
+						new ImagePortObjectSpec(PNGImageContent.TYPE));
+			}
 		}
 	}
 

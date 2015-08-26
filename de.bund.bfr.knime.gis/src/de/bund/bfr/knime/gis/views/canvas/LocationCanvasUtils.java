@@ -247,6 +247,7 @@ public class LocationCanvasUtils {
 		imgGraphics.setColor(Color.BLACK);
 		((Graphics2D) imgGraphics).draw(invalidArea);
 		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
+		invalidAreaImage.flush();
 	}
 
 	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes, NodePropertySchema nodeSchema,

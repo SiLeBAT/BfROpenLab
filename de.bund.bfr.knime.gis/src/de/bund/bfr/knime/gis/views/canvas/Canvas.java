@@ -54,10 +54,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 
 import com.google.common.collect.Sets;
 
@@ -618,28 +616,22 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			if (chooser.getFileFilter() == ImageFileChooser.PNG_FILTER) {
 				try {
-					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(false);
 					BufferedImage img = new BufferedImage(viewer.getWidth(), viewer.getHeight(),
 							BufferedImage.TYPE_INT_RGB);
 
-					server.paint(img.getGraphics());
+					getVisualizationServer(false).paint(img.getGraphics());
 					ImageIO.write(img, "png", chooser.getImageFile());
 				} catch (IOException ex) {
 					JOptionPane.showMessageDialog(this, "Error saving png file", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			} else if (chooser.getFileFilter() == ImageFileChooser.SVG_FILTER) {
-				try {
-					VisualizationImageServer<V, Edge<V>> server = getVisualizationServer(true);
-					DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
-					Document document = domImpl.createDocument(null, "svg", null);
-					SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-					Writer outsvg = new OutputStreamWriter(new FileOutputStream(chooser.getImageFile()),
-							StandardCharsets.UTF_8);
+				try (Writer outsvg = new OutputStreamWriter(new FileOutputStream(chooser.getImageFile()),
+						StandardCharsets.UTF_8)) {
+					SVGGraphics2D g = new SVGGraphics2D(new SVGDOMImplementation().createDocument(null, "svg", null));
 
-					svgGenerator.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
-					server.paint(svgGenerator);
-					svgGenerator.stream(outsvg, true);
-					outsvg.close();
+					g.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
+					getVisualizationServer(true).paint(g);
+					g.stream(outsvg, true);
 				} catch (IOException ex) {
 					JOptionPane.showMessageDialog(this, "Error saving svg file", "Error", JOptionPane.ERROR_MESSAGE);
 				}

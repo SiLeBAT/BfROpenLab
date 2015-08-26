@@ -39,7 +39,6 @@ import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
-import org.w3c.dom.Document;
 import org.w3c.dom.svg.SVGDocument;
 
 public class ChartUtils {
@@ -91,11 +90,29 @@ public class ChartUtils {
 
 	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg, int width, int height) {
 		if (asSvg) {
-			return new ImagePortObject(ChartUtils.convertToSVGImageContent(chart, width, height),
-					new ImagePortObjectSpec(SvgCell.TYPE));
+			SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
+			SVGGraphics2D g = new SVGGraphics2D(document);
+
+			g.setSVGCanvasSize(new Dimension(width, height));
+
+			if (chart != null) {
+				chart.draw(g, new Rectangle2D.Double(0, 0, width, height));
+			}
+
+			g.dispose();
+			document.replaceChild(g.getRoot(), document.getDocumentElement());
+			return new ImagePortObject(new SvgImageContent(document, true), new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
-			return new ImagePortObject(ChartUtils.convertToPNGImageContent(chart, width, height),
-					new ImagePortObjectSpec(PNGImageContent.TYPE));
+			try {
+				BufferedImage img = chart != null ? chart.createBufferedImage(width, height)
+						: new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+				return new ImagePortObject(new PNGImageContent(ChartUtilities.encodeAsPNG(img)),
+						new ImagePortObjectSpec(PNGImageContent.TYPE));
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
@@ -110,39 +127,5 @@ public class ChartUtils {
 
 		plot.setDataset(i, dataSet);
 		plot.setRenderer(i, renderer);
-	}
-
-	private static PNGImageContent convertToPNGImageContent(JFreeChart chart, int width, int height) {
-		BufferedImage img;
-
-		if (chart != null) {
-			img = chart.createBufferedImage(width, height);
-		} else {
-			img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		}
-
-		try {
-			return new PNGImageContent(ChartUtilities.encodeAsPNG(img));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private static SvgImageContent convertToSVGImageContent(JFreeChart chart, int width, int height) {
-		SVGDOMImplementation domImpl = new SVGDOMImplementation();
-		Document document = domImpl.createDocument(null, "svg", null);
-		SVGGraphics2D g = new SVGGraphics2D(document);
-
-		g.setSVGCanvasSize(new Dimension(width, height));
-
-		if (chart != null) {
-			chart.draw(g, new Rectangle2D.Double(0, 0, width, height));
-		}
-
-		g.dispose();
-		document.replaceChild(g.getRoot(), document.getDocumentElement());
-
-		return new SvgImageContent((SVGDocument) document, true);
 	}
 }
