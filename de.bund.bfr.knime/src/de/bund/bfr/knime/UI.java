@@ -28,11 +28,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -291,87 +286,6 @@ public class UI {
 			}
 
 			container = container.getParent();
-		}
-	}
-
-	public static class DoublePasteAdapter implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			JTable table = (JTable) e.getSource();
-			int startRow = table.getSelectedRows()[0];
-			int startCol = table.getSelectedColumns()[0];
-			String clipboardContent = null;
-
-			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getContents(table)
-						.getTransferData(DataFlavor.stringFlavor);
-			} catch (IOException | UnsupportedFlavorException ex) {
-				ex.printStackTrace();
-				return;
-			}
-
-			String[] rows = clipboardContent.split("\n");
-
-			for (int i = 0; i < rows.length; i++) {
-				String[] cells = rows[i].split("\t");
-
-				for (int j = 0; j < cells.length; j++) {
-					int row = startRow + i;
-					int col = startCol + j;
-
-					if (row >= table.getRowCount() || col >= table.getColumnCount()
-							|| !table.isCellEditable(row, col)) {
-						continue;
-					}
-
-					try {
-						table.setValueAt(Double.parseDouble(cells[j].replace(",", ".")), row, col);
-					} catch (NumberFormatException ex) {
-					}
-				}
-			}
-
-			table.repaint();
-		}
-	}
-
-	public static class StringPasteAdapter implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			JTable table = (JTable) e.getSource();
-			int startRow = table.getSelectedRows()[0];
-			int startCol = table.getSelectedColumns()[0];
-			String clipboardContent = null;
-
-			try {
-				clipboardContent = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getContents(table)
-						.getTransferData(DataFlavor.stringFlavor);
-			} catch (IOException | UnsupportedFlavorException ex) {
-				ex.printStackTrace();
-				return;
-			}
-
-			String[] rows = clipboardContent.split("\n");
-
-			for (int i = 0; i < rows.length; i++) {
-				String[] cells = rows[i].split("\t");
-
-				for (int j = 0; j < cells.length; j++) {
-					int row = startRow + i;
-					int col = startCol + j;
-
-					if (row >= table.getRowCount() || col >= table.getColumnCount()
-							|| !table.isCellEditable(row, col)) {
-						continue;
-					}
-
-					table.setValueAt(cells[j], row, col);
-				}
-			}
-
-			table.repaint();
 		}
 	}
 }
