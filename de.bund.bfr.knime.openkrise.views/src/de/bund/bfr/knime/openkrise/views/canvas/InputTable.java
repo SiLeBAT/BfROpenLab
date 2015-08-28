@@ -36,6 +36,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
@@ -137,6 +138,18 @@ public class InputTable extends JTable {
 			ccTable = new JTable(new DefaultTableModel(1, 1));
 			killTable = new JTable(new DefaultTableModel(1, 1));
 			observedTable = new JTable(new DefaultTableModel(1, 1));
+		}
+
+		@Override
+		public boolean stopCellEditing() {
+			try {
+				Double.parseDouble(weightField.getText());
+			} catch (NumberFormatException ex) {
+				weightField.setBorder(new LineBorder(Color.RED));
+				return false;
+			}
+
+			return super.stopCellEditing();
 		}
 
 		@Override

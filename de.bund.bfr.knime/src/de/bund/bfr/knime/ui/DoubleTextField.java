@@ -85,7 +85,7 @@ public class DoubleTextField extends TypedTextField implements FocusListener {
 			valueValid = isOptional();
 		} else {
 			try {
-				value = Double.parseDouble(getText().replace(",", "."));
+				value = Double.parseDouble(getText());
 				valueValid = value >= minValue && value <= maxValue;
 			} catch (NumberFormatException e) {
 				value = null;
