@@ -101,10 +101,8 @@ public class ShapefileReaderNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 		ShapefileDataStore dataStore = GisUtils.getDataStore(shpFile.getStringValue());
 		ContentFeatureCollection collection = dataStore.getFeatureSource().getFeatures();
-
 		DataTableSpec spec = createSpec(collection.getSchema());
 		BufferedDataContainer container = exec.createDataContainer(spec);
-		SimpleFeatureIterator iterator = collection.features();
 		MathTransform transform = null;
 		int index = 0;
 
@@ -115,49 +113,50 @@ public class ShapefileReaderNodeModel extends NodeModel {
 			transform = new AffineTransform2D(0, 1, 1, 0, 0, 0);
 		}
 
-		loop: while (iterator.hasNext()) {
-			SimpleFeature feature = iterator.next();
-			DataCell[] cells = new DataCell[spec.getNumColumns()];
-			MultiPolygon shape = null;
+		try (SimpleFeatureIterator iterator = collection.features()) {
+			loop: while (iterator.hasNext()) {
+				SimpleFeature feature = iterator.next();
+				DataCell[] cells = new DataCell[spec.getNumColumns()];
+				MultiPolygon shape = null;
 
-			for (Property p : feature.getProperties()) {
-				String name = p.getName().toString().trim();
-				int i = spec.findColumnIndex(name);
-				Object value = p.getValue();
+				for (Property p : feature.getProperties()) {
+					String name = p.getName().toString().trim();
+					int i = spec.findColumnIndex(name);
+					Object value = p.getValue();
 
-				if (value == null) {
-					cells[i] = DataType.getMissingCell();
-				} else if (value instanceof Geometry) {
-					if (!(value instanceof MultiPolygon)) {
-						continue loop;
+					if (value == null) {
+						cells[i] = DataType.getMissingCell();
+					} else if (value instanceof Geometry) {
+						if (!(value instanceof MultiPolygon)) {
+							continue loop;
+						}
+
+						shape = (MultiPolygon) JTS.transform((MultiPolygon) value, transform);
+						cells[i] = ShapeCellFactory.create(shape);
+					} else if (value instanceof Integer) {
+						cells[i] = new IntCell((Integer) p.getValue());
+					} else if (value instanceof Double) {
+						cells[i] = new DoubleCell((Double) p.getValue());
+					} else if (value instanceof Boolean) {
+						cells[i] = BooleanCell.get((Boolean) p.getValue());
+					} else {
+						cells[i] = new StringCell(p.getValue().toString());
 					}
-
-					shape = (MultiPolygon) JTS.transform((MultiPolygon) value, transform);
-					cells[i] = ShapeCellFactory.create(shape);
-				} else if (value instanceof Integer) {
-					cells[i] = new IntCell((Integer) p.getValue());
-				} else if (value instanceof Double) {
-					cells[i] = new DoubleCell((Double) p.getValue());
-				} else if (value instanceof Boolean) {
-					cells[i] = BooleanCell.get((Boolean) p.getValue());
-				} else {
-					cells[i] = new StringCell(p.getValue().toString());
 				}
+
+				Point2D p = GisUtils.getCenterOfLargestPolygon(shape);
+
+				cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p.getX());
+				cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p.getY());
+				cells[spec.findColumnIndex(areaColumn)] = IO.createCell(shape.getArea());
+
+				exec.checkCanceled();
+				exec.setProgress((double) index / (double) collection.size());
+				container.addRowToTable(new DefaultRow(index + "", cells));
+				index++;
 			}
-
-			Point2D p = GisUtils.getCenterOfLargestPolygon(shape);
-
-			cells[spec.findColumnIndex(latitudeColumn)] = IO.createCell(p.getX());
-			cells[spec.findColumnIndex(longitudeColumn)] = IO.createCell(p.getY());
-			cells[spec.findColumnIndex(areaColumn)] = IO.createCell(shape.getArea());
-
-			exec.checkCanceled();
-			exec.setProgress((double) index / (double) collection.size());
-			container.addRowToTable(new DefaultRow(index + "", cells));
-			index++;
 		}
 
-		iterator.close();
 		dataStore.dispose();
 		container.close();
 

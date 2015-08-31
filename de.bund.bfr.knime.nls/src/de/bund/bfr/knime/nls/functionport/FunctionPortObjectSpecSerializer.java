@@ -32,27 +32,20 @@ public class FunctionPortObjectSpecSerializer extends PortObjectSpecSerializer<F
 	@Override
 	public void savePortObjectSpec(FunctionPortObjectSpec portObjectSpec, PortObjectSpecZipOutputStream out)
 			throws IOException {
-		ObjectOutputStream objectOut = new ObjectOutputStream(out);
-
-		objectOut.writeObject(portObjectSpec);
-		objectOut.close();
+		try (ObjectOutputStream objectOut = new ObjectOutputStream(out)) {
+			objectOut.writeObject(portObjectSpec);
+		}
 	}
 
 	@Override
 	public FunctionPortObjectSpec loadPortObjectSpec(PortObjectSpecZipInputStream in) throws IOException {
-		ObjectInputStream objectIn = new ObjectInputStream(in);
-		FunctionPortObjectSpec portObject;
-
-		try {
-			portObject = (FunctionPortObjectSpec) objectIn.readObject();
-		} catch (ClassNotFoundException e) {
-			portObject = null;
-			e.printStackTrace();
+		try (ObjectInputStream objectIn = new ObjectInputStream(in)) {
+			try {
+				return (FunctionPortObjectSpec) objectIn.readObject();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
-
-		objectIn.close();
-
-		return portObject;
 	}
-
 }
