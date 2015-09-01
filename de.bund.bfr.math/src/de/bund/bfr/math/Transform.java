@@ -135,10 +135,20 @@ public enum Transform {
 	}
 
 	public String getName(String attr) {
-		if (this != Transform.NO_TRANSFORM) {
+		if (this != NO_TRANSFORM) {
 			return this + "(" + attr + ")";
 		}
 
 		return attr;
+	}
+
+	public static Transform fromName(String name) {
+		for (Transform f : values()) {
+			if (f.name.equals(name)) {
+				return f;
+			}
+		}
+
+		return NO_TRANSFORM;
 	}
 }
