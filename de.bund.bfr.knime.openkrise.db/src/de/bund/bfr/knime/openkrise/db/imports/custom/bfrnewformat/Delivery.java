@@ -122,11 +122,6 @@ public class Delivery {
 	}
 	
 	private String logMessages = "";
-	private String logWarnings = "";
-	
-	public String getLogWarnings() {
-		return logWarnings;
-	}
 	
 	public String getLogMessages() {
 		return logMessages;

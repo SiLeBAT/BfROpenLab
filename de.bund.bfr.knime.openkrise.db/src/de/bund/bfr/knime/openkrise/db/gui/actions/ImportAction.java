@@ -24,6 +24,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -88,6 +91,7 @@ public class ImportAction extends AbstractAction {
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();
 				  	File[] selectedFiles = fc.getSelectedFiles();
 				  	if (selectedFiles != null && selectedFiles.length > 0) {
+					  	if (selectedFiles.length > 0 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
 				  		for (File selectedFile : selectedFiles) {
 						  	if (selectedFile != null) {
 						  		doTheImport(mi, selectedFile, false);
@@ -155,4 +159,19 @@ public class ImportAction extends AbstractAction {
 		mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
 		MyLogger.handleMessage("Importing - Fin!");
   }
+  private File[] sortFilesByDate(File[] files) {
+	  HashMap<Long, File> hm = new HashMap<>();
+	  for (File f : files) {
+		  Long l = TraceImporter.getMillis(f.getAbsolutePath());
+		  hm.put(l, f);		  
+	  }
+	  File[] result = new File[hm.size()];
+	  SortedSet<Long> keys = new TreeSet<Long>(hm.keySet());
+	  int i=0;
+	  for (Long key : keys) { 
+		  result[i] = hm.get(key);
+		  i++;
+	  }
+	  return result;
+  	}
 }

@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -104,6 +107,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	private List<Exception> doTheImport(Workbook wb, String filename) { //  throws Exception
 		List<Exception> exceptions = new ArrayList<>();
+		
 		Sheet stationSheet = wb.getSheet("Stations");
 		Sheet deliverySheet = wb.getSheet("Deliveries");
 		Sheet d2dSheet = wb.getSheet("Deliveries2Deliveries");
@@ -158,7 +162,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			MetaInfo mi = new MetaInfo();
 			mi.setFilename(filename);
 			
-			DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+			//DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 			if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			Integer miDbId = null;
 			try {
@@ -192,8 +196,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				hd.add(dl.getIngredient().getDbId());
 			}
 
-			DBKernel.sendRequest("COMMIT", false);
-			DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+			//DBKernel.sendRequest("COMMIT", false);
+			//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 			/*
 			HashMap<Integer, String> hm = new HashMap<>(); 
 			for (Delivery d : deliveries.values()) { // ingredients.keySet()
@@ -346,7 +350,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		// what are the insertRessources (new BfR-Format -> then SupplyChain-Reader has to look for other IDcolumns, i.e. Serial)
 		// forward tracing importieren
 		// welche Reihenfolge to insert? Was, wenn beim Import was schiefgeht?
-		DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+		//DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 		Integer miDbId = null;
 		try {
@@ -367,8 +371,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
-		DBKernel.sendRequest("COMMIT", false);
-		DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+		//DBKernel.sendRequest("COMMIT", false);
+		//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 		
 		return exceptions;
 	}
@@ -383,7 +387,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, true);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
+			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId);
@@ -414,7 +418,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, false);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
+			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId);
@@ -453,7 +457,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return -100;
 	}
 	
-	private MetaInfo getMetaInfo(Row row) {
+	private static MetaInfo getMetaInfo(Row row) {
 		if (row == null) return null;
 		MetaInfo result = new MetaInfo();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReporter(getStr(cell.getStringCellValue()));}
@@ -611,7 +615,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(3);
 		String str = getStr(cell);
 		if (str != null) {l.setNumber(str);}
-		else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n";}
+		else {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
+		//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n";}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
@@ -678,7 +683,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String lotNumber = null;
 			cell = row.getCell(1);
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}
-			else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n";}
+			else {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n"));}
+			//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n";}
 			l.setNumber(lotNumber);
 			if (lotNumber == null && p.getName() == null) {
 				exceptions.add(new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1)));
@@ -741,7 +747,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (!val.trim().isEmpty()) result = Double.parseDouble(val.trim());
 		return result;
 	}
-	private String getStr(String val) {
+	private static String getStr(String val) {
 		if (val.trim().isEmpty()) return null;
 		return val;
 	}
@@ -836,6 +842,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 					XSSFWorkbook wb = new XSSFWorkbook(is);
 
+					DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
 					if (exceptions != null && exceptions.size() > 0) {
@@ -853,6 +860,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						} catch (IOException e1) {}
 					}
 					else {
+						if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
+						DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 						DBKernel.myDBi.getTable("Station").doMNs();
 						DBKernel.myDBi.getTable("Produktkatalog").doMNs();
 						DBKernel.myDBi.getTable("Chargen").doMNs();
@@ -915,4 +924,40 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	public String getDescription() {
 		return "Supply Chain Importer - BfR-formats (*.xlsx)";
 	}
+	
+	  public static Long getMillis(String filename) {
+		  Long result = System.currentTimeMillis();
+		  try {
+			  InputStream is = null;
+				if (filename.startsWith("http://")) {
+					URL url = new URL(filename);
+					URLConnection uc = url.openConnection();
+					is = uc.getInputStream();
+				} else {
+					is = new FileInputStream(filename);
+				}
+
+				XSSFWorkbook wb = new XSSFWorkbook(is);
+				Sheet transactionSheet = wb.getSheet("BackTracing");
+				Sheet forSheet = wb.getSheet("ForTracing");
+				
+				boolean isForTracing = forSheet != null;
+				if (isForTracing) transactionSheet = forSheet;
+				
+				if (transactionSheet != null) {
+					Row row = transactionSheet.getRow(2);
+					MetaInfo mi = getMetaInfo(row);
+					String str_date = mi.getDate();
+					DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+					Date d = formatter.parse(str_date);
+					if (d != null) result = d.getTime();
+				}
+				try {
+					is.close();
+				} catch (IOException e1) {}
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
+		  return result;
+	  }	
 }
