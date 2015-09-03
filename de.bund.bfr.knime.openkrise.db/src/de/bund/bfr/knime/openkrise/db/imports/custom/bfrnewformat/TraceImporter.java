@@ -290,7 +290,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, label)) break;
-			if (!fillLot(row, sif, outLots, titleRow, isForTracing ? outDeliveries : null)) {
+			if (!fillLot(row, sif, outLots, titleRow, isForTracing ? outDeliveries : null, classRowIndex + 1)) {
 				throw new Exception("Lot number unknown in Row number " + (classRowIndex + 1));
 			}
 		}
@@ -714,7 +714,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (val.trim().isEmpty()) return null;
 		return val;
 	}
-	private boolean fillLot(Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries) {
+	private boolean fillLot(Row row, Station sif, HashMap<String, Lot> outLots, Row titleRow, HashMap<String, Delivery> outDeliveries, int rowIndex) throws Exception {
 		Lot l = null;
 		String lotNumber = null;
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}	
@@ -723,10 +723,33 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (outDeliveries != null) {l = new Lot(); l.setNumber(lotNumber); outLots.put(l.getNumber(), l);}
 			else return false;
 		}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
-		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			Double dbl = getDbl(cell.getStringCellValue());
+			if (l.getUnitNumber() == null) l.setUnitNumber(dbl);
+			else if (l.getUnitNumber().doubleValue() != dbl) {
+				throw new Exception("Lot information defines same lot number with different quantities??? -> Row " + rowIndex);
+			}
+		}
+		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			String str = getStr(cell.getStringCellValue());
+			if (l.getUnitUnit() == null) l.setUnitUnit(str);
+			else if (!l.getUnitUnit().equals(str)) {
+				throw new Exception("Lot information defines same lot number with different units??? -> Row " + rowIndex);
+			}
+		}
 		if (outDeliveries != null) {
-			cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Product p = new Product(); p.setName(getStr(cell.getStringCellValue())); l.setProduct(p); p.setStation(sif);}
+			cell = row.getCell(3); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				String pr = getStr(cell.getStringCellValue());
+				if (l.getProduct() == null) {
+					Product p = new Product(); p.setName(pr); l.setProduct(p); p.setStation(sif);
+				}
+				else if (!l.getProduct().getName().equals(pr)) {
+					throw new Exception("Lot information defines same lot number with different product names??? -> Row " + rowIndex);
+				}
+			}
 			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); Delivery d = outDeliveries.get(getStr(cell.getStringCellValue())); if (d == null) return false; d.addTargetLotId(l.getNumber());}
 		}
 		
