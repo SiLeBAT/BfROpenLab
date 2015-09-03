@@ -27,7 +27,6 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
@@ -103,20 +102,6 @@ public class CanvasUtils {
 			new Color(128, 255, 255) };
 
 	private CanvasUtils() {
-	}
-
-	public static Rectangle2D getBounds(Collection<Point2D> positions) {
-		Rectangle2D bounds = null;
-
-		for (Point2D p : positions) {
-			if (bounds == null) {
-				bounds = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
-			} else {
-				bounds.add(p);
-			}
-		}
-
-		return bounds;
 	}
 
 	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D bounds, Double zoomStep) {
@@ -247,37 +232,6 @@ public class CanvasUtils {
 		nodesByProperty.keySet().retainAll(dialog.getFiltered());
 
 		return Multimaps.asMap(nodesByProperty);
-	}
-
-	public static Point2D addPoints(Point2D p1, Point2D p2) {
-		return new Point2D.Double(p1.getX() + p2.getX(), p1.getY() + p2.getY());
-	}
-
-	public static Point2D substractPoints(Point2D p1, Point2D p2) {
-		return new Point2D.Double(p1.getX() - p2.getX(), p1.getY() - p2.getY());
-	}
-
-	public static Point2D getCenter(Collection<Point2D> points) {
-		if (points.isEmpty()) {
-			return null;
-		}
-
-		double x = 0.0;
-		double y = 0.0;
-
-		for (Point2D p : points) {
-			if (p == null) {
-				return null;
-			}
-
-			x += p.getX();
-			y += p.getY();
-		}
-
-		x /= points.size();
-		y /= points.size();
-
-		return new Point2D.Double(x, y);
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,

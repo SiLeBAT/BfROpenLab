@@ -26,12 +26,11 @@ import java.util.List;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.GisScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.GisScalingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import edu.uci.ics.jung.visualization.control.GraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 
 public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGisCanvas<V> {
 
@@ -73,8 +72,8 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 	}
 
 	@Override
-	protected GraphMousePlugin createScalingPlugin() {
-		return new GisScalingGraphMousePlugin(new LayoutScalingControl(), 1 / 2f, 2f);
+	protected BetterScalingGraphMousePlugin createScalingPlugin() {
+		return new GisScalingGraphMousePlugin(1 / 2f, 2f);
 	}
 
 	@Override

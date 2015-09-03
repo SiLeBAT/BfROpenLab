@@ -76,12 +76,13 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
-import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingChangeListener;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -91,10 +92,7 @@ import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.GraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
-import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
@@ -165,7 +163,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
 		viewer.setPickSupport(new BetterShapePickSupport<>(viewer));
 
-		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(createPickingPlugin(), createScalingPlugin());
+		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
 		graphMouse.addPickingChangeListener(this);
@@ -1023,7 +1021,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@SuppressWarnings("unchecked")
 	@Override
 	public void editingModeChanged() {
-		((GraphMouse<V, Edge<V>>) viewer.getGraphMouse()).setMode(optionsPanel.getEditingMode());
+		((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).setMode(optionsPanel.getEditingMode());
 	}
 
 	@Override
@@ -1305,8 +1303,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		return new PickingPlugin<>(this);
 	}
 
-	protected GraphMousePlugin createScalingPlugin() {
-		return new ScalingGraphMousePlugin(new LayoutScalingControl(), 0, 1 / 1.1f, 1.1f);
+	protected BetterScalingGraphMousePlugin createScalingPlugin() {
+		return new BetterScalingGraphMousePlugin(1 / 1.1f, 1.1f);
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {

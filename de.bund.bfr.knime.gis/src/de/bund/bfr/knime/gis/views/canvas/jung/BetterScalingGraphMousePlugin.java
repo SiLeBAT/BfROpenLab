@@ -20,16 +20,21 @@
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public class GisScalingGraphMousePlugin extends BetterScalingGraphMousePlugin {
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 
-	private static final long TIME_OUT = (long) 2e8;
+public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener {
 
-	private long lastScrollTime;
+	protected float in;
+	protected float out;
 
-	public GisScalingGraphMousePlugin(float in, float out) {
-		super(in, out);
-		lastScrollTime = 0;
+	public BetterScalingGraphMousePlugin(float in, float out) {
+		super(0);
+		this.in = in;
+		this.out = out;
 	}
 
 	@Override
@@ -38,13 +43,14 @@ public class GisScalingGraphMousePlugin extends BetterScalingGraphMousePlugin {
 			return;
 		}
 
-		long time = System.nanoTime();
+		VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
 
-		if (time - lastScrollTime < TIME_OUT) {
-			return;
+		if (e.getWheelRotation() > 0) {
+			new LayoutScalingControl().scale(vv, in, e.getPoint());
+		} else {
+			new LayoutScalingControl().scale(vv, out, e.getPoint());
 		}
 
-		lastScrollTime = time;
-		super.mouseWheelMoved(e);
+		vv.repaint();
 	}
 }

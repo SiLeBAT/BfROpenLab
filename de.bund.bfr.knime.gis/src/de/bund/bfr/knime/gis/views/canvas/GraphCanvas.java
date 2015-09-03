@@ -33,10 +33,11 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
-import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingMoveListener;
 import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
@@ -70,7 +71,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext()
 				.setVertexShapeTransformer(new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
-		((GraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
+		((BetterGraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
 	}
 
 	public void initLayout() {
@@ -92,7 +93,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 				Set<String> containedNodes = collapsedNodes.get(node.getId());
 
 				if (containedNodes != null) {
-					Point2D center = CanvasUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
+					Point2D center = PointUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
 
 					if (center != null) {
 						positions.put(node.getId(), center);
@@ -132,7 +133,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = CanvasUtils.getBounds(getNodePositions(nodes).values());
+		Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
@@ -203,7 +204,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 
 		GraphNode newNode = new GraphNode(id, properties, null);
 
-		viewer.getGraphLayout().setLocation(newNode, CanvasUtils.getCenter(getNodePositions(nodes).values()));
+		viewer.getGraphLayout().setLocation(newNode, PointUtils.getCenter(getNodePositions(nodes).values()));
 
 		return newNode;
 	}
@@ -250,7 +251,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 
 			for (GraphNode node : nodes) {
 				if (!nodesForLayout.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+					layout.setLocation(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
@@ -260,7 +261,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 
 			for (GraphNode node : nodes) {
 				if (!nodesForLayout.contains(node)) {
-					layout.setLocation(node, CanvasUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+					layout.setLocation(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 					layout.lock(node, true);
 				}
 			}
@@ -287,12 +288,12 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 	private void updatePositionsOfCollapsedNodes() {
 		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
 			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap, entry.getValue());
-			Point2D oldCenter = CanvasUtils.getCenter(getNodePositions(newNodes).values());
+			Point2D oldCenter = PointUtils.getCenter(getNodePositions(newNodes).values());
 			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(entry.getKey()));
-			Point2D diff = CanvasUtils.substractPoints(newCenter, oldCenter);
+			Point2D diff = PointUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {
-				Point2D newPos = CanvasUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff);
+				Point2D newPos = PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff);
 
 				viewer.getGraphLayout().setLocation(newNode, newPos);
 			}
@@ -317,7 +318,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		public void run() {
 			while (true) {
 				if (!transformedByUser) {
-					Rectangle2D bounds = CanvasUtils.getBounds(getNodePositions(usedNodes).values());
+					Rectangle2D bounds = PointUtils.getBounds(getNodePositions(usedNodes).values());
 					Transform newTransform = CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null);
 
 					if (getTransform().equals(lastTransform)) {

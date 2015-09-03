@@ -22,14 +22,14 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 import java.awt.event.InputEvent;
 
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 
-public class GraphMouse<V, E> extends AbstractModalGraphMouse {
+public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	private boolean pickingDeactivated;
 
-	public GraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin, GraphMousePlugin scalingPlugin) {
+	public BetterGraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin,
+			BetterScalingGraphMousePlugin scalingPlugin) {
 		super(1, 1);
 
 		translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);

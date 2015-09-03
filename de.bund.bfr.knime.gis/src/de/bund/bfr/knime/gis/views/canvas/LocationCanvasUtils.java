@@ -44,6 +44,7 @@ import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 import com.vividsolutions.jts.geom.Polygon;
 
+import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -159,7 +160,7 @@ public class LocationCanvasUtils {
 		}
 
 		if (!invalidNodes.isEmpty()) {
-			Rectangle2D bounds = CanvasUtils.getBounds(positions);
+			Rectangle2D bounds = PointUtils.getBounds(positions);
 			double size = Math.max(bounds.getWidth(), bounds.getHeight());
 
 			if (size == 0.0) {
@@ -187,7 +188,7 @@ public class LocationCanvasUtils {
 						points.add(n.getCenter());
 					}
 
-					Point2D p = getClosestPointOnRect(CanvasUtils.getCenter(points), rect);
+					Point2D p = getClosestPointOnRect(PointUtils.getCenter(points), rect);
 
 					node.updateCenter(p);
 					layout.setLocation(node, p);
@@ -210,7 +211,7 @@ public class LocationCanvasUtils {
 					}
 
 					if (!points.isEmpty()) {
-						Point2D p = getClosestPointOnRect(CanvasUtils.getCenter(points), rect);
+						Point2D p = getClosestPointOnRect(PointUtils.getCenter(points), rect);
 
 						node.updateCenter(p);
 						layout.setLocation(node, p);

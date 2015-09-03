@@ -45,7 +45,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
@@ -245,7 +245,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 			imgFocused = newImgFocused;
 
 			if (changed) {
-				GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) getViewer().getGraphMouse();
+				BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) getViewer().getGraphMouse();
 
 				graphMouse.setPickingDeactivated(textFocused || imgFocused);
 				paint(getViewer().getGraphics());

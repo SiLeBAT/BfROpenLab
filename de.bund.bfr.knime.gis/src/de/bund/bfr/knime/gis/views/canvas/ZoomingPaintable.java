@@ -30,7 +30,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 
-import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -111,7 +111,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 		minusFocused = newMinusFocused;
 
 		if (changed) {
-			GraphMouse<?, ?> graphMouse = (GraphMouse<?, ?>) canvas.getViewer().getGraphMouse();
+			BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) canvas.getViewer().getGraphMouse();
 
 			graphMouse.setPickingDeactivated(plusFocused || minusFocused);
 			paint(canvas.getViewer().getGraphics());
