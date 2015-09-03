@@ -140,8 +140,8 @@ public class BackupMyDBI extends FileFilter {
 		if (scriptFile != null && scriptFile.exists()) {
 			if (!silent) {
 				int returnVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame,
-								GuiMessages.getString("Die Datenbank wird gelöscht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
-										+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank löschen"), JOptionPane.YES_NO_OPTION);
+								GuiMessages.getString("Die Datenbank wird geloescht!") + "\n" + GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n"
+										+ GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"), GuiMessages.getString("Datenbank loeschen"), JOptionPane.YES_NO_OPTION);
 				if (returnVal != JOptionPane.YES_OPTION) return result;
 			}
 

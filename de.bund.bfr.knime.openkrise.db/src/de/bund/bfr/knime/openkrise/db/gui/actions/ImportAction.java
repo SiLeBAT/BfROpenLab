@@ -91,7 +91,7 @@ public class ImportAction extends AbstractAction {
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();
 				  	File[] selectedFiles = fc.getSelectedFiles();
 				  	if (selectedFiles != null && selectedFiles.length > 0) {
-					  	if (selectedFiles.length > 0 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
+					  	if (selectedFiles.length > 1 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
 				  		for (File selectedFile : selectedFiles) {
 						  	if (selectedFile != null) {
 						  		doTheImport(mi, selectedFile, false);
