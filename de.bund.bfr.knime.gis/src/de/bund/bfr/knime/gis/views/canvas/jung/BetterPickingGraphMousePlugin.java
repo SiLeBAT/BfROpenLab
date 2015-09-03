@@ -32,11 +32,10 @@ import java.util.List;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 
-public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
+public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 		implements MouseListener, MouseMotionListener {
 
 	protected V vertex;
@@ -49,7 +48,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
 	private boolean nodesMoved;
 
-	public PickingGraphMousePlugin() {
+	public BetterPickingGraphMousePlugin() {
 		super(0);
 
 		changeListeners = new ArrayList<>();
@@ -78,7 +77,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 		down = e.getPoint();
 		nodesMoved = false;
 
-		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
@@ -137,7 +136,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseReleased(MouseEvent e) {
-		FastVisualizationViewer<V, E> vv = (FastVisualizationViewer<V, E>) e.getSource();
+		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 
@@ -171,7 +170,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
-		FastVisualizationViewer<V, E> vv = (FastVisualizationViewer<V, E>) e.getSource();
+		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 
 		if (vertex != null) {
 			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());

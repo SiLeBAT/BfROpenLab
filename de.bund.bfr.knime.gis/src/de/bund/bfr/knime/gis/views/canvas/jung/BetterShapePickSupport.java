@@ -35,11 +35,11 @@ import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer;
 
-public class ShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
+public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> {
 
 	private VisualizationServer<V, E> vv;
 
-	public ShapePickSupport(VisualizationServer<V, E> vv) {
+	public BetterShapePickSupport(VisualizationServer<V, E> vv) {
 		this.vv = vv;
 	}
 

@@ -57,7 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -761,7 +761,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 	}
 
-	public static class PickingPlugin<V extends Node> extends PickingGraphMousePlugin<V, Edge<V>> {
+	public static class PickingPlugin<V extends Node> extends BetterPickingGraphMousePlugin<V, Edge<V>> {
 
 		private ITracingCanvas<V> canvas;
 

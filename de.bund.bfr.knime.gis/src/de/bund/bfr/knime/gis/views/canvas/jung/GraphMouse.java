@@ -29,7 +29,7 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	private boolean pickingDeactivated;
 
-	public GraphMouse(PickingGraphMousePlugin<V, E> pickingPlugin, GraphMousePlugin scalingPlugin) {
+	public GraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin, GraphMousePlugin scalingPlugin) {
 		super(1, 1);
 
 		translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
@@ -60,22 +60,22 @@ public class GraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	@SuppressWarnings("unchecked")
 	public void addPickingChangeListener(PickingChangeListener listener) {
-		((PickingGraphMousePlugin<V, E>) pickingPlugin).addPickingChangeListener(listener);
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addPickingChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
 	public void removePickingChangeListener(PickingChangeListener listener) {
-		((PickingGraphMousePlugin<V, E>) pickingPlugin).removePickingChangeListener(listener);
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removePickingChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
 	public void addPickingMoveListener(PickingMoveListener listener) {
-		((PickingGraphMousePlugin<V, E>) pickingPlugin).addPickingMoveListener(listener);
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addPickingMoveListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
 	public void removePickingMoveListener(PickingMoveListener listener) {
-		((PickingGraphMousePlugin<V, E>) pickingPlugin).removePickingMoveListener(listener);
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removePickingMoveListener(listener);
 	}
 
 	public boolean isPickingDeactivated() {

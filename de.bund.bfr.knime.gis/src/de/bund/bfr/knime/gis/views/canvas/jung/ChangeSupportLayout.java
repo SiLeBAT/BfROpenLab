@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.geom.Point2D;
-import java.util.Map;
 
 import javax.swing.event.ChangeListener;
 
@@ -33,8 +32,6 @@ import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 public class ChangeSupportLayout<V, E> extends LayoutDecorator<V, E>implements ChangeEventSupport {
 
 	protected ChangeEventSupport changeSupport = new DefaultChangeEventSupport(this);
-
-	protected Map<V, Point2D> locationMap;
 
 	public ChangeSupportLayout(Layout<V, E> delegate) {
 		super(delegate);

@@ -28,11 +28,11 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-public class FastVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
+public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 
 	private static final long serialVersionUID = 1L;
 
-	public FastVisualizationViewer() {
+	public BetterVisualizationViewer() {
 		super(new StaticLayout<>(new DirectedSparseMultigraph<V, E>()));
 		setDoubleBuffered(true);
 	}

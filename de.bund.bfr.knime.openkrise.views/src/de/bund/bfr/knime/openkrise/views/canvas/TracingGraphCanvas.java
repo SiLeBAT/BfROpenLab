@@ -30,7 +30,7 @@ import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
@@ -212,7 +212,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	}
 
 	@Override
-	protected PickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
+	protected BetterPickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
 		return new TracingDelegate.PickingPlugin<>(this);
 	}
 

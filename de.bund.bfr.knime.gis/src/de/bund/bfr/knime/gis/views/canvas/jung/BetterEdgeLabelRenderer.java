@@ -30,7 +30,7 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
-public class EdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
+public class BetterEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
 	@Override
 	public void labelEdge(RenderContext<V, E> rc, Layout<V, E> layout, E e, String label) {

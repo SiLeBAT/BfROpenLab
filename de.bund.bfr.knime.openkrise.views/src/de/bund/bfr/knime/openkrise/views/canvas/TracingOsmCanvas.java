@@ -30,7 +30,7 @@ import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
@@ -212,7 +212,7 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
-	protected PickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
+	protected BetterPickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
 		return new TracingDelegate.PickingPlugin<>(this);
 	}
 

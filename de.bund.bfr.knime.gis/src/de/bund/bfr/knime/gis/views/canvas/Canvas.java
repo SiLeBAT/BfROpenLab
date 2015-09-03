@@ -75,13 +75,13 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.jung.EdgeLabelRenderer;
-import de.bund.bfr.knime.gis.views.canvas.jung.FastVisualizationViewer;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingChangeListener;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.jung.ShapePickSupport;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -104,7 +104,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
 
-	protected FastVisualizationViewer<V, Edge<V>> viewer;
+	protected BetterVisualizationViewer<V, Edge<V>> viewer;
 	protected Transform transform;
 	protected Naming naming;
 
@@ -151,19 +151,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE, nodeSchema.getMap().keySet());
 		nodeSchema.getMap().put(metaNodeProperty, Boolean.class);
 
-		viewer = new FastVisualizationViewer<>();
+		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
 		viewer.addMouseListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(new NodeFillTransformer<>(viewer.getRenderContext()));
 		viewer.getRenderContext().setVertexStrokeTransformer(new NodeStrokeTransformer<V>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(viewer.getRenderContext()));
-		viewer.getRenderer().setEdgeLabelRenderer(new EdgeLabelRenderer<V, Edge<V>>());
+		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<V, Edge<V>>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
-		viewer.setPickSupport(new ShapePickSupport<>(viewer));
+		viewer.setPickSupport(new BetterShapePickSupport<>(viewer));
 
 		GraphMouse<V, Edge<V>> graphMouse = new GraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
@@ -1301,7 +1301,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		return dialog;
 	}
 
-	protected PickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
 		return new PickingPlugin<>(this);
 	}
 
@@ -1323,7 +1323,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 	}
 
-	public static class PickingPlugin<V extends Node> extends PickingGraphMousePlugin<V, Edge<V>> {
+	public static class PickingPlugin<V extends Node> extends BetterPickingGraphMousePlugin<V, Edge<V>> {
 
 		protected Canvas<V> canvas;
 
