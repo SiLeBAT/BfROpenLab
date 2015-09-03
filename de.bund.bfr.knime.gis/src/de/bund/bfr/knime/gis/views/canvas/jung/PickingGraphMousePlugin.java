@@ -19,11 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,7 +32,6 @@ import java.util.List;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -47,7 +43,6 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	protected E edge;
 
 	private Rectangle2D rect = new Rectangle2D.Float();
-	private Paintable lensPaintable;
 
 	private List<PickingChangeListener> changeListeners;
 	private List<PickingMoveListener> moveListeners;
@@ -59,22 +54,6 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
 		changeListeners = new ArrayList<>();
 		moveListeners = new ArrayList<>();
-		lensPaintable = new Paintable() {
-
-			@Override
-			public void paint(Graphics g) {
-				Color oldColor = g.getColor();
-
-				g.setColor(Color.CYAN);
-				((Graphics2D) g).draw(rect);
-				g.setColor(oldColor);
-			}
-
-			@Override
-			public boolean useTransform() {
-				return false;
-			}
-		};
 	}
 
 	public void addPickingChangeListener(PickingChangeListener listener) {
@@ -122,8 +101,6 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 						fireEdgePickingChanged();
 					}
 				} else {
-					vv.addPostRenderPaintable(lensPaintable);
-
 					boolean nodesPicked = !pickedVertexState.getPicked().isEmpty();
 					boolean edgesPicked = !pickedEdgeState.getPicked().isEmpty();
 
@@ -152,8 +129,6 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 					}
 
 					fireEdgePickingChanged();
-				} else {
-					vv.addPostRenderPaintable(lensPaintable);
 				}
 			}
 		}
@@ -162,7 +137,7 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseReleased(MouseEvent e) {
-		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+		FastVisualizationViewer<V, E> vv = (FastVisualizationViewer<V, E>) e.getSource();
 		PickedState<V> pickedVertexState = vv.getPickedVertexState();
 		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
 
@@ -189,14 +164,14 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 		vertex = null;
 		edge = null;
 		rect.setFrame(0, 0, 0, 0);
-		vv.removePostRenderPaintable(lensPaintable);
+		vv.drawRect(null);
 		vv.repaint();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void mouseDragged(MouseEvent e) {
-		VisualizationViewer<V, E> vv = (VisualizationViewer<V, E>) e.getSource();
+		FastVisualizationViewer<V, E> vv = (FastVisualizationViewer<V, E>) e.getSource();
 
 		if (vertex != null) {
 			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
@@ -211,13 +186,13 @@ public class PickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugin
 
 			down = e.getPoint();
 			nodesMoved = true;
+			vv.repaint();
 		} else if (edge != null) {
 			down = e.getPoint();
 		} else {
 			rect.setFrameFromDiagonal(down, e.getPoint());
+			vv.drawRect(rect);
 		}
-
-		vv.repaint();
 	}
 
 	@Override

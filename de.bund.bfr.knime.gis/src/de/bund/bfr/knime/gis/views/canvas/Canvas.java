@@ -76,6 +76,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.EdgeLabelRenderer;
+import de.bund.bfr.knime.gis.views.canvas.jung.FastVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.GraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.jung.PickingChangeListener;
@@ -86,8 +87,6 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
@@ -105,7 +104,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
 
-	protected VisualizationViewer<V, Edge<V>> viewer;
+	protected FastVisualizationViewer<V, Edge<V>> viewer;
 	protected Transform transform;
 	protected Naming naming;
 
@@ -152,7 +151,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		metaNodeProperty = KnimeUtils.createNewValue(IS_META_NODE, nodeSchema.getMap().keySet());
 		nodeSchema.getMap().put(metaNodeProperty, Boolean.class);
 
-		viewer = new VisualizationViewer<>(new StaticLayout<>(new DirectedSparseMultigraph<V, Edge<V>>()));
+		viewer = new FastVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
 		viewer.addMouseListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(new NodeFillTransformer<>(viewer.getRenderContext()));
