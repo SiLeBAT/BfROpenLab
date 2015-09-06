@@ -15,6 +15,9 @@ public class Delivery {
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
 
+	public static void reset() {
+		gathereds = new HashMap<>();
+	}
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}
@@ -264,7 +267,7 @@ public class Delivery {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Delivery ID " + intId + " ist bereits vergeben");
+				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Delivery ID " + intId + " is already assigned\n" + e.toString() + "\n" + sql);
 				else throw e;
 			}
 		}

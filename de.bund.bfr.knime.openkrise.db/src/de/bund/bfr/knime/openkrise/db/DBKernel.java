@@ -741,7 +741,7 @@ public class DBKernel {
 		passFalse = false;
 		Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 		// System.out.println(dbFile);
-		String connStr = "jdbc:hsqldb:file:" + dbFile;
+		String connStr = "jdbc:hsqldb:file:" + dbFile;// + ";hsqldb.write_delay=false;";
 		try {
 			result = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			result.setReadOnly(DBKernel.isReadOnly());

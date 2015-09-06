@@ -14,6 +14,9 @@ public class Station {
 	private static HashMap<String, Station> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
 
+	public static void reset() {
+		gathereds = new HashMap<>();
+	}
 	public void addFlexibleField(String key, String value) {
 		flexibles.put(key, value);
 	}
@@ -184,7 +187,7 @@ public class Station {
 				}
 			}
 			catch (SQLException e) {
-				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Station ID " + intId + " ist bereits vergeben");
+				if (e.getMessage().startsWith("integrity constraint violation")) throw new Exception("Station ID " + intId + " is already assigned");
 				else throw e;
 			}
 		}

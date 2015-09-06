@@ -704,7 +704,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(10); 
 		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
 		if (outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReceiver(getStation(exceptions, businessSheet, cell.getStringCellValue(), row));}
-		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setStation(getStation(exceptions, businessSheet, cell.getStringCellValue(), row));}
+		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setStation(getStation(exceptions, businessSheet, cell.getStringCellValue(), row)); l.setNumber(l.getNumber());}
 
 		if (!isForTracing && !outbound || isForTracing && outbound) {
 			result.setId(getNewSerial(l, result));
@@ -842,6 +842,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 					XSSFWorkbook wb = new XSSFWorkbook(is);
 
+					Station.reset(); Lot.reset(); Delivery.reset();
 					DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
@@ -926,7 +927,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	
 	  public static Long getMillis(String filename) {
-		  Long result = System.currentTimeMillis();
+		  Long result = 0L;//System.currentTimeMillis();
 		  try {
 			  InputStream is = null;
 				if (filename.startsWith("http://")) {

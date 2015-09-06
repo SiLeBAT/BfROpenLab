@@ -279,6 +279,7 @@ public abstract class MyDBI {
 		try {
 			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 			String connStr = isServerConnection ? "jdbc:hsqldb:hsql://" + dbPath : "jdbc:hsqldb:file:" + dbPath + "DB";
+			//connStr += ";hsqldb.write_delay=false;";
 			conn = DriverManager.getConnection(connStr, dbUsername, dbPassword);
 			conn.setReadOnly(DBKernel.isReadOnly());
 		} catch (Exception e) {

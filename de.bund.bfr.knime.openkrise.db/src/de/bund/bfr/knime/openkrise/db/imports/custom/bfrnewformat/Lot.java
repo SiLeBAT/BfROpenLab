@@ -15,6 +15,9 @@ public class Lot {
 	private HashMap<String, String> flexibles = new HashMap<>();
 	private HashSet<String> inDeliveries = new HashSet<>();
 
+	public static void reset() {
+		gathereds = new HashMap<>();
+	}
 	public HashSet<String> getInDeliveries() {
 		return inDeliveries;
 	}
@@ -34,6 +37,7 @@ public class Lot {
 	public void setNumber(String number) {
 		if (product != null && product.getStation() != null) {
 			String lotId = product.getStation().getId() + "_" + product.getName() + "_" + number;
+			//System.err.println(lotId);
 			gathereds.put(lotId, this);
 		}
 		this.number = number;
@@ -134,7 +138,10 @@ public class Lot {
 		else if (!iv.isEmpty()) {
 			sql = "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
 			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+			if (ps.executeUpdate() > 0) {
+				result = DBKernel.getLastInsertedID(ps);
+				//System.err.println(result);
+			}
 		}
 
 		return result;
