@@ -419,7 +419,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, T> result = new LinkedHashMap<>();
 
 		if (condition != null) {
-			for (Map.Entry<Element, Double> entry : condition.getValues(elements).entrySet()) {
+			for (Map.Entry<? extends Element, Double> entry : condition.getValues(elements).entrySet()) {
 				result.put(entry.getKey().getId(), entry.getValue() != 0.0 ? inValue : outValue);
 			}
 		} else {
