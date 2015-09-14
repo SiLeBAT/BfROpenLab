@@ -928,17 +928,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	
 	  public static Long getMillis(String filename) {
 		  Long result = 0L;//System.currentTimeMillis();
-		  try {
-			  InputStream is = null;
-				if (filename.startsWith("http://")) {
-					URL url = new URL(filename);
-					URLConnection uc = url.openConnection();
-					is = uc.getInputStream();
-				} else {
-					is = new FileInputStream(filename);
-				}
 
-				XSSFWorkbook wb = new XSSFWorkbook(is);
+		  try (InputStream is = filename.startsWith("http://") ? new URL(filename).openConnection().getInputStream() : new FileInputStream(filename);
+						XSSFWorkbook wb = new XSSFWorkbook(is)) {
 				Sheet transactionSheet = wb.getSheet("BackTracing");
 				Sheet forSheet = wb.getSheet("ForTracing");
 				
@@ -953,9 +945,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					Date d = formatter.parse(str_date);
 					if (d != null) result = d.getTime();
 				}
-				try {
-					is.close();
-				} catch (IOException e1) {}
 		  } catch (Exception e) {
 			  e.printStackTrace();
 		  }
