@@ -11,16 +11,10 @@ Require-Bundle: org.eclipse.ui,
  com.jgoodies,
  com.thoughtworks.xstream,
  quick.dbtable,
- de.bund.bfr.knime,
- org.jooq;visibility:=reexport
+ de.bund.bfr.knime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: de.bund.bfr.knime.openkrise.db,
- de.bund.bfr.knime.openkrise.db.generated.information_schema,
- de.bund.bfr.knime.openkrise.db.generated.public_,
- de.bund.bfr.knime.openkrise.db.generated.public_.tables,
- de.bund.bfr.knime.openkrise.db.generated.public_.tables.records,
- de.bund.bfr.knime.openkrise.db.generated.system_lobs,
  de.bund.bfr.knime.openkrise.db.gui,
  de.bund.bfr.knime.openkrise.db.gui.dbtable,
  de.bund.bfr.knime.openkrise.db.imports,
