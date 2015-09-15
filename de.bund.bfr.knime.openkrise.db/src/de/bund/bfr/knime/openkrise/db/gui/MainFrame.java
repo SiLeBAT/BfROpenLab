@@ -1012,7 +1012,7 @@ public class MainFrame extends JFrame {
 
 			//---- button13 ----
 			button13.setToolTipText("Generate backward tracing templates");
-			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_back.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button13.setIcon(ico);
 			button13.addActionListener(new ActionListener() {
