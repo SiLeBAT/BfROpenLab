@@ -32,6 +32,8 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.knime.openkrise.common.Delivery;
+
 public class Tracing {
 
 	private List<Delivery> deliveries;

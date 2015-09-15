@@ -32,8 +32,8 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class TracingShapefileCanvas extends LocationCanvas implements ITracingGisCanvas<LocationNode> {

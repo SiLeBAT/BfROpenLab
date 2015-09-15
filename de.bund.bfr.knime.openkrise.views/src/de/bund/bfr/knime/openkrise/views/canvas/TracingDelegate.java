@@ -58,9 +58,9 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.knime.openkrise.Delivery;
 import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
