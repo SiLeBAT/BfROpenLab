@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class D2D {
 
@@ -37,53 +39,60 @@ public class D2D {
 		flexibles.put(key, value);
 	}
 	
-	public void getId(Integer miDbId) throws Exception {
-		getId(ingredient.getDbId(), targetDelivery.getLot().getDbId(), miDbId);
+	public void getId(Integer miDbId, MyDBI mydbi) throws Exception {
+		getId(ingredient.getDbId(), targetDelivery.getLot().getDbId(), miDbId, mydbi);
 	}
 
-	public void getId(Integer dbId, Integer dbPId, Integer miDbId) throws Exception {
-		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("ChargenVerbindungen") +
-				" WHERE " + DBKernel.delimitL("Zutat") + "=" + dbId + " AND " + DBKernel.delimitL("Produkt") + "=" + dbPId;
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+	public void getId(Integer dbId, Integer dbPId, Integer miDbId, MyDBI mydbi) throws Exception {
+		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("ChargenVerbindungen") +
+				" WHERE " + MyDBI.delimitL("Zutat") + "=" + dbId + " AND " + MyDBI.delimitL("Produkt") + "=" + dbPId;
+		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 		Integer result = null;
 		if (rs != null && rs.first()) {
 			result = rs.getInt(1);
+			rs.close();
 		}
 		
 		if (result != null) {
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ChargenVerbindungen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+			sql = "UPDATE " + MyDBI.delimitL("ChargenVerbindungen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 		else {
-			sql = "INSERT INTO " + DBKernel.delimitL("ChargenVerbindungen") +
-					" (" + DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("Produkt") + "," + DBKernel.delimitL("ImportSources") +
+			sql = "INSERT INTO " + MyDBI.delimitL("ChargenVerbindungen") +
+					" (" + MyDBI.delimitL("Zutat") + "," + MyDBI.delimitL("Produkt") + "," + MyDBI.delimitL("ImportSources") +
 					") VALUES (" + dbId + "," + dbPId + ",';" + miDbId + ";')";
 			//DBKernel.sendRequest(sql, false);
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			@SuppressWarnings("resource")
+			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (ps.executeUpdate() > 0) {
-				result = DBKernel.getLastInsertedID(ps);
+				result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
 				
 				// Further flexible cells
 				if (result != null) {
 					for (Entry<String, String> es : flexibles.entrySet()) {
-						DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-								" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-								") VALUES ('ChargenVerbindungen'," + result + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+						sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+								" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+								") VALUES ('ChargenVerbindungen'," + result + ",'" + es.getKey() + "','" + es.getValue() + "')";
+						if (mydbi != null) mydbi.sendRequest(sql, false, false);
+						else DBKernel.sendRequest(sql, false);
 					}
 				}
 			}
 		}		
 
 	}
-	public static HashSet<Delivery> getIngredients(Integer lotId) throws SQLException {
+	public static HashSet<Delivery> getIngredients(Integer lotId, MyDBI mydbi) throws SQLException {
 		HashSet<Delivery> result = new HashSet<>();
 		// Checke, if there are already ingredients defined! Are they the same? No? make warning!
-		String sql = "SELECT " + DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Serial") + "," + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Name") + " FROM " + DBKernel.delimitL("ChargenVerbindungen") + 
-				" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + 
-				" LEFT JOIN " + DBKernel.delimitL("Chargen") + " ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + 
-				" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") + " ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + 
-				" LEFT JOIN " + DBKernel.delimitL("Station") + " ON " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + 
-				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") + "=" + lotId;
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+		String sql = "SELECT " + MyDBI.delimitL("Zutat") + "," + MyDBI.delimitL("ChargenNr") + "," + MyDBI.delimitL("Bezeichnung") + "," + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Serial") + "," + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Name") + " FROM " + MyDBI.delimitL("ChargenVerbindungen") + 
+				" LEFT JOIN " + MyDBI.delimitL("Lieferungen") + " ON " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + 
+				" LEFT JOIN " + MyDBI.delimitL("Chargen") + " ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") + 
+				" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") + " ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") + 
+				" LEFT JOIN " + MyDBI.delimitL("Station") + " ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") + 
+				" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + "=" + lotId;
+		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 		if (rs != null && rs.first()) {
 			do {
 				Delivery d = new Delivery();
@@ -94,6 +103,7 @@ public class D2D {
 				d.setComment(rs.getString("Name"));
 				result.add(d);
 			} while(rs.next());
+			rs.close();
 		}	
 		return result;
 	}

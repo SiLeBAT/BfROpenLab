@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class Delivery {
 
@@ -129,26 +131,28 @@ public class Delivery {
 	public String getLogMessages() {
 		return logMessages;
 	}
-	public Integer getID(Integer miDbId, boolean dataMayhaveChanged) throws Exception {
+	public Integer getID(Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empfänger",
-				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged);
+				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged, mydbi);
 		dbId = retId;
 		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
 		
 		// Further flexible cells
 		if (retId != null) {
 			for (Entry<String, String> es : flexibles.entrySet()) {
-				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-						" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-						") VALUES ('Lieferungen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+						") VALUES ('Lieferungen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		return retId;
 	}
-	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged) throws Exception {
-		Integer dbRecID = receiver.getID(miDbId);
+	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
+		Integer dbRecID = receiver.getID(miDbId, mydbi);
 		if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
 		if (dbRecID == null) {
 			logMessages += "Receiver unknown...\n";
@@ -156,113 +160,145 @@ public class Delivery {
 		}
 		Integer result = null;
 		if (dataMayhaveChanged && id != null && !id.isEmpty() && lot != null && lot.getProduct() != null && lot.getProduct().getStation() != null) {
-			String sql = "SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
-					"," + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
-					"," + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-					" FROM " + DBKernel.delimitL("Lieferungen") +
-					" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-					" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
-					" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-					" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-					" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + dbRecID +
-					" AND UCASE(" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Serial") + ")='" + id.toUpperCase() + "'" +
-					" AND " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + lot.getProduct().getStation().getID(miDbId);
-			ResultSet rs = DBKernel.getResultSet(sql, false);
+			String sql = "SELECT " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("ID") +
+					"," + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") +
+					"," + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") +
+					" FROM " + MyDBI.delimitL("Lieferungen") +
+					" LEFT JOIN " + MyDBI.delimitL("Chargen") +
+					" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
+					" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
+					" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
+					" WHERE " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") + "=" + dbRecID +
+					" AND UCASE(" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Serial") + ")='" + id.toUpperCase() + "'" +
+					" AND " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") + "=" + lot.getProduct().getStation().getID(miDbId, mydbi);
+			ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 			if (rs != null && rs.first()) {
 				lot.getProduct().setDbId(rs.getInt("Produktkatalog.ID"));
 				if (lot.getProduct().getName() != null && !lot.getProduct().getName().isEmpty()) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produktkatalog") + " SET " + DBKernel.delimitL("Bezeichnung") + " = '" + lot.getProduct().getName() + "' WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID"), true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produktkatalog") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID"), false);					
+					sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("Bezeichnung") + " = '" + lot.getProduct().getName() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID");
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Produktkatalog.ID");
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
 				}
 
 				lot.setDbId(rs.getInt("Chargen.ID"));
 				if (lot.getNumber() != null && !lot.getNumber().isEmpty()) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("ChargenNr") + " = '" + lot.getNumber() + "' WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Chargen.ID"), true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("Chargen.ID"), false);
+					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ChargenNr") + " = '" + lot.getNumber() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
 				}
 
 				result = rs.getInt("Lieferungen.ID");
 				if (getDepartureDay() != null || getDepartureMonth() != null || getDepartureYear() != null) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_day") + " = " + getArrivalDay() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_month") + " = " + getArrivalMonth() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ad_year") + " = " + getArrivalYear() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_day") + " = " + getDepartureDay() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_month") + " = " + getDepartureMonth() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + DBKernel.delimitL("ID") + "=" + result, true);
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_day") + " = " + getArrivalDay() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_month") + " = " + getArrivalMonth() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_year") + " = " + getArrivalYear() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_day") + " = " + getDepartureDay() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_month") + " = " + getDepartureMonth() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
 				}
 				if (rs.next()) logMessages += "Delivery Id seems to be defined more than once in the database. Please provide only unique Ids! (Id: '" + id + "')\n";
+				rs.close();
 			}	
 			if (result != null) return result;
 		}
-		Integer dbLotID = lot.getID(miDbId);
+		Integer dbLotID = lot.getID(miDbId, mydbi);
 		if (!lot.getLogMessages().isEmpty()) logMessages += lot.getLogMessages() + "\n";
 		//if (!lot.getLogWarnings().isEmpty()) logWarnings += lot.getLogWarnings() + "\n";
 		if (dbLotID == null) {
 			logMessages += "Lot unknown...\n";
 			return null;
 		}
-		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Lieferungen") +
-				" WHERE " + DBKernel.delimitL("Empfänger") + "=" + dbRecID;
-		sql += " AND " + DBKernel.delimitL("Charge") + "=" + dbLotID; 
-		String in = DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Empfänger") + "," + DBKernel.delimitL("ImportSources");
+		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Lieferungen") +
+				" WHERE " + MyDBI.delimitL("Empfänger") + "=" + dbRecID;
+		sql += " AND " + MyDBI.delimitL("Charge") + "=" + dbLotID; 
+		String in = MyDBI.delimitL("Charge") + "," + MyDBI.delimitL("Empfänger") + "," + MyDBI.delimitL("ImportSources");
 		String iv = dbLotID + "," + dbRecID + ",';" + miDbId + ";'";
 		String serialWhere = "";
 		int i=0;
 		for (;i<iFeldVals.length;i++) {
 			if (iFeldVals[i] != null) {
-				sql += " AND " + DBKernel.delimitL(feldnames[i]) + "=" + iFeldVals[i] + "";
-				in += "," + DBKernel.delimitL(feldnames[i]);
+				sql += " AND " + MyDBI.delimitL(feldnames[i]) + "=" + iFeldVals[i] + "";
+				in += "," + MyDBI.delimitL(feldnames[i]);
 				iv += "," + iFeldVals[i];
 			}
 		}
 		if (unitNumber != null) {
-			sql += " AND " + DBKernel.delimitL(feldnames[i]) + "=" + unitNumber + "";
-			in += "," + DBKernel.delimitL(feldnames[i]);
+			sql += " AND " + MyDBI.delimitL(feldnames[i]) + "=" + unitNumber + "";
+			in += "," + MyDBI.delimitL(feldnames[i]);
 			String un = ("" + unitNumber).replace(",", ".");
 			iv += "," + un;
 		}
 		for (int j=0;j<sFeldVals.length;j++) {
 			if (sFeldVals[j] != null) {
 				//if (!feldnames[i+1+j].equals("Serial"))
-				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
-				in += "," + DBKernel.delimitL(feldnames[i+1+j]);
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				in += "," + MyDBI.delimitL(feldnames[i+1+j]);
 				iv += ",'" + sFeldVals[j] + "'";
-				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
+				if (feldnames[i+1+j].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i+1+j]) + ")='" + sFeldVals[j].toUpperCase() + "'";
 			}
 		}
 		int intId = 0;
 		try {
 			intId = Integer.parseInt(sFeldVals[sFeldVals.length-1]);
-			int numIdsPresent = DBKernel.getRowCount("Lieferungen", " WHERE " + DBKernel.delimitL("ID") + "=" + intId);
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("Lieferungen", " WHERE " + MyDBI.delimitL("ID") + "=" + intId) : DBKernel.getRowCount("Lieferungen", " WHERE " + MyDBI.delimitL("ID") + "=" + intId));
 			if (numIdsPresent == 0) {
-				in += "," + DBKernel.delimitL("ID");
+				in += "," + MyDBI.delimitL("ID");
 				iv += "," + intId;
 			}
 		}
 		catch (Exception e) {}
 
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 		if (rs != null && rs.first()) {
 			result = rs.getInt(1);
+			rs.close();
 		}
 		
 		if (result != null) {
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+			sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + DBKernel.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			sql = "INSERT INTO " + MyDBI.delimitL("Lieferungen") + " (" + in + ") VALUES (" + iv + ")";
+			@SuppressWarnings("resource")
+			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			try {
 				if (ps.executeUpdate() > 0) {
-					result = DBKernel.getLastInsertedID(ps);
+					result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
 					if (serialWhere.length() == 0) {
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-						serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+						sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("Serial") + "=" + MyDBI.delimitL("ID") + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+						if (mydbi != null) mydbi.sendRequest(sql, false, false);
+						else DBKernel.sendRequest(sql, false);
+						serialWhere = "UCASE(" + MyDBI.delimitL("Serial") + ")='" + result + "'";
 					}
-					int numSameSerials = DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere);
+					int numSameSerials = (mydbi != null ? mydbi.getRowCount("Lieferungen", " WHERE " + serialWhere) : DBKernel.getRowCount("Lieferungen", " WHERE " + serialWhere));
 					if (numSameSerials > 1) {
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
+						sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("Serial") + "=CONCAT(" + MyDBI.delimitL("Serial") + ",'_" + result + "') WHERE " + MyDBI.delimitL("ID") + "=" + result;
+						if (mydbi != null) mydbi.sendRequest(sql, false, false);
+						else DBKernel.sendRequest(sql, false);
 					}
 				}
 			}
@@ -275,11 +311,17 @@ public class Delivery {
 		return result;
 	}
 	
-	public void mergeLot(Integer oldLotDbId, Integer newLotDbId) {
+	public void mergeLot(Integer oldLotDbId, Integer newLotDbId, MyDBI mydbi) {
 		if (oldLotDbId != null && newLotDbId != null) {
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Charge") + "=" + newLotDbId.intValue() + " WHERE " + DBKernel.delimitL("Charge") + "=" + oldLotDbId.intValue(), false);
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ChargenVerbindungen") + " SET " + DBKernel.delimitL("Produkt") + "=" + newLotDbId.intValue() + " WHERE " + DBKernel.delimitL("Produkt") + "=" + oldLotDbId.intValue(), false);
-			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Chargen") + " WHERE " + DBKernel.delimitL("ID") + "=" + oldLotDbId.intValue(), false);
+			String sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("Charge") + "=" + newLotDbId.intValue() + " WHERE " + MyDBI.delimitL("Charge") + "=" + oldLotDbId.intValue();
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
+			sql = "UPDATE " + MyDBI.delimitL("ChargenVerbindungen") + " SET " + MyDBI.delimitL("Produkt") + "=" + newLotDbId.intValue() + " WHERE " + MyDBI.delimitL("Produkt") + "=" + oldLotDbId.intValue();
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
+			sql = "DELETE FROM " + MyDBI.delimitL("Chargen") + " WHERE " + MyDBI.delimitL("ID") + "=" + oldLotDbId.intValue();
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 	}
 }

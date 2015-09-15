@@ -30,7 +30,6 @@ import de.bund.bfr.knime.openkrise.db.imports.SQLScriptImporter;
 public class MyDBTablesNew extends MyDBI {
 
 	private static int SystemTabellen_LIST = 0;
-	private static int BasisTabellen_LIST = 1;
 	private static int Lieferketten_LIST = 7;
 
 	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<>();
@@ -88,14 +87,14 @@ public class MyDBTablesNew extends MyDBI {
 			if (toVersion.equals(fromVersion)) return;
 		}
 		if (fromVersion.equals("1.8.2.0.0")) {
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_day") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_month") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ad_year") + " INTEGER BEFORE " + DBKernel.delimitL("numPU"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("ChargenVerbindungen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Produktkatalog") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
-			sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Lieferungen") + " ADD COLUMN " + delimitL("ad_day") + " INTEGER BEFORE " + delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Lieferungen") + " ADD COLUMN " + delimitL("ad_month") + " INTEGER BEFORE " + delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Lieferungen") + " ADD COLUMN " + delimitL("ad_year") + " INTEGER BEFORE " + delimitL("numPU"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Lieferungen") + " ADD COLUMN " + delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("ChargenVerbindungen") + " ADD COLUMN " + delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Chargen") + " ADD COLUMN " + delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Produktkatalog") + " ADD COLUMN " + delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + delimitL("Kommentar"), false, false);
+			sendRequest("ALTER TABLE " + delimitL("Station") + " ADD COLUMN " + delimitL("ImportSources") + " VARCHAR(16383) BEFORE " + delimitL("Kommentar"), false, false);
 			getTable("ExtraFields").createTable(getConn());
 			getTable("ImportMetadata").createTable(getConn());
 			fromVersion = "1.8.3";
@@ -172,30 +171,30 @@ public class MyDBTablesNew extends MyDBI {
 	public void recreateTriggers() {
 		for(String key : allTables.keySet()) {
 			String tableName = allTables.get(key).getTablename();
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), true, false);
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), true, false);
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), true, false);
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), true, false);
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), true, false);
-			sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("B_" + tableName + "_U"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("B_" + tableName + "_D"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("B_" + tableName + "_I"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("A_" + tableName + "_U"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("A_" + tableName + "_D"), true, false);
+			sendRequest("DROP TRIGGER " + delimitL("A_" + tableName + "_I"), true, false);
 			if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +    
-				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
-				sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
+				sendRequest("CREATE TRIGGER " + delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
+						delimitL(tableName) + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +    
+				sendRequest("CREATE TRIGGER " + delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
+						delimitL(tableName) + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
+				sendRequest("CREATE TRIGGER " + delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
+						delimitL(tableName) + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName()), false, false); // (oneThread ? "QUEUE 0" : "") +
 			}
 		}
-		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), true, false);
-		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), true, false);
-		sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), true, false);
-		sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false);    	
+		sendRequest("DROP TRIGGER " + delimitL("B_USERS_U"), true, false);
+		sendRequest("DROP TRIGGER " + delimitL("B_USERS_D"), true, false);
+		sendRequest("DROP TRIGGER " + delimitL("B_USERS_I"), true, false);
+		sendRequest("CREATE TRIGGER " + delimitL("B_Users_I") + " BEFORE INSERT ON " +
+	        		delimitL("Users") + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName()), false, false);    	
 	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
 	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-		sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false, false);   
+		sendRequest("CREATE TRIGGER " + delimitL("B_Users_U") + " BEFORE UPDATE ON " +
+	        		delimitL("Users") + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName()), false, false);   
 	}
 
 	@SuppressWarnings("unchecked")
@@ -256,10 +255,10 @@ public class MyDBTablesNew extends MyDBI {
 		LinkedHashMap<Integer, String> hPM = new LinkedHashMap<>();
 		hPM.put(new Integer(1), "+");	hPM.put(new Integer(2), "-");
 		LinkedHashMap<Integer, String> hYN = new LinkedHashMap<>();
-		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYN.put(new Integer(1), "yes");	hYN.put(new Integer(0), "no");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYN.put(new Integer(1), "yes");	hYN.put(new Integer(0), "no");}
 		else {hYN.put(new Integer(1), "ja");	hYN.put(new Integer(0), "nein");}
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<>();
-		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 		LinkedHashMap<Integer, String> hYNT = new LinkedHashMap<>();
 		hYNT.put(new Integer(1), "mit Therapie");hYNT.put(new Integer(0), "ohne Therapie");hYNT.put(new Integer(2), "Keine Angabe");
@@ -324,7 +323,7 @@ public class MyDBTablesNew extends MyDBI {
 	@SuppressWarnings("unchecked")
 	private void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<>();
-		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
+		if (getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 				
 		MyTable Knoten = new MyTable("Station", new String[]{"Produktkatalog","Name","Strasse","Hausnummer","Postfach","PLZ","Ort","District","Bundesland","Land","Longitude","Latitude","Ansprechpartner","Telefon","Fax","EMail","Webseite","Betriebsnummer","Betriebsart","VATnumber","Code",
@@ -352,10 +351,10 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedList<>(Arrays.asList("AnzahlLabornachweise")));
 		addTable(Agensnachweis, -1);
 		LinkedHashMap<String, String> proce = new LinkedHashMap<>();
-		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and ready-to-eat (e.g. salads)" : "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
-		proce.put("erhitzt und verzehrsfertig (fast alles)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
-		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
-		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
+		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", getLanguage().equalsIgnoreCase("en") ? "not heated and ready-to-eat (e.g. salads)" : "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
+		proce.put("erhitzt und verzehrsfertig (fast alles)", getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
+		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
+		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
 				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial","ImportSources"},
@@ -416,7 +415,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new LinkedList<>(Arrays.asList("Zutat")),
 				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null,null});
-		addTable(ChargenVerbindungen, DBKernel.debug ? Lieferketten_LIST : -1);
+		addTable(ChargenVerbindungen, Lieferketten_LIST);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 
 		MyTable extraFields = new MyTable("ExtraFields",
@@ -483,9 +482,7 @@ public class MyDBTablesNew extends MyDBI {
 	  	// treeStructure
 		treeStructure = new LinkedHashMap<>();
 
-	    boolean isAdmin  = DBKernel.myDBi == null ? true : DBKernel.myDBi.isAdmin();
-		if (isAdmin) treeStructure.put(SystemTabellen_LIST, "System-Tabellen");
-		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(BasisTabellen_LIST, "Basis-Tabellen");
+	    //treeStructure.put(SystemTabellen_LIST, "System-Tabellen");
 		treeStructure.put(Lieferketten_LIST, "Lieferketten");	  	
 	}
 	public void addViews() {

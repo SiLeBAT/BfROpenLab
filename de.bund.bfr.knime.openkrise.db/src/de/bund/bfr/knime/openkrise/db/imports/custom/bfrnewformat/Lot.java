@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class Lot {
 
@@ -75,7 +77,7 @@ public class Lot {
 	public String getLogMessages() {
 		return logMessages;
 	}
-	public Integer getID(Integer miDbId) throws Exception {
+	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		//if (number == null) logWarnings += "Please, do always provide a lot number as this is most helpful!\n";//throw new Exception("Lot number not defined");
 		String lotId = null;
 		if (number != null && !number.isEmpty() && product != null && product.getStation() != null) {
@@ -83,21 +85,23 @@ public class Lot {
 		}
 		if (lotId != null && gathereds.get(lotId) != null && gathereds.get(lotId).getDbId() != null) dbId = gathereds.get(lotId).getDbId();
 		if (dbId != null) return dbId;
-		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId);
+		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId, mydbi);
 		dbId = retId;
 		if (lotId != null && gathereds.get(lotId) != null) gathereds.get(lotId).setDbId(dbId);
 		if (retId != null) {
 			// Further flexible cells
 			for (Entry<String, String> es : flexibles.entrySet()) {
-				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-						" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-						") VALUES ('Chargen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+						") VALUES ('Chargen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		return retId;
 	}
-	private Integer getID(Product product, String number, Double unitNumber, String unitUnit, Integer miDbId) throws Exception {
-		Integer dbProdID = product.getID(miDbId);
+	private Integer getID(Product product, String number, Double unitNumber, String unitUnit, Integer miDbId, MyDBI mydbi) throws Exception {
+		Integer dbProdID = product.getID(miDbId, mydbi);
 		if (!product.getLogMessages().isEmpty()) logMessages += product.getLogMessages() + "\n";
 		if (dbProdID == null) {
 			logMessages += "Product unknown...\n";
@@ -105,41 +109,46 @@ public class Lot {
 		}
 
 		Integer result = null;
-		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") +
-				" WHERE " + DBKernel.delimitL("Artikel") + "=" + dbProdID + " AND " + DBKernel.delimitL("ChargenNr") + "='" + number + "'";
-		String in = DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ImportSources");
+		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Chargen") +
+				" WHERE " + MyDBI.delimitL("Artikel") + "=" + dbProdID + " AND " + MyDBI.delimitL("ChargenNr") + "='" + number + "'";
+		String in = MyDBI.delimitL("Artikel") + "," + MyDBI.delimitL("ImportSources");
 		String iv = dbProdID + ",';" + miDbId + ";'";
 		if (number != null) {
-			in += "," + DBKernel.delimitL("ChargenNr");
+			in += "," + MyDBI.delimitL("ChargenNr");
 			iv += ",'" + number + "'";
 		}
 		if (unitNumber != null) {
-			//sql += " AND " + DBKernel.delimitL("Menge") + "=" + unitNumber + "";
-			in += "," + DBKernel.delimitL("Menge");
+			//sql += " AND " + MyDBI.delimitL("Menge") + "=" + unitNumber + "";
+			in += "," + MyDBI.delimitL("Menge");
 			String un = ("" + unitNumber).replace(",", ".");
 			iv += "," + un;
 		}
 		if (unitUnit != null) {
-			//sql += " AND UCASE(" + DBKernel.delimitL("Einheit") + ")='" + unitUnit.toUpperCase() + "'";
-			in += "," + DBKernel.delimitL("Einheit");
+			//sql += " AND UCASE(" + MyDBI.delimitL("Einheit") + ")='" + unitUnit.toUpperCase() + "'";
+			in += "," + MyDBI.delimitL("Einheit");
 			iv += ",'" + unitUnit + "'";
 		}
 
 		if (number != null) {
-			ResultSet rs = DBKernel.getResultSet(sql, false);
+			ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 			if (rs != null && rs.first()) {
 				result = rs.getInt(1);
+				rs.close();
 			}
 		}
 
 		if (result != null) {
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+			sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			sql = "INSERT INTO " + MyDBI.delimitL("Chargen") + " (" + in + ") VALUES (" + iv + ")";
+			@SuppressWarnings("resource")
+			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			if (ps.executeUpdate() > 0) {
-				result = DBKernel.getLastInsertedID(ps);
+				result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
 				//System.err.println(result);
 			}
 		}

@@ -3,6 +3,7 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 import java.util.LinkedHashSet;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class LookUp {
 
@@ -24,33 +25,41 @@ public class LookUp {
 		if (unit != null && !unit.isEmpty()) lUnit.add(unit);
 	}
 	
-	public void intoDb() {
+	public void intoDb(MyDBI mydbi) {
 		for (String s : lSampling) {
-			int numIdsPresent = DBKernel.getRowCount("LookUps", " WHERE " + DBKernel.delimitL("type") + "='Sampling' AND UCASE(" + DBKernel.delimitL("value") + ")='" + s.toUpperCase() + "'");
+			String where = " WHERE " + MyDBI.delimitL("type") + "='Sampling' AND UCASE(" + MyDBI.delimitL("value") + ")='" + s.toUpperCase() + "'";
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("LookUps", where) : DBKernel.getRowCount("LookUps", where));
 			if (numIdsPresent == 0) {
-				String sql = "INSERT INTO " + DBKernel.delimitL("LookUps") + " (" + DBKernel.delimitL("type") + "," + DBKernel.delimitL("value") + ") VALUES ('Sampling','" + s + "')";
-				DBKernel.sendRequest(sql, false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("LookUps") + " (" + MyDBI.delimitL("type") + "," + MyDBI.delimitL("value") + ") VALUES ('Sampling','" + s + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		for (String s : lTypeOfBusiness) {
-			int numIdsPresent = DBKernel.getRowCount("LookUps", " WHERE " + DBKernel.delimitL("type") + "='TypeOfBusiness' AND UCASE(" + DBKernel.delimitL("value") + ")='" + s.toUpperCase() + "'");
+			String where = " WHERE " + MyDBI.delimitL("type") + "='TypeOfBusiness' AND UCASE(" + MyDBI.delimitL("value") + ")='" + s.toUpperCase() + "'";
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("LookUps", where) : DBKernel.getRowCount("LookUps", where));
 			if (numIdsPresent == 0) {
-				String sql = "INSERT INTO " + DBKernel.delimitL("LookUps") + " (" + DBKernel.delimitL("type") + "," + DBKernel.delimitL("value") + ") VALUES ('TypeOfBusiness','" + s + "')";
-				DBKernel.sendRequest(sql, false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("LookUps") + " (" + MyDBI.delimitL("type") + "," + MyDBI.delimitL("value") + ") VALUES ('TypeOfBusiness','" + s + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		for (String s : lTreatment) {
-			int numIdsPresent = DBKernel.getRowCount("LookUps", " WHERE " + DBKernel.delimitL("type") + "='Treatment' AND UCASE(" + DBKernel.delimitL("value") + ")='" + s.toUpperCase() + "'");
+			String where = " WHERE " + MyDBI.delimitL("type") + "='Treatment' AND UCASE(" + MyDBI.delimitL("value") + ")='" + s.toUpperCase() + "'";
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("LookUps", where) : DBKernel.getRowCount("LookUps", where));
 			if (numIdsPresent == 0) {
-				String sql = "INSERT INTO " + DBKernel.delimitL("LookUps") + " (" + DBKernel.delimitL("type") + "," + DBKernel.delimitL("value") + ") VALUES ('Treatment','" + s + "')";
-				DBKernel.sendRequest(sql, false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("LookUps") + " (" + MyDBI.delimitL("type") + "," + MyDBI.delimitL("value") + ") VALUES ('Treatment','" + s + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		for (String s : lUnit) {
-			int numIdsPresent = DBKernel.getRowCount("LookUps", " WHERE " + DBKernel.delimitL("type") + "='Units' AND UCASE(" + DBKernel.delimitL("value") + ")='" + s.toUpperCase() + "'");
+			String where = " WHERE " + MyDBI.delimitL("type") + "='Units' AND UCASE(" + MyDBI.delimitL("value") + ")='" + s.toUpperCase() + "'";
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("LookUps", where) : DBKernel.getRowCount("LookUps", where));
 			if (numIdsPresent == 0) {
-				String sql = "INSERT INTO " + DBKernel.delimitL("LookUps") + " (" + DBKernel.delimitL("type") + "," + DBKernel.delimitL("value") + ") VALUES ('Units','" + s + "')";
-				DBKernel.sendRequest(sql, false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("LookUps") + " (" + MyDBI.delimitL("type") + "," + MyDBI.delimitL("value") + ") VALUES ('Units','" + s + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 	}

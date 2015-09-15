@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.db;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +42,6 @@ import java.util.zip.ZipOutputStream;
 import javax.swing.JFrame;
 
 import de.bund.bfr.knime.openkrise.db.db.XmlLoader;
-import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
 
 public abstract class MyDBI {
 	public abstract LinkedHashMap<String, MyTable> getAllTables();
@@ -73,7 +71,7 @@ public abstract class MyDBI {
 	public abstract String getSoftwareVersion();
 
 	public abstract LinkedHashMap<Object, String> getHashMap(final String key);
-
+	
 	public static MyDBI loadDB(String filename) {
 		MyDBI result = null;
 		Object o = XmlLoader.getObjectFromFile(filename);
@@ -92,20 +90,23 @@ public abstract class MyDBI {
 	}
 
 	public void bootstrapDB() {
+		bootstrapDB(false);
+	}
+	public void bootstrapDB(boolean useInternalConn) {
 		createRoles();
 		LinkedHashMap<String, MyTable> allTables = getAllTables();
 		for (MyTable myT : allTables.values()) {
-			myT.createTable();
+			myT.createTable(useInternalConn ? conn : null);
 		}
 		setVersion2DB(getSoftwareVersion());
-		DBKernel.setDBVersion(null, getSoftwareVersion());
+		//DBKernel.setDBVersion(null, getSoftwareVersion());
 	}
 
 	private void createRoles() {
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false, false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false, false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false, false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false, false);
+		sendRequest("CREATE ROLE " + delimitL("READ_ONLY"), false, false);
+		sendRequest("CREATE ROLE " + delimitL("WRITE_ACCESS"), false, false);
+		sendRequest("CREATE ROLE " + delimitL("SUPER_WRITE_ACCESS"), false, false);
+		sendRequest("CREATE ROLE " + delimitL("ADMIN"), false, false);
 	}
 
 	/*
@@ -131,6 +132,10 @@ public abstract class MyDBI {
 
 	public String getDbUsername() {
 		return dbUsername;
+	}
+
+	public Connection getActualConn() {
+		return conn;
 	}
 
 	public Connection getConn() {
@@ -181,7 +186,7 @@ public abstract class MyDBI {
 		if (isAdmin()) {
 			sendRequest("SET PASSWORD '" + newPassword + "';", false, false);
 		} else {
-			sendRequest("ALTER USER " + DBKernel.delimitL(dbUsername) + " SET PASSWORD '" + newPassword + "';", false, true);
+			sendRequest("ALTER USER " + delimitL(dbUsername) + " SET PASSWORD '" + newPassword + "';", false, true);
 		}
 	}
 
@@ -211,7 +216,7 @@ public abstract class MyDBI {
 				MyLogger.handleMessage("vor gc");
 				System.gc();
 				System.runFinalization();
-				saveWindowState();
+				if (existsDBKernel()) saveWindowState();
 				if (kompakt) MyDBI.saveDB(path2XmlFile + System.getProperty("file.separator") + "DB.xml", this);
 			}
 		} catch (SQLException e) {
@@ -258,8 +263,8 @@ public abstract class MyDBI {
 			if (dbUsername.equals(getSA())) return true;
 		}
 		boolean result = false;
-		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Users") + " WHERE " + DBKernel.delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND "
-				+ DBKernel.delimitL("Username") + " = '" + dbUsername + "'", true);
+		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND "
+				+ delimitL("Username") + " = '" + dbUsername + "'", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = (rs.getInt(1) > (conn == null ? 0 : -1));
@@ -275,20 +280,23 @@ public abstract class MyDBI {
 	}
 
 	public void establishNewConnection(final String dbUsername, final String dbPassword, final String dbPath, final boolean suppressWarnings) {
+		establishNewConnection(dbUsername, dbPassword, dbPath, suppressWarnings, DBKernel.isReadOnly());
+	}
+	public void establishNewConnection(final String dbUsername, final String dbPassword, final String dbPath, final boolean suppressWarnings, final boolean ro) {
 		closeDBConnections(false);
 		try {
 			Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 			String connStr = isServerConnection ? "jdbc:hsqldb:hsql://" + dbPath : "jdbc:hsqldb:file:" + dbPath + "DB";
 			//connStr += ";hsqldb.write_delay=false;";
 			conn = DriverManager.getConnection(connStr, dbUsername, dbPassword);
-			conn.setReadOnly(DBKernel.isReadOnly());
+			conn.setReadOnly(ro);
 		} catch (Exception e) {
 			passFalse = e.getMessage().startsWith("invalid authorization specification");
 			if (e.getMessage().startsWith("Database lock acquisition failure:")) {
 				Frame[] fs = Frame.getFrames();
 				if (fs != null && fs.length > 0) {
-					InfoBox ib = new InfoBox(fs[0], "Die Datenbank wird zur Zeit von\neinem anderen Benutzer verwendet!", true, new Dimension(300, 150), null, true);
-					ib.setVisible(true);
+					//InfoBox ib = new InfoBox(fs[0], "Die Datenbank wird zur Zeit von\neinem anderen Benutzer verwendet!", true, new Dimension(300, 150), null, true);
+					//ib.setVisible(true);
 				}
 			} else {
 				if (!suppressWarnings) MyLogger.handleException(e);
@@ -296,7 +304,20 @@ public abstract class MyDBI {
 		}
 	}
 
-	ResultSet getResultSet(final String sql, final boolean suppressWarnings) {
+	public int getRowCount(final String tableName, final String where) {
+		int result = 0;
+		String sql = "SELECT COUNT(*) FROM " + delimitL(tableName) + (where != null && where.trim().length() > 0 ? " " + where : "");
+		ResultSet rs = getResultSet(sql, true);
+		try {
+			if (rs != null && rs.first()) {
+				result = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	public ResultSet getResultSet(final String sql, final boolean suppressWarnings) {
 		ResultSet ergebnis = null;
 		if (conn != null) {
 			try {
@@ -313,7 +334,7 @@ public abstract class MyDBI {
 		return ergebnis;
 	}
 
-	boolean sendRequest(final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	public boolean sendRequest(final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
 		boolean result = false;
 		if (conn != null) {
 			boolean adminGathered = false;
@@ -327,8 +348,7 @@ public abstract class MyDBI {
 				result = true;
 			} catch (Exception e) {
 				if (!suppressWarnings) {
-					if (!DBKernel.isKNIME
-							|| (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+					if ((!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 						MyLogger.handleMessage(sql);
 					}
 					MyLogger.handleException(e);
@@ -368,8 +388,8 @@ public abstract class MyDBI {
 	void setVersion2DB(final String softwareVersion) {
 		if (!sendRequest("INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + softwareVersion + "')", true, false)) {
 			sendRequest(
-					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + softwareVersion + "'" + " WHERE "
-							+ DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
+					"UPDATE " + delimitL("Infotabelle") + " SET " + delimitL("Wert") + " = '" + softwareVersion + "'" + " WHERE "
+							+ delimitL("Parameter") + " = 'DBVersion'", false, false);
 		}
 	}
 	String getVersion4DB() {
@@ -498,7 +518,7 @@ public abstract class MyDBI {
 		return result;
 	}
 
-	Integer getLastInsertedID(final PreparedStatement psmt) {
+	public Integer getLastInsertedID(final PreparedStatement psmt) {
 		Integer lastInsertedID = null;
 		try {
 			ResultSet rs = psmt.getGeneratedKeys();
@@ -565,7 +585,7 @@ public abstract class MyDBI {
 
 	private int countUsers(String username) {
 		int result = -1;
-		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Users") + " WHERE " + DBKernel.delimitL("Username") + " IS NOT NULL", true);
+		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + delimitL("Username") + " IS NOT NULL", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = rs.getInt(1);
@@ -597,9 +617,9 @@ public abstract class MyDBI {
 	}
 	public void addUserInCaseNotThere(String username, String password) {
 		if (countUsers(username) == 0) {
-			sendRequest("INSERT INTO " + DBKernel.delimitL("Users") + "(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht")
+			sendRequest("INSERT INTO " + delimitL("Users") + "(" + delimitL("Username") + "," + delimitL("Zugriffsrecht")
 					+ ") VALUES ('" + username + "', " + Users.SUPER_WRITE_ACCESS + ")", false, false);
-			sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + password + "';", false, false);
+			sendRequest("ALTER USER " + delimitL(username) + " SET PASSWORD '" + password + "';", false, false);
 		}		
 	}
 
@@ -678,7 +698,7 @@ public abstract class MyDBI {
 
 	public String getDBVersionFromDB() {
 		String result = null;
-		ResultSet rs = getResultSet("SELECT " + DBKernel.delimitL("Wert") + " FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter")
+		ResultSet rs = getResultSet("SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") + " WHERE " + delimitL("Parameter")
 				+ " = 'DBVersion'", true);
 		try {
 			if (rs != null && rs.first()) {
@@ -686,6 +706,22 @@ public abstract class MyDBI {
 			}
 		} catch (Exception e) {
 			MyLogger.handleException(e);
+		}
+		return result;
+	}
+	public static String getLanguage() {
+		return "en";
+	}
+	public static String delimitL(final String name) {
+		String newName = name.replace("\"", "\"\"");
+		return "\"" + newName + "\"";
+	}
+	private boolean existsDBKernel() {
+		boolean result = true;
+		try {
+		 Class.forName("de.bund.bfr.knime.openkrise.db.DBKernel");
+		} catch( ClassNotFoundException e ) {
+			result = false;
 		}
 		return result;
 	}

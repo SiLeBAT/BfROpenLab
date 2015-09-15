@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class Station {
 
@@ -116,73 +118,83 @@ public class Station {
 	public String getLogMessages() {
 		return logMessages;
 	}
-	public Integer getID(Integer miDbId) throws Exception {
+	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
 		Integer retId = getID(new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","District","Bundesland","Land","Betriebsart","Serial"},
-				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id}, miDbId);
+				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id}, miDbId, mydbi);
 		dbId = retId;
 		gathereds.get(id).setDbId(dbId);
 		
 		// Further flexible cells
 		if (retId != null) {
 			for (Entry<String, String> es : flexibles.entrySet()) {
-				DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ExtraFields") +
-						" (" + DBKernel.delimitL("tablename") + "," + DBKernel.delimitL("id") + "," + DBKernel.delimitL("attribute") + "," + DBKernel.delimitL("value") +
-						") VALUES ('Station'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')", false);
+				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+						") VALUES ('Station'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
 			}
 		}
 		return retId;
 	}
-	private Integer getID(String[] feldnames, String[] feldVals, Integer miDbId) throws Exception {
+	private Integer getID(String[] feldnames, String[] feldVals, Integer miDbId, MyDBI mydbi) throws Exception {
 		Integer result = null;
-		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Station") + " WHERE TRUE ";
-		String in = DBKernel.delimitL("ImportSources");
+		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Station") + " WHERE TRUE ";
+		String in = MyDBI.delimitL("ImportSources");
 		String iv =  "';" + miDbId + ";'";
 		String serialWhere = "";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
-				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
-				in += "," + DBKernel.delimitL(feldnames[i]);
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				in += "," + MyDBI.delimitL(feldnames[i]);
 				iv += ",'" + feldVals[i] + "'";
-				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				if (feldnames[i].equalsIgnoreCase("Serial")) serialWhere = "UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
 			}
 		}
 		int intId = 0;
 		try {
 			intId = Integer.parseInt(feldVals[feldVals.length-1]);
-			int numIdsPresent = DBKernel.getRowCount("Station", " WHERE " + DBKernel.delimitL("ID") + "=" + intId);
+			int numIdsPresent = (mydbi != null ? mydbi.getRowCount("Station", " WHERE " + MyDBI.delimitL("ID") + "=" + intId) : DBKernel.getRowCount("Station", " WHERE " + MyDBI.delimitL("ID") + "=" + intId));
 			if (numIdsPresent == 0) {
-				in += "," + DBKernel.delimitL("ID");
+				in += "," + MyDBI.delimitL("ID");
 				iv += "," + intId;
 			}
 		}
 		catch (Exception e) {}
 
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 
 		if (rs != null && rs.first()) {
 			result = rs.getInt(1);
+			rs.close();
 		}
 
 		if (result != null) {
-			sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result;
-			DBKernel.sendRequest(sql, false);
+			sql = "UPDATE " + MyDBI.delimitL("Station") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + DBKernel.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			sql = "INSERT INTO " + MyDBI.delimitL("Station") + " (" + in + ") VALUES (" + iv + ")";
+			@SuppressWarnings("resource")
+			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			//System.err.println(in + "\t" + iv);
 			try {
 				if (ps.executeUpdate() > 0) {
-					result = DBKernel.getLastInsertedID(ps);
+					result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
 					if (serialWhere.length() == 0) {
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
-						serialWhere = "UCASE(" + DBKernel.delimitL("Serial") + ")='" + result + "'";
+						sql = "UPDATE " + MyDBI.delimitL("Station") + " SET " + MyDBI.delimitL("Serial") + "=" + MyDBI.delimitL("ID") + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+						if (mydbi != null) mydbi.sendRequest(sql, false, false);
+						else DBKernel.sendRequest(sql, false);
+						serialWhere = "UCASE(" + MyDBI.delimitL("Serial") + ")='" + result + "'";
 					}
-					int numSameSerials = DBKernel.getRowCount("Station", " WHERE " + serialWhere);
+					int numSameSerials = (mydbi != null ? mydbi.getRowCount("Station", " WHERE " + serialWhere) : DBKernel.getRowCount("Station", " WHERE " + serialWhere));
 					if (numSameSerials > 1) {
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Serial") + "=CONCAT(" + DBKernel.delimitL("Serial") + ",'_" + result + "') WHERE " + DBKernel.delimitL("ID") + "=" + result, false);					
+						sql = "UPDATE " + MyDBI.delimitL("Station") + " SET " + MyDBI.delimitL("Serial") + "=CONCAT(" + MyDBI.delimitL("Serial") + ",'_" + result + "') WHERE " + MyDBI.delimitL("ID") + "=" + result;
+						if (mydbi != null) mydbi.sendRequest(sql, false, false);
+						else DBKernel.sendRequest(sql, false);
 					}
 				}
 			}

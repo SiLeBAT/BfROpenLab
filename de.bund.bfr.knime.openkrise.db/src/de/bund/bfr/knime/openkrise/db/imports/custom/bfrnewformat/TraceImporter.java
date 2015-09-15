@@ -24,12 +24,22 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 
 public class TraceImporter extends FileFilter implements MyImporter {
 
+	private MyDBI mydbi;
+	
+	public TraceImporter() {
+		this.mydbi = null;
+	}
+	public TraceImporter(MyDBI mydbi) {
+		this.mydbi = mydbi;
+	}
+	
 	private String logMessages = "";
 	private String logWarnings = "";
 	
@@ -103,7 +113,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				}
 			}
 		}
-		lu.intoDb();
+		lu.intoDb(mydbi);
 	}
 	private List<Exception> doTheImport(Workbook wb, String filename) { //  throws Exception
 		List<Exception> exceptions = new ArrayList<>();
@@ -166,14 +176,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			Integer miDbId = null;
 			try {
-				miDbId = mi.getID();
+				miDbId = mi.getID(mydbi);
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
 			if (miDbId == null) exceptions.add(new Exception("File already imported"));
 			for (Delivery d : deliveries.values()) {
 				try {
-					d.getID(miDbId, false);
+					d.getID(miDbId, false, mydbi);
 				} catch (Exception e) {
 					exceptions.add(e);
 				}
@@ -184,7 +194,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
 			for (D2D dl : recipes) {
 				try {
-					dl.getId(miDbId);
+					dl.getId(miDbId, mydbi);
 				} catch (Exception e) {
 					exceptions.add(e);
 				}
@@ -354,7 +364,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 		Integer miDbId = null;
 		try {
-			miDbId = mi.getID();
+			miDbId = mi.getID(mydbi);
 		} catch (Exception e) {
 			exceptions.add(e);
 		}
@@ -379,18 +389,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void insertForIntoDb(Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
 		HashMap<String, Integer> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
-			d.getID(miDbId, false);
+			d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries.values()) {
-			Integer dbId = d.getID(miDbId, true);
+			Integer dbId = d.getID(miDbId, true, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
-					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId);
+					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId, mydbi);
 				}
 			}
 		}
@@ -398,14 +408,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void insertIntoDb(Integer miDbId, HashMap<String, Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
 		HashMap<String, Lot> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
-			d.getID(miDbId, true);
+			d.getID(miDbId, true, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).getDbId().intValue() != d.getLot().getDbId()) {
 				Lot ol = lotDbNumber.get(d.getLot().getNumber());
 				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
 						ol.getProduct() != null && d.getLot().getProduct().getName().equals(ol.getProduct().getName())) {
-					d.mergeLot(d.getLot().getDbId(), ol.getDbId());
+					d.mergeLot(d.getLot().getDbId(), ol.getDbId(), mydbi);
 				}
 				/*
 				else {
@@ -416,17 +426,17 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			else lotDbNumber.put(d.getLot().getNumber(), d.getLot());
 		}
 		for (Delivery d : inDeliveries.values()) {
-			Integer dbId = d.getID(miDbId, false);
+			Integer dbId = d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
-					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId);
+					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId, mydbi);
 				}
 			}
 		}
 		for (Delivery d : forwDeliveries) {
-			d.getID(miDbId, false);
+			d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 		}
@@ -843,12 +853,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					XSSFWorkbook wb = new XSSFWorkbook(is);
 
 					Station.reset(); Lot.reset(); Delivery.reset();
-					DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+					if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
 					if (exceptions != null && exceptions.size() > 0) {
-						DBKernel.sendRequest("ROLLBACK", false);
-						DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+						if (existsDBKernel()) {
+							DBKernel.sendRequest("ROLLBACK", false);
+							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+						}
 						logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n";
 						for (Exception e : exceptions) {
 							logMessages += getST(e, false);
@@ -861,28 +873,32 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						} catch (IOException e1) {}
 					}
 					else {
-						if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
-						DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-						DBKernel.myDBi.getTable("Station").doMNs();
-						DBKernel.myDBi.getTable("Produktkatalog").doMNs();
-						DBKernel.myDBi.getTable("Chargen").doMNs();
-						DBKernel.myDBi.getTable("Lieferungen").doMNs();
-						if (progress != null) {
-							// Refreshen:
-							MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
-							if (myDB.getActualTable() != null) {
-								String actTablename = myDB.getActualTable().getTablename();
-								if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
-									myDB.setTable(myDB.getActualTable());
+						if (existsDBKernel()) {
+							if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
+							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+							DBKernel.myDBi.getTable("Station").doMNs();
+							DBKernel.myDBi.getTable("Produktkatalog").doMNs();
+							DBKernel.myDBi.getTable("Chargen").doMNs();
+							DBKernel.myDBi.getTable("Lieferungen").doMNs();
+							if (progress != null) {
+								// Refreshen:
+								MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
+								if (myDB.getActualTable() != null) {
+									String actTablename = myDB.getActualTable().getTablename();
+									if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
+										myDB.setTable(myDB.getActualTable());
+									}
 								}
+								progress.setVisible(false);
 							}
-							progress.setVisible(false);
 						}
 						is.close();
 					}
 				} catch (Exception e) {
-					DBKernel.sendRequest("ROLLBACK", false);
-					DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+					if (existsDBKernel()) {
+						DBKernel.sendRequest("ROLLBACK", false);
+						DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+					}
 					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n\n";
 					MyLogger.handleException(e);
 					if (progress != null) progress.setVisible(false);
@@ -928,7 +944,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	
 	  public static Long getMillis(String filename) {
 		  Long result = 0L;//System.currentTimeMillis();
-
+	
 		  try (InputStream is = filename.startsWith("http://") ? new URL(filename).openConnection().getInputStream() : new FileInputStream(filename);
 						XSSFWorkbook wb = new XSSFWorkbook(is)) {
 				Sheet transactionSheet = wb.getSheet("BackTracing");
@@ -950,4 +966,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		  }
 		  return result;
 	  }	
+		private boolean existsDBKernel() {
+			boolean result = true;
+			try {
+			 Class.forName("de.bund.bfr.knime.openkrise.db.DBKernel");
+			} catch( ClassNotFoundException e ) {
+				result = false;
+			}
+			return result;
+		}
 }

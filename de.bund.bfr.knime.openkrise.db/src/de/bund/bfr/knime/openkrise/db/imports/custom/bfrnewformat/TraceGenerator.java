@@ -32,6 +32,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class TraceGenerator {
 
@@ -71,7 +72,7 @@ public class TraceGenerator {
 			}
 		}
 		
-		String sql = "Select * from " + DBKernel.delimitL("Station");
+		String sql = "Select * from " + MyDBI.delimitL("Station");
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			int rownum = 1;
@@ -94,7 +95,7 @@ public class TraceGenerator {
 				//cell = row.getCell(10); evaluator.evaluateFormulaCell(cell);
 
 				if (rs.getObject("ID") != null) {
-					sql = "Select * from " + DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Station' AND " + DBKernel.delimitL("id") + "=" + rs.getInt("ID");
+					sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Station' AND " + MyDBI.delimitL("id") + "=" + rs.getInt("ID");
 					ResultSet rs2 = DBKernel.getResultSet(sql, false);
 					if (rs2 != null && rs2.first()) {
 						do {
@@ -116,7 +117,7 @@ public class TraceGenerator {
 		}
 	}
 	private void fillLookup(XSSFWorkbook workbook, XSSFSheet sheetLookup) throws SQLException {
-		String sql = "Select * from " + DBKernel.delimitL("LookUps") + " WHERE " + DBKernel.delimitL("type") + "='Sampling'";
+		String sql = "Select * from " + MyDBI.delimitL("LookUps") + " WHERE " + MyDBI.delimitL("type") + "='Sampling'";
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		int rownum = 1;
 		if (rs != null && rs.first()) {
@@ -134,7 +135,7 @@ public class TraceGenerator {
 		String referenceString = sheetLookup.getSheetName() + "!$A$2:$A$" + (rownum);
 		reference.setRefersToFormula(referenceString);				
 		
-		sql = "Select * from " + DBKernel.delimitL("LookUps") + " WHERE " + DBKernel.delimitL("type") + "='TypeOfBusiness'";
+		sql = "Select * from " + MyDBI.delimitL("LookUps") + " WHERE " + MyDBI.delimitL("type") + "='TypeOfBusiness'";
 		rs = DBKernel.getResultSet(sql, false);
 		rownum = 1;
 		if (rs != null && rs.first()) {
@@ -152,7 +153,7 @@ public class TraceGenerator {
 		referenceString = sheetLookup.getSheetName() + "!$B$2:$B$" + (rownum);
 		reference.setRefersToFormula(referenceString);				
 		
-		sql = "Select * from " + DBKernel.delimitL("LookUps") + " WHERE " + DBKernel.delimitL("type") + "='Treatment'";
+		sql = "Select * from " + MyDBI.delimitL("LookUps") + " WHERE " + MyDBI.delimitL("type") + "='Treatment'";
 		rs = DBKernel.getResultSet(sql, false);
 		rownum = 1;
 		if (rs != null && rs.first()) {
@@ -170,7 +171,7 @@ public class TraceGenerator {
 		referenceString = sheetLookup.getSheetName() + "!$C$2:$C$" + (rownum);
 		reference.setRefersToFormula(referenceString);				
 		
-		sql = "Select * from " + DBKernel.delimitL("LookUps") + " WHERE " + DBKernel.delimitL("type") + "='Units'";
+		sql = "Select * from " + MyDBI.delimitL("LookUps") + " WHERE " + MyDBI.delimitL("type") + "='Units'";
 		rs = DBKernel.getResultSet(sql, false);
 		rownum = 1;
 		if (rs != null && rs.first()) {
@@ -189,7 +190,7 @@ public class TraceGenerator {
 		reference.setRefersToFormula(referenceString);			
 	}
 	private String getStationLookup(String stationID) throws SQLException {
-		String sql = "Select * from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("ID") + "=" + stationID;
+		String sql = "Select * from " + MyDBI.delimitL("Station") + " WHERE " + MyDBI.delimitL("ID") + "=" + stationID;
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			return getStationLookup(rs);
@@ -213,7 +214,7 @@ public class TraceGenerator {
 	}
 	private LinkedHashSet<String> getStationExtra() throws SQLException {
 		LinkedHashSet<String> result = new LinkedHashSet<String>();
-		String sql = "Select * from " + DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Station'";
+		String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Station'";
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
@@ -224,7 +225,7 @@ public class TraceGenerator {
 	}
 	private LinkedHashSet<String> getLotExtra() throws SQLException {
 		LinkedHashSet<String> result = new LinkedHashSet<String>();
-		String sql = "Select * from " + DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Chargen'";
+		String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Chargen'";
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
@@ -236,7 +237,7 @@ public class TraceGenerator {
 	}
 	private LinkedHashSet<String> getDeliveryExtra() throws SQLException {
 		LinkedHashSet<String> result = new LinkedHashSet<String>();
-		String sql = "Select * from " + DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Lieferungen'";
+		String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Lieferungen'";
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
 			do {
@@ -249,20 +250,20 @@ public class TraceGenerator {
 		int result = 0;
 		String tracingBusinessesSQL = "";
 		for (String s : business2Trace) {
-			tracingBusinessesSQL += " OR " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " = '" + s + "'";
+			tracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
 		}
-		String sql = "Select * from " + DBKernel.delimitL("Lieferungen") +
-				" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-				" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
-				" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-				" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-				" LEFT JOIN " + DBKernel.delimitL("Station") +
-				" ON " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
-				" LEFT JOIN " + DBKernel.delimitL("ChargenVerbindungen") +
-				" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") +
-				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") + " IS NULL " +
-				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
-				" ORDER BY " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + " ASC";
+		String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
+				" LEFT JOIN " + MyDBI.delimitL("Chargen") +
+				" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
+				" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
+				" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
+				" LEFT JOIN " + MyDBI.delimitL("Station") +
+				" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Empfänger") +
+				" LEFT JOIN " + MyDBI.delimitL("ChargenVerbindungen") +
+				" ON " + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") +
+				" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") + " IS NULL " +
+				" AND (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + tracingBusinessesSQL + ")" +
+				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -394,20 +395,20 @@ public class TraceGenerator {
 		int result = 0;
 		String backtracingBusinessesSQL = "";
 		for (String s : business2Backtrace) {
-			backtracingBusinessesSQL += " OR " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " = '" + s + "'";
+			backtracingBusinessesSQL += " OR " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " = '" + s + "'";
 		}
-		String sql = "Select * from " + DBKernel.delimitL("Lieferungen") +
-				" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-				" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
-				" LEFT JOIN " + DBKernel.delimitL("ChargenVerbindungen") +
-				" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") +
-				" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-				" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") +
-				" LEFT JOIN " + DBKernel.delimitL("Station") +
-				" ON " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
-				" WHERE " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + " IS NULL " +
-				" AND (" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
-				" ORDER BY " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + " ASC";
+		String sql = "Select * from " + MyDBI.delimitL("Lieferungen") +
+				" LEFT JOIN " + MyDBI.delimitL("Chargen") +
+				" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Lieferungen") + "." + MyDBI.delimitL("Charge") +
+				" LEFT JOIN " + MyDBI.delimitL("ChargenVerbindungen") +
+				" ON " + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Produkt") +
+				" LEFT JOIN " + MyDBI.delimitL("Produktkatalog") +
+				" ON " + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Chargen") + "." + MyDBI.delimitL("Artikel") +
+				" LEFT JOIN " + MyDBI.delimitL("Station") +
+				" ON " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + "=" + MyDBI.delimitL("Produktkatalog") + "." + MyDBI.delimitL("Station") +
+				" WHERE " + MyDBI.delimitL("ChargenVerbindungen") + "." + MyDBI.delimitL("Zutat") + " IS NULL " +
+				" AND (" + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("Betriebsart") + " IS NULL " + backtracingBusinessesSQL + ")" +
+				" ORDER BY " + MyDBI.delimitL("Station") + "." + MyDBI.delimitL("ID") + " ASC";
 		//System.err.println(sql);
 		ResultSet rs = DBKernel.getResultSet(sql, false);
 		if (rs != null && rs.first()) {
@@ -641,7 +642,7 @@ public class TraceGenerator {
 		if (isForward) result = cell.getStringCellValue();
 		
 		if (rs.getObject("Lieferungen.ID") != null) {
-			String sql = "Select * from " + DBKernel.delimitL("ExtraFields") + " WHERE " + DBKernel.delimitL("tablename") + "='Lieferungen' AND " + DBKernel.delimitL("id") + "=" + rs.getInt("Lieferungen.ID");
+			String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Lieferungen' AND " + MyDBI.delimitL("id") + "=" + rs.getInt("Lieferungen.ID");
 			ResultSet rs2 = DBKernel.getResultSet(sql, false);
 			if (rs2 != null && rs2.first()) {
 				do {

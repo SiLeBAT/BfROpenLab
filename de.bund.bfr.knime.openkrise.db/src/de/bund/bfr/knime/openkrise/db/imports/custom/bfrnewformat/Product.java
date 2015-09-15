@@ -1,10 +1,12 @@
 package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
+import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class Product {
 
@@ -36,14 +38,14 @@ public class Product {
 	public String getLogMessages() {
 		return logMessages;
 	}
-	public Integer getID(Integer miDbId) throws Exception {
+	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (dbId != null) return dbId;
-		Integer retId = getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId);
+		Integer retId = getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId, mydbi);
 		dbId = retId;
 		return retId;
 	}
-	private Integer getID(Station station, String[] feldnames, String[] feldVals, Integer miDbId) throws Exception {
-		Integer dbStatID = station.getID(miDbId);
+	private Integer getID(Station station, String[] feldnames, String[] feldVals, Integer miDbId, MyDBI mydbi) throws Exception {
+		Integer dbStatID = station.getID(miDbId, mydbi);
 		if (!station.getLogMessages().isEmpty()) logMessages += station.getLogMessages() + "\n";
 		if (dbStatID == null) {
 			logMessages += "Station unknown...\n";
@@ -51,31 +53,38 @@ public class Product {
 		}
 
 		Integer result = null;
-		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Produktkatalog") +
-				" WHERE " + DBKernel.delimitL("Station") + "=" + dbStatID;
-		String in = DBKernel.delimitL("Station") + "," + DBKernel.delimitL("ImportSources");
+		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Produktkatalog") +
+				" WHERE " + MyDBI.delimitL("Station") + "=" + dbStatID;
+		String in = MyDBI.delimitL("Station") + "," + MyDBI.delimitL("ImportSources");
 		String iv = dbStatID + ",';" + miDbId + ";'";
 		for (int i=0;i<feldnames.length;i++) {
 			if (feldVals[i] != null) {
-				sql += " AND UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
-				in += "," + DBKernel.delimitL(feldnames[i]);
+				sql += " AND UCASE(" + MyDBI.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'";
+				in += "," + MyDBI.delimitL(feldnames[i]);
 				iv += ",'" + feldVals[i] + "'";
 			}
 		}
 
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+		ResultSet rs = (mydbi != null ? mydbi.getResultSet(sql, false) : DBKernel.getResultSet(sql, false));
 
 		if (rs != null && rs.first()) {
 			result = rs.getInt(1);
+			rs.close();
 		}
 
 		if (result != null) {
-			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produktkatalog") + " SET " + DBKernel.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + DBKernel.delimitL("ImportSources") + ")=0,CONCAT(" + DBKernel.delimitL("ImportSources") + ", '" + miDbId + ";'), " + DBKernel.delimitL("ImportSources") + ") WHERE " + DBKernel.delimitL("ID") + "=" + result, false);
+			sql = "UPDATE " + MyDBI.delimitL("Produktkatalog") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
+			if (mydbi != null) mydbi.sendRequest(sql, false, false);
+			else DBKernel.sendRequest(sql, false);
 		}
 		else if (!iv.isEmpty()) {
-			sql = "INSERT INTO " + DBKernel.delimitL("Produktkatalog") + " (" + in + ") VALUES (" + iv + ")";
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+			sql = "INSERT INTO " + MyDBI.delimitL("Produktkatalog") + " (" + in + ") VALUES (" + iv + ")";
+			@SuppressWarnings("resource")
+			Connection conn = (mydbi != null ? mydbi.getConn() : DBKernel.getDBConnection());
+			PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			if (ps.executeUpdate() > 0) {
+				result = (mydbi != null ? mydbi.getLastInsertedID(ps) : DBKernel.getLastInsertedID(ps));
+			}
 		}
 
 		return result;
