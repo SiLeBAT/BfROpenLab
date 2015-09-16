@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -37,11 +38,13 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -115,6 +118,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private JComboBox<GisType> gisBox;
 
 	private JScrollPane northScrollPane;
+
+	private JDialog layoutDialog;
 
 	/**
 	 * New pane for configuring the TracingVisualizer node.
@@ -374,7 +379,28 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void layoutProcessStarted(ICanvas<?> source) {
+		layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(canvas.getComponent()), "Layout Process",
+				Dialog.DEFAULT_MODALITY_TYPE);
+		layoutDialog.add(BorderLayout.CENTER, UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")));
+		layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		layoutDialog.pack();
+		layoutDialog.setLocationRelativeTo(canvas.getComponent());
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				layoutDialog.setVisible(true);
+			}
+		}).start();
+	}
+
+	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
+		if (layoutDialog != null) {
+			layoutDialog.setVisible(false);
+		}
+
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
 		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build())) {
@@ -600,9 +626,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateCanvas() {
-		boolean undoEnabled = undoButton.isEnabled();
-		boolean redoEnabled = redoButton.isEnabled();
-
 		undoButton.setEnabled(false);
 		redoButton.setEnabled(false);
 
@@ -612,8 +635,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			ex.printStackTrace();
 		}
 
-		undoButton.setEnabled(undoEnabled);
-		redoButton.setEnabled(redoEnabled);
+		undoButton.setEnabled(!undoStack.isEmpty());
+		redoButton.setEnabled(!redoStack.isEmpty());
 	}
 
 	private void updateGisBox() {

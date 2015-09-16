@@ -277,6 +277,10 @@ public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener
 		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
+			for (CanvasListener listener : canvasListeners) {
+				listener.layoutProcessStarted(this);
+			}
+
 			new Thread(new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes))
 					.start();
 		} else {
