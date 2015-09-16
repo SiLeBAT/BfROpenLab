@@ -32,13 +32,17 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings;
 
 public class TracingChange {
 
 	public static class Builder {
+
+		private ViewDiff viewDiff;
 
 		private Set<String> nodesWithChangedSelection;
 		private Set<String> edgesWithChangedSelection;
@@ -68,7 +72,17 @@ public class TracingChange {
 		private boolean enforceTempChanged;
 		private boolean showForwardChanged;
 
+		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
+				GisType gisTypeAfter) {
+			Builder builder = new Builder();
+
+			builder.viewDiff = new ViewDiff(showGisBefore, showGisAfter, gisTypeBefore, gisTypeAfter);
+
+			return builder.build();
+		}
+
 		public Builder() {
+			viewDiff = null;
 			nodesWithChangedSelection = new LinkedHashSet<>();
 			edgesWithChangedSelection = new LinkedHashSet<>();
 			nodeHighlightingDiff = null;
@@ -207,6 +221,10 @@ public class TracingChange {
 		this.builder = builder;
 	}
 
+	public boolean isViewChange() {
+		return builder.viewDiff != null;
+	}
+
 	public void undo(ITracingCanvas<?> canvas) {
 		undoRedo(canvas, true);
 	}
@@ -215,8 +233,16 @@ public class TracingChange {
 		undoRedo(canvas, false);
 	}
 
-	public Map<String, Point2D> undoRedoNodePositions(Map<String, Point2D> nodePositions) {
-		return createMap(symDiff(nodePositions.entrySet(), builder.changedNodePositions));
+	public void undo(TracingViewSettings set) {
+		if (builder.viewDiff != null) {
+			builder.viewDiff.undoRedo(set, true);
+		}
+	}
+
+	public void redo(TracingViewSettings set) {
+		if (builder.viewDiff != null) {
+			builder.viewDiff.undoRedo(set, false);
+		}
 	}
 
 	private void undoRedo(ITracingCanvas<?> canvas, boolean undo) {
@@ -275,7 +301,9 @@ public class TracingChange {
 		}
 
 		if (canvas instanceof GraphCanvas && !builder.changedNodePositions.isEmpty()) {
-			((GraphCanvas) canvas).setNodePositions(undoRedoNodePositions(((GraphCanvas) canvas).getNodePositions()));
+			GraphCanvas c = (GraphCanvas) canvas;
+
+			c.setNodePositions(createMap(symDiff(c.getNodePositions().entrySet(), builder.changedNodePositions)));
 		}
 
 		if (!builder.changedNodeWeights.isEmpty()) {
@@ -318,7 +346,8 @@ public class TracingChange {
 	}
 
 	public boolean isIdentity() {
-		return builder.nodesWithChangedSelection.isEmpty() && builder.edgesWithChangedSelection.isEmpty()
+		return (builder.viewDiff == null || builder.viewDiff.isIdentity())
+				&& builder.nodesWithChangedSelection.isEmpty() && builder.edgesWithChangedSelection.isEmpty()
 				&& (builder.nodeHighlightingDiff == null || builder.nodeHighlightingDiff.isIdentity())
 				&& (builder.edgeHighlightingDiff == null || builder.edgeHighlightingDiff.isIdentity())
 				&& builder.changedNodePositions.isEmpty() && builder.changedCollapsedNodes.isEmpty()
@@ -342,6 +371,32 @@ public class TracingChange {
 		}
 
 		return map;
+	}
+
+	private static class ViewDiff {
+
+		private boolean showGisChanged;
+
+		private GisType gisTypeBefore;
+		private GisType gisTypeAfter;
+
+		public ViewDiff(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore, GisType gisTypeAfter) {
+			showGisChanged = showGisBefore != showGisAfter;
+			this.gisTypeBefore = gisTypeBefore;
+			this.gisTypeAfter = gisTypeAfter;
+		}
+
+		public void undoRedo(TracingViewSettings set, boolean undo) {
+			if (showGisChanged) {
+				set.setShowGis(!set.isShowGis());
+			}
+
+			set.setGisType(undo ? gisTypeBefore : gisTypeAfter);
+		}
+
+		public boolean isIdentity() {
+			return !showGisChanged && gisTypeBefore == gisTypeAfter;
+		}
 	}
 
 	private static class HighlightingDiff {

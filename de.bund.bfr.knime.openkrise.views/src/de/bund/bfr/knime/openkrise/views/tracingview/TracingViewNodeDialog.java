@@ -230,18 +230,26 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 			undoButton.setEnabled(!undoStack.isEmpty());
 
-			canvas.removeCanvasListener(this);
-			canvas.removeTracingListener(this);
-			change.undo(canvas);
-			canvas.addCanvasListener(this);
-			canvas.addTracingListener(this);
+			if (change.isViewChange()) {
+				change.undo(set);
+				gisBox.setEnabled(set.isShowGis());
+				gisBox.setSelectedItem(set.getGisType());
 
-			if (!(canvas instanceof GraphCanvas)) {
-				set.getGraphSettings()
-						.setNodePositions(change.undoRedoNodePositions(set.getGraphSettings().getNodePositions()));
+				try {
+					updateCanvas();
+				} catch (NotConfigurableException ex) {
+					ex.printStackTrace();
+				}
+			} else {
+				canvas.removeCanvasListener(this);
+				canvas.removeTracingListener(this);
+				change.undo(canvas);
+				canvas.addCanvasListener(this);
+				canvas.addTracingListener(this);
+
+				updateStatusVariables();
 			}
 
-			updateStatusVariables();
 			redoStack.push(change);
 			redoButton.setEnabled(true);
 		} else if (e.getSource() == redoButton) {
@@ -249,18 +257,26 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 			redoButton.setEnabled(!redoStack.isEmpty());
 
-			canvas.removeCanvasListener(this);
-			canvas.removeTracingListener(this);
-			change.redo(canvas);
-			canvas.addCanvasListener(this);
-			canvas.addTracingListener(this);
+			if (change.isViewChange()) {
+				change.redo(set);
+				gisBox.setEnabled(set.isShowGis());
+				gisBox.setSelectedItem(set.getGisType());
 
-			if (!(canvas instanceof GraphCanvas)) {
-				set.getGraphSettings()
-						.setNodePositions(change.undoRedoNodePositions(set.getGraphSettings().getNodePositions()));
+				try {
+					updateCanvas();
+				} catch (NotConfigurableException ex) {
+					ex.printStackTrace();
+				}
+			} else {
+				canvas.removeCanvasListener(this);
+				canvas.removeTracingListener(this);
+				change.redo(canvas);
+				canvas.addCanvasListener(this);
+				canvas.addTracingListener(this);
+
+				updateStatusVariables();
 			}
 
-			updateStatusVariables();
 			undoStack.push(change);
 			undoButton.setEnabled(true);
 		} else {
@@ -274,6 +290,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 				set.getObservedNodes().clear();
 				set.getObservedEdges().clear();
 			} else if (e.getSource() == switchButton) {
+				changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(),
+						set.getGisType(), set.getGisType()));
 				set.setShowGis(!set.isShowGis());
 				gisBox.setEnabled(set.isShowGis());
 			}
@@ -290,6 +308,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == gisBox && e.getStateChange() == ItemEvent.SELECTED) {
 			updateSettings();
+			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
+					(GisType) gisBox.getSelectedItem()));
 			set.setGisType((GisType) gisBox.getSelectedItem());
 
 			try {
