@@ -40,6 +40,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -271,23 +272,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 			undoStack.push(change);
 			undoButton.setEnabled(true);
-		} else {
-			if (e.getSource() == resetWeightsButton) {
-				set.getNodeWeights().clear();
-				set.getEdgeWeights().clear();
-			} else if (e.getSource() == resetCrossButton) {
-				set.getNodeCrossContaminations().clear();
-				set.getEdgeCrossContaminations().clear();
-			} else if (e.getSource() == resetFilterButton) {
-				set.getObservedNodes().clear();
-				set.getObservedEdges().clear();
-			} else if (e.getSource() == switchButton) {
-				changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(),
-						set.getGisType(), set.getGisType()));
-				set.setShowGis(!set.isShowGis());
-				gisBox.setEnabled(set.isShowGis());
-			}
-
+		} else if (e.getSource() == resetWeightsButton && doReset(resetWeightsButton.getText())) {
+			set.getNodeWeights().clear();
+			set.getEdgeWeights().clear();
+			undoStack.clear();
+			redoStack.clear();
+			updateCanvas();
+		} else if (e.getSource() == resetCrossButton && doReset(resetCrossButton.getText())) {
+			set.getNodeCrossContaminations().clear();
+			set.getEdgeCrossContaminations().clear();
+			undoStack.clear();
+			redoStack.clear();
+			updateCanvas();
+		} else if (e.getSource() == resetFilterButton && doReset(resetFilterButton.getText())) {
+			set.getObservedNodes().clear();
+			set.getObservedEdges().clear();
+			undoStack.clear();
+			redoStack.clear();
+			updateCanvas();
+		} else if (e.getSource() == switchButton) {
+			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(), set.getGisType(),
+					set.getGisType()));
+			set.setShowGis(!set.isShowGis());
+			gisBox.setEnabled(set.isShowGis());
 			updateCanvas();
 		}
 	}
@@ -695,6 +702,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
+	}
+
+	private boolean doReset(String name) {
+		return JOptionPane.showConfirmDialog(canvas.getComponent(), "This cannot be made undone. Proceed?", name,
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 
 	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {
