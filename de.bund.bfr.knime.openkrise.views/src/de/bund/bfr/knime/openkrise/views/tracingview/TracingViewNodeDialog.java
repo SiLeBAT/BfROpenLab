@@ -338,6 +338,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void transformChanged(ICanvas<?> source) {
+		// TODO Implement Transform undo
+	}
+
+	@Override
 	public void selectionChanged(ICanvas<?> source) {
 		Set<String> newNodeSelection = canvas.getSelectedNodeIds();
 		Set<String> newEdgeSelection = canvas.getSelectedEdgeIds();

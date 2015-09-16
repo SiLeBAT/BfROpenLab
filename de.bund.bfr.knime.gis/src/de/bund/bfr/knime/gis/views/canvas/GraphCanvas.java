@@ -37,8 +37,8 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingMoveListener;
 import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
 import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
@@ -53,7 +53,7 @@ import edu.uci.ics.jung.graph.Graph;
 /**
  * @author Christian Thoens
  */
-public class GraphCanvas extends Canvas<GraphNode>implements PickingMoveListener {
+public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphMousePlugin.MoveListener {
 
 	private static final long serialVersionUID = 1L;
 

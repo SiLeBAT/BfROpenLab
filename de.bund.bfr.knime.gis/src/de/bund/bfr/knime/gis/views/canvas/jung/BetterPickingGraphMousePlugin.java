@@ -43,8 +43,8 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
-	private List<PickingChangeListener> changeListeners;
-	private List<PickingMoveListener> moveListeners;
+	private List<ChangeListener> changeListeners;
+	private List<MoveListener> moveListeners;
 
 	private boolean nodesMoved;
 
@@ -55,19 +55,19 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		moveListeners = new ArrayList<>();
 	}
 
-	public void addPickingChangeListener(PickingChangeListener listener) {
+	public void addChangeListener(ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
-	public void removePickingChangeListener(PickingChangeListener listener) {
+	public void removeChangeListener(ChangeListener listener) {
 		changeListeners.remove(listener);
 	}
 
-	public void addPickingMoveListener(PickingMoveListener listener) {
+	public void addMoveListener(MoveListener listener) {
 		moveListeners.add(listener);
 	}
 
-	public void removePickingMoveListener(PickingMoveListener listener) {
+	public void removeMoveListener(MoveListener listener) {
 		moveListeners.remove(listener);
 	}
 
@@ -213,26 +213,40 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	}
 
 	private void firePickingChanged() {
-		for (PickingChangeListener listener : changeListeners) {
+		for (ChangeListener listener : changeListeners) {
 			listener.pickingChanged();
 		}
 	}
 
 	private void fireNodePickingChanged() {
-		for (PickingChangeListener listener : changeListeners) {
+		for (ChangeListener listener : changeListeners) {
 			listener.nodePickingChanged();
 		}
 	}
 
 	private void fireEdgePickingChanged() {
-		for (PickingChangeListener listener : changeListeners) {
+		for (ChangeListener listener : changeListeners) {
 			listener.edgePickingChanged();
 		}
 	}
 
 	private void fireNodesMoved() {
-		for (PickingMoveListener listener : moveListeners) {
+		for (MoveListener listener : moveListeners) {
 			listener.nodesMoved();
 		}
+	}
+
+	public interface ChangeListener {
+
+		void pickingChanged();
+
+		void nodePickingChanged();
+
+		void edgePickingChanged();
+	}
+
+	public interface MoveListener {
+
+		void nodesMoved();
 	}
 }

@@ -80,9 +80,9 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterTranslatingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
-import de.bund.bfr.knime.gis.views.canvas.jung.PickingChangeListener;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
@@ -97,7 +97,8 @@ import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, MouseListener,
-		PickingChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+		BetterPickingGraphMousePlugin.ChangeListener, BetterTranslatingGraphMousePlugin.ChangeListener,
+		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -166,6 +167,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
+		graphMouse.addTranslatingChangeListener(this);
 		graphMouse.addPickingChangeListener(this);
 
 		viewer.setGraphMouse(graphMouse);
@@ -537,6 +539,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		}
 
 		applyTransform();
+	}
+
+	@Override
+	public void translatingChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.transformChanged(this);
+		}
 	}
 
 	@Override

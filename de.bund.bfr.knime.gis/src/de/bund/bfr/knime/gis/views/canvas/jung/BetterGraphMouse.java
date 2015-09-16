@@ -19,10 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
-import java.awt.event.InputEvent;
-
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 
 public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
@@ -32,7 +29,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 			BetterScalingGraphMousePlugin scalingPlugin) {
 		super(1, 1);
 
-		translatingPlugin = new TranslatingGraphMousePlugin(InputEvent.BUTTON1_MASK);
+		translatingPlugin = new BetterTranslatingGraphMousePlugin();
 		this.pickingPlugin = pickingPlugin;
 		this.scalingPlugin = scalingPlugin;
 		pickingDeactivated = false;
@@ -58,24 +55,32 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 		add(translatingPlugin);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void addPickingChangeListener(PickingChangeListener listener) {
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addPickingChangeListener(listener);
+	public void addTranslatingChangeListener(BetterTranslatingGraphMousePlugin.ChangeListener listener) {
+		((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
+	}
+
+	public void removeTranslatingChangeListener(BetterTranslatingGraphMousePlugin.ChangeListener listener) {
+		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void removePickingChangeListener(PickingChangeListener listener) {
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removePickingChangeListener(listener);
+	public void addPickingChangeListener(BetterPickingGraphMousePlugin.ChangeListener listener) {
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addPickingMoveListener(PickingMoveListener listener) {
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addPickingMoveListener(listener);
+	public void removePickingChangeListener(BetterPickingGraphMousePlugin.ChangeListener listener) {
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void removePickingMoveListener(PickingMoveListener listener) {
-		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removePickingMoveListener(listener);
+	public void addPickingMoveListener(BetterPickingGraphMousePlugin.MoveListener listener) {
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addMoveListener(listener);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void removePickingMoveListener(BetterPickingGraphMousePlugin.MoveListener listener) {
+		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeMoveListener(listener);
 	}
 
 	public boolean isPickingDeactivated() {

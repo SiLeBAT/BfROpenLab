@@ -45,12 +45,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 		VisualizationViewer<?, ?> vv = (VisualizationViewer<?, ?>) e.getSource();
 
-		if (e.getWheelRotation() > 0) {
-			new LayoutScalingControl().scale(vv, in, e.getPoint());
-		} else {
-			new LayoutScalingControl().scale(vv, out, e.getPoint());
-		}
-
+		new LayoutScalingControl().scale(vv, e.getWheelRotation() > 0 ? in : out, e.getPoint());
 		vv.repaint();
 	}
 }
