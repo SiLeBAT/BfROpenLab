@@ -205,7 +205,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		resized = set.getCanvasSize() == null;
 		panel.addComponentListener(this);
 
-		String warning = updateCanvas();
+		String warning = createCanvas();
 
 		if (warning != null) {
 			new Thread(new NodeDialogWarningThread(panel, warning)).start();
@@ -231,14 +231,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 			if (change.isViewChange()) {
 				change.undo(set);
-				gisBox.setEnabled(set.isShowGis());
-				gisBox.setSelectedItem(set.getGisType());
-
-				try {
-					updateCanvas();
-				} catch (NotConfigurableException ex) {
-					ex.printStackTrace();
-				}
+				updateGisBox();
+				updateCanvas();
 			} else {
 				canvas.removeCanvasListener(this);
 				canvas.removeTracingListener(this);
@@ -258,14 +252,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 			if (change.isViewChange()) {
 				change.redo(set);
-				gisBox.setEnabled(set.isShowGis());
-				gisBox.setSelectedItem(set.getGisType());
-
-				try {
-					updateCanvas();
-				} catch (NotConfigurableException ex) {
-					ex.printStackTrace();
-				}
+				updateGisBox();
+				updateCanvas();
 			} else {
 				canvas.removeCanvasListener(this);
 				canvas.removeTracingListener(this);
@@ -295,11 +283,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 				gisBox.setEnabled(set.isShowGis());
 			}
 
-			try {
-				updateCanvas();
-			} catch (NotConfigurableException ex) {
-				ex.printStackTrace();
-			}
+			updateCanvas();
 		}
 	}
 
@@ -310,12 +294,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
 					(GisType) gisBox.getSelectedItem()));
 			set.setGisType((GisType) gisBox.getSelectedItem());
-
-			try {
-				updateCanvas();
-			} catch (NotConfigurableException ex) {
-				ex.printStackTrace();
-			}
+			updateCanvas();
 		}
 	}
 
@@ -583,7 +562,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private String updateCanvas() throws NotConfigurableException {
+	private String createCanvas() throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
 		}
@@ -618,6 +597,30 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		panel.revalidate();
 
 		return warning;
+	}
+
+	private void updateCanvas() {
+		boolean undoEnabled = undoButton.isEnabled();
+		boolean redoEnabled = redoButton.isEnabled();
+
+		undoButton.setEnabled(false);
+		redoButton.setEnabled(false);
+
+		try {
+			createCanvas();
+		} catch (NotConfigurableException ex) {
+			ex.printStackTrace();
+		}
+
+		undoButton.setEnabled(undoEnabled);
+		redoButton.setEnabled(redoEnabled);
+	}
+
+	private void updateGisBox() {
+		gisBox.removeItemListener(this);
+		gisBox.setEnabled(set.isShowGis());
+		gisBox.setSelectedItem(set.getGisType());
+		gisBox.addItemListener(this);
 	}
 
 	private void updateSettings() {
