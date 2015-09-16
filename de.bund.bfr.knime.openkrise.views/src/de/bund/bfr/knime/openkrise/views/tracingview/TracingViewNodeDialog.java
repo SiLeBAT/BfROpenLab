@@ -60,7 +60,6 @@ import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
-import de.bund.bfr.knime.openkrise.views.canvas.TracingChange;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 
 /**

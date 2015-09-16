@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.canvas;
+package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.openkrise.views.tracingview.TracingViewSettings;
+import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
 public class TracingChange {
 
