@@ -62,6 +62,7 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
@@ -88,6 +89,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private Deque<TracingChange> undoStack;
 	private Deque<TracingChange> redoStack;
 
+	private Transform transform;
 	private Set<String> selectedNodes;
 	private Set<String> selectedEdges;
 	private HighlightConditionList nodeHighlighting;
@@ -130,6 +132,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		undoStack = new LinkedList<>();
 		redoStack = new LinkedList<>();
 
+		transform = null;
 		selectedNodes = null;
 		selectedEdges = null;
 		nodeHighlighting = null;
@@ -228,14 +231,13 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		updateSettings();
-
 		if (e.getSource() == undoButton) {
 			TracingChange change = undoStack.pop();
 
 			undoButton.setEnabled(!undoStack.isEmpty());
 
 			if (change.isViewChange()) {
+				updateSettings();
 				change.undo(set);
 				updateGisBox();
 				updateCanvas();
@@ -257,6 +259,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			redoButton.setEnabled(!redoStack.isEmpty());
 
 			if (change.isViewChange()) {
+				updateSettings();
 				change.redo(set);
 				updateGisBox();
 				updateCanvas();
@@ -273,24 +276,28 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			undoStack.push(change);
 			undoButton.setEnabled(true);
 		} else if (e.getSource() == resetWeightsButton && doReset(resetWeightsButton.getText())) {
+			updateSettings();
 			set.getNodeWeights().clear();
 			set.getEdgeWeights().clear();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
 		} else if (e.getSource() == resetCrossButton && doReset(resetCrossButton.getText())) {
+			updateSettings();
 			set.getNodeCrossContaminations().clear();
 			set.getEdgeCrossContaminations().clear();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
 		} else if (e.getSource() == resetFilterButton && doReset(resetFilterButton.getText())) {
+			updateSettings();
 			set.getObservedNodes().clear();
 			set.getObservedEdges().clear();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
 		} else if (e.getSource() == switchButton) {
+			updateSettings();
 			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(), set.getGisType(),
 					set.getGisType()));
 			set.setShowGis(!set.isShowGis());
@@ -339,7 +346,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void transformChanged(ICanvas<?> source) {
-		// TODO Implement Transform undo
+		Transform newTransform = canvas.getTransform();
+
+		if (changeOccured(new TracingChange.Builder().transform(transform, newTransform).build())) {
+			transform = newTransform;
+		}
 	}
 
 	@Override
@@ -643,6 +654,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			createCanvas();
+			updateStatusVariables();
 		} catch (NotConfigurableException ex) {
 			ex.printStackTrace();
 		}
@@ -683,6 +695,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateStatusVariables() {
+		transform = canvas.getTransform();
 		selectedNodes = new LinkedHashSet<>(canvas.getSelectedNodeIds());
 		selectedEdges = new LinkedHashSet<>(canvas.getSelectedEdgeIds());
 		nodeHighlighting = canvas.getNodeHighlightConditions().copy();

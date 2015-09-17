@@ -65,6 +65,15 @@ public class Transform {
 		return translationY;
 	}
 
+	public Transform inverse() {
+		return new Transform(1 / scaleX, 1 / scaleY, -translationX / scaleX, -translationY / scaleY);
+	}
+
+	public Transform concatenate(Transform t) {
+		return new Transform(scaleX * t.scaleX, scaleY * t.scaleY, translationX * t.scaleX + t.translationX,
+				translationY * t.scaleY + t.translationY);
+	}
+
 	public boolean isValid() {
 		return !Double.isNaN(scaleX) && !Double.isNaN(scaleY) && !Double.isNaN(translationX)
 				&& !Double.isNaN(translationY) && !Double.isInfinite(scaleX) && !Double.isInfinite(scaleY)

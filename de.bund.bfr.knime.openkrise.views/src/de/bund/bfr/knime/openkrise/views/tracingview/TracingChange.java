@@ -34,6 +34,7 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
+import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
@@ -43,6 +44,8 @@ public class TracingChange {
 	public static class Builder {
 
 		private ViewDiff viewDiff;
+
+		private Transform transformDiff;
 
 		private Set<String> nodesWithChangedSelection;
 		private Set<String> edgesWithChangedSelection;
@@ -83,6 +86,7 @@ public class TracingChange {
 
 		public Builder() {
 			viewDiff = null;
+			transformDiff = null;
 			nodesWithChangedSelection = new LinkedHashSet<>();
 			edgesWithChangedSelection = new LinkedHashSet<>();
 			nodeHighlightingDiff = null;
@@ -103,6 +107,11 @@ public class TracingChange {
 			showEdgesInMetaChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
+		}
+
+		public Builder transform(Transform transformBefore, Transform transformAfter) {
+			transformDiff = transformAfter.concatenate(transformBefore.inverse());
+			return this;
 		}
 
 		public Builder selectedNodes(Set<String> selectedNodesBefore, Set<String> selectedNodesAfter) {
@@ -246,6 +255,14 @@ public class TracingChange {
 	}
 
 	private void undoRedo(ITracingCanvas<?> canvas, boolean undo) {
+		if (builder.transformDiff != null && !builder.transformDiff.equals(Transform.IDENTITY_TRANSFORM)) {
+			if (undo) {
+				canvas.setTransform(builder.transformDiff.inverse().concatenate(canvas.getTransform()));
+			} else {
+				canvas.setTransform(builder.transformDiff.concatenate(canvas.getTransform()));
+			}
+		}
+
 		if (builder.edgeJoinChanged) {
 			canvas.setJoinEdges(!canvas.isJoinEdges());
 		}
@@ -347,6 +364,7 @@ public class TracingChange {
 
 	public boolean isIdentity() {
 		return (builder.viewDiff == null || builder.viewDiff.isIdentity())
+				&& (builder.transformDiff == null || builder.transformDiff.equals(Transform.IDENTITY_TRANSFORM))
 				&& builder.nodesWithChangedSelection.isEmpty() && builder.edgesWithChangedSelection.isEmpty()
 				&& (builder.nodeHighlightingDiff == null || builder.nodeHighlightingDiff.isIdentity())
 				&& (builder.edgeHighlightingDiff == null || builder.edgeHighlightingDiff.isIdentity())
