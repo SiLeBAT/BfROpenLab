@@ -419,11 +419,21 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodePositionsChanged(ICanvas<?> source) {
-		if (layoutDialog != null) {
-			layoutDialog.setVisible(false);
-		}
+	public void layoutProcessFinished(ICanvas<?> source) {
+		layoutDialog.setVisible(false);
 
+		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
+		Transform newTransform = canvas.getTransform();
+
+		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions)
+				.transform(transform, newTransform).build())) {
+			nodePositions = new LinkedHashMap<>(newPositions);
+			transform = newTransform;
+		}
+	}
+
+	@Override
+	public void nodePositionsChanged(ICanvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 
 		if (changeOccured(new TracingChange.Builder().nodePositions(nodePositions, newPositions).build())) {

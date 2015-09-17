@@ -177,6 +177,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
+	public void layoutProcessFinished(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
 	}
 

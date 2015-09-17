@@ -209,6 +209,18 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 		return newNode;
 	}
 
+	private void fireLayoutProcessStarted() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.layoutProcessStarted(this);
+		}
+	}
+
+	private void fireLayoutProcessFinished() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.layoutProcessFinished(this);
+		}
+	}
+
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes, boolean avoidIterations) {
 		Set<GraphNode> nodesForLayout = new LinkedHashSet<>(KnimeUtils.nullToEmpty(selectedNodes));
 		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
@@ -277,15 +289,12 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
 
 		if (layout instanceof IterativeContext && !avoidIterations) {
-			for (CanvasListener listener : canvasListeners) {
-				listener.layoutProcessStarted(this);
-			}
-
+			fireLayoutProcessStarted();
 			new Thread(new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes))
 					.start();
 		} else {
 			setNodePositions(getNodePositions());
-			nodesMoved();
+			fireLayoutProcessFinished();
 		}
 	}
 
@@ -335,7 +344,7 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 
 				if (layoutProcess.done()) {
 					setNodePositions(getNodePositions());
-					nodesMoved();
+					fireLayoutProcessFinished();
 					break;
 				}
 

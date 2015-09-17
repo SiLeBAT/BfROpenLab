@@ -181,6 +181,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void layoutProcessFinished(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
 	}
 

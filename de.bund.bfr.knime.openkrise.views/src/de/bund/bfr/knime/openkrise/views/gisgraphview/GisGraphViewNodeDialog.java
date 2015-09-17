@@ -176,6 +176,10 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
+	public void layoutProcessFinished(ICanvas<?> source) {
+	}
+
+	@Override
 	public void nodePositionsChanged(ICanvas<?> source) {
 	}
 

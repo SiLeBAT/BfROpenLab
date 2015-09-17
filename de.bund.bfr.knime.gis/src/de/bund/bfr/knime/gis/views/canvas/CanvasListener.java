@@ -35,6 +35,8 @@ public interface CanvasListener {
 
 	void layoutProcessStarted(ICanvas<?> source);
 
+	void layoutProcessFinished(ICanvas<?> source);
+
 	void nodePositionsChanged(ICanvas<?> source);
 
 	void edgeJoinChanged(ICanvas<?> source);
