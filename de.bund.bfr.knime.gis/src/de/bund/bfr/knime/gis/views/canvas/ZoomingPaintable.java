@@ -38,7 +38,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseListener {
 
-	private ICanvas<?> canvas;
+	private Canvas<?> canvas;
 	private double zoomFactor;
 
 	private Rectangle plusRect;
@@ -47,7 +47,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 	private boolean plusFocused;
 	private boolean minusFocused;
 
-	public ZoomingPaintable(ICanvas<?> canvas, double zoomFactor) {
+	public ZoomingPaintable(Canvas<?> canvas, double zoomFactor) {
 		this.canvas = canvas;
 		this.zoomFactor = zoomFactor;
 		plusRect = null;
@@ -134,6 +134,8 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 				transformer.scale(1 / zoomFactor, 1 / zoomFactor, center);
 				viewer.repaint();
 			}
+
+			canvas.scalingChanged();
 		}
 	}
 
