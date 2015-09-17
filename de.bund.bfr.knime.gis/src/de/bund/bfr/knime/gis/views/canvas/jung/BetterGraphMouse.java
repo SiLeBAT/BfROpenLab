@@ -63,6 +63,14 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 	}
 
+	public void addScalingChangeListener(BetterScalingGraphMousePlugin.ChangeListener listener) {
+		((BetterScalingGraphMousePlugin) scalingPlugin).addChangeListener(listener);
+	}
+
+	public void removeScalingChangeListener(BetterScalingGraphMousePlugin.ChangeListener listener) {
+		((BetterScalingGraphMousePlugin) scalingPlugin).removeChangeListener(listener);
+	}
+
 	@SuppressWarnings("unchecked")
 	public void addPickingChangeListener(BetterPickingGraphMousePlugin.ChangeListener listener) {
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);

@@ -96,8 +96,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, MouseListener,
-		BetterPickingGraphMousePlugin.ChangeListener, BetterTranslatingGraphMousePlugin.ChangeListener,
+public abstract class Canvas<V extends Node> extends JPanel
+		implements ChangeListener, MouseListener, BetterPickingGraphMousePlugin.ChangeListener,
+		BetterTranslatingGraphMousePlugin.ChangeListener, BetterScalingGraphMousePlugin.ChangeListener,
 		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
@@ -168,6 +169,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
 		graphMouse.addTranslatingChangeListener(this);
+		graphMouse.addScalingChangeListener(this);
 		graphMouse.addPickingChangeListener(this);
 
 		viewer.setGraphMouse(graphMouse);
@@ -543,6 +545,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void translatingChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.transformChanged(this);
+		}
+	}
+
+	@Override
+	public void scalingChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.transformChanged(this);
 		}

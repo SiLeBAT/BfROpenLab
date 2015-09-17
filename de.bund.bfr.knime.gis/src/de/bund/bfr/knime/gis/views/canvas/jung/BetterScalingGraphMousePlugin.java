@@ -21,12 +21,21 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 
-public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener {
+public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener, Runnable {
+
+	private static final long TIME_OUT = (long) 2e8;
+
+	private List<ChangeListener> changeListeners;
+
+	private Thread changeThread;
+	private long lastEvent;
 
 	protected float in;
 	protected float out;
@@ -35,6 +44,17 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		super(0);
 		this.in = in;
 		this.out = out;
+		changeListeners = new ArrayList<>();
+		changeThread = null;
+		lastEvent = 0;
+	}
+
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+	}
+
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
 	}
 
 	@Override
@@ -47,5 +67,36 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 		new LayoutScalingControl().scale(vv, e.getWheelRotation() > 0 ? in : out, e.getPoint());
 		vv.repaint();
+		lastEvent = System.nanoTime();
+
+		if (changeThread == null || !changeThread.isAlive()) {
+			changeThread = new Thread(this);
+			changeThread.start();
+		}
+	}
+
+	@Override
+	public void run() {
+		while (true) {
+			long wait = lastEvent + TIME_OUT - System.nanoTime();
+
+			if (wait <= 0) {
+				break;
+			}
+
+			try {
+				Thread.sleep(wait / (long) 1e6);
+			} catch (InterruptedException e) {
+			}
+		}
+
+		for (ChangeListener listener : changeListeners) {
+			listener.scalingChanged();
+		}
+	}
+
+	public interface ChangeListener {
+
+		void scalingChanged();
 	}
 }
