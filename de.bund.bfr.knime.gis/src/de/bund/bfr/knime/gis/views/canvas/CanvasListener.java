@@ -48,4 +48,12 @@ public interface CanvasListener {
 	void collapsedNodesChanged(ICanvas<?> source);
 
 	void collapsedNodesAndPickingChanged(ICanvas<?> source);
+
+	void nodeSizeChanged();
+
+	void nodeMaxSizeChanged();
+
+	void edgeThicknessChanged();
+
+	void edgeMaxThicknessChanged();
 }

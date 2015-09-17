@@ -111,6 +111,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
 
+	private int nodeSize;
+	private Integer nodeMaxSize;
+	private int edgeThickness;
+	private Integer edgeMaxThickness;
+
 	private JButton undoButton;
 	private JButton redoButton;
 	private JButton resetWeightsButton;
@@ -131,27 +136,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		set = new TracingViewSettings();
 		undoStack = new LinkedList<>();
 		redoStack = new LinkedList<>();
-
-		transform = null;
-		selectedNodes = null;
-		selectedEdges = null;
-		nodeHighlighting = null;
-		edgeHighlighting = null;
-		nodePositions = null;
-		collapsedNodes = null;
-		nodeWeights = null;
-		edgeWeights = null;
-		nodeCrossContaminations = null;
-		edgeCrossContaminations = null;
-		nodeKillContaminations = null;
-		edgeKillContaminations = null;
-		observedNodes = null;
-		observedEdges = null;
-		joinEdges = false;
-		skipEdgelessNodes = false;
-		showEdgesInMetaNode = false;
-		enforeTemporalOrder = false;
-		showForward = false;
 
 		undoButton = new JButton("Undo");
 		undoButton.addActionListener(this);
@@ -491,6 +475,43 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void nodeSizeChanged() {
+		int newNodeSize = canvas.getNodeSize();
+
+		if (changeOccured(new TracingChange.Builder().nodeSize(nodeSize, newNodeSize).build())) {
+			nodeSize = newNodeSize;
+		}
+	}
+
+	@Override
+	public void nodeMaxSizeChanged() {
+		Integer newNodeMaxSize = canvas.getNodeMaxSize();
+
+		if (changeOccured(new TracingChange.Builder().nodeMaxSize(nodeMaxSize, newNodeMaxSize).build())) {
+			nodeMaxSize = newNodeMaxSize;
+		}
+	}
+
+	@Override
+	public void edgeThicknessChanged() {
+		int newEdgeThickness = canvas.getEdgeThickness();
+
+		if (changeOccured(new TracingChange.Builder().edgeThickness(edgeThickness, newEdgeThickness).build())) {
+			edgeThickness = newEdgeThickness;
+		}
+	}
+
+	@Override
+	public void edgeMaxThicknessChanged() {
+		Integer newEdgeMaxThickness = canvas.getEdgeMaxThickness();
+
+		if (changeOccured(
+				new TracingChange.Builder().edgeMaxThickness(edgeMaxThickness, newEdgeMaxThickness).build())) {
+			edgeMaxThickness = newEdgeMaxThickness;
+		}
+	}
+
+	@Override
 	public void nodePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
@@ -730,6 +751,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
+
+		nodeSize = canvas.getNodeSize();
+		nodeMaxSize = canvas.getNodeMaxSize();
+		edgeThickness = canvas.getEdgeThickness();
+		edgeMaxThickness = canvas.getEdgeMaxThickness();
 	}
 
 	private boolean doReset(String name) {

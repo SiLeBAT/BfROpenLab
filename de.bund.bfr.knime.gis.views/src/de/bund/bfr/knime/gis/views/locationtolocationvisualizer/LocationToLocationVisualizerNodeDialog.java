@@ -255,6 +255,22 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		}
 	}
 
+	@Override
+	public void nodeSizeChanged() {
+	}
+
+	@Override
+	public void nodeMaxSizeChanged() {
+	}
+
+	@Override
+	public void edgeThicknessChanged() {
+	}
+
+	@Override
+	public void edgeMaxThicknessChanged() {
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);

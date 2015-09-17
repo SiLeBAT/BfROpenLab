@@ -26,7 +26,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
+import org.knime.core.util.Pair;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -75,6 +78,11 @@ public class TracingChange {
 		private boolean enforceTempChanged;
 		private boolean showForwardChanged;
 
+		private Pair<Integer, Integer> nodeSizeDiff;
+		private Pair<Integer, Integer> nodeMaxSizeDiff;
+		private Pair<Integer, Integer> edgeThicknessDiff;
+		private Pair<Integer, Integer> edgeMaxThicknessDiff;
+
 		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
 				GisType gisTypeAfter) {
 			Builder builder = new Builder();
@@ -107,6 +115,11 @@ public class TracingChange {
 			showEdgesInMetaChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
+
+			nodeSizeDiff = null;
+			nodeMaxSizeDiff = null;
+			edgeThicknessDiff = null;
+			edgeMaxThicknessDiff = null;
 		}
 
 		public Builder transform(Transform transformBefore, Transform transformAfter) {
@@ -216,6 +229,26 @@ public class TracingChange {
 
 		public Builder showForwardChanged(boolean showForwardBefore, boolean showForwardAfter) {
 			showForwardChanged = showForwardBefore != showForwardAfter;
+			return this;
+		}
+
+		public Builder nodeSize(int nodeSizeBefore, int nodeSizeAfter) {
+			nodeSizeDiff = createIntDiff(nodeSizeBefore, nodeSizeAfter);
+			return this;
+		}
+
+		public Builder nodeMaxSize(Integer nodeMaxSizeBefore, Integer nodeMaxSizeAfter) {
+			nodeMaxSizeDiff = createIntDiff(nodeMaxSizeBefore, nodeMaxSizeAfter);
+			return this;
+		}
+
+		public Builder edgeThickness(int edgeThicknessBefore, int edgeThicknessAfter) {
+			edgeThicknessDiff = createIntDiff(edgeThicknessBefore, edgeThicknessAfter);
+			return this;
+		}
+
+		public Builder edgeMaxThickness(Integer edgeMaxThicknessBefore, Integer edgeMaxThicknessAfter) {
+			edgeMaxThicknessDiff = createIntDiff(edgeMaxThicknessBefore, edgeMaxThicknessAfter);
 			return this;
 		}
 
@@ -360,6 +393,24 @@ public class TracingChange {
 			canvas.setObservedEdges(
 					createMap(symDiff(canvas.getObservedEdges().entrySet(), builder.changedObservedEdges)));
 		}
+
+		if (builder.nodeSizeDiff != null) {
+			canvas.setNodeSize(undo ? builder.nodeSizeDiff.getFirst() : builder.nodeSizeDiff.getSecond());
+		}
+
+		if (builder.nodeMaxSizeDiff != null) {
+			canvas.setNodeMaxSize(undo ? builder.nodeMaxSizeDiff.getFirst() : builder.nodeMaxSizeDiff.getSecond());
+		}
+
+		if (builder.edgeThicknessDiff != null) {
+			canvas.setEdgeThickness(
+					undo ? builder.edgeThicknessDiff.getFirst() : builder.edgeThicknessDiff.getSecond());
+		}
+
+		if (builder.edgeMaxThicknessDiff != null) {
+			canvas.setEdgeMaxThickness(
+					undo ? builder.edgeMaxThicknessDiff.getFirst() : builder.edgeMaxThicknessDiff.getSecond());
+		}
 	}
 
 	public boolean isIdentity() {
@@ -374,7 +425,9 @@ public class TracingChange {
 				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
 				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
-				&& !builder.enforceTempChanged && !builder.showForwardChanged;
+				&& !builder.enforceTempChanged && !builder.showForwardChanged && builder.nodeSizeDiff == null
+				&& builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
+				&& builder.edgeMaxThicknessDiff == null;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {
@@ -389,6 +442,10 @@ public class TracingChange {
 		}
 
 		return map;
+	}
+
+	private static Pair<Integer, Integer> createIntDiff(Integer before, Integer after) {
+		return !Objects.equals(before, after) ? new Pair<>(before, after) : null;
 	}
 
 	private static class ViewDiff {
