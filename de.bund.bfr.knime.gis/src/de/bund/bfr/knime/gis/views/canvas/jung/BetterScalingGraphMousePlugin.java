@@ -32,7 +32,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 	private static final long TIME_OUT = (long) 2e8;
 
-	private List<ChangeListener> changeListeners;
+	private List<BetterGraphMouse.ChangeListener> changeListeners;
 
 	private Thread changeThread;
 	private long lastEvent;
@@ -49,11 +49,11 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		lastEvent = 0;
 	}
 
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.remove(listener);
 	}
 
@@ -90,13 +90,8 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 			}
 		}
 
-		for (ChangeListener listener : changeListeners) {
-			listener.scalingChanged();
+		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
+			listener.transformChanged();
 		}
-	}
-
-	public interface ChangeListener {
-
-		void scalingChanged();
 	}
 }

@@ -43,32 +43,21 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
-	private List<ChangeListener> changeListeners;
-	private List<MoveListener> moveListeners;
+	private List<BetterGraphMouse.ChangeListener> changeListeners;
 
 	private boolean nodesMoved;
 
 	public BetterPickingGraphMousePlugin() {
 		super(0);
-
 		changeListeners = new ArrayList<>();
-		moveListeners = new ArrayList<>();
 	}
 
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.remove(listener);
-	}
-
-	public void addMoveListener(MoveListener listener) {
-		moveListeners.add(listener);
-	}
-
-	public void removeMoveListener(MoveListener listener) {
-		moveListeners.remove(listener);
 	}
 
 	@Override
@@ -213,40 +202,26 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	}
 
 	private void firePickingChanged() {
-		for (ChangeListener listener : changeListeners) {
+		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
 			listener.pickingChanged();
 		}
 	}
 
 	private void fireNodePickingChanged() {
-		for (ChangeListener listener : changeListeners) {
+		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
 			listener.nodePickingChanged();
 		}
 	}
 
 	private void fireEdgePickingChanged() {
-		for (ChangeListener listener : changeListeners) {
+		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
 			listener.edgePickingChanged();
 		}
 	}
 
 	private void fireNodesMoved() {
-		for (MoveListener listener : moveListeners) {
+		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
 			listener.nodesMoved();
 		}
-	}
-
-	public interface ChangeListener {
-
-		void pickingChanged();
-
-		void nodePickingChanged();
-
-		void edgePickingChanged();
-	}
-
-	public interface MoveListener {
-
-		void nodesMoved();
 	}
 }

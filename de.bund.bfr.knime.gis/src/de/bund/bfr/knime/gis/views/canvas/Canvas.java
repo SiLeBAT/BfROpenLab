@@ -80,7 +80,6 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterTranslatingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
@@ -96,10 +95,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel
-		implements ChangeListener, MouseListener, BetterPickingGraphMousePlugin.ChangeListener,
-		BetterTranslatingGraphMousePlugin.ChangeListener, BetterScalingGraphMousePlugin.ChangeListener,
-		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, MouseListener,
+		BetterGraphMouse.ChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -168,9 +165,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
 		graphMouse.setMode(CanvasOptionsPanel.DEFAULT_MODE);
-		graphMouse.addTranslatingChangeListener(this);
-		graphMouse.addScalingChangeListener(this);
-		graphMouse.addPickingChangeListener(this);
+		graphMouse.addChangeListener(this);
 
 		viewer.setGraphMouse(graphMouse);
 
@@ -544,14 +539,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
-	public void translatingChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.transformChanged(this);
-		}
-	}
-
-	@Override
-	public void scalingChanged() {
+	public void transformChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.transformChanged(this);
 		}
@@ -582,6 +570,13 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		for (CanvasListener listener : canvasListeners) {
 			listener.edgeSelectionChanged(this);
+		}
+	}
+
+	@Override
+	public void nodesMoved() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.nodePositionsChanged(this);
 		}
 	}
 

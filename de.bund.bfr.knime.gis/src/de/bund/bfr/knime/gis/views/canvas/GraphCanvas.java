@@ -36,8 +36,6 @@ import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -48,7 +46,7 @@ import edu.uci.ics.jung.graph.Graph;
 /**
  * @author Christian Thoens
  */
-public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphMousePlugin.MoveListener {
+public class GraphCanvas extends Canvas<GraphNode> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,7 +55,6 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 				new EdgePropertySchema(), naming, allowCollapse);
 	}
 
-	@SuppressWarnings("unchecked")
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
 			EdgePropertySchema edgeSchema, Naming naming, boolean allowCollapse) {
 		super(nodes, edges, nodeSchema, edgeSchema, naming);
@@ -66,7 +63,6 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext()
 				.setVertexShapeTransformer(new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
-		((BetterGraphMouse<GraphNode, Edge<GraphNode>>) viewer.getGraphMouse()).addPickingMoveListener(this);
 	}
 
 	public void initLayout() {
@@ -163,13 +159,6 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 	@Override
 	public void editingModeChanged() {
 		super.editingModeChanged();
-	}
-
-	@Override
-	public void nodesMoved() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodePositionsChanged(this);
-		}
 	}
 
 	@Override

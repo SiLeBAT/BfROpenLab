@@ -35,7 +35,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 		implements MouseListener, MouseMotionListener {
 
-	private List<ChangeListener> changeListeners;
+	private List<BetterGraphMouse.ChangeListener> changeListeners;
 
 	private boolean changed;
 
@@ -44,11 +44,11 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 		changeListeners = new ArrayList<>();
 	}
 
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
 		changeListeners.remove(listener);
 	}
 
@@ -73,8 +73,8 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 			vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (changed) {
-				for (ChangeListener listener : changeListeners) {
-					listener.translatingChanged();
+				for (BetterGraphMouse.ChangeListener listener : changeListeners) {
+					listener.transformChanged();
 				}
 			}
 		}
@@ -112,10 +112,5 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-	}
-
-	public interface ChangeListener {
-
-		void translatingChanged();
 	}
 }
