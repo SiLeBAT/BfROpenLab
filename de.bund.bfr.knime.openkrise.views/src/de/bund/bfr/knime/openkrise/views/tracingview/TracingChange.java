@@ -74,6 +74,7 @@ public class TracingChange {
 		private boolean edgeJoinChanged;
 		private boolean skipEdgelessChanged;
 		private boolean showEdgesInMetaChanged;
+		private boolean arrowInMiddleChanged;
 
 		private boolean enforceTempChanged;
 		private boolean showForwardChanged;
@@ -119,6 +120,7 @@ public class TracingChange {
 			edgeJoinChanged = false;
 			skipEdgelessChanged = false;
 			showEdgesInMetaChanged = false;
+			arrowInMiddleChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
 
@@ -234,6 +236,11 @@ public class TracingChange {
 			return this;
 		}
 
+		public Builder arrowInMiddle(boolean arrowInMiddleBefore, boolean arrowInMiddleAfter) {
+			arrowInMiddleChanged = arrowInMiddleBefore != arrowInMiddleAfter;
+			return this;
+		}
+
 		public Builder enforceTemporalOrder(boolean enforceTempBefore, boolean enforceTempAfter) {
 			enforceTempChanged = enforceTempBefore != enforceTempAfter;
 			return this;
@@ -328,6 +335,10 @@ public class TracingChange {
 
 		if (builder.showEdgesInMetaChanged) {
 			canvas.setShowEdgesInMetaNode(!canvas.isShowEdgesInMetaNode());
+		}
+
+		if (builder.arrowInMiddleChanged) {
+			canvas.setArrowInMiddle(!canvas.isArrowInMiddle());
 		}
 
 		if (builder.enforceTempChanged) {
@@ -463,8 +474,8 @@ public class TracingChange {
 				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
 				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
-				&& !builder.enforceTempChanged && !builder.showForwardChanged && builder.nodeSizeDiff == null
-				&& builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
+				&& !builder.arrowInMiddleChanged && !builder.enforceTempChanged && !builder.showForwardChanged
+				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
 				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
 				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
 	}

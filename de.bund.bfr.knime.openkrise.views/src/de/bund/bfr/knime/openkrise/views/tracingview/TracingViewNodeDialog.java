@@ -108,6 +108,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private boolean joinEdges;
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
+	private boolean arrowInMiddle;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
 
@@ -459,6 +460,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void arrowInMiddleChanged(ICanvas<?> source) {
+		boolean newArrowInMiddle = canvas.isArrowInMiddle();
+
+		if (changeOccured(new TracingChange.Builder().arrowInMiddle(arrowInMiddle, newArrowInMiddle).build())) {
+			arrowInMiddle = newArrowInMiddle;
+		}
+	}
+
+	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
 		Map<String, Set<String>> newCollapsed = canvas.getCollapsedNodes();
 
@@ -480,7 +490,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void nodeSizeChanged() {
+	public void nodeSizeChanged(ICanvas<?> source) {
 		int newNodeSize = canvas.getNodeSize();
 		Integer newNodeMaxSize = canvas.getNodeMaxSize();
 
@@ -492,7 +502,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void edgeThicknessChanged() {
+	public void edgeThicknessChanged(ICanvas<?> source) {
 		int newEdgeThickness = canvas.getEdgeThickness();
 		Integer newEdgeMaxThickness = canvas.getEdgeMaxThickness();
 
@@ -504,7 +514,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void fontChanged() {
+	public void fontChanged(ICanvas<?> source) {
 		int newFontSize = canvas.getFontSize();
 		boolean newFontBold = canvas.isFontBold();
 
@@ -515,7 +525,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void borderAlphaChanged() {
+	public void borderAlphaChanged(ICanvas<?> source) {
 		int newBorderAlpha = canvas.getBorderAlpha();
 
 		if (changeOccured(new TracingChange.Builder().borderAlpha(borderAlpha, newBorderAlpha).build())) {
@@ -524,7 +534,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void avoidOverlayChanged() {
+	public void avoidOverlayChanged(ICanvas<?> source) {
 		boolean newAvoidOverlay = canvas.isAvoidOverlay();
 
 		if (changeOccured(new TracingChange.Builder().avoidOverlay(avoidOverlay, newAvoidOverlay).build())) {
@@ -770,6 +780,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		joinEdges = canvas.isJoinEdges();
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
+		arrowInMiddle = canvas.isArrowInMiddle();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
 

@@ -45,17 +45,19 @@ public interface CanvasListener {
 
 	void showEdgesInMetaNodeChanged(ICanvas<?> source);
 
+	void arrowInMiddleChanged(ICanvas<?> source);
+
 	void collapsedNodesChanged(ICanvas<?> source);
 
 	void collapsedNodesAndPickingChanged(ICanvas<?> source);
 
-	void nodeSizeChanged();
+	void nodeSizeChanged(ICanvas<?> source);
 
-	void edgeThicknessChanged();
+	void edgeThicknessChanged(ICanvas<?> source);
 
-	void fontChanged();
+	void fontChanged(ICanvas<?> source);
 
-	void borderAlphaChanged();
+	void borderAlphaChanged(ICanvas<?> source);
 
-	void avoidOverlayChanged();
+	void avoidOverlayChanged(ICanvas<?> source);
 }

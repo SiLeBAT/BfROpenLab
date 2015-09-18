@@ -1083,7 +1083,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		viewer.repaint();
 
 		for (CanvasListener listener : canvasListeners) {
-			listener.fontChanged();
+			listener.fontChanged(this);
 		}
 	}
 
@@ -1092,7 +1092,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		applyChanges();
 
 		for (CanvasListener listener : canvasListeners) {
-			listener.nodeSizeChanged();
+			listener.nodeSizeChanged(this);
 		}
 	}
 
@@ -1101,7 +1101,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		applyChanges();
 
 		for (CanvasListener listener : canvasListeners) {
-			listener.edgeThicknessChanged();
+			listener.edgeThicknessChanged(this);
 		}
 	}
 
@@ -1110,6 +1110,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 		viewer.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(optionsPanel.isArrowInMiddle()
 				? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.arrowInMiddleChanged(this);
+		}
 	}
 
 	@Override
@@ -1120,14 +1124,14 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void borderAlphaChanged() {
 		for (CanvasListener listener : canvasListeners) {
-			listener.borderAlphaChanged();
+			listener.borderAlphaChanged(this);
 		}
 	}
 
 	@Override
 	public void avoidOverlayChanged() {
 		for (CanvasListener listener : canvasListeners) {
-			listener.avoidOverlayChanged();
+			listener.avoidOverlayChanged(this);
 		}
 	}
 

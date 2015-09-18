@@ -223,6 +223,10 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
+	public void arrowInMiddleChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);
@@ -251,23 +255,23 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void nodeSizeChanged() {
+	public void nodeSizeChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void edgeThicknessChanged() {
+	public void edgeThicknessChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void fontChanged() {
+	public void fontChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void borderAlphaChanged() {
+	public void borderAlphaChanged(ICanvas<?> source) {
 	}
 
 	@Override
-	public void avoidOverlayChanged() {
+	public void avoidOverlayChanged(ICanvas<?> source) {
 	}
 
 	private void updateSplitPane(boolean showWarning) {
