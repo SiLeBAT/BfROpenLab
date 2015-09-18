@@ -1045,6 +1045,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void showLegendChanged() {
 		viewer.repaint();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.showLegendChanged(this);
+		}
 	}
 
 	@Override

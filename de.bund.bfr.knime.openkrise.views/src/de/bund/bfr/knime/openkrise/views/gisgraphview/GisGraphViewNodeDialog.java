@@ -227,6 +227,10 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
+	public void showLegendChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

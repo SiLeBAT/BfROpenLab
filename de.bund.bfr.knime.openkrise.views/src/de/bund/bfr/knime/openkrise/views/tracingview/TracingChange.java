@@ -75,6 +75,7 @@ public class TracingChange {
 		private boolean skipEdgelessChanged;
 		private boolean showEdgesInMetaChanged;
 		private boolean arrowInMiddleChanged;
+		private boolean showLegendChanged;
 
 		private boolean enforceTempChanged;
 		private boolean showForwardChanged;
@@ -121,6 +122,7 @@ public class TracingChange {
 			skipEdgelessChanged = false;
 			showEdgesInMetaChanged = false;
 			arrowInMiddleChanged = false;
+			showLegendChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
 
@@ -241,6 +243,11 @@ public class TracingChange {
 			return this;
 		}
 
+		public Builder showLegend(boolean showLegendBefore, boolean showLegendAfter) {
+			showLegendChanged = showLegendBefore != showLegendAfter;
+			return this;
+		}
+
 		public Builder enforceTemporalOrder(boolean enforceTempBefore, boolean enforceTempAfter) {
 			enforceTempChanged = enforceTempBefore != enforceTempAfter;
 			return this;
@@ -339,6 +346,10 @@ public class TracingChange {
 
 		if (builder.arrowInMiddleChanged) {
 			canvas.setArrowInMiddle(!canvas.isArrowInMiddle());
+		}
+
+		if (builder.showLegendChanged) {
+			canvas.setShowLegend(!canvas.isShowLegend());
 		}
 
 		if (builder.enforceTempChanged) {
@@ -474,10 +485,11 @@ public class TracingChange {
 				&& builder.changedNodeKillContams.isEmpty() && builder.changedEdgeKillContams.isEmpty()
 				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
-				&& !builder.arrowInMiddleChanged && !builder.enforceTempChanged && !builder.showForwardChanged
-				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
-				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
-				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
+				&& !builder.arrowInMiddleChanged && !builder.showLegendChanged && !builder.enforceTempChanged
+				&& !builder.showForwardChanged && builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null
+				&& builder.edgeThicknessDiff == null && builder.edgeMaxThicknessDiff == null
+				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.borderAlphaDiff == null
+				&& !builder.avoidOverlayChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

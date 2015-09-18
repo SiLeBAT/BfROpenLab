@@ -109,6 +109,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private boolean skipEdgelessNodes;
 	private boolean showEdgesInMetaNode;
 	private boolean arrowInMiddle;
+	private boolean showLegend;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
 
@@ -469,6 +470,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void showLegendChanged(ICanvas<?> source) {
+		boolean newShowLegend = canvas.isShowLegend();
+
+		if (changeOccured(new TracingChange.Builder().showLegend(showLegend, newShowLegend).build())) {
+			showLegend = newShowLegend;
+		}
+	}
+
+	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
 		Map<String, Set<String>> newCollapsed = canvas.getCollapsedNodes();
 
@@ -781,6 +791,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		skipEdgelessNodes = canvas.isSkipEdgelessNodes();
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		arrowInMiddle = canvas.isArrowInMiddle();
+		showLegend = canvas.isShowLegend();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
 

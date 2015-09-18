@@ -232,6 +232,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void showLegendChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void collapsedNodesChanged(ICanvas<?> source) {
 		if (source == graphCanvas) {
 			gisCanvas.removeCanvasListener(this);

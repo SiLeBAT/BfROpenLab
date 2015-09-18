@@ -47,6 +47,8 @@ public interface CanvasListener {
 
 	void arrowInMiddleChanged(ICanvas<?> source);
 
+	void showLegendChanged(ICanvas<?> source);
+
 	void collapsedNodesChanged(ICanvas<?> source);
 
 	void collapsedNodesAndPickingChanged(ICanvas<?> source);
