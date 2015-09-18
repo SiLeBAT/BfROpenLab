@@ -102,6 +102,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	public void avoidOverlayChanged() {
 		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(),
 				isAvoidOverlay());
+		super.avoidOverlayChanged();
 	}
 
 	@Override

@@ -57,6 +57,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	public void borderAlphaChanged() {
 		flushImage();
 		viewer.repaint();
+		super.borderAlphaChanged();
 	}
 
 	@Override

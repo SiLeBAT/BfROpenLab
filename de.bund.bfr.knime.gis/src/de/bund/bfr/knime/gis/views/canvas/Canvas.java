@@ -1118,6 +1118,20 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
+	public void borderAlphaChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.borderAlphaChanged();
+		}
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
+		for (CanvasListener listener : canvasListeners) {
+			listener.avoidOverlayChanged();
+		}
+	}
+
+	@Override
 	public VisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
 	}

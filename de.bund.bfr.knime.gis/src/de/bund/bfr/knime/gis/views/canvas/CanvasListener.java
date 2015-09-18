@@ -54,4 +54,8 @@ public interface CanvasListener {
 	void edgeThicknessChanged();
 
 	void fontChanged();
+
+	void borderAlphaChanged();
+
+	void avoidOverlayChanged();
 }

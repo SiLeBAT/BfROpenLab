@@ -89,6 +89,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	public void avoidOverlayChanged() {
 		LocationCanvasUtils.updateNodeLocations(nodes, viewer.getGraphLayout(), transform, getNodeSize(),
 				isAvoidOverlay());
+		super.avoidOverlayChanged();
 	}
 
 	@Override

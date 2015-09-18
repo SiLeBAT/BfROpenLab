@@ -118,6 +118,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private int fontSize;
 	private boolean fontBold;
 
+	private int borderAlpha;
+	private boolean avoidOverlay;
+
 	private JButton undoButton;
 	private JButton redoButton;
 	private JButton resetWeightsButton;
@@ -512,6 +515,24 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void borderAlphaChanged() {
+		int newBorderAlpha = canvas.getBorderAlpha();
+
+		if (changeOccured(new TracingChange.Builder().borderAlpha(borderAlpha, newBorderAlpha).build())) {
+			borderAlpha = newBorderAlpha;
+		}
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
+		boolean newAvoidOverlay = canvas.isAvoidOverlay();
+
+		if (changeOccured(new TracingChange.Builder().avoidOverlay(avoidOverlay, newAvoidOverlay).build())) {
+			avoidOverlay = newAvoidOverlay;
+		}
+	}
+
+	@Override
 	public void nodePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
@@ -758,6 +779,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		edgeMaxThickness = canvas.getEdgeMaxThickness();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
+
+		borderAlpha = canvas.getBorderAlpha();
+		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
 	private boolean doReset(String name) {

@@ -171,14 +171,6 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 	}
 
 	@Override
-	public void borderAlphaChanged() {
-	}
-
-	@Override
-	public void avoidOverlayChanged() {
-	}
-
-	@Override
 	public void nodesMoved() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.nodePositionsChanged(this);

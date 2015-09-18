@@ -92,10 +92,6 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 	}
 
 	@Override
-	public void avoidOverlayChanged() {
-	}
-
-	@Override
 	public void applyChanges() {
 		flushImage();
 		super.applyChanges();

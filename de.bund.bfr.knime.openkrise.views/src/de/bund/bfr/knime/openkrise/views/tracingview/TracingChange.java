@@ -86,6 +86,9 @@ public class TracingChange {
 		private Pair<Integer, Integer> fontSizeDiff;
 		private boolean fontBoldChanged;
 
+		private Pair<Integer, Integer> borderAlphaDiff;
+		private boolean avoidOverlayChanged;
+
 		public static TracingChange createViewChange(boolean showGisBefore, boolean showGisAfter, GisType gisTypeBefore,
 				GisType gisTypeAfter) {
 			Builder builder = new Builder();
@@ -126,6 +129,9 @@ public class TracingChange {
 
 			fontSizeDiff = null;
 			fontBoldChanged = false;
+
+			borderAlphaDiff = null;
+			avoidOverlayChanged = false;
 		}
 
 		public Builder transform(Transform transformBefore, Transform transformAfter) {
@@ -255,6 +261,16 @@ public class TracingChange {
 		public Builder font(int fontSizeBefore, int fontSizeAfter, boolean fontBoldBefore, boolean fontBoldAfter) {
 			fontSizeDiff = createIntDiff(fontSizeBefore, fontSizeAfter);
 			fontBoldChanged = fontBoldBefore != fontBoldAfter;
+			return this;
+		}
+
+		public Builder borderAlpha(int borderAlphaBefore, int borderAlphaAfter) {
+			borderAlphaDiff = createIntDiff(borderAlphaBefore, borderAlphaAfter);
+			return this;
+		}
+
+		public Builder avoidOverlay(boolean avoidOverlayBefore, boolean avoidOverlayAfter) {
+			avoidOverlayChanged = avoidOverlayBefore != avoidOverlayAfter;
 			return this;
 		}
 
@@ -425,6 +441,14 @@ public class TracingChange {
 		if (builder.fontBoldChanged) {
 			canvas.setFontBold(!canvas.isFontBold());
 		}
+
+		if (builder.borderAlphaDiff != null) {
+			canvas.setBorderAlpha(undo ? builder.borderAlphaDiff.getFirst() : builder.borderAlphaDiff.getSecond());
+		}
+
+		if (builder.avoidOverlayChanged) {
+			canvas.setAvoidOverlay(!canvas.isAvoidOverlay());
+		}
 	}
 
 	public boolean isIdentity() {
@@ -441,7 +465,8 @@ public class TracingChange {
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
 				&& !builder.enforceTempChanged && !builder.showForwardChanged && builder.nodeSizeDiff == null
 				&& builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
-				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged;
+				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
+				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

@@ -243,6 +243,14 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void fontChanged() {
 	}
 
+	@Override
+	public void borderAlphaChanged() {
+	}
+
+	@Override
+	public void avoidOverlayChanged() {
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);

@@ -96,10 +96,6 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 	}
 
 	@Override
-	public void avoidOverlayChanged() {
-	}
-
-	@Override
 	public void applyChanges() {
 		flushImage();
 		super.applyChanges();
