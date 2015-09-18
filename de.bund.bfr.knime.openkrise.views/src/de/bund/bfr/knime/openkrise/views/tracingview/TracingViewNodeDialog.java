@@ -412,7 +412,9 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void layoutProcessFinished(ICanvas<?> source) {
-		layoutDialog.setVisible(false);
+		if (layoutDialog != null && layoutDialog.isVisible()) {
+			layoutDialog.setVisible(false);
+		}
 
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 		Transform newTransform = canvas.getTransform();

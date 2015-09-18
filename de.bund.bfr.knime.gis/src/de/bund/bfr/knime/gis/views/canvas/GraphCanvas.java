@@ -39,12 +39,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
-import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
-import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
-import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
@@ -215,8 +210,6 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes, boolean avoidIterations) {
 		Set<GraphNode> nodesForLayout = new LinkedHashSet<>(KnimeUtils.nullToEmpty(selectedNodes));
-		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
-		Layout<GraphNode, Edge<GraphNode>> layout = null;
 
 		if (!nodesForLayout.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this,
@@ -229,25 +222,8 @@ public class GraphCanvas extends Canvas<GraphNode>implements BetterPickingGraphM
 			}
 		}
 
-		switch (layoutType) {
-		case GRID_LAYOUT:
-			layout = new GridLayout<>(graph);
-			break;
-		case CIRCLE_LAYOUT:
-			layout = new CircleLayout<>(graph);
-			break;
-		case FR_LAYOUT:
-			layout = new FRLayout<>(graph);
-			break;
-		case ISOM_LAYOUT:
-			layout = new ISOMLayout<>(graph);
-			break;
-		case KK_LAYOUT:
-			layout = new KKLayout<>(graph);
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown LayoutType: " + layoutType);
-		}
+		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
+		Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph);
 
 		if (!nodesForLayout.isEmpty()) {
 			Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),

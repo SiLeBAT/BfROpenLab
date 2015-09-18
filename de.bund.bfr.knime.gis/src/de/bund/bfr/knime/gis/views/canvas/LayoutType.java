@@ -19,14 +19,36 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
+import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
+import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+
 public enum LayoutType {
 	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
-			"Self-Organizing Map"), KK_LAYOUT("Kamada-Kawai");
+			"Self-Organizing Map");
 
 	private String name;
 
 	private LayoutType(String name) {
 		this.name = name;
+	}
+
+	public <V, E> Layout<V, E> create(Graph<V, E> graph) {
+		switch (this) {
+		case GRID_LAYOUT:
+			return new GridLayout<>(graph);
+		case CIRCLE_LAYOUT:
+			return new CircleLayout<>(graph);
+		case FR_LAYOUT:
+			return new FRLayout<>(graph);
+		case ISOM_LAYOUT:
+			return new ISOMLayout<>(graph);
+		}
+
+		return null;
 	}
 
 	@Override
