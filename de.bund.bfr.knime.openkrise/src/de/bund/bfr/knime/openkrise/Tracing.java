@@ -368,8 +368,10 @@ public class Tracing {
 		backward = new LinkedHashSet<>();
 
 		for (String prev : d.getAllPreviousIds()) {
-			backward.add(prev);
-			backward.addAll(getBackwardDeliveries(deliveryMap.get(prev)));
+			if (!prev.equals(d.getId())) {
+				backward.add(prev);
+				backward.addAll(getBackwardDeliveries(deliveryMap.get(prev)));
+			}
 		}
 
 		backwardDeliveries.put(d.getId(), backward);
@@ -387,8 +389,10 @@ public class Tracing {
 		forward = new LinkedHashSet<>();
 
 		for (String next : d.getAllNextIds()) {
-			forward.add(next);
-			forward.addAll(getForwardDeliveries(deliveryMap.get(next)));
+			if (!next.equals(d.getId())) {
+				forward.add(next);
+				forward.addAll(getForwardDeliveries(deliveryMap.get(next)));
+			}
 		}
 
 		forwardDeliveries.put(d.getId(), forward);
