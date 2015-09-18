@@ -479,17 +479,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void nodeSizeChanged() {
 		int newNodeSize = canvas.getNodeSize();
-
-		if (changeOccured(new TracingChange.Builder().nodeSize(nodeSize, newNodeSize).build())) {
-			nodeSize = newNodeSize;
-		}
-	}
-
-	@Override
-	public void nodeMaxSizeChanged() {
 		Integer newNodeMaxSize = canvas.getNodeMaxSize();
 
-		if (changeOccured(new TracingChange.Builder().nodeMaxSize(nodeMaxSize, newNodeMaxSize).build())) {
+		if (changeOccured(
+				new TracingChange.Builder().nodeSize(nodeSize, newNodeSize, nodeMaxSize, newNodeMaxSize).build())) {
+			nodeSize = newNodeSize;
 			nodeMaxSize = newNodeMaxSize;
 		}
 	}
@@ -497,18 +491,11 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void edgeThicknessChanged() {
 		int newEdgeThickness = canvas.getEdgeThickness();
-
-		if (changeOccured(new TracingChange.Builder().edgeThickness(edgeThickness, newEdgeThickness).build())) {
-			edgeThickness = newEdgeThickness;
-		}
-	}
-
-	@Override
-	public void edgeMaxThicknessChanged() {
 		Integer newEdgeMaxThickness = canvas.getEdgeMaxThickness();
 
-		if (changeOccured(
-				new TracingChange.Builder().edgeMaxThickness(edgeMaxThickness, newEdgeMaxThickness).build())) {
+		if (changeOccured(new TracingChange.Builder()
+				.edgeThickness(edgeThickness, newEdgeThickness, edgeMaxThickness, newEdgeMaxThickness).build())) {
+			edgeThickness = newEdgeThickness;
 			edgeMaxThickness = newEdgeMaxThickness;
 		}
 	}

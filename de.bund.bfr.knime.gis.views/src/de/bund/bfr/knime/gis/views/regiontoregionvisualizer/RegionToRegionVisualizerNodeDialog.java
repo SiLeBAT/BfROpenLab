@@ -236,15 +236,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
-	public void nodeMaxSizeChanged() {
-	}
-
-	@Override
 	public void edgeThicknessChanged() {
-	}
-
-	@Override
-	public void edgeMaxThicknessChanged() {
 	}
 
 	@Override

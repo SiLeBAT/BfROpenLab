@@ -260,15 +260,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	public void nodeMaxSizeChanged() {
-	}
-
-	@Override
 	public void edgeThicknessChanged() {
-	}
-
-	@Override
-	public void edgeMaxThicknessChanged() {
 	}
 
 	@Override

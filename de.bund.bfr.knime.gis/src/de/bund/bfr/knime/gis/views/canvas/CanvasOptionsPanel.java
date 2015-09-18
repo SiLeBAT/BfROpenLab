@@ -394,7 +394,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					nodeMaxSize = (Integer) size;
 
 					for (ChangeListener l : listeners) {
-						l.nodeMaxSizeChanged();
+						l.nodeSizeChanged();
 					}
 				}
 			} else {
@@ -437,7 +437,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					edgeMaxThickness = (Integer) size;
 
 					for (ChangeListener l : listeners) {
-						l.edgeMaxThicknessChanged();
+						l.edgeThicknessChanged();
 					}
 				}
 			} else {
@@ -576,11 +576,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		void nodeSizeChanged();
 
-		void nodeMaxSizeChanged();
-
 		void edgeThicknessChanged();
-
-		void edgeMaxThicknessChanged();
 
 		void arrowInMiddleChanged();
 

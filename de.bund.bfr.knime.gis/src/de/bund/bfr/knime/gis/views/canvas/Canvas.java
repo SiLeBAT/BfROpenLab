@@ -1097,29 +1097,11 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	@Override
-	public void nodeMaxSizeChanged() {
-		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeMaxSizeChanged();
-		}
-	}
-
-	@Override
 	public void edgeThicknessChanged() {
 		applyChanges();
 
 		for (CanvasListener listener : canvasListeners) {
 			listener.edgeThicknessChanged();
-		}
-	}
-
-	@Override
-	public void edgeMaxThicknessChanged() {
-		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeMaxThicknessChanged();
 		}
 	}
 

@@ -51,11 +51,7 @@ public interface CanvasListener {
 
 	void nodeSizeChanged();
 
-	void nodeMaxSizeChanged();
-
 	void edgeThicknessChanged();
-
-	void edgeMaxThicknessChanged();
 
 	void fontChanged();
 }

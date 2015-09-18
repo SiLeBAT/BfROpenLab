@@ -255,15 +255,7 @@ public class GisGraphViewNodeDialog extends DataAwareNodeDialogPane implements C
 	}
 
 	@Override
-	public void nodeMaxSizeChanged() {
-	}
-
-	@Override
 	public void edgeThicknessChanged() {
-	}
-
-	@Override
-	public void edgeMaxThicknessChanged() {
 	}
 
 	@Override

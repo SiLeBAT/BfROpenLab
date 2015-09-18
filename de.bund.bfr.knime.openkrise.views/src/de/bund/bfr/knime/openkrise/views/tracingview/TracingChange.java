@@ -238,22 +238,16 @@ public class TracingChange {
 			return this;
 		}
 
-		public Builder nodeSize(int nodeSizeBefore, int nodeSizeAfter) {
+		public Builder nodeSize(int nodeSizeBefore, int nodeSizeAfter, Integer nodeMaxSizeBefore,
+				Integer nodeMaxSizeAfter) {
 			nodeSizeDiff = createIntDiff(nodeSizeBefore, nodeSizeAfter);
-			return this;
-		}
-
-		public Builder nodeMaxSize(Integer nodeMaxSizeBefore, Integer nodeMaxSizeAfter) {
 			nodeMaxSizeDiff = createIntDiff(nodeMaxSizeBefore, nodeMaxSizeAfter);
 			return this;
 		}
 
-		public Builder edgeThickness(int edgeThicknessBefore, int edgeThicknessAfter) {
+		public Builder edgeThickness(int edgeThicknessBefore, int edgeThicknessAfter, Integer edgeMaxThicknessBefore,
+				Integer edgeMaxThicknessAfter) {
 			edgeThicknessDiff = createIntDiff(edgeThicknessBefore, edgeThicknessAfter);
-			return this;
-		}
-
-		public Builder edgeMaxThickness(Integer edgeMaxThicknessBefore, Integer edgeMaxThicknessAfter) {
 			edgeMaxThicknessDiff = createIntDiff(edgeMaxThicknessBefore, edgeMaxThicknessAfter);
 			return this;
 		}
