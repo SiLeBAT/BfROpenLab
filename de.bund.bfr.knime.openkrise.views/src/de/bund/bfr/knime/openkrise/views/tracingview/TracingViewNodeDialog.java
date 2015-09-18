@@ -115,6 +115,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private Integer nodeMaxSize;
 	private int edgeThickness;
 	private Integer edgeMaxThickness;
+	private int fontSize;
+	private boolean fontBold;
 
 	private JButton undoButton;
 	private JButton redoButton;
@@ -512,6 +514,17 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void fontChanged() {
+		int newFontSize = canvas.getFontSize();
+		boolean newFontBold = canvas.isFontBold();
+
+		if (changeOccured(new TracingChange.Builder().font(fontSize, newFontSize, fontBold, newFontBold).build())) {
+			fontSize = newFontSize;
+			fontBold = newFontBold;
+		}
+	}
+
+	@Override
 	public void nodePropertiesChanged(ITracingCanvas<?> source) {
 		Map<String, Double> newWeights = canvas.getNodeWeights();
 		Map<String, Boolean> newCrossContaminations = canvas.getNodeCrossContaminations();
@@ -756,6 +769,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		nodeMaxSize = canvas.getNodeMaxSize();
 		edgeThickness = canvas.getEdgeThickness();
 		edgeMaxThickness = canvas.getEdgeMaxThickness();
+		fontSize = canvas.getFontSize();
+		fontBold = canvas.isFontBold();
 	}
 
 	private boolean doReset(String name) {

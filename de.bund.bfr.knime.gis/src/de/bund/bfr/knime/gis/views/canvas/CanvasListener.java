@@ -56,4 +56,6 @@ public interface CanvasListener {
 	void edgeThicknessChanged();
 
 	void edgeMaxThicknessChanged();
+
+	void fontChanged();
 }

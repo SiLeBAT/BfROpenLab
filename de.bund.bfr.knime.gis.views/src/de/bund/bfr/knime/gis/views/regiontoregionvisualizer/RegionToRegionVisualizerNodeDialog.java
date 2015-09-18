@@ -247,6 +247,10 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	public void edgeMaxThicknessChanged() {
 	}
 
+	@Override
+	public void fontChanged() {
+	}
+
 	private void updateSplitPane(boolean showWarning) {
 		if (splitPane != null) {
 			panel.remove(splitPane);

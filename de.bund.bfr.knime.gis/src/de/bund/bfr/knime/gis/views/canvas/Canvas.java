@@ -1081,6 +1081,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 		viewer.getRenderContext().setEdgeFontTransformer(
 				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
 		viewer.repaint();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.fontChanged();
+		}
 	}
 
 	@Override
