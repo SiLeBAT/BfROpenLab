@@ -536,7 +536,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
 			tracing.setCrossContaminationOfStation(node.getId(),
-					contaminationValue != null ? contaminationValue : false);
+					contaminationValue != null && useCrossContamination ? contaminationValue : false);
 			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue : false);
 		}
 
@@ -547,7 +547,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
 			tracing.setCrossContaminationOfDelivery(edge.getId(),
-					contaminationValue != null ? contaminationValue : false);
+					contaminationValue != null && useCrossContamination ? contaminationValue : false);
 			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue : false);
 		}
 
