@@ -119,6 +119,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private Integer edgeMaxThickness;
 	private int fontSize;
 	private boolean fontBold;
+	private String label;
 
 	private int borderAlpha;
 	private boolean avoidOverlay;
@@ -535,6 +536,15 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void labelChanged(ICanvas<?> source) {
+		String newLabel = canvas.getLabel();
+
+		if (changeOccured(new TracingChange.Builder().label(label, newLabel).build())) {
+			label = newLabel;
+		}
+	}
+
+	@Override
 	public void borderAlphaChanged(ICanvas<?> source) {
 		int newBorderAlpha = canvas.getBorderAlpha();
 
@@ -801,6 +811,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		edgeMaxThickness = canvas.getEdgeMaxThickness();
 		fontSize = canvas.getFontSize();
 		fontBold = canvas.isFontBold();
+		label = canvas.getLabel();
 
 		borderAlpha = canvas.getBorderAlpha();
 		avoidOverlay = canvas.isAvoidOverlay();

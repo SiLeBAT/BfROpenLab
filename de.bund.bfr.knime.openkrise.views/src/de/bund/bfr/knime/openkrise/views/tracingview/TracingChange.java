@@ -87,6 +87,7 @@ public class TracingChange {
 
 		private Pair<Integer, Integer> fontSizeDiff;
 		private boolean fontBoldChanged;
+		private Pair<String, String> labelDiff;
 
 		private Pair<Integer, Integer> borderAlphaDiff;
 		private boolean avoidOverlayChanged;
@@ -133,6 +134,7 @@ public class TracingChange {
 
 			fontSizeDiff = null;
 			fontBoldChanged = false;
+			labelDiff = null;
 
 			borderAlphaDiff = null;
 			avoidOverlayChanged = false;
@@ -260,26 +262,31 @@ public class TracingChange {
 
 		public Builder nodeSize(int nodeSizeBefore, int nodeSizeAfter, Integer nodeMaxSizeBefore,
 				Integer nodeMaxSizeAfter) {
-			nodeSizeDiff = createIntDiff(nodeSizeBefore, nodeSizeAfter);
-			nodeMaxSizeDiff = createIntDiff(nodeMaxSizeBefore, nodeMaxSizeAfter);
+			nodeSizeDiff = createDiff(nodeSizeBefore, nodeSizeAfter);
+			nodeMaxSizeDiff = createDiff(nodeMaxSizeBefore, nodeMaxSizeAfter);
 			return this;
 		}
 
 		public Builder edgeThickness(int edgeThicknessBefore, int edgeThicknessAfter, Integer edgeMaxThicknessBefore,
 				Integer edgeMaxThicknessAfter) {
-			edgeThicknessDiff = createIntDiff(edgeThicknessBefore, edgeThicknessAfter);
-			edgeMaxThicknessDiff = createIntDiff(edgeMaxThicknessBefore, edgeMaxThicknessAfter);
+			edgeThicknessDiff = createDiff(edgeThicknessBefore, edgeThicknessAfter);
+			edgeMaxThicknessDiff = createDiff(edgeMaxThicknessBefore, edgeMaxThicknessAfter);
 			return this;
 		}
 
 		public Builder font(int fontSizeBefore, int fontSizeAfter, boolean fontBoldBefore, boolean fontBoldAfter) {
-			fontSizeDiff = createIntDiff(fontSizeBefore, fontSizeAfter);
+			fontSizeDiff = createDiff(fontSizeBefore, fontSizeAfter);
 			fontBoldChanged = fontBoldBefore != fontBoldAfter;
 			return this;
 		}
 
+		public Builder label(String labelBefore, String labelAfter) {
+			labelDiff = createDiff(labelBefore, labelAfter);
+			return this;
+		}
+
 		public Builder borderAlpha(int borderAlphaBefore, int borderAlphaAfter) {
-			borderAlphaDiff = createIntDiff(borderAlphaBefore, borderAlphaAfter);
+			borderAlphaDiff = createDiff(borderAlphaBefore, borderAlphaAfter);
 			return this;
 		}
 
@@ -464,6 +471,10 @@ public class TracingChange {
 			canvas.setFontBold(!canvas.isFontBold());
 		}
 
+		if (builder.labelDiff != null) {
+			canvas.setLabel(undo ? builder.labelDiff.getFirst() : builder.labelDiff.getSecond());
+		}
+
 		if (builder.borderAlphaDiff != null) {
 			canvas.setBorderAlpha(undo ? builder.borderAlphaDiff.getFirst() : builder.borderAlphaDiff.getSecond());
 		}
@@ -488,8 +499,8 @@ public class TracingChange {
 				&& !builder.arrowInMiddleChanged && !builder.showLegendChanged && !builder.enforceTempChanged
 				&& !builder.showForwardChanged && builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null
 				&& builder.edgeThicknessDiff == null && builder.edgeMaxThicknessDiff == null
-				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.borderAlphaDiff == null
-				&& !builder.avoidOverlayChanged;
+				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.labelDiff == null
+				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {
@@ -506,7 +517,7 @@ public class TracingChange {
 		return map;
 	}
 
-	private static Pair<Integer, Integer> createIntDiff(Integer before, Integer after) {
+	private static <T> Pair<T, T> createDiff(T before, T after) {
 		return !Objects.equals(before, after) ? new Pair<>(before, after) : null;
 	}
 

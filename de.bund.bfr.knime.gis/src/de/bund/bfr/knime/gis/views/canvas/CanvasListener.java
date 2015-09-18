@@ -59,6 +59,8 @@ public interface CanvasListener {
 
 	void fontChanged(ICanvas<?> source);
 
+	void labelChanged(ICanvas<?> source);
+
 	void borderAlphaChanged(ICanvas<?> source);
 
 	void avoidOverlayChanged(ICanvas<?> source);

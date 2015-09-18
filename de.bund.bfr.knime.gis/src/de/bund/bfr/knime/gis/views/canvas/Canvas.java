@@ -1123,6 +1123,10 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void labelChanged() {
 		viewer.repaint();
+
+		for (CanvasListener listener : canvasListeners) {
+			listener.labelChanged(this);
+		}
 	}
 
 	@Override

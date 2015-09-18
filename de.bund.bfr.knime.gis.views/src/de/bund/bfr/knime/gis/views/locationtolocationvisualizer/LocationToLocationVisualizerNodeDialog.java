@@ -276,6 +276,10 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void labelChanged(ICanvas<?> source) {
+	}
+
+	@Override
 	public void borderAlphaChanged(ICanvas<?> source) {
 	}
 
