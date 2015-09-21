@@ -373,24 +373,13 @@ public class TracingChange {
 		}
 
 		if (builder.nodeHighlightingDiff != null && !builder.nodeHighlightingDiff.isIdentity()) {
-			if (undo) {
-				canvas.setNodeHighlightConditions(
-						builder.nodeHighlightingDiff.undo(canvas.getNodeHighlightConditions()));
-			} else {
-				canvas.setNodeHighlightConditions(
-						builder.nodeHighlightingDiff.redo(canvas.getNodeHighlightConditions()));
-			}
-
+			canvas.setNodeHighlightConditions(
+					builder.nodeHighlightingDiff.undoRedo(canvas.getNodeHighlightConditions(), undo));
 		}
 
 		if (builder.edgeHighlightingDiff != null && !builder.edgeHighlightingDiff.isIdentity()) {
-			if (undo) {
-				canvas.setEdgeHighlightConditions(
-						builder.edgeHighlightingDiff.undo(canvas.getEdgeHighlightConditions()));
-			} else {
-				canvas.setEdgeHighlightConditions(
-						builder.edgeHighlightingDiff.redo(canvas.getEdgeHighlightConditions()));
-			}
+			canvas.setEdgeHighlightConditions(
+					builder.edgeHighlightingDiff.undoRedo(canvas.getEdgeHighlightConditions(), undo));
 		}
 
 		if (!builder.nodesWithChangedSelection.isEmpty()) {
@@ -582,32 +571,17 @@ public class TracingChange {
 			}
 		}
 
-		public HighlightConditionList undo(HighlightConditionList highlighting) {
-			int n = highlightingOrderChanges.size() + removedConditions.size();
+		public HighlightConditionList undoRedo(HighlightConditionList highlighting, boolean undo) {
+			int n = highlightingOrderChanges.size() + (undo ? removedConditions.size() : addedConditions.size());
 			List<HighlightCondition> oldConditions = highlighting.getConditions();
 			List<HighlightCondition> conditions = new ArrayList<>(Collections.nCopies(n, (HighlightCondition) null));
 
-			for (Map.Entry<Integer, Integer> entry : highlightingOrderChanges.entrySet()) {
+			for (Map.Entry<Integer, Integer> entry : undo ? highlightingOrderChanges.entrySet()
+					: highlightingOrderChanges.inverse().entrySet()) {
 				conditions.set(entry.getKey(), oldConditions.get(entry.getValue()));
 			}
 
-			for (HighlightCondition c : removedConditions) {
-				conditions.set(conditions.indexOf(null), c);
-			}
-
-			return new HighlightConditionList(conditions, highlighting.isPrioritizeColors() != prioritizeColorsChanged);
-		}
-
-		public HighlightConditionList redo(HighlightConditionList highlighting) {
-			int n = highlightingOrderChanges.size() + addedConditions.size();
-			List<HighlightCondition> oldConditions = highlighting.getConditions();
-			List<HighlightCondition> conditions = new ArrayList<>(Collections.nCopies(n, (HighlightCondition) null));
-
-			for (Map.Entry<Integer, Integer> entry : highlightingOrderChanges.entrySet()) {
-				conditions.set(entry.getValue(), oldConditions.get(entry.getKey()));
-			}
-
-			for (HighlightCondition c : addedConditions) {
+			for (HighlightCondition c : undo ? removedConditions : addedConditions) {
 				conditions.set(conditions.indexOf(null), c);
 			}
 
@@ -615,7 +589,7 @@ public class TracingChange {
 		}
 
 		public boolean isIdentity() {
-			if (!removedConditions.isEmpty() || !addedConditions.isEmpty()) {
+			if (!removedConditions.isEmpty() || !addedConditions.isEmpty() || prioritizeColorsChanged) {
 				return false;
 			}
 
