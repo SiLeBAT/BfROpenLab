@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -182,10 +181,6 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
-		Map<String, Double> nodeScores = result.getStationScores();
-		Map<String, Double> edgeScores = result.getDeliveryScores();
-		double maxScore = Math.max(Collections.max(nodeScores.values()), Collections.max(edgeScores.values()));
-		double normFactor = maxScore > 0.0 ? 1.0 / maxScore : 1.0;
 		Map<String, Boolean> observedNodes;
 		Map<String, Boolean> observedEdges;
 		Set<String> backwardNodes = new LinkedHashSet<>();
@@ -246,10 +241,9 @@ public class TracingParametersNodeModel extends NodeModel {
 					.createCell(killNodes.containsKey(id) ? killNodes.get(id) : false);
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedNodes.containsKey(id) ? observedNodes.get(id) : false);
-			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
-					.createCell(nodeScores.containsKey(id) ? nodeScores.get(id) : 0.0);
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getStationScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
-					.createCell(nodeScores.containsKey(id) ? normFactor * nodeScores.get(id) : 0.0);
+					.createCell(result.getStationNormalizedScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardNodes.contains(id));
 
@@ -281,10 +275,9 @@ public class TracingParametersNodeModel extends NodeModel {
 					.createCell(killEdges.containsKey(id) ? killEdges.get(id) : false);
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.OBSERVED)] = IO
 					.createCell(observedEdges.containsKey(id) ? observedEdges.get(id) : false);
-			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO
-					.createCell(edgeScores.containsKey(id) ? edgeScores.get(id) : 0.0);
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getDeliveryScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
-					.createCell(edgeScores.containsKey(id) ? normFactor * edgeScores.get(id) : 0.0);
+					.createCell(result.getDeliveryNormalizedScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardEdges.contains(id));
 

@@ -598,40 +598,18 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			}
 		}
 
-		double maxScore = 0.0;
-
 		for (V node : canvas.getNodes()) {
-			double score = tracing.getStationScores().containsKey(node.getId())
-					? tracing.getStationScores().get(node.getId()) : 0.0;
-
-			maxScore = Math.max(maxScore, score);
-			node.getProperties().put(TracingColumns.SCORE, score);
+			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(node.getId()));
+			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getStationNormalizedScore(node.getId()));
 			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(node.getId()));
 			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(node.getId()));
 		}
 
 		for (Edge<V> edge : edges) {
-			double score = tracing.getDeliveryScores().containsKey(edge.getId())
-					? tracing.getDeliveryScores().get(edge.getId()) : 0.0;
-
-			maxScore = Math.max(maxScore, score);
-			edge.getProperties().put(TracingColumns.SCORE, score);
+			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getDeliveryNormalizedScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
-		}
-
-		double normFactor = maxScore != 0.0 ? 1.0 / maxScore : 1.0;
-
-		for (V node : canvas.getNodes()) {
-			double score = (Double) node.getProperties().get(TracingColumns.SCORE);
-
-			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
-		}
-
-		for (Edge<V> edge : edges) {
-			double score = (Double) edge.getProperties().get(TracingColumns.SCORE);
-
-			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, normFactor * score);
 		}
 
 		if (canvas.isJoinEdges()) {

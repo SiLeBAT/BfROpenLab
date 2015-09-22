@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -269,6 +270,16 @@ public class Tracing {
 			result.backwardDeliveriesByDelivery.putAll(d.getId(), getBackwardDeliveries(d));
 		}
 
+		double maxScore = Math.max(Collections.max(result.stationScores.values()),
+				Collections.max(result.deliveryScores.values()));
+		double minScore = Math.min(Collections.min(result.stationScores.values()),
+				Collections.min(result.deliveryScores.values()));
+		double maxAbs = Math.max(maxScore, -minScore);
+
+		if (maxAbs > 0.0) {
+			result.scoreNormalizer = maxAbs;
+		}
+
 		return result;
 	}
 
@@ -458,6 +469,7 @@ public class Tracing {
 		private Map<String, Double> deliveryScores;
 		private Map<String, Double> deliveryPositiveScores;
 		private Map<String, Double> deliveryNegativeScores;
+
 		private SetMultimap<String, String> forwardStationsByStation;
 		private SetMultimap<String, String> backwardStationsByStation;
 		private SetMultimap<String, String> forwardDeliveriesByStation;
@@ -466,6 +478,8 @@ public class Tracing {
 		private SetMultimap<String, String> backwardStationsByDelivery;
 		private SetMultimap<String, String> forwardDeliveriesByDelivery;
 		private SetMultimap<String, String> backwardDeliveriesByDelivery;
+
+		private double scoreNormalizer;
 
 		private Result() {
 			stationScores = new LinkedHashMap<>();
@@ -482,30 +496,39 @@ public class Tracing {
 			backwardStationsByDelivery = LinkedHashMultimap.create();
 			forwardDeliveriesByDelivery = LinkedHashMultimap.create();
 			backwardDeliveriesByDelivery = LinkedHashMultimap.create();
+			scoreNormalizer = 1.0;
 		}
 
-		public Map<String, Double> getStationScores() {
-			return stationScores;
+		public double getStationScore(String id) {
+			return nullToZero(stationScores.get(id));
 		}
 
-		public Map<String, Double> getStationPositiveScores() {
-			return stationPositiveScores;
+		public double getStationNormalizedScore(String id) {
+			return nullToZero(stationScores.get(id)) / scoreNormalizer;
 		}
 
-		public Map<String, Double> getStationNegativeScores() {
-			return stationNegativeScores;
+		public double getStationPositiveScore(String id) {
+			return nullToZero(stationPositiveScores.get(id));
 		}
 
-		public Map<String, Double> getDeliveryScores() {
-			return deliveryScores;
+		public double getStationNegativeScore(String id) {
+			return nullToZero(stationNegativeScores.get(id));
 		}
 
-		public Map<String, Double> getDeliveryPositiveScores() {
-			return deliveryPositiveScores;
+		public double getDeliveryScore(String id) {
+			return nullToZero(deliveryScores.get(id));
 		}
 
-		public Map<String, Double> getDeliveryNegativeScores() {
-			return deliveryNegativeScores;
+		public double getDeliveryNormalizedScore(String id) {
+			return nullToZero(deliveryScores.get(id)) / scoreNormalizer;
+		}
+
+		public double getDeliveryPositiveScore(String id) {
+			return nullToZero(deliveryPositiveScores.get(id));
+		}
+
+		public double getDeliveryNegativeScore(String id) {
+			return nullToZero(deliveryNegativeScores.get(id));
 		}
 
 		public SetMultimap<String, String> getForwardStationsByStation() {
@@ -538,6 +561,10 @@ public class Tracing {
 
 		public SetMultimap<String, String> getBackwardDeliveriesByDelivery() {
 			return backwardDeliveriesByDelivery;
+		}
+
+		private static double nullToZero(Double score) {
+			return score != null ? score : 0.0;
 		}
 	}
 }
