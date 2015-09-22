@@ -30,7 +30,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -601,6 +600,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		for (V node : canvas.getNodes()) {
 			node.getProperties().put(TracingColumns.SCORE, tracing.getStationScore(node.getId()));
 			node.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getStationNormalizedScore(node.getId()));
+			node.getProperties().put(TracingColumns.POSITIVE_SCORE, tracing.getStationPositiveScore(node.getId()));
+			node.getProperties().put(TracingColumns.NEGATIVE_SCORE, tracing.getStationNegativeScore(node.getId()));
 			node.getProperties().put(TracingColumns.BACKWARD, backwardNodes.contains(node.getId()));
 			node.getProperties().put(TracingColumns.FORWARD, forwardNodes.contains(node.getId()));
 		}
@@ -608,6 +609,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		for (Edge<V> edge : edges) {
 			edge.getProperties().put(TracingColumns.SCORE, tracing.getDeliveryScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, tracing.getDeliveryNormalizedScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.POSITIVE_SCORE, tracing.getDeliveryPositiveScore(edge.getId()));
+			edge.getProperties().put(TracingColumns.NEGATIVE_SCORE, tracing.getDeliveryNegativeScore(edge.getId()));
 			edge.getProperties().put(TracingColumns.BACKWARD, backwardEdges.contains(edge.getId()));
 			edge.getProperties().put(TracingColumns.FORWARD, forwardEdges.contains(edge.getId()));
 		}
@@ -616,6 +619,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			for (Edge<V> edge : canvas.getEdges()) {
 				edge.getProperties().put(TracingColumns.SCORE, null);
 				edge.getProperties().put(TracingColumns.NORMALIZED_SCORE, null);
+				edge.getProperties().put(TracingColumns.POSITIVE_SCORE, null);
+				edge.getProperties().put(TracingColumns.NEGATIVE_SCORE, null);
 				edge.getProperties().put(TracingColumns.OBSERVED, false);
 				edge.getProperties().put(TracingColumns.BACKWARD, false);
 				edge.getProperties().put(TracingColumns.FORWARD, false);
@@ -649,10 +654,8 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			List<String> tracingColumns = Arrays.asList(TracingColumns.SCORE, TracingColumns.NORMALIZED_SCORE,
-					TracingColumns.BACKWARD, TracingColumns.FORWARD);
 			String error = "The following columns cannot be used with \"Invisible\" option:\n"
-					+ Joiner.on(", ").join(tracingColumns);
+					+ Joiner.on(", ").join(TracingColumns.OUTPUT_COLUMNS);
 
 			if (condition != null && condition.isInvisible()) {
 				AndOrHighlightCondition logicalCondition = null;
@@ -670,7 +673,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				if (logicalCondition != null) {
 					for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
 						for (LogicalHighlightCondition c : cc) {
-							if (tracingColumns.contains(c.getProperty())) {
+							if (TracingColumns.OUTPUT_COLUMNS.contains(c.getProperty())) {
 								return error;
 							}
 						}
@@ -678,7 +681,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				}
 
 				if (valueCondition != null) {
-					if (tracingColumns.contains(valueCondition.getProperty())) {
+					if (TracingColumns.OUTPUT_COLUMNS.contains(valueCondition.getProperty())) {
 						return error;
 					}
 				}

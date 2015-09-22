@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+
+import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -85,12 +88,14 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 						new JLabel(TracingColumns.CROSS_CONTAMINATION + ":"),
 						new JLabel(TracingColumns.KILL_CONTAMINATION + ":"), new JLabel(TracingColumns.OBSERVED + ":")),
 				Arrays.asList(caseField, contaminationBox, killBox, observedBox));
-		List<JLabel> tracingLabels = Arrays.asList(new JLabel(TracingColumns.SCORE + ":"),
-				new JLabel(TracingColumns.NORMALIZED_SCORE + ":"), new JLabel(TracingColumns.BACKWARD + ":"),
-				new JLabel(TracingColumns.FORWARD + ":"));
-		List<JTextField> tracingFields = Arrays.asList(createField(values.get(TracingColumns.SCORE)),
-				createField(values.get(TracingColumns.NORMALIZED_SCORE)),
-				createField(values.get(TracingColumns.BACKWARD)), createField(values.get(TracingColumns.FORWARD)));
+		List<JLabel> tracingLabels = new ArrayList<>();
+		List<JTextField> tracingFields = new ArrayList<>();
+
+		for (String column : TracingColumns.OUTPUT_COLUMNS) {
+			tracingLabels.add(new JLabel(column + ":"));
+			tracingFields.add(createField(values.get(column)));
+		}
+
 		JPanel tracingPanel = UI.createOptionsPanel("Tracing", tracingLabels, tracingFields);
 		JPanel northPanel = new JPanel();
 
@@ -100,14 +105,9 @@ public class EditableSinglePropertiesDialog extends JDialog implements ActionLis
 
 		Map<String, Class<?>> otherProperties = new LinkedHashMap<>(properties);
 
-		otherProperties.remove(TracingColumns.WEIGHT);
-		otherProperties.remove(TracingColumns.CROSS_CONTAMINATION);
-		otherProperties.remove(TracingColumns.KILL_CONTAMINATION);
-		otherProperties.remove(TracingColumns.OBSERVED);
-		otherProperties.remove(TracingColumns.SCORE);
-		otherProperties.remove(TracingColumns.NORMALIZED_SCORE);
-		otherProperties.remove(TracingColumns.BACKWARD);
-		otherProperties.remove(TracingColumns.FORWARD);
+		for (String column : Iterables.concat(TracingColumns.INPUT_COLUMNS, TracingColumns.OUTPUT_COLUMNS)) {
+			otherProperties.remove(column);
+		}
 
 		JPanel leftCenterPanel = new JPanel();
 		JPanel rightCenterPanel = new JPanel();

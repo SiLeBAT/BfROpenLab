@@ -32,9 +32,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -285,18 +283,7 @@ public class TracingViewNodeModel extends NodeModel {
 			columns.put(column.getName(), column.getType());
 		}
 
-		Map<String, DataType> newColumns = new LinkedHashMap<>();
-
-		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
-
-		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
 			DataType oldType = columns.get(entry.getKey());
 
 			if (oldType == null) {
@@ -324,18 +311,7 @@ public class TracingViewNodeModel extends NodeModel {
 			columns.put(column.getName(), column.getType());
 		}
 
-		Map<String, DataType> newColumns = new LinkedHashMap<>();
-
-		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
-
-		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
 			DataType oldType = columns.get(entry.getKey());
 
 			if (oldType == null) {

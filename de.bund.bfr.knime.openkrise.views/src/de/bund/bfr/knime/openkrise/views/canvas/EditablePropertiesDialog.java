@@ -132,10 +132,9 @@ public class EditablePropertiesDialog<V extends Node> extends JDialog
 
 		TableCellRenderer boldHeaderRenderer = new BoldHeaderRenderer(table.getTableHeader().getDefaultRenderer());
 
-		table.getColumn(TracingColumns.SCORE).setHeaderRenderer(boldHeaderRenderer);
-		table.getColumn(TracingColumns.NORMALIZED_SCORE).setHeaderRenderer(boldHeaderRenderer);
-		table.getColumn(TracingColumns.BACKWARD).setHeaderRenderer(boldHeaderRenderer);
-		table.getColumn(TracingColumns.FORWARD).setHeaderRenderer(boldHeaderRenderer);
+		for (String column : TracingColumns.OUTPUT_COLUMNS) {
+			table.getColumn(column).setHeaderRenderer(boldHeaderRenderer);
+		}
 
 		InputTable.Header inputTableHeader = new InputTable.Header();
 

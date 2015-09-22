@@ -19,6 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DoubleCell;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 public interface TracingColumns {
 
 	public static final String ID = "ID";
@@ -33,11 +40,30 @@ public interface TracingColumns {
 	public static final String KILL_CONTAMINATION = "Kill Contamination";
 	public static final String SCORE = "Score";
 	public static final String NORMALIZED_SCORE = "Normalized Score";
+	public static final String POSITIVE_SCORE = "Positive Score";
+	public static final String NEGATIVE_SCORE = "Negative Score";
 
 	public static final String OLD_OBSERVED = "Filter";
 	public static final String OBSERVED = "Observed";
 	public static final String BACKWARD = "Backward";
 	public static final String FORWARD = "Forward";
+
+	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
+			KILL_CONTAMINATION, OBSERVED);
+	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,
+			NEGATIVE_SCORE, BACKWARD, FORWARD);
+	public static final ImmutableMap<String, DataType> COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
+			.put(TracingColumns.WEIGHT, DoubleCell.TYPE).put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE)
+			.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE).put(TracingColumns.SCORE, DoubleCell.TYPE)
+			.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE).put(TracingColumns.POSITIVE_SCORE, DoubleCell.TYPE)
+			.put(TracingColumns.NEGATIVE_SCORE, DoubleCell.TYPE).put(TracingColumns.OBSERVED, BooleanCell.TYPE)
+			.put(TracingColumns.BACKWARD, BooleanCell.TYPE).put(TracingColumns.FORWARD, BooleanCell.TYPE).build();
+	public static final ImmutableMap<String, Class<?>> COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
+			.put(TracingColumns.WEIGHT, Double.class).put(TracingColumns.CROSS_CONTAMINATION, Boolean.class)
+			.put(TracingColumns.KILL_CONTAMINATION, Boolean.class).put(TracingColumns.SCORE, Double.class)
+			.put(TracingColumns.NORMALIZED_SCORE, Double.class).put(TracingColumns.POSITIVE_SCORE, Double.class)
+			.put(TracingColumns.NEGATIVE_SCORE, Double.class).put(TracingColumns.OBSERVED, Boolean.class)
+			.put(TracingColumns.BACKWARD, Boolean.class).put(TracingColumns.FORWARD, Boolean.class).build();
 
 	public static final String CLUSTER_ID = "ClusterID";
 	public static final String ADDRESS = "Address";

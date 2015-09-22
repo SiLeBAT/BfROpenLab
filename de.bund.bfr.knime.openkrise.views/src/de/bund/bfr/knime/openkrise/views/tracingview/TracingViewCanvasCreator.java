@@ -72,23 +72,8 @@ public class TracingViewCanvasCreator {
 		Map<String, Class<?>> nodeProperties = TracingUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = TracingUtils.getTableColumns(edgeTable.getSpec());
 
-		nodeProperties.put(TracingColumns.WEIGHT, Double.class);
-		nodeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
-		nodeProperties.put(TracingColumns.KILL_CONTAMINATION, Boolean.class);
-		nodeProperties.put(TracingColumns.OBSERVED, Boolean.class);
-		nodeProperties.put(TracingColumns.SCORE, Double.class);
-		nodeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);
-		nodeProperties.put(TracingColumns.BACKWARD, Boolean.class);
-		nodeProperties.put(TracingColumns.FORWARD, Boolean.class);
-
-		edgeProperties.put(TracingColumns.WEIGHT, Double.class);
-		edgeProperties.put(TracingColumns.CROSS_CONTAMINATION, Boolean.class);
-		edgeProperties.put(TracingColumns.KILL_CONTAMINATION, Boolean.class);
-		edgeProperties.put(TracingColumns.OBSERVED, Boolean.class);
-		edgeProperties.put(TracingColumns.SCORE, Double.class);
-		edgeProperties.put(TracingColumns.NORMALIZED_SCORE, Double.class);
-		edgeProperties.put(TracingColumns.BACKWARD, Boolean.class);
-		edgeProperties.put(TracingColumns.FORWARD, Boolean.class);
+		nodeProperties.putAll(TracingColumns.COLUMN_CLASSES);
+		edgeProperties.putAll(TracingColumns.COLUMN_CLASSES);
 
 		nodeSchema = new NodePropertySchema(nodeProperties, TracingColumns.ID);
 		edgeSchema = new EdgePropertySchema(edgeProperties, TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);

@@ -36,9 +36,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -244,6 +242,10 @@ public class TracingParametersNodeModel extends NodeModel {
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getStationScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(result.getStationNormalizedScore(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.POSITIVE_SCORE)] = IO
+					.createCell(result.getStationPositiveScore(id));
+			cells[nodeOutSpec.findColumnIndex(TracingColumns.NEGATIVE_SCORE)] = IO
+					.createCell(result.getStationNegativeScore(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardNodes.contains(id));
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardNodes.contains(id));
 
@@ -278,6 +280,10 @@ public class TracingParametersNodeModel extends NodeModel {
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.SCORE)] = IO.createCell(result.getDeliveryScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.NORMALIZED_SCORE)] = IO
 					.createCell(result.getDeliveryNormalizedScore(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.POSITIVE_SCORE)] = IO
+					.createCell(result.getDeliveryPositiveScore(id));
+			cells[edgeOutSpec.findColumnIndex(TracingColumns.NEGATIVE_SCORE)] = IO
+					.createCell(result.getDeliveryNegativeScore(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.BACKWARD)] = IO.createCell(backwardEdges.contains(id));
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.FORWARD)] = IO.createCell(forwardEdges.contains(id));
 
@@ -351,19 +357,9 @@ public class TracingParametersNodeModel extends NodeModel {
 
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
-		Map<String, DataType> newColumns = new LinkedHashMap<>();
-
-		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : nodeSpec) {
-			if (newColumns.containsKey(column.getName())) {
+			if (TracingColumns.COLUMN_TYPES.containsKey(column.getName())) {
 				throw new InvalidSettingsException(
 						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
@@ -371,7 +367,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			newNodeSpec.add(column);
 		}
 
-		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
 			newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 		}
 
@@ -380,19 +376,9 @@ public class TracingParametersNodeModel extends NodeModel {
 
 	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
-		Map<String, DataType> newColumns = new LinkedHashMap<>();
-
-		newColumns.put(TracingColumns.WEIGHT, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.OBSERVED, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE);
-		newColumns.put(TracingColumns.BACKWARD, BooleanCell.TYPE);
-		newColumns.put(TracingColumns.FORWARD, BooleanCell.TYPE);
 
 		for (DataColumnSpec column : edgeSpec) {
-			if (newColumns.containsKey(column.getName())) {
+			if (TracingColumns.COLUMN_TYPES.containsKey(column.getName())) {
 				throw new InvalidSettingsException(
 						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
@@ -400,7 +386,7 @@ public class TracingParametersNodeModel extends NodeModel {
 			newEdgeSpec.add(column);
 		}
 
-		for (Map.Entry<String, DataType> entry : newColumns.entrySet()) {
+		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
 			newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 		}
 

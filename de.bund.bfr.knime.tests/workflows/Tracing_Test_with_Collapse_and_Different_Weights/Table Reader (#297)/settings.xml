@@ -39,7 +39,7 @@
 <entry key="node-bundle-name" type="xstring" value="KNIME Base Nodes"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.base"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="2.11.3.0046666"/>
+<entry key="node-bundle-version" type="xstring" value="2.12.0.0048096"/>
 <config key="factory_settings"/>
 <entry key="name" type="xstring" value="Table Reader"/>
 <entry key="hasContent" type="xboolean" value="true"/>
@@ -49,12 +49,12 @@
 <entry key="index" type="xint" value="1"/>
 <entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
 <entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
-<entry key="port_object_summary" type="xstring" value="Rows: 371, Cols: 27"/>
+<entry key="port_object_summary" type="xstring" value="Rows: 371, Cols: 29"/>
 <entry key="port_dir_location" type="xstring" value="port_1"/>
 </config>
 </config>
 <config key="filestores">
 <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-<entry key="file_store_id" type="xstring" value="af77ef28-0ffc-4177-bb08-fb355ab18123"/>
+<entry key="file_store_id" type="xstring" value="e202641f-d295-4de2-be94-a4d3e346d800"/>
 </config>
 </config>
