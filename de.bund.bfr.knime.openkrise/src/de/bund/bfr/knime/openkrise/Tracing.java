@@ -253,20 +253,20 @@ public class Tracing {
 			result.stationScores.put(stationId, getStationScore(stationId, ScoreType.COMBINED));
 			result.stationPositiveScores.put(stationId, getStationScore(stationId, ScoreType.POSITIVE));
 			result.stationNegativeScores.put(stationId, getStationScore(stationId, ScoreType.NEGATIVE));
-			result.forwardStationsByStation.put(stationId, getForwardStations(stationId));
-			result.backwardStationsByStation.put(stationId, getBackwardStations(stationId));
-			result.forwardDeliveriesByStation.put(stationId, getForwardDeliveries(stationId));
-			result.backwardDeliveriesByStation.put(stationId, getBackwardDeliveries(stationId));
+			result.forwardStationsByStation.putAll(stationId, getForwardStations(stationId));
+			result.backwardStationsByStation.putAll(stationId, getBackwardStations(stationId));
+			result.forwardDeliveriesByStation.putAll(stationId, getForwardDeliveries(stationId));
+			result.backwardDeliveriesByStation.putAll(stationId, getBackwardDeliveries(stationId));
 		}
 
 		for (Delivery d : deliveryMap.values()) {
 			result.deliveryScores.put(d.getId(), getDeliveryScore(d, ScoreType.COMBINED));
 			result.deliveryPositiveScores.put(d.getId(), getDeliveryScore(d, ScoreType.POSITIVE));
 			result.deliveryNegativeScores.put(d.getId(), getDeliveryScore(d, ScoreType.NEGATIVE));
-			result.forwardStationsByDelivery.put(d.getId(), getForwardStations(d));
-			result.backwardStationsByDelivery.put(d.getId(), getBackwardStations(d));
-			result.forwardDeliveriesByDelivery.put(d.getId(), getForwardDeliveries(d));
-			result.backwardDeliveriesByDelivery.put(d.getId(), getBackwardDeliveries(d));
+			result.forwardStationsByDelivery.putAll(d.getId(), getForwardStations(d));
+			result.backwardStationsByDelivery.putAll(d.getId(), getBackwardStations(d));
+			result.forwardDeliveriesByDelivery.putAll(d.getId(), getForwardDeliveries(d));
+			result.backwardDeliveriesByDelivery.putAll(d.getId(), getBackwardDeliveries(d));
 		}
 
 		return result;
@@ -458,14 +458,14 @@ public class Tracing {
 		private Map<String, Double> deliveryScores;
 		private Map<String, Double> deliveryPositiveScores;
 		private Map<String, Double> deliveryNegativeScores;
-		private Map<String, Set<String>> forwardStationsByStation;
-		private Map<String, Set<String>> backwardStationsByStation;
-		private Map<String, Set<String>> forwardDeliveriesByStation;
-		private Map<String, Set<String>> backwardDeliveriesByStation;
-		private Map<String, Set<String>> forwardStationsByDelivery;
-		private Map<String, Set<String>> backwardStationsByDelivery;
-		private Map<String, Set<String>> forwardDeliveriesByDelivery;
-		private Map<String, Set<String>> backwardDeliveriesByDelivery;
+		private SetMultimap<String, String> forwardStationsByStation;
+		private SetMultimap<String, String> backwardStationsByStation;
+		private SetMultimap<String, String> forwardDeliveriesByStation;
+		private SetMultimap<String, String> backwardDeliveriesByStation;
+		private SetMultimap<String, String> forwardStationsByDelivery;
+		private SetMultimap<String, String> backwardStationsByDelivery;
+		private SetMultimap<String, String> forwardDeliveriesByDelivery;
+		private SetMultimap<String, String> backwardDeliveriesByDelivery;
 
 		private Result() {
 			stationScores = new LinkedHashMap<>();
@@ -474,14 +474,14 @@ public class Tracing {
 			deliveryScores = new LinkedHashMap<>();
 			deliveryPositiveScores = new LinkedHashMap<>();
 			deliveryNegativeScores = new LinkedHashMap<>();
-			forwardStationsByStation = new LinkedHashMap<>();
-			backwardStationsByStation = new LinkedHashMap<>();
-			forwardDeliveriesByStation = new LinkedHashMap<>();
-			backwardDeliveriesByStation = new LinkedHashMap<>();
-			forwardStationsByDelivery = new LinkedHashMap<>();
-			backwardStationsByDelivery = new LinkedHashMap<>();
-			forwardDeliveriesByDelivery = new LinkedHashMap<>();
-			backwardDeliveriesByDelivery = new LinkedHashMap<>();
+			forwardStationsByStation = LinkedHashMultimap.create();
+			backwardStationsByStation = LinkedHashMultimap.create();
+			forwardDeliveriesByStation = LinkedHashMultimap.create();
+			backwardDeliveriesByStation = LinkedHashMultimap.create();
+			forwardStationsByDelivery = LinkedHashMultimap.create();
+			backwardStationsByDelivery = LinkedHashMultimap.create();
+			forwardDeliveriesByDelivery = LinkedHashMultimap.create();
+			backwardDeliveriesByDelivery = LinkedHashMultimap.create();
 		}
 
 		public Map<String, Double> getStationScores() {
@@ -508,35 +508,35 @@ public class Tracing {
 			return deliveryNegativeScores;
 		}
 
-		public Map<String, Set<String>> getForwardStationsByStation() {
+		public SetMultimap<String, String> getForwardStationsByStation() {
 			return forwardStationsByStation;
 		}
 
-		public Map<String, Set<String>> getBackwardStationsByStation() {
+		public SetMultimap<String, String> getBackwardStationsByStation() {
 			return backwardStationsByStation;
 		}
 
-		public Map<String, Set<String>> getForwardDeliveriesByStation() {
+		public SetMultimap<String, String> getForwardDeliveriesByStation() {
 			return forwardDeliveriesByStation;
 		}
 
-		public Map<String, Set<String>> getBackwardDeliveriesByStation() {
+		public SetMultimap<String, String> getBackwardDeliveriesByStation() {
 			return backwardDeliveriesByStation;
 		}
 
-		public Map<String, Set<String>> getForwardStationsByDelivery() {
+		public SetMultimap<String, String> getForwardStationsByDelivery() {
 			return forwardStationsByDelivery;
 		}
 
-		public Map<String, Set<String>> getBackwardStationsByDelivery() {
+		public SetMultimap<String, String> getBackwardStationsByDelivery() {
 			return backwardStationsByDelivery;
 		}
 
-		public Map<String, Set<String>> getForwardDeliveriesByDelivery() {
+		public SetMultimap<String, String> getForwardDeliveriesByDelivery() {
 			return forwardDeliveriesByDelivery;
 		}
 
-		public Map<String, Set<String>> getBackwardDeliveriesByDelivery() {
+		public SetMultimap<String, String> getBackwardDeliveriesByDelivery() {
 			return backwardDeliveriesByDelivery;
 		}
 	}

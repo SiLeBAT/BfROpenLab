@@ -9,7 +9,6 @@ Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.knime.base;bundle-version="2.12.0",
  org.knime.quickform.nodes,
  org.knime.ext.poi,
- com.google.guava,
  de.bund.bfr.knime.openkrise.db,
  de.bund.bfr.knime.openkrise.common;visibility:=reexport,
  de.bund.bfr.knime.gis;visibility:=reexport
