@@ -36,6 +36,10 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
 
 public class Tracing {
 
+	private static enum ScoreType {
+		COMBINED, POSITIVE, NEGATIVE
+	}
+
 	private List<Delivery> deliveries;
 	private Map<String, Double> stationWeights;
 	private Map<String, Double> deliveryWeights;
@@ -49,7 +53,8 @@ public class Tracing {
 	private transient SetMultimap<String, String> outgoingDeliveries;
 	private transient Map<String, Set<String>> backwardDeliveries;
 	private transient Map<String, Set<String>> forwardDeliveries;
-	private transient double weightDenom;
+	private transient double positiveWeightSum;
+	private transient double negativeWeightSum;
 
 	public Tracing(Collection<Delivery> deliveries) {
 		Set<String> allIds = new LinkedHashSet<>();
@@ -137,8 +142,8 @@ public class Tracing {
 	}
 
 	public Result getResult(boolean enforceTemporalOrder) {
-		double positiveWeightSum = 0.0;
-		double negativeWeightSum = 0.0;
+		positiveWeightSum = 0.0;
+		negativeWeightSum = 0.0;
 
 		for (double w : Iterables.concat(stationWeights.values(), deliveryWeights.values())) {
 			if (w > 0.0) {
@@ -148,7 +153,6 @@ public class Tracing {
 			}
 		}
 
-		weightDenom = Math.max(positiveWeightSum, negativeWeightSum);
 		backwardDeliveries = new LinkedHashMap<>();
 		forwardDeliveries = new LinkedHashMap<>();
 		deliveryMap = new LinkedHashMap<>();
@@ -246,7 +250,9 @@ public class Tracing {
 		Result result = new Result();
 
 		for (String stationId : Sets.union(incomingDeliveries.keySet(), outgoingDeliveries.keySet())) {
-			result.stationScores.put(stationId, getStationScore(stationId));
+			result.stationScores.put(stationId, getStationScore(stationId, ScoreType.COMBINED));
+			result.stationPositiveScores.put(stationId, getStationScore(stationId, ScoreType.POSITIVE));
+			result.stationNegativeScores.put(stationId, getStationScore(stationId, ScoreType.NEGATIVE));
 			result.forwardStationsByStation.put(stationId, getForwardStations(stationId));
 			result.backwardStationsByStation.put(stationId, getBackwardStations(stationId));
 			result.forwardDeliveriesByStation.put(stationId, getForwardDeliveries(stationId));
@@ -254,7 +260,9 @@ public class Tracing {
 		}
 
 		for (Delivery d : deliveryMap.values()) {
-			result.deliveryScores.put(d.getId(), getDeliveryScore(d));
+			result.deliveryScores.put(d.getId(), getDeliveryScore(d, ScoreType.COMBINED));
+			result.deliveryPositiveScores.put(d.getId(), getDeliveryScore(d, ScoreType.POSITIVE));
+			result.deliveryNegativeScores.put(d.getId(), getDeliveryScore(d, ScoreType.NEGATIVE));
 			result.forwardStationsByDelivery.put(d.getId(), getForwardStations(d));
 			result.backwardStationsByDelivery.put(d.getId(), getBackwardStations(d));
 			result.forwardDeliveriesByDelivery.put(d.getId(), getForwardDeliveries(d));
@@ -264,56 +272,74 @@ public class Tracing {
 		return result;
 	}
 
-	private double getStationScore(String id) {
-		if (weightDenom == 0.0) {
+	private double getStationScore(String id, ScoreType type) {
+		double denom = getDenom(type);
+
+		if (denom == 0.0) {
 			return 0.0;
 		}
 
-		double sum = 0.0;
-
-		if (stationWeights.containsKey(id)) {
-			sum += stationWeights.get(id);
-		}
+		double sum = getWeight(stationWeights.get(id), type);
 
 		for (String stationId : getForwardStations(id)) {
-			if (stationWeights.containsKey(stationId)) {
-				sum += stationWeights.get(stationId);
-			}
+			sum += getWeight(stationWeights.get(stationId), type);
 		}
 
 		for (String deliveryId : getForwardDeliveries(id)) {
-			if (deliveryWeights.containsKey(deliveryId)) {
-				sum += deliveryWeights.get(deliveryId);
-			}
+			sum += getWeight(deliveryWeights.get(deliveryId), type);
 		}
 
-		return sum / weightDenom;
+		return sum / denom;
 	}
 
-	private double getDeliveryScore(Delivery d) {
-		if (weightDenom == 0.0) {
+	private double getDeliveryScore(Delivery d, ScoreType type) {
+		double denom = getDenom(type);
+
+		if (denom == 0.0) {
 			return 0.0;
 		}
 
-		double sum = 0.0;
-
-		if (deliveryWeights.containsKey(d.getId())) {
-			sum += deliveryWeights.get(d.getId());
-		}
+		double sum = getWeight(deliveryWeights.get(d.getId()), type);
 
 		for (String stationId : getForwardStations(d)) {
-			if (stationWeights.containsKey(stationId)) {
-				sum += stationWeights.get(stationId);
-			}
+			sum += getWeight(stationWeights.get(stationId), type);
 		}
 
 		for (String deliveryId : getForwardDeliveries(d)) {
-			if (deliveryWeights.containsKey(deliveryId)) {
-				sum += deliveryWeights.get(deliveryId);
-			}
+			sum += getWeight(deliveryWeights.get(deliveryId), type);
 		}
 
-		return sum / weightDenom;
+		return sum / denom;
+	}
+
+	private double getDenom(ScoreType type) {
+		switch (type) {
+		case COMBINED:
+			return Math.max(positiveWeightSum, negativeWeightSum);
+		case POSITIVE:
+			return positiveWeightSum;
+		case NEGATIVE:
+			return negativeWeightSum;
+		default:
+			throw new RuntimeException("This should not happen.");
+		}
+	}
+
+	private double getWeight(Double weight, ScoreType type) {
+		if (weight == null) {
+			return 0.0;
+		}
+
+		switch (type) {
+		case COMBINED:
+			return weight;
+		case POSITIVE:
+			return weight > 0.0 ? weight : 0.0;
+		case NEGATIVE:
+			return weight < 0.0 ? -weight : 0.0;
+		default:
+			throw new RuntimeException("This should not happen.");
+		}
 	}
 
 	private Set<String> getForwardStations(String stationID) {
@@ -427,7 +453,11 @@ public class Tracing {
 	public static final class Result {
 
 		private Map<String, Double> stationScores;
+		private Map<String, Double> stationPositiveScores;
+		private Map<String, Double> stationNegativeScores;
 		private Map<String, Double> deliveryScores;
+		private Map<String, Double> deliveryPositiveScores;
+		private Map<String, Double> deliveryNegativeScores;
 		private Map<String, Set<String>> forwardStationsByStation;
 		private Map<String, Set<String>> backwardStationsByStation;
 		private Map<String, Set<String>> forwardDeliveriesByStation;
@@ -439,7 +469,11 @@ public class Tracing {
 
 		private Result() {
 			stationScores = new LinkedHashMap<>();
+			stationPositiveScores = new LinkedHashMap<>();
+			stationNegativeScores = new LinkedHashMap<>();
 			deliveryScores = new LinkedHashMap<>();
+			deliveryPositiveScores = new LinkedHashMap<>();
+			deliveryNegativeScores = new LinkedHashMap<>();
 			forwardStationsByStation = new LinkedHashMap<>();
 			backwardStationsByStation = new LinkedHashMap<>();
 			forwardDeliveriesByStation = new LinkedHashMap<>();
@@ -454,8 +488,24 @@ public class Tracing {
 			return stationScores;
 		}
 
+		public Map<String, Double> getStationPositiveScores() {
+			return stationPositiveScores;
+		}
+
+		public Map<String, Double> getStationNegativeScores() {
+			return stationNegativeScores;
+		}
+
 		public Map<String, Double> getDeliveryScores() {
 			return deliveryScores;
+		}
+
+		public Map<String, Double> getDeliveryPositiveScores() {
+			return deliveryPositiveScores;
+		}
+
+		public Map<String, Double> getDeliveryNegativeScores() {
+			return deliveryNegativeScores;
 		}
 
 		public Map<String, Set<String>> getForwardStationsByStation() {
