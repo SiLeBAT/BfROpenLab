@@ -219,7 +219,7 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		int index = 0;
-		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
+		DataTableSpec nodeOutSpec = createOutSpec(nodeTable.getSpec());
 		BufferedDataContainer nodeContainer = exec.createDataContainer(nodeOutSpec);
 
 		for (DataRow row : nodeTable) {
@@ -257,7 +257,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		nodeContainer.close();
 
-		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeTable.getSpec());
+		DataTableSpec edgeOutSpec = createOutSpec(edgeTable.getSpec());
 		BufferedDataContainer edgeContainer = exec.createDataContainer(edgeOutSpec);
 
 		for (DataRow row : edgeTable) {
@@ -310,10 +310,7 @@ public class TracingParametersNodeModel extends NodeModel {
 	 */
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		DataTableSpec nodeSpec = inSpecs[0];
-		DataTableSpec edgeSpec = inSpecs[1];
-
-		return new DataTableSpec[] { createNodeOutSpec(nodeSpec), createEdgeOutSpec(edgeSpec) };
+		return new DataTableSpec[] { createOutSpec(inSpecs[0]), createOutSpec(inSpecs[1]) };
 	}
 
 	/**
@@ -355,42 +352,23 @@ public class TracingParametersNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
-		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
+	private static DataTableSpec createOutSpec(DataTableSpec spec) throws InvalidSettingsException {
+		List<DataColumnSpec> outSpec = new ArrayList<>();
 
-		for (DataColumnSpec column : nodeSpec) {
+		for (DataColumnSpec column : spec) {
 			if (TracingColumns.COLUMN_TYPES.containsKey(column.getName())) {
 				throw new InvalidSettingsException(
 						"Column name \"" + column.getName() + "\" is not allowed in input table");
 			}
 
-			newNodeSpec.add(column);
+			outSpec.add(column);
 		}
 
 		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
-			newNodeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
+			outSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
 		}
 
-		return new DataTableSpec(newNodeSpec.toArray(new DataColumnSpec[0]));
-	}
-
-	private static DataTableSpec createEdgeOutSpec(DataTableSpec edgeSpec) throws InvalidSettingsException {
-		List<DataColumnSpec> newEdgeSpec = new ArrayList<>();
-
-		for (DataColumnSpec column : edgeSpec) {
-			if (TracingColumns.COLUMN_TYPES.containsKey(column.getName())) {
-				throw new InvalidSettingsException(
-						"Column name \"" + column.getName() + "\" is not allowed in input table");
-			}
-
-			newEdgeSpec.add(column);
-		}
-
-		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
-			newEdgeSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
-		}
-
-		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
+		return new DataTableSpec(outSpec.toArray(new DataColumnSpec[0]));
 	}
 
 	private static <T> Map<String, T> createConditionMap(Collection<? extends Element> elements,
