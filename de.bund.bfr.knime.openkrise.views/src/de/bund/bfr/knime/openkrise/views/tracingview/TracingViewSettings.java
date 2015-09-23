@@ -331,7 +331,7 @@ public class TracingViewSettings extends NodeSettings {
 		editingMode = canvas.getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
-		if (resized) {
+		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
 		}
 
@@ -412,187 +412,23 @@ public class TracingViewSettings extends NodeSettings {
 		this.exportAsSvg = exportAsSvg;
 	}
 
-	public boolean isSkipEdgelessNodes() {
-		return skipEdgelessNodes;
+	public void clearWeights() {
+		nodeWeights.clear();
+		edgeWeights.clear();
 	}
 
-	public void setSkipEdgelessNodes(boolean skipEdgelessNodes) {
-		this.skipEdgelessNodes = skipEdgelessNodes;
+	public void clearCrossContamination() {
+		nodeCrossContaminations.clear();
+		edgeCrossContaminations.clear();
 	}
 
-	public boolean isShowEdgesInMetaNode() {
-		return showEdgesInMetaNode;
+	public void clearKillContamination() {
+		nodeKillContaminations.clear();
+		edgeKillContaminations.clear();
 	}
 
-	public void setShowEdgesInMetaNode(boolean showEdgesInMetaNode) {
-		this.showEdgesInMetaNode = showEdgesInMetaNode;
-	}
-
-	public boolean isJoinEdges() {
-		return joinEdges;
-	}
-
-	public void setJoinEdges(boolean joinEdges) {
-		this.joinEdges = joinEdges;
-	}
-
-	public boolean isArrowInMiddle() {
-		return arrowInMiddle;
-	}
-
-	public void setArrowInMiddle(boolean arrowInMiddle) {
-		this.arrowInMiddle = arrowInMiddle;
-	}
-
-	public boolean isShowLegend() {
-		return showLegend;
-	}
-
-	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
-	}
-
-	public Mode getEditingMode() {
-		return editingMode;
-	}
-
-	public void setEditingMode(Mode editingMode) {
-		this.editingMode = editingMode;
-	}
-
-	public Dimension getCanvasSize() {
-		return canvasSize;
-	}
-
-	public void setCanvasSize(Dimension canvasSize) {
-		this.canvasSize = canvasSize;
-	}
-
-	public List<String> getSelectedNodes() {
-		return selectedNodes;
-	}
-
-	public void setSelectedNodes(List<String> selectedNodes) {
-		this.selectedNodes = selectedNodes;
-	}
-
-	public List<String> getSelectedEdges() {
-		return selectedEdges;
-	}
-
-	public void setSelectedEdges(List<String> selectedEdges) {
-		this.selectedEdges = selectedEdges;
-	}
-
-	public HighlightConditionList getNodeHighlightConditions() {
-		return nodeHighlightConditions;
-	}
-
-	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
-		this.nodeHighlightConditions = nodeHighlightConditions;
-	}
-
-	public HighlightConditionList getEdgeHighlightConditions() {
-		return edgeHighlightConditions;
-	}
-
-	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
-		this.edgeHighlightConditions = edgeHighlightConditions;
-	}
-
-	public Map<String, Map<String, Point2D>> getCollapsedNodes() {
-		return collapsedNodes;
-	}
-
-	public void setCollapsedNodes(Map<String, Map<String, Point2D>> collapsedNodes) {
-		this.collapsedNodes = collapsedNodes;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public Map<String, Double> getNodeWeights() {
-		return nodeWeights;
-	}
-
-	public void setNodeWeights(Map<String, Double> nodeWeights) {
-		this.nodeWeights = nodeWeights;
-	}
-
-	public Map<String, Double> getEdgeWeights() {
-		return edgeWeights;
-	}
-
-	public void setEdgeWeights(Map<String, Double> edgeWeights) {
-		this.edgeWeights = edgeWeights;
-	}
-
-	public Map<String, Boolean> getNodeCrossContaminations() {
-		return nodeCrossContaminations;
-	}
-
-	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
-		this.nodeCrossContaminations = nodeCrossContaminations;
-	}
-
-	public Map<String, Boolean> getEdgeCrossContaminations() {
-		return edgeCrossContaminations;
-	}
-
-	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
-		this.edgeCrossContaminations = edgeCrossContaminations;
-	}
-
-	public Map<String, Boolean> getNodeKillContaminations() {
-		return nodeKillContaminations;
-	}
-
-	public void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations) {
-		this.nodeKillContaminations = nodeKillContaminations;
-	}
-
-	public Map<String, Boolean> getEdgeKillContaminations() {
-		return edgeKillContaminations;
-	}
-
-	public void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations) {
-		this.edgeKillContaminations = edgeKillContaminations;
-	}
-
-	public Map<String, Boolean> getObservedNodes() {
-		return observedNodes;
-	}
-
-	public void setObservedNodes(Map<String, Boolean> observedNodes) {
-		this.observedNodes = observedNodes;
-	}
-
-	public Map<String, Boolean> getObservedEdges() {
-		return observedEdges;
-	}
-
-	public void setObservedEdges(Map<String, Boolean> observedEdges) {
-		this.observedEdges = observedEdges;
-	}
-
-	public boolean isEnforeTemporalOrder() {
-		return enforeTemporalOrder;
-	}
-
-	public void setEnforeTemporalOrder(boolean enforeTemporalOrder) {
-		this.enforeTemporalOrder = enforeTemporalOrder;
-	}
-
-	public boolean isShowForward() {
-		return showForward;
-	}
-
-	public void setShowForward(boolean showForward) {
-		this.showForward = showForward;
+	public void clearObserved() {
+		observedNodes.clear();
+		observedEdges.clear();
 	}
 }

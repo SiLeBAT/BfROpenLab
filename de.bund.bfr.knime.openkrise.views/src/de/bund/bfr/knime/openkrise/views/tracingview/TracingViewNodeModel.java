@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -52,8 +52,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
@@ -68,6 +67,9 @@ import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
 public class TracingViewNodeModel extends NodeModel {
 
 	private TracingViewSettings set;
+
+	private int count;
+	private int maxCount;
 
 	/**
 	 * Constructor for the node model.
@@ -89,83 +91,6 @@ public class TracingViewNodeModel extends NodeModel {
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		BufferedDataTable tracingTable = (BufferedDataTable) inObjects[2];
 		BufferedDataTable shapeTable = (BufferedDataTable) inObjects[3];
-		TracingGraphCanvas allEdgesCanvas = createAllEdgesCanvas(nodeTable, edgeTable, tracingTable, shapeTable, set);
-
-		int index = 0;
-		DataTableSpec nodeOutSpec = createNodeOutSpec(nodeTable.getSpec());
-		BufferedDataContainer nodeContainer = exec.createDataContainer(nodeOutSpec);
-
-		for (GraphNode node : allEdgesCanvas.getNodes()) {
-			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
-
-			for (int i = 0; i < cells.length; i++) {
-				cells[i] = DataType.getMissingCell();
-			}
-
-			for (String property : allEdgesCanvas.getNodeSchema().getMap().keySet()) {
-				int column = nodeOutSpec.findColumnIndex(property);
-
-				if (column != -1) {
-					Class<?> type = allEdgesCanvas.getNodeSchema().getMap().get(property);
-
-					if (type == String.class) {
-						cells[column] = IO.createCell((String) node.getProperties().get(property));
-					} else if (type == Integer.class) {
-						cells[column] = IO.createCell((Integer) node.getProperties().get(property));
-					} else if (type == Double.class) {
-						cells[column] = IO.createCell((Double) node.getProperties().get(property));
-					} else if (type == Boolean.class) {
-						cells[column] = IO.createCell((Boolean) node.getProperties().get(property));
-					}
-				}
-			}
-
-			nodeContainer.addRowToTable(new DefaultRow(index + "", cells));
-			exec.checkCanceled();
-			exec.setProgress(
-					(double) index / (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
-			index++;
-		}
-
-		nodeContainer.close();
-
-		DataTableSpec edgeOutSpec = createEdgeOutSpec(edgeTable.getSpec());
-		BufferedDataContainer edgeContainer = exec.createDataContainer(edgeOutSpec);
-
-		for (Edge<GraphNode> edge : allEdgesCanvas.getEdges()) {
-			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
-
-			for (int i = 0; i < cells.length; i++) {
-				cells[i] = DataType.getMissingCell();
-			}
-
-			for (String property : allEdgesCanvas.getEdgeSchema().getMap().keySet()) {
-				int column = edgeOutSpec.findColumnIndex(property);
-
-				if (column != -1) {
-					Class<?> type = allEdgesCanvas.getEdgeSchema().getMap().get(property);
-
-					if (type == String.class) {
-						cells[column] = IO.createCell((String) edge.getProperties().get(property));
-					} else if (type == Integer.class) {
-						cells[column] = IO.createCell((Integer) edge.getProperties().get(property));
-					} else if (type == Double.class) {
-						cells[column] = IO.createCell((Double) edge.getProperties().get(property));
-					} else if (type == Boolean.class) {
-						cells[column] = IO.createCell((Boolean) edge.getProperties().get(property));
-					}
-				}
-			}
-
-			edgeContainer.addRowToTable(new DefaultRow((index - allEdgesCanvas.getNodes().size()) + "", cells));
-			exec.checkCanceled();
-			exec.setProgress(
-					(double) index / (double) (allEdgesCanvas.getNodes().size() + allEdgesCanvas.getEdges().size()));
-			index++;
-		}
-
-		edgeContainer.close();
-
 		GisType originalGisType = set.getGisType();
 
 		if (set.getGisType() == GisType.SHAPEFILE && shapeTable == null) {
@@ -207,8 +132,17 @@ public class TracingViewNodeModel extends NodeModel {
 			setWarningMessage("Shape Table: Row " + key.getString() + " skipped");
 		}
 
-		return new PortObject[] { nodeContainer.getTable(), edgeContainer.getTable(), graphImage, gisImage,
-				combinedImage };
+		graphCanvas.setJoinEdges(false);
+
+		count = 0;
+		maxCount = graphCanvas.getNodes().size() + graphCanvas.getEdges().size();
+
+		BufferedDataTable nodeOutTable = createTable(graphCanvas.getNodes(), graphCanvas.getNodeSchema().getMap(),
+				createNodeOutSpec(nodeTable.getSpec()), exec);
+		BufferedDataTable edgeOutTable = createTable(graphCanvas.getEdges(), graphCanvas.getEdgeSchema().getMap(),
+				createEdgeOutSpec(edgeTable.getSpec()), exec);
+
+		return new PortObject[] { nodeOutTable, edgeOutTable, graphImage, gisImage, combinedImage };
 	}
 
 	/**
@@ -270,6 +204,47 @@ public class TracingViewNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
+	private BufferedDataTable createTable(Collection<? extends Element> elements, Map<String, Class<?>> propertyTypes,
+			DataTableSpec spec, ExecutionContext exec) throws CanceledExecutionException {
+		BufferedDataContainer nodeContainer = exec.createDataContainer(spec);
+		int index = 0;
+
+		for (Element node : elements) {
+			DataCell[] cells = new DataCell[spec.getNumColumns()];
+
+			for (int i = 0; i < cells.length; i++) {
+				cells[i] = DataType.getMissingCell();
+			}
+
+			for (String property : propertyTypes.keySet()) {
+				int column = spec.findColumnIndex(property);
+
+				if (column != -1) {
+					Class<?> type = propertyTypes.get(property);
+
+					if (type == String.class) {
+						cells[column] = IO.createCell((String) node.getProperties().get(property));
+					} else if (type == Integer.class) {
+						cells[column] = IO.createCell((Integer) node.getProperties().get(property));
+					} else if (type == Double.class) {
+						cells[column] = IO.createCell((Double) node.getProperties().get(property));
+					} else if (type == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) node.getProperties().get(property));
+					}
+				}
+			}
+
+			nodeContainer.addRowToTable(new DefaultRow(index++ + "", cells));
+			exec.checkCanceled();
+			exec.setProgress((double) count / (double) maxCount);
+			count++;
+		}
+
+		nodeContainer.close();
+
+		return nodeContainer.getTable();
+	}
+
 	private static DataTableSpec createNodeOutSpec(DataTableSpec nodeSpec) throws InvalidSettingsException {
 		List<DataColumnSpec> newNodeSpec = new ArrayList<>();
 		Map<String, DataType> columns = new LinkedHashMap<>();
@@ -324,20 +299,4 @@ public class TracingViewNodeModel extends NodeModel {
 
 		return new DataTableSpec(newEdgeSpec.toArray(new DataColumnSpec[0]));
 	}
-
-	private static TracingGraphCanvas createAllEdgesCanvas(BufferedDataTable nodeTable, BufferedDataTable edgeTable,
-			BufferedDataTable tracingTable, BufferedDataTable shapeTable, TracingViewSettings set)
-					throws NotConfigurableException {
-		boolean joinEdges = set.isJoinEdges();
-
-		set.setJoinEdges(false);
-
-		TracingGraphCanvas canvas = new TracingViewCanvasCreator(nodeTable, edgeTable, tracingTable, shapeTable, set)
-				.createGraphCanvas();
-
-		set.setJoinEdges(joinEdges);
-
-		return canvas;
-	}
-
 }

@@ -128,7 +128,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private JButton redoButton;
 	private JButton resetWeightsButton;
 	private JButton resetCrossButton;
-	private JButton resetFilterButton;
+	private JButton resetKillButton;
+	private JButton resetObservedButton;
 	private JCheckBox exportAsSvgBox;
 	private JButton switchButton;
 	private JComboBox<GisType> gisBox;
@@ -153,8 +154,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		resetWeightsButton.addActionListener(this);
 		resetCrossButton = new JButton("Reset Cross Contamination");
 		resetCrossButton.addActionListener(this);
-		resetFilterButton = new JButton("Reset Observed");
-		resetFilterButton.addActionListener(this);
+		resetKillButton = new JButton("Reset Kill Contamination");
+		resetKillButton.addActionListener(this);
+		resetObservedButton = new JButton("Reset Observed");
+		resetObservedButton.addActionListener(this);
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		switchButton = new JButton();
 		switchButton.addActionListener(this);
@@ -165,7 +168,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 
 		northPanel.setLayout(new BorderLayout());
 		northPanel.add(UI.createHorizontalPanel(undoButton, redoButton, resetWeightsButton, resetCrossButton,
-				resetFilterButton, exportAsSvgBox), BorderLayout.WEST);
+				resetKillButton, resetObservedButton, exportAsSvgBox), BorderLayout.WEST);
 		northPanel.add(UI.createHorizontalPanel(switchButton, new JLabel("GIS Type:"), gisBox), BorderLayout.EAST);
 		northScrollPane = new JScrollPane(northPanel);
 		panel = UI.createNorthPanel(northScrollPane);
@@ -203,7 +206,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		gisBox.addItemListener(this);
 		gisBox.setEnabled(set.isShowGis());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		resized = set.getCanvasSize() == null;
+		resized = false;
 		panel.addComponentListener(this);
 
 		String warning = createCanvas();
@@ -269,22 +272,25 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 			undoButton.setEnabled(true);
 		} else if (e.getSource() == resetWeightsButton && doReset(resetWeightsButton.getText())) {
 			updateSettings();
-			set.getNodeWeights().clear();
-			set.getEdgeWeights().clear();
+			set.clearWeights();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
 		} else if (e.getSource() == resetCrossButton && doReset(resetCrossButton.getText())) {
 			updateSettings();
-			set.getNodeCrossContaminations().clear();
-			set.getEdgeCrossContaminations().clear();
+			set.clearCrossContamination();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
-		} else if (e.getSource() == resetFilterButton && doReset(resetFilterButton.getText())) {
+		} else if (e.getSource() == resetKillButton && doReset(resetKillButton.getText())) {
 			updateSettings();
-			set.getObservedNodes().clear();
-			set.getObservedEdges().clear();
+			set.clearKillContamination();
+			undoStack.clear();
+			redoStack.clear();
+			updateCanvas();
+		} else if (e.getSource() == resetObservedButton && doReset(resetObservedButton.getText())) {
+			updateSettings();
+			set.clearObserved();
 			undoStack.clear();
 			redoStack.clear();
 			updateCanvas();
