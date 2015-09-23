@@ -106,53 +106,18 @@ public class TracingParametersNodeModel extends NodeModel {
 			setWarningMessage("Tracing Table: Row " + key.getString() + " skipped");
 		}
 
-		Map<String, Double> nodeWeights;
-		Map<String, Double> edgeWeights;
-		Map<String, Boolean> crossNodes;
-		Map<String, Boolean> crossEdges;
-		Map<String, Boolean> killNodes;
-		Map<String, Boolean> killEdges;
-
-		if (set.getNodeWeightConditionValue() != null) {
-			nodeWeights = createConditionMap(nodes.values(), set.getNodeWeightCondition(),
-					set.getNodeWeightConditionValue(), 0.0);
-		} else {
-			nodeWeights = getCopyWithoutNullValues(set.getNodeWeights(), 0.0);
-		}
-
-		if (set.getEdgeWeightConditionValue() != null) {
-			edgeWeights = createConditionMap(edges, set.getEdgeWeightCondition(), set.getEdgeWeightConditionValue(),
-					0.0);
-		} else {
-			edgeWeights = getCopyWithoutNullValues(set.getEdgeWeights(), 0.0);
-		}
-
-		if (set.getNodeContaminationConditionValue() != null) {
-			crossNodes = createConditionMap(nodes.values(), set.getNodeContaminationCondition(),
-					set.getNodeContaminationConditionValue(), false);
-		} else {
-			crossNodes = getCopyWithoutNullValues(set.getNodeCrossContaminations(), false);
-		}
-
-		if (set.getEdgeContaminationConditionValue() != null) {
-			crossEdges = createConditionMap(edges, set.getEdgeContaminationCondition(),
-					set.getEdgeContaminationConditionValue(), false);
-		} else {
-			crossEdges = getCopyWithoutNullValues(set.getEdgeCrossContaminations(), false);
-		}
-
-		if (set.getNodeKillConditionValue() != null) {
-			killNodes = createConditionMap(nodes.values(), set.getNodeKillCondition(), set.getNodeKillConditionValue(),
-					false);
-		} else {
-			killNodes = getCopyWithoutNullValues(set.getNodeKillContaminations(), false);
-		}
-
-		if (set.getEdgeKillConditionValue() != null) {
-			killEdges = createConditionMap(edges, set.getEdgeKillCondition(), set.getEdgeKillConditionValue(), false);
-		} else {
-			killEdges = getCopyWithoutNullValues(set.getEdgeKillContaminations(), false);
-		}
+		Map<String, Double> nodeWeights = createValueMap(nodes.values(), set.getNodeWeightCondition(),
+				set.getNodeWeightConditionValue(), 0.0, set.getNodeWeights());
+		Map<String, Double> edgeWeights = createValueMap(edges, set.getEdgeWeightCondition(),
+				set.getEdgeWeightConditionValue(), 0.0, set.getEdgeWeights());
+		Map<String, Boolean> crossNodes = createValueMap(nodes.values(), set.getNodeContaminationCondition(),
+				set.getNodeContaminationConditionValue(), false, set.getNodeCrossContaminations());
+		Map<String, Boolean> crossEdges = createValueMap(edges, set.getEdgeContaminationCondition(),
+				set.getEdgeContaminationConditionValue(), false, set.getEdgeCrossContaminations());
+		Map<String, Boolean> killNodes = createValueMap(nodes.values(), set.getNodeKillCondition(),
+				set.getNodeKillConditionValue(), false, set.getNodeKillContaminations());
+		Map<String, Boolean> killEdges = createValueMap(edges, set.getEdgeKillCondition(),
+				set.getEdgeKillConditionValue(), false, set.getEdgeKillContaminations());
 
 		for (Map.Entry<String, Double> entry : nodeWeights.entrySet()) {
 			tracing.setStationWeight(entry.getKey(), entry.getValue());
@@ -179,26 +144,14 @@ public class TracingParametersNodeModel extends NodeModel {
 		}
 
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
-		Map<String, Boolean> observedNodes;
-		Map<String, Boolean> observedEdges;
+		Map<String, Boolean> observedNodes = createValueMap(nodes.values(), set.getObservedNodesCondition(),
+				set.getObservedNodesConditionValue(), false, set.getObservedNodes());
+		Map<String, Boolean> observedEdges = createValueMap(edges, set.getObservedEdgesCondition(),
+				set.getObservedEdgesConditionValue(), false, set.getObservedEdges());
 		Set<String> backwardNodes = new LinkedHashSet<>();
 		Set<String> forwardNodes = new LinkedHashSet<>();
 		Set<String> backwardEdges = new LinkedHashSet<>();
 		Set<String> forwardEdges = new LinkedHashSet<>();
-
-		if (set.getObservedNodesConditionValue() != null) {
-			observedNodes = createConditionMap(nodes.values(), set.getObservedNodesCondition(),
-					set.getObservedNodesConditionValue(), false);
-		} else {
-			observedNodes = getCopyWithoutNullValues(set.getObservedNodes(), false);
-		}
-
-		if (set.getObservedEdgesConditionValue() != null) {
-			observedEdges = createConditionMap(edges, set.getObservedEdgesCondition(),
-					set.getObservedEdgesConditionValue(), false);
-		} else {
-			observedEdges = getCopyWithoutNullValues(set.getObservedEdges(), false);
-		}
 
 		for (Map.Entry<String, Boolean> entry : observedNodes.entrySet()) {
 			if (entry.getValue()) {
@@ -371,28 +324,26 @@ public class TracingParametersNodeModel extends NodeModel {
 		return new DataTableSpec(outSpec.toArray(new DataColumnSpec[0]));
 	}
 
-	private static <T> Map<String, T> createConditionMap(Collection<? extends Element> elements,
-			AndOrHighlightCondition condition, T inValue, T outValue) {
+	private static <T> Map<String, T> createValueMap(Collection<? extends Element> elements,
+			AndOrHighlightCondition condition, T inValue, T outValue, Map<String, T> defaultValues) {
 		Map<String, T> result = new LinkedHashMap<>();
 
-		if (condition != null) {
-			for (Map.Entry<? extends Element, Double> entry : condition.getValues(elements).entrySet()) {
-				result.put(entry.getKey().getId(), entry.getValue() != 0.0 ? inValue : outValue);
+		if (inValue != null) {
+			if (condition != null) {
+				for (Map.Entry<? extends Element, Double> entry : condition.getValues(elements).entrySet()) {
+					result.put(entry.getKey().getId(), entry.getValue() != 0.0 ? inValue : outValue);
+				}
+			} else {
+				for (Element element : elements) {
+					result.put(element.getId(), inValue);
+				}
 			}
 		} else {
 			for (Element element : elements) {
-				result.put(element.getId(), inValue);
+				T value = defaultValues.get(element.getId());
+
+				result.put(element.getId(), value != null ? value : outValue);
 			}
-		}
-
-		return result;
-	}
-
-	private static <T> Map<String, T> getCopyWithoutNullValues(Map<String, T> map, T replacement) {
-		Map<String, T> result = new LinkedHashMap<>();
-
-		for (Map.Entry<String, T> entry : map.entrySet()) {
-			result.put(entry.getKey(), entry.getValue() != null ? entry.getValue() : replacement);
 		}
 
 		return result;
