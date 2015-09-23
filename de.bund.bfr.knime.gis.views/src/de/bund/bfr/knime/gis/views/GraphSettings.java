@@ -302,7 +302,7 @@ public class GraphSettings extends Settings {
 		editingMode = canvas.getEditingMode();
 		collapsedNodes = BackwardUtils.toOldCollapseFormat(canvas.getCollapsedNodes());
 
-		if (resized) {
+		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
 		}
 
