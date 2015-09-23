@@ -66,7 +66,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 		nodeTable = (BufferedDataTable) input[1];
 		set.loadSettings(settings);
 		updateGisCanvas(false);
-		resized = set.getGisSettings().getCanvasSize() == null;
+		resized = false;
 	}
 
 	@Override

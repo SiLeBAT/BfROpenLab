@@ -65,7 +65,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 		set.getGraphSettings().loadSettings(settings);
 
 		updateCanvas(false);
-		resized = set.getGraphSettings().getCanvasSize() == null;
+		resized = false;
 	}
 
 	@Override

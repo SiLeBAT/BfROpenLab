@@ -80,7 +80,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 		}
 
 		updateSplitPane(false);
-		resized = set.getGraphSettings().getCanvasSize() == null || set.getGisSettings().getCanvasSize() == null;
+		resized = false;
 	}
 
 	@Override

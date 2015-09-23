@@ -140,44 +140,4 @@ public class LocationSettings extends GisSettings {
 	public void setNodeLongitudeColumn(String nodeLongitudeColumn) {
 		this.nodeLongitudeColumn = nodeLongitudeColumn;
 	}
-
-	public int getNodeSize() {
-		return nodeSize;
-	}
-
-	public void setNodeSize(int nodeSize) {
-		this.nodeSize = nodeSize;
-	}
-
-	public Integer getNodeMaxSize() {
-		return nodeMaxSize;
-	}
-
-	public void setNodeMaxSize(Integer nodeMaxSize) {
-		this.nodeMaxSize = nodeMaxSize;
-	}
-
-	public int getEdgeThickness() {
-		return edgeThickness;
-	}
-
-	public void setEdgeThickness(int edgeThickness) {
-		this.edgeThickness = edgeThickness;
-	}
-
-	public Integer getEdgeMaxThickness() {
-		return edgeMaxThickness;
-	}
-
-	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
-		this.edgeMaxThickness = edgeMaxThickness;
-	}
-
-	public boolean isAvoidOverlay() {
-		return avoidOverlay;
-	}
-
-	public void setAvoidOverlay(boolean avoidOverlay) {
-		this.avoidOverlay = avoidOverlay;
-	}
 }

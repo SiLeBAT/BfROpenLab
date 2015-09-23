@@ -114,7 +114,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		canvas.setSelectedNodeIds(
 				RegionToRegionUtils.getSelectedGisNodeIds(canvas.getNodes(), graphCanvas.getSelectedNodes()));
 		canvas.setSelectedEdgeIds(RegionToRegionUtils.getSelectedGisEdgeIds(canvas.getEdges(),
-				graphCanvas.getSelectedEdges(), set.getGraphSettings().isJoinEdges()));
+				graphCanvas.getSelectedEdges(), graphCanvas.isJoinEdges()));
 
 		return canvas;
 	}

@@ -177,7 +177,7 @@ public class GisSettings extends Settings {
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		label = canvas.getLabel();
 
-		if (resized) {
+		if (resized || canvasSize == null) {
 			canvasSize = canvas.getCanvasSize();
 		}
 	}
@@ -215,85 +215,5 @@ public class GisSettings extends Settings {
 
 	public void setShapeColumn(String shapeColumn) {
 		this.shapeColumn = shapeColumn;
-	}
-
-	public boolean isShowLegend() {
-		return showLegend;
-	}
-
-	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
-	}
-
-	public Transform getTransform() {
-		return transform;
-	}
-
-	public void setTransform(Transform transform) {
-		this.transform = transform;
-	}
-
-	public int getFontSize() {
-		return fontSize;
-	}
-
-	public void setFontSize(int fontSize) {
-		this.fontSize = fontSize;
-	}
-
-	public boolean isFontBold() {
-		return fontBold;
-	}
-
-	public void setFontBold(boolean fontBold) {
-		this.fontBold = fontBold;
-	}
-
-	public int getBorderAlpha() {
-		return borderAlpha;
-	}
-
-	public void setBorderAlpha(int borderAlpha) {
-		this.borderAlpha = borderAlpha;
-	}
-
-	public Mode getEditingMode() {
-		return editingMode;
-	}
-
-	public void setEditingMode(Mode editingMode) {
-		this.editingMode = editingMode;
-	}
-
-	public Dimension getCanvasSize() {
-		return canvasSize;
-	}
-
-	public void setCanvasSize(Dimension canvasSize) {
-		this.canvasSize = canvasSize;
-	}
-
-	public List<String> getSelectedNodes() {
-		return selectedNodes;
-	}
-
-	public void setSelectedNodes(List<String> selectedNodes) {
-		this.selectedNodes = selectedNodes;
-	}
-
-	public HighlightConditionList getNodeHighlightConditions() {
-		return nodeHighlightConditions;
-	}
-
-	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
-		this.nodeHighlightConditions = nodeHighlightConditions;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
 	}
 }

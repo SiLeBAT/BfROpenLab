@@ -72,7 +72,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 		}
 
 		updateGisCanvas(false);
-		resized = set.getGisSettings().getCanvasSize() == null;
+		resized = false;
 	}
 
 	@Override
