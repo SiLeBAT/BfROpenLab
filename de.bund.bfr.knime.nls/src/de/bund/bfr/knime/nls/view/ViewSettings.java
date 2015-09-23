@@ -282,92 +282,12 @@ public class ViewSettings extends NlsNodeSettings {
 		selectionPanel.setSelectedIds(selectedIDs);
 	}
 
-	public boolean isMinToZero() {
-		return minToZero;
-	}
-
-	public void setMinToZero(boolean minToZero) {
-		this.minToZero = minToZero;
-	}
-
-	public boolean isManualRange() {
-		return manualRange;
-	}
-
-	public void setManualRange(boolean manualRange) {
-		this.manualRange = manualRange;
-	}
-
-	public double getMinX() {
-		return minX;
-	}
-
-	public void setMinX(double minX) {
-		this.minX = minX;
-	}
-
-	public double getMaxX() {
-		return maxX;
-	}
-
-	public void setMaxX(double maxX) {
-		this.maxX = maxX;
-	}
-
-	public double getMinY() {
-		return minY;
-	}
-
-	public void setMinY(double minY) {
-		this.minY = minY;
-	}
-
-	public double getMaxY() {
-		return maxY;
-	}
-
-	public void setMaxY(double maxY) {
-		this.maxY = maxY;
-	}
-
-	public boolean isDrawLines() {
-		return drawLines;
-	}
-
-	public void setDrawLines(boolean drawLines) {
-		this.drawLines = drawLines;
-	}
-
-	public boolean isShowLegend() {
-		return showLegend;
-	}
-
-	public void setShowLegend(boolean showLegend) {
-		this.showLegend = showLegend;
-	}
-
 	public boolean isExportAsSvg() {
 		return exportAsSvg;
 	}
 
 	public void setExportAsSvg(boolean exportAsSvg) {
 		this.exportAsSvg = exportAsSvg;
-	}
-
-	public boolean isShowConfidence() {
-		return showConfidence;
-	}
-
-	public void setShowConfidence(boolean showConfidence) {
-		this.showConfidence = showConfidence;
-	}
-
-	public int getResolution() {
-		return resolution;
-	}
-
-	public void setResolution(int resolution) {
-		this.resolution = resolution;
 	}
 
 	public String getVarX() {
@@ -377,53 +297,4 @@ public class ViewSettings extends NlsNodeSettings {
 	public void setVarX(String varX) {
 		this.varX = varX;
 	}
-
-	public Transform getTransformX() {
-		return transformX;
-	}
-
-	public void setTransformX(Transform transformX) {
-		this.transformX = transformX;
-	}
-
-	public Transform getTransformY() {
-		return transformY;
-	}
-
-	public void setTransformY(Transform transformY) {
-		this.transformY = transformY;
-	}
-
-	public boolean isSelectAll() {
-		return selectAll;
-	}
-
-	public void setSelectAll(boolean selectAll) {
-		this.selectAll = selectAll;
-	}
-
-	public List<String> getSelectedIDs() {
-		return selectedIDs;
-	}
-
-	public void setSelectedIDs(List<String> selectedIDs) {
-		this.selectedIDs = selectedIDs;
-	}
-
-	public Map<String, Color> getColors() {
-		return colors;
-	}
-
-	public void setColors(Map<String, Color> colors) {
-		this.colors = colors;
-	}
-
-	public Map<String, NamedShape> getShapes() {
-		return shapes;
-	}
-
-	public void setShapes(Map<String, NamedShape> shapes) {
-		this.shapes = shapes;
-	}
-
 }
