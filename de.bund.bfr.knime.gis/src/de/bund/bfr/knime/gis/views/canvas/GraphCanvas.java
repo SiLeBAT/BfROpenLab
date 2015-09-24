@@ -37,10 +37,10 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
+import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -67,7 +67,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public void initLayout() {
 		if (!nodes.isEmpty()) {
-			applyLayout(LayoutType.ISOM_LAYOUT, null, true);
+			applyLayout(LayoutType.ISOM_LAYOUT, null);
 		}
 	}
 
@@ -135,7 +135,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
-		applyLayout(layoutType, getSelectedNodes(), false);
+		applyLayout(layoutType, getSelectedNodes());
 	}
 
 	@Override
@@ -185,19 +185,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 
-	private void fireLayoutProcessStarted() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.layoutProcessStarted(this);
-		}
-	}
-
 	private void fireLayoutProcessFinished() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.layoutProcessFinished(this);
 		}
 	}
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes, boolean avoidIterations) {
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		Set<GraphNode> nodesForLayout = new LinkedHashSet<>(KnimeUtils.nullToEmpty(selectedNodes));
 
 		if (!nodesForLayout.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
@@ -244,15 +238,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
+		setNodePositions(getNodePositions());
 
-		if (layout instanceof IterativeContext && !avoidIterations) {
-			fireLayoutProcessStarted();
-			new Thread(new LayoutThread((IterativeContext) layout, !nodesForLayout.isEmpty() ? nodesForLayout : nodes))
-					.start();
-		} else {
-			setNodePositions(getNodePositions());
-			fireLayoutProcessFinished();
+		if (layoutType == LayoutType.FR_LAYOUT) {
+			Rectangle2D bounds = PointUtils
+					.getBounds(getNodePositions(!nodesForLayout.isEmpty() ? nodesForLayout : nodes).values());
+
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
 		}
+
+		fireLayoutProcessFinished();
 	}
 
 	private void updatePositionsOfCollapsedNodes() {
@@ -266,50 +261,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				Point2D newPos = PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff);
 
 				viewer.getGraphLayout().setLocation(newNode, newPos);
-			}
-		}
-	}
-
-	private class LayoutThread implements Runnable {
-
-		private IterativeContext layoutProcess;
-		private Set<GraphNode> usedNodes;
-		private Transform lastTransform;
-		private boolean transformedByUser;
-
-		public LayoutThread(IterativeContext layoutProcess, Set<GraphNode> usedNodes) {
-			this.layoutProcess = layoutProcess;
-			this.usedNodes = usedNodes;
-			lastTransform = getTransform();
-			transformedByUser = false;
-		}
-
-		@Override
-		public void run() {
-			while (true) {
-				if (!transformedByUser) {
-					Rectangle2D bounds = PointUtils.getBounds(getNodePositions(usedNodes).values());
-					Transform newTransform = CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null);
-
-					if (getTransform().equals(lastTransform)) {
-						setTransform(newTransform);
-						lastTransform = newTransform;
-					} else {
-						transformedByUser = true;
-					}
-				}
-
-				if (layoutProcess.done()) {
-					setNodePositions(getNodePositions());
-					fireLayoutProcessFinished();
-					break;
-				}
-
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 			}
 		}
 	}

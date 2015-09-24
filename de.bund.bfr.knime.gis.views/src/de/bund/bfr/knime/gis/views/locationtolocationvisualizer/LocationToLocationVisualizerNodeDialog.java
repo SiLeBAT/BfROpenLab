@@ -177,10 +177,6 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	public void layoutProcessStarted(ICanvas<?> source) {
-	}
-
-	@Override
 	public void layoutProcessFinished(ICanvas<?> source) {
 	}
 

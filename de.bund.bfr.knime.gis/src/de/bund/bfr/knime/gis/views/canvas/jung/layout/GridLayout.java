@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.layout;
+package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.util.List;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
-public class CircleLayout<V, E> extends AbstractLayout<V, E> {
+public class GridLayout<V, E> extends AbstractLayout<V, E> {
 
-	public CircleLayout(Graph<V, E> g) {
-		super(g);
+	public GridLayout(Graph<V, E> graph) {
+		super(graph);
 	}
 
 	@Override
@@ -41,15 +41,23 @@ public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 			}
 		}
 
+		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
+		int index = 0;
 		double width = getSize().getWidth();
 		double height = getSize().getHeight();
-		double radius = 0.45 * Math.min(width, height);
+		double d = Math.min(width, height) / (n + 1);
+		double sx = width / 2 - (n - 1) * d / 2;
+		double sy = height / 2 - (n - 1) * d / 2;
 
-		for (int i = 0; i < nodes.size(); i++) {
-			double angle = (2 * Math.PI * i) / nodes.size();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (index >= nodes.size()) {
+					break;
+				}
 
-			transform(nodes.get(i)).setLocation(Math.cos(angle) * radius + width / 2,
-					Math.sin(angle) * radius + height / 2);
+				transform(nodes.get(index)).setLocation(i * d + sx, j * d + sy);
+				index++;
+			}
 		}
 	}
 

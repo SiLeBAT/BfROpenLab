@@ -17,53 +17,38 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.layout;
+package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 
-public class GridLayout<V, E> extends AbstractLayout<V, E> {
+public enum LayoutType {
+	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
+			"Self-Organizing Map");
 
-	public GridLayout(Graph<V, E> graph) {
-		super(graph);
+	private String name;
+
+	private LayoutType(String name) {
+		this.name = name;
+	}
+
+	public <V, E> Layout<V, E> create(Graph<V, E> graph) {
+		switch (this) {
+		case GRID_LAYOUT:
+			return new GridLayout<>(graph);
+		case CIRCLE_LAYOUT:
+			return new CircleLayout<>(graph);
+		case FR_LAYOUT:
+			return new FRLayout<>(graph);
+		case ISOM_LAYOUT:
+			return new ISOMLayout<>(graph);
+		}
+
+		return null;
 	}
 
 	@Override
-	public void initialize() {
-		List<V> nodes = new ArrayList<>();
-
-		for (V node : getGraph().getVertices()) {
-			if (!isLocked(node)) {
-				nodes.add(node);
-			}
-		}
-
-		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
-		int index = 0;
-		double width = getSize().getWidth();
-		double height = getSize().getHeight();
-		double d = Math.min(width, height) / (n + 1);
-		double sx = width / 2 - (n - 1) * d / 2;
-		double sy = height / 2 - (n - 1) * d / 2;
-
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (index >= nodes.size()) {
-					break;
-				}
-
-				transform(nodes.get(index)).setLocation(i * d + sx, j * d + sy);
-				index++;
-			}
-		}
+	public String toString() {
+		return name;
 	}
-
-	@Override
-	public void reset() {
-		initialize();
-	}
-
 }

@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.layout;
+package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -30,11 +30,10 @@ import org.apache.commons.collections15.map.LazyMap;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
-import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class FRLayout<V, E> extends AbstractLayout<V, E>implements IterativeContext {
+public class FRLayout<V, E> extends AbstractLayout<V, E> {
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -91,22 +90,16 @@ public class FRLayout<V, E> extends AbstractLayout<V, E>implements IterativeCont
 
 		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
 		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
+
+		while (!done()) {
+			step();
+		}
 	}
 
-	/**
-	 * Returns true once the current iteration has passed the maximum count,
-	 * <tt>MAX_ITERATIONS</tt>.
-	 */
-	@Override
 	public boolean done() {
 		return currentIteration > MAX_ITERATIONS || temperature < 1.0 / max_dimension;
 	}
 
-	/**
-	 * Moves the iteration forward one notch, calculation attraction and
-	 * repulsion between vertices and edges and cooling the temperature.
-	 */
-	@Override
 	public synchronized void step() {
 		currentIteration++;
 

@@ -17,42 +17,44 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
-import de.bund.bfr.knime.gis.views.canvas.layout.CircleLayout;
-import de.bund.bfr.knime.gis.views.canvas.layout.FRLayout;
-import de.bund.bfr.knime.gis.views.canvas.layout.GridLayout;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
-public enum LayoutType {
-	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
-			"Self-Organizing Map");
+public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 
-	private String name;
-
-	private LayoutType(String name) {
-		this.name = name;
-	}
-
-	public <V, E> Layout<V, E> create(Graph<V, E> graph) {
-		switch (this) {
-		case GRID_LAYOUT:
-			return new GridLayout<>(graph);
-		case CIRCLE_LAYOUT:
-			return new CircleLayout<>(graph);
-		case FR_LAYOUT:
-			return new FRLayout<>(graph);
-		case ISOM_LAYOUT:
-			return new ISOMLayout<>(graph);
-		}
-
-		return null;
+	public CircleLayout(Graph<V, E> g) {
+		super(g);
 	}
 
 	@Override
-	public String toString() {
-		return name;
+	public void initialize() {
+		List<V> nodes = new ArrayList<>();
+
+		for (V node : getGraph().getVertices()) {
+			if (!isLocked(node)) {
+				nodes.add(node);
+			}
+		}
+
+		double width = getSize().getWidth();
+		double height = getSize().getHeight();
+		double radius = 0.45 * Math.min(width, height);
+
+		for (int i = 0; i < nodes.size(); i++) {
+			double angle = (2 * Math.PI * i) / nodes.size();
+
+			transform(nodes.get(i)).setLocation(Math.cos(angle) * radius + width / 2,
+					Math.sin(angle) * radius + height / 2);
+		}
+	}
+
+	@Override
+	public void reset() {
+		initialize();
 	}
 }

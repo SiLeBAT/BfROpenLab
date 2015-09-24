@@ -33,8 +33,6 @@ public interface CanvasListener {
 
 	void edgeHighlightingChanged(ICanvas<?> source);
 
-	void layoutProcessStarted(ICanvas<?> source);
-
 	void layoutProcessFinished(ICanvas<?> source);
 
 	void nodePositionsChanged(ICanvas<?> source);
