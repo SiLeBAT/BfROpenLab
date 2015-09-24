@@ -216,20 +216,18 @@ public class TracingViewNodeModel extends NodeModel {
 				cells[i] = DataType.getMissingCell();
 			}
 
-			for (String property : propertyTypes.keySet()) {
-				int column = spec.findColumnIndex(property);
+			for (Map.Entry<String, Class<?>> property : propertyTypes.entrySet()) {
+				int column = spec.findColumnIndex(property.getKey());
 
 				if (column != -1) {
-					Class<?> type = propertyTypes.get(property);
-
-					if (type == String.class) {
-						cells[column] = IO.createCell((String) node.getProperties().get(property));
-					} else if (type == Integer.class) {
-						cells[column] = IO.createCell((Integer) node.getProperties().get(property));
-					} else if (type == Double.class) {
-						cells[column] = IO.createCell((Double) node.getProperties().get(property));
-					} else if (type == Boolean.class) {
-						cells[column] = IO.createCell((Boolean) node.getProperties().get(property));
+					if (property.getValue() == String.class) {
+						cells[column] = IO.createCell((String) node.getProperties().get(property.getKey()));
+					} else if (property.getValue() == Integer.class) {
+						cells[column] = IO.createCell((Integer) node.getProperties().get(property.getKey()));
+					} else if (property.getValue() == Double.class) {
+						cells[column] = IO.createCell((Double) node.getProperties().get(property.getKey()));
+					} else if (property.getValue() == Boolean.class) {
+						cells[column] = IO.createCell((Boolean) node.getProperties().get(property.getKey()));
 					}
 				}
 			}
