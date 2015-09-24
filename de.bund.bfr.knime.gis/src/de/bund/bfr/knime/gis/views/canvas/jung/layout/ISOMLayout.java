@@ -35,12 +35,6 @@ import edu.uci.ics.jung.algorithms.layout.RadiusGraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.Graph;
 
-/**
- * Implements a self-organizing map layout algorithm, based on Meyer's
- * self-organizing graph methods.
- *
- * @author Yan Biao Boey
- */
 public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
 	private Map<V, ISOMVertexData> isomVertexData;
@@ -62,8 +56,8 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
 	private List<V> queue;
 
-	public ISOMLayout(Graph<V, E> g) {
-		super(g);
+	public ISOMLayout(Graph<V, E> graph) {
+		super(graph);
 
 		elementAccessor = new RadiusGraphElementAccessor<V, E>();
 		queue = new ArrayList<V>();
@@ -179,8 +173,8 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
 	private static class ISOMVertexData {
 
-		int distance;
-		boolean visited;
+		private int distance;
+		private boolean visited;
 
 		public ISOMVertexData() {
 			distance = 0;

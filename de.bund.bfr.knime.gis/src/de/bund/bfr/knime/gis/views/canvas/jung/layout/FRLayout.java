@@ -42,7 +42,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	private double forceConstant;
 	private double temperature;
 	private int currentIteration;
-	private Map<V, FRVertexData> frVertexData;
+	private Map<V, Point2D> positionChanges;
 	private double attraction_constant;
 	private double repulsion_constant;
 	private double max_dimension;
@@ -50,11 +50,11 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	public FRLayout(Graph<V, E> g) {
 		super(g);
 
-		frVertexData = LazyMap.decorate(new HashMap<V, FRVertexData>(), new Factory<FRVertexData>() {
+		positionChanges = LazyMap.decorate(new HashMap<V, Point2D>(), new Factory<Point2D>() {
 
 			@Override
-			public FRVertexData create() {
-				return new FRVertexData();
+			public Point2D create() {
+				return new Point2D.Double();
 			}
 		});
 	}
@@ -113,24 +113,30 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		cool();
 	}
 
-	private void calcPositions(V v) {
-		FRVertexData fvd = frVertexData.get(v);
+	private void calcRepulsion(V v1) {
+		Point2D fvd = positionChanges.get(v1);
 
-		if (fvd == null) {
-			return;
+		fvd.setLocation(0, 0);
+
+		for (V v2 : getGraph().getVertices()) {
+			if (v1 == v2) {
+				continue;
+			}
+
+			Point2D p1 = transform(v1);
+			Point2D p2 = transform(v2);
+
+			if (p1 == null || p2 == null) {
+				continue;
+			}
+
+			double xDelta = p1.getX() - p2.getX();
+			double yDelta = p1.getY() - p2.getY();
+			double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
+			double factor = repulsion_constant * repulsion_constant / deltaLength / deltaLength;
+
+			fvd.setLocation(fvd.getX() + xDelta * factor, fvd.getY() + yDelta * factor);
 		}
-
-		Point2D xyd = transform(v);
-		double deltaLength = Math.max(EPSILON, fvd.norm());
-		double newXDisp = fvd.getX() / deltaLength * Math.min(deltaLength, temperature);
-
-		if (Double.isNaN(newXDisp)) {
-			throw new IllegalArgumentException("Unexpected mathematical result in FRLayout:calcPositions [xdisp]");
-		}
-
-		double newYDisp = fvd.getY() / deltaLength * Math.min(deltaLength, temperature);
-
-		xyd.setLocation(xyd.getX() + newXDisp, xyd.getY() + newYDisp);
 	}
 
 	private void calcAttraction(E e) {
@@ -153,76 +159,38 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 
 		double xDelta = p1.getX() - p2.getX();
 		double yDelta = p1.getY() - p2.getY();
-		double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
-		double force = (deltaLength * deltaLength) / attraction_constant;
+		double deltaLength = Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta));
+		double factor = deltaLength / attraction_constant;
 
-		if (Double.isNaN(force)) {
-			throw new IllegalArgumentException("Unexpected mathematical result in FRLayout:calcPositions [force]");
-		}
-
-		double dx = (xDelta / deltaLength) * force;
-		double dy = (yDelta / deltaLength) * force;
+		xDelta *= factor;
+		yDelta *= factor;
 
 		if (!v1_locked) {
-			frVertexData.get(v1).offset(-dx, -dy);
+			Point2D p = positionChanges.get(v1);
+
+			p.setLocation(p.getX() - xDelta, p.getY() - yDelta);
 		}
 
 		if (!v2_locked) {
-			frVertexData.get(v2).offset(dx, dy);
+			Point2D p = positionChanges.get(v2);
+
+			p.setLocation(p.getX() + xDelta, p.getY() + yDelta);
 		}
 	}
 
-	private void calcRepulsion(V v1) {
-		FRVertexData fvd = frVertexData.get(v1);
+	private void calcPositions(V v) {
+		Point2D delta = positionChanges.get(v);
+		double xDelta = delta.getX();
+		double yDelta = delta.getY();
+		double deltaLength = Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta));
+		double factor = Math.min(deltaLength, temperature) / deltaLength;
 
-		if (fvd == null) {
-			return;
-		}
+		Point2D pos = transform(v);
 
-		fvd.setLocation(0, 0);
-
-		for (V v2 : getGraph().getVertices()) {
-			if (v1 == v2) {
-				continue;
-			}
-
-			Point2D p1 = transform(v1);
-			Point2D p2 = transform(v2);
-
-			if (p1 == null || p2 == null) {
-				continue;
-			}
-
-			double xDelta = p1.getX() - p2.getX();
-			double yDelta = p1.getY() - p2.getY();
-
-			double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
-
-			double force = (repulsion_constant * repulsion_constant) / deltaLength;
-
-			if (Double.isNaN(force)) {
-				throw new RuntimeException("Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
-			}
-
-			fvd.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
-		}
+		pos.setLocation(pos.getX() + xDelta * factor, pos.getY() + yDelta * factor);
 	}
 
 	private void cool() {
-		temperature *= (1.0 - currentIteration / (double) MAX_ITERATIONS);
-	}
-
-	private static class FRVertexData extends Point2D.Double {
-
-		private static final long serialVersionUID = 1L;
-
-		public void offset(double x, double y) {
-			this.x += x;
-			this.y += y;
-		}
-
-		public double norm() {
-			return Math.sqrt(x * x + y * y);
-		}
+		temperature *= 1.0 - (double) currentIteration / (double) MAX_ITERATIONS;
 	}
 }
