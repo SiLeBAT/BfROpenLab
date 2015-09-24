@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +51,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		super(g);
 
 		frVertexData = LazyMap.decorate(new HashMap<V, FRVertexData>(), new Factory<FRVertexData>() {
+
 			@Override
 			public FRVertexData create() {
 				return new FRVertexData();
@@ -70,24 +70,12 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	}
 
 	@Override
-	public void reset() {
-		initialize();
-	}
-
-	@Override
 	public void initialize() {
-		Graph<V, E> graph = getGraph();
 		Dimension d = getSize();
-
-		if (graph == null || d == null) {
-			return;
-		}
 
 		currentIteration = 0;
 		temperature = d.getWidth() / 10;
-
-		forceConstant = Math.sqrt(d.getHeight() * d.getWidth() / graph.getVertexCount());
-
+		forceConstant = Math.sqrt(d.getHeight() * d.getWidth() / getGraph().getVertexCount());
 		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
 		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
 
@@ -96,57 +84,36 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		}
 	}
 
+	@Override
+	public void reset() {
+		initialize();
+	}
+
 	public boolean done() {
 		return currentIteration > MAX_ITERATIONS || temperature < 1.0 / max_dimension;
 	}
 
-	public synchronized void step() {
+	public void step() {
 		currentIteration++;
 
-		/**
-		 * Calculate repulsion
-		 */
-		while (true) {
-			try {
-				for (V v1 : getGraph().getVertices()) {
-					calcRepulsion(v1);
-				}
-
-				break;
-			} catch (ConcurrentModificationException cme) {
-			}
+		for (V v1 : getGraph().getVertices()) {
+			calcRepulsion(v1);
 		}
 
-		/**
-		 * Calculate attraction
-		 */
-		while (true) {
-			try {
-				for (E e : getGraph().getEdges()) {
-					calcAttraction(e);
-				}
-
-				break;
-			} catch (ConcurrentModificationException cme) {
-			}
+		for (E e : getGraph().getEdges()) {
+			calcAttraction(e);
 		}
 
-		while (true) {
-			try {
-				for (V v : getGraph().getVertices()) {
-					if (!isLocked(v)) {
-						calcPositions(v);
-					}
-				}
-				break;
-			} catch (ConcurrentModificationException cme) {
+		for (V v : getGraph().getVertices()) {
+			if (!isLocked(v)) {
+				calcPositions(v);
 			}
 		}
 
 		cool();
 	}
 
-	private synchronized void calcPositions(V v) {
+	private void calcPositions(V v) {
 		FRVertexData fvd = frVertexData.get(v);
 
 		if (fvd == null) {
@@ -174,7 +141,6 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		boolean v2_locked = isLocked(v2);
 
 		if (v1_locked && v2_locked) {
-			// both locked, do nothing
 			return;
 		}
 
@@ -215,34 +181,30 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 
 		fvd.setLocation(0, 0);
 
-		try {
-			for (V v2 : getGraph().getVertices()) {
-				if (v1 == v2) {
-					continue;
-				}
-
-				Point2D p1 = transform(v1);
-				Point2D p2 = transform(v2);
-
-				if (p1 == null || p2 == null) {
-					continue;
-				}
-
-				double xDelta = p1.getX() - p2.getX();
-				double yDelta = p1.getY() - p2.getY();
-
-				double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
-
-				double force = (repulsion_constant * repulsion_constant) / deltaLength;
-
-				if (Double.isNaN(force)) {
-					throw new RuntimeException("Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
-				}
-
-				fvd.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
+		for (V v2 : getGraph().getVertices()) {
+			if (v1 == v2) {
+				continue;
 			}
-		} catch (ConcurrentModificationException cme) {
-			calcRepulsion(v1);
+
+			Point2D p1 = transform(v1);
+			Point2D p2 = transform(v2);
+
+			if (p1 == null || p2 == null) {
+				continue;
+			}
+
+			double xDelta = p1.getX() - p2.getX();
+			double yDelta = p1.getY() - p2.getY();
+
+			double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
+
+			double force = (repulsion_constant * repulsion_constant) / deltaLength;
+
+			if (Double.isNaN(force)) {
+				throw new RuntimeException("Unexpected mathematical result in FRLayout:calcPositions [repulsion]");
+			}
+
+			fvd.offset((xDelta / deltaLength) * force, (yDelta / deltaLength) * force);
 		}
 	}
 
