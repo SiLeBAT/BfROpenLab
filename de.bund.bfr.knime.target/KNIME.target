@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 2.12 TP" sequenceNumber="8">
+<?pde version="3.8"?><target name="KNIME 2.12 TP" sequenceNumber="10">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -20,7 +20,7 @@
 <unit id="org.knime.features.ext.osm.feature.group" version="2.12.0.0047514"/>
 <unit id="org.knime.features.xml.feature.group" version="2.12.0.0047898"/>
 <unit id="org.knime.features.testingapplication.feature.group" version="2.12.0.0047985"/>
-<unit id="org.knime.features.js.feature.group" version="2.12.0.0048123"/>
+<unit id="org.knime.features.js.feature.group" version="2.12.1.0048790"/>
 <unit id="org.knime.features.ext.jep.feature.group" version="2.12.0.0047514"/>
 <unit id="org.knime.features.ext.poi.feature.group" version="2.12.0.0048059"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="2.12.0.0047514"/>
