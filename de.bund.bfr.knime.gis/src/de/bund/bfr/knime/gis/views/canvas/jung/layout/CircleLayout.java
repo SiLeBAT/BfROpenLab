@@ -19,42 +19,40 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
 public class CircleLayout<V, E> extends AbstractLayout<V, E> {
 
-	public CircleLayout(Graph<V, E> g) {
-		super(g);
+	public CircleLayout(Graph<V, E> graph, Dimension size) {
+		super(graph, size);
 	}
 
 	@Override
-	public void initialize() {
-		List<V> nodes = new ArrayList<>();
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
+		Set<V> nodes = new LinkedHashSet<>(graph.getVertices());
 
-		for (V node : getGraph().getVertices()) {
-			if (!isLocked(node)) {
-				nodes.add(node);
-			}
-		}
+		nodes.removeAll(locked);
 
 		double width = getSize().getWidth();
 		double height = getSize().getHeight();
 		double radius = 0.45 * Math.min(width, height);
+		int index = 0;
 
-		for (int i = 0; i < nodes.size(); i++) {
-			double angle = (2 * Math.PI * i) / nodes.size();
+		for (V node : nodes) {
+			double angle = (2 * Math.PI * index++) / nodes.size();
 
-			transform(nodes.get(i)).setLocation(Math.cos(angle) * radius + width / 2,
-					Math.sin(angle) * radius + height / 2);
+			newPositions.put(node,
+					new Point2D.Double(Math.cos(angle) * radius + width / 2, Math.sin(angle) * radius + height / 2));
 		}
-	}
 
-	@Override
-	public void reset() {
-		initialize();
+		return newPositions;
 	}
 }

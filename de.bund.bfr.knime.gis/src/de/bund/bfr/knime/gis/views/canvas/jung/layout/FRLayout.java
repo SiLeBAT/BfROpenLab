@@ -23,9 +23,8 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
@@ -43,22 +42,32 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	private double repulsion_constant;
 	private double max_dimension;
 
+	private Map<V, Point2D> newPositions;
 	private Map<V, Point2D> positionChanges;
 
-	public FRLayout(Graph<V, E> graph) {
-		super(graph);
+	public FRLayout(Graph<V, E> graph, Dimension size) {
+		super(graph, size);
 	}
 
 	@Override
-	public void initialize() {
-		Dimension d = getSize();
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+		Random random = new Random();
 
-		setInitializer(new RandomLocationTransformer<V>(d));
+		newPositions = new LinkedHashMap<>();
 
-		max_dimension = Math.max(d.height, d.width);
+		for (V v : getGraph().getVertices()) {
+			if (locked.contains(v)) {
+				newPositions.put(v, initialPositions.get(v));
+			} else {
+				newPositions.put(v,
+						new Point2D.Double(random.nextDouble() * size.width, random.nextDouble() * size.height));
+			}
+		}
+
+		max_dimension = Math.max(size.height, size.width);
 		currentIteration = 0;
-		temperature = d.getWidth() / 10;
-		forceConstant = Math.sqrt(d.getHeight() * d.getWidth() / getGraph().getVertexCount());
+		temperature = size.getWidth() / 10;
+		forceConstant = Math.sqrt(size.getHeight() * size.getWidth() / getGraph().getVertexCount());
 		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
 		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
 		positionChanges = new LinkedHashMap<>();
@@ -70,11 +79,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		while (!done()) {
 			step();
 		}
-	}
 
-	@Override
-	public void reset() {
-		initialize();
+		return newPositions;
 	}
 
 	public boolean done() {
@@ -111,8 +117,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 				continue;
 			}
 
-			Point2D p1 = transform(v1);
-			Point2D p2 = transform(v2);
+			Point2D p1 = newPositions.get(v1);
+			Point2D p2 = newPositions.get(v2);
 
 			if (p1 == null || p2 == null) {
 				continue;
@@ -138,8 +144,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 			return;
 		}
 
-		Point2D p1 = transform(v1);
-		Point2D p2 = transform(v2);
+		Point2D p1 = newPositions.get(v1);
+		Point2D p2 = newPositions.get(v2);
 
 		if (p1 == null || p2 == null) {
 			return;
@@ -173,7 +179,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		double deltaLength = Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta));
 		double factor = Math.min(deltaLength, temperature) / deltaLength;
 
-		Point2D pos = transform(v);
+		Point2D pos = newPositions.get(v);
 
 		pos.setLocation(pos.getX() + xDelta * factor, pos.getY() + yDelta * factor);
 	}

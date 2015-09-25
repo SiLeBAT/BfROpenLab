@@ -19,27 +19,27 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
 public class GridLayout<V, E> extends AbstractLayout<V, E> {
 
-	public GridLayout(Graph<V, E> graph) {
-		super(graph);
+	public GridLayout(Graph<V, E> graph, Dimension size) {
+		super(graph, size);
 	}
 
 	@Override
-	public void initialize() {
-		List<V> nodes = new ArrayList<>();
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
+		List<V> nodes = new ArrayList<>(graph.getVertices());
 
-		for (V node : getGraph().getVertices()) {
-			if (!isLocked(node)) {
-				nodes.add(node);
-			}
-		}
+		nodes.removeAll(locked);
 
 		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
 		int index = 0;
@@ -55,14 +55,11 @@ public class GridLayout<V, E> extends AbstractLayout<V, E> {
 					break;
 				}
 
-				transform(nodes.get(index)).setLocation(i * d + sx, j * d + sy);
+				newPositions.put(nodes.get(index), new Point2D.Double(i * d + sx, j * d + sy));
 				index++;
 			}
 		}
-	}
 
-	@Override
-	public void reset() {
-		initialize();
+		return newPositions;
 	}
 }

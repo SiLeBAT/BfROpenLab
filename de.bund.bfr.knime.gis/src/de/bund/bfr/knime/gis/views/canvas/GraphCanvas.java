@@ -25,18 +25,17 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
+import de.bund.bfr.knime.gis.views.canvas.jung.layout.AbstractLayout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -192,57 +191,50 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
-		Set<GraphNode> nodesForLayout = new LinkedHashSet<>(KnimeUtils.nullToEmpty(selectedNodes));
+		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
 
-		if (!nodesForLayout.isEmpty() && layoutType == LayoutType.ISOM_LAYOUT) {
+		if (!nodesForLayout.equals(nodes) && layoutType == LayoutType.ISOM_LAYOUT) {
 			if (JOptionPane.showConfirmDialog(this,
 					layoutType + " cannot be applied on a subset of " + naming.nodes() + ". Apply " + layoutType
 							+ " on all " + naming.nodes() + "?",
 					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				nodesForLayout.clear();
+				nodesForLayout = nodes;
 			} else {
 				return;
 			}
 		}
 
-		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
-		Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph);
-
-		if (!nodesForLayout.isEmpty()) {
-			Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
-					transform.getTranslationY() / transform.getScaleY());
-
-			for (GraphNode node : nodes) {
-				if (!nodesForLayout.contains(node)) {
-					layout.setLocation(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
-					layout.lock(node, true);
-				}
-			}
-
-			layout.setSize(new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
-					(int) (viewer.getSize().height / transform.getScaleY())));
-
-			for (GraphNode node : nodes) {
-				if (!nodesForLayout.contains(node)) {
-					layout.setLocation(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
-					layout.lock(node, true);
-				}
-			}
-
-			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
-		} else if (!nodes.isEmpty()) {
-			layout.setSize(viewer.getSize());
-			setTransform(Transform.IDENTITY_TRANSFORM);
-		} else {
+		if (nodesForLayout.isEmpty()) {
 			return;
 		}
 
-		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
-		setNodePositions(getNodePositions());
+		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
+		AbstractLayout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
+				new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
+						(int) (viewer.getSize().height / transform.getScaleY())));
+		Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
+				transform.getTranslationY() / transform.getScaleY());
+		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
+
+		for (GraphNode node : nodes) {
+			initialPositions.put(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+
+			if (!nodesForLayout.contains(node)) {
+				layout.setLocked(node, true);
+			}
+		}
+
+		Map<String, Point2D> newPositions = new LinkedHashMap<>();
+
+		for (Map.Entry<GraphNode, Point2D> entry : layout.getNodePositions(initialPositions).entrySet()) {
+			newPositions.put(entry.getKey().getId(), entry.getValue());
+		}
+
+		setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
+		setNodePositions(newPositions);
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			Rectangle2D bounds = PointUtils
-					.getBounds(getNodePositions(!nodesForLayout.isEmpty() ? nodesForLayout : nodes).values());
+			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodesForLayout).values());
 
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
 		}

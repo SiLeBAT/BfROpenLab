@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
+import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -26,9 +27,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.RadiusGraphElementAccessor;
-import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.Graph;
 
 public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
@@ -44,17 +42,24 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 	private int radius;
 	private double adaption;
 
+	private Map<V, Point2D> newPositions;
 	private Map<V, VertexState> vertexStates;
 
 	private Random random;
 
-	public ISOMLayout(Graph<V, E> graph) {
-		super(graph);
+	public ISOMLayout(Graph<V, E> graph, Dimension size) {
+		super(graph, size);
 	}
 
 	@Override
-	public void initialize() {
-		setInitializer(new RandomLocationTransformer<V>(getSize()));
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+		random = new Random();
+		newPositions = new LinkedHashMap<>();
+
+		for (V v : getGraph().getVertices()) {
+			newPositions.put(v,
+					new Point2D.Double(random.nextDouble() * size.width, random.nextDouble() * size.height));
+		}
 
 		epoch = 1;
 		radius = 5;
@@ -65,16 +70,11 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 			vertexStates.put(v, new VertexState());
 		}
 
-		random = new Random();
-
 		while (!done()) {
 			step();
 		}
-	}
 
-	@Override
-	public void reset() {
-		initialize();
+		return newPositions;
 	}
 
 	public boolean done() {
@@ -96,7 +96,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
 		Point2D tempPos = new Point2D.Double(10.0 + random.nextDouble() * getSize().getWidth(),
 				10.0 + random.nextDouble() * getSize().getHeight());
-		V winner = new RadiusGraphElementAccessor<V, E>().getVertex(this, tempPos.getX(), tempPos.getY());
+		V winner = getClosest(tempPos.getX(), tempPos.getY());
 
 		adjustVertex(winner, tempPos);
 	}
@@ -122,7 +122,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 		while (!queue.isEmpty()) {
 			V current = queue.removeFirst();
 			VertexState currState = vertexStates.get(current);
-			Point2D currPos = transform(current);
+			Point2D currPos = newPositions.get(current);
 
 			double dx = tempPos.getX() - currPos.getX();
 			double dy = tempPos.getY() - currPos.getY();
@@ -142,6 +142,24 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 				}
 			}
 		}
+	}
+
+	private V getClosest(double x, double y) {
+		double minDistance = Double.POSITIVE_INFINITY;
+		V closest = null;
+
+		for (Map.Entry<V, Point2D> pos : newPositions.entrySet()) {
+			double dx = pos.getValue().getX() - x;
+			double dy = pos.getValue().getY() - y;
+			double dist = dx * dx + dy * dy;
+
+			if (dist < minDistance) {
+				minDistance = dist;
+				closest = pos.getKey();
+			}
+		}
+
+		return closest;
 	}
 
 	private static class VertexState {
