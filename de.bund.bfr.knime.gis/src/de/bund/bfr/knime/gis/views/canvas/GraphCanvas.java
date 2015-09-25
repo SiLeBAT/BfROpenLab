@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
@@ -192,17 +190,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
-
-		if (!nodesForLayout.equals(nodes) && layoutType == LayoutType.ISOM_LAYOUT) {
-			if (JOptionPane.showConfirmDialog(this,
-					layoutType + " cannot be applied on a subset of " + naming.nodes() + ". Apply " + layoutType
-							+ " on all " + naming.nodes() + "?",
-					"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				nodesForLayout = nodes;
-			} else {
-				return;
-			}
-		}
 
 		if (nodesForLayout.isEmpty()) {
 			return;

@@ -57,8 +57,12 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 		newPositions = new LinkedHashMap<>();
 
 		for (V v : getGraph().getVertices()) {
-			newPositions.put(v,
-					new Point2D.Double(random.nextDouble() * size.width, random.nextDouble() * size.height));
+			if (locked.contains(v)) {
+				newPositions.put(v, initialPositions.get(v));
+			} else {
+				newPositions.put(v,
+						new Point2D.Double(random.nextDouble() * size.width, random.nextDouble() * size.height));
+			}
 		}
 
 		epoch = 1;
@@ -132,6 +136,10 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
 			if (currState.distance < radius) {
 				for (V child : getGraph().getNeighbors(current)) {
+					if (locked.contains(child)) {
+						continue;
+					}
+
 					VertexState childState = vertexStates.get(child);
 
 					if (!childState.visited) {
@@ -149,6 +157,10 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 		V closest = null;
 
 		for (Map.Entry<V, Point2D> pos : newPositions.entrySet()) {
+			if (locked.contains(pos.getKey())) {
+				continue;
+			}
+
 			double dx = pos.getValue().getX() - x;
 			double dy = pos.getValue().getY() - y;
 			double dist = dx * dx + dy * dy;
