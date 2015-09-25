@@ -20,69 +20,52 @@
 package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
+import java.util.Random;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.RadiusGraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
 import edu.uci.ics.jung.graph.Graph;
 
 public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 
-	private Map<V, ISOMVertexData> isomVertexData;
+	private static final int MAX_EPOCH = 2000;
+	private static final int RADIUS_CONSTANT_TIME = 100;
+	private static final int MIN_RADIUS = 1;
+	private static final double INITIAL_ADAPTION = 0.9;
+	private static final double COOLING_FACTOR = 2.0;
+	private static final double MIN_ADAPTION = 0.0;
 
-	private int maxEpoch;
 	private int epoch;
-
-	private int radiusConstantTime;
 	private int radius;
-	private int minRadius;
-
 	private double adaption;
-	private double initialAdaption;
-	private double minAdaption;
 
-	private GraphElementAccessor<V, E> elementAccessor;
+	private Map<V, VertexState> vertexStates;
 
-	private double coolingFactor;
-
-	private List<V> queue;
+	private Random random;
 
 	public ISOMLayout(Graph<V, E> graph) {
 		super(graph);
-
-		elementAccessor = new RadiusGraphElementAccessor<V, E>();
-		queue = new ArrayList<V>();
-		isomVertexData = LazyMap.decorate(new HashMap<V, ISOMVertexData>(), new Factory<ISOMVertexData>() {
-
-			@Override
-			public ISOMVertexData create() {
-				return new ISOMVertexData();
-			}
-		});
 	}
 
 	@Override
 	public void initialize() {
 		setInitializer(new RandomLocationTransformer<V>(getSize()));
 
-		maxEpoch = 2000;
 		epoch = 1;
-		radiusConstantTime = 100;
 		radius = 5;
-		minRadius = 1;
-		initialAdaption = 90.0D / 100.0D;
-		adaption = initialAdaption;
-		minAdaption = 0;
-		coolingFactor = 2;
+		adaption = INITIAL_ADAPTION;
+		vertexStates = new LinkedHashMap<>();
+
+		for (V v : getGraph().getVertices()) {
+			vertexStates.put(v, new VertexState());
+		}
+
+		random = new Random();
 
 		while (!done()) {
 			step();
@@ -95,88 +78,78 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 	}
 
 	public boolean done() {
-		return epoch >= maxEpoch;
+		return epoch >= MAX_EPOCH;
 	}
 
 	public void step() {
-		if (epoch < maxEpoch) {
-			adjust();
-			updateParameters();
-		}
+		adjust();
+		updateParameters();
 	}
 
 	private void adjust() {
-		Point2D tempXYD = new Point2D.Double();
-
-		tempXYD.setLocation(10 + Math.random() * getSize().getWidth(), 10 + Math.random() * getSize().getHeight());
-
-		V winner = elementAccessor.getVertex(this, tempXYD.getX(), tempXYD.getY());
-
 		for (V v : getGraph().getVertices()) {
-			ISOMVertexData ivd = getISOMVertexData(v);
-			ivd.distance = 0;
-			ivd.visited = false;
+			VertexState state = vertexStates.get(v);
+
+			state.distance = 0;
+			state.visited = false;
 		}
 
-		adjustVertex(winner, tempXYD);
+		Point2D tempPos = new Point2D.Double(10.0 + random.nextDouble() * getSize().getWidth(),
+				10.0 + random.nextDouble() * getSize().getHeight());
+		V winner = new RadiusGraphElementAccessor<V, E>().getVertex(this, tempPos.getX(), tempPos.getY());
+
+		adjustVertex(winner, tempPos);
 	}
 
 	private void updateParameters() {
-		double factor = Math.exp(-1 * coolingFactor * (1.0 * ++epoch / maxEpoch));
+		double factor = Math.exp(-COOLING_FACTOR * ++epoch / MAX_EPOCH);
 
-		adaption = Math.max(minAdaption, factor * initialAdaption);
+		adaption = Math.max(MIN_ADAPTION, factor * INITIAL_ADAPTION);
 
-		if ((radius > minRadius) && (epoch % radiusConstantTime == 0)) {
+		if (radius > MIN_RADIUS && epoch % RADIUS_CONSTANT_TIME == 0) {
 			radius--;
 		}
 	}
 
-	private void adjustVertex(V v, Point2D tempXYD) {
-		ISOMVertexData ivd = getISOMVertexData(v);
+	private void adjustVertex(V v, Point2D tempPos) {
+		VertexState state = vertexStates.get(v);
+		Deque<V> queue = new LinkedList<>();
 
-		queue.clear();
-		ivd.distance = 0;
-		ivd.visited = true;
-		queue.add(v);
-
-		V current;
+		state.distance = 0;
+		state.visited = true;
+		queue.addLast(v);
 
 		while (!queue.isEmpty()) {
-			current = queue.remove(0);
-			ISOMVertexData currData = getISOMVertexData(current);
-			Point2D currXYData = transform(current);
+			V current = queue.removeFirst();
+			VertexState currState = vertexStates.get(current);
+			Point2D currPos = transform(current);
 
-			double dx = tempXYD.getX() - currXYData.getX();
-			double dy = tempXYD.getY() - currXYData.getY();
-			double factor = adaption / Math.pow(2, currData.distance);
+			double dx = tempPos.getX() - currPos.getX();
+			double dy = tempPos.getY() - currPos.getY();
+			double factor = adaption / Math.pow(2, currState.distance);
 
-			currXYData.setLocation(currXYData.getX() + (factor * dx), currXYData.getY() + (factor * dy));
+			currPos.setLocation(currPos.getX() + factor * dx, currPos.getY() + factor * dy);
 
-			if (currData.distance < radius) {
-				Collection<V> s = getGraph().getNeighbors(current);
+			if (currState.distance < radius) {
+				for (V child : getGraph().getNeighbors(current)) {
+					VertexState childState = vertexStates.get(child);
 
-				for (V child : s) {
-					ISOMVertexData childData = getISOMVertexData(child);
-					if (childData != null && !childData.visited) {
-						childData.visited = true;
-						childData.distance = currData.distance + 1;
-						queue.add(child);
+					if (!childState.visited) {
+						childState.visited = true;
+						childState.distance = currState.distance + 1;
+						queue.addLast(child);
 					}
 				}
 			}
 		}
 	}
 
-	private ISOMVertexData getISOMVertexData(V v) {
-		return isomVertexData.get(v);
-	}
-
-	private static class ISOMVertexData {
+	private static class VertexState {
 
 		private int distance;
 		private boolean visited;
 
-		public ISOMVertexData() {
+		public VertexState() {
 			distance = 0;
 			visited = false;
 		}

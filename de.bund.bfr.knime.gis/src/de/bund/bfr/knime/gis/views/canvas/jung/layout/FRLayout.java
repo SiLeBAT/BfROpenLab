@@ -21,11 +21,8 @@ package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.util.RandomLocationTransformer;
@@ -42,42 +39,33 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	private double forceConstant;
 	private double temperature;
 	private int currentIteration;
-	private Map<V, Point2D> positionChanges;
 	private double attraction_constant;
 	private double repulsion_constant;
 	private double max_dimension;
 
-	public FRLayout(Graph<V, E> g) {
-		super(g);
+	private Map<V, Point2D> positionChanges;
 
-		positionChanges = LazyMap.decorate(new HashMap<V, Point2D>(), new Factory<Point2D>() {
-
-			@Override
-			public Point2D create() {
-				return new Point2D.Double();
-			}
-		});
-	}
-
-	@Override
-	public void setSize(Dimension size) {
-		if (!initialized) {
-			setInitializer(new RandomLocationTransformer<V>(size));
-		}
-
-		super.setSize(size);
-		max_dimension = Math.max(size.height, size.width);
+	public FRLayout(Graph<V, E> graph) {
+		super(graph);
 	}
 
 	@Override
 	public void initialize() {
 		Dimension d = getSize();
 
+		setInitializer(new RandomLocationTransformer<V>(d));
+
+		max_dimension = Math.max(d.height, d.width);
 		currentIteration = 0;
 		temperature = d.getWidth() / 10;
 		forceConstant = Math.sqrt(d.getHeight() * d.getWidth() / getGraph().getVertexCount());
 		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
 		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
+		positionChanges = new LinkedHashMap<>();
+
+		for (V v : getGraph().getVertices()) {
+			positionChanges.put(v, new Point2D.Double());
+		}
 
 		while (!done()) {
 			step();
@@ -96,8 +84,8 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	public void step() {
 		currentIteration++;
 
-		for (V v1 : getGraph().getVertices()) {
-			calcRepulsion(v1);
+		for (V v : getGraph().getVertices()) {
+			calcRepulsion(v);
 		}
 
 		for (E e : getGraph().getEdges()) {
