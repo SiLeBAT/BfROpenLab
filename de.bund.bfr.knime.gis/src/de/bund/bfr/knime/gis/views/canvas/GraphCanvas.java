@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -29,7 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+
 import de.bund.bfr.knime.PointUtils;
+import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
@@ -196,12 +204,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
-		AbstractLayout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
-				new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
-						(int) (viewer.getSize().height / transform.getScaleY())));
 		Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
 				transform.getTranslationY() / transform.getScaleY());
-		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
+		final AbstractLayout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
+				new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
+						(int) (viewer.getSize().height / transform.getScaleY())));
+		final Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
 			initialPositions.put(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
@@ -211,19 +219,51 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
+		final Map<GraphNode, Point2D> layoutResult = new LinkedHashMap<>();
+
+		if (selectedNodes == null) {
+			layoutResult.putAll(layout.getNodePositions(initialPositions));
+		} else {
+			final JDialog layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Layout Process",
+					Dialog.DEFAULT_MODALITY_TYPE);
+			Thread layoutThread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					while (!layoutDialog.isVisible()) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+						}
+					}
+
+					layoutResult.putAll(layout.getNodePositions(initialPositions));
+					layoutDialog.setVisible(false);
+				}
+			});
+
+			layoutDialog.add(BorderLayout.CENTER, UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")));
+			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+			layoutDialog.pack();
+			layoutDialog.setLocationRelativeTo(this);
+			layoutThread.start();
+			layoutDialog.setVisible(true);
+		}
+
 		Map<String, Point2D> newPositions = new LinkedHashMap<>();
 
-		for (Map.Entry<GraphNode, Point2D> entry : layout.getNodePositions(initialPositions).entrySet()) {
+		for (Map.Entry<GraphNode, Point2D> entry : layoutResult.entrySet()) {
 			newPositions.put(entry.getKey().getId(), entry.getValue());
 		}
 
-		setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
 		setNodePositions(newPositions);
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
 			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodesForLayout).values());
 
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
+		} else {
+			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
 		}
 
 		fireLayoutProcessFinished();
