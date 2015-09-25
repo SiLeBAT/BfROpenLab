@@ -28,14 +28,14 @@ import java.util.Set;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public class CircleLayout<V, E> extends AbstractLayout<V, E> {
+public class CircleLayout<V, E> extends Layout<V, E> {
 
 	public CircleLayout(Graph<V, E> graph, Dimension size) {
 		super(graph, size);
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
 		Set<V> nodes = new LinkedHashSet<>(graph.getVertices());
 

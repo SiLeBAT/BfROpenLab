@@ -33,7 +33,7 @@ public enum LayoutType {
 		this.name = name;
 	}
 
-	public <V, E> AbstractLayout<V, E> create(Graph<V, E> graph, Dimension size) {
+	public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
 		switch (this) {
 		case GRID_LAYOUT:
 			return new GridLayout<>(graph, size);

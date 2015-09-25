@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
@@ -41,10 +42,9 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
-import de.bund.bfr.knime.gis.views.canvas.jung.layout.AbstractLayout;
+import de.bund.bfr.knime.gis.views.canvas.jung.layout.Layout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -102,7 +102,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		Layout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
+		StaticLayout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
 		Point2D upperLeft = transform.applyInverse(0, 0);
 		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width, 0);
 		double x1 = upperLeft.getX();
@@ -206,7 +206,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
 		Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
 				transform.getTranslationY() / transform.getScaleY());
-		final AbstractLayout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
+		final Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
 				new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
 						(int) (viewer.getSize().height / transform.getScaleY())));
 		final Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
@@ -222,10 +222,12 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		final Map<GraphNode, Point2D> layoutResult = new LinkedHashMap<>();
 
 		if (selectedNodes == null) {
-			layoutResult.putAll(layout.getNodePositions(initialPositions));
+			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
 		} else {
 			final JDialog layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Layout Process",
 					Dialog.DEFAULT_MODALITY_TYPE);
+			final JProgressBar progressBar = new JProgressBar();
+
 			Thread layoutThread = new Thread(new Runnable() {
 
 				@Override
@@ -237,14 +239,23 @@ public class GraphCanvas extends Canvas<GraphNode> {
 						}
 					}
 
-					layoutResult.putAll(layout.getNodePositions(initialPositions));
+					layoutResult.putAll(layout.getNodePositions(initialPositions, new Layout.ProgressListener() {
+
+						@Override
+						public void progressChanged(double progress) {
+							progressBar.setValue((int) Math.round(progress * 100));
+						}
+					}));
+
 					layoutDialog.setVisible(false);
 				}
 			});
 
-			layoutDialog.add(BorderLayout.CENTER, UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")));
+			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
+			layoutDialog.add(UI.createHorizontalPanel(progressBar), BorderLayout.CENTER);
 			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			layoutDialog.pack();
+			layoutDialog.setResizable(false);
 			layoutDialog.setLocationRelativeTo(this);
 			layoutThread.start();
 			layoutDialog.setVisible(true);

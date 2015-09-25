@@ -27,14 +27,14 @@ import java.util.Set;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public abstract class AbstractLayout<V, E> {
+public abstract class Layout<V, E> {
 
 	protected Graph<V, E> graph;
 	protected Dimension size;
 
 	protected Set<V> locked;
 
-	public AbstractLayout(Graph<V, E> graph, Dimension size) {
+	public Layout(Graph<V, E> graph, Dimension size) {
 		this.graph = graph;
 		this.size = size;
 		locked = new LinkedHashSet<>();
@@ -60,5 +60,10 @@ public abstract class AbstractLayout<V, E> {
 		return locked.contains(v);
 	}
 
-	public abstract Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions);
+	public abstract Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener);
+
+	public static interface ProgressListener {
+
+		void progressChanged(double progress);
+	}
 }

@@ -29,7 +29,7 @@ import java.util.Random;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
+public class ISOMLayout<V, E> extends Layout<V, E> {
 
 	private static final int MAX_EPOCH = 2000;
 	private static final int RADIUS_CONSTANT_TIME = 100;
@@ -52,7 +52,7 @@ public class ISOMLayout<V, E> extends AbstractLayout<V, E> {
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		random = new Random();
 		newPositions = new LinkedHashMap<>();
 

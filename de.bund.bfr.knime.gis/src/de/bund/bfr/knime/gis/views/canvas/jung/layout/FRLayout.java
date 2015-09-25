@@ -28,7 +28,7 @@ import java.util.Random;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class FRLayout<V, E> extends AbstractLayout<V, E> {
+public class FRLayout<V, E> extends Layout<V, E> {
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -50,7 +50,7 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Random random = new Random();
 
 		newPositions = new LinkedHashMap<>();
@@ -77,6 +77,10 @@ public class FRLayout<V, E> extends AbstractLayout<V, E> {
 		}
 
 		while (!done()) {
+			if (listener != null) {
+				listener.progressChanged((double) currentIteration / (double) MAX_ITERATIONS);
+			}
+
 			step();
 		}
 

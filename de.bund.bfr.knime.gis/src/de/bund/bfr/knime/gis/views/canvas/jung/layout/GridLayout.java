@@ -28,14 +28,14 @@ import java.util.Map;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public class GridLayout<V, E> extends AbstractLayout<V, E> {
+public class GridLayout<V, E> extends Layout<V, E> {
 
 	public GridLayout(Graph<V, E> graph, Dimension size) {
 		super(graph, size);
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
 		List<V> nodes = new ArrayList<>(graph.getVertices());
 
