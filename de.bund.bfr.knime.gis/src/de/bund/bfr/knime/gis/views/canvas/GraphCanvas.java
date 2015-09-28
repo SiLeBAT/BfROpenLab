@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -199,7 +200,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
 
-		if (nodesForLayout.isEmpty()) {
+		if (nodesForLayout.size() < 2) {
+			JOptionPane.showMessageDialog(
+					this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".\nUnselect all "
+							+ naming.nodes() + " to apply layout on the whole graph.",
+					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
