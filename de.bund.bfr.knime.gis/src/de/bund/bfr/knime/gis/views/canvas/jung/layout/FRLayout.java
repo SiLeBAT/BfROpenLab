@@ -56,7 +56,7 @@ public class FRLayout<V, E> extends Layout<V, E> {
 		newPositions = new LinkedHashMap<>();
 
 		for (V v : getGraph().getVertices()) {
-			if (locked.contains(v)) {
+			if (isLocked(v)) {
 				newPositions.put(v, initialPositions.get(v));
 			} else {
 				newPositions.put(v,
@@ -103,18 +103,20 @@ public class FRLayout<V, E> extends Layout<V, E> {
 		}
 
 		for (V v : getGraph().getVertices()) {
-			if (!isLocked(v)) {
-				calcPositions(v);
-			}
+			calcPositions(v);
 		}
 
 		cool();
 	}
 
 	private void calcRepulsion(V v1) {
-		Point2D fvd = positionChanges.get(v1);
+		if (isLocked(v1)) {
+			return;
+		}
 
-		fvd.setLocation(0, 0);
+		Point2D move = positionChanges.get(v1);
+
+		move.setLocation(0, 0);
 
 		for (V v2 : getGraph().getVertices()) {
 			if (v1 == v2) {
@@ -123,17 +125,12 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 			Point2D p1 = newPositions.get(v1);
 			Point2D p2 = newPositions.get(v2);
-
-			if (p1 == null || p2 == null) {
-				continue;
-			}
-
 			double xDelta = p1.getX() - p2.getX();
 			double yDelta = p1.getY() - p2.getY();
 			double deltaLength = Math.max(EPSILON, Math.sqrt((xDelta * xDelta) + (yDelta * yDelta)));
 			double factor = repulsion_constant * repulsion_constant / deltaLength / deltaLength;
 
-			fvd.setLocation(fvd.getX() + xDelta * factor, fvd.getY() + yDelta * factor);
+			move.setLocation(move.getX() + xDelta * factor, move.getY() + yDelta * factor);
 		}
 	}
 
@@ -141,20 +138,15 @@ public class FRLayout<V, E> extends Layout<V, E> {
 		Pair<V> endpoints = getGraph().getEndpoints(e);
 		V v1 = endpoints.getFirst();
 		V v2 = endpoints.getSecond();
-		boolean v1_locked = isLocked(v1);
-		boolean v2_locked = isLocked(v2);
+		boolean v1Locked = isLocked(v1);
+		boolean v2Locked = isLocked(v2);
 
-		if (v1_locked && v2_locked) {
+		if (v1Locked && v2Locked) {
 			return;
 		}
 
 		Point2D p1 = newPositions.get(v1);
 		Point2D p2 = newPositions.get(v2);
-
-		if (p1 == null || p2 == null) {
-			return;
-		}
-
 		double xDelta = p1.getX() - p2.getX();
 		double yDelta = p1.getY() - p2.getY();
 		double deltaLength = Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta));
@@ -163,23 +155,27 @@ public class FRLayout<V, E> extends Layout<V, E> {
 		xDelta *= factor;
 		yDelta *= factor;
 
-		if (!v1_locked) {
-			Point2D p = positionChanges.get(v1);
+		if (!v1Locked) {
+			Point2D move = positionChanges.get(v1);
 
-			p.setLocation(p.getX() - xDelta, p.getY() - yDelta);
+			move.setLocation(move.getX() - xDelta, move.getY() - yDelta);
 		}
 
-		if (!v2_locked) {
-			Point2D p = positionChanges.get(v2);
+		if (!v2Locked) {
+			Point2D move = positionChanges.get(v2);
 
-			p.setLocation(p.getX() + xDelta, p.getY() + yDelta);
+			move.setLocation(move.getX() + xDelta, move.getY() + yDelta);
 		}
 	}
 
 	private void calcPositions(V v) {
-		Point2D delta = positionChanges.get(v);
-		double xDelta = delta.getX();
-		double yDelta = delta.getY();
+		if (isLocked(v)) {
+			return;
+		}
+
+		Point2D move = positionChanges.get(v);
+		double xDelta = move.getX();
+		double yDelta = move.getY();
 		double deltaLength = Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta));
 		double factor = Math.min(deltaLength, temperature) / deltaLength;
 

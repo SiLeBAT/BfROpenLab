@@ -57,7 +57,7 @@ public class ISOMLayout<V, E> extends Layout<V, E> {
 		newPositions = new LinkedHashMap<>();
 
 		for (V v : getGraph().getVertices()) {
-			if (locked.contains(v)) {
+			if (isLocked(v)) {
 				newPositions.put(v, initialPositions.get(v));
 			} else {
 				newPositions.put(v,
@@ -136,7 +136,7 @@ public class ISOMLayout<V, E> extends Layout<V, E> {
 
 			if (currState.distance < radius) {
 				for (V child : getGraph().getNeighbors(current)) {
-					if (locked.contains(child)) {
+					if (isLocked(child)) {
 						continue;
 					}
 
@@ -157,7 +157,7 @@ public class ISOMLayout<V, E> extends Layout<V, E> {
 		V closest = null;
 
 		for (Map.Entry<V, Point2D> pos : newPositions.entrySet()) {
-			if (locked.contains(pos.getKey())) {
+			if (isLocked(pos.getKey())) {
 				continue;
 			}
 

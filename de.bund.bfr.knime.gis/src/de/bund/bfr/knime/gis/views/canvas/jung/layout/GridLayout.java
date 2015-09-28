@@ -21,10 +21,10 @@ package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -37,27 +37,23 @@ public class GridLayout<V, E> extends Layout<V, E> {
 	@Override
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
-		List<V> nodes = new ArrayList<>(graph.getVertices());
+		Set<V> nodes = new LinkedHashSet<>(graph.getVertices());
 
 		nodes.removeAll(locked);
 
 		int n = (int) Math.ceil(Math.sqrt(nodes.size()));
-		int index = 0;
 		double width = getSize().getWidth();
 		double height = getSize().getHeight();
 		double d = Math.min(width, height) / (n + 1);
 		double sx = width / 2 - (n - 1) * d / 2;
 		double sy = height / 2 - (n - 1) * d / 2;
+		int row = 0;
+		int column = 0;
 
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (index >= nodes.size()) {
-					break;
-				}
-
-				newPositions.put(nodes.get(index), new Point2D.Double(i * d + sx, j * d + sy));
-				index++;
-			}
+		for (V node : nodes) {
+			newPositions.put(node, new Point2D.Double(column * d + sx, row * d + sy));
+			column = (column + 1) % n;
+			row = column == 0 ? row + 1 : row;
 		}
 
 		return newPositions;

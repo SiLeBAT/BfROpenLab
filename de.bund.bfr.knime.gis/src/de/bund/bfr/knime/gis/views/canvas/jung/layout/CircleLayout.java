@@ -47,7 +47,7 @@ public class CircleLayout<V, E> extends Layout<V, E> {
 		int index = 0;
 
 		for (V node : nodes) {
-			double angle = (2 * Math.PI * index++) / nodes.size();
+			double angle = 2 * Math.PI * index++ / nodes.size();
 
 			newPositions.put(node,
 					new Point2D.Double(Math.cos(angle) * radius + width / 2, Math.sin(angle) * radius + height / 2));
