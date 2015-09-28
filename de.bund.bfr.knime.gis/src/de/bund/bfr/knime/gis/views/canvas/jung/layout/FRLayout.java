@@ -21,16 +21,12 @@ package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Lists;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -54,8 +50,6 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	private Map<V, Point2D> newPositions;
 	private Map<V, Point2D> positionChanges;
 
-	private List<List<V>> vertexBatches;
-
 	public FRLayout(Graph<V, E> graph, Dimension size) {
 		super(graph, size);
 	}
@@ -64,8 +58,6 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Random random = new Random();
 
-		vertexBatches = Lists.partition(new ArrayList<>(graph.getVertices()),
-				(int) Math.ceil((double) graph.getVertexCount() / (double) MAX_THREADS));
 		max_dimension = Math.max(size.height, size.width);
 		currentIteration = 0;
 		temperature = size.getWidth() / 10;
@@ -108,14 +100,12 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
-		for (final List<V> vertices : vertexBatches) {
+		for (final V v : getGraph().getVertices()) {
 			executor.execute(new Runnable() {
 
 				@Override
 				public void run() {
-					for (V v : vertices) {
-						calcRepulsion(v);
-					}
+					calcRepulsion(v);
 				}
 			});
 		}
