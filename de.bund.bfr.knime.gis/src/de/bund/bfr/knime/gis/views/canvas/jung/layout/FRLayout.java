@@ -21,14 +21,23 @@ package de.bund.bfr.knime.gis.views.canvas.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.Lists;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class FRLayout<V, E> extends Layout<V, E> {
+
+	private static final int MAX_THREADS = 8;
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -45,6 +54,8 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	private Map<V, Point2D> newPositions;
 	private Map<V, Point2D> positionChanges;
 
+	private List<List<V>> vertexBatches;
+
 	public FRLayout(Graph<V, E> graph, Dimension size) {
 		super(graph, size);
 	}
@@ -53,7 +64,16 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
 		Random random = new Random();
 
+		vertexBatches = Lists.partition(new ArrayList<>(graph.getVertices()),
+				(int) Math.ceil((double) graph.getVertexCount() / (double) MAX_THREADS));
+		max_dimension = Math.max(size.height, size.width);
+		currentIteration = 0;
+		temperature = size.getWidth() / 10;
+		forceConstant = Math.sqrt(size.getHeight() * size.getWidth() / getGraph().getVertexCount());
+		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
+		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
 		newPositions = new LinkedHashMap<>();
+		positionChanges = new LinkedHashMap<>();
 
 		for (V v : getGraph().getVertices()) {
 			if (isLocked(v)) {
@@ -63,14 +83,6 @@ public class FRLayout<V, E> extends Layout<V, E> {
 						new Point2D.Double(random.nextDouble() * size.width, random.nextDouble() * size.height));
 			}
 		}
-
-		max_dimension = Math.max(size.height, size.width);
-		currentIteration = 0;
-		temperature = size.getWidth() / 10;
-		forceConstant = Math.sqrt(size.getHeight() * size.getWidth() / getGraph().getVertexCount());
-		attraction_constant = ATTRACTION_MULTIPLIER * forceConstant;
-		repulsion_constant = REPULSION_MULTIPLIER * forceConstant;
-		positionChanges = new LinkedHashMap<>();
 
 		for (V v : getGraph().getVertices()) {
 			positionChanges.put(v, new Point2D.Double());
@@ -94,8 +106,26 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	public void step() {
 		currentIteration++;
 
-		for (V v : getGraph().getVertices()) {
-			calcRepulsion(v);
+		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
+
+		for (final List<V> vertices : vertexBatches) {
+			executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					for (V v : vertices) {
+						calcRepulsion(v);
+					}
+				}
+			});
+		}
+
+		executor.shutdown();
+
+		try {
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 
 		for (E e : getGraph().getEdges()) {
