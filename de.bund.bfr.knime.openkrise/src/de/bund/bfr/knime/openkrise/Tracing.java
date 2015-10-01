@@ -31,7 +31,6 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.openkrise.common.Delivery;
 
@@ -154,23 +153,21 @@ public class Tracing {
 			}
 		}
 
-		backwardDeliveries = new LinkedHashMap<>();
-		forwardDeliveries = new LinkedHashMap<>();
+		Set<String> stationIds = new LinkedHashSet<>();
+
 		deliveryMap = new LinkedHashMap<>();
 		incomingDeliveries = LinkedHashMultimap.create();
 		outgoingDeliveries = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries) {
+			stationIds.add(d.getRecipientId());
+			stationIds.add(d.getSupplierId());
 			deliveryMap.put(d.getId(), d.copy());
 			incomingDeliveries.put(d.getRecipientId(), d.getId());
 			outgoingDeliveries.put(d.getSupplierId(), d.getId());
 		}
 
 		for (String stationId : ccStations) {
-			if (!incomingDeliveries.containsKey(stationId) || !outgoingDeliveries.containsKey(stationId)) {
-				continue;
-			}
-
 			for (String inId : incomingDeliveries.get(stationId)) {
 				Delivery in = deliveryMap.get(inId);
 
@@ -225,10 +222,6 @@ public class Tracing {
 		}
 
 		for (String stationId : killContaminationStations) {
-			if (!incomingDeliveries.containsKey(stationId) || !outgoingDeliveries.containsKey(stationId)) {
-				continue;
-			}
-
 			for (String inId : incomingDeliveries.get(stationId)) {
 				deliveryMap.get(inId).getAllNextIds().clear();
 			}
@@ -236,6 +229,8 @@ public class Tracing {
 			for (String outId : outgoingDeliveries.get(stationId)) {
 				deliveryMap.get(outId).getAllPreviousIds().clear();
 			}
+
+			outgoingDeliveries.removeAll(stationId);
 		}
 
 		for (String deliveryId : killContaminationDeliveries) {
@@ -246,11 +241,15 @@ public class Tracing {
 			}
 
 			d.getAllNextIds().clear();
+			incomingDeliveries.get(d.getRecipientId()).remove(deliveryId);
 		}
 
 		Result result = new Result();
 
-		for (String stationId : Sets.union(incomingDeliveries.keySet(), outgoingDeliveries.keySet())) {
+		backwardDeliveries = new LinkedHashMap<>();
+		forwardDeliveries = new LinkedHashMap<>();
+
+		for (String stationId : stationIds) {
 			result.stationScores.put(stationId, getStationScore(stationId, ScoreType.COMBINED));
 			result.stationPositiveScores.put(stationId, getStationScore(stationId, ScoreType.POSITIVE));
 			result.stationNegativeScores.put(stationId, getStationScore(stationId, ScoreType.NEGATIVE));
@@ -440,7 +439,9 @@ public class Tracing {
 	private Set<String> getBackwardStations(Delivery d) {
 		Set<String> result = new LinkedHashSet<>();
 
-		result.add(d.getSupplierId());
+		if (!killContaminationStations.contains(d.getSupplierId())) {
+			result.add(d.getSupplierId());
+		}
 
 		for (String id : getBackwardDeliveries(d)) {
 			result.add(deliveryMap.get(id).getSupplierId());
