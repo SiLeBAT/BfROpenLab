@@ -51,7 +51,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
-import org.knime.core.util.Pair;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -60,6 +59,7 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;

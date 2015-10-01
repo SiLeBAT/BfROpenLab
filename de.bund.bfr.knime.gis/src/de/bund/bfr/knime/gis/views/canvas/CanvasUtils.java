@@ -54,7 +54,6 @@ import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
-import org.knime.core.util.Pair;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.google.common.base.Joiner;
@@ -66,6 +65,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
+import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;

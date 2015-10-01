@@ -29,12 +29,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.knime.core.util.Pair;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Transform;
