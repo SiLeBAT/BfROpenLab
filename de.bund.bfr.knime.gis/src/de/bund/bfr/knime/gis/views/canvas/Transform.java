@@ -23,12 +23,15 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 import org.geotools.geometry.jts.LiteShape;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public class Transform {
+public class Transform implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final Transform IDENTITY_TRANSFORM = new Transform(1, 1, 0, 0);
 	public static final Transform INVALID_TRANSFORM = new Transform(Double.NaN, Double.NaN, Double.NaN, Double.NaN);

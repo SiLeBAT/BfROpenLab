@@ -55,7 +55,7 @@ public final class Pair<T, M> implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(first, second);
+		return Objects.hashCode(first) ^ Objects.hashCode(second);
 	}
 
 	@Override

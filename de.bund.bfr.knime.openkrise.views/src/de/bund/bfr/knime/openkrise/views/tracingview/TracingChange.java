@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -41,9 +42,13 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 
-public class TracingChange {
+public class TracingChange implements Serializable {
 
-	public static class Builder {
+	private static final long serialVersionUID = 1L;
+
+	public static class Builder implements Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		private ViewDiff viewDiff;
 
@@ -55,20 +60,20 @@ public class TracingChange {
 		private HighlightingDiff nodeHighlightingDiff;
 		private HighlightingDiff edgeHighlightingDiff;
 
-		private Set<Map.Entry<String, Point2D>> changedNodePositions;
-		private Set<Map.Entry<String, Set<String>>> changedCollapsedNodes;
+		private Set<Pair<String, Point2D>> changedNodePositions;
+		private Set<Pair<String, Set<String>>> changedCollapsedNodes;
 
-		private Set<Map.Entry<String, Double>> changedNodeWeights;
-		private Set<Map.Entry<String, Double>> changedEdgeWeights;
+		private Set<Pair<String, Double>> changedNodeWeights;
+		private Set<Pair<String, Double>> changedEdgeWeights;
 
-		private Set<Map.Entry<String, Boolean>> changedNodeCrossContams;
-		private Set<Map.Entry<String, Boolean>> changedEdgeCrossContams;
+		private Set<Pair<String, Boolean>> changedNodeCrossContams;
+		private Set<Pair<String, Boolean>> changedEdgeCrossContams;
 
-		private Set<Map.Entry<String, Boolean>> changedNodeKillContams;
-		private Set<Map.Entry<String, Boolean>> changedEdgeKillContams;
+		private Set<Pair<String, Boolean>> changedNodeKillContams;
+		private Set<Pair<String, Boolean>> changedEdgeKillContams;
 
-		private Set<Map.Entry<String, Boolean>> changedObservedNodes;
-		private Set<Map.Entry<String, Boolean>> changedObservedEdges;
+		private Set<Pair<String, Boolean>> changedObservedNodes;
+		private Set<Pair<String, Boolean>> changedObservedEdges;
 
 		private boolean edgeJoinChanged;
 		private boolean skipEdgelessChanged;
@@ -168,59 +173,59 @@ public class TracingChange {
 
 		public Builder nodePositions(Map<String, Point2D> nodePositionsBefore,
 				Map<String, Point2D> nodePositionsAfter) {
-			changedNodePositions = symDiff(nodePositionsBefore.entrySet(), nodePositionsAfter.entrySet());
+			changedNodePositions = symDiff(toSet(nodePositionsBefore), toSet(nodePositionsAfter));
 			return this;
 		}
 
 		public Builder collapsedNodes(Map<String, Set<String>> collapsedNodesBefore,
 				Map<String, Set<String>> collapsedNodesAfter) {
-			changedCollapsedNodes = symDiff(collapsedNodesBefore.entrySet(), collapsedNodesAfter.entrySet());
+			changedCollapsedNodes = symDiff(toSet(collapsedNodesBefore), toSet(collapsedNodesAfter));
 			return this;
 		}
 
 		public Builder nodeWeights(Map<String, Double> nodeWeightsBefore, Map<String, Double> nodeWeightsAfter) {
-			changedNodeWeights = symDiff(nodeWeightsBefore.entrySet(), nodeWeightsAfter.entrySet());
+			changedNodeWeights = symDiff(toSet(nodeWeightsBefore), toSet(nodeWeightsAfter));
 			return this;
 		}
 
 		public Builder edgeWeights(Map<String, Double> edgeWeightsBefore, Map<String, Double> edgeWeightsAfter) {
-			changedEdgeWeights = symDiff(edgeWeightsBefore.entrySet(), edgeWeightsAfter.entrySet());
+			changedEdgeWeights = symDiff(toSet(edgeWeightsBefore), toSet(edgeWeightsAfter));
 			return this;
 		}
 
 		public Builder nodeCrossContaminations(Map<String, Boolean> nodeCrossContamsBefore,
 				Map<String, Boolean> nodeCrossContamsAfter) {
-			changedNodeCrossContams = symDiff(nodeCrossContamsBefore.entrySet(), nodeCrossContamsAfter.entrySet());
+			changedNodeCrossContams = symDiff(toSet(nodeCrossContamsBefore), toSet(nodeCrossContamsAfter));
 			return this;
 		}
 
 		public Builder edgeCrossContaminations(Map<String, Boolean> edgeCrossContamsBefore,
 				Map<String, Boolean> edgeCrossContamsAfter) {
-			changedEdgeCrossContams = symDiff(edgeCrossContamsBefore.entrySet(), edgeCrossContamsAfter.entrySet());
+			changedEdgeCrossContams = symDiff(toSet(edgeCrossContamsBefore), toSet(edgeCrossContamsAfter));
 			return this;
 		}
 
 		public Builder nodeKillContaminations(Map<String, Boolean> nodeKillContamsBefore,
 				Map<String, Boolean> nodeKillContamsAfter) {
-			changedNodeKillContams = symDiff(nodeKillContamsBefore.entrySet(), nodeKillContamsAfter.entrySet());
+			changedNodeKillContams = symDiff(toSet(nodeKillContamsBefore), toSet(nodeKillContamsAfter));
 			return this;
 		}
 
 		public Builder edgeKillContaminations(Map<String, Boolean> edgeKillContamsBefore,
 				Map<String, Boolean> edgeKillContamsAfter) {
-			changedEdgeKillContams = symDiff(edgeKillContamsBefore.entrySet(), edgeKillContamsAfter.entrySet());
+			changedEdgeKillContams = symDiff(toSet(edgeKillContamsBefore), toSet(edgeKillContamsAfter));
 			return this;
 		}
 
 		public Builder observedNodes(Map<String, Boolean> observedNodesBefore,
 				Map<String, Boolean> observedNodesAfter) {
-			changedObservedNodes = symDiff(observedNodesBefore.entrySet(), observedNodesAfter.entrySet());
+			changedObservedNodes = symDiff(toSet(observedNodesBefore), toSet(observedNodesAfter));
 			return this;
 		}
 
 		public Builder observedEdges(Map<String, Boolean> observedEdgesBefore,
 				Map<String, Boolean> observedEdgesAfter) {
-			changedObservedEdges = symDiff(observedEdgesBefore.entrySet(), observedEdgesAfter.entrySet());
+			changedObservedEdges = symDiff(toSet(observedEdgesBefore), toSet(observedEdgesAfter));
 			return this;
 		}
 
@@ -367,8 +372,7 @@ public class TracingChange {
 		}
 
 		if (!builder.changedCollapsedNodes.isEmpty()) {
-			canvas.setCollapsedNodes(
-					createMap(symDiff(canvas.getCollapsedNodes().entrySet(), builder.changedCollapsedNodes)));
+			canvas.setCollapsedNodes(toMap(symDiff(toSet(canvas.getCollapsedNodes()), builder.changedCollapsedNodes)));
 		}
 
 		if (builder.nodeHighlightingDiff != null && !builder.nodeHighlightingDiff.isIdentity()) {
@@ -392,45 +396,43 @@ public class TracingChange {
 		if (canvas instanceof GraphCanvas && !builder.changedNodePositions.isEmpty()) {
 			GraphCanvas c = (GraphCanvas) canvas;
 
-			c.setNodePositions(createMap(symDiff(c.getNodePositions().entrySet(), builder.changedNodePositions)));
+			c.setNodePositions(toMap(symDiff(toSet(c.getNodePositions()), builder.changedNodePositions)));
 		}
 
 		if (!builder.changedNodeWeights.isEmpty()) {
-			canvas.setNodeWeights(createMap(symDiff(canvas.getNodeWeights().entrySet(), builder.changedNodeWeights)));
+			canvas.setNodeWeights(toMap(symDiff(toSet(canvas.getNodeWeights()), builder.changedNodeWeights)));
 		}
 
 		if (!builder.changedEdgeWeights.isEmpty()) {
-			canvas.setEdgeWeights(createMap(symDiff(canvas.getEdgeWeights().entrySet(), builder.changedEdgeWeights)));
+			canvas.setEdgeWeights(toMap(symDiff(toSet(canvas.getEdgeWeights()), builder.changedEdgeWeights)));
 		}
 
 		if (!builder.changedNodeCrossContams.isEmpty()) {
-			canvas.setNodeCrossContaminations(createMap(
-					symDiff(canvas.getNodeCrossContaminations().entrySet(), builder.changedNodeCrossContams)));
+			canvas.setNodeCrossContaminations(
+					toMap(symDiff(toSet(canvas.getNodeCrossContaminations()), builder.changedNodeCrossContams)));
 		}
 
 		if (!builder.changedEdgeCrossContams.isEmpty()) {
-			canvas.setEdgeCrossContaminations(createMap(
-					symDiff(canvas.getEdgeCrossContaminations().entrySet(), builder.changedEdgeCrossContams)));
+			canvas.setEdgeCrossContaminations(
+					toMap(symDiff(toSet(canvas.getEdgeCrossContaminations()), builder.changedEdgeCrossContams)));
 		}
 
 		if (!builder.changedNodeKillContams.isEmpty()) {
 			canvas.setNodeKillContaminations(
-					createMap(symDiff(canvas.getNodeKillContaminations().entrySet(), builder.changedNodeKillContams)));
+					toMap(symDiff(toSet(canvas.getNodeKillContaminations()), builder.changedNodeKillContams)));
 		}
 
 		if (!builder.changedEdgeKillContams.isEmpty()) {
 			canvas.setEdgeKillContaminations(
-					createMap(symDiff(canvas.getEdgeKillContaminations().entrySet(), builder.changedEdgeKillContams)));
+					toMap(symDiff(toSet(canvas.getEdgeKillContaminations()), builder.changedEdgeKillContams)));
 		}
 
 		if (!builder.changedObservedNodes.isEmpty()) {
-			canvas.setObservedNodes(
-					createMap(symDiff(canvas.getObservedNodes().entrySet(), builder.changedObservedNodes)));
+			canvas.setObservedNodes(toMap(symDiff(toSet(canvas.getObservedNodes()), builder.changedObservedNodes)));
 		}
 
 		if (!builder.changedObservedEdges.isEmpty()) {
-			canvas.setObservedEdges(
-					createMap(symDiff(canvas.getObservedEdges().entrySet(), builder.changedObservedEdges)));
+			canvas.setObservedEdges(toMap(symDiff(toSet(canvas.getObservedEdges()), builder.changedObservedEdges)));
 		}
 
 		if (builder.nodeSizeDiff != null) {
@@ -495,11 +497,21 @@ public class TracingChange {
 		return new LinkedHashSet<>(Sets.symmetricDifference(before, after));
 	}
 
-	private static <K, V> Map<K, V> createMap(Set<Map.Entry<K, V>> entries) {
+	private static <K, V> Set<Pair<K, V>> toSet(Map<K, V> map) {
+		Set<Pair<K, V>> set = new LinkedHashSet<>();
+
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			set.add(new Pair<K, V>(entry.getKey(), entry.getValue()));
+		}
+
+		return set;
+	}
+
+	private static <K, V> Map<K, V> toMap(Set<Pair<K, V>> set) {
 		Map<K, V> map = new LinkedHashMap<>();
 
-		for (Map.Entry<K, V> entry : entries) {
-			map.put(entry.getKey(), entry.getValue());
+		for (Pair<K, V> entry : set) {
+			map.put(entry.getFirst(), entry.getSecond());
 		}
 
 		return map;
@@ -509,7 +521,9 @@ public class TracingChange {
 		return !Objects.equals(before, after) ? new Pair<>(before, after) : null;
 	}
 
-	private static class ViewDiff {
+	private static class ViewDiff implements Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		private boolean showGisChanged;
 
@@ -535,7 +549,9 @@ public class TracingChange {
 		}
 	}
 
-	private static class HighlightingDiff {
+	private static class HighlightingDiff implements Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		private BiMap<Integer, Integer> highlightingOrderChanges;
 		private List<HighlightCondition> removedConditions;
