@@ -452,7 +452,9 @@ public class Tracing {
 	private Set<String> getForwardStations(Delivery d) {
 		Set<String> result = new LinkedHashSet<>();
 
-		result.add(d.getRecipientId());
+		if (!killContaminationDeliveries.contains(d.getId())) {
+			result.add(d.getRecipientId());
+		}
 
 		for (String id : getForwardDeliveries(d)) {
 			result.add(deliveryMap.get(id).getRecipientId());
