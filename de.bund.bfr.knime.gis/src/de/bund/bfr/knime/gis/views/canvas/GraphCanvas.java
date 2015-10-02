@@ -198,12 +198,18 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
+		if (selectedNodes != null && !selectedNodes.isEmpty()) {
+			if (JOptionPane.showConfirmDialog(this,
+					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Layout",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+				selectedNodes = null;
+			}
+		}
+
 		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
 
 		if (nodesForLayout.size() < 2) {
-			JOptionPane.showMessageDialog(
-					this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".\nUnselect all "
-							+ naming.nodes() + " to apply layout on the whole graph.",
+			JOptionPane.showMessageDialog(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -275,7 +281,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setNodePositions(newPositions);
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodesForLayout).values());
+			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
 
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
 		} else {
