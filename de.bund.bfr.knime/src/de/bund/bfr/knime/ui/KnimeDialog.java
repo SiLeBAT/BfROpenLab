@@ -66,6 +66,9 @@ public class KnimeDialog extends JDialog {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
+					setDialogButtonsEnabled(true);
+				}
 			}
 
 			@Override
