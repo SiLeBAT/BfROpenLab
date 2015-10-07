@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -31,6 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -146,5 +153,38 @@ public class KnimeUtils {
 		Collections.sort(list);
 
 		return list;
+	}
+
+	public static void setDialogButtonsEnabled(final boolean enabled) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				List<String> buttonNames = Arrays.asList("OK", "Apply", "Cancel");
+
+				for (Shell dialog : shell.getShells()) {
+					if (dialog.isVisible()) {
+						for (Button b : getButtons(dialog)) {
+							if (buttonNames.contains(b.getText())) {
+								b.setEnabled(enabled);
+							}
+						}
+					}
+				}
+			}
+		});
+	}
+
+	private static List<Button> getButtons(Composite panel) {
+		List<Button> buttons = new ArrayList<>();
+
+		for (Control c : panel.getChildren()) {
+			if (c instanceof Button) {
+				buttons.add((Button) c);
+			} else if (c instanceof Composite) {
+				buttons.addAll(getButtons((Composite) c));
+			}
+		}
+
+		return buttons;
 	}
 }
