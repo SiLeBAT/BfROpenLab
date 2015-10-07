@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,8 +65,9 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class EditablePropertiesDialog<V extends Node> extends JDialog
+public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		implements ActionListener, CellEditorListener, RowSorterListener, ListSelectionListener {
 
 	private static final long serialVersionUID = 1L;

@@ -28,7 +28,6 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,8 +39,9 @@ import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightSelectionDialog extends JDialog implements ActionListener {
+public class HighlightSelectionDialog extends KnimeDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 

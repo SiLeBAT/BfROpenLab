@@ -34,7 +34,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -47,8 +46,9 @@ import com.google.common.collect.Iterables;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class EditableSinglePropertiesDialog extends JDialog implements ActionListener {
+public class EditableSinglePropertiesDialog extends KnimeDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 

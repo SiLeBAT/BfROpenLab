@@ -41,7 +41,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -62,8 +61,9 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.ui.AutoSuggestField;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightDialog extends JDialog implements ActionListener, DocumentListener, ItemListener {
+public class HighlightDialog extends KnimeDialog implements ActionListener, DocumentListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
