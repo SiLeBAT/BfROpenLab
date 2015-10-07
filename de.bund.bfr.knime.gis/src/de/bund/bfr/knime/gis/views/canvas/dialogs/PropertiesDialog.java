@@ -32,8 +32,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -61,7 +59,7 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog implements Act
 
 	private PropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements, PropertySchema schema,
 			Type type, boolean allowViewSelection, Set<String> idColumns) {
-		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties", DEFAULT_MODALITY_TYPE);
+		super(parent.getComponent(), "Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 

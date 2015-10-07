@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -39,13 +41,13 @@ public class KnimeDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	public KnimeDialog(Window owner, String title, Dialog.ModalityType modalityType) {
-		super(owner, title, modalityType);
+	public KnimeDialog(Component owner, String title, Dialog.ModalityType modalityType) {
+		super(owner instanceof Window ? (Window) owner : SwingUtilities.getWindowAncestor(owner), title, modalityType);
 		addWindowListener(new WindowListener() {
 
 			@Override
 			public void windowOpened(WindowEvent e) {
-				if (!(getOwner() instanceof KnimeDialog)) {
+				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
 					setDialogButtonsEnabled(false);
 				}
 			}
@@ -68,7 +70,7 @@ public class KnimeDialog extends JDialog {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				if (!(getOwner() instanceof KnimeDialog)) {
+				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
 					setDialogButtonsEnabled(true);
 				}
 			}
@@ -77,6 +79,18 @@ public class KnimeDialog extends JDialog {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
+	}
+
+	private static boolean hasKnimeDialogAncestor(Window w) {
+		Window owner = w.getOwner();
+
+		if (owner instanceof KnimeDialog) {
+			return true;
+		} else if (owner == null) {
+			return false;
+		}
+
+		return hasKnimeDialogAncestor(owner);
 	}
 
 	private static void setDialogButtonsEnabled(final boolean enabled) {

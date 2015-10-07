@@ -39,8 +39,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
 import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
@@ -65,7 +63,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog implements Actio
 	private boolean approved;
 
 	public EditableSinglePropertiesDialog(Component parent, Element element, Map<String, Class<?>> properties) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties", DEFAULT_MODALITY_TYPE);
+		super(parent, "Properties", DEFAULT_MODALITY_TYPE);
 		this.element = element;
 
 		Map<String, Object> values = element.getProperties();

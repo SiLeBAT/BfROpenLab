@@ -42,7 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -99,7 +98,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 	private EditablePropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements, PropertySchema schema,
 			Type type, boolean allowViewSelection) {
-		super(SwingUtilities.getWindowAncestor(parent.getComponent()), "Properties", DEFAULT_MODALITY_TYPE);
+		super(parent.getComponent(), "Properties", DEFAULT_MODALITY_TYPE);
 		this.parent = parent;
 		this.type = type;
 

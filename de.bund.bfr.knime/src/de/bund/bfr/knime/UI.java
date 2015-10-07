@@ -34,7 +34,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.UIManager;
@@ -42,6 +41,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class UI {
 
@@ -75,7 +76,7 @@ public class UI {
 		return false;
 	}
 
-	public static void adjustDialog(JDialog dialog, double widthFraction, double heightFraction) {
+	public static void adjustDialog(KnimeDialog dialog, double widthFraction, double heightFraction) {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(dialog.getGraphicsConfiguration());
 		int maxWidth = (int) ((screenSize.width - insets.left - insets.right) * widthFraction);
@@ -92,7 +93,7 @@ public class UI {
 		dialog.setLocation(Math.min(dialog.getX(), maxX), Math.min(dialog.getY(), maxY));
 	}
 
-	public static void adjustDialog(JDialog dialog) {
+	public static void adjustDialog(KnimeDialog dialog) {
 		adjustDialog(dialog, 0.8, 0.8);
 	}
 

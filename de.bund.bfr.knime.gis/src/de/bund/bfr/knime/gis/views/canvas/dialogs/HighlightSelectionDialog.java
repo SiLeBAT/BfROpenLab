@@ -35,8 +35,6 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.ui.KnimeDialog;
@@ -53,7 +51,7 @@ public class HighlightSelectionDialog extends KnimeDialog implements ActionListe
 	private boolean approved;
 
 	public HighlightSelectionDialog(Component owner, List<HighlightCondition> highlightConditions) {
-		super(SwingUtilities.getWindowAncestor(owner), "Highlight Conditions", DEFAULT_MODALITY_TYPE);
+		super(owner, "Highlight Conditions", DEFAULT_MODALITY_TYPE);
 		this.highlightConditions = null;
 		approved = false;
 

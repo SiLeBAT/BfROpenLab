@@ -49,7 +49,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -152,7 +151,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	private HighlightDialog(Component owner, PropertySchema schema, boolean allowName, boolean allowColor,
 			boolean allowInvisible, boolean allowThickness, boolean allowLabel, boolean onlyAllowLogical,
 			HighlightCondition condition, List<HighlightConditionChecker> checkers) {
-		super(SwingUtilities.getWindowAncestor(owner), "Highlight Condition", DEFAULT_MODALITY_TYPE);
+		super(owner, "Highlight Condition", DEFAULT_MODALITY_TYPE);
 		this.schema = schema;
 		this.allowName = allowName;
 		this.allowColor = allowColor;

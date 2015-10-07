@@ -32,8 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -44,7 +42,7 @@ public class SinglePropertiesDialog extends KnimeDialog implements ActionListene
 	private static final long serialVersionUID = 1L;
 
 	public SinglePropertiesDialog(Component parent, Element element, PropertySchema schema) {
-		super(SwingUtilities.getWindowAncestor(parent), "Properties", DEFAULT_MODALITY_TYPE);
+		super(parent, "Properties", DEFAULT_MODALITY_TYPE);
 
 		JPanel centerPanel = new JPanel();
 		JPanel leftCenterPanel = new JPanel();

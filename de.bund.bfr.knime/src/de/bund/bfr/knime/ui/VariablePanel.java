@@ -39,12 +39,10 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -327,7 +325,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		}
 	}
 
-	private class SelectDialog extends JDialog implements ActionListener {
+	private class SelectDialog extends KnimeDialog implements ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -340,7 +338,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		private JButton cancelButton;
 
 		public SelectDialog(String title, List<Double> values, List<Boolean> initialSelected) {
-			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title, DEFAULT_MODALITY_TYPE);
+			super(VariablePanel.this, title, DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			selected = null;
@@ -412,7 +410,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		}
 	}
 
-	private class RangeDialog extends JDialog implements ActionListener {
+	private class RangeDialog extends KnimeDialog implements ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -427,7 +425,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 		private JButton cancelButton;
 
 		public RangeDialog(String title, Double initialMin, Double initialMax) {
-			super(SwingUtilities.getWindowAncestor(VariablePanel.this), title, DEFAULT_MODALITY_TYPE);
+			super(VariablePanel.this, title, DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			min = null;
