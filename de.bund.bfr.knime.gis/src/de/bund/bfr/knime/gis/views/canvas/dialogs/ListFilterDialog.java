@@ -30,15 +30,14 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class ListFilterDialog<T> extends JDialog implements ActionListener {
+public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,7 +52,7 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 	private JButton cancelButton;
 
 	public ListFilterDialog(Component parent, List<T> elements) {
-		super(SwingUtilities.getWindowAncestor(parent), "Filter", DEFAULT_MODALITY_TYPE);
+		super(parent, "Filter", DEFAULT_MODALITY_TYPE);
 		this.elements = elements;
 
 		allBox = new JCheckBox("Select All");
@@ -66,17 +65,19 @@ public class ListFilterDialog<T> extends JDialog implements ActionListener {
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 
+		approved = false;
+		filtered = null;
+
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(allBox), BorderLayout.NORTH);
 		add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
+
 		pack();
+		UI.adjustDialog(this);
 		setLocationRelativeTo(parent);
 		getRootPane().setDefaultButton(okButton);
-
-		approved = false;
-		filtered = null;
 	}
 
 	public boolean isApproved() {

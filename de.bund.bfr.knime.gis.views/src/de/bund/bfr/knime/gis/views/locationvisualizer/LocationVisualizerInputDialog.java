@@ -31,11 +31,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
@@ -46,8 +44,9 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
+import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class LocationVisualizerInputDialog extends JDialog implements ActionListener, ItemListener {
+public class LocationVisualizerInputDialog extends KnimeDialog implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -65,7 +64,7 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 
 	public LocationVisualizerInputDialog(JComponent owner, DataTableSpec shapeSpec, DataTableSpec nodeSpec,
 			LocationVisualizerSettings set) {
-		super(SwingUtilities.getWindowAncestor(owner), "Input", DEFAULT_MODALITY_TYPE);
+		super(owner, "Input", DEFAULT_MODALITY_TYPE);
 		this.set = set;
 		approved = false;
 
@@ -100,8 +99,10 @@ public class LocationVisualizerInputDialog extends JDialog implements ActionList
 		setLayout(new BorderLayout());
 		add(UI.createNorthPanel(mainPanel), BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
-		setLocationRelativeTo(owner);
+
 		pack();
+		UI.adjustDialog(this);
+		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
 	}
 
