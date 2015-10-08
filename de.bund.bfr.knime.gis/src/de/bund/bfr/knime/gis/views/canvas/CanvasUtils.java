@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -183,8 +182,7 @@ public class CanvasUtils {
 		String newId = null;
 
 		while (true) {
-			newId = (String) JOptionPane.showInputDialog(parent, "Specify ID for Meta " + nodeName, nodeName + " ID",
-					JOptionPane.QUESTION_MESSAGE, null, null, "");
+			newId = Dialogs.showInputDialog(parent, "Specify ID for Meta " + nodeName, nodeName + " ID", "");
 
 			if (newId == null || !usedIds.contains(newId)) {
 				break;
@@ -198,9 +196,8 @@ public class CanvasUtils {
 
 	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(Component parent,
 			Collection<String> nodeProperties, Collection<String> uncollapsedIds, Map<String, V> nodes) {
-		String[] properties = nodeProperties.toArray(new String[0]);
-		String result = (String) JOptionPane.showInputDialog(parent, "Select Property for Collapse?",
-				"Collapse by Property", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+		String result = Dialogs.showInputDialog(parent, "Select Property for Collapse?", "Collapse by Property",
+				nodeProperties);
 
 		if (result == null) {
 			return new LinkedHashMap<>();

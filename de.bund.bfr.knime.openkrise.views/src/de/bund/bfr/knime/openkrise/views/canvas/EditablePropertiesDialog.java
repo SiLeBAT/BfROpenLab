@@ -36,7 +36,6 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -259,8 +258,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 				break;
 			}
 		} else if (e.getSource() == weightButton) {
-			Object result = JOptionPane.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT,
-					JOptionPane.QUESTION_MESSAGE, null, null, 1.0);
+			String result = Dialogs.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT, "1.0");
 			Double value = null;
 
 			if (result != null) {
@@ -293,15 +291,15 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 				return;
 			}
 
-			Object result = JOptionPane.showInputDialog(this, "Set All Values to?", property,
-					JOptionPane.QUESTION_MESSAGE, null, new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
+			String result = Dialogs.showInputDialog(this, "Set All Values to?", property,
+					Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
 
 			if (result != null) {
 				if (inputTable.isEditing()) {
 					inputTable.getCellEditor().stopCellEditing();
 				}
 
-				setAllValuesTo(property, result);
+				setAllValuesTo(property, Boolean.parseBoolean(result));
 			}
 		}
 	}

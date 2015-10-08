@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -803,9 +802,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void highlightNodeCategoriesItemClicked() {
-		String[] properties = nodeSchema.getMap().keySet().toArray(new String[0]);
-		String result = (String) JOptionPane.showInputDialog(this, "Select Property with Categories?",
-				"Highlight Categories", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+		String result = Dialogs.showInputDialog(this, "Select Property with Categories?", "Highlight Categories",
+				nodeSchema.getMap().keySet());
 
 		if (result != null) {
 			nodeHighlightConditions.getConditions().addAll(CanvasUtils.createCategorialHighlighting(nodes, result));
@@ -815,9 +813,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void highlightEdgeCategoriesItemClicked() {
-		String[] properties = edgeSchema.getMap().keySet().toArray(new String[0]);
-		String result = (String) JOptionPane.showInputDialog(this, "Select Property with Categories?",
-				"Highlight Categories", JOptionPane.QUESTION_MESSAGE, null, properties, properties[0]);
+		String result = Dialogs.showInputDialog(this, "Select Property with Categories?", "Highlight Categories",
+				edgeSchema.getMap().keySet());
 
 		if (result != null) {
 			edgeHighlightConditions.getConditions().addAll(CanvasUtils.createCategorialHighlighting(edges, result));
