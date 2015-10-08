@@ -32,6 +32,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -48,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -64,7 +64,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.ImageFileChooser;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -622,30 +621,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void saveAsItemClicked() {
-		ImageFileChooser chooser = new ImageFileChooser();
+		File file = Dialogs.showImageFileChooser(this);
 
-		if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-			if (chooser.getFileFilter() == ImageFileChooser.PNG_FILTER) {
-				try {
-					BufferedImage img = new BufferedImage(viewer.getWidth(), viewer.getHeight(),
-							BufferedImage.TYPE_INT_RGB);
+		if (file == null) {
+			return;
+		}
 
-					getVisualizationServer(false).paint(img.getGraphics());
-					ImageIO.write(img, "png", chooser.getImageFile());
-				} catch (IOException ex) {
-					Dialogs.showErrorMessage(this, "Error saving png file", "Error");
-				}
-			} else if (chooser.getFileFilter() == ImageFileChooser.SVG_FILTER) {
-				try (Writer outsvg = new OutputStreamWriter(new FileOutputStream(chooser.getImageFile()),
-						StandardCharsets.UTF_8)) {
-					SVGGraphics2D g = new SVGGraphics2D(new SVGDOMImplementation().createDocument(null, "svg", null));
+		if (file.getName().toLowerCase().endsWith(".png")) {
+			try {
+				BufferedImage img = new BufferedImage(viewer.getWidth(), viewer.getHeight(),
+						BufferedImage.TYPE_INT_RGB);
 
-					g.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
-					getVisualizationServer(true).paint(g);
-					g.stream(outsvg, true);
-				} catch (IOException ex) {
-					Dialogs.showErrorMessage(this, "Error saving svg file", "Error");
-				}
+				getVisualizationServer(false).paint(img.getGraphics());
+				ImageIO.write(img, "png", file);
+			} catch (IOException e) {
+				Dialogs.showErrorMessage(this, "Error saving png file", "Error");
+			}
+		} else if (file.getName().toLowerCase().endsWith(".svg")) {
+			try (Writer outsvg = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+				SVGGraphics2D g = new SVGGraphics2D(new SVGDOMImplementation().createDocument(null, "svg", null));
+
+				g.setSVGCanvasSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
+				getVisualizationServer(true).paint(g);
+				g.stream(outsvg, true);
+			} catch (IOException e) {
+				Dialogs.showErrorMessage(this, "Error saving svg file", "Error");
 			}
 		}
 	}

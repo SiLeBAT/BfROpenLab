@@ -21,13 +21,17 @@ package de.bund.bfr.knime.ui;
 
 import java.awt.Component;
 import java.awt.Window;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -144,5 +148,75 @@ public class Dialogs {
 		}
 
 		return buttons;
+	}
+
+	public static File showImageFileChooser(Component parent) {
+		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
+		Locale oldLocale = JComponent.getDefaultLocale();
+
+		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
+			setDialogButtonsEnabled(false);
+		}
+
+		JComponent.setDefaultLocale(Locale.US);
+		ImageFileChooser chooser = new ImageFileChooser();
+		File result = null;
+
+		if (chooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
+			result = chooser.getImageFile();
+		}
+
+		JComponent.setDefaultLocale(oldLocale);
+
+		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
+			setDialogButtonsEnabled(true);
+		}
+
+		return result;
+	}
+
+	private static class ImageFileChooser extends JFileChooser {
+
+		private static final long serialVersionUID = 1L;
+
+		private static final FileFilter PNG_FILTER = new FileNameExtensionFilter("Portable Network Graphics (*.png)",
+				"png");
+		private static final FileFilter SVG_FILTER = new FileNameExtensionFilter("SVG Vector Graphic (*.svg)", "svg");
+
+		public ImageFileChooser() {
+			setAcceptAllFileFilterUsed(false);
+			addChoosableFileFilter(PNG_FILTER);
+			addChoosableFileFilter(SVG_FILTER);
+		}
+
+		public File getImageFile() {
+			File file = getSelectedFile();
+
+			if (getFileFilter() == PNG_FILTER) {
+				if (!file.getName().toLowerCase().endsWith(".png")) {
+					file = new File(file.getAbsolutePath() + ".png");
+				}
+			} else if (getFileFilter() == SVG_FILTER) {
+				if (!file.getName().toLowerCase().endsWith(".svg")) {
+					file = new File(file.getAbsolutePath() + ".svg");
+				}
+			}
+
+			return file;
+		}
+
+		@Override
+		public void approveSelection() {
+			File f = getSelectedFile();
+
+			if (f.exists() && getDialogType() == SAVE_DIALOG
+					&& JOptionPane.showConfirmDialog(this,
+							"The file " + f.getName() + " already exists. Do you want to overwrite it?", "Confirm",
+							JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+				return;
+			}
+
+			super.approveSelection();
+		}
 	}
 }
