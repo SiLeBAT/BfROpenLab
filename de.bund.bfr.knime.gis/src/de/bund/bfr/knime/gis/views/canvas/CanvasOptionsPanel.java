@@ -37,7 +37,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -48,6 +47,7 @@ import javax.swing.border.TitledBorder;
 import com.google.common.primitives.Ints;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class CanvasOptionsPanel extends JScrollPane implements ActionListener, ItemListener {
@@ -353,8 +353,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					l.fontChanged();
 				}
 			} else {
-				JOptionPane.showMessageDialog(fontSizeBox, size + " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(fontSizeBox, size + " is not a valid number", "Error");
 				fontSizeBox.setSelectedItem(fontSize);
 			}
 		} else if (e.getSource() == fontBoldBox) {
@@ -366,8 +365,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer) {
 				if (nodeMaxSize != null && (Integer) size > nodeMaxSize) {
-					JOptionPane.showMessageDialog(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize,
-							"Error", JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize,
+							"Error");
 					nodeSizeBox.setSelectedItem(nodeSize);
 				} else {
 					nodeSize = (Integer) size;
@@ -377,8 +376,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(nodeSizeBox, size + " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(nodeSizeBox, size + " is not a valid number", "Error");
 				nodeSizeBox.setSelectedItem(nodeSize);
 			}
 		} else if (e.getSource() == nodeMaxSizeBox
@@ -387,8 +385,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer || size == null) {
 				if (size != null && (Integer) size < nodeSize) {
-					JOptionPane.showMessageDialog(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize,
-							"Error", JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize,
+							"Error");
 					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 				} else {
 					nodeMaxSize = (Integer) size;
@@ -398,8 +396,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(nodeMaxSizeBox, size + " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(nodeMaxSizeBox, size + " is not a valid number", "Error");
 				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 			}
 		} else if (e.getSource() == edgeThicknessBox && e.getStateChange() == ItemEvent.SELECTED) {
@@ -407,9 +404,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer) {
 				if (edgeMaxThickness != null && (Integer) size > edgeMaxThickness) {
-					JOptionPane.showMessageDialog(edgeThicknessBox,
-							"Value cannot be larger than max thickness " + edgeMaxThickness, "Error",
-							JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(edgeThicknessBox,
+							"Value cannot be larger than max thickness " + edgeMaxThickness, "Error");
 					edgeThicknessBox.setSelectedItem(edgeThickness);
 				} else {
 					edgeThickness = (Integer) size;
@@ -419,8 +415,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(edgeThicknessBox, size + " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(edgeThicknessBox, size + " is not a valid number", "Error");
 				edgeThicknessBox.setSelectedItem(edgeThickness);
 			}
 		} else if (e.getSource() == edgeMaxThicknessBox
@@ -429,9 +424,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 			if (size instanceof Integer || size == null) {
 				if (size != null && (Integer) size < edgeThickness) {
-					JOptionPane.showMessageDialog(edgeMaxThicknessBox,
-							"Value cannot be smaller than min thickness " + edgeThickness, "Error",
-							JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(edgeMaxThicknessBox,
+							"Value cannot be smaller than min thickness " + edgeThickness, "Error");
 					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 				} else {
 					edgeMaxThickness = (Integer) size;
@@ -441,8 +435,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					}
 				}
 			} else {
-				JOptionPane.showMessageDialog(edgeMaxThicknessBox, size + " is not a valid number", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(edgeMaxThicknessBox, size + " is not a valid number", "Error");
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 			}
 		} else if (e.getSource() == arrowInMiddleBox) {

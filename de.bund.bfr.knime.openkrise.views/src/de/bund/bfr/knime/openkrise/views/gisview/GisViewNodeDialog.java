@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.node.BufferedDataTable;
@@ -37,6 +36,7 @@ import org.knime.core.node.port.PortObject;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.ui.Dialogs;
 
 /**
  * <code>NodeDialog</code> for the "GisView" Node.
@@ -103,7 +103,7 @@ public class GisViewNodeDialog extends DataAwareNodeDialogPane {
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
 			}
 		}
 

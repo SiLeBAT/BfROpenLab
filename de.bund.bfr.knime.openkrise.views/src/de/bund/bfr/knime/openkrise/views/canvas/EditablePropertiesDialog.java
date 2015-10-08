@@ -64,6 +64,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
@@ -266,8 +267,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 				try {
 					value = Double.parseDouble(result.toString());
 				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(this, result.toString() + " is not a valid number", "Error",
-							JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(this, result.toString() + " is not a valid number", "Error");
 				}
 			}
 

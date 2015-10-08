@@ -30,7 +30,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
@@ -43,6 +42,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class RegionToRegionVisualizerInputDialog extends KnimeDialog implements ActionListener {
@@ -131,18 +131,13 @@ public class RegionToRegionVisualizerInputDialog extends KnimeDialog implements 
 
 			if (shapeColumn == null || shapeRegionColumn == null || nodeIdColumn == null || nodeRegionColumn == null
 					|| edgeFromColumn == null || edgeToColumn == null) {
-				String error = "\"Shape\", all \"Region ID\" and all \"Node ID\"" + " columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this,
+						"\"Shape\", all \"Region ID\" and all \"Node ID\" columns must be selected", "Error");
 			} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
-				String error = "All \"Region ID\" columns must have the same type";
-
-				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type", "Type Error");
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-				String error = "All \"Node ID\" columns must have the same type";
-
-				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
 			} else {
 				approved = true;
 				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());

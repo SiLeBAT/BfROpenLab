@@ -24,7 +24,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.BufferedDataTable;
@@ -43,6 +42,7 @@ import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.ui.Dialogs;
 
 /**
  * <code>NodeDialog</code> for the "LocationToLocationVisualizer" Node.
@@ -303,7 +303,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
 			}
 		}
 

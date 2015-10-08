@@ -86,6 +86,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
@@ -632,7 +633,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 					getVisualizationServer(false).paint(img.getGraphics());
 					ImageIO.write(img, "png", chooser.getImageFile());
 				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(this, "Error saving png file", "Error", JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(this, "Error saving png file", "Error");
 				}
 			} else if (chooser.getFileFilter() == ImageFileChooser.SVG_FILTER) {
 				try (Writer outsvg = new OutputStreamWriter(new FileOutputStream(chooser.getImageFile()),
@@ -643,7 +644,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 					getVisualizationServer(true).paint(g);
 					g.stream(outsvg, true);
 				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(this, "Error saving svg file", "Error", JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(this, "Error saving svg file", "Error");
 				}
 			}
 		}
@@ -770,20 +771,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void clearHighlightedNodesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all " + naming.node() + " highlight conditions?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			setNodeHighlightConditions(new HighlightConditionList());
-		}
+		setNodeHighlightConditions(new HighlightConditionList());
 	}
 
 	@Override
 	public void clearHighlightedEdgesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to remove all " + naming.edge() + " highlight conditions?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			setEdgeHighlightConditions(new HighlightConditionList());
-		}
+		setEdgeHighlightConditions(new HighlightConditionList());
 	}
 
 	@Override
@@ -919,8 +912,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			String message = "Some of the selected " + naming.nodes() + " are already meta " + naming.nodes()
 					+ ".\nCollapse all contained " + naming.nodes() + " into the new meta " + naming.node() + "?";
 
-			if (JOptionPane.showConfirmDialog(this, message, "Confirm",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+			if (Dialogs.showOkCancelDialog(this, message, "Confirm") == Dialogs.Result.CANCEL) {
 				return;
 			}
 		}
@@ -948,8 +940,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		Set<String> selectedIds = getSelectedNodeIds();
 
 		if (!Sets.difference(selectedIds, collapsedNodes.keySet()).isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Some of the selected " + naming.nodes() + " are not collapsed",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			Dialogs.showErrorMessage(this, "Some of the selected " + naming.nodes() + " are not collapsed", "Error");
 			return;
 		}
 
@@ -970,10 +961,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		Set<String> selectedIds = CanvasUtils.getElementIds(getSelectedNodes());
 		Set<String> idsToCollapse;
 
-		if (!selectedIds.isEmpty()
-				&& JOptionPane.showConfirmDialog(this, "Use only the selected " + naming.nodes() + " for collapsing?",
-						"Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			idsToCollapse = selectedIds;
+		if (!selectedIds.isEmpty()) {
+			switch (Dialogs.showYesNoDialog(this, "Use only the selected " + naming.nodes() + " for collapsing?",
+					"Confirm")) {
+			case YES:
+				idsToCollapse = selectedIds;
+				break;
+			case NO:
+				idsToCollapse = CanvasUtils.getElementIds(getNodes());
+				break;
+			default:
+				return;
+			}
 		} else {
 			idsToCollapse = CanvasUtils.getElementIds(getNodes());
 		}
@@ -989,7 +988,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 							+ " are already collapsed. You have to clear all collapsed " + naming.nodes() + " before.";
 				}
 
-				JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, message, "Error");
 				return;
 			}
 		}
@@ -1016,19 +1015,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to uncollapse all collapsed " + naming.nodes() + "?", "Please Confirm",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			for (String id : collapsedNodes.keySet()) {
-				nodeSaveMap.remove(id);
-			}
-
-			collapsedNodes.clear();
-			applyChanges();
-			viewer.getPickedVertexState().clear();
-			popup.setNodeSelectionEnabled(false);
-			fireCollapsedNodesAndPickingChanged();
+		for (String id : collapsedNodes.keySet()) {
+			nodeSaveMap.remove(id);
 		}
+
+		collapsedNodes.clear();
+		applyChanges();
+		viewer.getPickedVertexState().clear();
+		popup.setNodeSelectionEnabled(false);
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@SuppressWarnings("unchecked")

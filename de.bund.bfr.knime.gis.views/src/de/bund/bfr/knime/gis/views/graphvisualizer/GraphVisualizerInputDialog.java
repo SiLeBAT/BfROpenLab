@@ -29,7 +29,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
@@ -40,6 +39,7 @@ import org.knime.core.data.def.StringCell;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.ColumnComboBox;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class GraphVisualizerInputDialog extends KnimeDialog implements ActionListener {
@@ -108,14 +108,10 @@ public class GraphVisualizerInputDialog extends KnimeDialog implements ActionLis
 			DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
 
 			if (nodeIdColumn == null || edgeFromColumn == null || edgeToColumn == null) {
-				String error = "All \"Node ID\" columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must be selected", "Error");
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-				String error = "All \"Node ID\" columns must have the same type";
-
-				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
 			} else {
 				approved = true;
 				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());

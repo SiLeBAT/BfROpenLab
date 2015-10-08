@@ -38,7 +38,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -63,6 +62,7 @@ import de.bund.bfr.knime.gis.views.canvas.Transform;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
+import de.bund.bfr.knime.ui.Dialogs;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -800,8 +800,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private boolean doReset(String name) {
-		return JOptionPane.showConfirmDialog(canvas.getComponent(), "This cannot be made undone. Proceed?", name,
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+		return Dialogs.showOkCancelDialog(canvas.getComponent(), "This cannot be made undone. Proceed?",
+				name) == Dialogs.Result.OK;
 	}
 
 	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {

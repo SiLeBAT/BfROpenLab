@@ -40,7 +40,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -470,8 +469,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 			if (e.getSource() == okButton) {
 				if (minField.getValue() != null && maxField.getValue() != null
 						&& minField.getValue() >= maxField.getValue()) {
-					JOptionPane.showMessageDialog(okButton, "Min must be smaller than Max", "Error",
-							JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(okButton, "Min must be smaller than Max", "Error");
 				}
 
 				approved = true;

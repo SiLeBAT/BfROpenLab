@@ -42,7 +42,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -60,6 +59,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.ui.AutoSuggestField;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class HighlightDialog extends KnimeDialog implements ActionListener, DocumentListener, ItemListener {
@@ -309,7 +309,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				approved = true;
 				dispose();
 			} else {
-				JOptionPane.showMessageDialog(okButton, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(okButton, error, "Error");
 			}
 		} else if (e.getSource() == cancelButton) {
 			dispose();

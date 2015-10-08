@@ -22,8 +22,9 @@ package de.bund.bfr.knime;
 import java.awt.Component;
 import java.awt.Window;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
+import de.bund.bfr.knime.ui.Dialogs;
 
 public class NodeDialogWarningThread implements Runnable {
 
@@ -41,7 +42,7 @@ public class NodeDialogWarningThread implements Runnable {
 			Window window = SwingUtilities.getWindowAncestor(c);
 
 			if (window != null && window.isActive()) {
-				JOptionPane.showMessageDialog(c, warning, "Warning", JOptionPane.WARNING_MESSAGE);
+				Dialogs.showWarningMessage(c, warning, "Warning");
 				break;
 			}
 

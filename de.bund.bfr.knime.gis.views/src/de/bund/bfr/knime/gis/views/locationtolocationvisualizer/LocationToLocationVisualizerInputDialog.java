@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
@@ -46,6 +45,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class LocationToLocationVisualizerInputDialog extends KnimeDialog implements ActionListener, ItemListener {
@@ -139,20 +139,15 @@ public class LocationToLocationVisualizerInputDialog extends KnimeDialog impleme
 			if (gisType == GisType.SHAPEFILE
 					&& (shapeColumn == null || nodeIdColumn == null || nodeLatitudeColumn == null
 							|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
-				String error = "\"Shape\", \"Latitude\", \"Longitude\""
-						+ " and all \"Node ID\" columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this,
+						"\"Shape\", \"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected", "Error");
 			} else if (gisType != GisType.SHAPEFILE && (nodeIdColumn == null || nodeLatitudeColumn == null
 					|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
-				String error = "\"Latitude\", \"Longitude\"" + " and all \"Node ID\" columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this,
+						"\"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected", "Error");
 			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-				String error = "All \"Node ID\" columns must have the same type";
-
-				JOptionPane.showMessageDialog(this, error, "Type Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
 			} else {
 				approved = true;
 				set.getGisSettings().setGisType(gisType);

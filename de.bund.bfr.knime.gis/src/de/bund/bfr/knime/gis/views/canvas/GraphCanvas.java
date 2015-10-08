@@ -33,7 +33,6 @@ import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -46,6 +45,7 @@ import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.Layout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -199,18 +199,23 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		if (selectedNodes != null && !selectedNodes.isEmpty()) {
-			if (JOptionPane.showConfirmDialog(this,
-					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Layout",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+			switch (Dialogs.showYesNoDialog(this,
+					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Confirm")) {
+			case YES:
+				// Do nothing
+				break;
+			case NO:
 				selectedNodes = null;
+				break;
+			default:
+				return;
 			}
 		}
 
 		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
 
 		if (nodesForLayout.size() < 2) {
-			JOptionPane.showMessageDialog(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".",
-					"Error", JOptionPane.ERROR_MESSAGE);
+			Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".", "Error");
 			return;
 		}
 

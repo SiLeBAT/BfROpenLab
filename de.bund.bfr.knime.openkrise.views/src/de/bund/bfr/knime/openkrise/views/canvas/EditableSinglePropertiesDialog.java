@@ -35,15 +35,16 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
 import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class EditableSinglePropertiesDialog extends KnimeDialog implements ActionListener {
@@ -155,8 +156,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog implements Actio
 				try {
 					element.getProperties().put(TracingColumns.WEIGHT, Double.parseDouble(caseField.getText()));
 				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(this, "Please enter valid number for " + TracingColumns.WEIGHT,
-							"Error", JOptionPane.ERROR_MESSAGE);
+					Dialogs.showErrorMessage(this, "Please enter valid number for " + TracingColumns.WEIGHT, "Error");
 				}
 			}
 

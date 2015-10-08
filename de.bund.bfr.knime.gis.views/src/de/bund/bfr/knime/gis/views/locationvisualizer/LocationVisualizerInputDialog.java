@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.data.DataColumnSpec;
@@ -44,6 +43,7 @@ import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.ui.ColumnComboBox;
+import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class LocationVisualizerInputDialog extends KnimeDialog implements ActionListener, ItemListener {
@@ -120,13 +120,10 @@ public class LocationVisualizerInputDialog extends KnimeDialog implements Action
 
 			if (gisType == GisType.SHAPEFILE
 					&& (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-				String error = "\"Shape\", \"Latitude\" and \"Longitude\"" + " columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "\"Shape\", \"Latitude\" and \"Longitude\" columns must be selected",
+						"Error");
 			} else if (gisType != GisType.SHAPEFILE && (nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-				String error = "\"Latitude\" and \"Longitude\"" + " columns must be selected";
-
-				JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(this, "\"Latitude\" and \"Longitude\" columns must be selected", "Error");
 			} else {
 				approved = true;
 				set.getGisSettings().setGisType(gisType);

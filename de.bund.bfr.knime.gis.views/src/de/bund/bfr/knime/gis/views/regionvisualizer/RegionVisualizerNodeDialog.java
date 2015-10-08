@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
-
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -38,6 +36,7 @@ import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.ui.Dialogs;
 
 /**
  * <code>NodeDialog</code> for the "RegionVisualizer" Node.
@@ -99,16 +98,15 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 			canvas = creator.createCanvas();
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
-				JOptionPane.showMessageDialog(panel,
-						"Some regions from the table are not contained" + " in the shapefile", "Warning",
-						JOptionPane.WARNING_MESSAGE);
+				Dialogs.showWarningMessage(panel, "Some regions from the table are not contained in the shapefile",
+						"Warning");
 			}
 		} catch (InvalidSettingsException e) {
 			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				JOptionPane.showMessageDialog(panel, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
 			}
 		}
 

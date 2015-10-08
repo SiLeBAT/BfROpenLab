@@ -38,7 +38,6 @@ import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
 import com.google.common.base.Joiner;
@@ -60,6 +59,7 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.common.Delivery;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
@@ -485,9 +485,9 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == defaultHighlightItem) {
-			if (JOptionPane.showConfirmDialog(canvas.getComponent(),
-					"All current highlight conditions will be replaced " + "by default hightlight conditions?",
-					"Please Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (Dialogs.showOkCancelDialog(canvas.getComponent(),
+					"All current highlight conditions will be replaced " + "by default hightlight conditions. Proceed?",
+					"Default Highlighting") == Dialogs.Result.OK) {
 				canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
 				canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
 			}

@@ -80,6 +80,7 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -189,8 +190,7 @@ public class CanvasUtils {
 				break;
 			}
 
-			JOptionPane.showMessageDialog(parent, "ID already exists, please specify different ID", "Error",
-					JOptionPane.ERROR_MESSAGE);
+			Dialogs.showErrorMessage(parent, "ID already exists, please specify different ID", "Error");
 		}
 
 		return newId;

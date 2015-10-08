@@ -24,18 +24,9 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
-
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 public class KnimeDialog extends JDialog {
 
@@ -47,8 +38,8 @@ public class KnimeDialog extends JDialog {
 
 			@Override
 			public void windowOpened(WindowEvent e) {
-				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
-					setDialogButtonsEnabled(false);
+				if (!Dialogs.hasKnimeDialogAncestor(KnimeDialog.this)) {
+					Dialogs.setDialogButtonsEnabled(false);
 				}
 			}
 
@@ -66,15 +57,15 @@ public class KnimeDialog extends JDialog {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
-					setDialogButtonsEnabled(true);
+				if (!Dialogs.hasKnimeDialogAncestor(KnimeDialog.this)) {
+					Dialogs.setDialogButtonsEnabled(true);
 				}
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				if (!hasKnimeDialogAncestor(KnimeDialog.this)) {
-					setDialogButtonsEnabled(true);
+				if (!Dialogs.hasKnimeDialogAncestor(KnimeDialog.this)) {
+					Dialogs.setDialogButtonsEnabled(true);
 				}
 			}
 
@@ -82,48 +73,5 @@ public class KnimeDialog extends JDialog {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
-	}
-
-	private static boolean hasKnimeDialogAncestor(Window w) {
-		Window owner = w.getOwner();
-
-		if (owner instanceof KnimeDialog) {
-			return true;
-		} else if (owner == null) {
-			return false;
-		}
-
-		return hasKnimeDialogAncestor(owner);
-	}
-
-	private static void setDialogButtonsEnabled(final boolean enabled) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
-				for (Shell dialog : shell.getShells()) {
-					if (dialog.isVisible()) {
-						for (Button b : getButtons(dialog)) {
-							b.setEnabled(enabled);
-						}
-					}
-				}
-			}
-		});
-	}
-
-	private static List<Button> getButtons(Composite panel) {
-		List<Button> buttons = new ArrayList<>();
-
-		for (Control c : panel.getChildren()) {
-			if (c instanceof Button) {
-				buttons.add((Button) c);
-			} else if (c instanceof Composite) {
-				buttons.addAll(getButtons((Composite) c));
-			}
-		}
-
-		return buttons;
 	}
 }
