@@ -38,7 +38,6 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -59,6 +58,7 @@ import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
+import de.bund.bfr.knime.ui.Dialogs;
 
 public class ChartSelectionPanel extends JPanel implements ItemListener, CellEditorListener {
 
@@ -406,7 +406,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					Color newColor = JColorChooser.showDialog(colorButton, "Choose Color", colorButton.getBackground());
+					Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", colorButton.getBackground());
 
 					if (newColor != null) {
 						colorButton.setBackground(newColor);

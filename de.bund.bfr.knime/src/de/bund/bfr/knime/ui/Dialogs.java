@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Window;
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -150,6 +152,25 @@ public class Dialogs {
 		return buttons;
 	}
 
+	public static Color showColorChooser(Component parent, String title, Color initialColor) {
+		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
+		Locale oldLocale = JComponent.getDefaultLocale();
+
+		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
+			setDialogButtonsEnabled(false);
+		}
+
+		JComponent.setDefaultLocale(Locale.US);
+		Color result = JColorChooser.showDialog(parent, title, initialColor);
+		JComponent.setDefaultLocale(oldLocale);
+
+		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
+			setDialogButtonsEnabled(true);
+		}
+
+		return result;
+	}
+
 	public static File showImageFileChooser(Component parent) {
 		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
 		Locale oldLocale = JComponent.getDefaultLocale();
@@ -160,12 +181,7 @@ public class Dialogs {
 
 		JComponent.setDefaultLocale(Locale.US);
 		ImageFileChooser chooser = new ImageFileChooser();
-		File result = null;
-
-		if (chooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
-			result = chooser.getImageFile();
-		}
-
+		File result = chooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION ? chooser.getImageFile() : null;
 		JComponent.setDefaultLocale(oldLocale);
 
 		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {

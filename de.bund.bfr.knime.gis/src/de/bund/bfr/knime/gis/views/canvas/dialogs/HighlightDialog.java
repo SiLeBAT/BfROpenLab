@@ -38,7 +38,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -360,7 +359,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			add(conditionPanel, BorderLayout.CENTER);
 			pack();
 		} else if (e.getSource() == colorButton) {
-			Color newColor = JColorChooser.showDialog(colorButton, "Choose Color", color);
+			Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", color);
 
 			if (newColor != null) {
 				setNewColor(newColor);
