@@ -49,119 +49,14 @@ public class Dialogs {
 		YES, NO, OK, CANCEL
 	}
 
-	public static void showErrorMessage(Component parent, String message, String title) {
-		showMessage(parent, message, title, true);
-	}
-
-	public static void showWarningMessage(Component parent, String message, String title) {
-		showMessage(parent, message, title, false);
-	}
-
-	private static void showMessage(Component parent, String message, String title, boolean error) {
-		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(false);
-		}
-
-		JComponent.setDefaultLocale(Locale.US);
-		JOptionPane.showMessageDialog(parent, message, title,
-				error ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
-		JComponent.setDefaultLocale(oldLocale);
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(true);
-		}
-	}
-
-	public static Result showYesNoDialog(Component parent, String message, String title) {
-		return showConfirmDialog(parent, message, title, true);
-	}
-
-	public static Result showOkCancelDialog(Component parent, String message, String title) {
-		return showConfirmDialog(parent, message, title, false);
-	}
-
-	private static Result showConfirmDialog(Component parent, String message, String title, boolean yesNo) {
-		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(false);
-		}
-
-		JComponent.setDefaultLocale(Locale.US);
-		int result = JOptionPane.showConfirmDialog(parent, message, title,
-				yesNo ? JOptionPane.YES_NO_CANCEL_OPTION : JOptionPane.OK_CANCEL_OPTION);
-		JComponent.setDefaultLocale(oldLocale);
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(true);
-		}
-
-		switch (result) {
-		case JOptionPane.YES_OPTION:
-			return yesNo ? Result.YES : Result.OK;
-		case JOptionPane.NO_OPTION:
-			return Result.NO;
-		}
-
-		return Result.CANCEL;
-	}
-
-	public static String showInputDialog(Component parent, String message, String title, String initialValue) {
-		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(false);
-		}
-
-		JComponent.setDefaultLocale(Locale.US);
-		String result = (String) JOptionPane.showInputDialog(parent, message, title, JOptionPane.QUESTION_MESSAGE, null,
-				null, initialValue);
-		JComponent.setDefaultLocale(oldLocale);
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(true);
-		}
-
-		return result;
-	}
-
-	public static String showInputDialog(Component parent, String message, String title,
-			Collection<String> selectionValues) {
-		Object[] values = selectionValues.toArray();
-		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(false);
-		}
-
-		JComponent.setDefaultLocale(Locale.US);
-		String result = (String) JOptionPane.showInputDialog(parent, message, title, JOptionPane.QUESTION_MESSAGE, null,
-				values, values[0]);
-		JComponent.setDefaultLocale(oldLocale);
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(true);
-		}
-
-		return result;
-	}
-
 	public static boolean hasKnimeDialogAncestor(Window w) {
-		Window owner = w.getOwner();
-
-		if (owner instanceof KnimeDialog) {
-			return true;
-		} else if (owner == null) {
+		if (w == null) {
 			return false;
 		}
 
-		return hasKnimeDialogAncestor(owner);
+		Window owner = w.getOwner();
+
+		return owner instanceof KnimeDialog ? true : hasKnimeDialogAncestor(owner);
 	}
 
 	public static void setDialogButtonsEnabled(final boolean enabled) {
@@ -195,43 +90,110 @@ public class Dialogs {
 		return buttons;
 	}
 
+	public static void showErrorMessage(Component parent, String message, String title) {
+		showMessage(parent, message, title, true);
+	}
+
+	public static void showWarningMessage(Component parent, String message, String title) {
+		showMessage(parent, message, title, false);
+	}
+
+	private static void showMessage(Component parent, String message, String title, boolean error) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+
+		JOptionPane.showMessageDialog(parent, message, title,
+				error ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+		enableButtonsAndResetLocale(parent, oldLocale);
+	}
+
+	public static Result showYesNoDialog(Component parent, String message, String title) {
+		return showConfirmDialog(parent, message, title, true);
+	}
+
+	public static Result showOkCancelDialog(Component parent, String message, String title) {
+		return showConfirmDialog(parent, message, title, false);
+	}
+
+	private static Result showConfirmDialog(Component parent, String message, String title, boolean yesNo) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+		int result = JOptionPane.showConfirmDialog(parent, message, title,
+				yesNo ? JOptionPane.YES_NO_CANCEL_OPTION : JOptionPane.OK_CANCEL_OPTION);
+
+		enableButtonsAndResetLocale(parent, oldLocale);
+
+		switch (result) {
+		case JOptionPane.YES_OPTION:
+			return yesNo ? Result.YES : Result.OK;
+		case JOptionPane.NO_OPTION:
+			return Result.NO;
+		default:
+			return Result.CANCEL;
+		}
+	}
+
+	public static String showInputDialog(Component parent, String message, String title, String initialValue) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+		String result = (String) JOptionPane.showInputDialog(parent, message, title, JOptionPane.QUESTION_MESSAGE, null,
+				null, initialValue);
+
+		enableButtonsAndResetLocale(parent, oldLocale);
+
+		return result;
+	}
+
+	public static String showInputDialog(Component parent, String message, String title,
+			Collection<String> selectionValues) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+		Object[] values = selectionValues.toArray();
+		String result = (String) JOptionPane.showInputDialog(parent, message, title, JOptionPane.QUESTION_MESSAGE, null,
+				values, values[0]);
+
+		enableButtonsAndResetLocale(parent, oldLocale);
+
+		return result;
+	}
+
 	public static Color showColorChooser(Component parent, String title, Color initialColor) {
-		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
-
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(false);
-		}
-
-		JComponent.setDefaultLocale(Locale.US);
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
 		Color result = JColorChooser.showDialog(parent, title, initialColor);
-		JComponent.setDefaultLocale(oldLocale);
 
-		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
-			setDialogButtonsEnabled(true);
-		}
+		enableButtonsAndResetLocale(parent, oldLocale);
 
 		return result;
 	}
 
 	public static File showImageFileChooser(Component parent) {
+		Locale oldLocale = disableButtonsAndChangeLocale(parent);
+		ImageFileChooser chooser = new ImageFileChooser();
+		File result = chooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION ? chooser.getImageFile() : null;
+
+		enableButtonsAndResetLocale(parent, oldLocale);
+
+		return result;
+	}
+
+	private static Locale disableButtonsAndChangeLocale(Component parent) {
 		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
-		Locale oldLocale = JComponent.getDefaultLocale();
 
 		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
 			setDialogButtonsEnabled(false);
 		}
 
+		Locale oldLocale = JComponent.getDefaultLocale();
+
 		JComponent.setDefaultLocale(Locale.US);
-		ImageFileChooser chooser = new ImageFileChooser();
-		File result = chooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION ? chooser.getImageFile() : null;
-		JComponent.setDefaultLocale(oldLocale);
+
+		return oldLocale;
+	}
+
+	private static void enableButtonsAndResetLocale(Component parent, Locale oldLocale) {
+		Window owner = parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent);
 
 		if (!(owner instanceof KnimeDialog) && !hasKnimeDialogAncestor(owner)) {
 			setDialogButtonsEnabled(true);
 		}
 
-		return result;
+		JComponent.setDefaultLocale(oldLocale);
 	}
 
 	private static class ImageFileChooser extends JFileChooser {
