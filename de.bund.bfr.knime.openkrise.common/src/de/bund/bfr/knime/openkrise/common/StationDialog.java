@@ -82,19 +82,22 @@ public class StationDialog extends JDialog implements ActionListener {
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 
+		JTable selectTable = createSelectTable(stations.size());
 		JTable table = new JTable(new StationTableModel(stations));
 		JScrollPane pane = new JScrollPane();
 
-		pane.setRowHeaderView(createSelectTable(stations.size()));
+		UI.packColumns(table);
+		pane.setRowHeaderView(selectTable);
 		pane.setViewportView(table);
+		pane.getRowHeader().setPreferredSize(selectTable.getPreferredSize());
 
 		setLayout(new BorderLayout());
 		add(UI.createHorizontalPanel(new JLabel(title)), BorderLayout.NORTH);
 		add(pane, BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
+
 		pack();
 		setLocationRelativeTo(parent);
-		setResizable(false);
 	}
 
 	public boolean isApproved() {
