@@ -91,4 +91,10 @@ public class Station {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
+
+	@Override
+	public String toString() {
+		return "Station [id=" + id + ", name=" + name + ", type=" + type + ", country=" + country + ", state=" + state
+				+ ", district=" + district + ", city=" + city + ", zipCode=" + zipCode + "]";
+	}
 }

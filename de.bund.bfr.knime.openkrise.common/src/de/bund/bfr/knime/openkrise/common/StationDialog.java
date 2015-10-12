@@ -37,21 +37,37 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.ui.StringTextField;
+import de.bund.bfr.knime.ui.TextListener;
 
-public class StationDialog extends JDialog implements ActionListener {
+public class StationDialog extends JDialog {
+
+	private static final String SELECT = "Select";
+	private static final int ROW_HEIGHT = new JButton(SELECT).getPreferredSize().height;
 
 	public static void main(String[] args)
 			throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		Station b1 = new Station("1", "Bäcker Müller");
 		Station b2 = new Station("2", "Bäcker Meier");
 		Station b3 = new Station("3", "Megashop");
+
+		b1.setCity("Berlin");
+		b1.setCountry("Germany");
+		b2.setCountry("München");
+		b2.setCountry("Germany");
+		b3.setCountry("USA");
 
 		JFrame frame = new JFrame("Test");
 
@@ -62,6 +78,10 @@ public class StationDialog extends JDialog implements ActionListener {
 		StationDialog dialog = new StationDialog(frame, "Test", Arrays.asList(b1, b2, b3));
 
 		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			System.out.println(dialog.getSelected());
+		}
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -69,32 +89,54 @@ public class StationDialog extends JDialog implements ActionListener {
 	private boolean approved;
 	private Station selected;
 
-	private JButton okButton;
-	private JButton cancelButton;
+	private List<Station> stations;
+	private JScrollPane pane;
+	private JTable table;
+	private TableRowSorter<StationTableModel> rowSorter;
 
 	public StationDialog(Component parent, String title, List<Station> stations) {
 		super(SwingUtilities.getWindowAncestor(parent), title, DEFAULT_MODALITY_TYPE);
+		this.stations = stations;
 		approved = false;
 		selected = null;
 
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		StationTableModel model = new StationTableModel(stations);
 
-		JTable selectTable = createSelectTable(stations.size());
-		JTable table = new JTable(new StationTableModel(stations));
-		JScrollPane pane = new JScrollPane();
-
+		table = new JTable(model);
+		table.setRowHeight(ROW_HEIGHT);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		rowSorter = new TableRowSorter<StationTableModel>(model);
+		table.setRowSorter(rowSorter);
 		UI.packColumns(table);
-		pane.setRowHeaderView(selectTable);
+		pane = new JScrollPane();
+		pane.setRowHeaderView(createSelectTable(stations.size()));
 		pane.setViewportView(table);
-		pane.getRowHeader().setPreferredSize(selectTable.getPreferredSize());
+		pane.getRowHeader().setPreferredSize(pane.getRowHeader().getView().getPreferredSize());
+
+		final StringTextField searchField = new StringTextField(true, 30);
+
+		searchField.addTextListener(new TextListener() {
+
+			@Override
+			public void textChanged(Object source) {
+				searchChanged(searchField.getText());
+			}
+		});
+
+		JButton cancelButton = new JButton("Cancel");
+
+		cancelButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cancelButtonPressed();
+			}
+		});
 
 		setLayout(new BorderLayout());
-		add(UI.createHorizontalPanel(new JLabel(title)), BorderLayout.NORTH);
+		add(UI.createHorizontalPanel(new JLabel("Enter Search Query:"), searchField), BorderLayout.NORTH);
 		add(pane, BorderLayout.CENTER);
-		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
+		add(UI.createEastPanel(UI.createHorizontalPanel(cancelButton)), BorderLayout.SOUTH);
 
 		pack();
 		setLocationRelativeTo(parent);
@@ -108,71 +150,130 @@ public class StationDialog extends JDialog implements ActionListener {
 		return selected;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			approved = true;
-			selected = null;
-			dispose();
-		} else if (e.getSource() == cancelButton) {
-			dispose();
-		}
+	private void selectButtonPressed(int index) {
+		approved = true;
+		selected = stations.get(table.convertRowIndexToModel(index));
+		dispose();
 	}
 
-	private static JTable createSelectTable(int n) {
+	private void cancelButtonPressed() {
+		dispose();
+	}
+
+	private void searchChanged(String search) {
+		final List<String> searchStrings = split(search);
+
+		rowSorter.setRowFilter(new RowFilter<StationTableModel, Integer>() {
+
+			@Override
+			public boolean include(javax.swing.RowFilter.Entry<? extends StationTableModel, ? extends Integer> entry) {
+				for (String s : searchStrings) {
+					boolean found = false;
+
+					for (int i = 0; i < entry.getValueCount(); i++) {
+						if (entry.getStringValue(i).toLowerCase().contains(s.toLowerCase())) {
+							found = true;
+							break;
+						}
+					}
+
+					if (!found) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+		});
+		pane.setRowHeaderView(createSelectTable(table.getRowCount()));
+	}
+
+	private JTable createSelectTable(int n) {
 		JTable table = new JTable(n, 1);
 
+		table.setRowHeight(ROW_HEIGHT);
+		table.setDefaultEditor(Object.class, new SelectEditor());
 		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
 
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 					boolean hasFocus, int row, int column) {
-				return new JButton("Select");
-			}
-		});
-
-		table.setDefaultEditor(Object.class, new TableCellEditor() {
-
-			@Override
-			public boolean stopCellEditing() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldSelectCell(EventObject anEvent) {
-				return false;
-			}
-
-			@Override
-			public void removeCellEditorListener(CellEditorListener l) {
-			}
-
-			@Override
-			public boolean isCellEditable(EventObject anEvent) {
-				return true;
-			}
-
-			@Override
-			public Object getCellEditorValue() {
-				return null;
-			}
-
-			@Override
-			public void cancelCellEditing() {
-			}
-
-			@Override
-			public void addCellEditorListener(CellEditorListener l) {
-			}
-
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-					int column) {
-				return new JButton("Select");
+				return new JButton(SELECT);
 			}
 		});
 
 		return table;
+	}
+
+	private static List<String> split(String searchString) {
+		List<String> list = new ArrayList<>();
+		List<String> current = null;
+
+		for (String s : Splitter.onPattern("\\s").trimResults().omitEmptyStrings()
+				.split(searchString.replace("\"", " \" "))) {
+			if (s.equals("\"")) {
+				if (current != null) {
+					list.add(Joiner.on(" ").join(current));
+					current = null;
+				} else {
+					current = new ArrayList<>();
+				}
+			} else {
+				if (current != null) {
+					current.add(s);
+				} else {
+					list.add(s);
+				}
+			}
+		}
+
+		if (current != null) {
+			list.add(Joiner.on(" ").join(current));
+		}
+
+		return list;
+	}
+
+	private class SelectEditor implements TableCellEditor {
+
+		@Override
+		public boolean stopCellEditing() {
+			return true;
+		}
+
+		@Override
+		public boolean shouldSelectCell(EventObject anEvent) {
+			return false;
+		}
+
+		@Override
+		public void removeCellEditorListener(CellEditorListener l) {
+		}
+
+		@Override
+		public boolean isCellEditable(EventObject anEvent) {
+			return true;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return null;
+		}
+
+		@Override
+		public void cancelCellEditing() {
+		}
+
+		@Override
+		public void addCellEditorListener(CellEditorListener l) {
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			selectButtonPressed(row);
+			return new JButton(SELECT);
+		}
 	}
 
 	private static class StationTableModel extends AbstractTableModel {
