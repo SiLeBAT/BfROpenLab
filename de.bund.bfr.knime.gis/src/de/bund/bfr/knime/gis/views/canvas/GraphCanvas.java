@@ -104,8 +104,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		StaticLayout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
-		Point2D upperLeft = transform.applyInverse(0, 0);
-		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width, 0);
+		Point2D upperLeft = transform.applyInverse(10, 10);
+		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
 		double x1 = upperLeft.getX();
 		double x2 = upperRight.getX();
 		double y = upperLeft.getY();
