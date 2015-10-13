@@ -21,11 +21,10 @@ package de.bund.bfr.knime.nls.creator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -37,6 +36,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+
+import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -142,18 +143,15 @@ public class DiffFunctionCreatorNodeModel extends NodeModel {
 			}
 		}
 
-		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(set.getTerms()));
-		List<String> indeps = new ArrayList<>(set.getIndependentVariables());
+		Set<String> parameters = MathUtils.getSymbols(set.getTerms());
+		Set<String> indeps = new LinkedHashSet<>(set.getIndependentVariables());
 
 		indeps.add(set.getDiffVariable());
 		parameters.removeAll(indeps);
 		parameters.removeAll(set.getDependentVariables());
 		parameters.addAll(initParameterMap.values());
 
-		Collections.sort(parameters);
-		Collections.sort(indeps);
-
-		return new Function(termsMap, set.getDependentVariables().get(0), indeps, parameters, set.getDiffVariable(),
-				initParameterMap, initValueMap);
+		return new Function(termsMap, set.getDependentVariables().get(0), Ordering.natural().sortedCopy(indeps),
+				Ordering.natural().sortedCopy(parameters), set.getDiffVariable(), initParameterMap, initValueMap);
 	}
 }

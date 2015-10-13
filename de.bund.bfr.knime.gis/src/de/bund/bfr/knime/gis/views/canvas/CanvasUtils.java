@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -64,6 +63,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -140,14 +140,10 @@ public class CanvasUtils {
 			}
 		}
 
-		List<Object> categoryList = new ArrayList<>(categories);
-
-		sortObjectList(categoryList);
-
 		List<HighlightCondition> conditions = new ArrayList<>();
 		int index = 0;
 
-		for (Object category : categoryList) {
+		for (Object category : KnimeUtils.OBJECT_ORDERING.sortedCopy(categories)) {
 			Color color = COLORS[index % COLORS.length];
 			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
 					LogicalHighlightCondition.EQUAL_TYPE, category.toString());
@@ -214,11 +210,8 @@ public class CanvasUtils {
 			}
 		}
 
-		List<Object> propertyList = new ArrayList<>(nodesByProperty.keySet());
-
-		sortObjectList(propertyList);
-
-		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent, propertyList);
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent,
+				KnimeUtils.OBJECT_ORDERING.sortedCopy(nodesByProperty.keySet()));
 
 		dialog.setVisible(true);
 
@@ -760,25 +753,5 @@ public class CanvasUtils {
 		}
 
 		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
-	}
-
-	private static void sortObjectList(List<Object> list) {
-		Collections.sort(list, new Comparator<Object>() {
-
-			@Override
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof String && o2 instanceof String) {
-					return ((String) o1).compareTo((String) o2);
-				} else if (o1 instanceof Integer && o2 instanceof Integer) {
-					return ((Integer) o1).compareTo((Integer) o2);
-				} else if (o1 instanceof Double && o2 instanceof Double) {
-					return ((Double) o1).compareTo((Double) o2);
-				} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
-					return ((Boolean) o1).compareTo((Boolean) o2);
-				}
-
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
 	}
 }

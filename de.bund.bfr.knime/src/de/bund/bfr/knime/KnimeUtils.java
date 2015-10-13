@@ -24,7 +24,7 @@ import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,8 +40,33 @@ import org.knime.core.util.FileUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 public class KnimeUtils {
+
+	public static final Ordering<Object> OBJECT_ORDERING = Ordering.from(new Comparator<Object>() {
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			if (o1 == o2) {
+				return 0;
+			} else if (o1 == null) {
+				return -1;
+			} else if (o2 == null) {
+				return 1;
+			} else if (o1 instanceof String && o2 instanceof String) {
+				return ((String) o1).toLowerCase().compareTo(((String) o2).toLowerCase());
+			} else if (o1 instanceof Integer && o2 instanceof Integer) {
+				return ((Integer) o1).compareTo((Integer) o2);
+			} else if (o1 instanceof Double && o2 instanceof Double) {
+				return ((Double) o1).compareTo((Double) o2);
+			} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+				return ((Boolean) o1).compareTo((Boolean) o2);
+			}
+
+			return o1.toString().toLowerCase().compareTo(o2.toString().toLowerCase());
+		}
+	});
 
 	private KnimeUtils() {
 	}
@@ -138,13 +163,5 @@ public class KnimeUtils {
 
 	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
 		return map != null ? map : new LinkedHashMap<V, K>(0);
-	}
-
-	public static <T extends Comparable<? super T>> List<T> toSortedList(Collection<T> values) {
-		List<T> list = new ArrayList<>(values);
-
-		Collections.sort(list);
-
-		return list;
 	}
 }

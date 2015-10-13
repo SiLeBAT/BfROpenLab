@@ -29,9 +29,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,6 +50,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
@@ -319,18 +321,17 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 	}
 
 	private JPanel createIndepBoxPanel() {
-		List<String> elements = new ArrayList<>(MathUtils.getSymbols(set.getTerms()));
+		Set<String> elements = MathUtils.getSymbols(set.getTerms());
 
 		elements.removeAll(set.getDependentVariables());
 		elements.remove(set.getDiffVariable());
-		Collections.sort(elements);
 
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		indepVarBoxes.clear();
 
-		for (String el : elements) {
+		for (String el : Ordering.natural().sortedCopy(elements)) {
 			JCheckBox box = new JCheckBox(el);
 
 			if (set.getIndependentVariables().contains(el)) {
@@ -363,7 +364,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 		symbols.removeAll(set.getDependentVariables());
 		symbols.remove(set.getDiffVariable());
 
-		List<String> indeps = new ArrayList<>();
+		Set<String> indeps = new LinkedHashSet<>();
 
 		for (String symbol : symbols) {
 			if (set.getIndependentVariables().contains(symbol) || usedIndeps.contains(symbol)) {
@@ -371,8 +372,7 @@ public class DiffFunctionCreatorNodeDialog extends NodeDialogPane
 			}
 		}
 
-		Collections.sort(indeps);
-		set.setIndependentVariables(indeps);
+		set.setIndependentVariables(Ordering.natural().sortedCopy(indeps));
 	}
 
 	private void updateNumberOfFunctions(int n) {

@@ -50,6 +50,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -459,7 +460,8 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
-				JComboBox<String> propertyBox = new JComboBox<>(new Vector<>(schema.getMap().keySet()));
+				JComboBox<String> propertyBox = new JComboBox<>(
+						new Vector<>(KnimeUtils.OBJECT_ORDERING.sortedCopy(schema.getMap().keySet())));
 				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());

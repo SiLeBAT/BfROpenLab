@@ -31,7 +31,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
+import com.google.common.collect.Ordering;
+
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.Transform;
@@ -295,8 +296,8 @@ public class GraphSettings extends Settings {
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
 
-		selectedNodes = KnimeUtils.toSortedList(canvas.getSelectedNodeIds());
-		selectedEdges = KnimeUtils.toSortedList(canvas.getSelectedEdgeIds());
+		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
+		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
 		editingMode = canvas.getEditingMode();

@@ -31,7 +31,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
+import com.google.common.collect.Ordering;
+
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.GisType;
@@ -324,8 +325,8 @@ public class TracingViewSettings extends NodeSettings {
 		showEdgesInMetaNode = canvas.isShowEdgesInMetaNode();
 		label = canvas.getLabel();
 
-		selectedNodes = KnimeUtils.toSortedList(canvas.getSelectedNodeIds());
-		selectedEdges = KnimeUtils.toSortedList(canvas.getSelectedEdgeIds());
+		selectedNodes = Ordering.natural().sortedCopy(canvas.getSelectedNodeIds());
+		selectedEdges = Ordering.natural().sortedCopy(canvas.getSelectedEdgeIds());
 		nodeHighlightConditions = canvas.getNodeHighlightConditions();
 		edgeHighlightConditions = canvas.getEdgeHighlightConditions();
 		editingMode = canvas.getEditingMode();

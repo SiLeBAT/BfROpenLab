@@ -26,11 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+
+import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.KnimeUtils;
 
@@ -58,7 +61,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 	public void setPossibleValues(Set<String> possibleValues) {
 		String selected = (String) getSelectedItem();
 
-		this.list = new ArrayList<>(KnimeUtils.nullToEmpty(possibleValues));
+		this.list = Ordering.natural().sortedCopy(KnimeUtils.nullToEmpty(possibleValues));
 		removeAllItems();
 
 		for (String s : list) {
@@ -77,8 +80,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 				String text = ((JTextField) e.getComponent()).getText();
 
 				if (text.isEmpty()) {
-					String[] array = list.toArray(new String[list.size()]);
-					ComboBoxModel<String> m = new DefaultComboBoxModel<>(array);
+					ComboBoxModel<String> m = new DefaultComboBoxModel<>(new Vector<>(list));
 
 					setSuggestionModel(AutoSuggestField.this, m, "");
 					hidePopup();

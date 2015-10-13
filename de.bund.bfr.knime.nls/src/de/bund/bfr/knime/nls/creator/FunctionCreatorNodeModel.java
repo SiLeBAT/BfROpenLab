@@ -21,11 +21,10 @@ package de.bund.bfr.knime.nls.creator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -37,6 +36,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+
+import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -132,14 +133,13 @@ public class FunctionCreatorNodeModel extends NodeModel {
 
 		terms.put(set.getDependentVariable(), set.getTerm());
 
-		List<String> parameters = new ArrayList<>(MathUtils.getSymbols(set.getTerm()));
-		List<String> indeps = new ArrayList<>(set.getIndependentVariables());
+		Set<String> parameters = MathUtils.getSymbols(set.getTerm());
+		Set<String> indeps = new LinkedHashSet<>(set.getIndependentVariables());
 
 		parameters.removeAll(indeps);
-		Collections.sort(parameters);
-		Collections.sort(indeps);
 
-		return new Function(terms, set.getDependentVariable(), indeps, parameters);
+		return new Function(terms, set.getDependentVariable(), Ordering.natural().sortedCopy(indeps),
+				Ordering.natural().sortedCopy(parameters));
 	}
 
 }
