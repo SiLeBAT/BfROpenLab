@@ -56,6 +56,9 @@ import javax.swing.event.ChangeListener;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.KnimeUtils;
@@ -63,6 +66,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -914,10 +918,18 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			}
 		}
 
-		String newId = CanvasUtils.openNewIdDialog(this, nodeSaveMap.keySet(), naming.Node());
+		String newId = null;
 
-		if (newId == null) {
-			return;
+		while (true) {
+			newId = Dialogs.showInputDialog(this, "Specify ID for Meta " + naming.Node(), naming.Node() + " ID", "");
+
+			if (newId == null) {
+				return;
+			} else if (!nodeSaveMap.containsKey(newId)) {
+				break;
+			}
+
+			Dialogs.showErrorMessage(this, "ID already exists, please specify different ID", "Error");
 		}
 
 		for (String id : selectedMetaIds) {
@@ -990,15 +1002,38 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 			}
 		}
 
-		Map<Object, Set<V>> nodesByProperty = CanvasUtils.openCollapseByPropertyDialog(this,
-				nodeSchema.getMap().keySet(), idsToCollapse, nodeSaveMap);
-		Set<String> newCollapsedIds = new LinkedHashSet<>();
+		String result = Dialogs.showInputDialog(this, "Select Property for Collapse?", "Collapse by Property",
+				nodeSchema.getMap().keySet());
 
-		if (nodesByProperty.isEmpty()) {
+		if (result == null) {
 			return;
 		}
 
-		for (Map.Entry<Object, Set<V>> entry : nodesByProperty.entrySet()) {
+		SetMultimap<Object, V> nodesByProperty = LinkedHashMultimap.create();
+
+		for (String id : idsToCollapse) {
+			V node = nodeSaveMap.get(id);
+			Object value = node.getProperties().get(result);
+
+			if (value != null) {
+				nodesByProperty.put(value, node);
+			}
+		}
+
+		ListFilterDialog<Object> dialog = new ListFilterDialog<>(this,
+				KnimeUtils.OBJECT_ORDERING.sortedCopy(nodesByProperty.keySet()));
+
+		dialog.setVisible(true);
+
+		if (!dialog.isApproved() || dialog.getFiltered().isEmpty()) {
+			return;
+		}
+
+		nodesByProperty.keySet().retainAll(dialog.getFiltered());
+
+		Set<String> newCollapsedIds = new LinkedHashSet<>();
+
+		for (Map.Entry<Object, Set<V>> entry : Multimaps.asMap(nodesByProperty).entrySet()) {
 			String newId = KnimeUtils.createNewValue(entry.getKey().toString(), nodeSaveMap.keySet());
 
 			collapsedNodes.put(newId, CanvasUtils.getElementIds(entry.getValue()));

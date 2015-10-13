@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -65,7 +64,6 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.ListFilterDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -79,7 +77,6 @@ import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
-import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -172,56 +169,6 @@ public class CanvasUtils {
 			newEdges.add(new Edge<>(edge.getId(), new LinkedHashMap<>(edge.getProperties()),
 					nodesById.get(edge.getFrom().getId()), nodesById.get(edge.getTo().getId())));
 		}
-	}
-
-	public static String openNewIdDialog(Component parent, Set<String> usedIds, String nodeName) {
-		String newId = null;
-
-		while (true) {
-			newId = Dialogs.showInputDialog(parent, "Specify ID for Meta " + nodeName, nodeName + " ID", "");
-
-			if (newId == null || !usedIds.contains(newId)) {
-				break;
-			}
-
-			Dialogs.showErrorMessage(parent, "ID already exists, please specify different ID", "Error");
-		}
-
-		return newId;
-	}
-
-	public static <V extends Node> Map<Object, Set<V>> openCollapseByPropertyDialog(Component parent,
-			Collection<String> nodeProperties, Collection<String> uncollapsedIds, Map<String, V> nodes) {
-		String result = Dialogs.showInputDialog(parent, "Select Property for Collapse?", "Collapse by Property",
-				nodeProperties);
-
-		if (result == null) {
-			return new LinkedHashMap<>();
-		}
-
-		SetMultimap<Object, V> nodesByProperty = LinkedHashMultimap.create();
-
-		for (String id : uncollapsedIds) {
-			V node = nodes.get(id);
-			Object value = node.getProperties().get(result);
-
-			if (value != null) {
-				nodesByProperty.put(value, node);
-			}
-		}
-
-		ListFilterDialog<Object> dialog = new ListFilterDialog<>(parent,
-				KnimeUtils.OBJECT_ORDERING.sortedCopy(nodesByProperty.keySet()));
-
-		dialog.setVisible(true);
-
-		if (!dialog.isApproved()) {
-			return new LinkedHashMap<>();
-		}
-
-		nodesByProperty.keySet().retainAll(dialog.getFiltered());
-
-		return Multimaps.asMap(nodesByProperty);
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
