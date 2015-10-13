@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
@@ -50,11 +51,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
@@ -654,37 +651,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		@Override
 		public String findError(HighlightCondition condition) {
-			String error = "The following columns cannot be used with \"Invisible\" option:\n"
-					+ Joiner.on(", ").join(TracingColumns.OUTPUT_COLUMNS);
-
-			if (condition != null && condition.isInvisible()) {
-				AndOrHighlightCondition logicalCondition = null;
-				ValueHighlightCondition valueCondition = null;
-
-				if (condition instanceof AndOrHighlightCondition) {
-					logicalCondition = (AndOrHighlightCondition) condition;
-				} else if (condition instanceof ValueHighlightCondition) {
-					valueCondition = (ValueHighlightCondition) condition;
-				} else if (condition instanceof LogicalValueHighlightCondition) {
-					logicalCondition = ((LogicalValueHighlightCondition) condition).getLogicalCondition();
-					valueCondition = ((LogicalValueHighlightCondition) condition).getValueCondition();
-				}
-
-				if (logicalCondition != null) {
-					for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
-						for (LogicalHighlightCondition c : cc) {
-							if (TracingColumns.OUTPUT_COLUMNS.contains(c.getProperty())) {
-								return error;
-							}
-						}
-					}
-				}
-
-				if (valueCondition != null) {
-					if (TracingColumns.OUTPUT_COLUMNS.contains(valueCondition.getProperty())) {
-						return error;
-					}
-				}
+			if (condition != null && condition.isInvisible()
+					&& !Sets.intersection(CanvasUtils.getUsedProperties(condition),
+							new LinkedHashSet<>(TracingColumns.OUTPUT_COLUMNS)).isEmpty()) {
+				return "The following columns cannot be used with \"Invisible\" option:\n"
+						+ Joiner.on(", ").join(TracingColumns.OUTPUT_COLUMNS);
 			}
 
 			return null;

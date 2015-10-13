@@ -71,6 +71,8 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeArrowTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
@@ -358,6 +360,36 @@ public class CanvasUtils {
 		}
 
 		return new AndOrHighlightCondition(conditions, null, false, Color.RED, false, false, null);
+	}
+
+	public static Set<String> getUsedProperties(HighlightCondition condition) {
+		AndOrHighlightCondition logicalCondition = null;
+		ValueHighlightCondition valueCondition = null;
+
+		if (condition instanceof AndOrHighlightCondition) {
+			logicalCondition = (AndOrHighlightCondition) condition;
+		} else if (condition instanceof ValueHighlightCondition) {
+			valueCondition = (ValueHighlightCondition) condition;
+		} else if (condition instanceof LogicalValueHighlightCondition) {
+			logicalCondition = ((LogicalValueHighlightCondition) condition).getLogicalCondition();
+			valueCondition = ((LogicalValueHighlightCondition) condition).getValueCondition();
+		}
+
+		Set<String> properties = new LinkedHashSet<>();
+
+		if (logicalCondition != null) {
+			for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
+				for (LogicalHighlightCondition c : cc) {
+					properties.add(c.getProperty());
+				}
+			}
+		}
+
+		if (valueCondition != null) {
+			properties.add(valueCondition.getProperty());
+		}
+
+		return properties;
 	}
 
 	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,

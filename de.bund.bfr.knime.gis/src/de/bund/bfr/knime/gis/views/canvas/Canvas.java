@@ -71,12 +71,8 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
@@ -1324,7 +1320,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema, edgeHighlightConditions);
 
-		dialog.addChecker(new EdgeHighlightChecker());
+		dialog.addChecker(new HighlightConditionChecker() {
+
+			@Override
+			public String findError(HighlightCondition condition) {
+				if (isJoinEdges() && condition != null && condition.isInvisible()
+						&& CanvasUtils.getUsedProperties(condition).contains(edgeSchema.getId())) {
+					return "Joined " + naming.edges() + " cannot be made invisible.\nYou can uncheck \"Join "
+							+ naming.Edges() + "\" and make the unjoined " + naming.edges() + " invisible.";
+				}
+
+				return null;
+			}
+		});
 
 		return dialog;
 	}
@@ -1378,51 +1386,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 					dialog.setVisible(true);
 				}
 			}
-		}
-	}
-
-	private class EdgeHighlightChecker implements HighlightConditionChecker {
-
-		@Override
-		public String findError(HighlightCondition condition) {
-			if (!isJoinEdges()) {
-				return null;
-			}
-
-			String error = "Joined " + naming.edges() + " cannot be made invisible.\nYou can uncheck \"Join "
-					+ naming.Edges() + "\" and make the unjoined " + naming.edges() + " invisible.";
-
-			if (condition != null && condition.isInvisible()) {
-				AndOrHighlightCondition logicalCondition = null;
-				ValueHighlightCondition valueCondition = null;
-
-				if (condition instanceof AndOrHighlightCondition) {
-					logicalCondition = (AndOrHighlightCondition) condition;
-				} else if (condition instanceof ValueHighlightCondition) {
-					valueCondition = (ValueHighlightCondition) condition;
-				} else if (condition instanceof LogicalValueHighlightCondition) {
-					logicalCondition = ((LogicalValueHighlightCondition) condition).getLogicalCondition();
-					valueCondition = ((LogicalValueHighlightCondition) condition).getValueCondition();
-				}
-
-				if (logicalCondition != null) {
-					for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
-						for (LogicalHighlightCondition c : cc) {
-							if (edgeSchema.getId().equals(c.getProperty())) {
-								return error;
-							}
-						}
-					}
-				}
-
-				if (valueCondition != null) {
-					if (edgeSchema.getId().equals(valueCondition.getProperty())) {
-						return error;
-					}
-				}
-			}
-
-			return null;
 		}
 	}
 
