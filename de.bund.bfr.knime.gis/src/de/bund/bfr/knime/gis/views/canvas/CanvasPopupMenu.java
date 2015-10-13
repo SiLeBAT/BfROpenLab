@@ -344,9 +344,9 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		highlightEdgeCategoriesItem = new JMenuItem("Add Category Highlighting");
 		highlightEdgeCategoriesItem.addActionListener(this);
 
-		selectNodesItem = new JMenuItem("Select " + owner.getNaming().Nodes());
+		selectNodesItem = new JMenuItem("Set Selected " + owner.getNaming().Nodes());
 		selectNodesItem.addActionListener(this);
-		selectEdgesItem = new JMenuItem("Select " + owner.getNaming().Edges());
+		selectEdgesItem = new JMenuItem("Set Selected " + owner.getNaming().Edges());
 		selectEdgesItem.addActionListener(this);
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta " + owner.getNaming().Node());

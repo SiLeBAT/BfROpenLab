@@ -379,21 +379,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public Set<V> getSelectedNodes() {
-		Set<V> selected = new LinkedHashSet<>(viewer.getPickedVertexState().getPicked());
-
-		selected.retainAll(nodes);
-
-		return selected;
+		return new LinkedHashSet<>(Sets.intersection(viewer.getPickedVertexState().getPicked(), nodes));
 	}
 
 	@Override
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		viewer.getPickedVertexState().clear();
 
-		for (V node : selectedNodes) {
-			if (nodes.contains(node)) {
-				viewer.getPickedVertexState().pick(node, true);
-			}
+		for (V node : Sets.intersection(selectedNodes, nodes)) {
+			viewer.getPickedVertexState().pick(node, true);
 		}
 
 		nodePickingChanged();
@@ -401,21 +395,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public Set<Edge<V>> getSelectedEdges() {
-		Set<Edge<V>> selected = new LinkedHashSet<>(viewer.getPickedEdgeState().getPicked());
-
-		selected.retainAll(edges);
-
-		return selected;
+		return new LinkedHashSet<>(Sets.intersection(viewer.getPickedEdgeState().getPicked(), edges));
 	}
 
 	@Override
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		viewer.getPickedEdgeState().clear();
 
-		for (Edge<V> edge : selectedEdges) {
-			if (edges.contains(edge)) {
-				viewer.getPickedEdgeState().pick(edge, true);
-			}
+		for (Edge<V> edge : Sets.intersection(selectedEdges, edges)) {
+			viewer.getPickedEdgeState().pick(edge, true);
 		}
 
 		edgePickingChanged();
@@ -435,10 +423,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setSelectedNodeIdsWithoutListener(Set<String> selectedNodeIds) {
 		viewer.getPickedVertexState().clear();
 
-		for (V node : nodes) {
-			if (selectedNodeIds.contains(node.getId())) {
-				viewer.getPickedVertexState().pick(node, true);
-			}
+		for (V node : CanvasUtils.getElementsById(nodes, selectedNodeIds)) {
+			viewer.getPickedVertexState().pick(node, true);
 		}
 
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
@@ -458,10 +444,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setSelectedEdgeIdsWithoutListener(Set<String> selectedEdgeIds) {
 		viewer.getPickedEdgeState().clear();
 
-		for (Edge<V> edge : edges) {
-			if (selectedEdgeIds.contains(edge.getId())) {
-				viewer.getPickedEdgeState().pick(edge, true);
-			}
+		for (Edge<V> edge : CanvasUtils.getElementsById(edges, selectedEdgeIds)) {
+			viewer.getPickedEdgeState().pick(edge, true);
 		}
 
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
@@ -707,19 +691,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void highlightSelectedNodesItemClicked() {
 		HighlightListDialog dialog = openNodeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
-		for (String id : getSelectedNodeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(nodeSchema.getId(),
-					LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(conditions, null, false, Color.RED, false,
-				false, null);
-
-		dialog.setAutoAddCondition(condition);
+		dialog.setAutoAddCondition(CanvasUtils.createIdHighlightCondition(getSelectedNodeIds(), nodeSchema.getId()));
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
@@ -730,19 +703,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void highlightSelectedEdgesItemClicked() {
 		HighlightListDialog dialog = openEdgeHighlightDialog();
-		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
-		for (String id : getSelectedEdgeIds()) {
-			LogicalHighlightCondition c = new LogicalHighlightCondition(edgeSchema.getId(),
-					LogicalHighlightCondition.EQUAL_TYPE, id);
-
-			conditions.add(Arrays.asList(c));
-		}
-
-		AndOrHighlightCondition condition = new AndOrHighlightCondition(conditions, null, false, Color.RED, false,
-				false, null);
-
-		dialog.setAutoAddCondition(condition);
+		dialog.setAutoAddCondition(CanvasUtils.createIdHighlightCondition(getSelectedEdgeIds(), edgeSchema.getId()));
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {

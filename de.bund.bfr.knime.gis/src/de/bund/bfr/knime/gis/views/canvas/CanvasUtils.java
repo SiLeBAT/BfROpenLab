@@ -279,7 +279,7 @@ public class CanvasUtils {
 		return ids;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Collection<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Set<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
@@ -345,6 +345,19 @@ public class CanvasUtils {
 		}
 
 		return DoubleMath.mean(Doubles.toArray(values));
+	}
+
+	public static AndOrHighlightCondition createIdHighlightCondition(Collection<String> ids, String idProperty) {
+		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
+
+		for (String id : ids) {
+			LogicalHighlightCondition c = new LogicalHighlightCondition(idProperty,
+					LogicalHighlightCondition.EQUAL_TYPE, id);
+
+			conditions.add(Arrays.asList(c));
+		}
+
+		return new AndOrHighlightCondition(conditions, null, false, Color.RED, false, false, null);
 	}
 
 	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
