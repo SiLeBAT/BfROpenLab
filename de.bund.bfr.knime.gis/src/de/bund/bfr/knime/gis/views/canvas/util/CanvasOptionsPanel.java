@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -47,6 +47,7 @@ import javax.swing.border.TitledBorder;
 import com.google.common.primitives.Ints;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 

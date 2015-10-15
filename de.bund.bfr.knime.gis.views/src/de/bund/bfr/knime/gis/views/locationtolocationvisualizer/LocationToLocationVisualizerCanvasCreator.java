@@ -27,16 +27,16 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
-import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 
 public class LocationToLocationVisualizerCanvasCreator {
 

@@ -40,8 +40,8 @@ import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.ui.Dialogs;
 
 /**

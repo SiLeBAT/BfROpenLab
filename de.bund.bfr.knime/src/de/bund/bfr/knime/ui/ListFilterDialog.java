@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.dialogs;
+package de.bund.bfr.knime.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -35,7 +35,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
 

@@ -17,27 +17,37 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
-public class PropertySchema {
+public class EdgePropertySchema extends PropertySchema {
 
-	private Map<String, Class<?>> map;
-	private Map<String, Set<String>> possibleValues;
+	private String id;
+	private String from;
+	private String to;
 
-	public PropertySchema(Map<String, Class<?>> map) {
-		this.map = map;
-		possibleValues = new LinkedHashMap<>();
+	public EdgePropertySchema() {
+		this(new LinkedHashMap<String, Class<?>>(0), null, null, null);
 	}
 
-	public Map<String, Class<?>> getMap() {
-		return map;
+	public EdgePropertySchema(Map<String, Class<?>> map, String id, String from, String to) {
+		super(map);
+		this.id = id;
+		this.from = from;
+		this.to = to;
 	}
 
-	public Map<String, Set<String>> getPossibleValues() {
-		return possibleValues;
+	public String getId() {
+		return id;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public String getTo() {
+		return to;
 	}
 }

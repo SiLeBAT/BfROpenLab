@@ -53,15 +53,15 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.TableTransferHandler;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;

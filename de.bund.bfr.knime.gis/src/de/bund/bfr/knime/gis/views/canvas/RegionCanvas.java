@@ -33,6 +33,11 @@ import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 /**

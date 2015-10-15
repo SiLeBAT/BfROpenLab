@@ -48,6 +48,8 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 
 public class LocationCanvasUtils {

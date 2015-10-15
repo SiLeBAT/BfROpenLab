@@ -32,16 +32,16 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
-import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.RegionOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 
 public class RegionToRegionVisualizerCanvasCreator {
 

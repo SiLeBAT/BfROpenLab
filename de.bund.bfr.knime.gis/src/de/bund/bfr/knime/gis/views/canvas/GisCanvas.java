@@ -30,6 +30,10 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.GisScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.ZoomingPaintable;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 

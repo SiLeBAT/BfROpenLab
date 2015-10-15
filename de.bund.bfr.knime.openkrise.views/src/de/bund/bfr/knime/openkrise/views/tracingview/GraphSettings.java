@@ -29,7 +29,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Transform;
+import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.openkrise.views.Activator;
 
 public class GraphSettings extends NodeSettings {

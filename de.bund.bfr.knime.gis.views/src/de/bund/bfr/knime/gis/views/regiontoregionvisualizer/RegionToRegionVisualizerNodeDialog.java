@@ -38,9 +38,9 @@ import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
 import de.bund.bfr.knime.gis.views.canvas.RegionCanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.ui.Dialogs;
 
 /**

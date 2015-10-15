@@ -52,12 +52,12 @@ import javax.swing.event.DocumentListener;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;

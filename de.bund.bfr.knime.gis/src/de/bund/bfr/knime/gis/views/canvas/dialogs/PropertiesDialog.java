@@ -33,13 +33,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class PropertiesDialog<V extends Node> extends KnimeDialog implements ActionListener {

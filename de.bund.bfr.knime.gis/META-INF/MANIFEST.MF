@@ -25,6 +25,7 @@ Export-Package: de.bund.bfr.knime.gis,
  de.bund.bfr.knime.gis.views.canvas.highlighting,
  de.bund.bfr.knime.gis.views.canvas.jung,
  de.bund.bfr.knime.gis.views.canvas.jung.layout,
- de.bund.bfr.knime.gis.views.canvas.transformer
+ de.bund.bfr.knime.gis.views.canvas.transformer,
+ de.bund.bfr.knime.gis.views.canvas.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

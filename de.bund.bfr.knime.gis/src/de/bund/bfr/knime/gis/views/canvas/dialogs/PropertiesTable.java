@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +29,12 @@ import java.util.Set;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.gis.views.canvas.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.BooleanObjectCellRenderer;
 import de.bund.bfr.knime.ui.DoubleCellRenderer;
 
@@ -127,6 +130,54 @@ public class PropertiesTable extends JTable {
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			return columnTypes.get(columnIndex);
+		}
+	}
+
+	private static class IdSorter extends TableRowSorter<TableModel> {
+
+		private Set<String> idColumns;
+
+		public IdSorter(TableModel model, Set<String> idColumns) {
+			super(model);
+			this.idColumns = idColumns;
+		}
+
+		@Override
+		public Comparator<?> getComparator(int column) {
+			String name = getModel().getColumnName(column);
+
+			if (idColumns.contains(name)) {
+				return new Comparator<String>() {
+
+					@Override
+					public int compare(String o1, String o2) {
+						Integer i1 = null;
+						Integer i2 = null;
+
+						try {
+							i1 = Integer.parseInt(o1);
+						} catch (NumberFormatException e) {
+						}
+
+						try {
+							i2 = Integer.parseInt(o2);
+						} catch (NumberFormatException e) {
+						}
+
+						if (i1 != null && i2 != null) {
+							return i1.compareTo(i2);
+						} else if (i1 != null) {
+							return -1;
+						} else if (i2 != null) {
+							return 1;
+						} else {
+							return o1.compareTo(o2);
+						}
+					}
+				};
+			}
+
+			return super.getComparator(column);
 		}
 	}
 }

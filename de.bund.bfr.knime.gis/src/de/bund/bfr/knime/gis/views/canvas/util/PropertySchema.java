@@ -17,46 +17,27 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class NodePropertySchema extends PropertySchema {
+public class PropertySchema {
 
-	private String id;
+	private Map<String, Class<?>> map;
+	private Map<String, Set<String>> possibleValues;
 
-	private String latitude;
-	private String longitude;
-
-	public NodePropertySchema() {
-		this(new LinkedHashMap<String, Class<?>>(0), null);
+	public PropertySchema(Map<String, Class<?>> map) {
+		this.map = map;
+		possibleValues = new LinkedHashMap<>();
 	}
 
-	public NodePropertySchema(Map<String, Class<?>> map, String id) {
-		super(map);
-		this.id = id;
-		latitude = null;
-		longitude = null;
+	public Map<String, Class<?>> getMap() {
+		return map;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public String getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(String latitude) {
-		this.latitude = latitude;
-	}
-
-	public String getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
+	public Map<String, Set<String>> getPossibleValues() {
+		return possibleValues;
 	}
 }

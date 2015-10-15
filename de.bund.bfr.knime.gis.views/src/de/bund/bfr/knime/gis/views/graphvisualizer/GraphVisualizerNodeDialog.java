@@ -33,7 +33,7 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.gis.views.VisualizerNodeDialog;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.ui.Dialogs;
 
 /**

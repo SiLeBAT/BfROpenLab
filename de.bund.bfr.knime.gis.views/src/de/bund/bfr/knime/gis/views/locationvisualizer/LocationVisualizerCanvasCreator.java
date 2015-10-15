@@ -31,9 +31,9 @@ import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationCanvas;
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
-import de.bund.bfr.knime.gis.views.canvas.Naming;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 
 public class LocationVisualizerCanvasCreator {
 

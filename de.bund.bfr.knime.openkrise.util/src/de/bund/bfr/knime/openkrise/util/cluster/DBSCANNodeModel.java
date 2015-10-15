@@ -55,8 +55,8 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
-import de.bund.bfr.knime.gis.views.canvas.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 

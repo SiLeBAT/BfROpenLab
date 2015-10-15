@@ -30,7 +30,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import de.bund.bfr.knime.gis.GisUtils;
-import de.bund.bfr.knime.gis.views.canvas.Transform;
+import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 
 public class RegionNode extends Node {
 

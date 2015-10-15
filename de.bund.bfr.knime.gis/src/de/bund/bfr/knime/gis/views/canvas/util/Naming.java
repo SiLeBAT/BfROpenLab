@@ -17,37 +17,53 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.util;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+public class Naming {
 
-public class EdgePropertySchema extends PropertySchema {
+	public static final Naming DEFAULT_NAMING = new Naming("Node", "Nodes", "Edge", "Edges");
 
-	private String id;
-	private String from;
-	private String to;
+	private String node;
+	private String nodes;
+	private String edge;
+	private String edges;
 
-	public EdgePropertySchema() {
-		this(new LinkedHashMap<String, Class<?>>(0), null, null, null);
+	public Naming(String node, String nodes, String edge, String edges) {
+		this.node = node;
+		this.nodes = nodes;
+		this.edge = edge;
+		this.edges = edges;
 	}
 
-	public EdgePropertySchema(Map<String, Class<?>> map, String id, String from, String to) {
-		super(map);
-		this.id = id;
-		this.from = from;
-		this.to = to;
+	public String Node() {
+		return node;
 	}
 
-	public String getId() {
-		return id;
+	public String Nodes() {
+		return nodes;
 	}
 
-	public String getFrom() {
-		return from;
+	public String Edge() {
+		return edge;
 	}
 
-	public String getTo() {
-		return to;
+	public String Edges() {
+		return edges;
+	}
+
+	public String node() {
+		return node.toLowerCase();
+	}
+
+	public String nodes() {
+		return nodes.toLowerCase();
+	}
+
+	public String edge() {
+		return edge.toLowerCase();
+	}
+
+	public String edges() {
+		return edges.toLowerCase();
 	}
 }

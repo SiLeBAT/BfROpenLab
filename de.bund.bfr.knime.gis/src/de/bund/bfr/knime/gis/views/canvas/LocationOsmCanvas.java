@@ -32,6 +32,11 @@ import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.Naming;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 
 public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
