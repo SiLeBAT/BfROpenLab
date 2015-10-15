@@ -126,7 +126,7 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 
 	@Override
 	protected BetterPickingGraphMousePlugin<RegionNode, Edge<RegionNode>> createPickingPlugin() {
-		return new RegionCanvasUtils.PickingPlugin<>(this);
+		return new RegionCanvasPickingPlugin(this);
 	}
 
 	@Override

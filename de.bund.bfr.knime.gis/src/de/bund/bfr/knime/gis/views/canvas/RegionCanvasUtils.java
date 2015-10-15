@@ -23,8 +23,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,12 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class RegionCanvasUtils {
 
@@ -94,68 +89,6 @@ public class RegionCanvasUtils {
 				((Graphics2D) g).setPaint(color);
 				((Graphics2D) g).fill(node.getTransformedPolygon());
 			}
-		}
-	}
-
-	public static class PickingPlugin<V extends RegionNode> extends GisCanvas.PickingPlugin<V> {
-
-		public PickingPlugin(GisCanvas<V> canvas) {
-			super(canvas);
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
-				V node = getContainingNode(e.getX(), e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
-
-				if (edge != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,
-							canvas.getEdgeSchema());
-
-					dialog.setVisible(true);
-				} else if (node != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), node,
-							canvas.getNodeSchema());
-
-					dialog.setVisible(true);
-				}
-			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
-			V node = getContainingNode(e.getX(), e.getY());
-			Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
-
-			if (e.getButton() == MouseEvent.BUTTON1 && node != null && edge == null) {
-				if (!e.isShiftDown()) {
-					viewer.getPickedVertexState().clear();
-				}
-
-				if (e.isShiftDown() && viewer.getPickedVertexState().isPicked(node)) {
-					viewer.getPickedVertexState().pick(node, false);
-				} else {
-					viewer.getPickedVertexState().pick(node, true);
-					vertex = node;
-				}
-			} else {
-				super.mousePressed(e);
-			}
-		}
-
-		private V getContainingNode(int x, int y) {
-			Point2D p = canvas.getTransform().applyInverse(x, y);
-
-			for (V node : canvas.getNodes()) {
-				if (node.containsPoint(p)) {
-					return node;
-				}
-			}
-
-			return null;
 		}
 	}
 }

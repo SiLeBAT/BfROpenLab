@@ -111,7 +111,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 
 	@Override
 	protected BetterPickingGraphMousePlugin<RegionNode, Edge<RegionNode>> createPickingPlugin() {
-		return new RegionCanvasUtils.PickingPlugin<>(this);
+		return new RegionCanvasPickingPlugin(this);
 	}
 
 	@Override

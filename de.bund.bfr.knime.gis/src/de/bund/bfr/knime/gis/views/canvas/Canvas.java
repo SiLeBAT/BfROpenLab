@@ -67,7 +67,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -1345,7 +1344,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new PickingPlugin<>(this);
+		return new CanvasPickingPlugin<>(this);
 	}
 
 	protected BetterScalingGraphMousePlugin createScalingPlugin() {
@@ -1363,36 +1362,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	private void fireCollapsedNodesAndPickingChanged() {
 		for (CanvasListener listener : canvasListeners) {
 			listener.collapsedNodesAndPickingChanged(this);
-		}
-	}
-
-	public static class PickingPlugin<V extends Node> extends BetterPickingGraphMousePlugin<V, Edge<V>> {
-
-		protected Canvas<V> canvas;
-
-		public PickingPlugin(Canvas<V> canvas) {
-			this.canvas = canvas;
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
-				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
-
-				if (node != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), node,
-							canvas.getNodeSchema());
-
-					dialog.setVisible(true);
-				} else if (edge != null) {
-					SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,
-							canvas.getEdgeSchema());
-
-					dialog.setVisible(true);
-				}
-			}
 		}
 	}
 

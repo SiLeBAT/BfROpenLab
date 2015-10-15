@@ -20,13 +20,11 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.GisScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
@@ -72,11 +70,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 	}
 
 	@Override
-	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new PickingPlugin<>(this);
-	}
-
-	@Override
 	protected BetterScalingGraphMousePlugin createScalingPlugin() {
 		return new GisScalingGraphMousePlugin(1 / 2f, 2f);
 	}
@@ -99,20 +92,6 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		}
 
 		g.drawImage(image, 0, 0, null);
-	}
-
-	public static class PickingPlugin<V extends Node> extends Canvas.PickingPlugin<V> {
-
-		public PickingPlugin(GisCanvas<V> canvas) {
-			super(canvas);
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			if (vertex == null) {
-				super.mouseDragged(e);
-			}
-		}
 	}
 
 	private class PrePaintable implements Paintable {
