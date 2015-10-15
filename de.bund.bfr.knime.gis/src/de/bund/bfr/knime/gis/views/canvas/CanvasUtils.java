@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -59,6 +58,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
@@ -130,7 +130,7 @@ public class CanvasUtils {
 		return new Transform(scaleX, scaleY, translationX, translationY);
 	}
 
-	public static List<HighlightCondition> createCategorialHighlighting(Collection<? extends Element> elements,
+	public static List<HighlightCondition> createCategorialHighlighting(Iterable<? extends Element> elements,
 			String property) {
 		Set<Object> categories = new LinkedHashSet<>();
 
@@ -159,7 +159,7 @@ public class CanvasUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes, Collection<Edge<V>> edges,
+	public static <V extends Node> void copyNodesAndEdges(Iterable<V> nodes, Iterable<Edge<V>> edges,
 			Collection<V> newNodes, Collection<Edge<V>> newEdges) {
 		Map<String, V> nodesById = new LinkedHashMap<>();
 
@@ -176,7 +176,7 @@ public class CanvasUtils {
 		}
 	}
 
-	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
+	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Iterable<Edge<V>> edges,
 			EdgePropertySchema properties, Set<String> usedIds) {
 		SetMultimap<Pair<V, V>, Edge<V>> edgeMap = LinkedHashMultimap.create();
 
@@ -259,7 +259,7 @@ public class CanvasUtils {
 		}
 	}
 
-	public static <T extends Element> Set<T> getHighlightedElements(Collection<T> elements,
+	public static <T extends Element> Set<T> getHighlightedElements(Iterable<T> elements,
 			List<HighlightCondition> highlightConditions) {
 		Set<T> highlightedElements = new LinkedHashSet<>();
 
@@ -274,7 +274,7 @@ public class CanvasUtils {
 		return highlightedElements;
 	}
 
-	public static Set<String> getElementIds(Collection<? extends Element> elements) {
+	public static Set<String> getElementIds(Iterable<? extends Element> elements) {
 		Set<String> ids = new LinkedHashSet<>();
 
 		for (Element element : elements) {
@@ -284,7 +284,7 @@ public class CanvasUtils {
 		return ids;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Set<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Iterable<T> elements, Set<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
@@ -296,7 +296,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
+	public static <T extends Element> Map<String, T> getElementsById(Iterable<T> elements) {
 		Map<String, T> result = new LinkedHashMap<>();
 
 		for (T element : elements) {
@@ -306,7 +306,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
+	public static <T> Set<T> getElementsById(Map<String, T> elements, Iterable<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {
@@ -318,7 +318,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
+	public static Map<String, Set<String>> getPossibleValues(Iterable<? extends Element> elements) {
 		SetMultimap<String, String> values = LinkedHashMultimap.create();
 
 		for (Element e : elements) {
@@ -334,7 +334,7 @@ public class CanvasUtils {
 		return Multimaps.asMap(values);
 	}
 
-	public static Double getMeanValue(Collection<? extends Element> elements, String property) {
+	public static Double getMeanValue(Iterable<? extends Element> elements, String property) {
 		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
@@ -352,7 +352,7 @@ public class CanvasUtils {
 		return DoubleMath.mean(Doubles.toArray(values));
 	}
 
-	public static AndOrHighlightCondition createIdHighlightCondition(Collection<String> ids, String idProperty) {
+	public static AndOrHighlightCondition createIdHighlightCondition(Iterable<String> ids, String idProperty) {
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : ids) {
@@ -395,18 +395,85 @@ public class CanvasUtils {
 		return properties;
 	}
 
-	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
+	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
+			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
 		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize, false);
 	}
 
-	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
+	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
 			HighlightConditionList nodeHighlightConditions) {
 		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, null, true);
 	}
 
+	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
+			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize, boolean labelsOnly) {
+		List<Color> colors = new ArrayList<>();
+		ListMultimap<V, Double> alphaValues = ArrayListMultimap.create();
+		Map<V, Double> thicknessValues = new LinkedHashMap<>();
+		SetMultimap<V, String> labelLists = LinkedHashMultimap.create();
+		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
+
+		if (!labelsOnly) {
+			for (V node : nodes) {
+				thicknessValues.put(node, 0.0);
+			}
+		}
+
+		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
+			if (condition.isInvisible()) {
+				continue;
+			}
+
+			Map<V, Double> values = condition.getValues(nodes);
+
+			if (!labelsOnly && condition.isUseThickness()) {
+				for (V node : nodes) {
+					thicknessValues.put(node, thicknessValues.get(node) + values.get(node));
+				}
+			}
+
+			if (!labelsOnly && condition.getColor() != null) {
+				colors.add(condition.getColor());
+
+				for (V node : nodes) {
+					List<Double> alphas = alphaValues.get(node);
+
+					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
+						alphas.add(values.get(node));
+					} else {
+						alphas.add(0.0);
+					}
+				}
+			}
+
+			if (condition.getLabelProperty() != null) {
+				String property = condition.getLabelProperty();
+
+				for (V node : nodes) {
+					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
+						labelLists.put(node, node.getProperties().get(property).toString());
+					}
+				}
+			}
+		}
+
+		Map<V, String> labels = new LinkedHashMap<>();
+
+		for (Map.Entry<V, Set<String>> entry : Multimaps.asMap(labelLists).entrySet()) {
+			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
+		}
+
+		if (!labelsOnly) {
+			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize, nodeMaxSize, thicknessValues));
+			renderContext.setVertexFillPaintTransformer(
+					new NodeFillTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
+		}
+
+		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
+	}
+
 	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
+			Iterable<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		List<Color> colors = new ArrayList<>();
 		ListMultimap<Edge<V>, Double> alphaValues = ArrayListMultimap.create();
@@ -460,7 +527,7 @@ public class CanvasUtils {
 				thicknessValues);
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
-		for (Map.Entry<Edge<V>, Collection<String>> entry : labelLists.asMap().entrySet()) {
+		for (Map.Entry<Edge<V>, Set<String>> entry : Multimaps.asMap(labelLists).entrySet()) {
 			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
 		}
 
@@ -537,14 +604,13 @@ public class CanvasUtils {
 
 			Map<T, Double> values = condition.getValues(elements);
 
-			for (Iterator<T> iterator = elements.iterator(); iterator.hasNext();) {
-				T element = iterator.next();
-
+			for (T element : elements) {
 				if (values.get(element) != 0.0) {
 					removed.add(element);
-					iterator.remove();
 				}
 			}
+
+			elements.removeAll(removed);
 		}
 
 		return removed;
@@ -553,14 +619,13 @@ public class CanvasUtils {
 	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(Set<Edge<V>> edges, Set<V> nodes) {
 		Set<Edge<V>> removed = new LinkedHashSet<>();
 
-		for (Iterator<Edge<V>> iterator = edges.iterator(); iterator.hasNext();) {
-			Edge<V> edge = iterator.next();
-
+		for (Edge<V> edge : edges) {
 			if (!nodes.contains(edge.getFrom()) || !nodes.contains(edge.getTo())) {
 				removed.add(edge);
-				iterator.remove();
 			}
 		}
+
+		edges.removeAll(removed);
 
 		return removed;
 	}
@@ -573,21 +638,14 @@ public class CanvasUtils {
 			nodesWithEdges.add(edge.getTo());
 		}
 
-		Set<V> removed = new LinkedHashSet<>();
+		Set<V> removed = new LinkedHashSet<>(Sets.difference(nodes, nodesWithEdges));
 
-		for (Iterator<V> iterator = nodes.iterator(); iterator.hasNext();) {
-			V node = iterator.next();
-
-			if (!nodesWithEdges.contains(node)) {
-				removed.add(node);
-				iterator.remove();
-			}
-		}
+		nodes.removeAll(removed);
 
 		return removed;
 	}
 
-	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes, Collection<Edge<V>> edges) {
+	public static <V extends Node> Graph<V, Edge<V>> createGraph(Iterable<V> nodes, Iterable<Edge<V>> edges) {
 		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
 		for (V node : nodes) {
@@ -675,78 +733,6 @@ public class CanvasUtils {
 	}
 
 	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
-		if (asSvg) {
-			return new ImagePortObjectSpec(SvgCell.TYPE);
-		} else {
-			return new ImagePortObjectSpec(PNGImageContent.TYPE);
-		}
-	}
-
-	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
-			boolean labelsOnly) {
-		List<Color> colors = new ArrayList<>();
-		ListMultimap<V, Double> alphaValues = ArrayListMultimap.create();
-		Map<V, Double> thicknessValues = new LinkedHashMap<>();
-		SetMultimap<V, String> labelLists = LinkedHashMultimap.create();
-		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		if (!labelsOnly) {
-			for (V node : nodes) {
-				thicknessValues.put(node, 0.0);
-			}
-		}
-
-		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
-			if (condition.isInvisible()) {
-				continue;
-			}
-
-			Map<V, Double> values = condition.getValues(nodes);
-
-			if (!labelsOnly && condition.isUseThickness()) {
-				for (V node : nodes) {
-					thicknessValues.put(node, thicknessValues.get(node) + values.get(node));
-				}
-			}
-
-			if (!labelsOnly && condition.getColor() != null) {
-				colors.add(condition.getColor());
-
-				for (V node : nodes) {
-					List<Double> alphas = alphaValues.get(node);
-
-					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
-						alphas.add(values.get(node));
-					} else {
-						alphas.add(0.0);
-					}
-				}
-			}
-
-			if (condition.getLabelProperty() != null) {
-				String property = condition.getLabelProperty();
-
-				for (V node : nodes) {
-					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
-						labelLists.put(node, node.getProperties().get(property).toString());
-					}
-				}
-			}
-		}
-
-		Map<V, String> labels = new LinkedHashMap<>();
-
-		for (Map.Entry<V, Collection<String>> entry : labelLists.asMap().entrySet()) {
-			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
-		}
-
-		if (!labelsOnly) {
-			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize, nodeMaxSize, thicknessValues));
-			renderContext.setVertexFillPaintTransformer(
-					new NodeFillTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
-		}
-
-		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
+		return new ImagePortObjectSpec(asSvg ? SvgCell.TYPE : PNGImageContent.TYPE);
 	}
 }

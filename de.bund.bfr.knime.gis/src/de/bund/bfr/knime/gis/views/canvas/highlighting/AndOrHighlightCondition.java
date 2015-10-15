@@ -24,7 +24,6 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +136,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
 		List<List<Map<T, Double>>> valuesList = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> andLists : conditions) {
@@ -182,7 +181,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public Point2D getValueRange(Collection<? extends Element> elements) {
+	public Point2D getValueRange(Iterable<? extends Element> elements) {
 		return new Point2D.Double(0.0, 1.0);
 	}
 

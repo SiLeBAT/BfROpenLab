@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.util.Collection;
 import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -40,9 +39,9 @@ public interface HighlightCondition {
 
 	String getLabelProperty();
 
-	<T extends Element> Map<T, Double> getValues(Collection<? extends T> elements);
+	<T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements);
 
-	Point2D getValueRange(Collection<? extends Element> elements);
+	Point2D getValueRange(Iterable<? extends Element> elements);
 
 	HighlightCondition copy();
 }
