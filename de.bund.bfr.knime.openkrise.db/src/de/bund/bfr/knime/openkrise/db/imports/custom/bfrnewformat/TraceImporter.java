@@ -130,12 +130,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		boolean isForTracing = forSheet != null;
 		if (isForTracing) transactionSheet = forSheet;
 		
-		if (stationSheet == null) return null;
-		if (transactionSheet == null && (deliverySheet == null || d2dSheet == null)) return null;
+		if (stationSheet == null || transactionSheet == null && deliverySheet == null) {
+			exceptions.add(new Exception("Wrong template format!"));
+			return exceptions;
+		}
 
 		checkStationsFirst(exceptions, stationSheet);
 		
-		if (d2dSheet != null && deliverySheet != null) {
+		if (deliverySheet != null) {
 			checkDeliveriesFirst(exceptions, deliverySheet);
 			// load all Stations
 			HashMap<String, Station> stations = new HashMap<>();
@@ -153,7 +155,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			titleRow = deliverySheet.getRow(0);
 			HashMap<String,String> definedLots = new HashMap<>();
 			for (classRowIndex=2;classRowIndex<numRows;classRowIndex++) {
-				Delivery d = getMultiOutDelivery(exceptions, stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex, filename);
+				Delivery d = getMultiOutDelivery(exceptions, stations, titleRow, deliverySheet.getRow(classRowIndex), definedLots, classRowIndex, filename, d2dSheet != null);
 				if (d == null) break;
 				if (deliveries.containsKey(d.getId())) exceptions.add(new Exception("Delivery defined twice??? -> Row " + (classRowIndex+1) + "; Delivery Id: '" + d.getId() + "'"));
 				deliveries.put(d.getId(), d);
@@ -161,12 +163,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			
 			// load Recipes
 			HashSet<D2D> recipes = new HashSet<>();
-			numRows = d2dSheet.getLastRowNum() + 1;
-			titleRow = d2dSheet.getRow(0);
-			for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
-				D2D dl = getD2D(exceptions, deliveries, titleRow, d2dSheet.getRow(classRowIndex), classRowIndex);
-				if (dl == null) break;
-				recipes.add(dl);
+			if (d2dSheet != null) {
+				numRows = d2dSheet.getLastRowNum() + 1;
+				titleRow = d2dSheet.getRow(0);
+				for (classRowIndex=1;classRowIndex<numRows;classRowIndex++) {
+					D2D dl = getD2D(exceptions, deliveries, titleRow, d2dSheet.getRow(classRowIndex), classRowIndex);
+					if (dl == null) break;
+					recipes.add(dl);
+				}
 			}
 
 			MetaInfo mi = new MetaInfo();
@@ -268,7 +272,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Reporter Information")) break;
-				Delivery d = getDelivery(exceptions, stationSheet, sif, row, true, titleRow, filename, false, null, outDeliveries);
+				Delivery d = getDelivery(exceptions, stationSheet, sif, row, true, titleRow, filename, false, null, outDeliveries, false);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				outLots.put(d.getLot().getNumber(), d.getLot());
@@ -304,7 +308,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				row = transactionSheet.getRow(classRowIndex);
 				if (row == null) continue;
 				if (isBlockEnd(row, 13, "Lot Information")) break;
-				Delivery d = getDelivery(exceptions, stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots, outDeliveries);
+				Delivery d = getDelivery(exceptions, stationSheet, sif, row, !isForTracing, titleRow, filename, isForTracing, outLots, outDeliveries, false);
 				if (d == null) continue;
 				outDeliveries.put(d.getId(), d);
 				if (!isForTracing) outLots.put(d.getLot().getNumber(), d.getLot());
@@ -336,7 +340,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			row = transactionSheet.getRow(classRowIndex);
 			if (row == null) continue;
 			if (isBlockEnd(row, 13, null)) break;
-			Delivery d = getDelivery(exceptions, stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots, inDeliveries);
+			Delivery d = getDelivery(exceptions, stationSheet, sif, row, isForTracing, titleRow, filename, isForTracing, outLots, inDeliveries, false);
 			if (d == null) continue;
 			if (!isForTracing && d.getTargetLotIds().size() == 0) exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
 			inDeliveries.put(d.getId(), d);
@@ -603,7 +607,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		String s = getStr(cell.getStringCellValue());
 		return s;
 	}
-	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename) {
+	private Delivery getMultiOutDelivery(List<Exception> exceptions, HashMap<String, Station> stations, Row titleRow, Row row, HashMap<String,String> definedLots,int rowNum, String filename, boolean ignoreMissingLotnumbers) {
 		if (row == null) return null;
 		Delivery result = new Delivery();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setId(getStr(cell.getStringCellValue()));}
@@ -625,7 +629,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(3);
 		String str = getStr(cell);
 		if (str != null) {l.setNumber(str);}
-		else {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
+		else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
 		//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n";}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
@@ -668,7 +672,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-	private Delivery getDelivery(List<Exception> exceptions, Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries) {
+	private Delivery getDelivery(List<Exception> exceptions, Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries, boolean ignoreMissingLotnumbers) {
 		Cell cell = row.getCell(12);
 		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
 		Delivery result = new Delivery();
@@ -693,7 +697,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String lotNumber = null;
 			cell = row.getCell(1);
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}
-			else {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n"));}
+			else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n"));}
 			//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n";}
 			l.setNumber(lotNumber);
 			if (lotNumber == null && p.getName() == null) {

@@ -1459,6 +1459,25 @@ public class DBKernel {
 			StartApp.go(connection);
 			openingDBGUI = false;
 		}
+		if (DBKernel.mainFrame != null) {
+			if (DBKernel.mainFrame.isVisible()) {
+				/*
+				java.awt.EventQueue.invokeLater(new Runnable() {
+				    @Override
+				    public void run() {
+						  DBKernel.mainFrame.setAlwaysOnTop(true);
+						  DBKernel.mainFrame.toFront();
+						  DBKernel.mainFrame.requestFocus();
+						  DBKernel.mainFrame.setAlwaysOnTop(false);
+				    }
+				});
+				*/
+				DBKernel.mainFrame.setAlwaysOnTop(true);
+				DBKernel.mainFrame.toFront();
+				DBKernel.mainFrame.requestFocus();
+				DBKernel.mainFrame.setAlwaysOnTop(false);
+			  }
+		}
 	}
 
 	public static String getInternalDefaultDBPath() {
