@@ -40,7 +40,7 @@ public class D2D {
 	}
 	
 	public void getId(Integer miDbId, MyDBI mydbi) throws Exception {
-		getId(ingredient.getDbId(), targetDelivery.getLot().getDbId(), miDbId, mydbi);
+		if (targetDelivery != null) getId(ingredient.getDbId(), targetDelivery.getLot().getDbId(), miDbId, mydbi);
 	}
 
 	public void getId(Integer dbId, Integer dbPId, Integer miDbId, MyDBI mydbi) throws Exception {

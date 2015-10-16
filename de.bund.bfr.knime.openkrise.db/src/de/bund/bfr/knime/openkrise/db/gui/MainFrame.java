@@ -947,7 +947,7 @@ public class MainFrame extends JFrame {
 			toolBar1.addSeparator();
 
 			//---- button8 ----
-			button8.setToolTipText("Similarity search");
+			button8.setToolTipText("Similarity search <Ctrl+F4>");
 			button8.setIcon(new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/Eye.gif")));
 			toolBar1.add(button8);
 			toolBar1.addSeparator();

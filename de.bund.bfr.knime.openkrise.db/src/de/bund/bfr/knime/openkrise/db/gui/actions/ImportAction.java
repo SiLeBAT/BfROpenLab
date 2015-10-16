@@ -134,6 +134,7 @@ public class ImportAction extends AbstractAction {
 						}
 						else if (!success) {
 							Font f = new Font("Arial", Font.PLAIN, 12);
+							if (!warnings.isEmpty()) errors += "Warnings:\n" + warnings + "\n\n";
 							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
 							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);							

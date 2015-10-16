@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
@@ -552,8 +554,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		else {
 			return null;
 		}
-		if (!result.getIngredient().getReceiver().getId().equals(result.getTargetDelivery().getLot().getProduct().getStation().getId())) {
-			exceptions.add(new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + result.getIngredient().getId() + "' -> '" + result.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1)));
+		if (result.getIngredient() != null && result.getTargetDelivery() != null) {
+			if (!result.getIngredient().getReceiver().getId().equals(result.getTargetDelivery().getLot().getProduct().getStation().getId())) {
+				exceptions.add(new Exception("Recipient does not match Supplier; in sheet Deliveries2Deliveries: '" + result.getIngredient().getId() + "' -> '" + result.getTargetDelivery().getId() + "'; -> Row " + (rowNum+1)));
+			}
 		}
 		
 		// Further flexible cells
@@ -672,9 +676,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	private boolean isCellEmpty(Cell cell) {
+		return cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty());
+	}
 	private Delivery getDelivery(List<Exception> exceptions, Sheet businessSheet, Station sif, Row row, boolean outbound, Row titleRow, String filename, boolean isForTracing, HashMap<String, Lot> outLots, HashMap<String, Delivery> existingDeliveries, boolean ignoreMissingLotnumbers) {
 		Cell cell = row.getCell(12);
-		if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || (cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().isEmpty())) return null;
+		if (isCellEmpty(cell)) {
+			Cell cell10 = row.getCell(10); 
+			Cell cell0 = row.getCell(0); 
+			if ((!isForTracing && !isCellEmpty(cell0)) || !isCellEmpty(cell10)) {
+				exceptions.add(new Exception("It is essential to choose the associated Lot number ('Lot Number of " + (isForTracing ? "" : " \"") + "Product" + (isForTracing ? "" : " Out\"") + "') to the delivery in Row number " + (classRowIndex + 1)));
+			}
+			return null;
+		}
 		Delivery result = new Delivery();
 		String lotDelNumber = null;
 		if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
@@ -860,10 +874,19 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
+					Set<String> warns = new LinkedHashSet<>();
 					if (exceptions != null && exceptions.size() > 0) {
 						if (existsDBKernel()) {
+							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection());
 							DBKernel.sendRequest("ROLLBACK", false);
 							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+						}
+						else if (mydbi != null) {
+							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
+						}
+						for (String w : warns) {
+							w += "\n";
+							logWarnings += w;
 						}
 						logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n";
 						for (Exception e : exceptions) {
@@ -884,6 +907,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							DBKernel.myDBi.getTable("Produktkatalog").doMNs();
 							DBKernel.myDBi.getTable("Chargen").doMNs();
 							DBKernel.myDBi.getTable("Lieferungen").doMNs();
+							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection());
 							if (progress != null) {
 								// Refreshen:
 								MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
@@ -895,6 +919,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								progress.setVisible(false);
 							}
+						}
+						else if (mydbi != null) {
+							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
+						}
+						for (String w : warns) {
+							w += "\n";
+							logWarnings += w;
 						}
 						is.close();
 					}
