@@ -38,6 +38,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -78,8 +79,8 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 	private JPanel panel;
 
-	private JCheckBox transformingBox;
-	private JCheckBox pickingBox;
+	private JRadioButton transformingButton;
+	private JRadioButton pickingButton;
 	private JCheckBox showLegendBox;
 	private JCheckBox joinEdgesBox;
 	private JCheckBox skipEdgelessNodesBox;
@@ -113,7 +114,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		panel.add(getOptionPanel("Editing Mode", transformingBox, pickingBox));
+		panel.add(getOptionPanel("Editing Mode", transformingButton, pickingButton));
 		panel.add(Box.createHorizontalStrut(5));
 		panel.add(getOptionPanel("Show Legend", showLegendBox));
 		panel.add(Box.createHorizontalStrut(5));
@@ -178,12 +179,15 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	}
 
 	public Mode getEditingMode() {
-		return transformingBox.isSelected() ? Mode.TRANSFORMING : Mode.PICKING;
+		return transformingButton.isSelected() ? Mode.TRANSFORMING : Mode.PICKING;
 	}
 
 	public void setEditingMode(Mode editingMode) {
-		transformingBox.setSelected(editingMode == Mode.TRANSFORMING);
-		pickingBox.setSelected(editingMode != Mode.TRANSFORMING);
+		if (editingMode == Mode.TRANSFORMING) {
+			transformingButton.setSelected(true);
+		} else if (editingMode == Mode.PICKING) {
+			pickingButton.setSelected(true);
+		}
 	}
 
 	public boolean isShowLegend() {
@@ -326,15 +330,11 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == transformingBox && e.getStateChange() == ItemEvent.SELECTED) {
-			pickingBox.setSelected(false);
-
+		if (e.getSource() == transformingButton && e.getStateChange() == ItemEvent.SELECTED) {
 			for (ChangeListener l : listeners) {
 				l.editingModeChanged();
 			}
-		} else if (e.getSource() == pickingBox && e.getStateChange() == ItemEvent.SELECTED) {
-			transformingBox.setSelected(false);
-
+		} else if (e.getSource() == pickingButton && e.getStateChange() == ItemEvent.SELECTED) {
 			for (ChangeListener l : listeners) {
 				l.editingModeChanged();
 			}
@@ -470,13 +470,15 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		edgeMaxThickness = DEFAULT_EDGE_MAX_THICKNESS;
 		borderAlpha = DEFAULT_BORDER_ALPHA;
 
-		transformingBox = new JCheckBox("Transforming");
-		transformingBox.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
-		transformingBox.addItemListener(this);
+		transformingButton = new JRadioButton("Transforming");
+		transformingButton.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
+		transformingButton.addItemListener(this);
 
-		pickingBox = new JCheckBox("Picking");
-		pickingBox.setSelected(DEFAULT_MODE != Mode.TRANSFORMING);
-		pickingBox.addItemListener(this);
+		pickingButton = new JRadioButton("Picking");
+		pickingButton.setSelected(DEFAULT_MODE == Mode.PICKING);
+		pickingButton.addItemListener(this);
+
+		UI.groupButtons(transformingButton, pickingButton);
 
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
