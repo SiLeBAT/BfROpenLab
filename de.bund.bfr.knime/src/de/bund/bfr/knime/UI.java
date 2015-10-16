@@ -33,8 +33,10 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -287,6 +289,14 @@ public class UI {
 			}
 
 			container = container.getParent();
+		}
+	}
+
+	public static void groupButtons(JRadioButton... buttons) {
+		ButtonGroup group = new ButtonGroup();
+
+		for (JRadioButton b : buttons) {
+			group.add(b);
 		}
 	}
 }
