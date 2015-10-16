@@ -350,7 +350,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			hasIngredients = true;
 		}
 		if (!hasIngredients) {
-			logWarnings += "No " + (isForTracing ? "Products Out" : "ingredients") + " defined...";
+			logWarnings += "No " + (isForTracing ? "Products Out" : "ingredients") + " defined...\n";
 		}
 		
 		// Opt_ForwardTracing
