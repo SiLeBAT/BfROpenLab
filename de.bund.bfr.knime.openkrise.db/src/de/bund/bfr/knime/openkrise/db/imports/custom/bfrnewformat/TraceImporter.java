@@ -332,6 +332,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// Deliveries/Recipe Inbound
+		boolean hasIngredients = false;
 		label = "Ingredients for Lot(s)";
 		if (isForTracing) label = "Products Out";
 		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, label) + 3;
@@ -346,6 +347,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (d == null) continue;
 			if (!isForTracing && d.getTargetLotIds().size() == 0) exceptions.add(new Exception("Lot number unknown in Row number " + (classRowIndex + 1)));
 			inDeliveries.put(d.getId(), d);
+			hasIngredients = true;
+		}
+		if (!hasIngredients) {
+			logWarnings += "No " + (isForTracing ? "Products Out" : "ingredients") + " defined...";
 		}
 		
 		// Opt_ForwardTracing
