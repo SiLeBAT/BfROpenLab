@@ -82,6 +82,7 @@ public class PlausibleDialog4Krise extends JDialog {
 		contentPanel = new JPanel();
 		label1 = new JLabel();
 		cs = new JCheckBox();
+		separator11 = new JSeparator();
 		label5 = new JLabel();
 		sn = new JSpinner();
 		lz = new JLabel();
@@ -92,18 +93,21 @@ public class PlausibleDialog4Krise extends JDialog {
 		snum = new JSpinner();
 		label9 = new JLabel();
 		sc = new JSpinner();
+		separator12 = new JSeparator();
 		label2 = new JLabel();
 		cp = new JCheckBox();
 		label10 = new JLabel();
 		ps = new JSpinner();
 		label11 = new JLabel();
 		pd = new JSpinner();
+		separator33 = new JSeparator();
 		label3 = new JLabel();
 		cl = new JCheckBox();
 		label12 = new JLabel();
 		la = new JSpinner();
 		label13 = new JLabel();
 		ll = new JSpinner();
+		separator41 = new JSeparator();
 		label4 = new JLabel();
 		cd = new JCheckBox();
 		label15 = new JLabel();
@@ -131,141 +135,158 @@ public class PlausibleDialog4Krise extends JDialog {
 			//======== contentPanel ========
 			{
 				contentPanel.setLayout(new FormLayout(
-					"11*(default, $lcgap), default",
-					"3*(default, $lgap), default"));
-				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{5, 9, 13, 17, 21}, {7, 11, 15, 19, 23}});
+					"12*(default, $lcgap), default",
+					"6*(default, $lgap), default"));
+				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{7, 11, 15, 19, 23}, {9, 13, 17, 21, 25}});
 
 				//---- label1 ----
 				label1.setText("Station:");
 				contentPanel.add(label1, CC.xy(1, 1));
 				contentPanel.add(cs, CC.xy(3, 1));
 
+				//---- separator11 ----
+				separator11.setOrientation(SwingConstants.VERTICAL);
+				separator11.setForeground(Color.black);
+				contentPanel.add(separator11, CC.xywh(5, 1, 1, 13, CC.RIGHT, CC.DEFAULT));
+
 				//---- label5 ----
 				label5.setText("Name:");
 				label5.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label5, CC.xy(5, 1));
+				contentPanel.add(label5, CC.xy(7, 1));
 
 				//---- sn ----
 				sn.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(sn, CC.xy(7, 1));
+				contentPanel.add(sn, CC.xy(9, 1));
 
 				//---- lz ----
 				lz.setText("Zip:");
 				lz.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(lz, CC.xy(9, 1));
+				contentPanel.add(lz, CC.xy(11, 1));
 
 				//---- sz ----
 				sz.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(sz, CC.xy(11, 1));
+				contentPanel.add(sz, CC.xy(13, 1));
 
 				//---- label7 ----
 				label7.setText("Street:");
 				label7.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label7, CC.xy(13, 1));
+				contentPanel.add(label7, CC.xy(15, 1));
 
 				//---- ss ----
 				ss.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(ss, CC.xy(15, 1));
+				contentPanel.add(ss, CC.xy(17, 1));
 
 				//---- label8 ----
 				label8.setText("Number:");
 				label8.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label8, CC.xy(17, 1));
+				contentPanel.add(label8, CC.xy(19, 1));
 
 				//---- snum ----
 				snum.setModel(new SpinnerNumberModel(0, 0, 100, 10));
-				contentPanel.add(snum, CC.xy(19, 1));
+				contentPanel.add(snum, CC.xy(21, 1));
 
 				//---- label9 ----
 				label9.setText("City:");
 				label9.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label9, CC.xy(21, 1));
+				contentPanel.add(label9, CC.xy(23, 1));
 
 				//---- sc ----
 				sc.setModel(new SpinnerNumberModel(90, 0, 100, 10));
-				contentPanel.add(sc, CC.xy(23, 1));
+				contentPanel.add(sc, CC.xy(25, 1));
+
+				//---- separator12 ----
+				separator12.setForeground(Color.black);
+				contentPanel.add(separator12, CC.xywh(1, 3, 25, 1));
 
 				//---- label2 ----
 				label2.setText("Product:");
-				contentPanel.add(label2, CC.xy(1, 3));
-				contentPanel.add(cp, CC.xy(3, 3));
+				contentPanel.add(label2, CC.xy(1, 5));
+				contentPanel.add(cp, CC.xy(3, 5));
 
 				//---- label10 ----
 				label10.setText("Station:");
 				label10.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label10, CC.xy(5, 3));
+				contentPanel.add(label10, CC.xy(7, 5));
 
 				//---- ps ----
 				ps.setModel(new SpinnerNumberModel(100, 0, 100, 10));
 				ps.setEnabled(false);
-				contentPanel.add(ps, CC.xy(7, 3));
+				contentPanel.add(ps, CC.xy(9, 5));
 
 				//---- label11 ----
 				label11.setText("Name:");
 				label11.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label11, CC.xy(9, 3));
+				contentPanel.add(label11, CC.xy(11, 5));
 
 				//---- pd ----
 				pd.setModel(new SpinnerNumberModel(75, 0, 100, 10));
-				contentPanel.add(pd, CC.xy(11, 3));
+				contentPanel.add(pd, CC.xy(13, 5));
+
+				//---- separator33 ----
+				separator33.setForeground(Color.black);
+				contentPanel.add(separator33, CC.xywh(1, 7, 25, 1));
 
 				//---- label3 ----
 				label3.setText("Lot:");
-				contentPanel.add(label3, CC.xy(1, 5));
-				contentPanel.add(cl, CC.xy(3, 5));
+				contentPanel.add(label3, CC.xy(1, 9));
+				contentPanel.add(cl, CC.xy(3, 9));
 
 				//---- label12 ----
 				label12.setText("Article:");
 				label12.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label12, CC.xy(5, 5));
+				contentPanel.add(label12, CC.xy(7, 9));
 
 				//---- la ----
 				la.setModel(new SpinnerNumberModel(100, 0, 100, 10));
 				la.setEnabled(false);
-				contentPanel.add(la, CC.xy(7, 5));
+				contentPanel.add(la, CC.xy(9, 9));
 
 				//---- label13 ----
 				label13.setText("LotNo:");
 				label13.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label13, CC.xy(9, 5));
+				contentPanel.add(label13, CC.xy(11, 9));
 
 				//---- ll ----
 				ll.setModel(new SpinnerNumberModel(75, 0, 100, 10));
-				contentPanel.add(ll, CC.xy(11, 5));
+				contentPanel.add(ll, CC.xy(13, 9));
+
+				//---- separator41 ----
+				separator41.setForeground(Color.black);
+				contentPanel.add(separator41, CC.xywh(1, 11, 25, 1));
 
 				//---- label4 ----
 				label4.setText("Delivery:");
-				contentPanel.add(label4, CC.xy(1, 7));
-				contentPanel.add(cd, CC.xy(3, 7));
+				contentPanel.add(label4, CC.xy(1, 13));
+				contentPanel.add(cd, CC.xy(3, 13));
 
 				//---- label15 ----
 				label15.setText("Lot:");
 				label15.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label15, CC.xy(5, 7));
+				contentPanel.add(label15, CC.xy(7, 13));
 
 				//---- dl ----
 				dl.setModel(new SpinnerNumberModel(100, 0, 100, 10));
 				dl.setEnabled(false);
-				contentPanel.add(dl, CC.xy(7, 7));
+				contentPanel.add(dl, CC.xy(9, 13));
 
 				//---- label16 ----
 				label16.setText("DeliveryDate:");
 				label16.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label16, CC.xy(9, 7));
+				contentPanel.add(label16, CC.xy(11, 13));
 
 				//---- dd ----
 				dd.setModel(new SpinnerNumberModel(0, 0, 100, 10));
-				contentPanel.add(dd, CC.xy(11, 7));
+				contentPanel.add(dd, CC.xy(13, 13));
 
 				//---- label17 ----
 				label17.setText("Recipient:");
 				label17.setHorizontalAlignment(SwingConstants.RIGHT);
-				contentPanel.add(label17, CC.xy(13, 7));
+				contentPanel.add(label17, CC.xy(15, 13));
 
 				//---- dr ----
 				dr.setModel(new SpinnerNumberModel(100, 0, 100, 10));
 				dr.setEnabled(false);
-				contentPanel.add(dr, CC.xy(15, 7));
+				contentPanel.add(dr, CC.xy(17, 13));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -323,6 +344,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	private JPanel contentPanel;
 	private JLabel label1;
 	public JCheckBox cs;
+	private JSeparator separator11;
 	private JLabel label5;
 	public JSpinner sn;
 	private JLabel lz;
@@ -333,18 +355,21 @@ public class PlausibleDialog4Krise extends JDialog {
 	public JSpinner snum;
 	private JLabel label9;
 	public JSpinner sc;
+	private JSeparator separator12;
 	private JLabel label2;
 	public JCheckBox cp;
 	private JLabel label10;
 	public JSpinner ps;
 	private JLabel label11;
 	public JSpinner pd;
+	private JSeparator separator33;
 	private JLabel label3;
 	public JCheckBox cl;
 	private JLabel label12;
 	public JSpinner la;
 	private JLabel label13;
 	public JSpinner ll;
+	private JSeparator separator41;
 	private JLabel label4;
 	public JCheckBox cd;
 	private JLabel label15;
