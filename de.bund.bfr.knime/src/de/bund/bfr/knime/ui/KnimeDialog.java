@@ -32,8 +32,9 @@ public class KnimeDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	public KnimeDialog(Component owner, String title, Dialog.ModalityType modalityType) {
-		super(owner instanceof Window ? (Window) owner : SwingUtilities.getWindowAncestor(owner), title, modalityType);
+	public KnimeDialog(Component parent, String title, Dialog.ModalityType modalityType) {
+		super(parent instanceof Window ? (Window) parent : SwingUtilities.getWindowAncestor(parent), title,
+				modalityType);
 		addWindowListener(new WindowListener() {
 
 			@Override

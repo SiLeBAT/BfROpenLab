@@ -31,13 +31,13 @@ import javax.swing.plaf.UIResource;
 
 import com.google.common.base.Joiner;
 
-public class TableTransferHandler extends TransferHandler implements UIResource {
+public class PropertiesTableTransferHandler extends TransferHandler implements UIResource {
 
 	private static final long serialVersionUID = 1L;
 
 	private JTable table;
 
-	public TableTransferHandler(JTable table) {
+	public PropertiesTableTransferHandler(JTable table) {
 		this.table = table;
 	}
 

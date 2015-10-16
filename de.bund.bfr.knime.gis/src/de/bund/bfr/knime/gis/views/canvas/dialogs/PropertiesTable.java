@@ -72,7 +72,7 @@ public class PropertiesTable extends JTable {
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setDefaultRenderer(Boolean.class, new BooleanObjectCellRenderer());
 		setDefaultRenderer(Double.class, new DoubleCellRenderer());
-		setTransferHandler(new TableTransferHandler(this));
+		setTransferHandler(new PropertiesTableTransferHandler(this));
 		UI.packColumns(this, 200);
 	}
 

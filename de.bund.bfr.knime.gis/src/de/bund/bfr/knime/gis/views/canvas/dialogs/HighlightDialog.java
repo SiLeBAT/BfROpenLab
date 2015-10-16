@@ -120,7 +120,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	private JCheckBox zeroAsMinimumBox;
 
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
-	private List<JComboBox<String>> logicalPropertyBoxes;
+	private List<PropertySelecter> logicalPropertyBoxes;
 	private List<JComboBox<String>> logicalTypeBoxes;
 	private List<AutoSuggestField> logicalValueFields;
 	private List<JButton> logicalAddButtons;
@@ -380,9 +380,9 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	public void itemStateChanged(ItemEvent e) {
 		if (logicalPropertyBoxes.contains(e.getSource())) {
 			int index = logicalPropertyBoxes.indexOf(e.getSource());
-			JComboBox<String> propertyBox = logicalPropertyBoxes.get(index);
+			PropertySelecter propertyBox = logicalPropertyBoxes.get(index);
 			AutoSuggestField valueField = logicalValueFields.get(index);
-			Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedItem());
+			Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedProperty());
 
 			valueField.setPossibleValues(possibleValues);
 		}
@@ -409,6 +409,10 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 	public boolean isApproved() {
 		return approved;
+	}
+
+	protected PropertySelecter createPropertySelecter(Set<String> properties) {
+		return new PropertySelectionBox(KnimeUtils.OBJECT_ORDERING.sortedCopy(properties));
 	}
 
 	private void updateOptionsPanel() {
@@ -460,15 +464,14 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
-				JComboBox<String> propertyBox = new JComboBox<>(
-						new Vector<>(KnimeUtils.OBJECT_ORDERING.sortedCopy(schema.getMap().keySet())));
+				PropertySelecter propertyBox = createPropertySelecter(schema.getMap().keySet());
 				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());
 				JButton addButton = new JButton("Add");
 				JButton removeButton = new JButton("Remove");
 
-				propertyBox.setSelectedItem(cond.getProperty());
+				propertyBox.setSelectedProperty(cond.getProperty());
 				propertyBox.addItemListener(this);
 				typeBox.setSelectedItem(cond.getType());
 				valueField.setPossibleValues(possibleValues);
@@ -491,7 +494,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				logicalAddButtons.add(addButton);
 				logicalRemoveButtons.add(removeButton);
 
-				logicalPanel.add(propertyBox, UI.centerConstraints(1, row));
+				logicalPanel.add(propertyBox.getComponent(), UI.centerConstraints(1, row));
 				logicalPanel.add(typeBox, UI.centerConstraints(2, row));
 				logicalPanel.add(valueField, UI.fillConstraints(3, row));
 				logicalPanel.add(addButton, UI.centerConstraints(4, row));
@@ -623,7 +626,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				}
 			}
 
-			String property = (String) logicalPropertyBoxes.get(i).getSelectedItem();
+			String property = logicalPropertyBoxes.get(i).getSelectedProperty();
 			String type = (String) logicalTypeBoxes.get(i).getSelectedItem();
 			String value = (String) logicalValueFields.get(i).getSelectedItem();
 

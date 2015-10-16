@@ -55,7 +55,7 @@ import javax.swing.table.TableColumnModel;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTable;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.TableTransferHandler;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesTableTransferHandler;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -140,7 +140,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		inputTable = new InputTable(inputTableHeader, elementList);
 		inputTable.getColumn(InputTable.INPUT).getCellEditor().addCellEditorListener(this);
 		inputTable.getSelectionModel().addListSelectionListener(this);
-		inputTable.setTransferHandler(new TableTransferHandler(table));
+		inputTable.setTransferHandler(new PropertiesTableTransferHandler(table));
 		values = new LinkedHashMap<>();
 		updateValues();
 
