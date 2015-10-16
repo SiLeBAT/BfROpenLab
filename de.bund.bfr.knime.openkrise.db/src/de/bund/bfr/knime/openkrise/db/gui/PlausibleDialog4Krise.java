@@ -54,6 +54,10 @@ public class PlausibleDialog4Krise extends JDialog {
 		dispose();
 	}
 
+	private void button1ActionPerformed(ActionEvent e) {
+		// TODO add your code here
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner non-commercial license
@@ -94,6 +98,7 @@ public class PlausibleDialog4Krise extends JDialog {
 		buttonBar = new JPanel();
 		okButton = new JButton();
 		cancelButton = new JButton();
+		button1 = new JButton();
 
 		//======== this ========
 		setTitle("SimSearch Options");
@@ -251,7 +256,7 @@ public class PlausibleDialog4Krise extends JDialog {
 			{
 				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setLayout(new FormLayout(
-					"$glue, $button, $rgap, $button",
+					"$glue, $button, $rgap, $button, $lcgap, default",
 					"pref"));
 
 				//---- okButton ----
@@ -273,6 +278,19 @@ public class PlausibleDialog4Krise extends JDialog {
 					}
 				});
 				buttonBar.add(cancelButton, CC.xy(4, 1));
+
+				//---- button1 ----
+				button1.setText("Help");
+				button1.setPreferredSize(new Dimension(65, 23));
+				button1.setMinimumSize(new Dimension(65, 23));
+				button1.setMaximumSize(new Dimension(65, 23));
+				button1.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button1ActionPerformed(e);
+					}
+				});
+				buttonBar.add(button1, CC.xy(6, 1));
 			}
 			dialogPane.add(buttonBar, BorderLayout.SOUTH);
 		}
@@ -321,5 +339,6 @@ public class PlausibleDialog4Krise extends JDialog {
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;
+	private JButton button1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

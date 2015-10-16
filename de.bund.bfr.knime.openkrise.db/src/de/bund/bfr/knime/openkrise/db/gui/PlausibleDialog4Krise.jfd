@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.2.1.0.138" Java: "1.7.0_75" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.2.0.199" Java: "1.8.0_05" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -304,7 +304,7 @@ new FormModel {
 					"value": "Center"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "glue, button, relgap, button"
+					"$columnSpecs": "glue, button, relgap, button, labelcompgap, default"
 					"$rowSpecs": "pref"
 				} ) {
 					name: "buttonBar"
@@ -323,6 +323,17 @@ new FormModel {
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelButtonActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 4
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "button1"
+						"text": "Help"
+						"preferredSize": new java.awt.Dimension( 65, 23 )
+						"minimumSize": new java.awt.Dimension( 65, 23 )
+						"maximumSize": new java.awt.Dimension( 65, 23 )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 6
 						"gridY": 1
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
