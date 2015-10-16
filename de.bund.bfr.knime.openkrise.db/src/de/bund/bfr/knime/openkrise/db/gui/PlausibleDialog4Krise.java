@@ -25,7 +25,9 @@ package de.bund.bfr.knime.openkrise.db.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
+
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
@@ -55,7 +57,22 @@ public class PlausibleDialog4Krise extends JDialog {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
-		// TODO add your code here
+		// Direkter Zugang zur SimSuche über Menü! Mergen Selbsterklärender machen!
+		String help = "Firstly:\n";
+		help += "Decide which entity you want to check for similarity.\n";
+		help += "You have the choice between 'Station', 'Product', 'Lot' and 'Delivery'.\n\n";
+		help += "Secondly:\n";
+		help += "You may decide for each parameter the similarity in [%]:\n";
+		help += "Example:\n";
+		help += "A value of 100 means that two items are treated as 'similar' only if they are to 100% identical.\n";
+		help += "A value of 80 means that two items are treated as 'similar' if they are at least 80% identical.\n";
+		help += "A value of 0 means that two items are always treated as 'similar'.\n";
+		help += "\nThe parameters are entity dependant, i.e. each entity has its individual parameters.\n";
+		help += "Be aware: all parameter similarity definitions are 'AND'-connected.\n";
+		help += "\nThe algorithm behind the scenes is the Dice's similarity coefficient,\nsee: https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient";
+		
+		InfoBox ib = new InfoBox(help, true, new Dimension(800, 400), null, true);
+		ib.setVisible(true);
 	}
 
 	private void initComponents() {

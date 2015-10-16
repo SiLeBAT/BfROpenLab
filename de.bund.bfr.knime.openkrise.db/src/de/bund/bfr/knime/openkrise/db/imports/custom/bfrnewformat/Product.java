@@ -40,7 +40,7 @@ public class Product {
 	}
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (dbId != null) return dbId;
-		Integer retId = getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId, mydbi);
+		Integer retId = station == null ? null : getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId, mydbi);
 		dbId = retId;
 		return retId;
 	}
