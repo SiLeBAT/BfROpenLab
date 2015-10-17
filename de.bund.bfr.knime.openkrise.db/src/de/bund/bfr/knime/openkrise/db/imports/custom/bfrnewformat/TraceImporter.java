@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JProgressBar;
@@ -44,7 +44,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	
 	private String logMessages = "";
 	private String logWarnings = "";
+	private Map<String, Set<String>> warns = new HashMap<>();
 	
+	public Map<String, Set<String>> getLastWarnings() {
+		return warns;
+	}
 	public String getLogWarnings() {
 		return logWarnings;
 	}
@@ -194,7 +198,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					exceptions.add(e);
 				}
 				if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-				//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			}
 			
 			HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
@@ -212,43 +215,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				hd.add(dl.getIngredient().getDbId());
 			}
 
-			//DBKernel.sendRequest("COMMIT", false);
-			//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
-			/*
-			HashMap<Integer, String> hm = new HashMap<>(); 
-			for (Delivery d : deliveries.values()) { // ingredients.keySet()
-				HashSet<Delivery> ingredsDB = D2D.getIngredients(d.getLot().getDbId());
-				HashSet<Integer> ingredsExcel; 
-				if (ingredients.containsKey(d)) ingredsExcel = ingredients.get(d);
-				else ingredsExcel = new HashSet<Integer>(); 
-				for (Delivery dId : ingredsDB) {
-					if (!ingredsExcel.contains(dId.getDbId().intValue())) {
-						if (!hm.containsKey(d.getLot().getDbId())) {
-							String w = "All ingredients of lot number '" + d.getLot().getNumber() + "' of product '" + (d.getLot().getProduct() == null ? "..." : d.getLot().getProduct().getName()) + "':\n";
-							for (Delivery dId2 : ingredsDB) {
-								w += "Station: '" + dId2.getComment() + "' ,Product: '" + dId2.getId() + "' , Lot: '" + dId2.getTargetLotId() + "'\n";
-							}
-							w = w.substring(0, w.length() - 1) + "\nMissing delivery2delivery:\n";
-							hm.put(d.getLot().getDbId(), w);
-						}
-						hm.put(d.getLot().getDbId(), hm.get(d.getLot().getDbId()) + "'" + dId.getUnitUnit() + "' -> '" + d.getId() + "'\n");
-/*
-						logWarnings += "There is an ingredient (" + (dId.getId() == null ? "?" : dId.getId()) + ", Lot: " + dId.getTargetLotId() + ") undefined for lot '" + d.getLot().getNumber() + "', which is defined for that lot elsewhere...\n"+
-								"Maybe it is a typo in lot typing? Or did you forget to define that ingredient?\n"+
-								"Anyway, we assumed to integrate all ingredients to that lot.\n"+
-								"If that is different from what you intended, please correct the Excel sheet, reset database and try to import your data again!\n"+
-								"-> Delivery ID: '" + d.getId() + "' in '" + filename + "'\n\n";
-								*//*
-					}
-				}
-			}
-			if (hm.size() > 0) {
-				logWarnings += "In '" + filename + "':\n";
-				for (Integer ln : hm.keySet()) {
-					logWarnings += hm.get(ln) + "\n";
-				}
-			}
-*/
 			return exceptions;
 		}
 		
@@ -402,13 +368,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, true, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId, mydbi);
@@ -421,7 +385,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId, true, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).getDbId().intValue() != d.getLot().getDbId()) {
 				Lot ol = lotDbNumber.get(d.getLot().getNumber());
 				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
@@ -439,7 +402,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId, mydbi);
@@ -449,7 +411,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		for (Delivery d : forwDeliveries) {
 			d.getID(miDbId, false, mydbi);
 			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
-			//if (!d.getLogWarnings().isEmpty()) logWarnings += d.getLogWarnings() + "\n";
 		}
 	}
 	private boolean isBlockEnd(Row row, int numCols2Check, String nextBlockIdentifier) {
@@ -639,7 +600,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		String str = getStr(cell);
 		if (str != null) {l.setNumber(str);}
 		else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
-		//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n";}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
@@ -717,7 +677,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			cell = row.getCell(1);
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}
 			else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n"));}
-			//else {logWarnings += "Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n";}
 			l.setNumber(lotNumber);
 			if (lotNumber == null && p.getName() == null) {
 				exceptions.add(new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1)));
@@ -879,7 +838,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
-					Set<String> warns = new LinkedHashSet<>();
+					warns = new HashMap<>();
 					if (exceptions != null && exceptions.size() > 0) {
 						if (existsDBKernel()) {
 							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection());
@@ -889,9 +848,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						else if (mydbi != null) {
 							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
 						}
-						for (String w : warns) {
-							w += "\n";
-							logWarnings += w;
+						for (String key : warns.keySet()) {
+							logWarnings += "\n" + key + ":\n";
+							for (String w : warns.get(key)) {
+								logWarnings += w + "\n";
+							}
 						}
 						logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n";
 						for (Exception e : exceptions) {
@@ -928,9 +889,11 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						else if (mydbi != null) {
 							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
 						}
-						for (String w : warns) {
-							w += "\n";
-							logWarnings += w;
+						for (String key : warns.keySet()) {
+							logWarnings += "\n" + key + ":\n";
+							for (String w : warns.get(key)) {
+								logWarnings += w + "\n";
+							}
 						}
 						is.close();
 					}

@@ -33,7 +33,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.isSerialPossible(conn);
 		Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
 		Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
-		Set<String> warnings = new LinkedHashSet<>();
+		Map<String, Set<String>> warnings = new HashMap<>();
 
 		Map<String, Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec);
@@ -112,8 +112,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
 
 		if (!warnings.isEmpty()) {
-			for (String warning : warnings) {
-				setWarningMessage(warning);
+			for (String key : warnings.keySet()) {
+				setWarningMessage(key + ":");
+				for (String w : warnings.get(key)) {
+					setWarningMessage(w);
+				}
 			}
 
 			setWarningMessage("Look into the console - there are plausibility issues...");
