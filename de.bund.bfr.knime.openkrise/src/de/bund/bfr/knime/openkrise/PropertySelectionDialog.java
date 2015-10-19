@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.views.canvas;
+package de.bund.bfr.knime.openkrise;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

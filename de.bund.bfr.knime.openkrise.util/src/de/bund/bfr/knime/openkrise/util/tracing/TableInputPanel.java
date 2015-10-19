@@ -57,6 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 
 public class TableInputPanel<T> extends JPanel
 		implements ActionListener, RowSorterListener, CellEditorListener, ListSelectionListener {
@@ -158,7 +159,8 @@ public class TableInputPanel<T> extends JPanel
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, condition);
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, condition,
+					new TracingPropertySelectorCreator());
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);

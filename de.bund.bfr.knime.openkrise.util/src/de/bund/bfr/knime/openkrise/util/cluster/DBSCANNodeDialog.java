@@ -46,6 +46,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
@@ -160,7 +161,8 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, set.getFilter());
+			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, set.getFilter(),
+					new TracingPropertySelectorCreator());
 
 			dialog.setLocationRelativeTo(filterButton);
 			dialog.setVisible(true);

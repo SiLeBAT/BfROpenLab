@@ -20,31 +20,17 @@
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.awt.Component;
-import java.util.List;
-import java.util.Vector;
+import java.awt.event.ItemListener;
 
-import javax.swing.JComboBox;
+public interface PropertySelector {
 
-public class PropertySelectionBox extends JComboBox<String>implements PropertySelector {
+	Component getComponent();
 
-	private static final long serialVersionUID = 1L;
+	String getSelectedProperty();
 
-	public PropertySelectionBox(List<String> properties) {
-		super(new Vector<>(properties));
-	}
+	void setSelectedProperty(String property);
 
-	@Override
-	public Component getComponent() {
-		return this;
-	}
+	void addItemListener(ItemListener listener);
 
-	@Override
-	public String getSelectedProperty() {
-		return (String) getSelectedItem();
-	}
-
-	@Override
-	public void setSelectedProperty(String property) {
-		setSelectedItem(property);
-	}
+	void removeItemListener(ItemListener listener);
 }

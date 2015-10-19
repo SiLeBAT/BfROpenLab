@@ -50,7 +50,6 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -120,7 +119,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	private JCheckBox zeroAsMinimumBox;
 
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
-	private List<PropertySelecter> logicalPropertyBoxes;
+	private List<PropertySelector> logicalPropertyBoxes;
 	private List<JComboBox<String>> logicalTypeBoxes;
 	private List<AutoSuggestField> logicalValueFields;
 	private List<JButton> logicalAddButtons;
@@ -134,23 +133,28 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	private boolean allowLabel;
 	private List<HighlightConditionChecker> checkers;
 
+	private PropertySelectorCreator selectorCreator;
+
 	private HighlightCondition condition;
 	private boolean approved;
 
 	public static HighlightDialog createFilterDialog(Component owner, PropertySchema schema,
-			HighlightCondition condition) {
-		return new HighlightDialog(owner, schema, false, false, false, false, false, true, condition, null);
+			HighlightCondition condition, PropertySelectorCreator selectorCreator) {
+		return new HighlightDialog(owner, schema, false, false, false, false, false, true, condition, null,
+				selectorCreator);
 	}
 
 	public static HighlightDialog createHighlightDialog(Component owner, PropertySchema schema, boolean allowInvisible,
-			boolean allowThickness, HighlightCondition condition, List<HighlightConditionChecker> checkers) {
+			boolean allowThickness, HighlightCondition condition, List<HighlightConditionChecker> checkers,
+			PropertySelectorCreator selectorCreator) {
 		return new HighlightDialog(owner, schema, true, true, allowInvisible, allowThickness, true, false, condition,
-				checkers);
+				checkers, selectorCreator);
 	}
 
 	private HighlightDialog(Component owner, PropertySchema schema, boolean allowName, boolean allowColor,
 			boolean allowInvisible, boolean allowThickness, boolean allowLabel, boolean onlyAllowLogical,
-			HighlightCondition condition, List<HighlightConditionChecker> checkers) {
+			HighlightCondition condition, List<HighlightConditionChecker> checkers,
+			PropertySelectorCreator selectorCreator) {
 		super(owner, "Highlight Condition", DEFAULT_MODALITY_TYPE);
 		this.schema = schema;
 		this.allowName = allowName;
@@ -159,6 +163,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		this.allowThickness = allowThickness;
 		this.allowLabel = allowLabel;
 		this.checkers = checkers;
+		this.selectorCreator = selectorCreator;
 		this.condition = null;
 		approved = false;
 		lastColor = Color.RED;
@@ -380,7 +385,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	public void itemStateChanged(ItemEvent e) {
 		if (logicalPropertyBoxes.contains(e.getSource())) {
 			int index = logicalPropertyBoxes.indexOf(e.getSource());
-			PropertySelecter propertyBox = logicalPropertyBoxes.get(index);
+			PropertySelector propertyBox = logicalPropertyBoxes.get(index);
 			AutoSuggestField valueField = logicalValueFields.get(index);
 			Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedProperty());
 
@@ -409,10 +414,6 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 	public boolean isApproved() {
 		return approved;
-	}
-
-	protected PropertySelecter createPropertySelecter(Set<String> properties) {
-		return new PropertySelectionBox(KnimeUtils.OBJECT_ORDERING.sortedCopy(properties));
 	}
 
 	private void updateOptionsPanel() {
@@ -464,7 +465,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
-				PropertySelecter propertyBox = createPropertySelecter(schema.getMap().keySet());
+				PropertySelector propertyBox = selectorCreator.createSelector(schema.getMap().keySet());
 				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());

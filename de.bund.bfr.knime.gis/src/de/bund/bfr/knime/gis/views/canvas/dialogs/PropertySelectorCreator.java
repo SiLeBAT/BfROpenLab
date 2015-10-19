@@ -19,18 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
-import java.awt.Component;
-import java.awt.event.ItemListener;
+import java.util.Set;
 
-public interface PropertySelecter {
+public interface PropertySelectorCreator {
 
-	Component getComponent();
-
-	String getSelectedProperty();
-
-	void setSelectedProperty(String property);
-
-	void addItemListener(ItemListener listener);
-
-	void removeItemListener(ItemListener listener);
+	PropertySelector createSelector(Set<String> properties);
 }

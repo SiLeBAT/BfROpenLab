@@ -62,11 +62,13 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.KnimeUtils;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.DefaultPropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -795,7 +797,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodeSaveMap.values()));
 
-		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, nodeSchema, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, nodeSchema, null,
+				createPropertySelectorCreator());
 
 		dialog.setVisible(true);
 
@@ -809,7 +812,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		edgeSchema.getPossibleValues().clear();
 		edgeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(edgeSaveMap.values()));
 
-		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, edgeSchema, null);
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(this, edgeSchema, null,
+				createPropertySelectorCreator());
 
 		dialog.setVisible(true);
 
@@ -1317,7 +1321,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		nodeSchema.getPossibleValues().clear();
 		nodeSchema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(nodeSaveMap.values()));
 
-		return new HighlightListDialog(this, nodeSchema, nodeHighlightConditions);
+		HighlightListDialog dialog = new HighlightListDialog(this, nodeSchema, nodeHighlightConditions);
+
+		dialog.setSelectorCreator(createPropertySelectorCreator());
+
+		return dialog;
 	}
 
 	protected HighlightListDialog openEdgeHighlightDialog() {
@@ -1326,6 +1334,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema, edgeHighlightConditions);
 
+		dialog.setSelectorCreator(createPropertySelectorCreator());
 		dialog.addChecker(new HighlightConditionChecker() {
 
 			@Override
@@ -1341,6 +1350,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		});
 
 		return dialog;
+	}
+
+	protected PropertySelectorCreator createPropertySelectorCreator() {
+		return new DefaultPropertySelectorCreator();
 	}
 
 	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {

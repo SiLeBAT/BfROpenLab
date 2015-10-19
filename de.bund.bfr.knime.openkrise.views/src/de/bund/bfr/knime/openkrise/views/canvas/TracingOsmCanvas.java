@@ -26,11 +26,13 @@ import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
@@ -232,5 +234,10 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 		dialog.addChecker(new TracingDelegate.HighlightChecker());
 
 		return dialog;
+	}
+
+	@Override
+	protected PropertySelectorCreator createPropertySelectorCreator() {
+		return new TracingPropertySelectorCreator();
 	}
 }

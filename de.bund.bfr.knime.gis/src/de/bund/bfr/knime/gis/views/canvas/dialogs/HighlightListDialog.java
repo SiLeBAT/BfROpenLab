@@ -41,6 +41,7 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -70,6 +71,8 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 	private List<HighlightConditionChecker> checkers;
 	private HighlightCondition autoAddCondition;
 
+	private PropertySelectorCreator selectorCreator;
+
 	private HighlightConditionList highlightConditions;
 	private boolean approved;
 
@@ -84,6 +87,7 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		checkers = new ArrayList<>();
 		autoAddCondition = null;
 		approved = false;
+		selectorCreator = new DefaultPropertySelectorCreator();
 
 		list = new JList<>();
 		list.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -143,6 +147,14 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		UI.adjustDialog(this);
 		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
+	}
+
+	public PropertySelectorCreator getSelectorCreator() {
+		return selectorCreator;
+	}
+
+	public void setSelectorCreator(PropertySelectorCreator selectorCreator) {
+		this.selectorCreator = selectorCreator;
 	}
 
 	public boolean isAllowInvisible() {
@@ -233,7 +245,7 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 
 		if (e.getClickCount() == 2 && i != -1) {
 			HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
-					highlightConditions.getConditions().get(i), checkers);
+					highlightConditions.getConditions().get(i), checkers, selectorCreator);
 
 			dialog.setVisible(true);
 
@@ -293,7 +305,7 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 
 	private void addCondition(HighlightCondition condition) {
 		HighlightDialog dialog = HighlightDialog.createHighlightDialog(this, schema, allowInvisible, allowThickness,
-				condition, checkers);
+				condition, checkers, selectorCreator);
 
 		dialog.setVisible(true);
 
@@ -306,5 +318,4 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 	private void updateList() {
 		list.setListData(highlightConditions.getConditions().toArray(new HighlightCondition[0]));
 	}
-
 }
