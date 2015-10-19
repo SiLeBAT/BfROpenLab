@@ -23,7 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class PropertySchema {
+public abstract class PropertySchema {
+
+	public static enum Type {
+		NODE, EDGE
+	}
 
 	private Map<String, Class<?>> map;
 	private Map<String, Set<String>> possibleValues;
@@ -40,4 +44,6 @@ public class PropertySchema {
 	public Map<String, Set<String>> getPossibleValues() {
 		return possibleValues;
 	}
+
+	public abstract Type getType();
 }

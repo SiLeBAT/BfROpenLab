@@ -50,4 +50,9 @@ public class EdgePropertySchema extends PropertySchema {
 	public String getTo() {
 		return to;
 	}
+
+	@Override
+	public Type getType() {
+		return Type.EDGE;
+	}
 }

@@ -19,9 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
-import java.util.Set;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
 public interface PropertySelectorCreator {
 
-	PropertySelector createSelector(Set<String> properties);
+	PropertySelector createSelector(PropertySchema schema);
 }

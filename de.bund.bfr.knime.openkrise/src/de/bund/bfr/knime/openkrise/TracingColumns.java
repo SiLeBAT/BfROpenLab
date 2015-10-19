@@ -48,23 +48,6 @@ public interface TracingColumns {
 	public static final String BACKWARD = "Backward";
 	public static final String FORWARD = "Forward";
 
-	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
-			KILL_CONTAMINATION, OBSERVED);
-	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,
-			NEGATIVE_SCORE, BACKWARD, FORWARD);
-	public static final ImmutableMap<String, DataType> COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
-			.put(TracingColumns.WEIGHT, DoubleCell.TYPE).put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE)
-			.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE).put(TracingColumns.SCORE, DoubleCell.TYPE)
-			.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE).put(TracingColumns.POSITIVE_SCORE, DoubleCell.TYPE)
-			.put(TracingColumns.NEGATIVE_SCORE, DoubleCell.TYPE).put(TracingColumns.OBSERVED, BooleanCell.TYPE)
-			.put(TracingColumns.BACKWARD, BooleanCell.TYPE).put(TracingColumns.FORWARD, BooleanCell.TYPE).build();
-	public static final ImmutableMap<String, Class<?>> COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
-			.put(TracingColumns.WEIGHT, Double.class).put(TracingColumns.CROSS_CONTAMINATION, Boolean.class)
-			.put(TracingColumns.KILL_CONTAMINATION, Boolean.class).put(TracingColumns.SCORE, Double.class)
-			.put(TracingColumns.NORMALIZED_SCORE, Double.class).put(TracingColumns.POSITIVE_SCORE, Double.class)
-			.put(TracingColumns.NEGATIVE_SCORE, Double.class).put(TracingColumns.OBSERVED, Boolean.class)
-			.put(TracingColumns.BACKWARD, Boolean.class).put(TracingColumns.FORWARD, Boolean.class).build();
-
 	public static final String CLUSTER_ID = "ClusterID";
 	public static final String ADDRESS = "Address";
 	public static final String DELIVERY_DEPARTURE = "Date Delivery";
@@ -111,4 +94,26 @@ public interface TracingColumns {
 	public static final String DELIVERY_USAGE = "IntendedUse"; // deprecated
 	public static final String DELIVERY_DATEEXP = "Date Expiration"; // deprecated
 	public static final String DELIVERY_DATEMANU = "Date Manufactoring"; // deprecated
+
+	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, STATION_NAME, STATION_NODE);
+	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, FROM, TO, DELIVERY_ITEMNAME);
+	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
+			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
+			STATION_COUNTY);
+	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
+			KILL_CONTAMINATION, OBSERVED);
+	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,
+			NEGATIVE_SCORE, BACKWARD, FORWARD);
+	public static final ImmutableMap<String, DataType> COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
+			.put(TracingColumns.WEIGHT, DoubleCell.TYPE).put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE)
+			.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE).put(TracingColumns.SCORE, DoubleCell.TYPE)
+			.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE).put(TracingColumns.POSITIVE_SCORE, DoubleCell.TYPE)
+			.put(TracingColumns.NEGATIVE_SCORE, DoubleCell.TYPE).put(TracingColumns.OBSERVED, BooleanCell.TYPE)
+			.put(TracingColumns.BACKWARD, BooleanCell.TYPE).put(TracingColumns.FORWARD, BooleanCell.TYPE).build();
+	public static final ImmutableMap<String, Class<?>> COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
+			.put(TracingColumns.WEIGHT, Double.class).put(TracingColumns.CROSS_CONTAMINATION, Boolean.class)
+			.put(TracingColumns.KILL_CONTAMINATION, Boolean.class).put(TracingColumns.SCORE, Double.class)
+			.put(TracingColumns.NORMALIZED_SCORE, Double.class).put(TracingColumns.POSITIVE_SCORE, Double.class)
+			.put(TracingColumns.NEGATIVE_SCORE, Double.class).put(TracingColumns.OBSERVED, Boolean.class)
+			.put(TracingColumns.BACKWARD, Boolean.class).put(TracingColumns.FORWARD, Boolean.class).build();
 }

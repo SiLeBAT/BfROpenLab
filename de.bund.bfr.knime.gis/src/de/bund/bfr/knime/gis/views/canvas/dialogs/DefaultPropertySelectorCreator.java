@@ -20,12 +20,13 @@
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.util.ArrayList;
-import java.util.Set;
+
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
 public class DefaultPropertySelectorCreator implements PropertySelectorCreator {
 
 	@Override
-	public PropertySelector createSelector(Set<String> properties) {
-		return new PropertySelectionBox(new ArrayList<>(properties));
+	public PropertySelector createSelector(PropertySchema schema) {
+		return new PropertySelectionBox(new ArrayList<>(schema.getMap().keySet()));
 	}
 }

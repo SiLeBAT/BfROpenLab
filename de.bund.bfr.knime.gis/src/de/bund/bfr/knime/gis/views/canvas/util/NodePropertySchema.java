@@ -59,4 +59,9 @@ public class NodePropertySchema extends PropertySchema {
 	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
+
+	@Override
+	public Type getType() {
+		return Type.NODE;
+	}
 }

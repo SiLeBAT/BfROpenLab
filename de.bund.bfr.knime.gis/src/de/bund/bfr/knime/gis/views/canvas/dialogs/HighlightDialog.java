@@ -465,7 +465,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			boolean first = true;
 
 			for (LogicalHighlightCondition cond : conds) {
-				PropertySelector propertyBox = selectorCreator.createSelector(schema.getMap().keySet());
+				PropertySelector propertyBox = selectorCreator.createSelector(schema);
 				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());
