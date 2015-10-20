@@ -101,8 +101,9 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		defaultHighlightItem = new JMenuItem("Set default Highlighting");
 		defaultHighlightItem.addActionListener(this);
 
-		canvas.getOptionsPanel().addOption("Enforce Temporal Order", enforceTemporalOrderBox);
-		canvas.getOptionsPanel().addOption("Show Cross Contaminated " + canvas.getNaming().Edges(), showForwardBox);
+		canvas.getOptionsPanel().addOption("Enforce Temporal Order", true, enforceTemporalOrderBox);
+		canvas.getOptionsPanel().addOption("Show Cross Contaminated " + canvas.getNaming().Edges(), true,
+				showForwardBox);
 		canvas.getPopupMenu().add(new JSeparator());
 		canvas.getPopupMenu().add(defaultHighlightItem);
 		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));

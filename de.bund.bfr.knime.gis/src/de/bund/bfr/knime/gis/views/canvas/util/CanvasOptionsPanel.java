@@ -35,7 +35,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -77,7 +76,13 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 	private static final int[] EDGE_THICKNESSES = { 1, 2, 3, 5, 10 };
 	private static final Integer[] EDGE_MAX_THICKNESSES = { null, 2, 3, 5, 10, 20 };
 
+	private static final String SHOW_ADVANCED = "<html>Show Advanced<br>Options</html>";
+	private static final String HIDE_ADVANCED = "<html>Hide Advanced<br>Options</html>";
+
 	private JPanel panel;
+	private JPanel standardPanel;
+	private JPanel advancedPanel;
+	private JButton advancedButton;
 
 	private JRadioButton transformingButton;
 	private JRadioButton pickingButton;
@@ -111,51 +116,53 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			boolean allowGisLocations) {
 		init();
 
+		standardPanel = new JPanel();
+		standardPanel.setLayout(new BoxLayout(standardPanel, BoxLayout.X_AXIS));
+		advancedPanel = new JPanel();
+		advancedPanel.setLayout(new BoxLayout(advancedPanel, BoxLayout.X_AXIS));
+		advancedButton = new JButton(SHOW_ADVANCED);
+		advancedButton.addActionListener(this);
+
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		panel.add(getOptionPanel("Editing Mode", transformingButton, pickingButton));
+		panel.add(standardPanel);
 		panel.add(Box.createHorizontalStrut(5));
-		panel.add(getOptionPanel("Show Legend", showLegendBox));
-		panel.add(Box.createHorizontalStrut(5));
-		panel.add(getOptionPanel("Font", fontSizeBox, fontBoldBox));
-		panel.add(getOptionPanel("Label", labelField, labelButton));
+		panel.add(advancedButton);
+
+		addOption("Editing Mode", false, transformingButton, pickingButton);
+		addOption("Show Legend", false, showLegendBox);
+		addOption("Label", true, labelField, labelButton);
 
 		if (allowEdges) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Join " + owner.getNaming().Edges(), joinEdgesBox));
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Arrow in Middle", arrowInMiddleBox));
+			addOption("Join " + owner.getNaming().Edges(), false, joinEdgesBox);
+			addOption("Arrow in Middle", false, arrowInMiddleBox);
 		}
 
 		if (allowEdges && allowNodeResize) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Skip Unconnected " + owner.getNaming().Nodes(), skipEdgelessNodesBox));
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Show " + owner.getNaming().Edges() + " in Meta " + owner.getNaming().Node(),
-					showEdgesInMetaNodeBox));
+			addOption("Skip Unconnected " + owner.getNaming().Nodes(), false, skipEdgelessNodesBox);
+			addOption("Show " + owner.getNaming().Edges() + " in Meta " + owner.getNaming().Node(), true,
+					showEdgesInMetaNodeBox);
 		}
 
+		addOption("Font", false, fontSizeBox, fontBoldBox);
+
 		if (allowNodeResize) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Node() + " Size", new JLabel("Min:"), nodeSizeBox,
-					Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox));
+			addOption(owner.getNaming().Node() + " Size", false, new JLabel("Min:"), nodeSizeBox,
+					Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox);
 		}
 
 		if (allowEdges) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel(owner.getNaming().Edge() + " Thickness", new JLabel("Min:"), edgeThicknessBox,
-					Box.createHorizontalStrut(5), new JLabel("Max:"), edgeMaxThicknessBox));
+			addOption(owner.getNaming().Edge() + " Thickness", false, new JLabel("Min:"), edgeThicknessBox,
+					Box.createHorizontalStrut(5), new JLabel("Max:"), edgeMaxThicknessBox);
 		}
 
 		if (allowPolygons) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Border Alpha", borderAlphaSlider, borderAlphaButton));
+			addOption("Border Alpha", true, borderAlphaSlider, borderAlphaButton);
 		}
 
 		if (allowGisLocations) {
-			panel.add(Box.createHorizontalStrut(5));
-			panel.add(getOptionPanel("Avoid Overlay", avoidOverlayBox));
+			addOption("Avoid Overlay", false, avoidOverlayBox);
 		}
 
 		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
@@ -173,9 +180,14 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		listeners.remove(listener);
 	}
 
-	public void addOption(String name, JComponent... components) {
-		panel.add(Box.createHorizontalStrut(5));
-		panel.add(getOptionPanel(name, components));
+	public void addOption(String name, boolean advanced, Component... components) {
+		JPanel p = advanced ? advancedPanel : standardPanel;
+
+		if (p.getComponentCount() > 0) {
+			p.add(Box.createHorizontalStrut(5));
+		}
+
+		p.add(getOptionPanel(name, components));
 	}
 
 	public Mode getEditingMode() {
@@ -313,7 +325,19 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == borderAlphaButton) {
+		if (e.getSource() == advancedButton) {
+			if (advancedButton.getText().equals(SHOW_ADVANCED)) {
+				advancedButton.setText(HIDE_ADVANCED);
+				panel.add(Box.createHorizontalStrut(5));
+				panel.add(advancedPanel);
+				panel.revalidate();
+			} else if (advancedButton.getText().equals(HIDE_ADVANCED)) {
+				advancedButton.setText(SHOW_ADVANCED);
+				panel.remove(panel.getComponentCount() - 1);
+				panel.remove(panel.getComponentCount() - 1);
+				panel.revalidate();
+			}
+		} else if (e.getSource() == borderAlphaButton) {
 			borderAlpha = borderAlphaSlider.getValue();
 
 			for (ChangeListener l : listeners) {
