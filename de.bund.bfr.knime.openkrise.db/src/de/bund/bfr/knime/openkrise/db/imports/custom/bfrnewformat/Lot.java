@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -16,6 +18,11 @@ public class Lot {
 	private static HashMap<String, Lot> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
 	private HashSet<String> inDeliveries = new HashSet<>();
+	private List<Exception> exceptions = new ArrayList<>();
+
+	public List<Exception> getExceptions() {
+		return exceptions;
+	}
 
 	public static void reset() {
 		gathereds = new HashMap<>();
@@ -68,15 +75,6 @@ public class Lot {
 		return dbId;
 	}
 	
-	private String logMessages = "";
-	private String logWarnings = "";
-	
-	public String getLogWarnings() {
-		return logWarnings;
-	}
-	public String getLogMessages() {
-		return logMessages;
-	}
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		//if (number == null) logWarnings += "Please, do always provide a lot number as this is most helpful!\n";//throw new Exception("Lot number not defined");
 		String lotId = null;
@@ -102,9 +100,10 @@ public class Lot {
 	}
 	private Integer getID(Product product, String number, Double unitNumber, String unitUnit, Integer miDbId, MyDBI mydbi) throws Exception {
 		Integer dbProdID = product.getID(miDbId, mydbi);
-		if (!product.getLogMessages().isEmpty()) logMessages += product.getLogMessages() + "\n";
+		//if (!product.getLogMessages().isEmpty()) logMessages += product.getLogMessages() + "\n";
+		if (product.getExceptions().size() > 0) exceptions.addAll(product.getExceptions());
 		if (dbProdID == null) {
-			logMessages += "Product unknown...\n";
+			exceptions.add(new Exception("addendum: Product unknown..."));
 			return null;
 		}
 

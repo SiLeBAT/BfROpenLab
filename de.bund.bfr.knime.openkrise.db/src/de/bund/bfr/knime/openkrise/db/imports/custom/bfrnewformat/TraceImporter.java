@@ -194,7 +194,9 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				} catch (Exception e) {
 					exceptions.add(e);
 				}
-				if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+				//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+				if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
+				
 			}
 			
 			HashMap<Delivery, HashSet<Integer>> ingredients = new HashMap<>(); 
@@ -345,13 +347,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (miDbId == null) exceptions.add(new Exception("File already imported"));
 		if (isForTracing)
 			try {
-				insertForIntoDb(miDbId, inDeliveries, outDeliveries);
+				insertForIntoDb(exceptions, miDbId, inDeliveries, outDeliveries);
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
 		else
 			try {
-				insertIntoDb(miDbId, inDeliveries, outDeliveries, forwDeliveries);
+				insertIntoDb(exceptions, miDbId, inDeliveries, outDeliveries, forwDeliveries);
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
@@ -360,16 +362,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		
 		return exceptions;
 	}
-	private void insertForIntoDb(Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
+	private void insertForIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
 		HashMap<String, Integer> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId, false, mydbi);
-			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, true, mydbi);
-			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId), miDbId, mydbi);
@@ -377,11 +381,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 	}
-	private void insertIntoDb(Integer miDbId, HashMap<String, Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
+	private void insertIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
 		HashMap<String, Lot> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
 			d.getID(miDbId, true, mydbi);
-			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).getDbId().intValue() != d.getLot().getDbId()) {
 				Lot ol = lotDbNumber.get(d.getLot().getNumber());
 				if (d.getLot().getDbId() != null && d.getLot().getProduct() != null && d.getLot().getProduct().getName() != null &&
@@ -398,7 +403,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		for (Delivery d : inDeliveries.values()) {
 			Integer dbId = d.getID(miDbId, false, mydbi);
-			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			for (String targetLotId : d.getTargetLotIds()) {
 				if (lotDbNumber.containsKey(targetLotId)) {
 					new D2D().getId(dbId, lotDbNumber.get(targetLotId).getDbId(), miDbId, mydbi);
@@ -407,7 +413,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		for (Delivery d : forwDeliveries) {
 			d.getID(miDbId, false, mydbi);
-			if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
+			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 		}
 	}
 	private boolean isBlockEnd(Row row, int numCols2Check, String nextBlockIdentifier) {
@@ -637,7 +644,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
-		String lotId = p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
+		String lotId = (p.getStation() == null) ? "_" + p.getName() + "_" + l.getNumber() : p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
 		String lotInfo = l.getUnitNumber() + "_" + l.getUnitUnit();
 		if (definedLots.containsKey(lotId)) {
 			if (!definedLots.get(lotId).equals(lotInfo)) exceptions.add(new Exception("Lot has different quantities??? -> Lot number: '" + l.getNumber() + "'; -> Row " + (rowNum+1)));

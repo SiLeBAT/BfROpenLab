@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -15,6 +17,11 @@ public class Station {
 
 	private static HashMap<String, Station> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
+	private List<Exception> exceptions = new ArrayList<>();
+
+	public List<Exception> getExceptions() {
+		return exceptions;
+	}
 
 	public static void reset() {
 		gathereds = new HashMap<>();
@@ -113,11 +120,6 @@ public class Station {
 		return dbId;
 	}
 	
-	private String logMessages = "";
-	
-	public String getLogMessages() {
-		return logMessages;
-	}
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;

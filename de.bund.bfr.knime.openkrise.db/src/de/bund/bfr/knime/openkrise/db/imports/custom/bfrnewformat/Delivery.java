@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
@@ -16,7 +18,11 @@ public class Delivery {
 
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
+	private List<Exception> exceptions = new ArrayList<>();
 
+	public List<Exception> getExceptions() {
+		return exceptions;
+	}
 	public static void reset() {
 		gathereds = new HashMap<>();
 	}
@@ -126,11 +132,6 @@ public class Delivery {
 		return dbId;
 	}
 	
-	private String logMessages = "";
-	
-	public String getLogMessages() {
-		return logMessages;
-	}
 	public Integer getID(Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
 		if (dbId != null) return dbId;
@@ -153,9 +154,10 @@ public class Delivery {
 	}
 	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		Integer dbRecID = receiver.getID(miDbId, mydbi);
-		if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
+		//if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
+		if (receiver.getExceptions().size() > 0) exceptions.addAll(receiver.getExceptions());
 		if (dbRecID == null) {
-			logMessages += "Receiver unknown...\n";
+			exceptions.add(new Exception("addendum: Receiver unknown..."));
 			return null;
 		}
 		Integer result = null;
@@ -223,16 +225,16 @@ public class Delivery {
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
 				}
-				if (rs.next()) logMessages += "Delivery Id seems to be defined more than once in the database. Please provide only unique Ids! (Id: '" + id + "')\n";
+				if (rs.next()) exceptions.add(new Exception("Delivery Id seems to be defined more than once in the database. Please provide only unique Ids! (Id: '" + id + "')"));
 				rs.close();
 			}	
 			if (result != null) return result;
 		}
 		Integer dbLotID = lot.getID(miDbId, mydbi);
-		if (!lot.getLogMessages().isEmpty()) logMessages += lot.getLogMessages() + "\n";
-		//if (!lot.getLogWarnings().isEmpty()) logWarnings += lot.getLogWarnings() + "\n";
+		//if (!lot.getLogMessages().isEmpty()) logMessages += lot.getLogMessages() + "\n";
+		if (lot.getExceptions().size() > 0) exceptions.addAll(lot.getExceptions());
 		if (dbLotID == null) {
-			logMessages += "Lot unknown...\n";
+			exceptions.add(new Exception("addendum: Lot unknown..."));
 			return null;
 		}
 		String sql = "SELECT " + MyDBI.delimitL("ID") + " FROM " + MyDBI.delimitL("Lieferungen") +

@@ -4,12 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 
 public class Product {
 
+	private List<Exception> exceptions = new ArrayList<>();
+
+	public List<Exception> getExceptions() {
+		return exceptions;
+	}
 	private Station station;
 	public Station getStation() {
 		return station;
@@ -33,11 +40,6 @@ public class Product {
 		return dbId;
 	}
 
-	private String logMessages = "";
-	
-	public String getLogMessages() {
-		return logMessages;
-	}
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (dbId != null) return dbId;
 		Integer retId = station == null ? null : getID(station,new String[]{"Bezeichnung"}, new String[]{name}, miDbId, mydbi);
@@ -46,9 +48,9 @@ public class Product {
 	}
 	private Integer getID(Station station, String[] feldnames, String[] feldVals, Integer miDbId, MyDBI mydbi) throws Exception {
 		Integer dbStatID = station.getID(miDbId, mydbi);
-		if (!station.getLogMessages().isEmpty()) logMessages += station.getLogMessages() + "\n";
+		if (station.getExceptions().size() > 0) exceptions.addAll(station.getExceptions());
 		if (dbStatID == null) {
-			logMessages += "Station unknown...\n";
+			exceptions.add(new Exception("addendum: Station unknown..."));
 			return null;
 		}
 
