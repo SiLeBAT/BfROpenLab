@@ -3,6 +3,13 @@ package de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
@@ -16,10 +23,54 @@ public class MetaInfo {
 		this.reporter = reporter;
 	}
 	public String getDate() {
-		return date;
+		return strDate;
 	}
-	public void setDate(String date) {
-		this.date = date;
+	public void setDate(String strDate) {
+		this.strDate = strDate;
+	}
+	public Integer getDateDay() {
+		return dateDay;
+	}
+	public void setDateDay(Integer dateDay) {
+		this.dateDay = dateDay;
+	}
+	public Integer getDateMonth() {
+		return dateMonth;
+	}
+	public void setDateMonth(Integer dateMonth) {
+		this.dateMonth = dateMonth;
+	}
+	public Integer getDateYear() {
+		return dateYear;
+	}
+	public void setDateYear(Integer dateYear) {
+		this.dateYear = dateYear;
+	}
+	public long getDateInMillis() {
+		if (dateDay != null && dateMonth != null && dateYear != null) {
+			Calendar c = Calendar.getInstance();
+			c.set(dateYear, dateMonth - 1, dateDay);  
+			return c.getTimeInMillis();
+		}
+		else if (strDate != null && !strDate.isEmpty()) {
+			  List<SimpleDateFormat> knownPatterns = new ArrayList<SimpleDateFormat>();
+			  knownPatterns.add(new SimpleDateFormat("dd.MM.yyyy"));
+			  knownPatterns.add(new SimpleDateFormat("yyyy-MM-dd"));
+
+			  String str_date = this.getDate();
+			  if (str_date != null) {
+				  str_date = str_date.trim();
+				  for (DateFormat formatter : knownPatterns) {
+				      try {
+						Date d = formatter.parse(str_date);
+						if (d != null) return d.getTime();	
+				      } catch (ParseException pe) {
+				          // Loop on
+				      }
+				  }
+			  }
+		}
+		return 0L;
 	}
 	public String getRemarks() {
 		return remarks;
@@ -34,7 +85,10 @@ public class MetaInfo {
 		this.filename = filename;
 	}
 	private String reporter;
-	private String date;
+	private String strDate;
+	private Integer dateDay;
+	private Integer dateMonth;
+	private Integer dateYear;
 	private String remarks;
 	private String filename;
 	
@@ -52,9 +106,13 @@ public class MetaInfo {
 			s1 += "," + MyDBI.delimitL("reporter");
 			s2 += ",'" + reporter + "'";
 		}
-		if (date != null && !date.isEmpty()) {
+		if (dateDay != null && dateMonth != null && dateYear != null) {
 			s1 += "," + MyDBI.delimitL("date");
-			s2 += ",'" + date + "'";
+			s2 += ",'" + dateDay + "." + dateMonth + "." + dateYear + "'";
+		}
+		else if (strDate != null && !strDate.isEmpty()) {
+			s1 += "," + MyDBI.delimitL("date");
+			s2 += ",'" + strDate + "'";
 		}
 		if (remarks != null && !remarks.isEmpty()) {
 			s1 += "," + MyDBI.delimitL("remarks");

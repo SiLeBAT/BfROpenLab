@@ -6,11 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -250,14 +246,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			// Metadata on Reporter
 			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
-			mi = getMetaInfo(exceptions, row);
+			mi = getMetaInfo(exceptions, row, transactionSheet.getRow(classRowIndex-1));
 			mi.setFilename(filename);
 		}
 		else { // Reporter shifted to the top
 			// Metadata on Reporter
 			classRowIndex = getNextBlockRowIndex(transactionSheet, 0, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
-			mi = getMetaInfo(exceptions, row);
+			mi = getMetaInfo(exceptions, row, transactionSheet.getRow(classRowIndex-1));
 			mi.setFilename(filename);
 
 			// Station in focus
@@ -440,19 +436,50 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return -100;
 	}
 	
-	private static MetaInfo getMetaInfo(List<Exception> exceptions, Row row) {
+	private static MetaInfo getMetaInfo(List<Exception> exceptions, Row row, Row rowBefore) {
 		if (row == null) return null;
-		MetaInfo result = new MetaInfo();
-		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReporter(getStr(cell.getStringCellValue()));}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			result.setDate(getStr(cell.getStringCellValue()));
-			long millis = getMs(result);
-			if (millis == 0) {
-				if (exceptions != null) exceptions.add(new Exception("Reporting date not defined or in wrong format. This is mandatory! Supported formats are at the moment 'yyyy-MM-dd' and 'dd.MM.yyyy', e.g. 2015-12-11 or 12.11.2015!"));
+		boolean hasPartedDate = true;
+		if (rowBefore != null) {
+			Cell cell = rowBefore.getCell(1);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				if (getStr(cell.getStringCellValue()).equals("Reporting Date")) {
+					cell = rowBefore.getCell(3);
+					if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK || getStr(cell.getStringCellValue()).trim().isEmpty()) {
+						hasPartedDate = false;
+					}
+				}
 			}
 		}
-		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}
+		MetaInfo result = new MetaInfo();
+		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReporter(getStr(cell.getStringCellValue()));}
+		if (hasPartedDate) {
+			cell = row.getCell(1);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {				
+				cell.setCellType(Cell.CELL_TYPE_STRING); result.setDateDay(getInt(cell.getStringCellValue()));
+			}
+			cell = row.getCell(2);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				cell.setCellType(Cell.CELL_TYPE_STRING); result.setDateMonth(getInt(cell.getStringCellValue()));
+			}
+			cell = row.getCell(3);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				cell.setCellType(Cell.CELL_TYPE_STRING); result.setDateYear(getInt(cell.getStringCellValue()));
+			}
+			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}			
+		}
+		else {
+			cell = row.getCell(1);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				result.setDate(getStr(cell.getStringCellValue()));
+				long millis = result.getDateInMillis();
+				if (millis == 0) {
+					if (exceptions != null) exceptions.add(new Exception("Reporting date not defined or in wrong format. This is mandatory! Supported formats are at the moment 'yyyy-MM-dd' and 'dd.MM.yyyy', e.g. 2015-12-11 or 12.11.2015!"));
+				}
+			}
+			cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}			
+		}
 		return result;
 	}
 	private Station getStation(List<Exception> exceptions, Sheet businessSheet, String lookup, Row srcrow) {
@@ -730,7 +757,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				d.getUnitNumber() + ";" + d.getUnitUnit() + ";" + d.getReceiver().getId();
 		return newSerial;
 	}
-	private Integer getInt(String val) {
+	private static Integer getInt(String val) {
 		Integer result = null;
 		if (!val.trim().isEmpty()) {
 			try {
@@ -966,8 +993,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				
 				if (transactionSheet != null) {
 					Row row = transactionSheet.getRow(2);
-					MetaInfo mi = getMetaInfo(exceptions, row);
-					result = getMs(mi) ;
+					MetaInfo mi = getMetaInfo(exceptions, row, transactionSheet.getRow(1));
+					result = mi.getDateInMillis();
 				}
 		  } catch (Exception e) {
 			  e.printStackTrace();
@@ -975,25 +1002,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		  return result;
 	  }	
 
-	private static long getMs(MetaInfo mi) {
-		  List<SimpleDateFormat> knownPatterns = new ArrayList<SimpleDateFormat>();
-		  knownPatterns.add(new SimpleDateFormat("yyyy-MM-dd"));
-		  knownPatterns.add(new SimpleDateFormat("dd.MM.yyyy"));
-
-		  String str_date = mi.getDate();
-		  if (str_date != null) {
-			  str_date = str_date.trim();
-			  for (DateFormat formatter : knownPatterns) {
-			      try {
-					Date d = formatter.parse(str_date);
-					if (d != null) return d.getTime();	
-			      } catch (ParseException pe) {
-			          // Loop on
-			      }
-			  }
-		  }
-		return 0L;
-	  }
 		private boolean existsDBKernel() {
 			boolean result = true;
 			try {
