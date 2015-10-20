@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -249,14 +250,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			// Metadata on Reporter
 			classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
-			mi = getMetaInfo(row);
+			mi = getMetaInfo(exceptions, row);
 			mi.setFilename(filename);
 		}
 		else { // Reporter shifted to the top
 			// Metadata on Reporter
 			classRowIndex = getNextBlockRowIndex(transactionSheet, 0, "Reporter Information") + 2;
 			row = transactionSheet.getRow(classRowIndex);
-			mi = getMetaInfo(row);
+			mi = getMetaInfo(exceptions, row);
 			mi.setFilename(filename);
 
 			// Station in focus
@@ -439,11 +440,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return -100;
 	}
 	
-	private static MetaInfo getMetaInfo(Row row) {
+	private static MetaInfo getMetaInfo(List<Exception> exceptions, Row row) {
 		if (row == null) return null;
 		MetaInfo result = new MetaInfo();
 		Cell cell = row.getCell(0); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setReporter(getStr(cell.getStringCellValue()));}
-		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setDate(getStr(cell.getStringCellValue()));}
+		cell = row.getCell(1); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			result.setDate(getStr(cell.getStringCellValue()));
+			long millis = getMs(result);
+			if (millis == 0) {
+				if (exceptions != null) exceptions.add(new Exception("Reporting date not defined or in wrong format. This is mandatory! Supported formats are at the moment 'yyyy-MM-dd' and 'dd.MM.yyyy', e.g. 2015-12-11 or 12.11.2015!"));
+			}
+		}
 		cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}
 		return result;
 	}
@@ -945,7 +953,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return "Supply Chain Importer - BfR-formats (*.xlsx)";
 	}
 	
-	  public static Long getMillis(String filename) {
+	  public static Long getMillis(List<Exception> exceptions, String filename) {
 		  Long result = 0L;//System.currentTimeMillis();
 	
 		  try (InputStream is = filename.startsWith("http://") ? new URL(filename).openConnection().getInputStream() : new FileInputStream(filename);
@@ -958,17 +966,34 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				
 				if (transactionSheet != null) {
 					Row row = transactionSheet.getRow(2);
-					MetaInfo mi = getMetaInfo(row);
-					String str_date = mi.getDate();
-					DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-					Date d = formatter.parse(str_date);
-					if (d != null) result = d.getTime();
+					MetaInfo mi = getMetaInfo(exceptions, row);
+					result = getMs(mi) ;
 				}
 		  } catch (Exception e) {
 			  e.printStackTrace();
 		  }
 		  return result;
 	  }	
+
+	private static long getMs(MetaInfo mi) {
+		  List<SimpleDateFormat> knownPatterns = new ArrayList<SimpleDateFormat>();
+		  knownPatterns.add(new SimpleDateFormat("yyyy-MM-dd"));
+		  knownPatterns.add(new SimpleDateFormat("dd.MM.yyyy"));
+
+		  String str_date = mi.getDate();
+		  if (str_date != null) {
+			  str_date = str_date.trim();
+			  for (DateFormat formatter : knownPatterns) {
+			      try {
+					Date d = formatter.parse(str_date);
+					if (d != null) return d.getTime();	
+			      } catch (ParseException pe) {
+			          // Loop on
+			      }
+			  }
+		  }
+		return 0L;
+	  }
 		private boolean existsDBKernel() {
 			boolean result = true;
 			try {

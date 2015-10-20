@@ -165,7 +165,7 @@ public class ImportAction extends AbstractAction {
   private File[] sortFilesByDate(File[] files) {
 	  HashMap<Long, List<File>> hm = new HashMap<>();
 	  for (File f : files) {
-		  Long l = TraceImporter.getMillis(f.getAbsolutePath());
+		  Long l = TraceImporter.getMillis(null, f.getAbsolutePath());
 		  if (!hm.containsKey(l)) hm.put(l, new ArrayList<File>());
 		  List<File> lf = hm.get(l);
 		  lf.add(f);
