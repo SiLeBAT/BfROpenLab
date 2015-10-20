@@ -29,7 +29,6 @@ import de.bund.bfr.knime.openkrise.db.imports.SQLScriptImporter;
 
 public class MyDBTablesNew extends MyDBI {
 
-	private static int SystemTabellen_LIST = 0;
 	private static int Lieferketten_LIST = 7;
 
 	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<>();

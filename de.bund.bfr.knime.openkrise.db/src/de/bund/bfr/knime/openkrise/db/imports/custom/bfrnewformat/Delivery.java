@@ -213,6 +213,12 @@ public class Delivery {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("numPU") + " = " + getUnitNumber() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("typePU") + " = " + getUnitUnit() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					if (mydbi != null) mydbi.sendRequest(sql, true, false);
+					else DBKernel.sendRequest(sql, true);
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
