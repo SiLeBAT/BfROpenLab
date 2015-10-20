@@ -25,7 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyDBI;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
-import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 
 public class TraceImporter extends FileFilter implements MyImporter {
@@ -179,7 +178,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			MetaInfo mi = new MetaInfo();
 			mi.setFilename(filename);
 			
-			//DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 			if (lookupSheet != null) loadLookupSheet(lookupSheet);
 			Integer miDbId = null;
 			try {
@@ -315,7 +313,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			hasIngredients = true;
 		}
 		if (!hasIngredients) {
-			logWarnings += "No " + (isForTracing ? "Products Out" : "ingredients") + " defined...\n";
+			warns.put("No " + (isForTracing ? "Products Out" : "ingredients") + " defined...", null);
 		}
 		
 		// Opt_ForwardTracing
@@ -336,7 +334,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		// what are the insertRessources (new BfR-Format -> then SupplyChain-Reader has to look for other IDcolumns, i.e. Serial)
 		// forward tracing importieren
 		// welche Reihenfolge to insert? Was, wenn beim Import was schiefgeht?
-		//DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 		if (lookupSheet != null) loadLookupSheet(lookupSheet);
 		Integer miDbId = null;
 		try {
@@ -357,8 +354,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			} catch (Exception e) {
 				exceptions.add(e);
 			}
-		//DBKernel.sendRequest("COMMIT", false);
-		//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 		
 		return exceptions;
 	}
@@ -473,17 +468,27 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 				cell.setCellType(Cell.CELL_TYPE_STRING); result.setDateYear(getInt(cell.getStringCellValue()));
 			}
+			if (result.getDateDay() == null) {
+				if (exceptions != null) exceptions.add(new Exception("Reporting date is not defined correctly. This is mandatory! The Day is missing"));
+			}
+			if (result.getDateMonth() == null) {
+				if (exceptions != null) exceptions.add(new Exception("Reporting date is not defined correctly. This is mandatory! The Month is missing"));
+			}
+			if (result.getDateYear() == null) {
+				if (exceptions != null) exceptions.add(new Exception("Reporting date is not defined correctly. This is mandatory! The Year is missing"));
+			}
 			cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}			
 		}
 		else {
 			cell = row.getCell(1);
+			long millis = 0;
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				result.setDate(getStr(cell.getStringCellValue()));
-				long millis = result.getDateInMillis();
-				if (millis == 0) {
-					if (exceptions != null) exceptions.add(new Exception("Reporting date not defined or in wrong format. This is mandatory! Supported formats are at the moment 'yyyy-MM-dd' and 'dd.MM.yyyy', e.g. 2015-12-11 or 12.11.2015!"));
-				}
+				millis = result.getDateInMillis();
+			}
+			if (millis == 0) {
+				if (exceptions != null) exceptions.add(new Exception("Reporting date not defined or in wrong format. This is mandatory! Supported formats are at the moment 'yyyy-MM-dd' and 'dd.MM.yyyy', e.g. 2015-12-11 or 12.11.2015!"));
 			}
 			cell = row.getCell(2); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.setRemarks(getStr(cell.getStringCellValue()));}			
 		}
@@ -849,8 +854,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 
+	private boolean importResult = false;
 	@Override
-	public String doImport(final String filename, final JProgressBar progress, boolean showResults) {
+	public boolean doImport(final String filename, final JProgressBar progress, boolean showResults) {
+		importResult = false;
 		Runnable runnable = new Runnable() {
 			public void run() {
 				System.err.println("Importing " + filename);
@@ -877,25 +884,22 @@ public class TraceImporter extends FileFilter implements MyImporter {
 					XSSFWorkbook wb = new XSSFWorkbook(is);
 
 					Station.reset(); Lot.reset(); Delivery.reset();
-					if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+					warns = new HashMap<>();
+					//if (existsDBKernel()) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
 					List<Exception> exceptions = doTheImport(wb, filename);
 					
-					warns = new HashMap<>();
 					if (exceptions != null && exceptions.size() > 0) {
+						importResult = false;
 						if (existsDBKernel()) {
-							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection());
-							DBKernel.sendRequest("ROLLBACK", false);
-							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+							//DBKernel.sendRequest("ROLLBACK", false);
+							//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
 						}
 						else if (mydbi != null) {
-							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
+							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
 						}
-						for (String key : warns.keySet()) {
-							logWarnings += "\n" + key + ":\n";
-							for (String w : warns.get(key)) {
-								logWarnings += w + "\n";
-							}
-						}
+						doWarns(null);
+						
 						logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n";
 						for (Exception e : exceptions) {
 							logMessages += getST(e, false);
@@ -908,14 +912,15 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						} catch (IOException e1) {}
 					}
 					else {
+						importResult = true;
 						if (existsDBKernel()) {
+							/*
 							if (exceptions != null) DBKernel.sendRequest("COMMIT", false);
 							DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 							DBKernel.myDBi.getTable("Station").doMNs();
 							DBKernel.myDBi.getTable("Produktkatalog").doMNs();
 							DBKernel.myDBi.getTable("Chargen").doMNs();
 							DBKernel.myDBi.getTable("Lieferungen").doMNs();
-							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection());
 							if (progress != null) {
 								// Refreshen:
 								MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
@@ -927,26 +932,24 @@ public class TraceImporter extends FileFilter implements MyImporter {
 								}
 								progress.setVisible(false);
 							}
+							*/
+							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
 						}
 						else if (mydbi != null) {
-							warns = de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn());
+							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
 						}
-						for (String key : warns.keySet()) {
-							logWarnings += "\n" + key + ":\n";
-							for (String w : warns.get(key)) {
-								logWarnings += w + "\n";
-							}
-						}
+						doWarns(filename);
 						is.close();
 					}
 				} catch (Exception e) {
+					importResult = false;
 					if (existsDBKernel()) {
-						DBKernel.sendRequest("ROLLBACK", false);
-						DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+						//DBKernel.sendRequest("ROLLBACK", false);
+						//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+						//if (progress != null) progress.setVisible(false);
 					}
 					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n\n";
 					MyLogger.handleException(e);
-					if (progress != null) progress.setVisible(false);
 					try {
 						is.close();
 					} catch (IOException e1) {}
@@ -964,7 +967,29 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + getST(e, false) + "\n\n";
 			MyLogger.handleException(e);
 		}
-		return null;
+		return importResult;
+	}
+	private void doWarns(String filename) {
+		if (warns.size() > 0) {
+			if (filename != null) {
+				logWarnings += "\nWarnings for import file '" + filename + "':";
+			}
+			for (String key : warns.keySet()) {
+				logWarnings += "\n" + key;
+				if (warns.get(key) != null) {
+					logWarnings += ":\n";
+					for (String w : warns.get(key)) {
+						if (logWarnings.indexOf(w+"\n") < 0) logWarnings += w + "\n";
+					}
+					if (logWarnings.endsWith("\n" + key + ":\n")) {
+						logWarnings = logWarnings.substring(0, logWarnings.length() - ("\n" + key + ":\n").length());
+					}
+				}
+				else {
+					logWarnings += "\n";
+				}
+			}		
+		}
 	}
 
 	private String getExtension(File f) {

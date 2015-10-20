@@ -1176,7 +1176,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		}
 	}
 
-	public String doImport(final String filename, final JProgressBar progress, final boolean showResults) {
+	public boolean doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				System.err.println("Importing " + filename);
@@ -1297,7 +1297,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + e.toString() + "\n" + getST(e, true) + "\n\n";
 			MyLogger.handleException(e);
 		}
-		return "";
+		return true;
 	}
 	private String getST(Exception e, boolean getTrace) {
 		String result = e.getMessage() + "\n";

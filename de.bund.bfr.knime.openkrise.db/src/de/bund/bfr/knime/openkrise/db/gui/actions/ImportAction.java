@@ -45,6 +45,7 @@ import org.eclipse.ui.PlatformUI;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
+import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.imports.GeneralXLSImporter;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
 import de.bund.bfr.knime.openkrise.db.imports.custom.LieferkettenImporterEFSA;
@@ -94,10 +95,39 @@ public class ImportAction extends AbstractAction {
 				  	File[] selectedFiles = fc.getSelectedFiles();
 				  	if (selectedFiles != null && selectedFiles.length > 0) {
 					  	if (selectedFiles.length > 1 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
+					  	if (mi instanceof TraceImporter) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+					  	boolean ir = true;
 				  		for (File selectedFile : selectedFiles) {
 						  	if (selectedFile != null) {
-						  		doTheImport(mi, selectedFile, false);
+						  		boolean lir = doTheImport(mi, selectedFile, false);
+						  		ir = ir && lir;
 						  	}
+				  		}
+				  		if (mi instanceof TraceImporter) {
+				  			if (ir) {
+								DBKernel.sendRequest("COMMIT", false);
+								DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+								DBKernel.myDBi.getTable("Station").doMNs();
+								DBKernel.myDBi.getTable("Produktkatalog").doMNs();
+								DBKernel.myDBi.getTable("Chargen").doMNs();
+								DBKernel.myDBi.getTable("Lieferungen").doMNs();
+								if (progressBar1 != null) {
+									// Refreshen:
+									MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
+									if (myDB.getActualTable() != null) {
+										String actTablename = myDB.getActualTable().getTablename();
+										if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
+											myDB.setTable(myDB.getActualTable());
+										}
+									}
+									progressBar1.setVisible(false);
+								}
+				  			}
+				  			else {
+								DBKernel.sendRequest("ROLLBACK", false);
+								DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
+								if (progressBar1 != null) progressBar1.setVisible(false);
+				  			}
 				  		}
 			  		}
 				  	else {
@@ -134,7 +164,7 @@ public class ImportAction extends AbstractAction {
 						}
 						else if (!success) {
 							Font f = new Font("Arial", Font.PLAIN, 12);
-							if (!warnings.isEmpty()) errors += "Warnings:\n" + warnings + "\n\n";
+							if (!warnings.isEmpty()) errors += "\n\nWarnings:\n" + warnings + "\n\n";
 							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
 							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);							
@@ -156,11 +186,12 @@ public class ImportAction extends AbstractAction {
 		if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		MyLogger.handleMessage("Importing - FinFin!");
 	}
-  private void doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
+  private boolean doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
 		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
 		DBKernel.prefs.prefsFlush();
-		mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
+		boolean result = mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
 		MyLogger.handleMessage("Importing - Fin!");
+		return result;
   }
   private File[] sortFilesByDate(File[] files) {
 	  HashMap<Long, List<File>> hm = new HashMap<>();
