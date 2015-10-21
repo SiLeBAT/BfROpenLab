@@ -35,6 +35,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
@@ -297,6 +298,16 @@ public class UI {
 
 		for (JRadioButton b : buttons) {
 			group.add(b);
+		}
+	}
+
+	public static void setTooltip(JComponent c, String tooltip) {
+		c.setToolTipText("<html>" + tooltip.replace("\n", "<br>") + "</html>");
+
+		for (Component child : c.getComponents()) {
+			if (child instanceof JComponent) {
+				setTooltip((JComponent) child, tooltip);
+			}
 		}
 	}
 }

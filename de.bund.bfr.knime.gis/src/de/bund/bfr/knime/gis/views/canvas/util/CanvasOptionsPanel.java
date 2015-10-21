@@ -130,39 +130,70 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		panel.add(Box.createHorizontalStrut(5));
 		panel.add(advancedButton);
 
-		addOption("Editing Mode", false, transformingButton, pickingButton);
-		addOption("Show Legend", false, showLegendBox);
-		addOption("Label", true, labelField, labelButton);
+		Naming naming = owner.getNaming();
+
+		addOption("Editing Mode",
+				"Current editing mode.\n" + "In \"Transforming\" mode the user can move the graph by using the mouse.\n"
+						+ "In \"Picking\" mode the user can select and unselect " + naming.nodes() + " and "
+						+ naming.edges() + ".",
+				false, transformingButton, pickingButton);
+		addOption("Show Legend",
+				"If checked, a legend with all highlight conditions, which have \"Show in Legend\" activated,\n"
+						+ "is displayed in the lower left corner of the canvas.",
+				false, showLegendBox);
+		addOption("Label", "Small Label, that is displayed in the upper right corner of the graph image.", true,
+				labelField, labelButton);
 
 		if (allowEdges) {
-			addOption("Join " + owner.getNaming().Edges(), false, joinEdgesBox);
-			addOption("Arrow in Middle", false, arrowInMiddleBox);
+			addOption("Join " + naming.Edges(),
+					"If checked, " + naming.edges() + " with the same source and target are joined.", false,
+					joinEdgesBox);
+			addOption("Arrow in Middle", "If checked, arrows are drawn in the middle of each " + naming.edge() + ".",
+					false, arrowInMiddleBox);
 		}
 
 		if (allowEdges && allowNodeResize) {
-			addOption("Skip Unconnected " + owner.getNaming().Nodes(), false, skipEdgelessNodesBox);
-			addOption("Show " + owner.getNaming().Edges() + " in Meta " + owner.getNaming().Node(), true,
+			addOption("Skip Unconnected " + naming.Nodes(),
+					"If checked, " + naming.nodes() + " without any connected" + naming.edges() + "are not shown.",
+					false, skipEdgelessNodesBox);
+			addOption("Show " + naming.Edges() + " in Meta " + naming.Node(),
+					"If checked, " + naming.edges() + " from a meta " + naming.node() + " to itself are shown.", true,
 					showEdgesInMetaNodeBox);
 		}
 
-		addOption("Font", false, fontSizeBox, fontBoldBox);
+		addOption(
+				"Font", "Font Size and type (plain or bold) can be specified here.\n" + "This font is used for "
+						+ naming.node() + "/" + naming.edge() + " labels and in the legend.",
+				false, fontSizeBox, fontBoldBox);
 
 		if (allowNodeResize) {
-			addOption(owner.getNaming().Node() + " Size", false, new JLabel("Min:"), nodeSizeBox,
-					Box.createHorizontalStrut(5), new JLabel("Max:"), nodeMaxSizeBox);
+			addOption(naming.Node() + " Size",
+					"Min/Max diameter of the " + naming.nodes()
+							+ ".\nMin value is used, when no \"Value Condition\" or \"Logical Value Condition\" is defined for "
+							+ naming.nodes() + ".\nOtherwise the " + naming.node() + " sizes are between min and max.",
+					false, new JLabel("Min:"), nodeSizeBox, Box.createHorizontalStrut(5), new JLabel("Max:"),
+					nodeMaxSizeBox);
 		}
 
 		if (allowEdges) {
-			addOption(owner.getNaming().Edge() + " Thickness", false, new JLabel("Min:"), edgeThicknessBox,
-					Box.createHorizontalStrut(5), new JLabel("Max:"), edgeMaxThicknessBox);
+			addOption(naming.Edge() + " Thickness",
+					"Min/Max thickness of the " + naming.edges()
+							+ ".\nMin value is used, when no \"Value Condition\" or \"Logical Value Condition\" is defined for "
+							+ naming.edges() + ".\nOtherwise the delivery thicknesses are between min and max.",
+					false, new JLabel("Min:"), edgeThicknessBox, Box.createHorizontalStrut(5), new JLabel("Max:"),
+					edgeMaxThicknessBox);
 		}
 
 		if (allowPolygons) {
-			addOption("Border Alpha", true, borderAlphaSlider, borderAlphaButton);
+			addOption("Border Alpha", "Alpha value used to draw the geographical borders.", true, borderAlphaSlider,
+					borderAlphaButton);
 		}
 
 		if (allowGisLocations) {
-			addOption("Avoid Overlay", false, avoidOverlayBox);
+			addOption("Avoid Overlay",
+					"If checked, geographical " + naming.nodes()
+							+ " that occlude each other are moved so that the user can see each " + naming.node() + ".",
+					false, avoidOverlayBox);
 		}
 
 		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
@@ -180,14 +211,18 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 		listeners.remove(listener);
 	}
 
-	public void addOption(String name, boolean advanced, Component... components) {
+	public void addOption(String name, String tooltip, boolean advanced, Component... components) {
+		JPanel optionsPanel = getOptionPanel(name, components);
+
+		UI.setTooltip(optionsPanel, tooltip);
+
 		JPanel p = advanced ? advancedPanel : standardPanel;
 
 		if (p.getComponentCount() > 0) {
 			p.add(Box.createHorizontalStrut(5));
 		}
 
-		p.add(getOptionPanel(name, components));
+		p.add(optionsPanel);
 	}
 
 	public Mode getEditingMode() {
