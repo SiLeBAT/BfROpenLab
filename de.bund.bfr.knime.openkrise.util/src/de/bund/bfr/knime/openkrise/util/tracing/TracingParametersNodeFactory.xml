@@ -14,7 +14,8 @@
 			Analyzer. Tracing can be performed by setting the following four properties for stations and
 			deliveries: "Case Weight", "Cross Contamination", "Kill Contamination" and "Observed". Each of
 			the properties can be set in the respective tab. Based on these properties the following values
-			are computed: "Score", "Normalized Score", "Forward", "Backward".
+			are computed: "Score", "Normalized Score", "Positive Score", "Negative Score", "Forward",
+			"Backward".
 		</intro>
 
 		<tab name="Station Properties">

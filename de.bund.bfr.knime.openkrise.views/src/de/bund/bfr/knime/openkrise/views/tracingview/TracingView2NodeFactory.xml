@@ -15,9 +15,9 @@
 			and deliveries: "Case Weight", "Cross Contamination", "Kill Contamination" and "Observed". You
 			can change the property values by double clicking on a station/delivery or by using
 			"Station/Delivery Selection -> Show Properties" from the context menu. Based on these properties
-			the following values are computed: "Score", "Normalized Score", "Forward", "Backward". The
-			results of the tracing or any other data from input tables can be visualized by using
-			highlighting (as explained below).
+			the following values are computed: "Score", "Normalized Score", "Positive Score", "Negative
+			Score", "Forward", "Backward". The results of the tracing or any other data from input tables can
+			be visualized by using highlighting (as explained below).
 		</intro>
 
 		<tab name="Station Properties">
@@ -100,13 +100,6 @@
 				If checked, a legend with all highlight conditions, which have "Show in
 				Legend" activated, is display in the lower left corner of the canvas.
 			</option>
-			<option name="Font">
-				Font Size and type (plain or bold) can be specified here. This font is used
-				for station/delivery labels and in the legend.
-			</option>
-			<option name="Label">
-				Small Label, that is displayed in the upper right corner of the graph image.
-			</option>
 			<option name="Join Deliveries">
 				If checked, deliveries with the same source and target are joined.
 			</option>
@@ -116,21 +109,32 @@
 			<option name="Skip Unconnected Stations">
 				If checked, stations without any connected deliveries are not shown.
 			</option>
-			<option name="Station Size">
-				Diameter of the stations.
+			<option name="Font">
+				Font Size and type (plain or bold) can be specified here. This font is used
+				for station/delivery labels and in the legend.
 			</option>
-			<option name="Skip Unconnected Stations">
-				If checked, stations without any connected deliveries are not shown.
+			<option name="Station Size">
+				Min/Max diameter of the stations. Min value is used, when no "Value
+				Condition" or "Logical Value Condition" is defined for stations. Otherwise the stations sizes
+				are between min and max.
+			</option>
+			<option name="Delivery Thickness">
+				Min/Max thickness of the deliveries. Min value is used, when no "Value
+				Condition" or "Logical Value Condition" is defined for deliveries. Otherwise the delivery
+				thicknesses are between min and max.
+			</option>
+			<option name="Avoid Overlay">
+				If checked, geographical stations that occlude each other are moved so that
+				the user can see each station.
+			</option>
+			<option name="Label">
+				Small Label, that is displayed in the upper right corner of the graph image.
 			</option>
 			<option name="Show Deliveries in Meta Station">
 				If checked, deliveries from a meta station to itself are shown.
 			</option>
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
-			</option>
-			<option name="Avoid Overlay">
-				If checked, geographical stations that occlude each other are moved so that
-				the user can see each station.
 			</option>
 			<option name="Enforce Temporal Order">
 				If checked, the delivery date is used for cross contamination. That means a
@@ -223,10 +227,10 @@
 				Automatically creates Delivery Highlight Conditions for all categories of
 				parameter.
 			</option>
-			<option name="Select Stations">
+			<option name="Set Selected Stations">
 				Opens a dialog to select stations based on a logical condition.
 			</option>
-			<option name="Select Deliveries">
+			<option name="Set Selected Deliveries">
 				Opens a dialog to select deliveries based on a logical condition.
 			</option>
 			<option name="Collapse by Property">
