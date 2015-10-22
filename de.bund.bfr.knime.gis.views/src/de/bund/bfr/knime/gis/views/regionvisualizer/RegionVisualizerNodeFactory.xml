@@ -32,7 +32,7 @@
 		<tab name="Options Bar">
 			<option name="Editing Mode">
 				Current editing mode. If "Transforming" is selected the user can move the
-				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+				graph by using the mouse. In "Picking" mode the user can select and unselect nodes.
 			</option>
 			<option name="Show Legend">
 				If checked, a legend with all highlight conditions, which have "Show in
@@ -40,7 +40,10 @@
 			</option>
 			<option name="Font">
 				Font Size and type (plain or bold) can be specified here. This font is used
-				for node/edge labels and in the legend.
+				for node labels and in the legend.
+			</option>
+			<option name="Label">
+				Small Label, that is displayed in the upper right corner of the graph image.
 			</option>
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.

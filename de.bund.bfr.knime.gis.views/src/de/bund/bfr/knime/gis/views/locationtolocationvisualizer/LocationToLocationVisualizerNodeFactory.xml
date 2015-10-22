@@ -47,35 +47,53 @@
 			<option name="Export As Svg">
 				When checked a svg graphic instead of a png is put in the ouput port.
 			</option>
-		</tab>		
+		</tab>
 		<tab name="Options Bar">
 			<option name="Editing Mode">
 				Current editing mode. If "Transforming" is selected the user can move the
-				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and edges.
+				graph by using the mouse. In "Picking" mode the user can select and unselect nodes and
+				edges.
 			</option>
 			<option name="Show Legend">
 				If checked, a legend with all highlight conditions, which have "Show in
 				Legend" activated, is display in the lower left corner of the canvas.
 			</option>
+			<option name="Join Edges">
+				If checked, edges with the same source and target are joined.
+			</option>
+			<option name="Arrow in Middle">
+				If checked, arrows are drawn in the middle of each edge.
+			</option>
+			<option name="Skip Unconnected Nodes">
+				If checked, nodes without any connected edges are not shown.
+			</option>
 			<option name="Font">
 				Font Size and type (plain or bold) can be specified here. This font is used
 				for node/edge labels and in the legend.
 			</option>
-			<option name="Join Edges">
-				If checked, edges with the same source and target are joined.
-			</option>
-			<option name="Skip Edgeless Nodes">
-				If checked, nodes without any connected edges are not shown.
-			</option>
 			<option name="Node Size">
-				Diameter of the nodes.
+				Min/Max diameter of the nodes. Min value is used, when no "Value
+				Condition" or
+				"Logical Value Condition" is defined for nodes. Otherwise the node sizes
+				are between min and max.
+			</option>
+			<option name="Edge Thickness">
+				Min/Max thickness of the edges. Min value is used, when no "Value Condition"
+				or "Logical Value Condition" is defined for edges. Otherwise the edge thicknesses are between
+				min and max.
+			</option>
+			<option name="Avoid Overlay">
+				If checked, geographical nodes that occlude each other are moved so that the
+				user can see each node.
+			</option>
+			<option name="Label">
+				Small Label, that is displayed in the upper right corner of the graph image.
+			</option>
+			<option name="Show Edges in Meta Node">
+				If checked, edges from a meta node to itself are shown.
 			</option>
 			<option name="Border Alpha">
 				Alpha value used to draw the geographical borders.
-			</option>
-			<option name="Avoid Overlay">
-				If checked, geographical stations that occlude each other are moved so that
-				the user can see each station.
 			</option>
 		</tab>
 		<tab name="Context Menu">
@@ -108,7 +126,7 @@
 			</option>
 			<option name="Node Selection -> Select Outgoing">
 				Selects all edges, whose source nodes are already selected.
-			</option>			
+			</option>
 			<option name="Edge Selection -> Show Properties">
 				Shows the properties of all selected edges.
 			</option>
@@ -146,7 +164,7 @@
 			</option>
 			<option name="Select Edges">
 				Opens a dialog to select edges based on a logical condition.
-			</option>			
+			</option>
 		</tab>
 		<tab name="Highlight Condition List Dialog">
 			<option name="">
@@ -251,12 +269,12 @@
 		</inPort>
 		<inPort index="2" name="Edge Table">
 			Table with edge data.
-		</inPort>		
+		</inPort>
 		<outPort index="0" name="Graph Image">
 			Image of the Graph.
 		</outPort>
 		<outPort index="1" name="Geographical Image">
 			Geographical Image of the Graph.
-		</outPort>		
+		</outPort>
 	</ports>
 </knimeNode>

@@ -115,8 +115,8 @@
 			</option>
 			<option name="Station Size">
 				Min/Max diameter of the stations. Min value is used, when no "Value
-				Condition" or "Logical Value Condition" is defined for stations. Otherwise the stations sizes
-				are between min and max.
+				Condition" or "Logical Value Condition" is defined for stations. Otherwise the station sizes are
+				between min and max.
 			</option>
 			<option name="Delivery Thickness">
 				Min/Max thickness of the deliveries. Min value is used, when no "Value
