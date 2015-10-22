@@ -220,7 +220,7 @@
 				Removes all Highlight Conditions for deliveries.
 			</option>
 			<option name="Delivery Highlighting -> Select Highlighted">
-				All delivery that have non zero values for the specified Highlight Condition
+				All deliveries that have non zero values for the specified Highlight Condition
 				will be selected.
 			</option>
 			<option name="Delivery Highlighting -> Add Category Highlighting">
