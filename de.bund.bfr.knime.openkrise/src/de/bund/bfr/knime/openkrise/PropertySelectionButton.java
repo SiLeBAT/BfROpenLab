@@ -21,9 +21,11 @@ package de.bund.bfr.knime.openkrise;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +58,18 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		super("Select Property");
 		groupedProperties = groupProperties(schema);
 		addActionListener(this);
+
+		int maxWidth = getPreferredSize().width;
+		int maxHeight = getPreferredSize().height;
+
+		for (String property : schema.getMap().keySet()) {
+			Dimension d = new JButton(property).getPreferredSize();
+
+			maxWidth = Math.max(maxWidth, d.width);
+			maxHeight = Math.max(maxHeight, d.height);
+		}
+
+		setPreferredSize(new Dimension(maxWidth, maxHeight));
 	}
 
 	@Override
@@ -71,6 +85,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 	@Override
 	public void setSelectedProperty(String property) {
 		setText(property);
+		fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, property, ItemEvent.SELECTED));
 	}
 
 	@Override
