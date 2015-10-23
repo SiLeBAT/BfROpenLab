@@ -165,6 +165,8 @@ public class ImportAction extends AbstractAction {
 						} else if (!success) {
 							Font f = new Font("Arial", Font.PLAIN, 12);
 							if (!warnings.isEmpty()) errors += "\n\nWarnings:\n" + warnings + "\n\n";
+							errors += "\n\nThere are errors! No file imported!";
+							if (selectedFiles.length > 1) errors += "\nEven valid files are not imported when there is at least one invalid file!";
 							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
 							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);

@@ -647,7 +647,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		cell = row.getCell(3);
 		String str = getStr(cell);
 		if (str != null) {l.setNumber(str);}
-		else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n\n"));}
+		else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (rowNum+1) + " in '" + filename + "'\n"));}
 		cell = row.getCell(4); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitNumber(getDbl(cell.getStringCellValue()));}
 		cell = row.getCell(5); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.setUnitUnit(getStr(cell.getStringCellValue()));}
 		String lotId = (p.getStation() == null) ? "_" + p.getName() + "_" + l.getNumber() : p.getStation().getId() + "_" + p.getName() + "_" + l.getNumber();
@@ -724,7 +724,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			String lotNumber = null;
 			cell = row.getCell(1);
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); lotNumber = getStr(cell.getStringCellValue());}
-			else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n\n"));}
+			else if (!ignoreMissingLotnumbers) {exceptions.add(new Exception("Please, do always provide a lot number as this is most helpful! -> Row " + (row.getRowNum()+1) + " in '" + filename + "'\n"));}
 			l.setNumber(lotNumber);
 			if (lotNumber == null && p.getName() == null) {
 				exceptions.add(new Exception("Lot number and product name undefined in Row number " + (classRowIndex + 1)));
@@ -906,7 +906,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 							logMessages += getST(e, false);
 							MyLogger.handleException(e);
 						}
-						logMessages += "\n\n";
+						logMessages += "\n";
 						if (progress != null) progress.setVisible(false);
 						try {
 							is.close();
@@ -949,14 +949,14 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 						//if (progress != null) progress.setVisible(false);
 					}
-					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n\n";
+					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n";
 					MyLogger.handleException(e);
 					try {
 						is.close();
 					} catch (IOException e1) {}
 				}
 				System.err.println("Importing - Fin");
-				//logMessages += "Importing - Fin" + "\n\n";
+				//logMessages += "Importing - Fin" + "\n";
 				
 			}
 		};
@@ -965,7 +965,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
-			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + getST(e, false) + "\n\n";
+			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + getST(e, false) + "\n";
 			MyLogger.handleException(e);
 		}
 		return importResult;
