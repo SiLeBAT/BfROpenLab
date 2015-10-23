@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -52,11 +53,14 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 
 	private static final long serialVersionUID = 1L;
 
+	private String selectedProperty;
+
 	private Map<String, List<String>> groupedProperties;
 
-	public PropertySelectionButton(PropertySchema schema) {
+	public PropertySelectionButton(PropertySchema schema, String metaProperty) {
 		super("Select Property");
-		groupedProperties = groupProperties(schema);
+		selectedProperty = null;
+		groupedProperties = groupProperties(schema, metaProperty);
 		addActionListener(this);
 
 		int maxWidth = getPreferredSize().width;
@@ -79,13 +83,14 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 
 	@Override
 	public String getSelectedProperty() {
-		return getText();
+		return selectedProperty;
 	}
 
 	@Override
-	public void setSelectedProperty(String property) {
-		setText(property);
-		fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, property, ItemEvent.SELECTED));
+	public void setSelectedProperty(String selectedProperty) {
+		this.selectedProperty = selectedProperty;
+		setText(selectedProperty);
+		fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, selectedProperty, ItemEvent.SELECTED));
 	}
 
 	@Override
@@ -99,11 +104,17 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		}
 	}
 
-	private static Map<String, List<String>> groupProperties(PropertySchema schema) {
+	private static Map<String, List<String>> groupProperties(PropertySchema schema, String metaProperty) {
 		Map<String, List<String>> result = new LinkedHashMap<>();
 
 		if (schema.getType() == Type.NODE) {
-			result.put("Main", createPropertyGroup(schema.getMap().keySet(), TracingColumns.STATION_COLUMNS));
+			List<String> mainProperties = new ArrayList<>(TracingColumns.STATION_COLUMNS);
+
+			if (metaProperty != null) {
+				mainProperties.add(metaProperty);
+			}
+
+			result.put("Main", createPropertyGroup(schema.getMap().keySet(), mainProperties));
 			result.put("Address", createPropertyGroup(schema.getMap().keySet(), TracingColumns.ADDRESS_COLUMNS));
 		} else if (schema.getType() == Type.EDGE) {
 			result.put("Main", createPropertyGroup(schema.getMap().keySet(), TracingColumns.DELIVERY_COLUMNS));
@@ -118,7 +129,9 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 			otherProperties.removeAll(used);
 		}
 
-		result.put("Other", otherProperties);
+		if (!otherProperties.isEmpty()) {
+			result.put("Other", otherProperties);
+		}
 
 		return result;
 	}
@@ -159,10 +172,19 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 				panel.setLayout(new GridLayout(entry.getValue().size(), 1));
 
 				for (String property : entry.getValue()) {
+					JPanel p = new JPanel();
 					JButton button = new JButton(property);
 
+					if (property.equals(selectedProperty)) {
+						p.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+					} else {
+						p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+					}
+
 					button.addActionListener(this);
-					panel.add(button);
+					p.setLayout(new BorderLayout());
+					p.add(button, BorderLayout.CENTER);
+					panel.add(p);
 					selectButtons.put(property, button);
 				}
 

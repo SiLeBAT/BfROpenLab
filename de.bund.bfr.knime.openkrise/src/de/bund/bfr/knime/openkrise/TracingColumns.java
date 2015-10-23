@@ -26,6 +26,8 @@ import org.knime.core.data.def.DoubleCell;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
+
 public interface TracingColumns {
 
 	public static final String ID = "ID";
@@ -53,7 +55,6 @@ public interface TracingColumns {
 	public static final String DELIVERY_DEPARTURE = "Date Delivery";
 	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
-	public static final String STATION_NODE = "node"; // deprecated
 	public static final String STATION_NAME = "Name";
 	public static final String STATION_STREET = "Street";
 	public static final String STATION_HOUSENO = "HouseNumber";
@@ -62,25 +63,28 @@ public interface TracingColumns {
 	public static final String STATION_DISTRICT = "District";
 	public static final String STATION_STATE = "State";
 	public static final String STATION_COUNTRY = "Country";
-	public static final String STATION_VAT = "VAT"; // deprecated
 	public static final String STATION_TOB = "type of business";
+	public static final String STATION_SIMPLESUPPLIER = "SimpleSupplier";
+	public static final String STATION_DEADSTART = "DeadStart";
+	public static final String STATION_DEADEND = "DeadEnd";
+
+	public static final String STATION_NODE = "node"; // deprecated
+	public static final String STATION_VAT = "VAT"; // deprecated
 	public static final String STATION_NUMCASES = "Number Cases"; // deprecated
 	public static final String STATION_DATESTART = "Date start"; // deprecated
 	public static final String STATION_DATEPEAK = "Date peak"; // deprecated
 	public static final String STATION_DATEEND = "Date end"; // deprecated
-	public static final String STATION_SERIAL = "Serial";
-	public static final String STATION_SIMPLESUPPLIER = "SimpleSupplier";
-	public static final String STATION_DEADSTART = "DeadStart";
-	public static final String STATION_DEADEND = "DeadEnd";
+	public static final String STATION_SERIAL = "Serial"; // deprecated
 	public static final String STATION_COUNTY = "County"; // deprecated
 
 	public static final String DELIVERY_ITEMNUM = "Item Number";
 	public static final String DELIVERY_ITEMNAME = "Name";
-	public static final String DELIVERY_LOTNUM = "Lot Number"; // Lot number
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";
 	public static final String DELIVERY_NUM_PU = "Amount";
 	public static final String DELIVERY_TYPE_PU = "Amount Unit";
 	public static final String DELIVERY_SERIAL = "Serial";
+
+	public static final String DELIVERY_LOTNUM = "Lot Number"; // Lot number
 	public static final String DELIVERY_CHARGENUM = "Charge Number"; // deprecated
 
 	// now: extra fields:
@@ -95,11 +99,14 @@ public interface TracingColumns {
 	public static final String DELIVERY_DATEEXP = "Date Expiration"; // deprecated
 	public static final String DELIVERY_DATEMANU = "Date Manufactoring"; // deprecated
 
-	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, STATION_NAME, STATION_NODE);
-	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, FROM, TO, DELIVERY_ITEMNAME);
+	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, STATION_SERIAL, STATION_NAME,
+			STATION_NODE, STATION_TOB, STATION_SIMPLESUPPLIER, STATION_DEADSTART, STATION_DEADEND, FILESOURCES);
+	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, DELIVERY_SERIAL, FROM, TO,
+			DELIVERY_ITEMNUM, DELIVERY_ITEMNAME, DELIVERY_LOTNUM, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
+			DELIVERY_DEPARTURE, DELIVERY_ARRIVAL, FILESOURCES);
 	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
 			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
-			STATION_COUNTY);
+			STATION_COUNTY, GeocodingNodeModel.LATITUDE_COLUMN, GeocodingNodeModel.LONGITUDE_COLUMN);
 	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
 	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,

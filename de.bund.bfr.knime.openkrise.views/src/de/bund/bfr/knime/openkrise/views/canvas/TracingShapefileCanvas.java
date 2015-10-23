@@ -240,6 +240,6 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 
 	@Override
 	protected PropertySelectorCreator createPropertySelectorCreator() {
-		return new TracingPropertySelectorCreator();
+		return new TracingPropertySelectorCreator(metaNodeProperty);
 	}
 }

@@ -38,7 +38,7 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 	private String dbPath;
 
 	public MyKrisenInterfacesSettings() {
-		ensureBackwardCompatibility = true;
+		ensureBackwardCompatibility = false;
 		anonymize = false;
 		useExternalDb = false;
 		dbPath = null;

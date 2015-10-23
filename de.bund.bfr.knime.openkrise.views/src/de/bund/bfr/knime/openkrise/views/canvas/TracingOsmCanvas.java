@@ -238,6 +238,6 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 
 	@Override
 	protected PropertySelectorCreator createPropertySelectorCreator() {
-		return new TracingPropertySelectorCreator();
+		return new TracingPropertySelectorCreator(metaNodeProperty);
 	}
 }

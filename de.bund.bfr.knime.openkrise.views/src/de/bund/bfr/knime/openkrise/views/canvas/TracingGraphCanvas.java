@@ -238,6 +238,6 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 
 	@Override
 	protected PropertySelectorCreator createPropertySelectorCreator() {
-		return new TracingPropertySelectorCreator();
+		return new TracingPropertySelectorCreator(metaNodeProperty);
 	}
 }

@@ -25,8 +25,18 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
 public class TracingPropertySelectorCreator implements PropertySelectorCreator {
 
+	private String metaProperty;
+
+	public TracingPropertySelectorCreator() {
+		this(null);
+	}
+
+	public TracingPropertySelectorCreator(String metaProperty) {
+		this.metaProperty = metaProperty;
+	}
+
 	@Override
 	public PropertySelector createSelector(PropertySchema schema) {
-		return new PropertySelectionButton(schema);
+		return new PropertySelectionButton(schema, metaProperty);
 	}
 }
