@@ -62,49 +62,52 @@ public class ImportAction extends AbstractAction {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar1;
-	
-  public ImportAction(String name, Icon icon, String toolTip, JProgressBar progressBar1) {
-  	this.progressBar1 = progressBar1;
-    putValue(Action.NAME, name);
-    putValue(Action.SHORT_DESCRIPTION, toolTip);
-    putValue(Action.SMALL_ICON, icon);
-  }    
 
-  public void actionPerformed(ActionEvent e) {
-  	String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
-	  JFileChooser fc = new JFileChooser(lastOutDir);
-//	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
-	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
+	public ImportAction(String name, Icon icon, String toolTip, JProgressBar progressBar1) {
+		this.progressBar1 = progressBar1;
+		putValue(Action.NAME, name);
+		putValue(Action.SHORT_DESCRIPTION, toolTip);
+		putValue(Action.SMALL_ICON, icon);
+	}
 
-		  LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);
-		  TraceImporter bti = new TraceImporter(); fc.addChoosableFileFilter(bti); fc.setFileFilter(bti);
+	public void actionPerformed(ActionEvent e) {
+		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		JFileChooser fc = new JFileChooser(lastOutDir);
+		//	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
+		if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
 
-	  
-	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
-	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());
-	  //fc.addChoosableFileFilter(new SymptomeImporterDOC());
-	  fc.setAcceptAllFileFilterUsed(false);
-	  fc.setMultiSelectionEnabled(true);
-	  fc.setDialogTitle("Import");
-	  try {
-		  int returnVal = fc.showOpenDialog(progressBar1); // this
-		  if (returnVal == JFileChooser.APPROVE_OPTION) {
+		LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA();
+		fc.addChoosableFileFilter(efsa);
+		fc.setFileFilter(efsa);
+		TraceImporter bti = new TraceImporter();
+		fc.addChoosableFileFilter(bti);
+		fc.setFileFilter(bti);
+
+		//fc.addChoosableFileFilter(new LieferkettenImporter());	  
+		//fc.addChoosableFileFilter(new MethodenADVImporterDOC());
+		//fc.addChoosableFileFilter(new SymptomeImporterDOC());
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setMultiSelectionEnabled(true);
+		fc.setDialogTitle("Import");
+		try {
+			int returnVal = fc.showOpenDialog(progressBar1); // this
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		  		if (fc.getFileFilter() instanceof MyImporter) {
-		  			MyImporter mi = (MyImporter) fc.getFileFilter();
-				  	File[] selectedFiles = fc.getSelectedFiles();
-				  	if (selectedFiles != null && selectedFiles.length > 0) {
-					  	if (selectedFiles.length > 1 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
-					  	if (mi instanceof TraceImporter) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
-					  	boolean ir = true;
-				  		for (File selectedFile : selectedFiles) {
-						  	if (selectedFile != null) {
-						  		boolean lir = doTheImport(mi, selectedFile, false);
-						  		ir = ir && lir;
-						  	}
-				  		}
-				  		if (mi instanceof TraceImporter) {
-				  			if (ir) {
+				if (fc.getFileFilter() instanceof MyImporter) {
+					MyImporter mi = (MyImporter) fc.getFileFilter();
+					File[] selectedFiles = fc.getSelectedFiles();
+					if (selectedFiles != null && selectedFiles.length > 0) {
+						if (selectedFiles.length > 1 && mi instanceof TraceImporter) selectedFiles = sortFilesByDate(selectedFiles);
+						if (mi instanceof TraceImporter) DBKernel.sendRequest("SET AUTOCOMMIT FALSE", false);
+						boolean ir = true;
+						for (File selectedFile : selectedFiles) {
+							if (selectedFile != null) {
+								boolean lir = doTheImport(mi, selectedFile, false);
+								ir = ir && lir;
+							}
+						}
+						if (mi instanceof TraceImporter) {
+							if (ir) {
 								DBKernel.sendRequest("COMMIT", false);
 								DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 								DBKernel.myDBi.getTable("Station").doMNs();
@@ -116,26 +119,25 @@ public class ImportAction extends AbstractAction {
 									MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 									if (myDB.getActualTable() != null) {
 										String actTablename = myDB.getActualTable().getTablename();
-										if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station") || actTablename.equals("Chargen")) {
+										if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen") || actTablename.equals("Station")
+												|| actTablename.equals("Chargen")) {
 											myDB.setTable(myDB.getActualTable());
 										}
 									}
 									progressBar1.setVisible(false);
 								}
-				  			}
-				  			else {
+							} else {
 								DBKernel.sendRequest("ROLLBACK", false);
 								DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 								if (progressBar1 != null) progressBar1.setVisible(false);
-				  			}
-				  		}
-			  		}
-				  	else {
-					  	File selectedSingleFile = fc.getSelectedFile();
-				  		if (selectedSingleFile != null) {
-					  		doTheImport(mi, selectedSingleFile, true);
-				  		}
-				  	}
+							}
+						}
+					} else {
+						File selectedSingleFile = fc.getSelectedFile();
+						if (selectedSingleFile != null) {
+							doTheImport(mi, selectedSingleFile, true);
+						}
+					}
 					if (mi instanceof LieferkettenImporterEFSA) {
 						efsa = (LieferkettenImporterEFSA) mi;
 						efsa.mergeIDs();
@@ -143,17 +145,16 @@ public class ImportAction extends AbstractAction {
 						Font f = new Font("Arial", Font.PLAIN, 10);
 						InfoBox ib = new InfoBox(log, true, new Dimension(1000, 750), f);
 						ib.setVisible(true);
-						
-					}
-					else if (mi instanceof TraceImporter) {
+
+					} else if (mi instanceof TraceImporter) {
 						bti = (TraceImporter) mi;
 						String errors = bti.getLogMessages();
 						String warnings = bti.getLogWarnings();
 						String nl = errors.replaceAll("\nImporting ", "");
-						boolean success = nl.indexOf("\n") == nl.length() - 1; 
+						boolean success = nl.indexOf("\n") == nl.length() - 1;
 						if (success && warnings.isEmpty()) {
-							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();							
-							if (eclipseWindow != null) {						
+							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+							if (eclipseWindow != null) {
 								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
 							} else {
 								JOptionPane pane = new JOptionPane("Import successful!", JOptionPane.INFORMATION_MESSAGE);
@@ -161,56 +162,55 @@ public class ImportAction extends AbstractAction {
 								dialog.setAlwaysOnTop(true);
 								dialog.setVisible(true);
 							}
-						}
-						else if (!success) {
+						} else if (!success) {
 							Font f = new Font("Arial", Font.PLAIN, 12);
 							if (!warnings.isEmpty()) errors += "\n\nWarnings:\n" + warnings + "\n\n";
 							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
 							ib.setTitle("Errors occurred, please check and try again...");
-							ib.setVisible(true);							
-						}
-						else {
+							ib.setVisible(true);
+						} else {
 							Font f = new Font("Arial", Font.PLAIN, 12);
 							InfoBox ib = new InfoBox(warnings, true, new Dimension(900, 500), f);
 							ib.setTitle("Import successful! But some warnings occurred, please check");
-							ib.setVisible(true);							
-						}						
+							ib.setVisible(true);
+						}
 					}
-			  	}
-		  }	  
-	  }
-	  catch (Exception e1) {
-		  MyLogger.handleMessage(fc + "\t" + lastOutDir);
-		  MyLogger.handleException(e1);
-	  }
+				}
+			}
+		} catch (Exception e1) {
+			MyLogger.handleMessage(fc + "\t" + lastOutDir);
+			MyLogger.handleException(e1);
+		}
 		if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		MyLogger.handleMessage("Importing - FinFin!");
 	}
-  private boolean doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
+
+	private boolean doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
 		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
 		DBKernel.prefs.prefsFlush();
 		boolean result = mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
 		MyLogger.handleMessage("Importing - Fin!");
 		return result;
-  }
-  private File[] sortFilesByDate(File[] files) {
-	  HashMap<Long, List<File>> hm = new HashMap<>();
-	  for (File f : files) {
-		  Long l = TraceImporter.getMillis(null, f.getAbsolutePath());
-		  if (!hm.containsKey(l)) hm.put(l, new ArrayList<File>());
-		  List<File> lf = hm.get(l);
-		  lf.add(f);
-	  }
-	  File[] result = new File[files.length];
-	  SortedSet<Long> keys = new TreeSet<Long>(hm.keySet());
-	  int i=0;
-	  for (Long l : keys) { 
-		  List<File> lf = hm.get(l);
-		  for (File f : lf) {
-			  result[i] = f;
-			  i++;
-		  }
-	  }
-	  return result;
-  	}
+	}
+
+	private File[] sortFilesByDate(File[] files) {
+		HashMap<Long, List<File>> hm = new HashMap<>();
+		for (File f : files) {
+			Long l = TraceImporter.getMillis(null, f.getAbsolutePath());
+			if (!hm.containsKey(l)) hm.put(l, new ArrayList<File>());
+			List<File> lf = hm.get(l);
+			lf.add(f);
+		}
+		File[] result = new File[files.length];
+		SortedSet<Long> keys = new TreeSet<Long>(hm.keySet());
+		int i = 0;
+		for (Long l : keys) {
+			List<File> lf = hm.get(l);
+			for (File f : lf) {
+				result[i] = f;
+				i++;
+			}
+		}
+		return result;
+	}
 }

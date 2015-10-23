@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,6 +15,8 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+import org.apache.poi.POIXMLProperties;
+import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.ss.usermodel.DataValidationConstraint.OperatorType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Name;
@@ -716,6 +719,9 @@ public class TraceGenerator {
 				else if (returnVal == JOptionPane.YES_OPTION) ;
 				else return false;
 			}
+			POIXMLProperties.CoreProperties coreProp = workbook.getProperties().getCoreProperties();
+			coreProp.setCreator("FoodChain-Lab");
+			coreProp.setCreated(new Nullable<Date>(new Date(System.currentTimeMillis())));
 			// Write the workbook in file system
 			FileOutputStream out = new FileOutputStream(f);
 			workbook.write(out);
