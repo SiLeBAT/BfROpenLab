@@ -107,7 +107,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		Map<String, Set<String>> warnings = new HashMap<>();
 
 		Map<String, Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
-		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec);
+		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
 		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec);
 		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
 
@@ -187,10 +187,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return path;
 	}
 
-	private DataTableSpec getStationSpec(Connection conn) {
+	private DataTableSpec getStationSpec(Connection conn, boolean useSerialAsId) {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
+		if (!useSerialAsId)
+			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_HOUSENO, StringCell.TYPE).createSpec());
@@ -220,7 +222,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		// Backward Compatibility Stuff
 		if (set.isEnsureBackwardCompatibility()) {
-			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_SERIAL, StringCell.TYPE).createSpec());
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NODE, StringCell.TYPE).createSpec());
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_COUNTY, StringCell.TYPE).createSpec());
 		}
@@ -296,8 +297,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
-			Map<String, Delivery> deliveries, ExecutionContext exec) throws CanceledExecutionException {
-		DataTableSpec spec = getStationSpec(conn);
+			Map<String, Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
+					throws CanceledExecutionException {
+		DataTableSpec spec = getStationSpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;
 		boolean bvlFormat = false;
