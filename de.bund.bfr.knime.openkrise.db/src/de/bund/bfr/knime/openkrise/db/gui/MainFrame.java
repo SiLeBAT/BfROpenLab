@@ -72,6 +72,8 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.bund.bfr.knime.UI;
+import de.bund.bfr.knime.openkrise.common.Station;
+import de.bund.bfr.knime.openkrise.common.StationDialog;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.MyTable;
@@ -719,6 +721,7 @@ public class MainFrame extends JFrame {
 		button11.setEnabled(isEnabable);
 		button13.setEnabled(isEnabable);
 		button14.setEnabled(isEnabable);
+		button15.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -760,7 +763,65 @@ public class MainFrame extends JFrame {
 		}
 		
 	}
+	private void button15ActionPerformed(final ActionEvent e) {
+		List<Station> stations = getStations();
+		
+		StationDialog dialog = new StationDialog((JButton) e.getSource(), "Select Station", stations);
+		dialog.setSize(800, 600);
+		dialog.setVisible(true);
+		
+		doStationGeneration(dialog);
+	}
+	private void doStationGeneration(StationDialog dialog) {
+		if (dialog.isApproved()) {
+			JFileChooser chooser = new JFileChooser(); 
+			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
+		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
+		    chooser.setDialogTitle("Select output folder");
+		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    chooser.setAcceptAllFileFilterUsed(false);
+		    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+		    	File f = chooser.getSelectedFile();
+		    	if (f.isFile()) f = f.getParentFile();
+				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
+				DBKernel.prefs.prefsFlush();
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
+				new TraceGenerator(f, dialog.getSelected(), chooser);
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
+		    }
+		}
+	}
+	private List<Station> getStations() {
+		String sql = "Select * from " + DBKernel.delimitL("Station");
+		List<Station> stations = new ArrayList<>();
+		ResultSet rs = DBKernel.getResultSet(sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				do  {
+					Station s = new Station(rs.getString("Serial"), rs.getString("Name"));
+					s.setCity(rs.getString("Ort"));
+					s.setCountry(rs.getString("Land"));
+					s.setDistrict(rs.getString("District"));
+					s.setState(rs.getString("Bundesland"));
+					s.setType(rs.getString("Betriebsart"));
+					s.setZipCode(rs.getString("PLZ"));
+					stations.add(s);
+				} while (rs.next());
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		return stations;
+	}
 	private void button13ActionPerformed(final ActionEvent e) {
+		List<String> businessTypes = getBusinessTypes();
+		
+		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, false);		
+		dialog.setVisible(true);
+		
+		doTraceGeneration(dialog, false);
+	}
+	private List<String> getBusinessTypes() {
 		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
 		List<String> businessTypes = new ArrayList<>();
 		ResultSet rs = DBKernel.getResultSet(sql, false);
@@ -773,11 +834,7 @@ public class MainFrame extends JFrame {
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, false);
-		
-		dialog.setVisible(true);
-		
-		doTraceGeneration(dialog, false);
+		return businessTypes;
 	}
 	private void doTraceGeneration(TraceDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
@@ -799,18 +856,8 @@ public class MainFrame extends JFrame {
 		}
 	}
 	private void button14ActionPerformed(final ActionEvent e) {
-		String sql = "Select DISTINCT(" + DBKernel.delimitL("Betriebsart") + ") from " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("Betriebsart") + " IS NOT NULL";
-		List<String> businessTypes = new ArrayList<>();
-		ResultSet rs = DBKernel.getResultSet(sql, false);
-		try {
-			if (rs != null && rs.first()) {
-				do  {
-					businessTypes.add(rs.getString(1));
-				} while (rs.next());
-			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
+		List<String> businessTypes = getBusinessTypes();
+
 		TraceDialog dialog = new TraceDialog((JButton) e.getSource(), businessTypes, true);
 		
 		dialog.setVisible(true);
@@ -904,6 +951,7 @@ public class MainFrame extends JFrame {
 		button11 = new JButton();
 		button13 = new JButton();
 		button14 = new JButton();
+		button15 = new JButton();
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -1023,6 +1071,20 @@ public class MainFrame extends JFrame {
 			});
 			
 			toolBar1.add(button13);
+			
+			//---- button15 ----
+			button15.setToolTipText("Generate tracing templates for specific station");
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station.gif"));
+			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
+			button15.setIcon(ico);
+			button15.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					button15ActionPerformed(e);
+				}
+			});
+			toolBar1.add(button15);
+			
 			//---- button14 ----
 			button14.setToolTipText("Generate forward tracing templates");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
@@ -1081,6 +1143,7 @@ public class MainFrame extends JFrame {
 	private JButton button11;
 	private JButton button13;
 	private JButton button14;
+	private JButton button15;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;

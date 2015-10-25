@@ -65,7 +65,7 @@ public class StationDialog extends JDialog {
 
 		b1.setCity("Berlin");
 		b1.setCountry("Germany");
-		b2.setCountry("München");
+		b2.setCity("München");
 		b2.setCountry("Germany");
 		b3.setCountry("USA");
 
@@ -109,7 +109,7 @@ public class StationDialog extends JDialog {
 		table.setRowSorter(rowSorter);
 		UI.packColumns(table);
 		pane = new JScrollPane();
-		pane.setRowHeaderView(createSelectTable(stations.size()));
+		pane.setRowHeaderView(createSelectTable(stations == null ? 0 : stations.size()));
 		pane.setViewportView(table);
 		pane.getRowHeader().setPreferredSize(pane.getRowHeader().getView().getPreferredSize());
 
@@ -297,7 +297,7 @@ public class StationDialog extends JDialog {
 
 		@Override
 		public int getRowCount() {
-			return stations.size();
+			return stations == null ? 0 : stations.size();
 		}
 
 		@Override
