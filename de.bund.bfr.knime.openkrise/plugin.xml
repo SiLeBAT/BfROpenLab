@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   
-   <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/foodchain"
-            factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"
-            id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"/>
-   </extension>
-   <extension
-         point="org.knime.workbench.repository.categories">
-      <category
-            icon="icons/FoodChainLab.png"
-            level-id="foodchain"
-            name="FoodChain-Lab"
-            path="/">
-      </category>
-   </extension>
-   
+
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/FoodChainLab.png" level-id="foodchain" name="FoodChain-Lab" path="/" />
+	</extension>
+
+	<extension point="org.knime.workbench.repository.nodes">
+		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory"
+			id="de.bund.bfr.knime.openkrise.MyKrisenInterfacesNodeFactory" />
+	</extension>
+
 </plugin>
