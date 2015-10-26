@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?><plugin>
+<?eclipse version="3.0"?>
+<plugin>
 
 	<extension point="org.knime.workbench.repository.categories">
-      <category icon="icons/gis.png" level-id="gisnodes" name="GIS Nodes" path="/">
-      </category>
-   </extension>
+		<category icon="icons/gis.png" level-id="gisnodes" name="GIS Nodes" path="/" />
+	</extension>
 
-   <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocode.GeocodingNodeFactory" id="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory"/>
-      <node
-            category-path="/gisnodes"
-            expert-flag="false"
-            factory-class="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory"
-            id="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory">
-      </node>
-</extension>
-   
+	<extension point="org.knime.workbench.repository.nodes">
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.geocode.GeocodingNodeFactory"
+			id="de.bund.bfr.knime.gis.util.geocoding.GeocodingNodeFactory" />
+		<node category-path="/gisnodes" factory-class="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory"
+			id="de.bund.bfr.knime.gis.util.shapefilereader.ShapefileReaderNodeFactory" />
+	</extension>
+
 </plugin>
