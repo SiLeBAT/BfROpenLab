@@ -180,6 +180,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	protected static String removeNameOfDB(String path) throws InvalidPathException, MalformedURLException {
+		if (path == null) {
+			return null;
+		}
+
 		if ((path.endsWith("\\DB") || path.endsWith("/DB")) && KnimeUtils.getFile(path + ".properties").exists()) {
 			return path.substring(0, path.length() - 3);
 		}
@@ -239,7 +243,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		List<DataColumnSpec> columns = new ArrayList<>();
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec());
-		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());		
+		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE).createSpec());
@@ -250,7 +254,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, PRODUKTKATALOG.PROZESSIERUNG))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_PROCESSING, StringCell.TYPE).createSpec());
 		if (containsValues(conn, PRODUKTKATALOG.INTENDEDUSE))
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_USAGE, StringCell.TYPE).createSpec());				
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_USAGE, StringCell.TYPE).createSpec());
 		if (containsValues(conn, CHARGEN.MHD_DAY, CHARGEN.MHD_MONTH, CHARGEN.MHD_YEAR))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DATEEXP, StringCell.TYPE).createSpec());
 		if (containsValues(conn, CHARGEN.PD_DAY, CHARGEN.PD_MONTH, CHARGEN.PD_YEAR))
@@ -279,7 +283,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		// Backward Compatibility Stuff
 		if (set.isEnsureBackwardCompatibility()) {
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());			
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
 		}
 
