@@ -112,7 +112,7 @@ public class TracingParametersSettings extends NodeSettings {
 		edgeKillConditionValue = null;
 		observedNodesConditionValue = null;
 		observedEdgesConditionValue = null;
-		enforeTemporalOrder = false;
+		enforeTemporalOrder = true;
 	}
 
 	@SuppressWarnings("unchecked")
