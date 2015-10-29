@@ -1,10 +1,10 @@
 package de.bund.bfr.knime.openkrise.common;
 
-import static de.bund.bfr.knime.openkrise.common.generated.public_.Tables.CHARGEN;
-import static de.bund.bfr.knime.openkrise.common.generated.public_.Tables.CHARGENVERBINDUNGEN;
-import static de.bund.bfr.knime.openkrise.common.generated.public_.Tables.LIEFERUNGEN;
-import static de.bund.bfr.knime.openkrise.common.generated.public_.Tables.PRODUKTKATALOG;
-import static de.bund.bfr.knime.openkrise.common.generated.public_.Tables.STATION;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGENVERBINDUNGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.LIEFERUNGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.PRODUKTKATALOG;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.STATION;
 
 import java.sql.Connection;
 import java.text.DecimalFormat;

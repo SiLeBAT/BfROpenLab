@@ -62,6 +62,7 @@
       <plugin id="de.bund.bfr.knime.openkrise"/>
       <plugin id="de.bund.bfr.knime.openkrise.common"/>
       <plugin id="de.bund.bfr.knime.openkrise.db"/>
+      <plugin id="de.bund.bfr.knime.openkrise.db.generated"/>
       <plugin id="de.bund.bfr.knime.openkrise.util"/>
       <plugin id="de.bund.bfr.knime.openkrise.views"/>
       <plugin id="de.bund.bfr.math"/>

@@ -37,10 +37,10 @@
 
 		<target>
 			<!-- The destination package of your generated classes (within the destination directory) -->
-			<packageName>de.bund.bfr.knime.openkrise.common.generated</packageName>
+			<packageName>de.bund.bfr.knime.openkrise.db.generated</packageName>
 
 			<!-- The destination directory of your generated classes -->
-			<directory>../de.bund.bfr.knime.openkrise.common/src</directory>
+			<directory>../de.bund.bfr.knime.openkrise.db.generated/src</directory>
 		</target>
 	</generator>
 </configuration>

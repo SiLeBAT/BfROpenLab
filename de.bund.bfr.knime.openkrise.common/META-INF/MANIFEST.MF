@@ -6,14 +6,9 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: de.bund.bfr.knime.openkrise.common.Activator
 Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
- org.jooq;visibility:=reexport,
- de.bund.bfr.knime
+ de.bund.bfr.knime,
+ de.bund.bfr.knime.openkrise.db.generated
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
-Export-Package: de.bund.bfr.knime.openkrise.common,
- de.bund.bfr.knime.openkrise.common.generated.information_schema,
- de.bund.bfr.knime.openkrise.common.generated.public_,
- de.bund.bfr.knime.openkrise.common.generated.public_.tables,
- de.bund.bfr.knime.openkrise.common.generated.public_.tables.records,
- de.bund.bfr.knime.openkrise.common.generated.system_lobs
+Export-Package: de.bund.bfr.knime.openkrise.common
