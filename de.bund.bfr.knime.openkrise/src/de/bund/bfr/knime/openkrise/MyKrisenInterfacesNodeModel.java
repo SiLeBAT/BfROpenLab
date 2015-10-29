@@ -33,11 +33,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.jooq.Record;
 import org.jooq.Record1;
@@ -66,6 +64,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
@@ -104,7 +105,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.isSerialPossible(conn);
 		Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
 		Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
-		Map<String, Set<String>> warnings = new HashMap<>();
+		SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
 		Map<String, Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
@@ -114,6 +115,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			for (String key : warnings.keySet()) {
 				setWarningMessage(key + ":");
+
 				for (String w : warnings.get(key)) {
 					setWarningMessage(w);
 				}

@@ -11,7 +11,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +30,13 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
 public class DeliveryUtils {
+
+	private static final String WITHOUT_SUPPLIER = "Deliveries without supplier";
+	private static final String WITHOUT_RECIPIENT = "Deliveries without recipient";
+	private static final String INCONSISTENT_AMOUNT_DECLARATIONS = "Deliveries with inconsistent amount declarations";
+	private static final String INGREDIENT_OF_ITSELF = "Deliveries being ingredient of itself";
+	private static final String INCONSISTENT_DATES = "Dates are inconsistent for following deliveries";
+	private static final String AMOUNTS_INCORRECT = "Amounts might be incorrect";
 
 	private DeliveryUtils() {
 	}
@@ -159,21 +165,15 @@ public class DeliveryUtils {
 
 	public static Map<String, Set<String>> getWarnings(Connection conn) {
 		boolean useSerialAsID = isSerialPossible(conn);
-		Map<String, Set<String>> warnings = new HashMap<>();
-		//LinkedHashSet
+		SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
 		getDeliveries(conn, getStationIds(conn, useSerialAsID), getDeliveryIds(conn, useSerialAsID), warnings);
 
-		return warnings;
+		return Multimaps.asMap(warnings);
 	}
 
-	private static void warningsAdd(Map<String, Set<String>> warnings, String key, String value) {
-		if (!warnings.containsKey(key)) warnings.put(key, new LinkedHashSet<String>());
-		Set<String> lhs = warnings.get(key);
-		lhs.add(value);
-	}
 	public static Map<String, Delivery> getDeliveries(Connection conn, Map<Integer, String> stationIds,
-			Map<Integer, String> deliveryIds, Map<String, Set<String>> warnings) {
+			Map<Integer, String> deliveryIds, SetMultimap<String, String> warnings) {
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
 		Select<Record> deliverySelect = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
@@ -187,12 +187,12 @@ public class DeliveryUtils {
 			boolean invalid = false;
 
 			if (from == null) {
-				warningsAdd(warnings, "Deliveries without supplier", id + "");
+				warnings.put(WITHOUT_SUPPLIER, deliveryIds.get(id));
 				invalid = true;
 			}
 
 			if (to == null) {
-				warningsAdd(warnings, "Deliveries without recipient", id + "");
+				warnings.put(WITHOUT_RECIPIENT, deliveryIds.get(id));
 				invalid = true;
 			}
 
@@ -206,7 +206,8 @@ public class DeliveryUtils {
 			Double amountInKg2 = getAmountInKg(r.getValue(LIEFERUNGEN.NUMPU), r.getValue(LIEFERUNGEN.TYPEPU));
 
 			if (amountInKg1 != null && amountInKg2 != null && !amountInKg1.equals(amountInKg2)) {
-				warningsAdd(warnings, "Deliveries with inconsistent amount declarations", id + ": " + amountInKg1 + "kg\tvs.\t" + amountInKg2 + "kg");
+				warnings.put(INCONSISTENT_AMOUNT_DECLARATIONS,
+						id + ": " + amountInKg1 + "kg\tvs.\t" + amountInKg2 + "kg");
 			}
 
 			Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
@@ -230,7 +231,7 @@ public class DeliveryUtils {
 			}
 
 			if (from.getId().equals(to.getId())) {
-				warningsAdd(warnings, "Deliveries being  ingredient of itself", from.getId() + "");
+				warnings.put(INGREDIENT_OF_ITSELF, from.getId());
 				continue;
 			}
 
@@ -244,15 +245,15 @@ public class DeliveryUtils {
 		return deliveries;
 	}
 
-	private static void checkDates(Map<String, Delivery> deliveries, Map<String, Set<String>> warnings) {
+	private static void checkDates(Map<String, Delivery> deliveries, SetMultimap<String, String> warnings) {
 		for (Delivery d : deliveries.values()) {
 			for (String nextId : d.getAllNextIds()) {
 				Delivery next = deliveries.get(nextId);
 
 				if (!d.isBefore(next)) {
-					warningsAdd(warnings, "Dates are inconsistent for following deliveries", "\tIn: \"" + d.getId() + "\" ("
-							+ formatDate(d.getArrivalDay(), d.getArrivalMonth(), d.getArrivalYear()) + ")\tvs.\tOut: \""
-							+ next.getId() + "\" ("
+					warnings.put(INCONSISTENT_DATES,
+							"\tIn: \"" + d.getId() + "\" (" + formatDate(d.getArrivalDay(), d.getArrivalMonth(),
+									d.getArrivalYear()) + ")\tvs.\tOut: \"" + next.getId() + "\" ("
 							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
 							+ ")");
 				}
@@ -260,7 +261,7 @@ public class DeliveryUtils {
 		}
 	}
 
-	private static void checkAmounts(Map<String, Delivery> deliveries, Map<String, Set<String>> warnings) {
+	private static void checkAmounts(Map<String, Delivery> deliveries, SetMultimap<String, String> warnings) {
 		SetMultimap<String, Delivery> deliveriesByLot = LinkedHashMultimap.create();
 
 		for (Delivery d : deliveries.values()) {
@@ -327,11 +328,11 @@ public class DeliveryUtils {
 
 			if (amountIn != null && unitIn != null && amountOut != null && unitOut != null && unitIn.equals(unitOut)
 					&& areTooDifferent(amountIn, amountOut)) {
-				warningsAdd(warnings, "Amounts might be incorrect", "\tLot = " + lot.getKey() + "\n\tIn = " + amountIn + " "
-						+ unitIn + "\tvs.\tOut = " + amountOut + " " + unitOut);
+				warnings.put(AMOUNTS_INCORRECT, "\tLot = " + lot.getKey() + "\n\tIn = " + amountIn + " " + unitIn
+						+ "\tvs.\tOut = " + amountOut + " " + unitOut);
 			} else if (kgIn != null && kgOut != null && areTooDifferent(kgIn, kgOut)) {
-				warningsAdd(warnings, "Amounts might be incorrect", "\tLot = " + lot.getKey() + ":\tIn = " + kgIn + " "
-						+ "kg\tvs.\tOut = " + kgOut + " kg");
+				warnings.put(AMOUNTS_INCORRECT,
+						"\tLot = " + lot.getKey() + ":\tIn = " + kgIn + " " + "kg\tvs.\tOut = " + kgOut + " kg");
 			}
 		}
 	}
