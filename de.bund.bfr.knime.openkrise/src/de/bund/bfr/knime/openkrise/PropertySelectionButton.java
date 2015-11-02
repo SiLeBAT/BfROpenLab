@@ -43,6 +43,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelector;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
@@ -130,7 +131,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		}
 
 		if (!otherProperties.isEmpty()) {
-			result.put("Other", otherProperties);
+			result.put("Other", KnimeUtils.OBJECT_ORDERING.sortedCopy(otherProperties));
 		}
 
 		return result;
