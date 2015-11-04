@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.jooq.Record;
 import org.jooq.Record1;
@@ -66,6 +67,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
 import de.bund.bfr.knime.KnimeUtils;
@@ -113,11 +115,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
 
 		if (!warnings.isEmpty()) {
-			for (String key : warnings.keySet()) {
-				setWarningMessage(key + ":");
+			for (Map.Entry<String, Set<String>> entry : Multimaps.asMap(warnings).entrySet()) {
+				setWarningMessage(entry.getKey() + ":");
 
-				for (String w : warnings.get(key)) {
-					setWarningMessage(w);
+				for (String w : entry.getValue()) {
+					setWarningMessage("\t" + w);
 				}
 			}
 

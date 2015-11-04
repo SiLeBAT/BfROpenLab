@@ -973,14 +973,18 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void doWarns(String filename) {
 		if (warns.size() > 0) {
 			if (filename != null) {
-				logWarnings += "\nWarnings for import file '" + filename + "':";
+				if (!logWarnings.isEmpty()) {
+					logWarnings += "\n";
+				}
+				
+				logWarnings += "Warnings for import file '" + filename + "':\n";
 			}
 			for (String key : warns.keySet()) {
-				logWarnings += "\n" + key;
+				logWarnings += key;
 				if (warns.get(key) != null) {
 					logWarnings += ":\n";
 					for (String w : warns.get(key)) {
-						if (logWarnings.indexOf(w+"\n") < 0) logWarnings += w + "\n";
+						if (logWarnings.indexOf(w+"\n") < 0) logWarnings += "\t" + w + "\n";
 					}
 					if (logWarnings.endsWith("\n" + key + ":\n")) {
 						logWarnings = logWarnings.substring(0, logWarnings.length() - ("\n" + key + ":\n").length());
