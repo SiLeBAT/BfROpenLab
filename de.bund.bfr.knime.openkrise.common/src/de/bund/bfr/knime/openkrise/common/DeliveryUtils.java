@@ -328,8 +328,8 @@ public class DeliveryUtils {
 
 			if (amountIn != null && unitIn != null && amountOut != null && unitOut != null && unitIn.equals(unitOut)
 					&& areTooDifferent(amountIn, amountOut)) {
-				warnings.put(AMOUNTS_INCORRECT, "Lot=" + lot.getKey() + ": In=" + amountIn + " " + " vs. Out="
-						+ amountOut + " (" + unitOut + ")");
+				warnings.put(AMOUNTS_INCORRECT,
+						"Lot=" + lot.getKey() + ": In=" + amountIn + " vs. Out=" + amountOut + " (" + unitOut + ")");
 			} else if (kgIn != null && kgOut != null && areTooDifferent(kgIn, kgOut)) {
 				warnings.put(AMOUNTS_INCORRECT, "Lot=" + lot.getKey() + ": In=" + kgIn + "kg vs. Out=" + kgOut + "kg");
 			}
