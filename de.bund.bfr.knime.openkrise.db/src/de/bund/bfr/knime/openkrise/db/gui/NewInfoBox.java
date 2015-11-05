@@ -59,7 +59,7 @@ public class NewInfoBox extends JDialog {
 		new NewInfoBox(title, inhalt, dim);
 	}
 
-	public NewInfoBox(String title, String inhalt, Dimension dim) {
+	private NewInfoBox(String title, String inhalt, Dimension dim) {
 		super(DBKernel.mainFrame, title, true);
 
 		Point loc = DBKernel.mainFrame.getLocation();
