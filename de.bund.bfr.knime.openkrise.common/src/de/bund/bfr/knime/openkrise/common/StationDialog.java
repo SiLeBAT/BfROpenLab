@@ -26,14 +26,12 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -54,37 +52,9 @@ import de.bund.bfr.knime.ui.TextListener;
 
 public class StationDialog extends JDialog {
 
+	private static final long serialVersionUID = 1L;
 	private static final String SELECT = "Select";
 	private static final int ROW_HEIGHT = new JButton(SELECT).getPreferredSize().height;
-
-	public static void main(String[] args)
-			throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		Station b1 = new Station("1", "Bäcker Müller");
-		Station b2 = new Station("2", "Bäcker Meier");
-		Station b3 = new Station("3", "Megashop");
-
-		b1.setCity("Berlin");
-		b1.setCountry("Germany");
-		b2.setCity("München");
-		b2.setCountry("Germany");
-		b3.setCountry("USA");
-
-		JFrame frame = new JFrame("Test");
-
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 200);
-		frame.setVisible(true);
-
-		StationDialog dialog = new StationDialog(frame, "Test", Arrays.asList(b1, b2, b3));
-
-		dialog.setVisible(true);
-
-		if (dialog.isApproved()) {
-			System.out.println(dialog.getSelected());
-		}
-	}
-
-	private static final long serialVersionUID = 1L;
 
 	private boolean approved;
 	private Station selected;
