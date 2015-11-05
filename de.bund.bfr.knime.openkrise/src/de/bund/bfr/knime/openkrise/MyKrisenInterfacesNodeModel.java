@@ -111,7 +111,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		Map<String, Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
-		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec);
+		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
 		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
 
 		if (!warnings.isEmpty()) {
@@ -243,9 +243,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
-	private DataTableSpec getDeliverySpec(Connection conn) {
+	private DataTableSpec getDeliverySpec(Connection conn, boolean useSerialAsId) {
 		List<DataColumnSpec> columns = new ArrayList<>();
+
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
+		if (!useSerialAsId)
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
@@ -287,7 +290,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		// Backward Compatibility Stuff
 		if (set.isEnsureBackwardCompatibility()) {
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
 		}
 
@@ -402,8 +404,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable getDeliveryTable(Connection conn, Map<Integer, String> stationIds,
-			Map<Integer, String> deliveryIds, ExecutionContext exec) throws CanceledExecutionException {
-		DataTableSpec spec = getDeliverySpec(conn);
+			Map<Integer, String> deliveryIds, ExecutionContext exec, boolean useSerialAsId)
+					throws CanceledExecutionException {
+		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;
 
