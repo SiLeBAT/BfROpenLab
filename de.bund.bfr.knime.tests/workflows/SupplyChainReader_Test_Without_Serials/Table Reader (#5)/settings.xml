@@ -39,7 +39,7 @@
 <entry key="node-bundle-name" type="xstring" value="KNIME Base Nodes"/>
 <entry key="node-bundle-symbolic-name" type="xstring" value="org.knime.base"/>
 <entry key="node-bundle-vendor" type="xstring" value="KNIME GmbH, Konstanz, Germany"/>
-<entry key="node-bundle-version" type="xstring" value="2.11.3.0046666"/>
+<entry key="node-bundle-version" type="xstring" value="2.12.1.0048767"/>
 <config key="factory_settings"/>
 <entry key="name" type="xstring" value="Table Reader"/>
 <entry key="hasContent" type="xboolean" value="true"/>
@@ -55,6 +55,6 @@
 </config>
 <config key="filestores">
 <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-<entry key="file_store_id" type="xstring" value="d4953cfa-3933-4e0c-9914-b1f1650a9ada"/>
+<entry key="file_store_id" type="xstring" value="4673ade0-c6e1-429d-9ca5-3a10ff08d0dc"/>
 </config>
 </config>

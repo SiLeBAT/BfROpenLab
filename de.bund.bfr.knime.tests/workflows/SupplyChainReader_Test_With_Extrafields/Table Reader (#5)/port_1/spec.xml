@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="spec.xml">
 <entry key="spec_name" type="xstring" value="default"/>
-<entry key="number_columns" type="xint" value="19"/>
+<entry key="number_columns" type="xint" value="18"/>
 <config key="column_spec_0">
 <entry key="column_name" type="xstring" value="ID"/>
 <config key="element_names">
@@ -498,17 +498,6 @@
 <config key="column_properties"/>
 </config>
 <config key="column_spec_9">
-<entry key="column_name" type="xstring" value="Serial"/>
-<config key="element_names">
-<entry key="array-size" type="xint" value="0"/>
-</config>
-<config key="column_type">
-<entry key="cell_class" type="xstring" value="org.knime.core.data.def.StringCell"/>
-</config>
-<config key="column_domain"/>
-<config key="column_properties"/>
-</config>
-<config key="column_spec_10">
 <entry key="column_name" type="xstring" value="SimpleSupplier"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -547,7 +536,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_11">
+<config key="column_spec_10">
 <entry key="column_name" type="xstring" value="DeadStart"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -586,7 +575,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_12">
+<config key="column_spec_11">
 <entry key="column_name" type="xstring" value="DeadEnd"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -625,7 +614,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_13">
+<config key="column_spec_12">
 <entry key="column_name" type="xstring" value="type of business"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -658,7 +647,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_14">
+<config key="column_spec_13">
 <entry key="column_name" type="xstring" value="ImportSources"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -679,7 +668,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_15">
+<config key="column_spec_14">
 <entry key="column_name" type="xstring" value="node"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -690,7 +679,7 @@
 <config key="column_domain"/>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_16">
+<config key="column_spec_15">
 <entry key="column_name" type="xstring" value="County"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -705,7 +694,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_17">
+<config key="column_spec_16">
 <entry key="column_name" type="xstring" value="_Owner"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
@@ -726,7 +715,7 @@
 </config>
 <config key="column_properties"/>
 </config>
-<config key="column_spec_18">
+<config key="column_spec_17">
 <entry key="column_name" type="xstring" value="_Price"/>
 <config key="element_names">
 <entry key="array-size" type="xint" value="0"/>
