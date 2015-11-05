@@ -884,7 +884,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						else if (mydbi != null) {
 							warns.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
 						}
-						doWarns(null);
+						doWarns(filename);
 						
 						logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
 						for (Exception e : exceptions) {
