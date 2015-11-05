@@ -197,8 +197,8 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 			add(UI.createEastPanel(UI.createHorizontalPanel(cancelButton)), BorderLayout.SOUTH);
 
 			pack();
-			setLocationRelativeTo(PropertySelectionButton.this);
 			UI.adjustDialog(this);
+			setLocationRelativeTo(PropertySelectionButton.this);
 			getRootPane().setDefaultButton(cancelButton);
 		}
 

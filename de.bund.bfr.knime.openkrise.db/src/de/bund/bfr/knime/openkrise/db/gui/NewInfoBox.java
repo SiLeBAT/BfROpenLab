@@ -23,37 +23,24 @@
 package de.bund.bfr.knime.openkrise.db.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.text.html.HTMLEditorKit;
 
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.FormSpecs;
-import com.jgoodies.forms.layout.RowSpec;
-
+import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class NewInfoBox extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-
-	private JPanel dialogPane;
-	private JEditorPane infoTextArea;
-	private JPanel buttonBar;
-	private JButton okButton;
-
-	private String inhalt;
 
 	public static void show(String title, String inhalt, Dimension dim) {
 		new NewInfoBox(title, inhalt, dim);
@@ -62,22 +49,7 @@ public class NewInfoBox extends JDialog {
 	private NewInfoBox(String title, String inhalt, Dimension dim) {
 		super(DBKernel.mainFrame, title, true);
 
-		Point loc = DBKernel.mainFrame.getLocation();
-		Dimension siz = DBKernel.mainFrame.getSize();
-
-		this.inhalt = inhalt;
-		this.setResizable(false);
-		this.setSize(dim);
-		this.setLocation(loc.x + (siz.width - this.getWidth()) / 2, loc.y + (siz.height - this.getHeight()) / 2);
-		initComponents();
-		infoTextArea.setEditable(false);
-		setVisible(true);
-	}
-
-	private void initComponents() {
-		infoTextArea = new JEditorPane();
-		infoTextArea.setContentType("text/html");
-
+		JEditorPane infoTextArea = new JEditorPane();
 		HTMLEditorKit kit = new HTMLEditorKit();
 
 		kit.getStyleSheet().addRule("* { font-family:monospace; font-size:10px; }");
@@ -87,35 +59,46 @@ public class NewInfoBox extends JDialog {
 		kit.getStyleSheet().addRule("h2 { font-size:11px; }");
 		kit.getStyleSheet().addRule("h1, h2 { margin-top:0px; margin-bottom:0px; }");
 
+		infoTextArea.setContentType("text/html");
 		infoTextArea.setEditorKit(kit);
 		infoTextArea.setText(inhalt);
 		infoTextArea.setCaretPosition(0);
+		infoTextArea.setEditable(false);
 
-		CellConstraints cc = new CellConstraints();
+		JButton okButton = new JButton("OK");
 
-		okButton = new JButton();
-		okButton.addActionListener(new java.awt.event.ActionListener() {
+		okButton.addActionListener(new ActionListener() {
+
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
 		});
-		okButton.setText("OK");
 
-		buttonBar = new JPanel();
-		buttonBar.add(okButton, cc.xy(2, 1));
-		buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
-		buttonBar.setLayout(new FormLayout(new ColumnSpec[] { FormSpecs.GLUE_COLSPEC, FormSpecs.BUTTON_COLSPEC },
-				RowSpec.decodeSpecs("pref")));
+		setLayout(new BorderLayout());
+		add(new JScrollPane(infoTextArea), BorderLayout.CENTER);
+		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
+		pack();
+		adjustDialog(this, 0.8, 0.8);
+		setLocationRelativeTo(DBKernel.mainFrame);		
+		getRootPane().setDefaultButton(okButton);
+		setVisible(true);
+	}
 
-		dialogPane = new JPanel();
-		dialogPane.setBorder(Borders.DIALOG);
-		dialogPane.setLayout(new BorderLayout());
-		dialogPane.add(new JScrollPane(infoTextArea), BorderLayout.CENTER);
-		dialogPane.add(buttonBar, BorderLayout.SOUTH);
+	private static void adjustDialog(JDialog dialog, double widthFraction, double heightFraction) {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(dialog.getGraphicsConfiguration());
+		int maxWidth = (int) ((screenSize.width - insets.left - insets.right) * widthFraction);
+		int maxHeight = (int) ((screenSize.height - insets.top - insets.bottom) * heightFraction);
 
-		Container contentPane = getContentPane();
+		dialog.setSize(Math.min(dialog.getWidth(), maxWidth), Math.min(dialog.getHeight(), maxHeight));
 
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(dialogPane, BorderLayout.CENTER);
+		int minX = insets.left;
+		int minY = insets.top;
+		int maxX = screenSize.width - insets.right - dialog.getWidth();
+		int maxY = screenSize.height - insets.bottom - dialog.getHeight();
+
+		dialog.setLocation(Math.max(dialog.getX(), minX), Math.max(dialog.getY(), minY));
+		dialog.setLocation(Math.min(dialog.getX(), maxX), Math.min(dialog.getY(), maxY));
 	}
 }

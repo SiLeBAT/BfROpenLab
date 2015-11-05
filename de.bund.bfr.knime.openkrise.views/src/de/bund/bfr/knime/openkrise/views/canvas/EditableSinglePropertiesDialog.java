@@ -138,8 +138,8 @@ public class EditableSinglePropertiesDialog extends KnimeDialog implements Actio
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton, cancelButton)), BorderLayout.SOUTH);
 		pack();
-		setLocationRelativeTo(parent);
 		UI.adjustDialog(this, 0.5, 0.8);
+		setLocationRelativeTo(parent);		
 		getRootPane().setDefaultButton(okButton);
 	}
 

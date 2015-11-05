@@ -79,8 +79,8 @@ public class SinglePropertiesDialog extends KnimeDialog implements ActionListene
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
 		pack();
-		setLocationRelativeTo(parent);
 		UI.adjustDialog(this, 0.5, 0.8);
+		setLocationRelativeTo(parent);		
 		getRootPane().setDefaultButton(okButton);
 	}
 
