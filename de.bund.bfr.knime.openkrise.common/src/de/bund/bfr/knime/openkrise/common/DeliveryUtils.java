@@ -9,6 +9,7 @@ import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.STATION;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -172,7 +173,7 @@ public class DeliveryUtils {
 		return Multimaps.asMap(warnings);
 	}
 
-	public static Map<String, Delivery> getDeliveries(Connection conn, Map<Integer, String> stationIds,
+	public static List<Delivery> getDeliveries(Connection conn, Map<Integer, String> stationIds,
 			Map<Integer, String> deliveryIds, SetMultimap<String, String> warnings) {
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
@@ -242,7 +243,7 @@ public class DeliveryUtils {
 		checkDates(deliveries, warnings);
 		checkAmounts(deliveries, warnings);
 
-		return deliveries;
+		return new ArrayList<>(deliveries.values());
 	}
 
 	private static void checkDates(Map<String, Delivery> deliveries, SetMultimap<String, String> warnings) {

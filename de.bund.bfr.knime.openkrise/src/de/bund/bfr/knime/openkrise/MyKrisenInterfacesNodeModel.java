@@ -109,7 +109,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
 		SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
-		Map<String, Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
+		List<Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
 		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
 		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
@@ -306,7 +306,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
-			Map<String, Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
+			Iterable<Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
 					throws CanceledExecutionException {
 		DataTableSpec spec = getStationSpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
@@ -492,14 +492,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return container.getTable();
 	}
 
-	private BufferedDataTable getDeliveryConnectionsTable(Map<String, Delivery> deliveries, ExecutionContext exec)
+	private BufferedDataTable getDeliveryConnectionsTable(Iterable<Delivery> deliveries, ExecutionContext exec)
 			throws CanceledExecutionException {
 		BufferedDataContainer container = exec.createDataContainer(
 				new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
 						new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec()));
 		int index = 0;
 
-		for (Delivery delivery : deliveries.values()) {
+		for (Delivery delivery : deliveries) {
 			for (String next : delivery.getAllNextIds()) {
 				container.addRowToTable(new DefaultRow(index++ + "", createCell(delivery.getId()), createCell(next)));
 				exec.checkCanceled();
@@ -580,8 +580,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return result;
 	}
 
-	private static boolean isStationStart(Map<String, Delivery> deliveries, String id) {
-		for (Delivery d : deliveries.values()) {
+	private static boolean isStationStart(Iterable<Delivery> deliveries, String id) {
+		for (Delivery d : deliveries) {
 			if (d.getRecipientId().equals(id)) {
 				return false;
 			}
@@ -590,24 +590,28 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return true;
 	}
 
-	private static boolean isSimpleSupplier(Map<String, Delivery> deliveries, String id) {
-		if (isStationStart(deliveries, id)) {
-			String recId = null;
-			for (Delivery d : deliveries.values()) {
-				if (d.getSupplierId().equals(id)) {
-					if (recId == null)
-						recId = d.getRecipientId();
-					else if (!recId.equals(d.getRecipientId()))
-						return false;
+	private static boolean isSimpleSupplier(Iterable<Delivery> deliveries, String id) {
+		if (!isStationStart(deliveries, id)) {
+			return false;
+		}
+
+		String recId = null;
+
+		for (Delivery d : deliveries) {
+			if (d.getSupplierId().equals(id)) {
+				if (recId == null) {
+					recId = d.getRecipientId();
+				} else if (!recId.equals(d.getRecipientId())) {
+					return false;
 				}
 			}
-			return true;
 		}
-		return false;
+
+		return true;
 	}
 
-	private static boolean isStationEnd(Map<String, Delivery> deliveries, String id) {
-		for (Delivery d : deliveries.values()) {
+	private static boolean isStationEnd(Iterable<Delivery> deliveries, String id) {
+		for (Delivery d : deliveries) {
 			if (d.getSupplierId().equals(id)) {
 				return false;
 			}
