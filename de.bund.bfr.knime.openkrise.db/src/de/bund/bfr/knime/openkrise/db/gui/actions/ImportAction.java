@@ -45,6 +45,7 @@ import org.eclipse.ui.PlatformUI;
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
 import de.bund.bfr.knime.openkrise.db.gui.InfoBox;
+import de.bund.bfr.knime.openkrise.db.gui.NewInfoBox;
 import de.bund.bfr.knime.openkrise.db.gui.dbtable.MyDBTable;
 import de.bund.bfr.knime.openkrise.db.imports.GeneralXLSImporter;
 import de.bund.bfr.knime.openkrise.db.imports.MyImporter;
@@ -150,8 +151,7 @@ public class ImportAction extends AbstractAction {
 						bti = (TraceImporter) mi;
 						String errors = bti.getLogMessages();
 						String warnings = bti.getLogWarnings();
-						String nl = errors.replaceAll("\nImporting ", "");
-						boolean success = nl.indexOf("\n") == nl.length() - 1;
+						boolean success = errors.isEmpty();
 						if (success && warnings.isEmpty()) {
 							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 							if (eclipseWindow != null) {
@@ -163,16 +163,12 @@ public class ImportAction extends AbstractAction {
 								dialog.setVisible(true);
 							}
 						} else if (!success) {
-							Font f = new Font("Arial", Font.PLAIN, 12);
-							if (!warnings.isEmpty()) errors += "\n\nWarnings:\n" + warnings + "\n\n";
-							errors += "\n\nThere are errors! No file imported!";
-							if (selectedFiles.length > 1) errors += "\nEven valid files are not imported when there is at least one invalid file!";
-							InfoBox ib = new InfoBox(errors, true, new Dimension(900, 500), f);
+							String text = "<h1 id=\"error\">There are errors! No files were imported!</h1>" + errors + warnings;							
+							NewInfoBox ib = new NewInfoBox("<html>" + text + "</html>", true, new Dimension(900, 500), null);
 							ib.setTitle("Errors occurred, please check and try again...");
 							ib.setVisible(true);
 						} else {
-							Font f = new Font("Arial", Font.PLAIN, 12);
-							InfoBox ib = new InfoBox(warnings, true, new Dimension(900, 500), f);
+							NewInfoBox ib = new NewInfoBox("<html>" + warnings + "</html>", true, new Dimension(900, 500), null);
 							ib.setTitle("Import successful! But some warnings occurred, please check");
 							ib.setVisible(true);
 						}

@@ -207,7 +207,7 @@ public class DeliveryUtils {
 
 			if (amountInKg1 != null && amountInKg2 != null && !amountInKg1.equals(amountInKg2)) {
 				warnings.put(INCONSISTENT_AMOUNT_DECLARATIONS,
-						id + ": " + amountInKg1 + "kg\tvs.\t" + amountInKg2 + "kg");
+						id + ": " + amountInKg1 + " kg vs. " + amountInKg2 + " kg");
 			}
 
 			Delivery d = new Delivery(deliveryIds.get(id), stationIds.get(from), stationIds.get(to),
@@ -253,7 +253,7 @@ public class DeliveryUtils {
 				if (!d.isBefore(next)) {
 					warnings.put(INCONSISTENT_DATES,
 							"In: \"" + d.getId() + "\" (" + formatDate(d.getArrivalDay(), d.getArrivalMonth(),
-									d.getArrivalYear()) + ")\tvs.\tOut: \"" + next.getId() + "\" ("
+									d.getArrivalYear()) + ") vs. Out: \"" + next.getId() + "\" ("
 							+ formatDate(next.getDepartureDay(), next.getDepartureMonth(), next.getDepartureYear())
 							+ ")");
 				}
@@ -328,11 +328,10 @@ public class DeliveryUtils {
 
 			if (amountIn != null && unitIn != null && amountOut != null && unitOut != null && unitIn.equals(unitOut)
 					&& areTooDifferent(amountIn, amountOut)) {
-				warnings.put(AMOUNTS_INCORRECT, "Lot = " + lot.getKey() + ":\tIn = " + amountIn + " " + unitIn
-						+ "\tvs.\tOut = " + amountOut + " " + unitOut);
+				warnings.put(AMOUNTS_INCORRECT, "Lot=" + lot.getKey() + ": In=" + amountIn + " " + " vs. Out="
+						+ amountOut + " (" + unitOut + ")");
 			} else if (kgIn != null && kgOut != null && areTooDifferent(kgIn, kgOut)) {
-				warnings.put(AMOUNTS_INCORRECT,
-						"Lot = " + lot.getKey() + ":\tIn = " + kgIn + " " + "kg\tvs.\tOut = " + kgOut + " kg");
+				warnings.put(AMOUNTS_INCORRECT, "Lot=" + lot.getKey() + ": In=" + kgIn + "kg vs. Out=" + kgOut + "kg");
 			}
 		}
 	}

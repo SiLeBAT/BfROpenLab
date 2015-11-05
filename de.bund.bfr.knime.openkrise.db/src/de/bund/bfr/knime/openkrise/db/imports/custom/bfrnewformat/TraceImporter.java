@@ -840,20 +840,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		return true;
 	}
-	
-	private String getST(Exception e, boolean getTrace) {
-		String result = e.getMessage() + "\n";
-		if (getTrace)  result = e.toString() + "\n" + result;
-		if (getTrace) {
-			StackTraceElement[] ste = e.getStackTrace();
-			if (ste != null) {
-				for (StackTraceElement stres : ste) {
-					result += stres + "\n";
-				}
-			}
-		}
-		return result;
-	}
 
 	private boolean importResult = false;
 	@Override
@@ -862,7 +848,6 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				System.err.println("Importing " + filename);
-				logMessages += "Importing " + filename + "\n";
 				InputStream is = null;
 				try {
 					if (progress != null) {
@@ -901,12 +886,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						}
 						doWarns(null);
 						
-						logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n";
+						logMessages += "<h1 id=\"error\">Error in file '" + filename + "'</h1><ul>";
 						for (Exception e : exceptions) {
-							logMessages += getST(e, false);
+							logMessages += "<li>" + e.getMessage() + "</li>";
 							MyLogger.handleException(e);
 						}
-						logMessages += "\n";
+						logMessages += "</ul>";
 						if (progress != null) progress.setVisible(false);
 						try {
 							is.close();
@@ -949,7 +934,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						//DBKernel.sendRequest("SET AUTOCOMMIT TRUE", false);
 						//if (progress != null) progress.setVisible(false);
 					}
-					logMessages += "\nUnable to import file '" + filename + "'.\nImporter says: \n" + getST(e, false) + "\n";
+					logMessages += "<h1 id=\"error\">'" + filename + "'</h1><ul><li>" + e.getMessage() + "</li></ul>";
 					MyLogger.handleException(e);
 					try {
 						is.close();
@@ -965,7 +950,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
-			logMessages += "\nUnable to run thread for '" + filename + "'.\nWrong file format?\nImporter says: \n" + getST(e, false) + "\n";
+			logMessages += "<h1 id=\"error\">'" + filename + "' (Maybe wrong file format)</h1><ul><li>" + e.getMessage() + "</li></ul>";			
 			MyLogger.handleException(e);
 		}
 		return importResult;
@@ -973,25 +958,16 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void doWarns(String filename) {
 		if (warns.size() > 0) {
 			if (filename != null) {
-				if (!logWarnings.isEmpty()) {
-					logWarnings += "\n";
-				}
-				
-				logWarnings += "Warnings for import file '" + filename + "':\n";
+				logWarnings += "<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>";
 			}
 			for (String key : warns.keySet()) {
-				logWarnings += key;
-				if (warns.get(key) != null) {
-					logWarnings += ":\n";
+				logWarnings += "<h2>" + key + "</h2>";
+				if (warns.get(key) != null || !warns.get(key).isEmpty()) {
+					logWarnings += "<ul>";
 					for (String w : warns.get(key)) {
-						if (logWarnings.indexOf(w+"\n") < 0) logWarnings += "\t" + w + "\n";
+						logWarnings += "<li>" + w + "</li>";
 					}
-					if (logWarnings.endsWith("\n" + key + ":\n")) {
-						logWarnings = logWarnings.substring(0, logWarnings.length() - ("\n" + key + ":\n").length());
-					}
-				}
-				else {
-					logWarnings += "\n";
+					logWarnings += "</ul>";
 				}
 			}		
 		}
