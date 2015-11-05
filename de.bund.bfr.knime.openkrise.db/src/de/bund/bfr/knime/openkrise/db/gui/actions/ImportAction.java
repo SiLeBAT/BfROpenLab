@@ -158,19 +158,24 @@ public class ImportAction extends AbstractAction {
 								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
 							} else {
 								JOptionPane pane = new JOptionPane("Import successful!", JOptionPane.INFORMATION_MESSAGE);
-								JDialog dialog = pane.createDialog("Import successful!");
+								JDialog dialog = pane.createDialog("Import successful");
 								dialog.setAlwaysOnTop(true);
 								dialog.setVisible(true);
 							}
 						} else if (!success) {
-							String text = "<h1 id=\"error\">There are errors! No files were imported!</h1>" + errors + warnings;							
-							NewInfoBox ib = new NewInfoBox("<html>" + text + "</html>", true, new Dimension(900, 500), null);
-							ib.setTitle("Errors occurred, please check and try again...");
-							ib.setVisible(true);
+							 JOptionPane pane = new JOptionPane("Errors occured, no files were imported!\nPlease correct errors and try again", JOptionPane.ERROR_MESSAGE,
+									 JOptionPane.OK_CANCEL_OPTION, null, new String[] {"Show Details"}, "default");							
+							JDialog dialog = pane.createDialog("Import failed");
+							dialog.setAlwaysOnTop(true);
+							dialog.setVisible(true);
+							NewInfoBox.show("Errors and Warnings", "<html>" + errors + warnings + "</html>", new Dimension(900, 500));
 						} else {
-							NewInfoBox ib = new NewInfoBox("<html>" + warnings + "</html>", true, new Dimension(900, 500), null);
-							ib.setTitle("Import successful! But some warnings occurred, please check");
-							ib.setVisible(true);
+							JOptionPane pane = new JOptionPane("Import successful! But some warnings occurred, please check", JOptionPane.WARNING_MESSAGE,
+									 JOptionPane.OK_CANCEL_OPTION, null, new String[] {"Show Details"}, "default");
+							JDialog dialog = pane.createDialog("Import with Warnings");
+							dialog.setAlwaysOnTop(true);
+							dialog.setVisible(true);
+							NewInfoBox.show("Warnings", "<html>" + warnings + "</html>", new Dimension(900, 500));
 						}
 					}
 				}
