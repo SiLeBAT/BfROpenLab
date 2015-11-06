@@ -24,6 +24,7 @@ package de.bund.bfr.knime.openkrise.db.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -36,18 +37,17 @@ import javax.swing.JScrollPane;
 import javax.swing.text.html.HTMLEditorKit;
 
 import de.bund.bfr.knime.UI;
-import de.bund.bfr.knime.openkrise.db.DBKernel;
 
 public class NewInfoBox extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	public static void show(String title, String inhalt, Dimension dim) {
-		new NewInfoBox(title, inhalt, dim);
+	public static void show(Frame owner, String title, String text) {
+		new NewInfoBox(owner, title, text);
 	}
 
-	private NewInfoBox(String title, String inhalt, Dimension dim) {
-		super(DBKernel.mainFrame, title, true);
+	private NewInfoBox(Frame owner, String title, String text) {
+		super(owner, title, true);
 
 		JEditorPane infoTextArea = new JEditorPane();
 		HTMLEditorKit kit = new HTMLEditorKit();
@@ -61,7 +61,7 @@ public class NewInfoBox extends JDialog {
 
 		infoTextArea.setContentType("text/html");
 		infoTextArea.setEditorKit(kit);
-		infoTextArea.setText(inhalt);
+		infoTextArea.setText(text);
 		infoTextArea.setCaretPosition(0);
 		infoTextArea.setEditable(false);
 
@@ -80,7 +80,7 @@ public class NewInfoBox extends JDialog {
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
 		pack();
 		adjustDialog(this, 0.8, 0.8);
-		setLocationRelativeTo(DBKernel.mainFrame);		
+		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
 		setVisible(true);
 	}

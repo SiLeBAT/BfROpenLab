@@ -33,14 +33,9 @@ import java.util.TreeSet;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
-
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
 import de.bund.bfr.knime.openkrise.db.DBKernel;
 import de.bund.bfr.knime.openkrise.db.MyLogger;
@@ -153,29 +148,15 @@ public class ImportAction extends AbstractAction {
 						String warnings = bti.getLogWarnings();
 						boolean success = errors.isEmpty();
 						if (success && warnings.isEmpty()) {
-							IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-							if (eclipseWindow != null) {
-								MessageDialog.openInformation(eclipseWindow.getShell(), "Import successful", "Import successful");
-							} else {
-								JOptionPane pane = new JOptionPane("Import successful!", JOptionPane.INFORMATION_MESSAGE);
-								JDialog dialog = pane.createDialog("Import successful");
-								dialog.setAlwaysOnTop(true);
-								dialog.setVisible(true);
-							}
+							JOptionPane.showMessageDialog(DBKernel.mainFrame, "Import successful!", "Import successful", JOptionPane.INFORMATION_MESSAGE);
 						} else if (!success) {
-							 JOptionPane pane = new JOptionPane("Errors occured, no files were imported!\nPlease correct errors and try again", JOptionPane.ERROR_MESSAGE,
-									 JOptionPane.OK_CANCEL_OPTION, null, new String[] {"Show Details"}, "default");							
-							JDialog dialog = pane.createDialog("Import failed");
-							dialog.setAlwaysOnTop(true);
-							dialog.setVisible(true);
-							NewInfoBox.show("Errors and Warnings", "<html>" + errors + warnings + "</html>", new Dimension(900, 500));
+							JOptionPane.showOptionDialog(DBKernel.mainFrame, "Errors occured, no files were imported!\nPlease correct errors and try again", "Import failed",
+									JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[] {"Show Details"}, null);
+							NewInfoBox.show(DBKernel.mainFrame, "Errors and Warnings", "<html>" + errors + warnings + "</html>");
 						} else {
-							JOptionPane pane = new JOptionPane("Import successful! But some warnings occurred, please check", JOptionPane.WARNING_MESSAGE,
-									 JOptionPane.OK_CANCEL_OPTION, null, new String[] {"Show Details"}, "default");
-							JDialog dialog = pane.createDialog("Import with Warnings");
-							dialog.setAlwaysOnTop(true);
-							dialog.setVisible(true);
-							NewInfoBox.show("Warnings", "<html>" + warnings + "</html>", new Dimension(900, 500));
+							JOptionPane.showOptionDialog(DBKernel.mainFrame, "Import successful! But some warnings occurred, please check", "Import with Warnings",
+									JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE, null, new String[] {"Show Details"}, null);
+							NewInfoBox.show(DBKernel.mainFrame, "Warnings", "<html>" + warnings + "</html>");
 						}
 					}
 				}
