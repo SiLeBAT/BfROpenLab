@@ -130,6 +130,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		Sheet forwardSheet = wb.getSheet("Opt_ForwardTracing");
 		Sheet forwardSheetNew = wb.getSheet("ForwardTracing_Opt");
 		Sheet forSheet = wb.getSheet("ForTracing");
+		Sheet fwdSheet = wb.getSheet("FwdTracing");
+		if (forSheet == null) forSheet = fwdSheet;
 		
 		boolean isForTracing = forSheet != null;
 		if (isForTracing) transactionSheet = forSheet;
@@ -1065,6 +1067,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			  if (result < new GregorianCalendar(2012,1,1,0,0,0).getTime().getTime()) {
 					Sheet transactionSheet = wb.getSheet("BackTracing");
 					Sheet forSheet = wb.getSheet("ForTracing");
+					Sheet fwdSheet = wb.getSheet("FwdTracing");
+					if (forSheet == null) forSheet = fwdSheet;
 					
 					boolean isForTracing = forSheet != null;
 					if (isForTracing) transactionSheet = forSheet;

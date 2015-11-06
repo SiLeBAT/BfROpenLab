@@ -308,7 +308,7 @@ public class TraceGenerator {
 			do {
 				InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Fortrace_sug.xlsx");
 				XSSFWorkbook workbook = new XSSFWorkbook(myxls);
-				XSSFSheet sheetTracing = workbook.getSheet("ForTracing");
+				XSSFSheet sheetTracing = workbook.getSheet("FwdTracing");
 				XSSFSheet sheetStations = workbook.getSheet("Stations");
 				XSSFSheet sheetLookup = workbook.getSheet("LookUp");
 				FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
@@ -472,7 +472,7 @@ public class TraceGenerator {
 		if (rs != null && rs.first()) {
 				InputStream myxls = this.getClass().getResourceAsStream("/de/bund/bfr/knime/openkrise/db/imports/custom/bfrnewformat/BfR_Format_Fortrace_sug.xlsx");
 				XSSFWorkbook workbook = new XSSFWorkbook(myxls);
-				XSSFSheet sheetTracing = workbook.getSheet("ForTracing");
+				XSSFSheet sheetTracing = workbook.getSheet("FwdTracing");
 				XSSFSheet sheetStations = workbook.getSheet("Stations");
 				XSSFSheet sheetLookup = workbook.getSheet("LookUp");
 				FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
