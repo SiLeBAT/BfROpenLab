@@ -23,7 +23,9 @@ import java.io.File;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -44,7 +46,10 @@ public class Backup extends FileFilter {
 
 	public static boolean dbBackup(final JFrame frame) {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser fc = new JFileChooser(lastOutDir);
+		JComponent.setDefaultLocale(oldLocale);
 		Backup bkp = new Backup();
 		fc.setFileFilter(bkp);
 		fc.setAcceptAllFileFilterUsed(false);
@@ -153,7 +158,10 @@ public class Backup extends FileFilter {
 
 	public static void doRestore(final MyDBTable myDB) {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser fc = new JFileChooser(lastOutDir);
+		JComponent.setDefaultLocale(oldLocale);
 		Backup bkp = new Backup();
 		fc.setFileFilter(bkp);
 		fc.setAcceptAllFileFilterUsed(false);

@@ -42,6 +42,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
@@ -784,7 +785,10 @@ public class MainFrame extends JFrame {
 	}
 	private void doStationGeneration(StationDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
-			JFileChooser chooser = new JFileChooser(); 
+			Locale oldLocale = JComponent.getDefaultLocale();
+			JComponent.setDefaultLocale(Locale.US);
+			JFileChooser chooser = new JFileChooser();
+			JComponent.setDefaultLocale(oldLocale);
 			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
 		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
 		    chooser.setDialogTitle("Select output folder");
@@ -848,7 +852,10 @@ public class MainFrame extends JFrame {
 	}
 	private void doTraceGeneration(TraceDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
+			Locale oldLocale = JComponent.getDefaultLocale();
+			JComponent.setDefaultLocale(Locale.US);
 			JFileChooser chooser = new JFileChooser(); 
+			JComponent.setDefaultLocale(oldLocale);
 			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
 		    chooser.setCurrentDirectory(new java.io.File(lastOutDir));
 		    chooser.setDialogTitle("Select output folder");

@@ -21,10 +21,12 @@ package de.bund.bfr.knime.openkrise.db.gui.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -71,7 +73,10 @@ public class ExportAction extends AbstractAction {
 		 * "");
 		 */
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser fc = new JFileChooser(lastOutDir);
+		JComponent.setDefaultLocale(oldLocale);
 		ExcelExport xls = new ExcelExport();
 		fc.setFileFilter(xls);
 		fc.setAcceptAllFileFilterUsed(false);

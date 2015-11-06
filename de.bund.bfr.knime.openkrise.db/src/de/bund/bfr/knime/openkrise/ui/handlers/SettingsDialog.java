@@ -30,10 +30,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.sql.Connection;
+import java.util.Locale;
 import java.util.zip.CRC32;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -85,7 +87,10 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser chooser = new JFileChooser();
+		JComponent.setDefaultLocale(oldLocale);
 		chooser.setCurrentDirectory(new java.io.File(dbPath.getText()));
 		chooser.setDialogTitle("Choose folder of database");
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

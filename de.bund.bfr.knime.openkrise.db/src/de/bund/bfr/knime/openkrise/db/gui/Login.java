@@ -37,11 +37,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -576,7 +578,10 @@ public class Login extends JFrame {
 	}
 
 	private void button1ActionPerformed(final ActionEvent e) {
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser chooser = new JFileChooser();
+		JComponent.setDefaultLocale(oldLocale);
 		chooser.setCurrentDirectory(new java.io.File(textField2.getText()));
 		chooser.setDialogTitle("Wähle Ordner der Datenbank");
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

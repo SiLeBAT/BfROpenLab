@@ -27,12 +27,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -68,7 +70,10 @@ public class ImportAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		Locale oldLocale = JComponent.getDefaultLocale();
+		JComponent.setDefaultLocale(Locale.US);
 		JFileChooser fc = new JFileChooser(lastOutDir);
+		JComponent.setDefaultLocale(oldLocale);
 		//	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  	  	  
 		if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME	  
 
