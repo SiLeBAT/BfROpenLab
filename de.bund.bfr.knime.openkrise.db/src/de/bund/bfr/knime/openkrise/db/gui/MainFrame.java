@@ -722,6 +722,7 @@ public class MainFrame extends JFrame {
 		button13.setEnabled(isEnabable);
 		button14.setEnabled(isEnabable);
 		button15.setEnabled(isEnabable);
+		button16.setEnabled(isEnabable);
 		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		super.setVisible(doVisible);
 	}
@@ -770,9 +771,18 @@ public class MainFrame extends JFrame {
 		dialog.setSize(800, 600);
 		dialog.setVisible(true);
 		
-		doStationGeneration(dialog);
+		doStationGeneration(dialog, false);
 	}
-	private void doStationGeneration(StationDialog dialog) {
+	private void button16ActionPerformed(final ActionEvent e) {
+		List<Station> stations = getStations();
+		
+		StationDialog dialog = new StationDialog((JButton) e.getSource(), "Select Station", stations);
+		dialog.setSize(800, 600);
+		dialog.setVisible(true);
+		
+		doStationGeneration(dialog, true);
+	}
+	private void doStationGeneration(StationDialog dialog, boolean isForward) {
 		if (dialog.isApproved()) {
 			JFileChooser chooser = new JFileChooser(); 
 			String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", ".");
@@ -786,7 +796,7 @@ public class MainFrame extends JFrame {
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
 				DBKernel.prefs.prefsFlush();
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // if (this.myDB != null) 
-				new TraceGenerator(f, dialog.getSelected(), chooser);
+				new TraceGenerator(f, dialog.getSelected(), chooser, isForward);
 				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); // if (this.myDB != null) 
 		    }
 		}
@@ -952,6 +962,7 @@ public class MainFrame extends JFrame {
 		button13 = new JButton();
 		button14 = new JButton();
 		button15 = new JButton();
+		button16 = new JButton();
 		progressBar1 = new JProgressBar();
 		splitPane1 = new JSplitPane();
 		panel2 = new JPanel();
@@ -1059,7 +1070,7 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button11);
 
 			//---- button13 ----
-			button13.setToolTipText("Generate backward tracing templates");
+			button13.setToolTipText("Generate backward tracing templates for missing data");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_back.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button13.setIcon(ico);
@@ -1073,8 +1084,8 @@ public class MainFrame extends JFrame {
 			toolBar1.add(button13);
 			
 			//---- button15 ----
-			button15.setToolTipText("Generate tracing templates for specific station");
-			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station.gif"));
+			button15.setToolTipText("Generate backward tracing templates for specific station");
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station_back.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button15.setIcon(ico);
 			button15.addActionListener(new ActionListener() {
@@ -1085,8 +1096,21 @@ public class MainFrame extends JFrame {
 			});
 			toolBar1.add(button15);
 			
+			//---- button16 ----
+			button16.setToolTipText("Generate forward tracing templates for specific station");
+			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables_station.gif"));
+			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
+			button16.setIcon(ico);
+			button16.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					button16ActionPerformed(e);
+				}
+			});
+			toolBar1.add(button16);
+			
 			//---- button14 ----
-			button14.setToolTipText("Generate forward tracing templates");
+			button14.setToolTipText("Generate forward tracing templates for missing data");
 			ico = new ImageIcon(getClass().getResource("/de/bund/bfr/knime/openkrise/db/gui/res/generate_tables.gif"));
 			ico.setImage(ico.getImage().getScaledInstance(30,30,Image.SCALE_DEFAULT)); 
 			button14.setIcon(ico);
@@ -1144,6 +1168,7 @@ public class MainFrame extends JFrame {
 	private JButton button13;
 	private JButton button14;
 	private JButton button15;
+	private JButton button16;
 	private JProgressBar progressBar1;
 	private JSplitPane splitPane1;
 	private JPanel panel2;
