@@ -193,6 +193,7 @@ public class Delivery {
 					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
+					lot.handleFlexibles(mydbi);
 				}
 
 				result = rs.getInt("Lieferungen.ID");

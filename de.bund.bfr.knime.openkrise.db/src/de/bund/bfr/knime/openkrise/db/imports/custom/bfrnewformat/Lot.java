@@ -86,17 +86,23 @@ public class Lot {
 		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId, mydbi);
 		dbId = retId;
 		if (lotId != null && gathereds.get(lotId) != null) gathereds.get(lotId).setDbId(dbId);
+		
 		if (retId != null) {
-			// Further flexible cells
+			handleFlexibles(mydbi);
+		}
+		return retId;
+	}
+	public void handleFlexibles(MyDBI mydbi) {
+		// Further flexible cells
+		if (dbId != null) {
 			for (Entry<String, String> es : flexibles.entrySet()) {
 				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Chargen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+						") VALUES ('Chargen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
-			}
+			}		
 		}
-		return retId;
 	}
 	private Integer getID(Product product, String number, Double unitNumber, String unitUnit, Integer miDbId, MyDBI mydbi) throws Exception {
 		Integer dbProdID = product.getID(miDbId, mydbi);

@@ -131,6 +131,8 @@ public class TraceGenerator {
 				if (rs.getObject("Betriebsart") != null) {cell = row.createCell(9); cell.setCellValue(rs.getString("Betriebsart"));}
 				//cell = row.getCell(10); evaluator.evaluateFormulaCell(cell);
 
+				fillExtraFields("Station", rs.getObject("ID"), row, se, 11);
+				/*
 				if (rs.getObject("ID") != null) {
 					sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Station' AND " + MyDBI.delimitL("id") + "=" + rs.getInt("ID");
 					ResultSet rs2 = DBKernel.getResultSet(sql, false);
@@ -150,6 +152,7 @@ public class TraceGenerator {
 						} while (rs2.next());
 					}	
 				}
+				*/
 			} while (rs.next());
 		}
 	}
@@ -685,6 +688,7 @@ public class TraceGenerator {
 						p.setName(rs.getString("Produktkatalog.Bezeichnung"));
 						l.setProduct(p);
 					}
+					l.setDbId(rs.getInt("Chargen.ID"));
 					lotNumbers.put(ln, l);
 				}
 				lotDb2Number.put(rs.getInt("Chargen.ID"), ln);
@@ -706,6 +710,7 @@ public class TraceGenerator {
 							p.setName(rs.getString("Produktkatalog.Bezeichnung"));
 							l.setProduct(p);
 						}
+						l.setDbId(rs.getInt("Chargen.ID"));
 						lotNumbers.put(ln, l);
 					}
 					lotDb2Number.put(rs.getInt("Chargen.ID"), ln);
@@ -740,6 +745,13 @@ public class TraceGenerator {
 						if (lot.getProduct() != null && lot.getProduct().getName() != null) {
 							cell = row.getCell(3); cell.setCellValue(lot.getProduct().getName());
 						}
+						LinkedHashSet<String> le0 = new LinkedHashSet<>();
+						le0.add("Production Date");
+						le0.add("Best before date");
+						le0.add("Treatment of product during production");
+						le0.add("Sampling");
+						le0.addAll(le);
+						fillExtraFields("Chargen", lot.getDbId(), row, le0, 13);
 						insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 1);
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 2, "=Units");
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 15, "=Treatment");
@@ -905,6 +917,7 @@ public class TraceGenerator {
 						p.setName(rs.getString("Produktkatalog.Bezeichnung"));
 						l.setProduct(p);
 					}
+					l.setDbId(rs.getInt("Chargen.ID"));
 					lotNumbers.put(ln, l);
 				}
 				
@@ -925,6 +938,7 @@ public class TraceGenerator {
 							p.setName(rs.getString("Produktkatalog.Bezeichnung"));
 							l.setProduct(p);
 						}
+						l.setDbId(rs.getInt("Chargen.ID"));
 						lotNumbers.put(ln, l);
 					}
 				}
@@ -958,6 +972,13 @@ public class TraceGenerator {
 						if (lot.getProduct() != null && lot.getProduct().getName() != null) {
 							cell = row.getCell(3); cell.setCellValue(lot.getProduct().getName());
 						}
+						LinkedHashSet<String> le0 = new LinkedHashSet<>();
+						le0.add("Production Date");
+						le0.add("Best before date");
+						le0.add("Treatment of product during production");
+						le0.add("Sampling");
+						le0.addAll(le);
+						fillExtraFields("Chargen", lot.getDbId(), row, le0, 13);
 						insertDecCondition(dvHelper, sheetTracing, rowIndex+i, 1);
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 2, "=Units");
 						insertDropBox(dvHelper, sheetTracing, rowIndex+i, 15, "=Treatment");
@@ -1115,6 +1136,8 @@ public class TraceGenerator {
 
 		if (isForward == null || isForward) result = cell.getStringCellValue();
 		
+		fillExtraFields("Lieferungen", rs.getObject("Lieferungen.ID"), row, de, 13);
+		/*
 		// ExtraFields
 		if (rs.getObject("Lieferungen.ID") != null) {
 			String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='Lieferungen' AND " + MyDBI.delimitL("id") + "=" + rs.getInt("Lieferungen.ID");
@@ -1135,8 +1158,31 @@ public class TraceGenerator {
 				} while (rs2.next());
 			}	
 		}
+		*/
 		
 		return result;
+	}
+	private void fillExtraFields(String tablename, Object id, XSSFRow row, LinkedHashSet<String> de, int startCol) throws SQLException {
+		// ExtraFields
+		if (id != null) {
+			String sql = "Select * from " + MyDBI.delimitL("ExtraFields") + " WHERE " + MyDBI.delimitL("tablename") + "='" + tablename  + "' AND " + MyDBI.delimitL("id") + "=" + id;
+			ResultSet rs2 = DBKernel.getResultSet(sql, false);
+			if (rs2 != null && rs2.first()) {
+				do {
+					String s = rs2.getString("attribute");
+					int j=0;
+					for (String e : de) {
+						if (s.equals(e)) {
+							XSSFCell cell = row.getCell(startCol+j);
+							if (cell == null) cell = row.createCell(startCol+j);
+							cell.setCellValue(rs2.getString("value"));
+							break;
+						}
+						j++;
+					}
+				} while (rs2.next());
+			}	
+		}		
 	}
 	   private XSSFRow copyRow(XSSFWorkbook workbook, XSSFSheet worksheet, int sourceRowNum, int destinationRowNum) {
 	        XSSFRow sourceRow = worksheet.getRow(sourceRowNum);
