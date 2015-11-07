@@ -19,7 +19,14 @@ public class Delivery {
 	public static HashMap<String, Delivery> gathereds = new HashMap<>();
 	private HashMap<String, String> flexibles = new HashMap<>();
 	private List<Exception> exceptions = new ArrayList<>();
+	private boolean newlyGeneratedID = false;
 
+	public boolean isNewlyGeneratedID() {
+		return newlyGeneratedID;
+	}
+	public void setNewlyGeneratedID(boolean newlyGeneratedID) {
+		this.newlyGeneratedID = newlyGeneratedID;
+	}
 	public List<Exception> getExceptions() {
 		return exceptions;
 	}
@@ -134,24 +141,39 @@ public class Delivery {
 	
 	public Integer getID(Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		if (id != null && gathereds.get(id) != null && gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
-		if (dbId != null) return dbId;
+		if (dbId != null) {
+			handleFlexibles(mydbi);
+			return dbId;
+		}
 		Integer retId = getID(lot,receiver,new String[]{"dd_day","dd_month","dd_year","ad_day","ad_month","ad_year","numPU","typePU","Serial"}, // "Charge","Empfänger",
 				new Integer[]{departureDay,departureMonth,departureYear,arrivalDay,arrivalMonth,arrivalYear}, unitNumber, new String[]{unitUnit,id}, miDbId, dataMayhaveChanged, mydbi);
 		dbId = retId;
 		if (id != null && gathereds.get(id) != null) gathereds.get(id).setDbId(dbId);
 		
-		// Further flexible cells
 		if (retId != null) {
-			for (Entry<String, String> es : flexibles.entrySet()) {
-				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+			handleFlexibles(mydbi);
+		}
+		return retId;
+	}
+	public void handleFlexibles(MyDBI mydbi) {
+		// Further flexible cells		
+		for (Entry<String, String> es : flexibles.entrySet()) {
+			if (es.getValue() != null && !es.getValue().trim().isEmpty()) {
+				String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
+						" WHERE " + MyDBI.delimitL("tablename") + "='Lieferungen'" +
+						" AND " + MyDBI.delimitL("id") + "=" + dbId +
+						" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
+				sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Lieferungen'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+						") VALUES ('Lieferungen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
 			}
 		}
-		return retId;
 	}
+
 	private Integer getID(Lot lot, Station receiver, String[] feldnames, Integer[] iFeldVals, Double unitNumber, String[] sFeldVals, Integer miDbId, boolean dataMayhaveChanged, MyDBI mydbi) throws Exception {
 		Integer dbRecID = receiver.getID(miDbId, mydbi);
 		//if (!receiver.getLogMessages().isEmpty()) logMessages += receiver.getLogMessages() + "\n";
@@ -190,6 +212,16 @@ public class Delivery {
 					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ChargenNr") + " = '" + lot.getNumber() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					if (lot.getUnitNumber() != null) {
+						sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("Menge") + " = " + lot.getUnitNumber() + " WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+						if (mydbi != null) mydbi.sendRequest(sql, true, false);
+						else DBKernel.sendRequest(sql, true);
+					}
+					if (lot.getUnitUnit() != null) {						
+						sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("Einheit") + " = '" + lot.getUnitUnit() + "' WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
+						if (mydbi != null) mydbi.sendRequest(sql, true, false);
+						else DBKernel.sendRequest(sql, true);
+					}
 					sql = "UPDATE " + MyDBI.delimitL("Chargen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + rs.getInt("Chargen.ID");
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);
@@ -197,31 +229,56 @@ public class Delivery {
 				}
 
 				result = rs.getInt("Lieferungen.ID");
-				if (getDepartureDay() != null || getDepartureMonth() != null || getDepartureYear() != null) {
+				boolean updated = false;
+				if (getArrivalDay() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_day") + " = " + getArrivalDay() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getArrivalMonth() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_month") + " = " + getArrivalMonth() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getArrivalYear() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ad_year") + " = " + getArrivalYear() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getDepartureDay() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_day") + " = " + getDepartureDay() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getDepartureMonth() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_month") + " = " + getDepartureMonth() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getDepartureYear() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("dd_year") + " = " + getDepartureYear() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (getUnitNumber() != null) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("numPU") + " = " + getUnitNumber() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
-					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("typePU") + " = " + getUnitUnit() + " WHERE " + MyDBI.delimitL("ID") + "=" + result;
+					updated = true;
+				}
+				if (getUnitUnit() != null) {
+					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("typePU") + " = '" + getUnitUnit() + "' WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, true, false);
 					else DBKernel.sendRequest(sql, true);
+					updated = true;
+				}
+				if (updated) {
 					sql = "UPDATE " + MyDBI.delimitL("Lieferungen") + " SET " + MyDBI.delimitL("ImportSources") + "=CASEWHEN(INSTR(';" + miDbId + ";'," + MyDBI.delimitL("ImportSources") + ")=0,CONCAT(" + MyDBI.delimitL("ImportSources") + ", '" + miDbId + ";'), " + MyDBI.delimitL("ImportSources") + ") WHERE " + MyDBI.delimitL("ID") + "=" + result;
 					if (mydbi != null) mydbi.sendRequest(sql, false, false);
 					else DBKernel.sendRequest(sql, false);

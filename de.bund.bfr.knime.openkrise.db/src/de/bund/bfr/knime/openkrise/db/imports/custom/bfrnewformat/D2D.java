@@ -72,11 +72,19 @@ public class D2D {
 				// Further flexible cells
 				if (result != null) {
 					for (Entry<String, String> es : flexibles.entrySet()) {
-						sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
-								" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-								") VALUES ('ChargenVerbindungen'," + result + ",'" + es.getKey() + "','" + es.getValue() + "')";
-						if (mydbi != null) mydbi.sendRequest(sql, false, false);
-						else DBKernel.sendRequest(sql, false);
+						if (es.getValue() != null && !es.getValue().trim().isEmpty()) {
+							sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
+									" WHERE " + MyDBI.delimitL("tablename") + "='ChargenVerbindungen'" +
+									" AND " + MyDBI.delimitL("id") + "=" + result +
+									" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+							if (mydbi != null) mydbi.sendRequest(sql, false, false);
+							else DBKernel.sendRequest(sql, false);
+							sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+									" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+									") VALUES ('ChargenVerbindungen'," + result + ",'" + es.getKey() + "','" + es.getValue() + "')";
+							if (mydbi != null) mydbi.sendRequest(sql, false, false);
+							else DBKernel.sendRequest(sql, false);
+						}
 					}
 				}
 			}

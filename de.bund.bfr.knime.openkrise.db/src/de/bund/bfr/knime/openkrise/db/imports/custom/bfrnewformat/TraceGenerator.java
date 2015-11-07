@@ -270,7 +270,7 @@ public class TraceGenerator {
 		if (rs != null && rs.first()) {
 			do {
 				String s = rs.getString("attribute");
-				if (!s.equals("Production Date") && !s.equals("Best before date") && !s.equals("Treatment of product during production") && !s.equals("Sampling")) result.add(s);
+				if (!s.equalsIgnoreCase("Production Date") && !s.equalsIgnoreCase("Best before date") && !s.equalsIgnoreCase("Treatment of product during production") && !s.equalsIgnoreCase("Sampling")) result.add(s);
 			} while (rs.next());
 		}	
 		return result;
@@ -1172,7 +1172,7 @@ public class TraceGenerator {
 					String s = rs2.getString("attribute");
 					int j=0;
 					for (String e : de) {
-						if (s.equals(e)) {
+						if (s.equalsIgnoreCase(e)) {
 							XSSFCell cell = row.getCell(startCol+j);
 							if (cell == null) cell = row.createCell(startCol+j);
 							cell.setCellValue(rs2.getString("value"));

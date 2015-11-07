@@ -82,7 +82,10 @@ public class Lot {
 			lotId = product.getStation().getId() + "_" + product.getName() + "_" + number;			
 		}
 		if (lotId != null && gathereds.get(lotId) != null && gathereds.get(lotId).getDbId() != null) dbId = gathereds.get(lotId).getDbId();
-		if (dbId != null) return dbId;
+		if (dbId != null) {
+			handleFlexibles(mydbi);
+			return dbId;
+		}
 		Integer retId = getID(product,number,unitNumber,unitUnit, miDbId, mydbi);
 		dbId = retId;
 		if (lotId != null && gathereds.get(lotId) != null) gathereds.get(lotId).setDbId(dbId);
@@ -96,11 +99,20 @@ public class Lot {
 		// Further flexible cells
 		if (dbId != null) {
 			for (Entry<String, String> es : flexibles.entrySet()) {
-				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
-						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Chargen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
-				if (mydbi != null) mydbi.sendRequest(sql, false, false);
-				else DBKernel.sendRequest(sql, false);
+				if (es.getValue() != null && !es.getValue().trim().isEmpty()) {
+					String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
+							" WHERE " + MyDBI.delimitL("tablename") + "='Chargen'" +
+							" AND " + MyDBI.delimitL("id") + "=" + dbId +
+							" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
+					
+					sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+							" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
+							") VALUES ('Chargen'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+					if (mydbi != null) mydbi.sendRequest(sql, false, false);
+					else DBKernel.sendRequest(sql, false);
+				}
 			}		
 		}
 	}

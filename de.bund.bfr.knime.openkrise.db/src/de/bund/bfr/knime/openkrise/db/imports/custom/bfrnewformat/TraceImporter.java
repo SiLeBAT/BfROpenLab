@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -366,13 +367,13 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void insertForIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> outDeliveries, HashMap<String, Delivery> inDeliveries) throws Exception {
 		HashMap<String, Integer> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
-			d.getID(miDbId, false, mydbi);
+			d.getID(miDbId, !d.isNewlyGeneratedID(), mydbi);
 			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			lotDbNumber.put(d.getLot().getNumber(), d.getLot().getDbId());
 		}
 		for (Delivery d : inDeliveries.values()) {
-			Integer dbId = d.getID(miDbId, true, mydbi);
+			Integer dbId = d.getID(miDbId, !d.isNewlyGeneratedID(), mydbi);
 			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			for (String targetLotId : d.getTargetLotIds()) {
@@ -385,7 +386,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private void insertIntoDb(List<Exception> exceptions, Integer miDbId, HashMap<String, Delivery> inDeliveries, HashMap<String, Delivery> outDeliveries, HashSet<Delivery> forwDeliveries) throws Exception {
 		HashMap<String, Lot> lotDbNumber = new HashMap<>();
 		for (Delivery d : outDeliveries.values()) {
-			d.getID(miDbId, true, mydbi);
+			d.getID(miDbId, !d.isNewlyGeneratedID(), mydbi);
 			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			if (lotDbNumber.containsKey(d.getLot().getNumber()) && lotDbNumber.get(d.getLot().getNumber()).getDbId().intValue() != d.getLot().getDbId()) {
@@ -403,7 +404,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			else lotDbNumber.put(d.getLot().getNumber(), d.getLot());
 		}
 		for (Delivery d : inDeliveries.values()) {
-			Integer dbId = d.getID(miDbId, false, mydbi);
+			Integer dbId = d.getID(miDbId, !d.isNewlyGeneratedID(), mydbi);
 			//if (!d.getLogMessages().isEmpty()) logMessages += d.getLogMessages() + "\n";
 			if (d.getExceptions().size() > 0) exceptions.addAll(d.getExceptions());
 			for (String targetLotId : d.getTargetLotIds()) {
@@ -617,6 +618,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			exceptions.add(new Exception("No Recipient Station defined in Forward Tracing sheet"));
 		}
 		result.setId(getNewSerial(l, result));
+		result.setNewlyGeneratedID(true);
 		
 		// Further flexible cells
 		for (int i=startCol+4;i<startCol+21;i++) {
@@ -689,11 +691,22 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		}
 		
 		// Further flexible cells
+		LinkedHashSet<String> le0 = new LinkedHashSet<>();
+		le0.add("Production date".toLowerCase());
+		le0.add("Best before date".toLowerCase());
+		le0.add("Treatment of product during production".toLowerCase());
+		le0.add("Sampling".toLowerCase());
 		for (int i=15;i<25;i++) {
 			Cell tCell = titleRow.getCell(i);
 			if (tCell != null && tCell.getCellType() != Cell.CELL_TYPE_BLANK) {
 				tCell.setCellType(Cell.CELL_TYPE_STRING);
-				cell = row.getCell(i); if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); result.addFlexibleField(tCell.getStringCellValue(), cell.getStringCellValue());}			
+				String field = tCell.getStringCellValue();
+				cell = row.getCell(i);
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					if (le0.contains(field.toLowerCase())) l.addFlexibleField(field, cell.getStringCellValue());
+					else result.addFlexibleField(field, cell.getStringCellValue());
+				}			
 			}
 		}
 		return result;
@@ -806,7 +819,10 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (!outbound && cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {cell.setCellType(Cell.CELL_TYPE_STRING); l.getProduct().setStation(getStation(exceptions, businessSheet, cell.getStringCellValue(), row)); l.setNumber(l.getNumber());}
 
 		if (!isForTracing && !outbound || isForTracing && outbound) {
-			if (!isNewFormat_151105 || result.getId() == null) result.setId(getNewSerial(l, result));
+			if (!isNewFormat_151105 || result.getId() == null) {
+				result.setId(getNewSerial(l, result));
+				result.setNewlyGeneratedID(true);
+			}
 			if (existingDeliveries != null && existingDeliveries.containsKey(result.getId())) {
 				result.getTargetLotIds().addAll(existingDeliveries.get(result.getId()).getTargetLotIds());
 			}

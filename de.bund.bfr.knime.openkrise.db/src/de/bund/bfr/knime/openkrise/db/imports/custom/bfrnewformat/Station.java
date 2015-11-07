@@ -122,23 +122,37 @@ public class Station {
 	
 	public Integer getID(Integer miDbId, MyDBI mydbi) throws Exception {
 		if (gathereds.get(id).getDbId() != null) dbId = gathereds.get(id).getDbId();
-		if (dbId != null) return dbId;
+		if (dbId != null) {
+			handleFlexibles(mydbi);
+			return dbId;
+		}
 		Integer retId = getID(new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","District","Bundesland","Land","Betriebsart","Serial"},
 				new String[]{name,street,number,zip,city,district,state,country,typeOfBusiness,id}, miDbId, mydbi);
 		dbId = retId;
 		gathereds.get(id).setDbId(dbId);
 		
-		// Further flexible cells
 		if (retId != null) {
-			for (Entry<String, String> es : flexibles.entrySet()) {
-				String sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
+			handleFlexibles(mydbi);
+		}
+		return retId;
+	}
+	public void handleFlexibles(MyDBI mydbi) {
+		// Further flexible cells
+		for (Entry<String, String> es : flexibles.entrySet()) {
+			if (es.getValue() != null && !es.getValue().trim().isEmpty()) {
+				String sql = "DELETE FROM " + MyDBI.delimitL("ExtraFields") +
+						" WHERE " + MyDBI.delimitL("tablename") + "='Station'" +
+						" AND " + MyDBI.delimitL("id") + "=" + dbId +
+						" AND " + MyDBI.delimitL("attribute") + "='" + es.getKey() + "'";
+				if (mydbi != null) mydbi.sendRequest(sql, false, false);
+				else DBKernel.sendRequest(sql, false);
+				sql = "INSERT INTO " + MyDBI.delimitL("ExtraFields") +
 						" (" + MyDBI.delimitL("tablename") + "," + MyDBI.delimitL("id") + "," + MyDBI.delimitL("attribute") + "," + MyDBI.delimitL("value") +
-						") VALUES ('Station'," + retId + ",'" + es.getKey() + "','" + es.getValue() + "')";
+						") VALUES ('Station'," + dbId + ",'" + es.getKey() + "','" + es.getValue() + "')";
 				if (mydbi != null) mydbi.sendRequest(sql, false, false);
 				else DBKernel.sendRequest(sql, false);
 			}
 		}
-		return retId;
 	}
 	private Integer getID(String[] feldnames, String[] feldVals, Integer miDbId, MyDBI mydbi) throws Exception {
 		Integer result = null;
