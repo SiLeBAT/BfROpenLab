@@ -44,6 +44,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	private String logMessages = "";
 	private String logWarnings = "";
 	private Map<String, Set<String>> warns = new HashMap<>();
+	private Map<String, Set<String>> warnsBeforeImport = new HashMap<>();
 	
 	public Map<String, Set<String>> getLastWarnings() {
 		return warns;
@@ -947,6 +948,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 						is = new FileInputStream(filename);
 					}
 
+					// warnsBeforeImport erkennen
+					warnsBeforeImport = new HashMap<>();
+					if (existsDBKernel()) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(DBKernel.getDBConnection()));
+					else if (mydbi != null) warnsBeforeImport.putAll(de.bund.bfr.knime.openkrise.common.DeliveryUtils.getWarnings(mydbi.getConn()));
+
+
 					XSSFWorkbook wb = new XSSFWorkbook(is);
 
 					Station.reset(); Lot.reset(); Delivery.reset();
@@ -1037,19 +1044,31 @@ public class TraceImporter extends FileFilter implements MyImporter {
 	}
 	private void doWarns(String filename) {
 		if (warns.size() > 0) {
+			String newFileLogs = "";
 			if (filename != null) {
-				logWarnings += "<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>";
+				newFileLogs += "<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>";
 			}
 			for (String key : warns.keySet()) {
-				logWarnings += "<h2>" + key + "</h2>";
+				String newLogs = "<h2>" + key + "</h2>";
+				//logWarnings += "<h2>" + key + "</h2>";
+				Set<String> oldWarns = warnsBeforeImport.get(key);
 				if (warns.get(key) != null && !warns.get(key).isEmpty()) {
-					logWarnings += "<ul>";
+					newLogs += "<ul>";
 					for (String w : warns.get(key)) {
-						logWarnings += "<li>" + w + "</li>";
+						if (oldWarns == null || !oldWarns.contains(w)) {
+							if (logWarnings.indexOf("<li>" + w + "</li>") < 0) newLogs += "<li>" + w + "</li>";							
+						}
+						//newLogs += "<li>" + w + "</li>";
 					}
-					logWarnings += "</ul>";
+					newLogs += "</ul>";
+				}
+				if (newLogs.length() > ("<h2>" + key + "</h2><ul></ul>").length()) {
+					newFileLogs += newLogs;					
 				}
 			}		
+			if (newFileLogs.length() > ("<h1 id=\"warning\">Warnings for import file '" + filename + "'<h1>").length()) {
+				logWarnings += newFileLogs;
+			}
 		}
 	}
 

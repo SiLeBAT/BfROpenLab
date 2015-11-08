@@ -11,17 +11,15 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.common/src&lt;de.bund.bfr.knime.openkrise.common"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{MyTable.java"/>
+        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.common/src"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db.imports{MyImporter.java"/>
-        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.common/src&lt;de.bund.bfr.knime.openkrise.common.generated.public_"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{MainKernel.java"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{MyDBI.java"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{MyDBTablesNew.java"/>
+        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db.generated/src"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{MyLogger.java"/>
-        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.common/src&lt;de.bund.bfr.knime.openkrise.common.generated.public_.tables"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db.imports.custom.bfrnewformat"/>
-        <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.common/src&lt;de.bund.bfr.knime.openkrise.common.generated.public_.tables.records"/>
         <javaElement handleIdentifier="=de.bund.bfr.knime.openkrise.db/src&lt;de.bund.bfr.knime.openkrise.db{Users.java"/>
     </selectedElements>
 </jardesc>
