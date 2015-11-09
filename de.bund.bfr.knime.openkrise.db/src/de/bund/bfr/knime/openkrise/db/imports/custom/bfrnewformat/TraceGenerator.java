@@ -426,7 +426,7 @@ public class TraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				if (save(workbook, outputFolder + File.separator + "Forwardtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
+				if (save(workbook, outputFolder + File.separator + "Fwdtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
@@ -617,7 +617,7 @@ public class TraceGenerator {
 					doFormats(dvHelper, sheetTracing, rowIndex+i, evaluator);
 				}
 				
-				if (save(workbook, outputFolder + File.separator + "StationFortrace_request_" + getValidFileName(station.getId()) + ".xlsx")) { //  + "_" + getFormattedDate()
+				if (save(workbook, outputFolder + File.separator + "StationFwdtrace_request_" + getValidFileName(station.getId()) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
