@@ -334,7 +334,17 @@ public class GeocodingNodeModel extends NodeModel {
 				null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		
+        // Mimic Mozilla web browser
+        yc.setRequestProperty("Referer", "http://www.google.com");
+        yc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6");
+        yc.setRequestProperty("Accept", "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+        yc.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
+        yc.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        yc.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+        yc.setRequestProperty("Connection", "keep-alive");
+        		
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = null;
 
