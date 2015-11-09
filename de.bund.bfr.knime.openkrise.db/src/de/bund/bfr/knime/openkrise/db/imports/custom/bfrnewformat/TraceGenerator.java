@@ -571,6 +571,7 @@ public class TraceGenerator {
 						}
 					} while (rs.next());
 				}
+				if (i==0) i=1;
 				
 				Name reference = workbook.createName();
 				reference.setNameName("LotNumbers");
@@ -587,7 +588,6 @@ public class TraceGenerator {
 					insertDropBox(dvHelper, sheetTracing, 9+ii, 0, "=LotNumbers");
 				}
 						
-				// todo: fillRow Extras for Lots!!!!!! for all functions!
 				// Products Out
 				row = sheetTracing.getRow(rowIndex + i + 2);
 				j=0;
@@ -602,7 +602,7 @@ public class TraceGenerator {
 
 				rowIndex += i+4;
 
-				if (rs != null && rs.first()) {
+				if (rs != null && rs.first() && rs.getObject("Chargen.ChargenNr") != null) {
 					boolean didOnce = false;
 					do {
 						if (didOnce) row = copyRow(workbook, sheetTracing, rowIndex-1, rowIndex);
