@@ -426,7 +426,7 @@ public class TraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				if (save(workbook, outputFolder + File.separator + "Forwardtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + "_" + getFormattedDate() + ".xlsx")) {
+				if (save(workbook, outputFolder + File.separator + "Forwardtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
@@ -617,7 +617,7 @@ public class TraceGenerator {
 					doFormats(dvHelper, sheetTracing, rowIndex+i, evaluator);
 				}
 				
-				if (save(workbook, outputFolder + File.separator + "StationFortrace_request_" + getValidFileName(station.getId()) + "_" + getFormattedDate() + ".xlsx")) {
+				if (save(workbook, outputFolder + File.separator + "StationFortrace_request_" + getValidFileName(station.getId()) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
@@ -765,7 +765,7 @@ public class TraceGenerator {
 				String referenceString = sheetTracing.getSheetName() + "!$A$" + (rowIndex+1) + ":$A$" + (rowIndex+i);
 				reference.setRefersToFormula(referenceString);				
 				
-				String sif = getValidFileName(rs.getString("Station.Serial")) + "_" + getFormattedDate();
+				String sif = getValidFileName(rs.getString("Station.Serial")); //  + "_" + getFormattedDate()
 
 				// Ingredients for Lot(s)
 				row = sheetTracing.getRow(rowIndex + i + 2);
@@ -1023,7 +1023,7 @@ public class TraceGenerator {
 				}
 				
 				//System.err.println(rs.getInt("Lieferungen.ID") + "\t" + rs.getInt("Chargen.ID"));
-				if (save(workbook, outputFolder + File.separator + "Backtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + "_" + getFormattedDate() + ".xlsx")) {
+				if (save(workbook, outputFolder + File.separator + "Backtrace_request_" + getValidFileName(rs.getString("Station.Serial")) + ".xlsx")) { //  + "_" + getFormattedDate()
 					result++;
 				}
 				myxls.close();
