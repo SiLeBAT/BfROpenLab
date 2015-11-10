@@ -49,12 +49,12 @@ public class TraceGenerator {
 		try {
 			int numFilesGenerated = 0;
 			try {
-				numFilesGenerated = isForward ? getForStationRequests(outputFolder.getAbsolutePath(), station) : getBackStationRequests(outputFolder.getAbsolutePath(), station);
+				numFilesGenerated = isForward ? getFwdStationRequests(outputFolder.getAbsolutePath(), station) : getBackStationRequests(outputFolder.getAbsolutePath(), station);
 			}
 			catch (Exception e) {e.printStackTrace();}
 
 			String message = "";
-			if (numFilesGenerated == 0) message = "No new Templates generated. All done?";
+			if (numFilesGenerated == 0) message = "No new Template generated. Maybe the selected station '" + station.getName() + "' has " + (isForward ? "no incoming deliveries?" : "no lots?");
 			else message = numFilesGenerated + " new pre-filled templates generated, available in folder '" + outputFolder.getAbsolutePath() + "'";
 
 			IWorkbenchWindow eclipseWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -441,7 +441,7 @@ public class TraceGenerator {
 		return sdf.format(resultdate);		
 	}
 	
-	private int getForStationRequests(String outputFolder, Station station) throws SQLException, IOException {
+	private int getFwdStationRequests(String outputFolder, Station station) throws SQLException, IOException {
 		int result = 0;
 		String sql = "Select * from " + MyDBI.delimitL("Station") + " AS " + MyDBI.delimitL("S") +
 				" LEFT JOIN " + MyDBI.delimitL("Lieferungen") +
