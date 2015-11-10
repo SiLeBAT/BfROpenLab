@@ -794,7 +794,7 @@ public class MainFrame extends JFrame {
 		    chooser.setDialogTitle("Select output folder");
 		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    chooser.setAcceptAllFileFilterUsed(false);
-		    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
 		    	if (f.isFile()) f = f.getParentFile();
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
@@ -861,7 +861,7 @@ public class MainFrame extends JFrame {
 		    chooser.setDialogTitle("Select output folder");
 		    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    chooser.setAcceptAllFileFilterUsed(false);
-		    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+		    if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 		    	File f = chooser.getSelectedFile();
 		    	if (f.isFile()) f = f.getParentFile();
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", f.getAbsolutePath());
