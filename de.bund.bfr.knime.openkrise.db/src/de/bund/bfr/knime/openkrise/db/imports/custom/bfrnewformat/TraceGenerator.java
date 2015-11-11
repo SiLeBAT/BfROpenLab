@@ -434,6 +434,7 @@ public class TraceGenerator {
 		}
 		return result;
 	}
+	@SuppressWarnings("unused")
 	private String getFormattedDate() {
 		long yourmilliseconds = System.currentTimeMillis();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
