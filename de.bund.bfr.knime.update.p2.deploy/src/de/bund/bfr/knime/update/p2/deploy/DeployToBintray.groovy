@@ -120,7 +120,7 @@ class DeployToBintray {
 	}
 
 	static RESTClient getClient(String user, String password) {
-		def bintrayClient = new RESTClient("https://api.bintray.com/")
+		def bintrayClient = new RESTClient("https://bintray.com/api/v1/")
 		AbstractHttpClient http = bintrayClient.client
 		def basic = (user + ":" + password).bytes.encodeBase64().toString()
 
