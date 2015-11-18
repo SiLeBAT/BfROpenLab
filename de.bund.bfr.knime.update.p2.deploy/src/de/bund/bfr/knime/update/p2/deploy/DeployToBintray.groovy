@@ -33,6 +33,7 @@ import org.apache.http.protocol.HttpContext
 
 class DeployToBintray {
 
+	static boolean USE_PROXY = true
 	static String PROXY = "webproxy"
 	static int PORT = 8080
 
@@ -132,7 +133,8 @@ class DeployToBintray {
 						httpRequest.addHeader('Authorization', 'Basic ' + basic)
 					}
 				})
-		bintrayClient.setProxy(PROXY, PORT, null)
+		if (USE_PROXY)
+			bintrayClient.setProxy(PROXY, PORT, null)
 		bintrayClient
 	}
 }
