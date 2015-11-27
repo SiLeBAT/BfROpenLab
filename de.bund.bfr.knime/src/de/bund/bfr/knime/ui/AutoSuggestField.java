@@ -56,6 +56,7 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 		field.setText("");
 		field.addKeyListener(this);
 		field.setColumns(columns);
+		setPreferredSize(getPreferredSize());
 	}
 
 	public void setPossibleValues(Set<String> possibleValues) {
