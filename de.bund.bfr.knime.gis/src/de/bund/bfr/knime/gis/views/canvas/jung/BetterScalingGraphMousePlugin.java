@@ -23,19 +23,19 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 
-public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener, Runnable {
-
-	private static final long TIME_OUT = (long) 2e8;
+public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener {
 
 	private List<BetterGraphMouse.ChangeListener> changeListeners;
 
-	private Thread changeThread;
-	private long lastEvent;
+	private Timer notifyTimer;
+	private TimerTask notifyTask;
 
 	protected float in;
 	protected float out;
@@ -45,8 +45,8 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		this.in = in;
 		this.out = out;
 		changeListeners = new ArrayList<>();
-		changeThread = null;
-		lastEvent = 0;
+		notifyTimer = new Timer();
+		notifyTask = null;
 	}
 
 	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
@@ -67,31 +67,22 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 		new LayoutScalingControl().scale(vv, e.getWheelRotation() > 0 ? in : out, e.getPoint());
 		vv.repaint();
-		lastEvent = System.nanoTime();
 
-		if (changeThread == null || !changeThread.isAlive()) {
-			changeThread = new Thread(this);
-			changeThread.start();
+		if (notifyTask != null) {
+			notifyTask.cancel();
 		}
-	}
 
-	@Override
-	public void run() {
-		while (true) {
-			long wait = lastEvent + TIME_OUT - System.nanoTime();
+		notifyTask = new TimerTask() {
 
-			if (wait <= 0) {
-				break;
+			@Override
+			public void run() {
+				for (BetterGraphMouse.ChangeListener listener : changeListeners) {
+					listener.transformChanged();
+				}
 			}
+		};
 
-			try {
-				Thread.sleep(wait / (long) 1e6);
-			} catch (InterruptedException e) {
-			}
-		}
-
-		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-			listener.transformChanged();
-		}
+		notifyTimer.purge();
+		notifyTimer.schedule(notifyTask, 200);
 	}
 }
