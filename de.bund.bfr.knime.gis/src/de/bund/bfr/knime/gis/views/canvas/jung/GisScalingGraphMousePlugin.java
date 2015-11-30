@@ -23,8 +23,6 @@ import java.awt.event.MouseWheelEvent;
 
 public class GisScalingGraphMousePlugin extends BetterScalingGraphMousePlugin {
 
-	private static final long TIME_OUT = (long) 2e8;
-
 	private long lastScrollTime;
 
 	public GisScalingGraphMousePlugin(float in, float out) {
@@ -40,7 +38,7 @@ public class GisScalingGraphMousePlugin extends BetterScalingGraphMousePlugin {
 
 		long time = System.nanoTime();
 
-		if (time - lastScrollTime < TIME_OUT) {
+		if (time - lastScrollTime < 2e8) {
 			return;
 		}
 
