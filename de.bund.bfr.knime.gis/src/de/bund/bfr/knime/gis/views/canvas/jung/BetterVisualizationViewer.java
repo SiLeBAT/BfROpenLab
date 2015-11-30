@@ -22,11 +22,19 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.event.ChangeListener;
+
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
+import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
 
 public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 
@@ -48,6 +56,68 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 			g.setColor(Color.CYAN);
 			((Graphics2D) g).draw(rect);
 			g.setColor(oldColor);
+		}
+	}
+
+	@Override
+	public void setGraphLayout(Layout<V, E> layout) {
+		super.setGraphLayout(layout instanceof ChangeEventSupport ? layout : new ChangeSupportLayout<>(layout));
+	}
+
+	private static class ChangeSupportLayout<V, E> extends LayoutDecorator<V, E>implements ChangeEventSupport {
+
+		private ChangeEventSupport changeSupport;
+
+		public ChangeSupportLayout(Layout<V, E> delegate) {
+			super(delegate);
+			changeSupport = new DefaultChangeEventSupport(this);
+		}
+
+		@Override
+		public void step() {
+			super.step();
+			fireStateChanged();
+		}
+
+		@Override
+		public void initialize() {
+			super.initialize();
+			fireStateChanged();
+		}
+
+		@Override
+		public boolean done() {
+			if (delegate instanceof IterativeContext) {
+				return ((IterativeContext) delegate).done();
+			}
+
+			return true;
+		}
+
+		@Override
+		public void setLocation(V v, Point2D location) {
+			super.setLocation(v, location);
+			fireStateChanged();
+		}
+
+		@Override
+		public void addChangeListener(ChangeListener l) {
+			changeSupport.addChangeListener(l);
+		}
+
+		@Override
+		public void removeChangeListener(ChangeListener l) {
+			changeSupport.removeChangeListener(l);
+		}
+
+		@Override
+		public ChangeListener[] getChangeListeners() {
+			return changeSupport.getChangeListeners();
+		}
+
+		@Override
+		public void fireStateChanged() {
+			changeSupport.fireStateChanged();
 		}
 	}
 }

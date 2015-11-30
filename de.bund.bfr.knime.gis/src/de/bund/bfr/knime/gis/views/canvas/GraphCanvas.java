@@ -41,7 +41,6 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
-import de.bund.bfr.knime.gis.views.canvas.jung.ChangeSupportLayout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.Layout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
@@ -131,7 +130,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		layout.setSize(viewer.getSize());
-		viewer.setGraphLayout(new ChangeSupportLayout<>(layout));
+		viewer.setGraphLayout(layout);
 	}
 
 	@Override
