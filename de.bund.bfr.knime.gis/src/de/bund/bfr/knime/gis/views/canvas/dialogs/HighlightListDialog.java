@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -131,11 +132,16 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		southPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 		southPanel.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
 
+		JScrollPane centerPanel = new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+		centerPanel.setPreferredSize(new Dimension(centerPanel.getPreferredSize().width,
+				list.getPreferredSize().height + centerPanel.getInsets().top + centerPanel.getInsets().bottom));
+
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		mainPanel.add(centerPanel, BorderLayout.CENTER);
 		mainPanel.add(eastPanel, BorderLayout.EAST);
 		mainPanel.add(southPanel, BorderLayout.SOUTH);
 

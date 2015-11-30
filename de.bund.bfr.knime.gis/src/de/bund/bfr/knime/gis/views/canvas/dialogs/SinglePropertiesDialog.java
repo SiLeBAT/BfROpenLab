@@ -80,7 +80,7 @@ public class SinglePropertiesDialog extends KnimeDialog implements ActionListene
 		add(UI.createEastPanel(UI.createHorizontalPanel(okButton)), BorderLayout.SOUTH);
 		pack();
 		UI.adjustDialog(this, 0.5, 0.8);
-		setLocationRelativeTo(parent);		
+		setLocationRelativeTo(parent);
 		getRootPane().setDefaultButton(okButton);
 	}
 
