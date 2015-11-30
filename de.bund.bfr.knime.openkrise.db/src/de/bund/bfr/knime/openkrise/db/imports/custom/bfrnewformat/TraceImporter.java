@@ -91,6 +91,81 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 	}
+	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing) {
+		HashMap<String, HashSet<Row>> deliveryIDs = new HashMap<>();
+		int numRows = deliverySheet.getLastRowNum() + 1;
+		for (int i=2;i<numRows;i++) {
+			Row row = deliverySheet.getRow(i);
+			if (row != null) {
+				Cell cellM = row.getCell(12); // DeliveryID in DB
+				//if ((cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) && (cell1 == null || cell1.getCellType() == Cell.CELL_TYPE_BLANK)) return;
+				if (isCellEmpty(cellM)) {
+					//exceptions.add(new Exception("Delivery has no ID -> Row " + (i+1)));
+				}
+				else {
+					cellM.setCellType(Cell.CELL_TYPE_STRING);
+					String val = cellM.getStringCellValue().trim();
+					if (val.isEmpty() || val.equals("DeliveryID in DB")) {
+						
+					}
+					else {
+						if (!deliveryIDs.containsKey(val)) deliveryIDs.put(val, new HashSet<Row>());
+						HashSet<Row> hs = deliveryIDs.get(val);
+						hs.add(row);						
+					}
+				}
+				
+				/*
+				String key = getRowKey(row, borderRowBetweenTopAndBottom, isForTracing);
+					if (!duplicateRows.containsKey(key)) duplicateRows.put(key, new HashSet<Row>());
+					HashSet<Row> hs = duplicateRows.get(key);
+					hs.add(row);
+					*/
+			}			
+		}
+		for (String val : deliveryIDs.keySet()) {
+			HashSet<Row> hs = deliveryIDs.get(val);
+			if (hs.size() > 1) {
+				String rows = "", key = null;
+				boolean different = false;
+				for (Row tmp : hs) {
+					String tkey = getRowKey(tmp, borderRowBetweenTopAndBottom, isForTracing);
+					if (key == null) key = tkey;
+					else if (!key.equals(tkey)) different = true;
+					rows += ";" + (tmp.getRowNum()+1); 
+				}
+				if (different) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it)."));
+			}
+		}
+		/*
+		for (String val : duplicateRows.keySet()) {
+			HashSet<Integer> hs = duplicateRows.get(val);
+			if (hs.size() > 1) {
+				String rows = "";
+				for (Integer tmp : hs) {
+					rows += ";" + tmp; 
+				}
+				exceptions.add(new Exception("Rows are identical, but Delivery IDs are different -> Rows: " + rows.substring(1) + ". You may want to give them the same ID in Column 'M'."));
+			}
+		}
+		*/
+	}
+	private String getRowKey(Row row, int borderRowBetweenTopAndBottom, boolean isForTracing) {
+		boolean isProductsOut = row.getRowNum() < borderRowBetweenTopAndBottom && !isForTracing || isForTracing && row.getRowNum() > borderRowBetweenTopAndBottom;
+		String key = "";
+		for (int j=isProductsOut?0:1;j<row.getLastCellNum();j++) { // Start with Lot Number or after
+			Cell cell = row.getCell(j);
+			if (!isCellEmpty(cell)) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				key += cell.getStringCellValue().trim();
+			}
+			key += ";";
+		}
+		while(key.endsWith(";;")) {
+			key = key.substring(0, key.length() - 1);
+		}	
+		return key;
+	}
 	private void loadLookupSheet(Sheet lookupSheet) {
 		LookUp lu = new LookUp();
 		int numRows = lookupSheet.getLastRowNum() + 1;
@@ -222,6 +297,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 
 			return exceptions;
 		}
+		int borderRowLotStart = 0;
 		
 		Row row = transactionSheet.getRow(0);
 		Row titleRow;
@@ -295,6 +371,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 		if (isForTracing) label = "Products Out";
 		// Lot(s)
 		classRowIndex = getNextBlockRowIndex(transactionSheet, classRowIndex, "Lot Information") + 3;
+		borderRowLotStart = classRowIndex;
 		titleRow = transactionSheet.getRow(classRowIndex - 2);
 		for (;;classRowIndex++) {
 			row = transactionSheet.getRow(classRowIndex);
@@ -305,6 +382,8 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		
+		checkTraceDeliveries(exceptions, transactionSheet, borderRowLotStart, isForTracing);
+
 		// Deliveries/Recipe Inbound
 		boolean hasIngredients = false;
 		label = "Ingredients for Lot(s)";
