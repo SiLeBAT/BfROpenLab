@@ -20,9 +20,7 @@
 package de.bund.bfr.knime.gis.shapecell;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataCellSerializer;
 import org.knime.core.data.DataType;
-import org.knime.core.data.DataValue;
 import org.knime.core.data.container.BlobDataCell;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -37,14 +35,6 @@ public class ShapeBlobCell extends BlobDataCell implements ShapeValue {
 
 	public ShapeBlobCell(Geometry shape) {
 		this.shape = shape;
-	}
-
-	public static DataCellSerializer<ShapeBlobCell> getCellSerializer() {
-		return new ShapeBlobSerializer();
-	}
-
-	public static Class<? extends DataValue> getPreferredValueClass() {
-		return ShapeValue.class;
 	}
 
 	@Override
