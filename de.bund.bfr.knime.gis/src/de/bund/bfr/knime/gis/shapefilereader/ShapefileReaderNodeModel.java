@@ -40,6 +40,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.BooleanCell.BooleanCellFactory;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -138,7 +139,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 					} else if (value instanceof Double) {
 						cells[i] = new DoubleCell((Double) p.getValue());
 					} else if (value instanceof Boolean) {
-						cells[i] = BooleanCell.get((Boolean) p.getValue());
+						cells[i] = BooleanCellFactory.create((Boolean) p.getValue());
 					} else {
 						cells[i] = new StringCell(p.getValue().toString());
 					}

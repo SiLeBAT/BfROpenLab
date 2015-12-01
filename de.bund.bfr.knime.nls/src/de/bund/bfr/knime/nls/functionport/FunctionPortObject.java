@@ -26,12 +26,13 @@ import javax.swing.JComponent;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.PortTypeRegistry;
 
 import de.bund.bfr.knime.nls.Function;
 
 public class FunctionPortObject implements PortObject, Serializable {
 
-	public static final PortType TYPE = new PortType(FunctionPortObject.class);
+	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(FunctionPortObject.class);
 
 	private static final long serialVersionUID = 1L;
 

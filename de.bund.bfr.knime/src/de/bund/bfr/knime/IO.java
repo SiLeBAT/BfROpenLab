@@ -25,7 +25,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.BooleanCell.BooleanCellFactory;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -50,7 +50,7 @@ public class IO {
 	}
 
 	public static DataCell createCell(Boolean b) {
-		return b != null ? BooleanCell.get(b) : DataType.getMissingCell();
+		return b != null ? BooleanCellFactory.create(b) : DataType.getMissingCell();
 	}
 
 	public static String getToString(DataCell cell) {

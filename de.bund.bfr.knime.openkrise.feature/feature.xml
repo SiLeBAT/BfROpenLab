@@ -30,7 +30,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
    </license>
 
    <requires>
-      <import plugin="org.knime.base" version="2.12.0" match="greaterOrEqual"/>
+      <import plugin="org.knime.base" version="3.0.0" match="greaterOrEqual"/>
       <import plugin="org.knime.ext.poi"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.ext.svg"/>
