@@ -374,62 +374,39 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			}
 		} else if (e.getSource() == borderAlphaButton) {
 			borderAlpha = borderAlphaSlider.getValue();
-
-			for (ChangeListener l : listeners) {
-				l.borderAlphaChanged();
-			}
+			listeners.forEach(l -> l.borderAlphaChanged());
 		} else if (e.getSource() == labelButton) {
 			label = labelField.getText();
-
-			for (ChangeListener l : listeners) {
-				l.labelChanged();
-			}
+			listeners.forEach(l -> l.labelChanged());
 		}
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == transformingButton && e.getStateChange() == ItemEvent.SELECTED) {
-			for (ChangeListener l : listeners) {
-				l.editingModeChanged();
-			}
+			listeners.forEach(l -> l.editingModeChanged());
 		} else if (e.getSource() == pickingButton && e.getStateChange() == ItemEvent.SELECTED) {
-			for (ChangeListener l : listeners) {
-				l.editingModeChanged();
-			}
+			listeners.forEach(l -> l.editingModeChanged());
 		} else if (e.getSource() == showLegendBox) {
-			for (ChangeListener l : listeners) {
-				l.showLegendChanged();
-			}
+			listeners.forEach(l -> l.showLegendChanged());
 		} else if (e.getSource() == joinEdgesBox) {
-			for (ChangeListener l : listeners) {
-				l.joinEdgesChanged();
-			}
+			listeners.forEach(l -> l.joinEdgesChanged());
 		} else if (e.getSource() == skipEdgelessNodesBox) {
-			for (ChangeListener l : listeners) {
-				l.skipEdgelessNodesChanged();
-			}
+			listeners.forEach(l -> l.skipEdgelessNodesChanged());
 		} else if (e.getSource() == showEdgesInMetaNodeBox) {
-			for (ChangeListener l : listeners) {
-				l.showEdgesInMetaNodeChanged();
-			}
+			listeners.forEach(l -> l.showEdgesInMetaNodeChanged());
 		} else if (e.getSource() == fontSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = fontSizeBox.getSelectedItem();
 
 			if (size instanceof Integer) {
 				fontSize = (Integer) size;
-
-				for (ChangeListener l : listeners) {
-					l.fontChanged();
-				}
+				listeners.forEach(l -> l.fontChanged());
 			} else {
 				Dialogs.showErrorMessage(fontSizeBox, size + " is not a valid number", "Error");
 				fontSizeBox.setSelectedItem(fontSize);
 			}
 		} else if (e.getSource() == fontBoldBox) {
-			for (ChangeListener l : listeners) {
-				l.fontChanged();
-			}
+			listeners.forEach(l -> l.fontChanged());
 		} else if (e.getSource() == nodeSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = nodeSizeBox.getSelectedItem();
 
@@ -440,10 +417,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					nodeSizeBox.setSelectedItem(nodeSize);
 				} else {
 					nodeSize = (Integer) size;
-
-					for (ChangeListener l : listeners) {
-						l.nodeSizeChanged();
-					}
+					listeners.forEach(l -> l.nodeSizeChanged());
 				}
 			} else {
 				Dialogs.showErrorMessage(nodeSizeBox, size + " is not a valid number", "Error");
@@ -460,10 +434,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 				} else {
 					nodeMaxSize = (Integer) size;
-
-					for (ChangeListener l : listeners) {
-						l.nodeSizeChanged();
-					}
+					listeners.forEach(l -> l.nodeSizeChanged());
 				}
 			} else {
 				Dialogs.showErrorMessage(nodeMaxSizeBox, size + " is not a valid number", "Error");
@@ -479,10 +450,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					edgeThicknessBox.setSelectedItem(edgeThickness);
 				} else {
 					edgeThickness = (Integer) size;
-
-					for (ChangeListener l : listeners) {
-						l.edgeThicknessChanged();
-					}
+					listeners.forEach(l -> l.edgeThicknessChanged());
 				}
 			} else {
 				Dialogs.showErrorMessage(edgeThicknessBox, size + " is not a valid number", "Error");
@@ -499,23 +467,16 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 				} else {
 					edgeMaxThickness = (Integer) size;
-
-					for (ChangeListener l : listeners) {
-						l.edgeThicknessChanged();
-					}
+					listeners.forEach(l -> l.edgeThicknessChanged());
 				}
 			} else {
 				Dialogs.showErrorMessage(edgeMaxThicknessBox, size + " is not a valid number", "Error");
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 			}
 		} else if (e.getSource() == arrowInMiddleBox) {
-			for (ChangeListener l : listeners) {
-				l.arrowInMiddleChanged();
-			}
+			listeners.forEach(l -> l.arrowInMiddleChanged());
 		} else if (e.getSource() == avoidOverlayBox) {
-			for (ChangeListener l : listeners) {
-				l.avoidOverlayChanged();
-			}
+			listeners.forEach(l -> l.avoidOverlayChanged());
 		}
 	}
 
