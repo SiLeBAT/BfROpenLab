@@ -91,7 +91,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 	}
-	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing) {
+	private void checkTraceDeliveries(List<Exception> exceptions, Sheet deliverySheet, int borderRowBetweenTopAndBottom, boolean isForTracing, boolean isNewFormat_151105) {
 		HashMap<String, HashSet<Row>> deliveryIDs = new HashMap<>();
 		int numRows = deliverySheet.getLastRowNum() + 1;
 		for (int i=2;i<numRows;i++) {
@@ -129,10 +129,12 @@ public class TraceImporter extends FileFilter implements MyImporter {
 				String rows = "", key = null;
 				boolean different = false;
 				for (Row tmp : hs) {
-					String tkey = getRowKey(tmp, borderRowBetweenTopAndBottom, isForTracing);
-					if (key == null) key = tkey;
-					else if (!key.equals(tkey)) different = true;
-					rows += ";" + (tmp.getRowNum()+1); 
+					if (isNewFormat_151105 || tmp.getRowNum() < borderRowBetweenTopAndBottom) {
+						String tkey = getRowKey(tmp, borderRowBetweenTopAndBottom, isForTracing);
+						if (key == null) key = tkey;
+						else if (!key.equals(tkey)) different = true;
+						rows += ";" + (tmp.getRowNum()+1); 
+					}
 				}
 				if (different) exceptions.add(new Exception("Delivery ID '" + val + "' is defined more than once -> Rows: " + rows.substring(1) + ". If you have copy/pasted a new row, please clear the cell for the DeliveryID of the new Row in Column 'M' (expand it firstly to be able to see it)."));
 			}
@@ -382,7 +384,7 @@ public class TraceImporter extends FileFilter implements MyImporter {
 			}
 		}
 		
-		checkTraceDeliveries(exceptions, transactionSheet, borderRowLotStart, isForTracing);
+		checkTraceDeliveries(exceptions, transactionSheet, borderRowLotStart, isForTracing, isNewFormat_151105);
 
 		// Deliveries/Recipe Inbound
 		boolean hasIngredients = false;
