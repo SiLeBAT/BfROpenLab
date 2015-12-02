@@ -22,11 +22,10 @@ package de.bund.bfr.knime.gis.views.canvas.highlighting;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -150,19 +149,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		Map<T, Double> values = new LinkedHashMap<>();
 
 		for (T element : elements) {
-			Object value = element.getProperties().get(property);
-
-			if (value instanceof Number) {
-				double doubleValue = ((Number) value).doubleValue();
-
-				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
-					values.put(element, doubleValue);
-				} else {
-					values.put(element, 0.0);
-				}
-			} else {
-				values.put(element, 0.0);
-			}
+			values.put(element, toPositiveDouble(element.getProperties().get(property)));
 		}
 
 		if (values.isEmpty()) {
@@ -198,34 +185,10 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 
 	@Override
 	public Point2D getValueRange(Collection<? extends Element> elements) {
-		List<Double> values = new ArrayList<>();
-
-		for (Element element : elements) {
-			Object value = element.getProperties().get(property);
-
-			if (value instanceof Number) {
-				double doubleValue = ((Number) value).doubleValue();
-
-				if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
-					values.add(doubleValue);
-				} else {
-					values.add(0.0);
-				}
-			} else {
-				values.add(0.0);
-			}
-		}
-
-		double min = 0.0;
-		double max = 1.0;
-
-		if (!zeroAsMinimum && !values.isEmpty()) {
-			min = Collections.min(values);
-		}
-
-		if (!values.isEmpty()) {
-			max = Collections.max(values);
-		}
+		DoubleSummaryStatistics stats = elements.stream()
+				.mapToDouble(e -> toPositiveDouble(e.getProperties().get(property))).summaryStatistics();
+		double min = zeroAsMinimum || stats.getCount() == 0 ? 0.0 : stats.getMin();
+		double max = stats.getCount() == 0 ? 1.0 : stats.getMax();
 
 		return new Point2D.Double(min, max);
 	}
@@ -275,5 +238,15 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public String toString() {
 		return getName() != null ? getName() : "Value Condition";
+	}
+
+	protected static double toPositiveDouble(Object value) {
+		if (value instanceof Number) {
+			double d = ((Number) value).doubleValue();
+
+			return Double.isFinite(d) && d >= 0.0 ? d : 0.0;
+		}
+
+		return 0.0;
 	}
 }

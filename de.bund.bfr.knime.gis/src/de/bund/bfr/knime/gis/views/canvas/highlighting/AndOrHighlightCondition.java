@@ -25,7 +25,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,11 +133,11 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
-		List<List<Map<T, Double>>> valuesList = new ArrayList<>();
-		Collection<T> e = Collections.unmodifiableCollection(elements);
+		List<List<Map<? extends T, Double>>> valuesList = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> andLists : conditions) {
-			valuesList.add(andLists.stream().map(c -> c.getValues(e)).collect(Collectors.toCollection(ArrayList::new)));
+			valuesList.add(
+					andLists.stream().map(c -> c.getValues(elements)).collect(Collectors.toCollection(ArrayList::new)));
 		}
 
 		Map<T, Double> returnValues = new LinkedHashMap<>();
@@ -146,7 +145,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		for (T element : elements) {
 			boolean allFalse = true;
 
-			for (List<Map<T, Double>> andValues : valuesList) {
+			for (List<Map<? extends T, Double>> andValues : valuesList) {
 				if (andValues.stream().allMatch(values -> values.get(element) == 1.0)) {
 					allFalse = false;
 					break;
