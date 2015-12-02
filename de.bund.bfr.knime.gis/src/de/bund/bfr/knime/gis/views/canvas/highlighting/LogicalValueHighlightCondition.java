@@ -156,20 +156,23 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 	@Override
 	public Point2D getValueRange(Iterable<? extends Element> elements) {
-		String type = valueCondition.getType();
-
-		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
-
-		Map<? extends Element, Double> valueValues = valueCondition.getValues(elements);
 		Map<? extends Element, Double> logicalValues = logicalCondition.getValues(elements);
-
-		valueCondition.setType(type);
-
 		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
 			if (logicalValues.get(element) != 0.0) {
-				values.add(valueValues.get(element));
+				double value = 0.0;
+				Object o = element.getProperties().get(valueCondition.getProperty());
+
+				if (o instanceof Number) {
+					double doubleValue = ((Number) o).doubleValue();
+
+					if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
+						value = doubleValue;
+					}
+				}
+
+				values.add(value);
 			}
 		}
 
