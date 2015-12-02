@@ -130,7 +130,7 @@ public class CanvasUtils {
 		return new Transform(scaleX, scaleY, translationX, translationY);
 	}
 
-	public static List<HighlightCondition> createCategorialHighlighting(Iterable<? extends Element> elements,
+	public static List<HighlightCondition> createCategorialHighlighting(Collection<? extends Element> elements,
 			String property) {
 		Set<Object> categories = new LinkedHashSet<>();
 
@@ -159,7 +159,7 @@ public class CanvasUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <V extends Node> void copyNodesAndEdges(Iterable<V> nodes, Iterable<Edge<V>> edges,
+	public static <V extends Node> void copyNodesAndEdges(Collection<V> nodes, Collection<Edge<V>> edges,
 			Collection<V> newNodes, Collection<Edge<V>> newEdges) {
 		Map<String, V> nodesById = new LinkedHashMap<>();
 
@@ -176,7 +176,7 @@ public class CanvasUtils {
 		}
 	}
 
-	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Iterable<Edge<V>> edges,
+	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
 			EdgePropertySchema properties, Set<String> usedIds) {
 		SetMultimap<Pair<V, V>, Edge<V>> edgeMap = LinkedHashMultimap.create();
 
@@ -259,7 +259,7 @@ public class CanvasUtils {
 		}
 	}
 
-	public static <T extends Element> Set<T> getHighlightedElements(Iterable<T> elements,
+	public static <T extends Element> Set<T> getHighlightedElements(Collection<T> elements,
 			List<HighlightCondition> highlightConditions) {
 		Set<T> highlightedElements = new LinkedHashSet<>();
 
@@ -274,7 +274,7 @@ public class CanvasUtils {
 		return highlightedElements;
 	}
 
-	public static Set<String> getElementIds(Iterable<? extends Element> elements) {
+	public static Set<String> getElementIds(Collection<? extends Element> elements) {
 		Set<String> ids = new LinkedHashSet<>();
 
 		for (Element element : elements) {
@@ -284,7 +284,7 @@ public class CanvasUtils {
 		return ids;
 	}
 
-	public static <T extends Element> Set<T> getElementsById(Iterable<T> elements, Set<String> ids) {
+	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Set<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (T element : elements) {
@@ -296,7 +296,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T extends Element> Map<String, T> getElementsById(Iterable<T> elements) {
+	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
 		Map<String, T> result = new LinkedHashMap<>();
 
 		for (T element : elements) {
@@ -306,7 +306,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static <T> Set<T> getElementsById(Map<String, T> elements, Iterable<String> ids) {
+	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
 		Set<T> result = new LinkedHashSet<>();
 
 		for (String id : ids) {
@@ -318,7 +318,7 @@ public class CanvasUtils {
 		return result;
 	}
 
-	public static Map<String, Set<String>> getPossibleValues(Iterable<? extends Element> elements) {
+	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
 		SetMultimap<String, String> values = LinkedHashMultimap.create();
 
 		for (Element e : elements) {
@@ -334,7 +334,7 @@ public class CanvasUtils {
 		return Multimaps.asMap(values);
 	}
 
-	public static Double getMeanValue(Iterable<? extends Element> elements, String property) {
+	public static Double getMeanValue(Collection<? extends Element> elements, String property) {
 		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
@@ -352,7 +352,7 @@ public class CanvasUtils {
 		return DoubleMath.mean(Doubles.toArray(values));
 	}
 
-	public static AndOrHighlightCondition createIdHighlightCondition(Iterable<String> ids, String idProperty) {
+	public static AndOrHighlightCondition createIdHighlightCondition(Collection<String> ids, String idProperty) {
 		List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
 
 		for (String id : ids) {
@@ -395,18 +395,19 @@ public class CanvasUtils {
 		return properties;
 	}
 
-	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
+	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
 		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize, false);
 	}
 
-	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
+	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions) {
 		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, null, true);
 	}
 
-	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext, Iterable<V> nodes,
-			HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize, boolean labelsOnly) {
+	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
+			boolean labelsOnly) {
 		List<Color> colors = new ArrayList<>();
 		ListMultimap<V, Double> alphaValues = ArrayListMultimap.create();
 		Map<V, Double> thicknessValues = new LinkedHashMap<>();
@@ -473,7 +474,7 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Iterable<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
+			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		List<Color> colors = new ArrayList<>();
 		ListMultimap<Edge<V>, Double> alphaValues = ArrayListMultimap.create();
@@ -645,7 +646,7 @@ public class CanvasUtils {
 		return removed;
 	}
 
-	public static <V extends Node> Graph<V, Edge<V>> createGraph(Iterable<V> nodes, Iterable<Edge<V>> edges) {
+	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes, Collection<Edge<V>> edges) {
 		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
 		for (V node : nodes) {

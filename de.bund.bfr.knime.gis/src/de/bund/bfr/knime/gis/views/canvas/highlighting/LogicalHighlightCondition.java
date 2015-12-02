@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -84,7 +85,7 @@ public class LogicalHighlightCondition implements Serializable {
 		this.value = value;
 	}
 
-	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
 
 		try {

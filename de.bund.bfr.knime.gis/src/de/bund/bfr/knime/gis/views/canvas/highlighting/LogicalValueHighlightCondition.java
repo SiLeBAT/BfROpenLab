@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,7 +96,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		String type = valueCondition.getType();
 
 		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
@@ -155,7 +156,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public Point2D getValueRange(Iterable<? extends Element> elements) {
+	public Point2D getValueRange(Collection<? extends Element> elements) {
 		String type = valueCondition.getType();
 
 		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);

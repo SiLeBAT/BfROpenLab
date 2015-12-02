@@ -24,10 +24,13 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -72,13 +75,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	public int getConditionCount() {
-		int n = 0;
-
-		for (List<LogicalHighlightCondition> c : conditions) {
-			n += c.size();
-		}
-
-		return n;
+		return conditions.stream().mapToInt(c -> c.size()).sum();
 	}
 
 	@Override
@@ -136,17 +133,12 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		List<List<Map<T, Double>>> valuesList = new ArrayList<>();
+		Collection<T> e = Collections.unmodifiableCollection(elements);
 
 		for (List<LogicalHighlightCondition> andLists : conditions) {
-			List<Map<T, Double>> v = new ArrayList<>();
-
-			for (LogicalHighlightCondition condition : andLists) {
-				v.add(condition.getValues(elements));
-			}
-
-			valuesList.add(v);
+			valuesList.add(andLists.stream().map(c -> c.getValues(e)).collect(Collectors.toCollection(ArrayList::new)));
 		}
 
 		Map<T, Double> returnValues = new LinkedHashMap<>();
@@ -155,33 +147,20 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 			boolean allFalse = true;
 
 			for (List<Map<T, Double>> andValues : valuesList) {
-				boolean allTrue = true;
-
-				for (Map<T, Double> values : andValues) {
-					if (values.get(element) != 1.0) {
-						allTrue = false;
-						break;
-					}
-				}
-
-				if (allTrue) {
+				if (andValues.stream().allMatch(values -> values.get(element) == 1.0)) {
 					allFalse = false;
 					break;
 				}
 			}
 
-			if (allFalse) {
-				returnValues.put(element, 0.0);
-			} else {
-				returnValues.put(element, 1.0);
-			}
+			returnValues.put(element, allFalse ? 0.0 : 1.0);
 		}
 
 		return returnValues;
 	}
 
 	@Override
-	public Point2D getValueRange(Iterable<? extends Element> elements) {
+	public Point2D getValueRange(Collection<? extends Element> elements) {
 		return new Point2D.Double(0.0, 1.0);
 	}
 
@@ -190,13 +169,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		List<List<LogicalHighlightCondition>> conditionsCopy = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> list : conditions) {
-			List<LogicalHighlightCondition> listCopy = new ArrayList<>();
-
-			for (LogicalHighlightCondition c : list) {
-				listCopy.add(c.copy());
-			}
-
-			conditionsCopy.add(listCopy);
+			conditionsCopy.add(list.stream().map(c -> c.copy()).collect(Collectors.toCollection(ArrayList::new)));
 		}
 
 		return new AndOrHighlightCondition(conditionsCopy, name, showInLegend, color, invisible, useThickness,

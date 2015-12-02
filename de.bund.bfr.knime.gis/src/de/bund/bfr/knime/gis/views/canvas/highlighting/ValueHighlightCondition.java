@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -145,7 +146,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
 
 		for (T element : elements) {
@@ -196,7 +197,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	}
 
 	@Override
-	public Point2D getValueRange(Iterable<? extends Element> elements) {
+	public Point2D getValueRange(Collection<? extends Element> elements) {
 		List<Double> values = new ArrayList<>();
 
 		for (Element element : elements) {
