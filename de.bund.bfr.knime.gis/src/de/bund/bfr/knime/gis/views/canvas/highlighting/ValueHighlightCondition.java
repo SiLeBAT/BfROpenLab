@@ -23,7 +23,6 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -147,34 +146,40 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
+		double min = 1.0;
+		double max = 0.0;
 
 		for (T element : elements) {
-			values.put(element, toPositiveDouble(element.getProperties().get(property)));
+			double value = ValueHighlightCondition.toPositiveDouble(element.getProperties().get(property));
+
+			values.put(element, value);
+			min = Math.min(min, value);
+			max = Math.max(max, value);
 		}
 
 		if (values.isEmpty()) {
 			return values;
 		}
 
-		if (!zeroAsMinimum) {
-			double min = Collections.min(values.values());
-
-			if (min != 0.0) {
-				for (T element : elements) {
-					values.put(element, values.get(element) - min);
-				}
-			}
+		if (zeroAsMinimum) {
+			min = 0.0;
 		}
 
-		double max = Collections.max(values.values());
-
-		if (max != 0.0) {
+		if (min != 0.0) {
 			for (T element : elements) {
-				values.put(element, values.get(element) / max);
+				values.put(element, values.get(element) - min);
 			}
 		}
 
-		if (type.equals(LOG_VALUE_TYPE)) {
+		if (max > min) {
+			double diff = max - min;
+
+			for (T element : elements) {
+				values.put(element, values.get(element) / diff);
+			}
+		}
+
+		if (type.equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
 			for (T element : elements) {
 				values.put(element, Math.log10(values.get(element) * 9.0 + 1.0));
 			}

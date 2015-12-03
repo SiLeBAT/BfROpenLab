@@ -97,15 +97,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
-		String type = valueCondition.getType();
-
-		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
-
-		Map<T, Double> valueValues = valueCondition.getValues(elements);
 		Map<T, Double> logicalValues = logicalCondition.getValues(elements);
-
-		valueCondition.setType(type);
-
 		Map<T, Double> values = new LinkedHashMap<>();
 		List<T> nonZeroElements = new ArrayList<>();
 		double min = 1.0;
@@ -113,7 +105,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 		for (T element : elements) {
 			if (logicalValues.get(element) != 0.0) {
-				double value = valueValues.get(element);
+				double value = ValueHighlightCondition
+						.toPositiveDouble(element.getProperties().get(valueCondition.getProperty()));
 
 				values.put(element, value);
 				nonZeroElements.add(element);
@@ -146,7 +139,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 			}
 		}
 
-		if (type.equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
+		if (valueCondition.getType().equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
 			for (T element : nonZeroElements) {
 				values.put(element, Math.log10(values.get(element) * 9.0 + 1.0));
 			}
