@@ -78,9 +78,8 @@ public class Transform implements Serializable {
 	}
 
 	public boolean isValid() {
-		return !Double.isNaN(scaleX) && !Double.isNaN(scaleY) && !Double.isNaN(translationX)
-				&& !Double.isNaN(translationY) && !Double.isInfinite(scaleX) && !Double.isInfinite(scaleY)
-				&& !Double.isInfinite(translationX) && !Double.isInfinite(translationY);
+		return Double.isFinite(scaleX) && Double.isFinite(scaleY) && Double.isFinite(translationX)
+				&& Double.isFinite(translationY);
 	}
 
 	public AffineTransform toAffineTransform() {
