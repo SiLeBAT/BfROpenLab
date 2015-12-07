@@ -156,7 +156,7 @@ public class AddressCreatorNodeModel extends NodeModel {
 					houseNumber, city, district, state, country, postalCode, houseNumberAfterStreet.getBooleanValue()));
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index / (double) table.getRowCount());
+			exec.setProgress((double) index / (double) table.size());
 		}
 
 		container.close();

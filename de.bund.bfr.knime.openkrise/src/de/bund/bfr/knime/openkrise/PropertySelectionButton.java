@@ -31,7 +31,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,8 +41,6 @@ import javax.swing.JPanel;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -115,14 +114,14 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 				mainProperties.add(metaProperty);
 			}
 
-			result.put("Main", createPropertyGroup(schema.getMap().keySet(), mainProperties));
-			result.put("Address", createPropertyGroup(schema.getMap().keySet(), TracingColumns.ADDRESS_COLUMNS));
+			result.put("Main", filterGroup(mainProperties.stream(), schema));
+			result.put("Address", filterGroup(TracingColumns.ADDRESS_COLUMNS.stream(), schema));
 		} else if (schema.getType() == Type.EDGE) {
-			result.put("Main", createPropertyGroup(schema.getMap().keySet(), TracingColumns.DELIVERY_COLUMNS));
+			result.put("Main", filterGroup(TracingColumns.DELIVERY_COLUMNS.stream(), schema));
 		}
 
-		result.put("Tracing", createPropertyGroup(schema.getMap().keySet(),
-				Iterables.concat(TracingColumns.INPUT_COLUMNS, TracingColumns.OUTPUT_COLUMNS)));
+		result.put("Tracing", filterGroup(
+				Stream.concat(TracingColumns.INPUT_COLUMNS.stream(), TracingColumns.OUTPUT_COLUMNS.stream()), schema));
 
 		List<String> otherProperties = new ArrayList<>(schema.getMap().keySet());
 
@@ -137,12 +136,9 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		return result;
 	}
 
-	private static List<String> createPropertyGroup(Set<String> properties, Iterable<String> groupColumns) {
-		List<String> result = Lists.newArrayList(groupColumns);
-
-		result.retainAll(properties);
-
-		return result;
+	private static List<String> filterGroup(Stream<String> groupColumns, PropertySchema schema) {
+		return groupColumns.filter(s -> schema.getMap().containsKey(s))
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	private class PropertySelectionDialog extends KnimeDialog implements ActionListener {

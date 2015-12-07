@@ -20,10 +20,12 @@
 package de.bund.bfr.knime.gis.shapecell;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataCellFactory;
+import org.knime.core.data.DataType;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public class ShapeCellFactory {
+public class ShapeCellFactory implements DataCellFactory {
 
 	private ShapeCellFactory() {
 	}
@@ -34,5 +36,10 @@ public class ShapeCellFactory {
 		}
 
 		return new ShapeBlobCell(shape);
+	}
+
+	@Override
+	public DataType getDataType() {
+		return ShapeBlobCell.TYPE;
 	}
 }

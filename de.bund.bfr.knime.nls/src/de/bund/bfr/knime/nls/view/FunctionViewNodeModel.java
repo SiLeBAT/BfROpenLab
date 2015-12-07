@@ -54,7 +54,7 @@ public class FunctionViewNodeModel extends NodeModel {
 	 */
 	protected FunctionViewNodeModel() {
 		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				new PortType(BufferedDataTable.class, true) }, new PortType[] { ImagePortObject.TYPE });
+				BufferedDataTable.TYPE_OPTIONAL }, new PortType[] { ImagePortObject.TYPE });
 		set = new ViewSettings();
 	}
 

@@ -245,7 +245,7 @@ public class ParameterOptimizer {
 
 			double error = targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values)));
 
-			if (!Double.isNaN(error)) {
+			if (Double.isFinite(error)) {
 				valuesList.add(new StartValues(values, error));
 			}
 

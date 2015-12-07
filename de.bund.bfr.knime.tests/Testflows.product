@@ -10,7 +10,6 @@
       <programArgs>-consoleLog -root ${workspace_loc:de.bund.bfr.knime.tests}/workflows -xmlResultDir ${workspace_loc:de.bund.bfr.knime.tests}/results -ignoreNodeMessages
       </programArgs>
       <vmArgs>-Xmx768m
--XX:MaxPermSize=256m
 -server
 -Dsun.java2d.d3d=false
 -Dosgi.classloader.lock=classname
@@ -36,212 +35,22 @@
    </launcher>
 
    <vm>
-      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</windows>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
+      <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
+      <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
+
    <plugins>
-      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
-      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
-      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
-      <plugin id="com.google.guava"/>
-      <plugin id="com.ibm.icu"/>
-      <plugin id="com.jgoodies"/>
-      <plugin id="com.knime.enterprise.client.api"/>
-      <plugin id="com.knime.enterprise.client.filesystem"/>
-      <plugin id="com.knime.enterprise.client.glassfish"/>
-      <plugin id="com.knime.enterprise.server.ws.client"/>
-      <plugin id="com.knime.enterprise.utility"/>
-      <plugin id="com.sun.jna"/>
-      <plugin id="com.thoughtworks.xstream"/>
-      <plugin id="de.bund.bfr.knime"/>
-      <plugin id="de.bund.bfr.knime.chart"/>
-      <plugin id="de.bund.bfr.knime.gis"/>
-      <plugin id="de.bund.bfr.knime.gis.util"/>
-      <plugin id="de.bund.bfr.knime.gis.views"/>
-      <plugin id="de.bund.bfr.knime.nls"/>
-      <plugin id="de.bund.bfr.knime.openkrise"/>
-      <plugin id="de.bund.bfr.knime.openkrise.common"/>
-      <plugin id="de.bund.bfr.knime.openkrise.db"/>
-      <plugin id="de.bund.bfr.knime.openkrise.db.generated"/>
-      <plugin id="de.bund.bfr.knime.openkrise.util"/>
-      <plugin id="de.bund.bfr.knime.openkrise.views"/>
-      <plugin id="de.bund.bfr.math"/>
-      <plugin id="edu.uci.ics.jung"/>
-      <plugin id="javax.activation"/>
-      <plugin id="javax.ejb"/>
-      <plugin id="javax.javaee-api"/>
-      <plugin id="javax.mail.glassfish"/>
-      <plugin id="javax.servlet"/>
-      <plugin id="javax.transaction" fragment="true"/>
-      <plugin id="javax.xml"/>
-      <plugin id="org.apache.ant"/>
-      <plugin id="org.apache.batik.bridge"/>
-      <plugin id="org.apache.batik.css"/>
-      <plugin id="org.apache.batik.dom"/>
-      <plugin id="org.apache.batik.dom.svg"/>
-      <plugin id="org.apache.batik.ext.awt"/>
-      <plugin id="org.apache.batik.parser"/>
-      <plugin id="org.apache.batik.pdf"/>
-      <plugin id="org.apache.batik.svggen"/>
-      <plugin id="org.apache.batik.swing"/>
-      <plugin id="org.apache.batik.transcoder"/>
-      <plugin id="org.apache.batik.util"/>
-      <plugin id="org.apache.batik.util.gui"/>
-      <plugin id="org.apache.batik.xml"/>
-      <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.httpclient"/>
-      <plugin id="org.apache.commons.io"/>
-      <plugin id="org.apache.commons.lang"/>
-      <plugin id="org.apache.commons.lang3"/>
-      <plugin id="org.apache.commons.logging"/>
-      <plugin id="org.apache.commons.math"/>
-      <plugin id="org.apache.commons.math3"/>
-      <plugin id="org.apache.log4j"/>
-      <plugin id="org.apache.lucene"/>
-      <plugin id="org.apache.lucene.analysis"/>
-      <plugin id="org.apache.lucene.core"/>
-      <plugin id="org.apache.poi"/>
-      <plugin id="org.apache.poi.new"/>
-      <plugin id="org.apache.xalan"/>
-      <plugin id="org.apache.xerces"/>
-      <plugin id="org.apache.xml.resolver"/>
-      <plugin id="org.apache.xml.serializer"/>
-      <plugin id="org.apache.xmlbeans"/>
-      <plugin id="org.eclipse.ant.core"/>
-      <plugin id="org.eclipse.ant.optional.junit" fragment="true"/>
-      <plugin id="org.eclipse.compare"/>
-      <plugin id="org.eclipse.compare.core"/>
-      <plugin id="org.eclipse.core.boot"/>
-      <plugin id="org.eclipse.core.commands"/>
-      <plugin id="org.eclipse.core.contenttype"/>
-      <plugin id="org.eclipse.core.databinding"/>
-      <plugin id="org.eclipse.core.databinding.observable"/>
-      <plugin id="org.eclipse.core.databinding.property"/>
-      <plugin id="org.eclipse.core.expressions"/>
-      <plugin id="org.eclipse.core.filebuffers"/>
-      <plugin id="org.eclipse.core.filesystem"/>
-      <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.core.jobs"/>
-      <plugin id="org.eclipse.core.resources"/>
-      <plugin id="org.eclipse.core.runtime"/>
-      <plugin id="org.eclipse.core.runtime.compatibility"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
-      <plugin id="org.eclipse.core.variables"/>
-      <plugin id="org.eclipse.debug.core"/>
-      <plugin id="org.eclipse.debug.ui"/>
-      <plugin id="org.eclipse.draw2d"/>
-      <plugin id="org.eclipse.ecf"/>
-      <plugin id="org.eclipse.ecf.filetransfer"/>
-      <plugin id="org.eclipse.ecf.identity"/>
-      <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
-      <plugin id="org.eclipse.equinox.app"/>
-      <plugin id="org.eclipse.equinox.common"/>
-      <plugin id="org.eclipse.equinox.frameworkadmin"/>
-      <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
-      <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
-      <plugin id="org.eclipse.equinox.p2.core"/>
-      <plugin id="org.eclipse.equinox.p2.director"/>
-      <plugin id="org.eclipse.equinox.p2.engine"/>
-      <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
-      <plugin id="org.eclipse.equinox.p2.metadata"/>
-      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
-      <plugin id="org.eclipse.equinox.p2.operations"/>
-      <plugin id="org.eclipse.equinox.p2.repository"/>
-      <plugin id="org.eclipse.equinox.p2.ui"/>
-      <plugin id="org.eclipse.equinox.preferences"/>
-      <plugin id="org.eclipse.equinox.registry"/>
-      <plugin id="org.eclipse.equinox.security"/>
-      <plugin id="org.eclipse.equinox.security.ui"/>
-      <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
-      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
-      <plugin id="org.eclipse.gef"/>
-      <plugin id="org.eclipse.gmf.runtime.common.core"/>
-      <plugin id="org.eclipse.gmf.runtime.common.ui"/>
-      <plugin id="org.eclipse.gmf.runtime.draw2d.ui"/>
-      <plugin id="org.eclipse.gmf.runtime.draw2d.ui.render"/>
-      <plugin id="org.eclipse.gmf.runtime.draw2d.ui.render.awt"/>
-      <plugin id="org.eclipse.help"/>
-      <plugin id="org.eclipse.help.base"/>
-      <plugin id="org.eclipse.help.ui"/>
-      <plugin id="org.eclipse.jdt.compiler.tool" fragment="true"/>
-      <plugin id="org.eclipse.jdt.core"/>
-      <plugin id="org.eclipse.jdt.core.manipulation"/>
-      <plugin id="org.eclipse.jdt.debug"/>
-      <plugin id="org.eclipse.jdt.debug.ui"/>
-      <plugin id="org.eclipse.jdt.junit"/>
-      <plugin id="org.eclipse.jdt.junit.core"/>
-      <plugin id="org.eclipse.jdt.junit.runtime"/>
-      <plugin id="org.eclipse.jdt.launching"/>
-      <plugin id="org.eclipse.jdt.ui"/>
-      <plugin id="org.eclipse.jface"/>
-      <plugin id="org.eclipse.jface.databinding"/>
-      <plugin id="org.eclipse.jface.text"/>
-      <plugin id="org.eclipse.ltk.core.refactoring"/>
-      <plugin id="org.eclipse.ltk.ui.refactoring"/>
-      <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.platform"/>
-      <plugin id="org.eclipse.search"/>
-      <plugin id="org.eclipse.swt"/>
-      <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.team.core"/>
-      <plugin id="org.eclipse.team.ui"/>
-      <plugin id="org.eclipse.text"/>
-      <plugin id="org.eclipse.ui"/>
-      <plugin id="org.eclipse.ui.console"/>
-      <plugin id="org.eclipse.ui.editors"/>
-      <plugin id="org.eclipse.ui.forms"/>
-      <plugin id="org.eclipse.ui.ide"/>
-      <plugin id="org.eclipse.ui.intro"/>
-      <plugin id="org.eclipse.ui.navigator"/>
-      <plugin id="org.eclipse.ui.navigator.resources"/>
-      <plugin id="org.eclipse.ui.views"/>
-      <plugin id="org.eclipse.ui.views.properties.tabbed"/>
-      <plugin id="org.eclipse.ui.win32" fragment="true"/>
-      <plugin id="org.eclipse.ui.workbench"/>
-      <plugin id="org.eclipse.ui.workbench.texteditor"/>
-      <plugin id="org.eclipse.update.configurator"/>
-      <plugin id="org.fife.rsyntaxtextarea"/>
-      <plugin id="org.geotools"/>
-      <plugin id="org.glassfish.javax.json"/>
-      <plugin id="org.hamcrest.core"/>
-      <plugin id="org.jooq"/>
-      <plugin id="org.junit"/>
-      <plugin id="org.knime.base"/>
-      <plugin id="org.knime.core"/>
-      <plugin id="org.knime.core.data.uritype"/>
-      <plugin id="org.knime.core.pmml"/>
-      <plugin id="org.knime.core.util"/>
-      <plugin id="org.knime.deprecated" fragment="true"/>
-      <plugin id="org.knime.distmatrix"/>
-      <plugin id="org.knime.ext.jep"/>
-      <plugin id="org.knime.ext.jfreechart"/>
-      <plugin id="org.knime.ext.poi"/>
-      <plugin id="org.knime.ext.sun"/>
-      <plugin id="org.knime.ext.svg"/>
-      <plugin id="org.knime.jsnippets"/>
-      <plugin id="org.knime.quickform.nodes"/>
-      <plugin id="org.knime.testing"/>
-      <plugin id="org.knime.testing.headless" fragment="true"/>
-      <plugin id="org.knime.testing.ui" fragment="true"/>
-      <plugin id="org.knime.workbench.core"/>
-      <plugin id="org.knime.workbench.editor"/>
-      <plugin id="org.knime.workbench.editor.svgexport" fragment="true"/>
-      <plugin id="org.knime.workbench.explorer.view"/>
-      <plugin id="org.knime.workbench.help"/>
-      <plugin id="org.knime.workbench.repository"/>
-      <plugin id="org.knime.workbench.ui"/>
-      <plugin id="org.mortbay.jetty.server"/>
-      <plugin id="org.mortbay.jetty.util"/>
-      <plugin id="org.openstreetmap.josm"/>
-      <plugin id="org.sat4j.core"/>
-      <plugin id="org.sat4j.pb"/>
-      <plugin id="org.w3c.css.sac"/>
-      <plugin id="org.w3c.dom.smil"/>
-      <plugin id="org.w3c.dom.svg"/>
-      <plugin id="org.w3c.sac"/>
-      <plugin id="quick.dbtable"/>
    </plugins>
 
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

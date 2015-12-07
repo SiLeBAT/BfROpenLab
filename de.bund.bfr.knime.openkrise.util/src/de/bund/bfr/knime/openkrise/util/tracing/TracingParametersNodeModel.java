@@ -204,7 +204,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			nodeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index / (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
+			exec.setProgress((double) index / (double) (nodeTable.size() + edgeTable.size()));
 			index++;
 		}
 
@@ -242,7 +242,7 @@ public class TracingParametersNodeModel extends NodeModel {
 
 			edgeContainer.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
-			exec.setProgress((double) index / (double) (nodeTable.getRowCount() + edgeTable.getRowCount()));
+			exec.setProgress((double) index / (double) (nodeTable.size() + edgeTable.size()));
 			index++;
 		}
 

@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  de.bund.bfr.knime,
  de.bund.bfr.knime.openkrise.db.generated
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Export-Package: de.bund.bfr.knime.openkrise.common

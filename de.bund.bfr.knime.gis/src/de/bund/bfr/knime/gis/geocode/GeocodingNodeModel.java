@@ -162,7 +162,7 @@ public class GeocodingNodeModel extends NodeModel {
 			cells[outSpec.findColumnIndex(LATITUDE_COLUMN)] = IO.createCell(result.getLatitude());
 			cells[outSpec.findColumnIndex(LONGITUDE_COLUMN)] = IO.createCell(result.getLongitude());
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
-			exec.setProgress((double) (index++) / (double) table.getRowCount());
+			exec.setProgress((double) (index++) / (double) table.size());
 			exec.checkCanceled();
 
 			try {

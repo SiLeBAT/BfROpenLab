@@ -98,7 +98,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		double[] values = new double[dependentVariables.length];
 
 		for (int i = 0; i < dependentVariables.length; i++) {
-			if (!Double.isNaN(initValues[i])) {
+			if (Double.isFinite(initValues[i])) {
 				values[i] = initValues[i];
 			} else {
 				values[i] = point[Arrays.asList(parameters).indexOf(initParameters[i])];

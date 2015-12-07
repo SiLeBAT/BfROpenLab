@@ -23,7 +23,8 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,16 +96,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public <T extends Element> Map<T, Double> getValues(Iterable<? extends T> elements) {
-		String type = valueCondition.getType();
-
-		valueCondition.setType(ValueHighlightCondition.VALUE_TYPE);
-
-		Map<T, Double> valueValues = valueCondition.getValues(elements);
+	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> logicalValues = logicalCondition.getValues(elements);
-
-		valueCondition.setType(type);
-
 		Map<T, Double> values = new LinkedHashMap<>();
 		List<T> nonZeroElements = new ArrayList<>();
 		double min = 1.0;
@@ -112,7 +105,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 		for (T element : elements) {
 			if (logicalValues.get(element) != 0.0) {
-				double value = valueValues.get(element);
+				double value = ValueHighlightCondition
+						.toPositiveDouble(element.getProperties().get(valueCondition.getProperty()));
 
 				values.put(element, value);
 				nonZeroElements.add(element);
@@ -145,7 +139,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 			}
 		}
 
-		if (type.equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
+		if (valueCondition.getType().equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
 			for (T element : nonZeroElements) {
 				values.put(element, Math.log10(values.get(element) * 9.0 + 1.0));
 			}
@@ -155,37 +149,13 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public Point2D getValueRange(Iterable<? extends Element> elements) {
+	public Point2D getValueRange(Collection<? extends Element> elements) {
 		Map<? extends Element, Double> logicalValues = logicalCondition.getValues(elements);
-		List<Double> values = new ArrayList<>();
-
-		for (Element element : elements) {
-			if (logicalValues.get(element) != 0.0) {
-				double value = 0.0;
-				Object o = element.getProperties().get(valueCondition.getProperty());
-
-				if (o instanceof Number) {
-					double doubleValue = ((Number) o).doubleValue();
-
-					if (!Double.isNaN(doubleValue) && !Double.isInfinite(doubleValue) && doubleValue >= 0.0) {
-						value = doubleValue;
-					}
-				}
-
-				values.add(value);
-			}
-		}
-
-		double min = 0.0;
-		double max = 1.0;
-
-		if (!valueCondition.isZeroAsMinimum() && !values.isEmpty()) {
-			min = Collections.min(values);
-		}
-
-		if (!values.isEmpty()) {
-			max = Collections.max(values);
-		}
+		DoubleSummaryStatistics stats = elements.stream().filter(e -> logicalValues.get(e) != 0.0).mapToDouble(
+				e -> ValueHighlightCondition.toPositiveDouble(e.getProperties().get(valueCondition.getProperty())))
+				.summaryStatistics();
+		double min = valueCondition.isZeroAsMinimum() || stats.getCount() == 0 ? 0.0 : stats.getMin();
+		double max = stats.getCount() == 0 ? 1.0 : stats.getMax();
 
 		return new Point2D.Double(min, max);
 	}

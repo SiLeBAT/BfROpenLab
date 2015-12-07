@@ -389,11 +389,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		viewer.getPickedVertexState().clear();
-
-		for (V node : Sets.intersection(selectedNodes, nodes)) {
-			viewer.getPickedVertexState().pick(node, true);
-		}
-
+		selectedNodes.stream().filter(n -> nodes.contains(n)).forEach(n -> viewer.getPickedVertexState().pick(n, true));
 		nodePickingChanged();
 	}
 
@@ -405,11 +401,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		viewer.getPickedEdgeState().clear();
-
-		for (Edge<V> edge : Sets.intersection(selectedEdges, edges)) {
-			viewer.getPickedEdgeState().pick(edge, true);
-		}
-
+		selectedEdges.stream().filter(e -> edges.contains(e)).forEach(e -> viewer.getPickedEdgeState().pick(e, true));
 		edgePickingChanged();
 	}
 
@@ -426,11 +418,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setSelectedNodeIdsWithoutListener(Set<String> selectedNodeIds) {
 		viewer.getPickedVertexState().clear();
-
-		for (V node : CanvasUtils.getElementsById(nodes, selectedNodeIds)) {
-			viewer.getPickedVertexState().pick(node, true);
-		}
-
+		nodes.stream().filter(n -> selectedNodeIds.contains(n.getId()))
+				.forEach(n -> viewer.getPickedVertexState().pick(n, true));
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 	}
 
@@ -447,11 +436,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setSelectedEdgeIdsWithoutListener(Set<String> selectedEdgeIds) {
 		viewer.getPickedEdgeState().clear();
-
-		for (Edge<V> edge : CanvasUtils.getElementsById(edges, selectedEdgeIds)) {
-			viewer.getPickedEdgeState().pick(edge, true);
-		}
-
+		edges.stream().filter(e -> selectedEdgeIds.contains(e.getId()))
+				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 	}
 
@@ -464,10 +450,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeHighlightingChanged(this);
-		}
+		canvasListeners.forEach(l -> l.nodeHighlightingChanged(this));
 	}
 
 	@Override
@@ -479,10 +462,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeHighlightingChanged(this);
-		}
+		canvasListeners.forEach(l -> l.edgeHighlightingChanged(this));
 	}
 
 	@Override
@@ -494,10 +474,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.collapsedNodesChanged(this);
-		}
+		canvasListeners.forEach(l -> l.collapsedNodesChanged(this));
 	}
 
 	@Override
@@ -508,7 +485,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void setTransform(Transform transform) {
 		this.transform = transform;
-
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.setTransform(transform.toAffineTransform());
 		applyTransform();
@@ -519,56 +495,39 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void stateChanged(ChangeEvent e) {
 		AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
 				.getTransformer(Layer.LAYOUT)).getTransform();
+		boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
 
-		if (transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0) {
-			this.transform = new Transform(transform);
-		} else {
-			this.transform = Transform.IDENTITY_TRANSFORM;
-		}
-
+		this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
 		applyTransform();
 	}
 
 	@Override
 	public void transformChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.transformChanged(this);
-		}
+		canvasListeners.forEach(l -> l.transformChanged(this));
 	}
 
 	@Override
 	public void pickingChanged() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.selectionChanged(this);
-		}
+		canvasListeners.forEach(l -> l.selectionChanged(this));
 	}
 
 	@Override
 	public void nodePickingChanged() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeSelectionChanged(this);
-		}
+		canvasListeners.forEach(l -> l.nodeSelectionChanged(this));
 	}
 
 	@Override
 	public void edgePickingChanged() {
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeSelectionChanged(this);
-		}
+		canvasListeners.forEach(l -> l.edgeSelectionChanged(this));
 	}
 
 	@Override
 	public void nodesMoved() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodePositionsChanged(this);
-		}
+		canvasListeners.forEach(l -> l.nodePositionsChanged(this));
 	}
 
 	@Override
@@ -645,12 +604,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void selectConnectionsItemClicked() {
 		Set<V> selected = getSelectedNodes();
 
-		for (Edge<V> edge : edges) {
-			if (selected.contains(edge.getFrom()) && selected.contains(edge.getTo())) {
-				viewer.getPickedEdgeState().pick(edge, true);
-			}
-		}
-
+		edges.stream().filter(e -> selected.contains(e.getFrom()) && selected.contains(e.getTo()))
+				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
 		edgePickingChanged();
 	}
 
@@ -658,12 +613,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void selectIncomingItemClicked() {
 		Set<V> selected = getSelectedNodes();
 
-		for (Edge<V> edge : edges) {
-			if (selected.contains(edge.getTo())) {
-				viewer.getPickedEdgeState().pick(edge, true);
-			}
-		}
-
+		edges.stream().filter(e -> selected.contains(e.getTo()))
+				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
 		edgePickingChanged();
 	}
 
@@ -671,12 +622,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void selectOutgoingItemClicked() {
 		Set<V> selected = getSelectedNodes();
 
-		for (Edge<V> edge : edges) {
-			if (selected.contains(edge.getFrom())) {
-				viewer.getPickedEdgeState().pick(edge, true);
-			}
-		}
-
+		edges.stream().filter(e -> selected.contains(e.getFrom()))
+				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
 		edgePickingChanged();
 	}
 
@@ -842,9 +789,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		for (V node : getSelectedNodes()) {
 			if (collapsedNodes.containsKey(node.getId())) {
-				for (String id : collapsedNodes.get(node.getId())) {
-					pickedAll.add(nodeSaveMap.get(id));
-				}
+				pickedAll.addAll(CanvasUtils.getElementsById(nodeSaveMap, collapsedNodes.get(node.getId())));
 			} else {
 				pickedAll.add(node);
 			}
@@ -909,7 +854,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(new LinkedHashSet<>(Arrays.asList(newId)));
-		fireCollapsedNodesAndPickingChanged();
+		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
 	@Override
@@ -930,7 +875,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(newIds);
-		fireCollapsedNodesAndPickingChanged();
+		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
 	@Override
@@ -1010,20 +955,17 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(newCollapsedIds);
-		fireCollapsedNodesAndPickingChanged();
+		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
 	@Override
 	public void clearCollapsedNodesItemClicked() {
-		for (String id : collapsedNodes.keySet()) {
-			nodeSaveMap.remove(id);
-		}
-
+		nodeSaveMap.keySet().removeAll(collapsedNodes.keySet());
 		collapsedNodes.clear();
 		applyChanges();
 		viewer.getPickedVertexState().clear();
 		popup.setNodeSelectionEnabled(false);
-		fireCollapsedNodesAndPickingChanged();
+		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1035,37 +977,25 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	@Override
 	public void showLegendChanged() {
 		viewer.repaint();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.showLegendChanged(this);
-		}
+		canvasListeners.forEach(l -> l.showLegendChanged(this));
 	}
 
 	@Override
 	public void joinEdgesChanged() {
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeJoinChanged(this);
-		}
+		canvasListeners.forEach(l -> l.edgeJoinChanged(this));
 	}
 
 	@Override
 	public void skipEdgelessNodesChanged() {
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.skipEdgelessChanged(this);
-		}
+		canvasListeners.forEach(l -> l.skipEdgelessChanged(this));
 	}
 
 	@Override
 	public void showEdgesInMetaNodeChanged() {
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.showEdgesInMetaNodeChanged(this);
-		}
+		canvasListeners.forEach(l -> l.showEdgesInMetaNodeChanged(this));
 	}
 
 	@Override
@@ -1075,28 +1005,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.getRenderContext().setEdgeFontTransformer(
 				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
 		viewer.repaint();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.fontChanged(this);
-		}
+		canvasListeners.forEach(l -> l.fontChanged(this));
 	}
 
 	@Override
 	public void nodeSizeChanged() {
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.nodeSizeChanged(this);
-		}
+		canvasListeners.forEach(l -> l.nodeSizeChanged(this));
 	}
 
 	@Override
 	public void edgeThicknessChanged() {
 		applyChanges();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.edgeThicknessChanged(this);
-		}
+		canvasListeners.forEach(l -> l.edgeThicknessChanged(this));
 	}
 
 	@Override
@@ -1104,33 +1025,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(optionsPanel.isArrowInMiddle()
 				? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.arrowInMiddleChanged(this);
-		}
+		canvasListeners.forEach(l -> l.arrowInMiddleChanged(this));
 	}
 
 	@Override
 	public void labelChanged() {
 		viewer.repaint();
-
-		for (CanvasListener listener : canvasListeners) {
-			listener.labelChanged(this);
-		}
+		canvasListeners.forEach(l -> l.labelChanged(this));
 	}
 
 	@Override
 	public void borderAlphaChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.borderAlphaChanged(this);
-		}
+		canvasListeners.forEach(l -> l.borderAlphaChanged(this));
 	}
 
 	@Override
 	public void avoidOverlayChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.avoidOverlayChanged(this);
-		}
+		canvasListeners.forEach(l -> l.avoidOverlayChanged(this));
 	}
 
 	@Override
@@ -1212,14 +1123,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		Map<String, V> nodesById = new LinkedHashMap<>();
 
-		for (String id : CanvasUtils.getElementIds(allNodes)) {
-			if (!collapseTo.keySet().contains(id)) {
-				V newNode = nodeSaveMap.get(id);
-
-				nodes.add(newNode);
-				nodesById.put(id, newNode);
-			}
-		}
+		allNodes.stream().filter(n -> !collapseTo.containsKey(n.getId())).map(n -> nodeSaveMap.get(n.getId()))
+				.forEach(n -> {
+					nodes.add(n);
+					nodesById.put(n.getId(), n);
+				});
 
 		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
 			String newId = entry.getKey();
@@ -1371,12 +1279,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	protected abstract void applyTransform();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
-
-	private void fireCollapsedNodesAndPickingChanged() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.collapsedNodesAndPickingChanged(this);
-		}
-	}
 
 	private class PostPaintable implements Paintable {
 

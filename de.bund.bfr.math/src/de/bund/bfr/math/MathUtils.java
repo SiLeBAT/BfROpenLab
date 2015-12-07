@@ -41,7 +41,7 @@ public class MathUtils {
 	}
 
 	public static boolean isValidDouble(Object o) {
-		return o instanceof Double && !((Double) o).isNaN() && !((Double) o).isInfinite();
+		return o instanceof Double && Double.isFinite((Double) o);
 	}
 
 	public static boolean containsInvalidDouble(Collection<Double> values) {

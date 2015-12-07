@@ -24,4 +24,4 @@ Export-Package: org.jooq,
  org.jooq.util.mysql,
  org.jooq.util.postgres,
  org.jooq.util.sqlite
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

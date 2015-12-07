@@ -6,5 +6,16 @@
 		<page category="org.knime.workbench.ui.preferences" class="de.bund.bfr.knime.gis.geocode.GeocodingPreferencePage"
 			id="de.bund.bfr.knime.gis.geocode.GeocodingPreferencePage" name="Geocoding" />
 	</extension>
+ <extension
+       point="org.knime.core.DataType">
+    <DataType
+          cellClass="de.bund.bfr.knime.gis.shapecell.ShapeBlobCell"
+          factoryClass="de.bund.bfr.knime.gis.shapecell.ShapeCellFactory">
+       <serializer
+             cellClass="de.bund.bfr.knime.gis.shapecell.ShapeBlobCell"
+             serializerClass="de.bund.bfr.knime.gis.shapecell.ShapeBlobSerializer">
+       </serializer>
+    </DataType>
+ </extension>
 
 </plugin>

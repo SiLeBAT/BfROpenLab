@@ -433,7 +433,7 @@ public class ChartCreator extends ChartPanel {
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
-					double error = Double.isNaN(errors[1][j]) ? 0.0 : errors[1][j];
+					double error = Double.isFinite(errors[1][j]) ? errors[1][j] : 0.0;
 
 					series.add(points[0][j], points[1][j], points[1][j] - error, points[1][j] + error);
 				}
@@ -493,7 +493,7 @@ public class ChartCreator extends ChartPanel {
 				YIntervalSeries series = new YIntervalSeries(leg);
 
 				for (int j = 0; j < points[0].length; j++) {
-					double error = Double.isNaN(errors[1][j]) ? 0.0 : errors[1][j];
+					double error = Double.isFinite(errors[1][j]) ? errors[1][j] : 0.0;
 
 					series.add(points[0][j], points[1][j], points[1][j] - error, points[1][j] + error);
 				}
