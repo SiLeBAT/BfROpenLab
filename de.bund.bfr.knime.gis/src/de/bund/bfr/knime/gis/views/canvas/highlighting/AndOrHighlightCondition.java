@@ -168,7 +168,9 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		List<List<LogicalHighlightCondition>> conditionsCopy = new ArrayList<>();
 
 		for (List<LogicalHighlightCondition> list : conditions) {
-			conditionsCopy.add(list.stream().map(c -> c.copy()).collect(Collectors.toCollection(ArrayList::new)));
+			conditionsCopy.add(
+					list.stream().map(c -> new LogicalHighlightCondition(c.getProperty(), c.getType(), c.getValue()))
+							.collect(Collectors.toCollection(ArrayList::new)));
 		}
 
 		return new AndOrHighlightCondition(conditionsCopy, name, showInLegend, color, invisible, useThickness,

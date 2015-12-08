@@ -121,7 +121,7 @@ public class TracingUtils {
 			TracingUtils.addToProperties(properties, nodeSchema, nodeTable, row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
-			nodes.put(id, new GraphNode(id, properties, null));
+			nodes.put(id, new GraphNode(id, properties));
 		}
 
 		if (nodes.isEmpty()) {

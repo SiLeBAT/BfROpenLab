@@ -17,30 +17,16 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.element;
+package de.bund.bfr.knime.gis;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-public class GraphNode extends Node {
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightConditionTest;
 
-	private String region;
+@RunWith(Suite.class)
+@SuiteClasses({ LogicalHighlightConditionTest.class })
+public class AllGisTests {
 
-	public GraphNode(String id, Map<String, Object> properties) {
-		this(id, properties, null);
-	}
-
-	public GraphNode(String id, Map<String, Object> properties, String region) {
-		super(id, properties);
-		this.region = region;
-	}
-
-	public String getRegion() {
-		return region;
-	}
-
-	@Override
-	public GraphNode copy() {
-		return new GraphNode(getId(), new LinkedHashMap<>(getProperties()), region);
-	}
 }

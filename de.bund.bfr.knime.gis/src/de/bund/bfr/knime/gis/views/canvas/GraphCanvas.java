@@ -189,7 +189,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		properties.put(nodeSchema.getLatitude(), null);
 		properties.put(nodeSchema.getLongitude(), null);
 
-		GraphNode newNode = new GraphNode(id, properties, null);
+		GraphNode newNode = new GraphNode(id, properties);
 
 		viewer.getGraphLayout().setLocation(newNode, PointUtils.getCenter(getNodePositions(nodes).values()));
 
