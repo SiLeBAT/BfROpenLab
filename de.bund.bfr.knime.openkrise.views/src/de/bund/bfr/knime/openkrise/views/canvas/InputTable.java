@@ -26,6 +26,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -223,6 +225,18 @@ public class InputTable extends JTable {
 					killField.getPreferredSize().height));
 			observedField.setPreferredSize(new Dimension(header.getComponent(3).getPreferredSize().width - 1,
 					observedField.getPreferredSize().height));
+
+			weightField.addFocusListener(new FocusListener() {
+
+				@Override
+				public void focusLost(FocusEvent e) {
+				}
+
+				@Override
+				public void focusGained(FocusEvent e) {
+					weightField.selectAll();
+				}
+			});
 
 			JPanel panel = new JPanel();
 
