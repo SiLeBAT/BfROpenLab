@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -146,24 +147,16 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
-		double min = 1.0;
-		double max = 0.0;
 
 		for (T element : elements) {
-			double value = CanvasUtils.toPositiveDouble(element.getProperties().get(property));
-
-			values.put(element, value);
-			min = Math.min(min, value);
-			max = Math.max(max, value);
+			values.put(element, CanvasUtils.toPositiveDouble(element.getProperties().get(property)));
 		}
 
 		if (values.isEmpty()) {
 			return values;
 		}
 
-		if (zeroAsMinimum) {
-			min = 0.0;
-		}
+		double min = zeroAsMinimum ? 0.0 : Collections.min(values.values());
 
 		if (min != 0.0) {
 			for (T element : elements) {
@@ -171,11 +164,11 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 			}
 		}
 
-		if (max > min) {
-			double diff = max - min;
+		double max = Collections.max(values.values());
 
+		if (max != 0.0) {
 			for (T element : elements) {
-				values.put(element, values.get(element) / diff);
+				values.put(element, values.get(element) / max);
 			}
 		}
 
@@ -263,10 +256,5 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		if (zeroAsMinimum != other.zeroAsMinimum)
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return getName() != null ? getName() : "Value Condition";
 	}
 }

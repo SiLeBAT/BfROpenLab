@@ -210,13 +210,6 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 				&& useThickness == c.useThickness && Objects.equals(labelProperty, c.labelProperty);
 	}
 
-	@Override
-	public String toString() {
-		String type = getConditionCount() == 0 ? "Apply To All" : "Logical Condition";
-
-		return getName() != null ? getName() : type;
-	}
-
 	@SafeVarargs
 	private static <T> List<T> asList(T... a) {
 		return new ArrayList<>(Arrays.asList(a));

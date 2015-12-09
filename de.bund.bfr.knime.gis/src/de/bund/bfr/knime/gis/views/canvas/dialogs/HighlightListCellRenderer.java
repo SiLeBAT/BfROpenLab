@@ -26,7 +26,10 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
+import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
 public class HighlightListCellRenderer extends DefaultListCellRenderer {
 
@@ -39,13 +42,24 @@ public class HighlightListCellRenderer extends DefaultListCellRenderer {
 
 		Color color = ((HighlightCondition) value).getColor();
 
-		if (color == null) {
-			color = Color.WHITE;
-		}
-
-		setBorder(BorderFactory.createMatteBorder(0, 20, 0, 0, color));
-		setText(" " + getText());
+		setBorder(BorderFactory.createMatteBorder(0, 20, 0, 0, color != null ? color : Color.WHITE));
+		setText(" " + getText((HighlightCondition) value));
 
 		return this;
+	}
+
+	private static String getText(HighlightCondition condition) {
+		if (condition.getName() != null) {
+			return condition.getName();
+		} else if (condition instanceof AndOrHighlightCondition) {
+			return ((AndOrHighlightCondition) condition).getConditionCount() == 0 ? "Apply To All"
+					: "Logical Condition";
+		} else if (condition instanceof ValueHighlightCondition) {
+			return "Value Condition";
+		} else if (condition instanceof LogicalValueHighlightCondition) {
+			return "Logical Value Condition";
+		}
+
+		throw new IllegalArgumentException("Unknown HighlightCondition");
 	}
 }

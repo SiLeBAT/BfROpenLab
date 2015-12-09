@@ -190,9 +190,4 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 		return Objects.equals(valueCondition, c.valueCondition) && Objects.equals(logicalCondition, c.logicalCondition);
 	}
-
-	@Override
-	public String toString() {
-		return getName() != null ? getName() : "Logical Value Condition";
-	}
 }
