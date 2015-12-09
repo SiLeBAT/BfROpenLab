@@ -153,7 +153,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	}
 
 	@Override
-	public HighlightCondition copy() {
+	public LogicalValueHighlightCondition copy() {
 		return new LogicalValueHighlightCondition(valueCondition.copy(), logicalCondition.copy());
 	}
 
