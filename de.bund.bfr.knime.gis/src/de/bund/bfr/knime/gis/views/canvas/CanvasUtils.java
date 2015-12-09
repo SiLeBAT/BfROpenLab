@@ -106,6 +106,16 @@ public class CanvasUtils {
 	private CanvasUtils() {
 	}
 
+	public static double toPositiveDouble(Object value) {
+		if (value instanceof Number) {
+			double d = ((Number) value).doubleValue();
+
+			return Double.isFinite(d) && d >= 0.0 ? d : 0.0;
+		}
+
+		return 0.0;
+	}
+
 	public static Transform getTransformForBounds(Dimension canvasSize, Rectangle2D bounds, Double zoomStep) {
 		double widthRatio = canvasSize.width / bounds.getWidth();
 		double heightRatio = canvasSize.height / bounds.getHeight();

@@ -24,9 +24,9 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightConditionTest;
+import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightConditionTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ LogicalHighlightConditionTest.class })
+@SuiteClasses({ LogicalHighlightConditionTest.class, ValueHighlightConditionTest.class })
 public class AllGisTests {
-
 }

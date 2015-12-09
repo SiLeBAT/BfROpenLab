@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class LogicalValueHighlightCondition implements HighlightCondition, Serializable {
@@ -105,8 +106,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 
 		for (T element : elements) {
 			if (logicalValues.get(element) != 0.0) {
-				double value = ValueHighlightCondition
-						.toPositiveDouble(element.getProperties().get(valueCondition.getProperty()));
+				double value = CanvasUtils.toPositiveDouble(element.getProperties().get(valueCondition.getProperty()));
 
 				values.put(element, value);
 				nonZeroElements.add(element);
@@ -151,8 +151,8 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	@Override
 	public Point2D getValueRange(Collection<? extends Element> elements) {
 		Map<? extends Element, Double> logicalValues = logicalCondition.getValues(elements);
-		DoubleSummaryStatistics stats = elements.stream().filter(e -> logicalValues.get(e) != 0.0).mapToDouble(
-				e -> ValueHighlightCondition.toPositiveDouble(e.getProperties().get(valueCondition.getProperty())))
+		DoubleSummaryStatistics stats = elements.stream().filter(e -> logicalValues.get(e) != 0.0)
+				.mapToDouble(e -> CanvasUtils.toPositiveDouble(e.getProperties().get(valueCondition.getProperty())))
 				.summaryStatistics();
 		double min = valueCondition.isZeroAsMinimum() || stats.getCount() == 0 ? 0.0 : stats.getMin();
 		double max = stats.getCount() == 0 ? 1.0 : stats.getMax();

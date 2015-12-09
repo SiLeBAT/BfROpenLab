@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
+import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class ValueHighlightCondition implements HighlightCondition, Serializable {
@@ -150,7 +150,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		double max = 0.0;
 
 		for (T element : elements) {
-			double value = ValueHighlightCondition.toPositiveDouble(element.getProperties().get(property));
+			double value = CanvasUtils.toPositiveDouble(element.getProperties().get(property));
 
 			values.put(element, value);
 			min = Math.min(min, value);
@@ -191,7 +191,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	@Override
 	public Point2D getValueRange(Collection<? extends Element> elements) {
 		DoubleSummaryStatistics stats = elements.stream()
-				.mapToDouble(e -> toPositiveDouble(e.getProperties().get(property))).summaryStatistics();
+				.mapToDouble(e -> CanvasUtils.toPositiveDouble(e.getProperties().get(property))).summaryStatistics();
 		double min = zeroAsMinimum || stats.getCount() == 0 ? 0.0 : stats.getMin();
 		double max = stats.getCount() == 0 ? 1.0 : stats.getMax();
 
@@ -208,50 +208,65 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-
-		result = prime * result + Objects.hashCode(color);
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
 		result = prime * result + (invisible ? 1231 : 1237);
-		result = prime * result + Objects.hashCode(labelProperty);
-		result = prime * result + Objects.hashCode(name);
-		result = prime * result + Objects.hashCode(property);
+		result = prime * result + ((labelProperty == null) ? 0 : labelProperty.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((property == null) ? 0 : property.hashCode());
 		result = prime * result + (showInLegend ? 1231 : 1237);
-		result = prime * result + Objects.hashCode(type);
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + (useThickness ? 1231 : 1237);
 		result = prime * result + (zeroAsMinimum ? 1231 : 1237);
-
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null)
 			return false;
-		}
-
-		ValueHighlightCondition c = (ValueHighlightCondition) obj;
-
-		return Objects.equals(property, c.property) && Objects.equals(type, c.type) && zeroAsMinimum == c.zeroAsMinimum
-				&& Objects.equals(name, c.name) && showInLegend == c.showInLegend && Objects.equals(color, c.color)
-				&& invisible == c.invisible && useThickness == c.useThickness
-				&& Objects.equals(labelProperty, c.labelProperty);
+		if (getClass() != obj.getClass())
+			return false;
+		ValueHighlightCondition other = (ValueHighlightCondition) obj;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (invisible != other.invisible)
+			return false;
+		if (labelProperty == null) {
+			if (other.labelProperty != null)
+				return false;
+		} else if (!labelProperty.equals(other.labelProperty))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (property == null) {
+			if (other.property != null)
+				return false;
+		} else if (!property.equals(other.property))
+			return false;
+		if (showInLegend != other.showInLegend)
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (useThickness != other.useThickness)
+			return false;
+		if (zeroAsMinimum != other.zeroAsMinimum)
+			return false;
+		return true;
 	}
 
 	@Override
 	public String toString() {
 		return getName() != null ? getName() : "Value Condition";
-	}
-
-	protected static double toPositiveDouble(Object value) {
-		if (value instanceof Number) {
-			double d = ((Number) value).doubleValue();
-
-			return Double.isFinite(d) && d >= 0.0 ? d : 0.0;
-		}
-
-		return 0.0;
 	}
 }
