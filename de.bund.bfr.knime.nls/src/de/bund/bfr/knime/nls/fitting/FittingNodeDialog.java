@@ -224,11 +224,11 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		stepSizeField.setMinValue(Double.MIN_NORMAL);
 		stepSizeField.setValue(set.getStepSize());
 
-		List<Component> leftComps = new ArrayList<Component>(
+		List<Component> leftComps = new ArrayList<>(
 				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
 						new JLabel("Maximal Executions of the Levenberg Algorithm"), stopWhenSuccessBox,
 						new JLabel("Maximal Iterations in each run of Levenberg Algorithm")));
-		List<Component> rightComps = new ArrayList<Component>(
+		List<Component> rightComps = new ArrayList<>(
 				Arrays.asList(nParamSpaceField, nLevenbergField, new JLabel(), maxIterationsField));
 
 		if (isDiff) {

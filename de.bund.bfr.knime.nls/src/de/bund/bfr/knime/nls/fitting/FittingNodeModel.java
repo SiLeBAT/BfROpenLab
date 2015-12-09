@@ -355,8 +355,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<String, Double>(0),
-								set.getMaxLevenbergIterations()));
+								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations()));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
@@ -421,8 +420,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<String, Double>(),
-								set.getMaxLevenbergIterations()));
+								set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations()));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
@@ -469,7 +467,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		}
 
 		for (String var : f.getIndependentVariables()) {
-			variableArrays.put(var, new ArrayList<double[]>());
+			variableArrays.put(var, new ArrayList<>());
 		}
 
 		for (int i = 0; i < ids.size(); i++) {
@@ -520,7 +518,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getStartValues(), new LinkedHashMap<String, Double>(), set.getMaxLevenbergIterations());
+					set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations());
 		} else {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
 					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations());

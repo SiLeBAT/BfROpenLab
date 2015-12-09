@@ -44,8 +44,8 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	private TracingDelegate<LocationNode> tracing;
 
 	public TracingOsmCanvas() {
-		this(new ArrayList<LocationNode>(0), new ArrayList<Edge<LocationNode>>(0), new NodePropertySchema(),
-				new EdgePropertySchema(), new LinkedHashMap<String, Delivery>(0));
+		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(),
+				new LinkedHashMap<>(0));
 	}
 
 	public TracingOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeProperties,

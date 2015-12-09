@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
@@ -65,7 +64,7 @@ public class GisGraphViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, new LinkedHashSet<RowKey>());
+		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, new LinkedHashSet<>());
 		GraphCanvas canvas = new GraphCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 				TracingUtils.NAMING, false);
 
@@ -83,11 +82,10 @@ public class GisGraphViewCanvasCreator {
 		nodeSchema.setLatitude(GeocodingNodeModel.LATITUDE_COLUMN);
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema,
-				new LinkedHashSet<RowKey>(), true);
-		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes,
-				new LinkedHashSet<RowKey>());
-		List<RegionNode> regions = TracingUtils.readRegions(shapeTable, new LinkedHashSet<RowKey>());
+		Map<String, LocationNode> nodes = TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashSet<>(),
+				true);
+		List<Edge<LocationNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, new LinkedHashSet<>());
+		List<RegionNode> regions = TracingUtils.readRegions(shapeTable, new LinkedHashSet<>());
 		LocationCanvas canvas = new LocationCanvas(new ArrayList<>(nodes.values()), edges, nodeSchema, edgeSchema,
 				TracingUtils.NAMING, regions);
 

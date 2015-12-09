@@ -336,7 +336,7 @@ public class TracingUtils {
 				continue;
 			}
 
-			nodes.add(new RegionNode(index + "", new LinkedHashMap<String, Object>(0), (MultiPolygon) shape));
+			nodes.add(new RegionNode(index + "", new LinkedHashMap<>(0), (MultiPolygon) shape));
 			index++;
 		}
 

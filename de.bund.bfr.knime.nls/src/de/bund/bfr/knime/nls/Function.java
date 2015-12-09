@@ -38,13 +38,13 @@ public class Function implements Serializable {
 	private Map<String, Double> initValues;
 
 	public Function() {
-		this(new LinkedHashMap<String, String>(0), null, new ArrayList<String>(0), new ArrayList<String>(0));
+		this(new LinkedHashMap<>(0), null, new ArrayList<>(0), new ArrayList<>(0));
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable, List<String> independentVariables,
 			List<String> parameters) {
-		this(terms, dependentVariable, independentVariables, parameters, null, new LinkedHashMap<String, String>(0),
-				new LinkedHashMap<String, Double>(0));
+		this(terms, dependentVariable, independentVariables, parameters, null, new LinkedHashMap<>(0),
+				new LinkedHashMap<>(0));
 	}
 
 	public Function(Map<String, String> terms, String dependentVariable, List<String> independentVariables,

@@ -687,7 +687,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 						}
 
 						if (lastCond != null && j == 0 && i != 0) {
-							conditions.add(i, new ArrayList<LogicalHighlightCondition>());
+							conditions.add(i, new ArrayList<>());
 							conditions.get(i).add(newCond);
 						} else {
 							conditions.get(i).add(j, newCond);
@@ -716,7 +716,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			}
 
 			if (lastCond != null && conditions.size() != 1 && conditions.get(conditions.size() - 1).size() == 1) {
-				conditions.add(new ArrayList<LogicalHighlightCondition>());
+				conditions.add(new ArrayList<>());
 				conditions.get(conditions.size() - 1).add(newCond);
 			} else {
 				conditions.get(conditions.size() - 1).add(newCond);

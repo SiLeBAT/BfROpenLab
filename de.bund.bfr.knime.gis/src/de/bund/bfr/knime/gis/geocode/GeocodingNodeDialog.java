@@ -149,7 +149,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		List<ColumnComboBox> addressBoxes = new ArrayList<>(Arrays.asList(addressBox));
 		List<JLabel> otherLabels = new ArrayList<>(
 				Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")));
-		List<Component> otherFields = new ArrayList<Component>(Arrays.asList(delayField, multipleBox));
+		List<Component> otherFields = new ArrayList<>(Arrays.asList(delayField, multipleBox));
 
 		if (providerBox.getSelectedItem().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			addressLabels.add(new JLabel("Country Code:"));

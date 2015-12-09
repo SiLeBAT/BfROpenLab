@@ -46,12 +46,12 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 	private Double lastScaleX;
 
 	public LocationOsmCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(0), new ArrayList<Edge<LocationNode>>(0), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, allowEdges);
+		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
+				allowEdges);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(0), nodeSchema, new EdgePropertySchema(), naming, false);
+		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
 	public LocationOsmCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
@@ -68,7 +68,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
 		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<LocationNode>(getNodeSize(), getNodeMaxSize()));
+				.setVertexShapeTransformer(new NodeShapeTransformer<>(getNodeSize(), getNodeMaxSize()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

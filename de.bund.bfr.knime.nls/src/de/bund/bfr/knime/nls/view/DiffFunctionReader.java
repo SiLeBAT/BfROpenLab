@@ -64,12 +64,12 @@ public class DiffFunctionReader implements Reader {
 		legend = new LinkedHashMap<>();
 		doubleColumns = new LinkedHashMap<>();
 		stringColumns = new LinkedHashMap<>();
-		stringColumns.put(NlsUtils.ID_COLUMN, new ArrayList<String>());
-		stringColumns.put(NlsChartUtils.STATUS, new ArrayList<String>());
+		stringColumns.put(NlsUtils.ID_COLUMN, new ArrayList<>());
+		stringColumns.put(NlsChartUtils.STATUS, new ArrayList<>());
 		doubleColumns = new LinkedHashMap<>();
 
 		for (String column : qualityColumns) {
-			doubleColumns.put(column, new ArrayList<Double>());
+			doubleColumns.put(column, new ArrayList<>());
 		}
 
 		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {

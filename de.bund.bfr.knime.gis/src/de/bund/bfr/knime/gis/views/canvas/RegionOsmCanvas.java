@@ -46,12 +46,12 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 	private static final long serialVersionUID = 1L;
 
 	public RegionOsmCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<RegionNode>(0), new ArrayList<Edge<RegionNode>>(0), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, allowEdges);
+		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
+				allowEdges);
 	}
 
 	public RegionOsmCanvas(List<RegionNode> nodes, NodePropertySchema nodeSchema, Naming naming) {
-		this(nodes, new ArrayList<Edge<RegionNode>>(0), nodeSchema, new EdgePropertySchema(), naming, false);
+		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, false);
 	}
 
 	public RegionOsmCanvas(List<RegionNode> nodes, List<Edge<RegionNode>> edges, NodePropertySchema nodeSchema,
@@ -67,9 +67,9 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
-		viewer.getRenderContext().setVertexShapeTransformer(new NodeShapeTransformer<RegionNode>(2, null));
-		viewer.getRenderContext().setVertexDrawPaintTransformer(new InvisibleTransformer<RegionNode>());
-		viewer.getRenderContext().setVertexFillPaintTransformer(new InvisibleTransformer<RegionNode>());
+		viewer.getRenderContext().setVertexShapeTransformer(new NodeShapeTransformer<>(2, null));
+		viewer.getRenderContext().setVertexDrawPaintTransformer(new InvisibleTransformer<>());
+		viewer.getRenderContext().setVertexFillPaintTransformer(new InvisibleTransformer<>());
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
 		for (RegionNode node : this.nodes) {

@@ -30,7 +30,7 @@ public class NodePropertySchema extends PropertySchema {
 	private String longitude;
 
 	public NodePropertySchema() {
-		this(new LinkedHashMap<String, Class<?>>(0), null);
+		this(new LinkedHashMap<>(0), null);
 	}
 
 	public NodePropertySchema(Map<String, Class<?>> map, String id) {

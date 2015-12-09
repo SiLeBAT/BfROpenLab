@@ -159,9 +159,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer.setBackground(Color.WHITE);
 		viewer.addMouseListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(new NodeFillTransformer<>(viewer.getRenderContext()));
-		viewer.getRenderContext().setVertexStrokeTransformer(new NodeStrokeTransformer<V>(metaNodeProperty));
+		viewer.getRenderContext().setVertexStrokeTransformer(new NodeStrokeTransformer<>(metaNodeProperty));
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(viewer.getRenderContext()));
-		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<V, Edge<V>>());
+		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
 		viewer.addPostRenderPaintable(new PostPaintable(false));
@@ -1000,10 +1000,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void fontChanged() {
-		viewer.getRenderContext().setVertexFontTransformer(
-				new FontTransformer<V>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
-		viewer.getRenderContext().setEdgeFontTransformer(
-				new FontTransformer<Edge<V>>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
+		viewer.getRenderContext()
+				.setVertexFontTransformer(new FontTransformer<>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
+		viewer.getRenderContext()
+				.setEdgeFontTransformer(new FontTransformer<>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
 		viewer.repaint();
 		canvasListeners.forEach(l -> l.fontChanged(this));
 	}

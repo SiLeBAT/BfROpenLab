@@ -32,7 +32,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -100,7 +99,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 			throws NotConfigurableException {
 		schema = new NodePropertySchema(TracingUtils.getTableColumns(input[0].getSpec()), TracingColumns.ID);
 		schema.getPossibleValues().putAll(CanvasUtils.getPossibleValues(
-				TracingUtils.readLocationNodes(input[0], schema, new LinkedHashSet<RowKey>(), false).values()));
+				TracingUtils.readLocationNodes(input[0], schema, new LinkedHashSet<>(), false).values()));
 
 		set.loadSettings(settings);
 		modelBox.setSelectedItem(set.getModel());

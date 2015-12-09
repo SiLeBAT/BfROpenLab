@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
@@ -55,8 +54,8 @@ public class GisViewCanvasCreator {
 		nodeSchema.setLongitude(GeocodingNodeModel.LONGITUDE_COLUMN);
 
 		List<LocationNode> nodes = new ArrayList<>(
-				TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashSet<RowKey>(), true).values());
-		List<RegionNode> regions = TracingUtils.readRegions(shapeTable, new LinkedHashSet<RowKey>());
+				TracingUtils.readLocationNodes(nodeTable, nodeSchema, new LinkedHashSet<>(), true).values());
+		List<RegionNode> regions = TracingUtils.readRegions(shapeTable, new LinkedHashSet<>());
 		LocationCanvas canvas = new LocationCanvas(nodes, nodeSchema, TracingUtils.NAMING, regions);
 
 		set.getGisSettings().setToCanvas(canvas, true);

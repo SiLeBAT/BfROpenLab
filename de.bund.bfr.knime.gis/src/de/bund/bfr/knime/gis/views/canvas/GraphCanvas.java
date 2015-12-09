@@ -62,8 +62,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private static final long serialVersionUID = 1L;
 
 	public GraphCanvas(boolean allowCollapse, Naming naming) {
-		this(new ArrayList<GraphNode>(0), new ArrayList<Edge<GraphNode>>(0), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, allowCollapse);
+		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
+				allowCollapse);
 	}
 
 	public GraphCanvas(List<GraphNode> nodes, List<Edge<GraphNode>> edges, NodePropertySchema nodeSchema,
@@ -73,7 +73,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<GraphNode>(getNodeSize(), getNodeMaxSize()));
+				.setVertexShapeTransformer(new NodeShapeTransformer<>(getNodeSize(), getNodeMaxSize()));
 	}
 
 	public void initLayout() {

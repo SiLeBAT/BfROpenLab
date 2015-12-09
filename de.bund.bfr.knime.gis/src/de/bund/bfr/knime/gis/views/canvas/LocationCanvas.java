@@ -48,13 +48,13 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	private Double lastScaleX;
 
 	public LocationCanvas(boolean allowEdges, Naming naming) {
-		this(new ArrayList<LocationNode>(0), new ArrayList<Edge<LocationNode>>(0), new NodePropertySchema(),
-				new EdgePropertySchema(), naming, new ArrayList<RegionNode>(0), allowEdges);
+		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(), naming,
+				new ArrayList<>(0), allowEdges);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes, NodePropertySchema nodeSchema, Naming naming,
 			List<RegionNode> regions) {
-		this(nodes, new ArrayList<Edge<LocationNode>>(0), nodeSchema, new EdgePropertySchema(), naming, regions, false);
+		this(nodes, new ArrayList<>(0), nodeSchema, new EdgePropertySchema(), naming, regions, false);
 	}
 
 	public LocationCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges, NodePropertySchema nodeSchema,
@@ -72,7 +72,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
 		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<LocationNode>(getNodeSize(), getNodeMaxSize()));
+				.setVertexShapeTransformer(new NodeShapeTransformer<>(getNodeSize(), getNodeMaxSize()));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

@@ -159,7 +159,7 @@ public class NlsUtils {
 		DataTableSpec spec = table.getSpec();
 
 		for (String var : f.getIndependentVariables()) {
-			values.put(var, new ArrayList<Double>());
+			values.put(var, new ArrayList<>());
 		}
 
 		for (DataRow row : table) {
@@ -219,7 +219,7 @@ public class NlsUtils {
 		DataTableSpec spec = table.getSpec();
 
 		for (String var : f.getVariables()) {
-			values.put(var, new ArrayList<Double>());
+			values.put(var, new ArrayList<>());
 		}
 
 		loop: for (DataRow row : table) {
@@ -259,8 +259,8 @@ public class NlsUtils {
 		Map<String, List<Double>> values = new LinkedHashMap<>();
 		DataTableSpec spec = table.getSpec();
 
-		values.put(f.getTimeVariable(), new ArrayList<Double>());
-		values.put(f.getDependentVariable(), new ArrayList<Double>());
+		values.put(f.getTimeVariable(), new ArrayList<>());
+		values.put(f.getDependentVariable(), new ArrayList<>());
 
 		for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {

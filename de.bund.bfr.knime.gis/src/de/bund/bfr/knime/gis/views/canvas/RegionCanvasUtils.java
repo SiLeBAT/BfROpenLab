@@ -63,7 +63,7 @@ public class RegionCanvasUtils {
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		for (RegionNode node : nodes) {
-			nodeAlphas.put(node, new ArrayList<Double>());
+			nodeAlphas.put(node, new ArrayList<>());
 		}
 
 		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {

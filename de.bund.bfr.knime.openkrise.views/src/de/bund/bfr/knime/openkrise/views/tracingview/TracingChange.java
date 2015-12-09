@@ -501,7 +501,7 @@ public class TracingChange implements Serializable {
 		Set<Pair<K, V>> set = new LinkedHashSet<>();
 
 		for (Map.Entry<K, V> entry : map.entrySet()) {
-			set.add(new Pair<K, V>(entry.getKey(), entry.getValue()));
+			set.add(new Pair<>(entry.getKey(), entry.getValue()));
 		}
 
 		return set;

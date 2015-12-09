@@ -75,7 +75,7 @@ public class StationDialog extends JDialog {
 		table = new JTable(model);
 		table.setRowHeight(ROW_HEIGHT);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		rowSorter = new TableRowSorter<StationTableModel>(model);
+		rowSorter = new TableRowSorter<>(model);
 		table.setRowSorter(rowSorter);
 		UI.packColumns(table);
 		pane = new JScrollPane();

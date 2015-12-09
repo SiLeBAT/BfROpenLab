@@ -84,7 +84,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectTable.setRowSelectionAllowed(false);
 		selectTable.setColumnSelectionAllowed(false);
 		selectTable.getTableHeader().setResizingAllowed(false);
-		selectTable.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
+		selectTable.setRowHeight((new JComboBox<>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter((SelectTableModel) selectTable.getModel()));
 		selectTable.getColumn(NlsChartUtils.ID).setMinWidth(0);
 		selectTable.getColumn(NlsChartUtils.ID).setMaxWidth(0);

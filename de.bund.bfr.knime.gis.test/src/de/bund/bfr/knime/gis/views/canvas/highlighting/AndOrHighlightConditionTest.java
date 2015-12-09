@@ -29,7 +29,15 @@ public class AndOrHighlightConditionTest {
 
 	@Test
 	public void testAndOrHighlightCondition() {
-		fail("Not yet implemented");
+		AndOrHighlightCondition c = new AndOrHighlightCondition();
+
+		assertEquals(0, c.getConditionCount());
+		assertNull(c.getName());
+		assertTrue(c.isShowInLegend());
+		assertNull(c.getColor());
+		assertFalse(c.isInvisible());
+		assertFalse(c.isUseThickness());
+		assertNull(c.getLabelProperty());
 	}
 
 	@Test
