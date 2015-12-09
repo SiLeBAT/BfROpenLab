@@ -50,7 +50,8 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 
 	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name, boolean showInLegend, Color color,
 			boolean invisible, boolean useThickness, String labelProperty) {
-		this(asList(asList(condition)), name, showInLegend, color, invisible, useThickness, labelProperty);
+		this(new ArrayList<>(Arrays.asList(new ArrayList<>(Arrays.asList(condition)))), name, showInLegend, color,
+				invisible, useThickness, labelProperty);
 	}
 
 	public AndOrHighlightCondition(List<List<LogicalHighlightCondition>> conditions, String name, boolean showInLegend,
@@ -226,10 +227,5 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		if (useThickness != other.useThickness)
 			return false;
 		return true;
-	}
-
-	@SafeVarargs
-	private static <T> List<T> asList(T... a) {
-		return new ArrayList<>(Arrays.asList(a));
 	}
 }
