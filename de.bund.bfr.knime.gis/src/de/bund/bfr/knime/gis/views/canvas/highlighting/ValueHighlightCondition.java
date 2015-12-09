@@ -159,22 +159,22 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		double min = zeroAsMinimum ? 0.0 : Collections.min(values.values());
 
 		if (min != 0.0) {
-			for (T element : elements) {
-				values.put(element, values.get(element) - min);
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(entry.getValue() - min);
 			}
 		}
 
 		double max = Collections.max(values.values());
 
 		if (max != 0.0) {
-			for (T element : elements) {
-				values.put(element, values.get(element) / max);
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(entry.getValue() / max);
 			}
 		}
 
 		if (type.equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
-			for (T element : elements) {
-				values.put(element, Math.log10(values.get(element) * 9.0 + 1.0));
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(Math.log10(entry.getValue() * 9.0 + 1.0));
 			}
 		}
 

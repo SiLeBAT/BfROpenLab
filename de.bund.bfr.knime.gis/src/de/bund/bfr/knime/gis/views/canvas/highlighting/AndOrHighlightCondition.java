@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -71,10 +70,6 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 
 	public void setConditions(List<List<LogicalHighlightCondition>> conditions) {
 		this.conditions = conditions;
-	}
-
-	public int getConditionCount() {
-		return conditions.stream().mapToInt(c -> c.size()).sum();
 	}
 
 	@Override
@@ -131,6 +126,10 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 		this.labelProperty = labelProperty;
 	}
 
+	public int getConditionCount() {
+		return conditions.stream().mapToInt(c -> c.size()).sum();
+	}
+
 	@Override
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		List<List<Map<? extends T, Double>>> valuesList = new ArrayList<>();
@@ -181,33 +180,52 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-
-		result = prime * result + Objects.hashCode(color);
-		result = prime * result + Objects.hashCode(conditions);
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + ((conditions == null) ? 0 : conditions.hashCode());
 		result = prime * result + (invisible ? 1231 : 1237);
-		result = prime * result + Objects.hashCode(labelProperty);
-		result = prime * result + Objects.hashCode(name);
+		result = prime * result + ((labelProperty == null) ? 0 : labelProperty.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (showInLegend ? 1231 : 1237);
 		result = prime * result + (useThickness ? 1231 : 1237);
-
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null)
 			return false;
-		}
-
-		AndOrHighlightCondition c = (AndOrHighlightCondition) obj;
-
-		return Objects.equals(conditions, c.conditions) && Objects.equals(name, c.name)
-				&& showInLegend == c.showInLegend && Objects.equals(color, c.color) && invisible == c.invisible
-				&& useThickness == c.useThickness && Objects.equals(labelProperty, c.labelProperty);
+		if (getClass() != obj.getClass())
+			return false;
+		AndOrHighlightCondition other = (AndOrHighlightCondition) obj;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (conditions == null) {
+			if (other.conditions != null)
+				return false;
+		} else if (!conditions.equals(other.conditions))
+			return false;
+		if (invisible != other.invisible)
+			return false;
+		if (labelProperty == null) {
+			if (other.labelProperty != null)
+				return false;
+		} else if (!labelProperty.equals(other.labelProperty))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (showInLegend != other.showInLegend)
+			return false;
+		if (useThickness != other.useThickness)
+			return false;
+		return true;
 	}
 
 	@SafeVarargs

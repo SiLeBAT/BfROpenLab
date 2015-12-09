@@ -101,12 +101,12 @@ public class LogicalHighlightConditionTest {
 	}
 
 	@Test
-	public void testEqualsObject() {
+	public void testHashCode() {
 		// method automatically generated
 	}
 
 	@Test
-	public void testHashCode() {
+	public void testEqualsObject() {
 		// method automatically generated
 	}
 }

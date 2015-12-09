@@ -22,13 +22,11 @@ package de.bund.bfr.knime.gis.views.canvas.highlighting;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
@@ -100,50 +98,44 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> logicalValues = logicalCondition.getValues(elements);
 		Map<T, Double> values = new LinkedHashMap<>();
-		List<T> nonZeroElements = new ArrayList<>();
-		double min = 1.0;
-		double max = 0.0;
+		Map<T, Double> zeroValues = new LinkedHashMap<>();
 
 		for (T element : elements) {
 			if (logicalValues.get(element) != 0.0) {
-				double value = CanvasUtils.toPositiveDouble(element.getProperties().get(valueCondition.getProperty()));
-
-				values.put(element, value);
-				nonZeroElements.add(element);
-				min = Math.min(min, value);
-				max = Math.max(max, value);
+				values.put(element,
+						CanvasUtils.toPositiveDouble(element.getProperties().get(valueCondition.getProperty())));
 			} else {
-				values.put(element, 0.0);
+				zeroValues.put(element, 0.0);
 			}
 		}
 
-		if (nonZeroElements.isEmpty()) {
-			return values;
+		if (values.isEmpty()) {
+			return zeroValues;
 		}
 
-		if (valueCondition.isZeroAsMinimum()) {
-			min = 0.0;
-		}
+		double min = valueCondition.isZeroAsMinimum() ? 0.0 : Collections.min(values.values());
 
 		if (min != 0.0) {
-			for (T element : nonZeroElements) {
-				values.put(element, values.get(element) - min);
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(entry.getValue() - min);
 			}
 		}
 
-		if (max > min) {
-			double diff = max - min;
+		double max = Collections.max(values.values());
 
-			for (T element : nonZeroElements) {
-				values.put(element, values.get(element) / diff);
+		if (max != 0.0) {
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(entry.getValue() / max);
 			}
 		}
 
 		if (valueCondition.getType().equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
-			for (T element : nonZeroElements) {
-				values.put(element, Math.log10(values.get(element) * 9.0 + 1.0));
+			for (Map.Entry<T, Double> entry : values.entrySet()) {
+				entry.setValue(Math.log10(entry.getValue() * 9.0 + 1.0));
 			}
 		}
+
+		values.putAll(zeroValues);
 
 		return values;
 	}
@@ -169,25 +161,30 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-
-		result = prime * result + Objects.hashCode(logicalCondition);
-		result = prime * result + Objects.hashCode(valueCondition);
-
+		result = prime * result + ((logicalCondition == null) ? 0 : logicalCondition.hashCode());
+		result = prime * result + ((valueCondition == null) ? 0 : valueCondition.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj == null || obj.getClass() != getClass()) {
+		if (obj == null)
 			return false;
-		}
-
-		LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) obj;
-
-		return Objects.equals(valueCondition, c.valueCondition) && Objects.equals(logicalCondition, c.logicalCondition);
+		if (getClass() != obj.getClass())
+			return false;
+		LogicalValueHighlightCondition other = (LogicalValueHighlightCondition) obj;
+		if (logicalCondition == null) {
+			if (other.logicalCondition != null)
+				return false;
+		} else if (!logicalCondition.equals(other.logicalCondition))
+			return false;
+		if (valueCondition == null) {
+			if (other.valueCondition != null)
+				return false;
+		} else if (!valueCondition.equals(other.valueCondition))
+			return false;
+		return true;
 	}
 }
