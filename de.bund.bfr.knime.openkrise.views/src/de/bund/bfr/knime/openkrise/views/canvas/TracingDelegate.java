@@ -148,9 +148,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.nodeWeightsChanged(canvas);
-		}
+		listeners.forEach(l -> l.nodeWeightsChanged(canvas));
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -174,9 +172,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.edgeWeightsChanged(canvas);
-		}
+		listeners.forEach(l -> l.edgeWeightsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
@@ -202,9 +198,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.nodeCrossContaminationsChanged(canvas);
-		}
+		listeners.forEach(l -> l.nodeCrossContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -230,9 +224,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.edgeCrossContaminationsChanged(canvas);
-		}
+		listeners.forEach(l -> l.edgeCrossContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getNodeKillContaminations() {
@@ -258,9 +250,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.nodeKillContaminationsChanged(canvas);
-		}
+		listeners.forEach(l -> l.nodeKillContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getEdgeKillContaminations() {
@@ -286,9 +276,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.edgeKillContaminationsChanged(canvas);
-		}
+		listeners.forEach(l -> l.edgeKillContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
@@ -312,9 +300,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.observedNodesChanged(canvas);
-		}
+		listeners.forEach(l -> l.observedNodesChanged(canvas));
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -338,9 +324,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 			canvas.applyChanges();
 		}
 
-		for (TracingListener listener : listeners) {
-			listener.observedEdgesChanged(canvas);
-		}
+		listeners.forEach(l -> l.observedEdgesChanged(canvas));
 	}
 
 	public boolean isEnforceTemporalOrder() {
@@ -379,10 +363,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
-
-			for (TracingListener listener : listeners) {
-				listener.nodePropertiesChanged(canvas);
-			}
+			listeners.forEach(l -> l.nodePropertiesChanged(canvas));
 		}
 	}
 
@@ -400,10 +381,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 			if (dialog.isApproved()) {
 				canvas.applyChanges();
-
-				for (TracingListener listener : listeners) {
-					listener.edgePropertiesChanged(canvas);
-				}
+				listeners.forEach(l -> l.edgePropertiesChanged(canvas));
 			}
 		}
 	}
@@ -426,10 +404,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
-
-			for (TracingListener listener : listeners) {
-				listener.edgePropertiesChanged(canvas);
-			}
+			listeners.forEach(l -> l.edgePropertiesChanged(canvas));
 		}
 	}
 
@@ -501,17 +476,13 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				canvas.applyChanges();
 			}
 
-			for (TracingListener listener : listeners) {
-				listener.enforceTemporalOrderChanged(canvas);
-			}
+			listeners.forEach(l -> l.enforceTemporalOrderChanged(canvas));
 		} else if (e.getSource() == showForwardBox) {
 			if (performTracing) {
 				canvas.applyChanges();
 			}
 
-			for (TracingListener listener : listeners) {
-				listener.showForwardChanged(canvas);
-			}
+			listeners.forEach(l -> l.showForwardChanged(canvas));
 		}
 	}
 
@@ -740,10 +711,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 					if (dialog.isApproved()) {
 						canvas.applyChanges();
-
-						for (TracingListener listener : canvas.getTracingListeners()) {
-							listener.nodePropertiesChanged(canvas);
-						}
+						canvas.getTracingListeners().forEach(l -> l.nodePropertiesChanged(canvas));
 					}
 				} else if (edge != null) {
 					if (!canvas.isJoinEdges()) {
@@ -754,10 +722,7 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 						if (dialog.isApproved()) {
 							canvas.applyChanges();
-
-							for (TracingListener listener : canvas.getTracingListeners()) {
-								listener.edgePropertiesChanged(canvas);
-							}
+							canvas.getTracingListeners().forEach(l -> l.edgePropertiesChanged(canvas));
 						}
 					} else {
 						SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,

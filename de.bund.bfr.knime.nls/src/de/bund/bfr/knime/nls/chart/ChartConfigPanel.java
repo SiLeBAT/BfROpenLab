@@ -427,13 +427,13 @@ public class ChartConfigPanel extends JPanel
 
 		if (e.getSource() instanceof JCheckBox
 				|| (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.SELECTED)) {
-			fireConfigChanged();
+			configListeners.forEach(l -> l.configChanged());
 		}
 	}
 
 	@Override
 	public void textChanged(Object source) {
-		fireConfigChanged();
+		configListeners.forEach(l -> l.configChanged());
 	}
 
 	@Override
@@ -447,7 +447,7 @@ public class ChartConfigPanel extends JPanel
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource() == resolutionSlider) {
-			fireConfigChanged();
+			configListeners.forEach(l -> l.configChanged());
 		}
 	}
 
@@ -461,13 +461,7 @@ public class ChartConfigPanel extends JPanel
 
 	@Override
 	public void valuesChanged() {
-		fireConfigChanged();
-	}
-
-	private void fireConfigChanged() {
-		for (ConfigListener listener : configListeners) {
-			listener.configChanged();
-		}
+		configListeners.forEach(l -> l.configChanged());
 	}
 
 	public static interface ConfigListener {

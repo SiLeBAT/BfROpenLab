@@ -325,9 +325,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void fireZoomChanged() {
-		for (ZoomListener listener : zoomListeners) {
-			listener.zoomChanged();
-		}
+		zoomListeners.forEach(l -> l.zoomChanged());
 	}
 
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {

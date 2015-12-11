@@ -196,12 +196,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 
-	private void fireLayoutProcessFinished() {
-		for (CanvasListener listener : canvasListeners) {
-			listener.layoutProcessFinished(this);
-		}
-	}
-
 	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
 		if (selectedNodes != null && !selectedNodes.isEmpty()) {
 			switch (Dialogs.showYesNoDialog(this,
@@ -298,7 +292,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
 		}
 
-		fireLayoutProcessFinished();
+		canvasListeners.forEach(l -> l.layoutProcessFinished(this));
 	}
 
 	private void updatePositionsOfCollapsedNodes() {

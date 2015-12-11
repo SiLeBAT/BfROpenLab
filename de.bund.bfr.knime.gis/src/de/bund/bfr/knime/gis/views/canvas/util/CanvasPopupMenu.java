@@ -173,117 +173,61 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == resetLayoutItem) {
-			for (ClickListener l : listeners) {
-				l.resetLayoutItemClicked();
-			}
+			listeners.forEach(l -> l.resetLayoutItemClicked());
 		} else if (e.getSource() == saveAsItem) {
-			for (ClickListener l : listeners) {
-				l.saveAsItemClicked();
-			}
+			listeners.forEach(l -> l.saveAsItemClicked());
 		} else if (layoutItems.containsKey(e.getSource())) {
-			for (ClickListener l : listeners) {
-				l.layoutItemClicked(layoutItems.get(e.getSource()));
-			}
+			listeners.forEach(l -> l.layoutItemClicked(layoutItems.get(e.getSource())));
 		} else if (e.getSource() == selectConnectionsItem) {
-			for (ClickListener l : listeners) {
-				l.selectConnectionsItemClicked();
-			}
+			listeners.forEach(l -> l.selectConnectionsItemClicked());
 		} else if (e.getSource() == selectIncomingItem) {
-			for (ClickListener l : listeners) {
-				l.selectIncomingItemClicked();
-			}
+			listeners.forEach(l -> l.selectIncomingItemClicked());
 		} else if (e.getSource() == selectOutgoingItem) {
-			for (ClickListener l : listeners) {
-				l.selectOutgoingItemClicked();
-			}
+			listeners.forEach(l -> l.selectOutgoingItemClicked());
 		} else if (e.getSource() == clearSelectedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.clearSelectedNodesItemClicked();
-			}
+			listeners.forEach(l -> l.clearSelectedNodesItemClicked());
 		} else if (e.getSource() == clearSelectedEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.clearSelectedEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.clearSelectedEdgesItemClicked());
 		} else if (e.getSource() == highlightSelectedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightSelectedNodesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightSelectedNodesItemClicked());
 		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightSelectedEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightSelectedEdgesItemClicked());
 		} else if (e.getSource() == highlightNodesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightNodesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightNodesItemClicked());
 		} else if (e.getSource() == highlightEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightEdgesItemClicked());
 		} else if (e.getSource() == clearHighlightedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.clearHighlightedNodesItemClicked();
-			}
+			listeners.forEach(l -> l.clearHighlightedNodesItemClicked());
 		} else if (e.getSource() == clearHighlightedEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.clearHighlightedEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.clearHighlightedEdgesItemClicked());
 		} else if (e.getSource() == selectHighlightedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.selectHighlightedNodesItemClicked();
-			}
+			listeners.forEach(l -> l.selectHighlightedNodesItemClicked());
 		} else if (e.getSource() == selectHighlightedEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.selectHighlightedEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.selectHighlightedEdgesItemClicked());
 		} else if (e.getSource() == highlightNodeCategoriesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightNodeCategoriesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightNodeCategoriesItemClicked());
 		} else if (e.getSource() == highlightEdgeCategoriesItem) {
-			for (ClickListener l : listeners) {
-				l.highlightEdgeCategoriesItemClicked();
-			}
+			listeners.forEach(l -> l.highlightEdgeCategoriesItemClicked());
 		} else if (e.getSource() == selectNodesItem) {
-			for (ClickListener l : listeners) {
-				l.selectNodesItemClicked();
-			}
+			listeners.forEach(l -> l.selectNodesItemClicked());
 		} else if (e.getSource() == selectEdgesItem) {
-			for (ClickListener l : listeners) {
-				l.selectEdgesItemClicked();
-			}
+			listeners.forEach(l -> l.selectEdgesItemClicked());
 		} else if (e.getSource() == nodePropertiesItem) {
-			for (ClickListener l : listeners) {
-				l.nodePropertiesItemClicked();
-			}
+			listeners.forEach(l -> l.nodePropertiesItemClicked());
 		} else if (e.getSource() == nodeAllPropertiesItem) {
-			for (ClickListener l : listeners) {
-				l.nodeAllPropertiesItemClicked();
-			}
+			listeners.forEach(l -> l.nodeAllPropertiesItemClicked());
 		} else if (e.getSource() == edgePropertiesItem) {
-			for (ClickListener l : listeners) {
-				l.edgePropertiesItemClicked();
-			}
+			listeners.forEach(l -> l.edgePropertiesItemClicked());
 		} else if (e.getSource() == edgeAllPropertiesItem) {
-			for (ClickListener l : listeners) {
-				l.edgeAllPropertiesItemClicked();
-			}
+			listeners.forEach(l -> l.edgeAllPropertiesItemClicked());
 		} else if (e.getSource() == collapseToNodeItem) {
-			for (ClickListener l : listeners) {
-				l.collapseToNodeItemClicked();
-			}
+			listeners.forEach(l -> l.collapseToNodeItemClicked());
 		} else if (e.getSource() == expandFromNodeItem) {
-			for (ClickListener l : listeners) {
-				l.expandFromNodeItemClicked();
-			}
+			listeners.forEach(l -> l.expandFromNodeItemClicked());
 		} else if (e.getSource() == collapseByPropertyItem) {
-			for (ClickListener l : listeners) {
-				l.collapseByPropertyItemClicked();
-			}
+			listeners.forEach(l -> l.collapseByPropertyItemClicked());
 		} else if (e.getSource() == clearCollapsedNodesItem) {
-			for (ClickListener l : listeners) {
-				l.clearCollapsedNodesItemClicked();
-			}
+			listeners.forEach(l -> l.clearCollapsedNodesItemClicked());
 		}
 	}
 

@@ -110,9 +110,6 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 	private void textChanged() {
 		value = Strings.emptyToNull(getText().trim());
 		valueValid = value != null || optional;
-
-		for (TextListener listener : listeners) {
-			listener.textChanged(this);
-		}
+		listeners.forEach(l -> l.textChanged(this));
 	}
 }

@@ -161,7 +161,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 			}
 		}
 
-		fireSelectionChanged();
+		listeners.forEach(l -> l.selectionChanged());
 	}
 
 	public Map<String, Color> getColors() {
@@ -212,12 +212,6 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		listeners.remove(listener);
 	}
 
-	public void fireSelectionChanged() {
-		for (SelectionListener listener : listeners) {
-			listener.selectionChanged();
-		}
-	}
-
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
@@ -225,12 +219,12 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 		selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
 		selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
 		selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
-		fireSelectionChanged();
+		listeners.forEach(l -> l.selectionChanged());
 	}
 
 	@Override
 	public void editingStopped(ChangeEvent e) {
-		fireSelectionChanged();
+		listeners.forEach(l -> l.selectionChanged());
 	}
 
 	@Override

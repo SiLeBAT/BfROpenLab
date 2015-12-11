@@ -76,9 +76,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 			@Override
 			public void run() {
-				for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-					listener.transformChanged();
-				}
+				changeListeners.forEach(l -> l.transformChanged());
 			}
 		};
 

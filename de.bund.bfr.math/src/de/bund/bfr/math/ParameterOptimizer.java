@@ -410,9 +410,7 @@ public class ParameterOptimizer {
 	}
 
 	private void fireProgressChanged(double progress) {
-		for (ProgressListener listener : progressListeners) {
-			listener.progressChanged(progress);
-		}
+		progressListeners.forEach(l -> l.progressChanged(progress));
 	}
 
 	private static class StartValues {

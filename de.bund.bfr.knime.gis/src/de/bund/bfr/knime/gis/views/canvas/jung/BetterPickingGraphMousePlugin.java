@@ -80,13 +80,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (!pickedVertexState.isPicked(vertex)) {
 						pickedVertexState.clear();
 						pickedVertexState.pick(vertex, true);
-						fireNodePickingChanged();
+						changeListeners.forEach(l -> l.nodePickingChanged());
 					}
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (!pickedEdgeState.isPicked(edge)) {
 						pickedEdgeState.clear();
 						pickedEdgeState.pick(edge, true);
-						fireEdgePickingChanged();
+						changeListeners.forEach(l -> l.edgePickingChanged());
 					}
 				} else {
 					boolean nodesPicked = !pickedVertexState.getPicked().isEmpty();
@@ -95,13 +95,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (nodesPicked && edgesPicked) {
 						pickedVertexState.clear();
 						pickedEdgeState.clear();
-						firePickingChanged();
+						changeListeners.forEach(l -> l.pickingChanged());
 					} else if (nodesPicked) {
 						pickedVertexState.clear();
-						fireNodePickingChanged();
+						changeListeners.forEach(l -> l.nodePickingChanged());
 					} else if (edgesPicked) {
 						pickedEdgeState.clear();
-						fireEdgePickingChanged();
+						changeListeners.forEach(l -> l.edgePickingChanged());
 					}
 				}
 			} else {
@@ -110,13 +110,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 						vertex = null;
 					}
 
-					fireNodePickingChanged();
+					changeListeners.forEach(l -> l.nodePickingChanged());
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge))) {
 						edge = null;
 					}
 
-					fireEdgePickingChanged();
+					changeListeners.forEach(l -> l.edgePickingChanged());
 				}
 			}
 		}
@@ -140,11 +140,11 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 				pickedVertexState.pick(v, true);
 			}
 
-			fireNodePickingChanged();
+			changeListeners.forEach(l -> l.nodePickingChanged());
 		}
 
 		if (nodesMoved) {
-			fireNodesMoved();
+			changeListeners.forEach(l -> l.nodesMoved());
 		}
 
 		down = null;
@@ -199,29 +199,5 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-	}
-
-	private void firePickingChanged() {
-		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-			listener.pickingChanged();
-		}
-	}
-
-	private void fireNodePickingChanged() {
-		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-			listener.nodePickingChanged();
-		}
-	}
-
-	private void fireEdgePickingChanged() {
-		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-			listener.edgePickingChanged();
-		}
-	}
-
-	private void fireNodesMoved() {
-		for (BetterGraphMouse.ChangeListener listener : changeListeners) {
-			listener.nodesMoved();
-		}
 	}
 }

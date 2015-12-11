@@ -95,8 +95,6 @@ public abstract class TypedTextField extends JTextField implements DocumentListe
 	}
 
 	protected void textChanged() {
-		for (TextListener listener : listeners) {
-			listener.textChanged(this);
-		}
+		listeners.forEach(l -> l.textChanged(this));
 	}
 }

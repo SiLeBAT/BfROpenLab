@@ -213,7 +213,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 			if (dialog.isApproved()) {
 				selectedValues.put(var, dialog.getSelected());
-				fireValuesChanged();
+				valueListeners.forEach(l -> l.valuesChanged());
 			}
 		} else if (rangeButtons.values().contains(e.getSource())) {
 			String var = rangeButtons.inverse().get(e.getSource());
@@ -259,7 +259,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 				slider.addChangeListener(this);
 			}
 
-			fireValuesChanged();
+			valueListeners.forEach(l -> l.valuesChanged());
 		}
 	}
 
@@ -316,12 +316,6 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 	private double intToDouble(int i, double min, double max) {
 		return (double) i / (double) SLIDER_MAX * (max - min) + min;
-	}
-
-	private void fireValuesChanged() {
-		for (ValueListener listener : valueListeners) {
-			listener.valuesChanged();
-		}
 	}
 
 	private class SelectDialog extends KnimeDialog implements ActionListener {
