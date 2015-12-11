@@ -147,32 +147,28 @@ public class PropertiesTable extends JTable {
 			String name = getModel().getColumnName(column);
 
 			if (idColumns.contains(name)) {
-				return new Comparator<String>() {
+				return (String o1, String o2) -> {
+					Integer i1 = null;
+					Integer i2 = null;
 
-					@Override
-					public int compare(String o1, String o2) {
-						Integer i1 = null;
-						Integer i2 = null;
+					try {
+						i1 = Integer.parseInt(o1);
+					} catch (NumberFormatException e) {
+					}
 
-						try {
-							i1 = Integer.parseInt(o1);
-						} catch (NumberFormatException e) {
-						}
+					try {
+						i2 = Integer.parseInt(o2);
+					} catch (NumberFormatException e) {
+					}
 
-						try {
-							i2 = Integer.parseInt(o2);
-						} catch (NumberFormatException e) {
-						}
-
-						if (i1 != null && i2 != null) {
-							return i1.compareTo(i2);
-						} else if (i1 != null) {
-							return -1;
-						} else if (i2 != null) {
-							return 1;
-						} else {
-							return o1.compareTo(o2);
-						}
+					if (i1 != null && i2 != null) {
+						return i1.compareTo(i2);
+					} else if (i1 != null) {
+						return -1;
+					} else if (i2 != null) {
+						return 1;
+					} else {
+						return o1.compareTo(o2);
 					}
 				};
 			}

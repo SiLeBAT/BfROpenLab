@@ -22,7 +22,6 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +35,9 @@ import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem.Evaluation;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.ParameterValidator;
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem.Evaluation;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
@@ -268,13 +267,7 @@ public class ParameterOptimizer {
 			count++;
 		}
 
-		Collections.sort(valuesList, new Comparator<StartValues>() {
-
-			@Override
-			public int compare(StartValues o1, StartValues o2) {
-				return Double.compare(o1.getError(), o2.getError());
-			}
-		});
+		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
 
 		return valuesList.subList(0, n);
 	}

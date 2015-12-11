@@ -26,7 +26,6 @@ import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,28 +49,24 @@ import de.bund.bfr.knime.ui.Dialogs;
 
 public class KnimeUtils {
 
-	public static final Ordering<Object> OBJECT_ORDERING = Ordering.from(new Comparator<Object>() {
-
-		@Override
-		public int compare(Object o1, Object o2) {
-			if (o1 == o2) {
-				return 0;
-			} else if (o1 == null) {
-				return -1;
-			} else if (o2 == null) {
-				return 1;
-			} else if (o1 instanceof String && o2 instanceof String) {
-				return ((String) o1).toLowerCase().compareTo(((String) o2).toLowerCase());
-			} else if (o1 instanceof Integer && o2 instanceof Integer) {
-				return ((Integer) o1).compareTo((Integer) o2);
-			} else if (o1 instanceof Double && o2 instanceof Double) {
-				return ((Double) o1).compareTo((Double) o2);
-			} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
-				return ((Boolean) o1).compareTo((Boolean) o2);
-			}
-
-			return o1.toString().toLowerCase().compareTo(o2.toString().toLowerCase());
+	public static final Ordering<Object> OBJECT_ORDERING = Ordering.from((o1, o2) -> {
+		if (o1 == o2) {
+			return 0;
+		} else if (o1 == null) {
+			return -1;
+		} else if (o2 == null) {
+			return 1;
+		} else if (o1 instanceof String && o2 instanceof String) {
+			return ((String) o1).toLowerCase().compareTo(((String) o2).toLowerCase());
+		} else if (o1 instanceof Integer && o2 instanceof Integer) {
+			return ((Integer) o1).compareTo((Integer) o2);
+		} else if (o1 instanceof Double && o2 instanceof Double) {
+			return ((Double) o1).compareTo((Double) o2);
+		} else if (o1 instanceof Boolean && o2 instanceof Boolean) {
+			return ((Boolean) o1).compareTo((Boolean) o2);
 		}
+
+		return o1.toString().toLowerCase().compareTo(o2.toString().toLowerCase());
 	});
 
 	private KnimeUtils() {

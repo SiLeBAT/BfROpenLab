@@ -22,7 +22,6 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -155,32 +154,28 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 			}
 		}
 
-		Collections.sort(variationList, new Comparator<int[]>() {
+		Collections.sort(variationList, (l1, l2) -> {
+			int n1 = 0;
+			int n2 = 0;
 
-			@Override
-			public int compare(int[] l1, int[] l2) {
-				int n1 = 0;
-				int n2 = 0;
-
-				for (int i : l1) {
-					if (i == 0) {
-						n1++;
-					}
+			for (int i : l1) {
+				if (i == 0) {
+					n1++;
 				}
+			}
 
-				for (int i : l2) {
-					if (i == 0) {
-						n2++;
-					}
+			for (int i : l2) {
+				if (i == 0) {
+					n2++;
 				}
+			}
 
-				if (n1 < n2) {
-					return 1;
-				} else if (n1 > n2) {
-					return -1;
-				} else {
-					return 0;
-				}
+			if (n1 < n2) {
+				return 1;
+			} else if (n1 > n2) {
+				return -1;
+			} else {
+				return 0;
 			}
 		});
 

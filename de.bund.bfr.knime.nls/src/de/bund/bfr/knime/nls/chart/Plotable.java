@@ -23,7 +23,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,13 +220,7 @@ public class Plotable {
 			}
 		}
 
-		Collections.sort(points, new Comparator<Point2D.Double>() {
-
-			@Override
-			public int compare(Point2D.Double p1, Point2D.Double p2) {
-				return Double.compare(p1.x, p2.x);
-			}
-		});
+		Collections.sort(points, (p1, p2) -> Double.compare(p1.x, p2.x));
 
 		double[][] pointsArray = new double[2][points.size()];
 
