@@ -25,6 +25,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -45,6 +47,8 @@ import javax.imageio.ImageIO;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.commons.collections15.Transformer;
+import org.apache.commons.collections15.TransformerUtils;
 import org.knime.base.data.xml.SvgCell;
 import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
@@ -73,17 +77,13 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeArrowTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeStrokeTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.LabelTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
@@ -475,12 +475,13 @@ public class CanvasUtils {
 		}
 
 		if (!labelsOnly) {
-			renderContext.setVertexShapeTransformer(new NodeShapeTransformer<>(nodeSize, nodeMaxSize, thicknessValues));
+			renderContext.setVertexShapeTransformer(
+					CanvasTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, thicknessValues));
 			renderContext.setVertexFillPaintTransformer(
-					new NodeFillTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
+					CanvasTransformers.nodeFillTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
 		}
 
-		renderContext.setVertexLabelTransformer(new LabelTransformer<>(labels));
+		renderContext.setVertexLabelTransformer(TransformerUtils.mapTransformer(labels));
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
@@ -534,8 +535,8 @@ public class CanvasUtils {
 			}
 		}
 
-		EdgeStrokeTransformer<Edge<V>> strokeTransformer = new EdgeStrokeTransformer<>(edgeThickness, edgeMaxThickness,
-				thicknessValues);
+		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = CanvasTransformers
+				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, thicknessValues);
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
 		for (Map.Entry<Edge<V>, Set<String>> entry : Multimaps.asMap(labelLists).entrySet()) {
@@ -543,10 +544,10 @@ public class CanvasUtils {
 		}
 
 		renderContext.setEdgeDrawPaintTransformer(
-				new EdgeDrawTransformer<>(renderContext, Multimaps.asMap(alphaValues), colors));
-		renderContext.setEdgeStrokeTransformer(strokeTransformer);
-		renderContext.setEdgeArrowTransformer(new EdgeArrowTransformer<>(strokeTransformer));
-		renderContext.setEdgeLabelTransformer(new LabelTransformer<>(labels));
+				CanvasTransformers.edgeDrawTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
+		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
+		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
+		renderContext.setEdgeLabelTransformer(TransformerUtils.mapTransformer(labels));
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas, boolean forEdges) {

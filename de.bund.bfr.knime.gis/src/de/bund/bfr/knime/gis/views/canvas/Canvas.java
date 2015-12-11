@@ -80,12 +80,9 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
-import de.bund.bfr.knime.gis.views.canvas.transformer.EdgeDrawTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.FontTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeFillTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeStrokeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -158,9 +155,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
 		viewer.addMouseListener(this);
-		viewer.getRenderContext().setVertexFillPaintTransformer(new NodeFillTransformer<>(viewer.getRenderContext()));
-		viewer.getRenderContext().setVertexStrokeTransformer(new NodeStrokeTransformer<>(metaNodeProperty));
-		viewer.getRenderContext().setEdgeDrawPaintTransformer(new EdgeDrawTransformer<>(viewer.getRenderContext()));
+		viewer.getRenderContext().setVertexFillPaintTransformer(
+				CanvasTransformers.nodeFillTransformer(viewer.getRenderContext(), null, null));
+		viewer.getRenderContext()
+				.setVertexStrokeTransformer(CanvasTransformers.nodeStrokeTransformer(metaNodeProperty));
+		viewer.getRenderContext().setEdgeDrawPaintTransformer(
+				CanvasTransformers.edgeDrawTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(this);
@@ -1000,10 +1000,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 	@Override
 	public void fontChanged() {
-		viewer.getRenderContext()
-				.setVertexFontTransformer(new FontTransformer<>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
-		viewer.getRenderContext()
-				.setEdgeFontTransformer(new FontTransformer<>(optionsPanel.getFontSize(), optionsPanel.isFontBold()));
+		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, optionsPanel.getFontSize());
+
+		viewer.getRenderContext().setVertexFontTransformer(CanvasTransformers.constantTransformer(font));
+		viewer.getRenderContext().setEdgeFontTransformer(CanvasTransformers.constantTransformer(font));
 		viewer.repaint();
 		canvasListeners.forEach(l -> l.fontChanged(this));
 	}

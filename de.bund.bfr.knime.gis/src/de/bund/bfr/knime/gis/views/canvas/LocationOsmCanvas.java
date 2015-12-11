@@ -31,9 +31,9 @@ import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -67,8 +67,8 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, false, true));
-		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<>(getNodeSize(), getNodeMaxSize()));
+		viewer.getRenderContext().setVertexShapeTransformer(
+				CanvasTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

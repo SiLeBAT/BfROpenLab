@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -31,10 +32,9 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.transformer.InvisibleTransformer;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -69,9 +69,11 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
-		viewer.getRenderContext().setVertexShapeTransformer(new NodeShapeTransformer<>(2, null));
-		viewer.getRenderContext().setVertexDrawPaintTransformer(new InvisibleTransformer<>());
-		viewer.getRenderContext().setVertexFillPaintTransformer(new InvisibleTransformer<>());
+		viewer.getRenderContext().setVertexShapeTransformer(CanvasTransformers.nodeShapeTransformer(2, null, null));
+		viewer.getRenderContext()
+				.setVertexDrawPaintTransformer(CanvasTransformers.constantTransformer(new Color(0, 0, 0, 0)));
+		viewer.getRenderContext()
+				.setVertexFillPaintTransformer(CanvasTransformers.constantTransformer(new Color(0, 0, 0, 0)));
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
 		for (RegionNode node : this.nodes) {

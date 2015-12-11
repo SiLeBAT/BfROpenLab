@@ -43,9 +43,9 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.Layout;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
-import de.bund.bfr.knime.gis.views.canvas.transformer.NodeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -72,8 +72,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
-		viewer.getRenderContext()
-				.setVertexShapeTransformer(new NodeShapeTransformer<>(getNodeSize(), getNodeMaxSize()));
+		viewer.getRenderContext().setVertexShapeTransformer(
+				CanvasTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
 	}
 
 	public void initLayout() {
