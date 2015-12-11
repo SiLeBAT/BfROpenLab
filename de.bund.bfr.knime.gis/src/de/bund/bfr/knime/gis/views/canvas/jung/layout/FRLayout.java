@@ -51,7 +51,6 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 	@Override
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
-		long t1 = System.nanoTime();
 		Random random = new Random();
 
 		max_dimension = Math.max(size.height, size.width);
@@ -83,9 +82,6 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 			step();
 		}
-
-		long t2 = System.nanoTime();
-		System.out.println(t2 - t1);
 
 		return newPositions;
 	}
