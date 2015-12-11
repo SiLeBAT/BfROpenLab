@@ -48,16 +48,6 @@ public class CanvasTransformers {
 	private CanvasTransformers() {
 	}
 
-	public static <I, O> Transformer<I, O> constantTransformer(O constant) {
-		return new Transformer<I, O>() {
-
-			@Override
-			public O transform(I arg0) {
-				return constant;
-			}
-		};
-	}
-
 	public static <V extends Node> Transformer<V, Paint> nodeFillTransformer(RenderContext<V, Edge<V>> renderContext,
 			Map<V, List<Double>> alphaValues, List<Color> colors) {
 		Map<V, Paint> nodeColors = new LinkedHashMap<>();
@@ -68,17 +58,13 @@ public class CanvasTransformers {
 			}
 		}
 
-		return new Transformer<V, Paint>() {
-
-			@Override
-			public Paint transform(V node) {
-				if (renderContext.getPickedVertexState().getPicked().contains(node)) {
-					return Color.BLUE;
-				} else if (nodeColors.containsKey(node)) {
-					return nodeColors.get(node);
-				} else {
-					return Color.WHITE;
-				}
+		return node -> {
+			if (renderContext.getPickedVertexState().getPicked().contains(node)) {
+				return Color.BLUE;
+			} else if (nodeColors.containsKey(node)) {
+				return nodeColors.get(node);
+			} else {
+				return Color.WHITE;
 			}
 		};
 	}
@@ -88,33 +74,25 @@ public class CanvasTransformers {
 		Map<V, Double> nonNullThicknessValues = KnimeUtils.nullToEmpty(thicknessValues);
 		double denom = getDenominator(nonNullThicknessValues.values());
 
-		return new Transformer<V, Shape>() {
+		return node -> {
+			int max = maxSize != null ? maxSize : size * 2;
+			Double factor = nonNullThicknessValues.get(node);
 
-			@Override
-			public Shape transform(V node) {
-				int max = maxSize != null ? maxSize : size * 2;
-				Double factor = nonNullThicknessValues.get(node);
-
-				if (factor == null) {
-					factor = 0.0;
-				}
-
-				double s = size + (max - size) * factor / denom;
-
-				return new Ellipse2D.Double(-s / 2, -s / 2, s, s);
+			if (factor == null) {
+				factor = 0.0;
 			}
+
+			double s = size + (max - size) * factor / denom;
+
+			return new Ellipse2D.Double(-s / 2, -s / 2, s, s);
 		};
 	}
 
 	public static <V extends Node> Transformer<V, Stroke> nodeStrokeTransformer(String metaNodeProperty) {
-		return new Transformer<V, Stroke>() {
+		return node -> {
+			Boolean isMetaNode = (Boolean) node.getProperties().get(metaNodeProperty);
 
-			@Override
-			public Stroke transform(V node) {
-				Boolean isMetaNode = (Boolean) node.getProperties().get(metaNodeProperty);
-
-				return isMetaNode != null && isMetaNode ? new BasicStroke(4.0f) : new BasicStroke(1.0f);
-			}
+			return isMetaNode != null && isMetaNode ? new BasicStroke(4.0f) : new BasicStroke(1.0f);
 		};
 	}
 
@@ -128,17 +106,13 @@ public class CanvasTransformers {
 			}
 		}
 
-		return new Transformer<Edge<V>, Paint>() {
-
-			@Override
-			public Paint transform(Edge<V> edge) {
-				if (renderContext.getPickedEdgeState().getPicked().contains(edge)) {
-					return Color.GREEN;
-				} else if (edgeColors.containsKey(edge)) {
-					return edgeColors.get(edge);
-				} else {
-					return Color.BLACK;
-				}
+		return edge -> {
+			if (renderContext.getPickedEdgeState().getPicked().contains(edge)) {
+				return Color.GREEN;
+			} else if (edgeColors.containsKey(edge)) {
+				return edgeColors.get(edge);
+			} else {
+				return Color.BLACK;
 			}
 		};
 	}
@@ -146,29 +120,20 @@ public class CanvasTransformers {
 	public static <V extends Node> Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> edgeStrokeArrowTransformers(
 			int thickness, Integer maxThickness, Map<Edge<V>, Double> thicknessValues) {
 		double denom = getDenominator(thicknessValues.values());
-		Transformer<Edge<V>, Stroke> strokeTransformer = new Transformer<Edge<V>, Stroke>() {
+		Transformer<Edge<V>, Stroke> strokeTransformer = edge -> {
+			int max = maxThickness != null ? maxThickness : thickness + 10;
+			Double factor = thicknessValues.get(edge);
 
-			@Override
-			public Stroke transform(Edge<V> edge) {
-				int max = maxThickness != null ? maxThickness : thickness + 10;
-				Double factor = thicknessValues.get(edge);
-
-				if (factor == null) {
-					factor = 0.0;
-				}
-
-				return new BasicStroke((float) (thickness + (max - thickness) * factor / denom));
+			if (factor == null) {
+				factor = 0.0;
 			}
+
+			return new BasicStroke((float) (thickness + (max - thickness) * factor / denom));
 		};
-		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> arrowTransformer = new Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>() {
+		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> arrowTransformer = edge -> {
+			BasicStroke stroke = (BasicStroke) strokeTransformer.transform(edge.element);
 
-			@Override
-			public Shape transform(Context<Graph<V, Edge<V>>, Edge<V>> edge) {
-				BasicStroke stroke = (BasicStroke) strokeTransformer.transform(edge.element);
-				float thickness = stroke.getLineWidth();
-
-				return ArrowFactory.getNotchedArrow(thickness + 8, 2 * thickness + 10, 4);
-			}
+			return ArrowFactory.getNotchedArrow(stroke.getLineWidth() + 8, 2 * stroke.getLineWidth() + 10, 4);
 		};
 
 		return new Pair<>(strokeTransformer, arrowTransformer);

@@ -243,7 +243,14 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					Dialog.DEFAULT_MODALITY_TYPE);
 			final JProgressBar progressBar = new JProgressBar();
 
-			Thread layoutThread = new Thread(() -> {
+			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
+			layoutDialog.add(UI.createHorizontalPanel(progressBar), BorderLayout.CENTER);
+			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+			layoutDialog.pack();
+			layoutDialog.setResizable(false);
+			layoutDialog.setLocationRelativeTo(this);
+
+			new Thread(() -> {
 				while (!layoutDialog.isVisible()) {
 					try {
 						Thread.sleep(50);
@@ -254,15 +261,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				layoutResult.putAll(layout.getNodePositions(initialPositions,
 						p -> progressBar.setValue((int) Math.round(p * 100))));
 				layoutDialog.setVisible(false);
-			});
+			}).start();
 
-			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
-			layoutDialog.add(UI.createHorizontalPanel(progressBar), BorderLayout.CENTER);
-			layoutDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-			layoutDialog.pack();
-			layoutDialog.setResizable(false);
-			layoutDialog.setLocationRelativeTo(this);
-			layoutThread.start();
 			layoutDialog.setVisible(true);
 		}
 

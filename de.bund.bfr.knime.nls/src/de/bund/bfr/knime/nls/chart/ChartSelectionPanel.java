@@ -22,8 +22,6 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -396,18 +394,14 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 		public ColorEditor() {
 			colorButton = new JButton();
-			colorButton.addActionListener(new ActionListener() {
+			colorButton.addActionListener(e -> {
+				Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", colorButton.getBackground());
 
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", colorButton.getBackground());
-
-					if (newColor != null) {
-						colorButton.setBackground(newColor);
-						stopCellEditing();
-					} else {
-						cancelCellEditing();
-					}
+				if (newColor != null) {
+					colorButton.setBackground(newColor);
+					stopCellEditing();
+				} else {
+					cancelCellEditing();
 				}
 			});
 		}

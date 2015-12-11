@@ -70,10 +70,8 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 		viewer.getPickedVertexState().addItemListener(this);
 		viewer.getPickedEdgeState().addItemListener(this);
 		viewer.getRenderContext().setVertexShapeTransformer(CanvasTransformers.nodeShapeTransformer(2, null, null));
-		viewer.getRenderContext()
-				.setVertexDrawPaintTransformer(CanvasTransformers.constantTransformer(new Color(0, 0, 0, 0)));
-		viewer.getRenderContext()
-				.setVertexFillPaintTransformer(CanvasTransformers.constantTransformer(new Color(0, 0, 0, 0)));
+		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
+		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
 		for (RegionNode node : this.nodes) {

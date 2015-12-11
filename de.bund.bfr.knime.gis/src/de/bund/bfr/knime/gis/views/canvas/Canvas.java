@@ -63,7 +63,6 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.DefaultPropertySelectorCreator;
-import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
@@ -71,7 +70,6 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
@@ -1002,8 +1000,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void fontChanged() {
 		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, optionsPanel.getFontSize());
 
-		viewer.getRenderContext().setVertexFontTransformer(CanvasTransformers.constantTransformer(font));
-		viewer.getRenderContext().setEdgeFontTransformer(CanvasTransformers.constantTransformer(font));
+		viewer.getRenderContext().setVertexFontTransformer(node -> font);
+		viewer.getRenderContext().setEdgeFontTransformer(edge -> font);
 		viewer.repaint();
 		canvasListeners.forEach(l -> l.fontChanged(this));
 	}
@@ -1243,18 +1241,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 		HighlightListDialog dialog = new HighlightListDialog(this, edgeSchema, edgeHighlightConditions);
 
 		dialog.setSelectorCreator(createPropertySelectorCreator());
-		dialog.addChecker(new HighlightConditionChecker() {
-
-			@Override
-			public String findError(HighlightCondition condition) {
-				if (isJoinEdges() && condition != null && condition.isInvisible()
-						&& CanvasUtils.getUsedProperties(condition).contains(edgeSchema.getId())) {
-					return "Joined " + naming.edges() + " cannot be made invisible.\nYou can uncheck \"Join "
-							+ naming.Edges() + "\" and make the unjoined " + naming.edges() + " invisible.";
-				}
-
-				return null;
+		dialog.addChecker(condition -> {
+			if (isJoinEdges() && condition != null && condition.isInvisible()
+					&& CanvasUtils.getUsedProperties(condition).contains(edgeSchema.getId())) {
+				return "Joined " + naming.edges() + " cannot be made invisible.\nYou can uncheck \"Join "
+						+ naming.Edges() + "\" and make the unjoined " + naming.edges() + " invisible.";
 			}
+
+			return null;
 		});
 
 		return dialog;

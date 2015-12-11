@@ -21,8 +21,6 @@ package de.bund.bfr.knime.openkrise.common;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,7 +38,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import com.google.common.base.Joiner;
@@ -48,7 +45,6 @@ import com.google.common.base.Splitter;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextField;
-import de.bund.bfr.knime.ui.TextListener;
 
 public class StationDialog extends JDialog {
 
@@ -85,23 +81,11 @@ public class StationDialog extends JDialog {
 
 		final StringTextField searchField = new StringTextField(true, 30);
 
-		searchField.addTextListener(new TextListener() {
-
-			@Override
-			public void textChanged(Object source) {
-				searchChanged(searchField.getText());
-			}
-		});
+		searchField.addTextListener(source -> searchChanged(searchField.getText()));
 
 		JButton cancelButton = new JButton("Cancel");
 
-		cancelButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cancelButtonPressed();
-			}
-		});
+		cancelButton.addActionListener(e -> cancelButtonPressed());
 
 		setLayout(new BorderLayout());
 		add(UI.createHorizontalPanel(new JLabel("Enter Search Query:"), searchField), BorderLayout.NORTH);
@@ -136,7 +120,7 @@ public class StationDialog extends JDialog {
 		rowSorter.setRowFilter(new RowFilter<StationTableModel, Integer>() {
 
 			@Override
-			public boolean include(javax.swing.RowFilter.Entry<? extends StationTableModel, ? extends Integer> entry) {
+			public boolean include(RowFilter.Entry<? extends StationTableModel, ? extends Integer> entry) {
 				for (String s : searchStrings) {
 					boolean found = false;
 
@@ -159,20 +143,14 @@ public class StationDialog extends JDialog {
 	}
 
 	private JTable createSelectTable(int n) {
-		JTable table = new JTable(n, 1);
+		JTable selectTable = new JTable(n, 1);
 
-		table.setRowHeight(ROW_HEIGHT);
-		table.setDefaultEditor(Object.class, new SelectEditor());
-		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
+		selectTable.setRowHeight(ROW_HEIGHT);
+		selectTable.setDefaultEditor(Object.class, new SelectEditor());
+		selectTable.setDefaultRenderer(Object.class,
+				(table, value, isSelected, hasFocus, row, column) -> new JButton(SELECT));
 
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				return new JButton(SELECT);
-			}
-		});
-
-		return table;
+		return selectTable;
 	}
 
 	private static List<String> split(String searchString) {

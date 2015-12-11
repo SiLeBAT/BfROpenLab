@@ -34,14 +34,10 @@ import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem.Evaluation;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
-import org.apache.commons.math3.fitting.leastsquares.ParameterValidator;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
-import org.apache.commons.math3.optim.ConvergenceChecker;
 import org.nfunk.jep.ParseException;
 
 public class ParameterOptimizer {
@@ -176,15 +172,11 @@ public class ParameterOptimizer {
 			try {
 				LeastSquaresBuilder builder = createLeastSquaresBuilder(startValues.getValues(), maxIterations);
 
-				builder.checker(new ConvergenceChecker<LeastSquaresProblem.Evaluation>() {
+				builder.checker((iteration, previous, current) -> {
+					double currentProgress = (double) iteration / (double) maxIterations;
 
-					@Override
-					public boolean converged(int iteration, Evaluation previous, Evaluation current) {
-						double currentProgress = (double) iteration / (double) maxIterations;
-
-						fireProgressChanged(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
-						return iteration == maxIterations;
-					}
+					fireProgressChanged(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
+					return iteration == maxIterations;
 				});
 
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer.optimize(builder.build());
@@ -277,28 +269,24 @@ public class ParameterOptimizer {
 				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations).target(targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
-			builder.parameterValidator(new ParameterValidator() {
+			builder.parameterValidator(params -> {
+				for (int i = 0; i < parameters.length; i++) {
+					double value = params.getEntry(i);
+					Double min = minValues.get(parameters[i]);
+					Double max = maxValues.get(parameters[i]);
 
-				@Override
-				public RealVector validate(RealVector params) {
-					for (int i = 0; i < parameters.length; i++) {
-						double value = params.getEntry(i);
-						Double min = minValues.get(parameters[i]);
-						Double max = maxValues.get(parameters[i]);
-
-						if (min != null && value < min) {
-							value = min;
-						}
-
-						if (max != null && value > max) {
-							value = max;
-						}
-
-						params.setEntry(i, value);
+					if (min != null && value < min) {
+						value = min;
 					}
 
-					return params;
+					if (max != null && value > max) {
+						value = max;
+					}
+
+					params.setEntry(i, value);
 				}
+
+				return params;
 			});
 		}
 

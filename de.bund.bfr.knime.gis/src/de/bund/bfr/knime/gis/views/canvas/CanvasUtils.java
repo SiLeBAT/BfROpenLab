@@ -48,7 +48,6 @@ import javax.imageio.ImageIO;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.TransformerUtils;
 import org.knime.base.data.xml.SvgCell;
 import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
@@ -481,7 +480,7 @@ public class CanvasUtils {
 					CanvasTransformers.nodeFillTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
 		}
 
-		renderContext.setVertexLabelTransformer(TransformerUtils.mapTransformer(labels));
+		renderContext.setVertexLabelTransformer(node -> labels.get(node));
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
@@ -547,7 +546,7 @@ public class CanvasUtils {
 				CanvasTransformers.edgeDrawTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
 		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
 		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
-		renderContext.setEdgeLabelTransformer(TransformerUtils.mapTransformer(labels));
+		renderContext.setEdgeLabelTransformer(edge -> labels.get(edge));
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas, boolean forEdges) {
