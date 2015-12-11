@@ -30,6 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
@@ -128,21 +130,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Double> getNodeWeights() {
-		Map<String, Double> nodeWeights = new LinkedHashMap<>();
-
-		for (V node : nodeSaveMap.values()) {
-			nodeWeights.put(node.getId(), (Double) node.getProperties().get(TracingColumns.WEIGHT));
-		}
-
-		return nodeWeights;
+		return getPropertyValues(nodeSaveMap.values(), TracingColumns.WEIGHT);
 	}
 
 	public void setNodeWeights(Map<String, Double> nodeWeights) {
-		for (V node : nodeSaveMap.values()) {
-			if (nodeWeights.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.WEIGHT, nullToZero(nodeWeights.get(node.getId())));
-			}
-		}
+		setDoublePropertyValues(nodeSaveMap.values(), TracingColumns.WEIGHT, nodeWeights);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -152,21 +144,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Double> getEdgeWeights() {
-		Map<String, Double> edgeWeights = new LinkedHashMap<>();
-
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			edgeWeights.put(edge.getId(), (Double) edge.getProperties().get(TracingColumns.WEIGHT));
-		}
-
-		return edgeWeights;
+		return getPropertyValues(edgeSaveMap.values(), TracingColumns.WEIGHT);
 	}
 
 	public void setEdgeWeights(Map<String, Double> edgeWeights) {
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			if (edgeWeights.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.WEIGHT, nullToZero(edgeWeights.get(edge.getId())));
-			}
-		}
+		setDoublePropertyValues(edgeSaveMap.values(), TracingColumns.WEIGHT, edgeWeights);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -176,23 +158,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
-		Map<String, Boolean> nodeCrossContaminations = new LinkedHashMap<>();
-
-		for (V node : nodeSaveMap.values()) {
-			nodeCrossContaminations.put(node.getId(),
-					(Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
-		}
-
-		return nodeCrossContaminations;
+		return getPropertyValues(nodeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION);
 	}
 
 	public void setNodeCrossContaminations(Map<String, Boolean> nodeCrossContaminations) {
-		for (V node : nodeSaveMap.values()) {
-			if (nodeCrossContaminations.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-						nullToFalse(nodeCrossContaminations.get(node.getId())));
-			}
-		}
+		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION, nodeCrossContaminations);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -202,23 +172,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
-		Map<String, Boolean> edgeCrossContaminations = new LinkedHashMap<>();
-
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			edgeCrossContaminations.put(edge.getId(),
-					(Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
-		}
-
-		return edgeCrossContaminations;
+		return getPropertyValues(edgeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION);
 	}
 
 	public void setEdgeCrossContaminations(Map<String, Boolean> edgeCrossContaminations) {
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			if (edgeCrossContaminations.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.CROSS_CONTAMINATION,
-						nullToFalse(edgeCrossContaminations.get(edge.getId())));
-			}
-		}
+		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.CROSS_CONTAMINATION, edgeCrossContaminations);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -228,23 +186,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getNodeKillContaminations() {
-		Map<String, Boolean> nodeKillContaminations = new LinkedHashMap<>();
-
-		for (V node : nodeSaveMap.values()) {
-			nodeKillContaminations.put(node.getId(),
-					(Boolean) node.getProperties().get(TracingColumns.KILL_CONTAMINATION));
-		}
-
-		return nodeKillContaminations;
+		return getPropertyValues(nodeSaveMap.values(), TracingColumns.KILL_CONTAMINATION);
 	}
 
 	public void setNodeKillContaminations(Map<String, Boolean> nodeKillContaminations) {
-		for (V node : nodeSaveMap.values()) {
-			if (nodeKillContaminations.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.KILL_CONTAMINATION,
-						nullToFalse(nodeKillContaminations.get(node.getId())));
-			}
-		}
+		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.KILL_CONTAMINATION, nodeKillContaminations);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -254,23 +200,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getEdgeKillContaminations() {
-		Map<String, Boolean> edgeKillContaminations = new LinkedHashMap<>();
-
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			edgeKillContaminations.put(edge.getId(),
-					(Boolean) edge.getProperties().get(TracingColumns.KILL_CONTAMINATION));
-		}
-
-		return edgeKillContaminations;
+		return getPropertyValues(edgeSaveMap.values(), TracingColumns.KILL_CONTAMINATION);
 	}
 
 	public void setEdgeKillContaminations(Map<String, Boolean> edgeKillContaminations) {
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			if (edgeKillContaminations.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.KILL_CONTAMINATION,
-						nullToFalse(edgeKillContaminations.get(edge.getId())));
-			}
-		}
+		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.KILL_CONTAMINATION, edgeKillContaminations);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -280,21 +214,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
-		Map<String, Boolean> observedNodes = new LinkedHashMap<>();
-
-		for (V node : nodeSaveMap.values()) {
-			observedNodes.put(node.getId(), (Boolean) node.getProperties().get(TracingColumns.OBSERVED));
-		}
-
-		return observedNodes;
+		return getPropertyValues(nodeSaveMap.values(), TracingColumns.OBSERVED);
 	}
 
 	public void setObservedNodes(Map<String, Boolean> observedNodes) {
-		for (V node : nodeSaveMap.values()) {
-			if (observedNodes.containsKey(node.getId())) {
-				node.getProperties().put(TracingColumns.OBSERVED, nullToFalse(observedNodes.get(node.getId())));
-			}
-		}
+		setBooleanPropertyValues(nodeSaveMap.values(), TracingColumns.OBSERVED, observedNodes);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -304,21 +228,11 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
-		Map<String, Boolean> observedEdges = new LinkedHashMap<>();
-
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			observedEdges.put(edge.getId(), (Boolean) edge.getProperties().get(TracingColumns.OBSERVED));
-		}
-
-		return observedEdges;
+		return getPropertyValues(edgeSaveMap.values(), TracingColumns.OBSERVED);
 	}
 
 	public void setObservedEdges(Map<String, Boolean> observedEdges) {
-		for (Edge<V> edge : edgeSaveMap.values()) {
-			if (observedEdges.containsKey(edge.getId())) {
-				edge.getProperties().put(TracingColumns.OBSERVED, nullToFalse(observedEdges.get(edge.getId())));
-			}
-		}
+		setBooleanPropertyValues(edgeSaveMap.values(), TracingColumns.OBSERVED, observedEdges);
 
 		if (performTracing) {
 			canvas.applyChanges();
@@ -613,12 +527,37 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		}
 	}
 
-	private static double nullToZero(Double value) {
-		return value == null ? 0.0 : value;
+	@SuppressWarnings("unchecked")
+	private static <T> Map<String, T> getPropertyValues(Collection<? extends Element> elements, String property) {
+		Map<String, T> values = new LinkedHashMap<>();
+
+		for (Element e : elements) {
+			values.put(e.getId(), (T) e.getProperties().get(property));
+		}
+
+		return values;
 	}
 
-	private static boolean nullToFalse(Boolean value) {
-		return value == null ? false : value;
+	private static void setDoublePropertyValues(Collection<? extends Element> elements, String property,
+			Map<String, Double> values) {
+		for (Element e : elements) {
+			if (values.containsKey(e.getId())) {
+				Double value = values.get(e.getId());
+
+				e.getProperties().put(property, value != null ? value : 0.0);
+			}
+		}
+	}
+
+	private static void setBooleanPropertyValues(Collection<? extends Element> elements, String property,
+			Map<String, Boolean> values) {
+		for (Element e : elements) {
+			if (values.containsKey(e.getId())) {
+				Boolean value = values.get(e.getId());
+
+				e.getProperties().put(property, value != null ? value : false);
+			}
+		}
 	}
 
 	public static class HighlightChecker implements HighlightConditionChecker {
