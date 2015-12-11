@@ -60,16 +60,13 @@ public class Dialogs {
 	}
 
 	public static void setDialogButtonsEnabled(final boolean enabled) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		Display.getDefault().asyncExec(() -> {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
-				for (Shell dialog : shell.getShells()) {
-					if (dialog.isVisible()) {
-						for (Button b : getButtons(dialog)) {
-							b.setEnabled(enabled);
-						}
+			for (Shell dialog : shell.getShells()) {
+				if (dialog.isVisible()) {
+					for (Button b : getButtons(dialog)) {
+						b.setEnabled(enabled);
 					}
 				}
 			}

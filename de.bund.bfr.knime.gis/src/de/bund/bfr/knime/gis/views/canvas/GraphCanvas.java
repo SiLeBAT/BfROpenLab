@@ -243,27 +243,17 @@ public class GraphCanvas extends Canvas<GraphNode> {
 					Dialog.DEFAULT_MODALITY_TYPE);
 			final JProgressBar progressBar = new JProgressBar();
 
-			Thread layoutThread = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					while (!layoutDialog.isVisible()) {
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-						}
+			Thread layoutThread = new Thread(() -> {
+				while (!layoutDialog.isVisible()) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
 					}
-
-					layoutResult.putAll(layout.getNodePositions(initialPositions, new Layout.ProgressListener() {
-
-						@Override
-						public void progressChanged(double progress) {
-							progressBar.setValue((int) Math.round(progress * 100));
-						}
-					}));
-
-					layoutDialog.setVisible(false);
 				}
+
+				layoutResult.putAll(layout.getNodePositions(initialPositions,
+						p -> progressBar.setValue((int) Math.round(p * 100))));
+				layoutDialog.setVisible(false);
 			});
 
 			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);

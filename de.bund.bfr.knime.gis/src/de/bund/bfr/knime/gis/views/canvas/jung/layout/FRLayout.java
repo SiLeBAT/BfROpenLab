@@ -24,16 +24,11 @@ import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class FRLayout<V, E> extends Layout<V, E> {
-
-	private static final int MAX_THREADS = 8;
 
 	private static final double EPSILON = 0.000001;
 	private static final double ATTRACTION_MULTIPLIER = 0.75;
@@ -56,6 +51,7 @@ public class FRLayout<V, E> extends Layout<V, E> {
 
 	@Override
 	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
+		long t1 = System.nanoTime();
 		Random random = new Random();
 
 		max_dimension = Math.max(size.height, size.width);
@@ -88,6 +84,9 @@ public class FRLayout<V, E> extends Layout<V, E> {
 			step();
 		}
 
+		long t2 = System.nanoTime();
+		System.out.println(t2 - t1);
+
 		return newPositions;
 	}
 
@@ -98,33 +97,9 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	public void step() {
 		currentIteration++;
 
-		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
-
-		for (final V v : getGraph().getVertices()) {
-			executor.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					calcRepulsion(v);
-				}
-			});
-		}
-
-		executor.shutdown();
-
-		try {
-			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		for (E e : getGraph().getEdges()) {
-			calcAttraction(e);
-		}
-
-		for (V v : getGraph().getVertices()) {
-			calcPositions(v);
-		}
+		getGraph().getVertices().parallelStream().forEach(v -> calcRepulsion(v));
+		getGraph().getEdges().forEach(e -> calcAttraction(e));
+		getGraph().getVertices().forEach(v -> calcPositions(v));
 
 		cool();
 	}

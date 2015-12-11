@@ -51,7 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 
-import de.bund.bfr.knime.NodeDialogWarningThread;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasListener;
@@ -207,7 +207,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		String warning = createCanvas();
 
 		if (warning != null) {
-			new Thread(new NodeDialogWarningThread(panel, warning)).start();
+			KnimeUtils.showWarningWhenDialogOpens(panel, warning);
 		}
 
 		updateStatusVariables();

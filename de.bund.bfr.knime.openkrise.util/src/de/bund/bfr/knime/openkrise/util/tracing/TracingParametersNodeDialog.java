@@ -35,7 +35,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 
-import de.bund.bfr.knime.NodeDialogWarningThread;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -139,7 +139,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 			String warning = "Some rows from the delivery table could not be imported."
 					+ " Execute the Tracing View for more information.";
 
-			new Thread(new NodeDialogWarningThread(enforceTempBox, warning)).start();
+			KnimeUtils.showWarningWhenDialogOpens(enforceTempBox, warning);
 		}
 	}
 

@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime;
 
+import java.awt.Component;
+import java.awt.Window;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
@@ -31,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -41,6 +45,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+
+import de.bund.bfr.knime.ui.Dialogs;
 
 public class KnimeUtils {
 
@@ -163,5 +169,24 @@ public class KnimeUtils {
 
 	public static <V, K> Map<V, K> nullToEmpty(Map<V, K> map) {
 		return map != null ? map : new LinkedHashMap<>(0);
+	}
+
+	public static void showWarningWhenDialogOpens(Component c, String warning) {
+		new Thread(() -> {
+			while (true) {
+				Window window = SwingUtilities.getWindowAncestor(c);
+
+				if (window != null && window.isActive()) {
+					Dialogs.showWarningMessage(c, warning, "Warning");
+					break;
+				}
+
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 }

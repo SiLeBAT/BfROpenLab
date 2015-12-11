@@ -74,26 +74,22 @@ public class AutoSuggestField extends JComboBox<String>implements KeyListener {
 
 	@Override
 	public void keyTyped(final KeyEvent e) {
-		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(() -> {
+			String text = ((JTextField) e.getComponent()).getText();
 
-			@Override
-			public void run() {
-				String text = ((JTextField) e.getComponent()).getText();
+			if (text.isEmpty()) {
+				ComboBoxModel<String> m = new DefaultComboBoxModel<>(new Vector<>(list));
 
-				if (text.isEmpty()) {
-					ComboBoxModel<String> m = new DefaultComboBoxModel<>(new Vector<>(list));
+				setSuggestionModel(AutoSuggestField.this, m, "");
+				hidePopup();
+			} else {
+				ComboBoxModel<String> m = getSuggestedModel(list, text);
 
-					setSuggestionModel(AutoSuggestField.this, m, "");
+				if (m.getSize() == 0 || shouldHide) {
 					hidePopup();
 				} else {
-					ComboBoxModel<String> m = getSuggestedModel(list, text);
-
-					if (m.getSize() == 0 || shouldHide) {
-						hidePopup();
-					} else {
-						setSuggestionModel(AutoSuggestField.this, m, text);
-						showPopup();
-					}
+					setSuggestionModel(AutoSuggestField.this, m, text);
+					showPopup();
 				}
 			}
 		});
