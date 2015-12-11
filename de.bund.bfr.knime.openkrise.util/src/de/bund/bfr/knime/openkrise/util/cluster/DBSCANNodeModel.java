@@ -144,6 +144,8 @@ public class DBSCANNodeModel extends NodeModel {
 			cluster = dbScan(points);
 		} else if (set.getModel().equals(DBSCANNSettings.MODEL_K_MEANS)) {
 			cluster = kMeans(points);
+		} else {
+			throw new InvalidSettingsException(set.getModel());
 		}
 
 		int index = 0;

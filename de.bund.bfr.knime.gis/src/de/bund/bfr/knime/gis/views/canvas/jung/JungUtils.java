@@ -92,15 +92,7 @@ public class JungUtils {
 		Point2D last = points.get(points.size() - 1);
 
 		if (first.equals(last)) {
-			Point2D minP = null;
-			double minY = Double.POSITIVE_INFINITY;
-
-			for (Point2D p : points) {
-				if (p.getY() < minY) {
-					minP = p;
-					minY = p.getY();
-				}
-			}
+			Point2D minP = points.stream().min((p1, p2) -> Double.compare(p1.getY(), p2.getY())).get();
 
 			return new Line2D.Float(minP, new Point2D.Float((float) (minP.getX() + 1.0), (float) minP.getY()));
 		} else {

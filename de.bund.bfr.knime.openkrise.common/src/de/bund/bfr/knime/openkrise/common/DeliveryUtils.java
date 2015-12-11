@@ -133,15 +133,17 @@ public class DeliveryUtils {
 		} else if (unitPart.toLowerCase().endsWith("t")) {
 			numberPart = unitPart.substring(0, unitPart.length() - 1);
 			factor = 1000.0;
+		} else {
+			return null;
+		}
+
+		if (numberPart.isEmpty()) {
+			return factor * value;
 		}
 
 		try {
-			if (numberPart.isEmpty()) {
-				return factor * value;
-			}
-
 			return Double.parseDouble(numberPart) * factor * value;
-		} catch (NullPointerException | NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return null;
 		}
 	}
