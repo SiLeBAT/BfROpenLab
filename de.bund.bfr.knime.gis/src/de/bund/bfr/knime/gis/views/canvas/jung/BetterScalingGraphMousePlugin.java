@@ -23,8 +23,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
@@ -34,8 +36,8 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 
 	private List<BetterGraphMouse.ChangeListener> changeListeners;
 
-	private Timer notifyTimer;
-	private TimerTask notifyTask;
+	private ScheduledExecutorService scheduler;
+	private ScheduledFuture<?> lastTask;
 
 	protected float in;
 	protected float out;
@@ -45,8 +47,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		this.in = in;
 		this.out = out;
 		changeListeners = new ArrayList<>();
-		notifyTimer = new Timer();
-		notifyTask = null;
+		scheduler = Executors.newScheduledThreadPool(1);
 	}
 
 	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
@@ -68,19 +69,11 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		new LayoutScalingControl().scale(vv, e.getWheelRotation() > 0 ? in : out, e.getPoint());
 		vv.repaint();
 
-		if (notifyTask != null) {
-			notifyTask.cancel();
+		if (lastTask != null) {
+			lastTask.cancel(false);
 		}
 
-		notifyTask = new TimerTask() {
-
-			@Override
-			public void run() {
-				changeListeners.forEach(l -> l.transformChanged());
-			}
-		};
-
-		notifyTimer.purge();
-		notifyTimer.schedule(notifyTask, 200);
+		lastTask = scheduler.schedule(() -> changeListeners.forEach(l -> l.transformChanged()), 200,
+				TimeUnit.MILLISECONDS);
 	}
 }
