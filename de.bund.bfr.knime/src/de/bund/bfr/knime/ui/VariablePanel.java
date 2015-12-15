@@ -243,7 +243,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 	}
 
 	@Override
-	public void textChanged(Object source) {
+	public void textChanged(TextInput source) {
 		if (valueFields.values().contains(source)) {
 			DoubleTextField field = (DoubleTextField) source;
 			String var = valueFields.inverse().get(field);
