@@ -98,10 +98,9 @@ public class TracingDelegate<V extends Node> implements ItemListener {
 
 		JMenuItem defaultHighlightItem = new JMenuItem("Set default Highlighting");
 
-		defaultHighlightItem.addActionListener(e -> {
-			canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
-			canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
-		});
+		defaultHighlightItem
+				.addActionListener(e -> canvas.setHighlightConditions(DefaultHighlighting.createNodeHighlighting(),
+						DefaultHighlighting.createEdgeHighlighting()));
 
 		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
 				"If checked, the " + canvas.getNaming().edge()

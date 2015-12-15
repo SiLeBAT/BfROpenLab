@@ -464,6 +464,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
+	public void setHighlightConditions(HighlightConditionList nodeHighlightConditions,
+			HighlightConditionList edgeHighlightConditions) {
+		this.nodeHighlightConditions = nodeHighlightConditions;
+		this.edgeHighlightConditions = edgeHighlightConditions;
+		applyChanges();
+		canvasListeners.forEach(l -> l.highlightingChanged(this));
+	}
+
+	@Override
 	public Map<String, Set<String>> getCollapsedNodes() {
 		return collapsedNodes;
 	}

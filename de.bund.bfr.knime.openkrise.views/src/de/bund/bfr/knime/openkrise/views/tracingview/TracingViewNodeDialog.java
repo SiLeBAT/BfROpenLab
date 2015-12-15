@@ -395,6 +395,18 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
+	public void highlightingChanged(ICanvas<?> source) {
+		HighlightConditionList newNodeHighlighting = canvas.getNodeHighlightConditions();
+		HighlightConditionList newEdgeHighlighting = canvas.getEdgeHighlightConditions();
+
+		if (changeOccured(new TracingChange.Builder().nodeHighlighting(nodeHighlighting, newNodeHighlighting)
+				.edgeHighlighting(edgeHighlighting, newEdgeHighlighting).build())) {
+			nodeHighlighting = newNodeHighlighting.copy();
+			edgeHighlighting = newEdgeHighlighting.copy();
+		}
+	}
+
+	@Override
 	public void layoutProcessFinished(ICanvas<?> source) {
 		Map<String, Point2D> newPositions = ((GraphCanvas) canvas).getNodePositions();
 		Transform newTransform = canvas.getTransform();

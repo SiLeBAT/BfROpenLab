@@ -29,6 +29,8 @@ public interface CanvasListener {
 
 	void edgeSelectionChanged(ICanvas<?> source);
 
+	void highlightingChanged(ICanvas<?> source);
+
 	void nodeHighlightingChanged(ICanvas<?> source);
 
 	void edgeHighlightingChanged(ICanvas<?> source);

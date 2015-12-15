@@ -173,6 +173,12 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
+	public void highlightingChanged(ICanvas<?> source) {
+		nodeHighlightingChanged(source);
+		edgeHighlightingChanged(source);
+	}
+
+	@Override
 	public void layoutProcessFinished(ICanvas<?> source) {
 	}
 
