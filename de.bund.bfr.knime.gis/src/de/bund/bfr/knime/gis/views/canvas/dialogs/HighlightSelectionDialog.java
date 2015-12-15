@@ -21,8 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Vector;
 
@@ -35,17 +33,16 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightSelectionDialog extends KnimeDialog implements ActionListener {
+public class HighlightSelectionDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
 	private JList<HighlightCondition> list;
-	private JButton okButton;
-	private JButton cancelButton;
 
 	private List<HighlightCondition> highlightConditions;
 	private boolean approved;
@@ -60,10 +57,11 @@ public class HighlightSelectionDialog extends KnimeDialog implements ActionListe
 		list.setCellRenderer(new HighlightListCellRenderer());
 		list.setListData(new Vector<>(highlightConditions));
 
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel southPanel = new JPanel();
 
@@ -96,16 +94,9 @@ public class HighlightSelectionDialog extends KnimeDialog implements ActionListe
 		return highlightConditions;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			highlightConditions = list.getSelectedValuesList();
-			approved = true;
-			dispose();
-		} else if (e.getSource() == cancelButton) {
-			highlightConditions = null;
-			approved = false;
-			dispose();
-		}
+	private void okButtonPressed() {
+		highlightConditions = list.getSelectedValuesList();
+		approved = true;
+		dispose();
 	}
 }

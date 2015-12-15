@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
@@ -32,16 +31,16 @@ import org.knime.core.node.DataAwareNodeDialogPane;
 
 import de.bund.bfr.knime.UI;
 
-public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ComponentListener {
+public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane implements ComponentListener {
 
 	protected JPanel panel;
+	protected JButton inputButton;
+
 	protected boolean resized;
 
 	protected VisualizerNodeDialog() {
-		JButton inputButton = new JButton("Input");
-
-		inputButton.addActionListener(this);
+		inputButton = new JButton("Input");
+		inputButton.addActionListener(e -> inputButtonPressed());
 
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -51,6 +50,8 @@ public abstract class VisualizerNodeDialog extends DataAwareNodeDialogPane
 		addTab("Options", panel, false);
 		resized = false;
 	}
+
+	protected abstract void inputButtonPressed();
 
 	@Override
 	public void componentHidden(ComponentEvent e) {

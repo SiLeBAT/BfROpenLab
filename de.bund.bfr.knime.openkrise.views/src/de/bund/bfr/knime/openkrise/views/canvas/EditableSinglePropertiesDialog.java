@@ -23,8 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -47,14 +45,11 @@ import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class EditableSinglePropertiesDialog extends KnimeDialog implements ActionListener {
+public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
 	private Element element;
-
-	private JButton okButton;
-	private JButton cancelButton;
 
 	private JTextField caseField;
 	private JCheckBox contaminationBox;
@@ -128,10 +123,11 @@ public class EditableSinglePropertiesDialog extends KnimeDialog implements Actio
 		centerPanel.add(leftCenterPanel, BorderLayout.WEST);
 		centerPanel.add(rightCenterPanel, BorderLayout.CENTER);
 
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		setLayout(new BorderLayout());
 		add(northPanel, BorderLayout.NORTH);
@@ -141,34 +137,30 @@ public class EditableSinglePropertiesDialog extends KnimeDialog implements Actio
 		UI.adjustDialog(this, 0.5, 0.8);
 		setLocationRelativeTo(parent);
 		getRootPane().setDefaultButton(okButton);
+
+		approved = false;
 	}
 
 	public boolean isApproved() {
 		return approved;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			if (caseField.getText().isEmpty()) {
-				element.getProperties().put(TracingColumns.WEIGHT, 0.0);
-			} else {
-				try {
-					element.getProperties().put(TracingColumns.WEIGHT, Double.parseDouble(caseField.getText()));
-				} catch (NumberFormatException ex) {
-					Dialogs.showErrorMessage(this, "Please enter valid number for " + TracingColumns.WEIGHT, "Error");
-				}
+	private void okButtonPressed() {
+		if (caseField.getText().isEmpty()) {
+			element.getProperties().put(TracingColumns.WEIGHT, 0.0);
+		} else {
+			try {
+				element.getProperties().put(TracingColumns.WEIGHT, Double.parseDouble(caseField.getText()));
+			} catch (NumberFormatException ex) {
+				Dialogs.showErrorMessage(this, "Please enter valid number for " + TracingColumns.WEIGHT, "Error");
 			}
-
-			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, contaminationBox.isSelected());
-			element.getProperties().put(TracingColumns.KILL_CONTAMINATION, killBox.isSelected());
-			element.getProperties().put(TracingColumns.OBSERVED, observedBox.isSelected());
-			approved = true;
-			dispose();
-		} else if (e.getSource() == cancelButton) {
-			approved = false;
-			dispose();
 		}
+
+		element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, contaminationBox.isSelected());
+		element.getProperties().put(TracingColumns.KILL_CONTAMINATION, killBox.isSelected());
+		element.getProperties().put(TracingColumns.OBSERVED, observedBox.isSelected());
+		approved = true;
+		dispose();
 	}
 
 	private static JTextField createField(Object obj) {

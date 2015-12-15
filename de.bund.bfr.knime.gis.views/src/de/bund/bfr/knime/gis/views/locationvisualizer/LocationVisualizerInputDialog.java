@@ -20,10 +20,6 @@
 package de.bund.bfr.knime.gis.views.locationvisualizer;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
@@ -46,7 +42,7 @@ import de.bund.bfr.knime.ui.ColumnComboBox;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class LocationVisualizerInputDialog extends KnimeDialog implements ActionListener, ItemListener {
+public class LocationVisualizerInputDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -55,9 +51,6 @@ public class LocationVisualizerInputDialog extends KnimeDialog implements Action
 	private ColumnComboBox nodeLatitudeBox;
 	private ColumnComboBox nodeLongitudeBox;
 	private JCheckBox exportAsSvgBox;
-
-	private JButton okButton;
-	private JButton cancelButton;
 
 	private boolean approved;
 	private LocationVisualizerSettings set;
@@ -70,7 +63,7 @@ public class LocationVisualizerInputDialog extends KnimeDialog implements Action
 
 		gisBox = new JComboBox<>(shapeSpec != null ? GisType.values() : GisType.valuesWithoutShapefile());
 		gisBox.setSelectedItem(set.getGisSettings().getGisType());
-		gisBox.addItemListener(this);
+		gisBox.addActionListener(e -> shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE));
 		shapeBox = new ColumnComboBox(false, shapeSpec != null ? GisUtils.getShapeColumns(shapeSpec) : null);
 		shapeBox.setSelectedColumnName(set.getGisSettings().getShapeColumn());
 		shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
@@ -80,10 +73,12 @@ public class LocationVisualizerInputDialog extends KnimeDialog implements Action
 		nodeLongitudeBox.setSelectedColumnName(set.getGisSettings().getNodeLongitudeColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel mainPanel = new JPanel();
 
@@ -110,38 +105,26 @@ public class LocationVisualizerInputDialog extends KnimeDialog implements Action
 		return approved;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
-			DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox.getSelectedColumn();
-			DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox.getSelectedColumn();
-			GisType gisType = (GisType) gisBox.getSelectedItem();
+	private void okButtonPressed() {
+		DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
+		DataColumnSpec nodeLatitudeColumn = nodeLatitudeBox.getSelectedColumn();
+		DataColumnSpec nodeLongitudeColumn = nodeLongitudeBox.getSelectedColumn();
+		GisType gisType = (GisType) gisBox.getSelectedItem();
 
-			if (gisType == GisType.SHAPEFILE
-					&& (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-				Dialogs.showErrorMessage(this, "\"Shape\", \"Latitude\" and \"Longitude\" columns must be selected",
-						"Error");
-			} else if (gisType != GisType.SHAPEFILE && (nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-				Dialogs.showErrorMessage(this, "\"Latitude\" and \"Longitude\" columns must be selected", "Error");
-			} else {
-				approved = true;
-				set.getGisSettings().setGisType(gisType);
-				set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
-				set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
-				set.getGisSettings().setNodeLongitudeColumn(nodeLongitudeBox.getSelectedColumnName());
-				set.setExportAsSvg(exportAsSvgBox.isSelected());
-				dispose();
-			}
-		} else if (e.getSource() == cancelButton) {
+		if (gisType == GisType.SHAPEFILE
+				&& (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
+			Dialogs.showErrorMessage(this, "\"Shape\", \"Latitude\" and \"Longitude\" columns must be selected",
+					"Error");
+		} else if (gisType != GisType.SHAPEFILE && (nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
+			Dialogs.showErrorMessage(this, "\"Latitude\" and \"Longitude\" columns must be selected", "Error");
+		} else {
+			approved = true;
+			set.getGisSettings().setGisType(gisType);
+			set.getGisSettings().setShapeColumn(shapeBox.getSelectedColumnName());
+			set.getGisSettings().setNodeLatitudeColumn(nodeLatitudeBox.getSelectedColumnName());
+			set.getGisSettings().setNodeLongitudeColumn(nodeLongitudeBox.getSelectedColumnName());
+			set.setExportAsSvg(exportAsSvgBox.isSelected());
 			dispose();
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == gisBox && e.getStateChange() == ItemEvent.SELECTED) {
-			shapeBox.setEnabled((GisType) gisBox.getSelectedItem() == GisType.SHAPEFILE);
 		}
 	}
 }

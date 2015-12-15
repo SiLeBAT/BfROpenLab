@@ -21,8 +21,6 @@ package de.bund.bfr.knime.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +34,7 @@ import javax.swing.ScrollPaneConstants;
 
 import de.bund.bfr.knime.UI;
 
-public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
+public class ListFilterDialog<T> extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,8 +45,6 @@ public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
 
 	private JCheckBox allBox;
 	private JList<T> list;
-	private JButton okButton;
-	private JButton cancelButton;
 
 	public ListFilterDialog(Component parent, List<T> elements) {
 		super(parent, "Filter", DEFAULT_MODALITY_TYPE);
@@ -56,13 +52,15 @@ public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
 
 		allBox = new JCheckBox("Select All");
 		allBox.setSelected(true);
-		allBox.addActionListener(this);
+		allBox.addActionListener(e -> list.setEnabled(!allBox.isSelected()));
 		list = new JList<>(new Vector<>(elements));
 		list.setEnabled(false);
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		approved = false;
 		filtered = null;
@@ -87,16 +85,9 @@ public class ListFilterDialog<T> extends KnimeDialog implements ActionListener {
 		return filtered;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			approved = true;
-			filtered = new LinkedHashSet<>(allBox.isSelected() ? elements : list.getSelectedValuesList());
-			dispose();
-		} else if (e.getSource() == cancelButton) {
-			dispose();
-		} else if (e.getSource() == allBox) {
-			list.setEnabled(!allBox.isSelected());
-		}
+	private void okButtonPressed() {
+		approved = true;
+		filtered = new LinkedHashSet<>(allBox.isSelected() ? elements : list.getSelectedValuesList());
+		dispose();
 	}
 }

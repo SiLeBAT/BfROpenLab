@@ -387,14 +387,6 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 			listeners.forEach(l -> l.editingModeChanged());
 		} else if (e.getSource() == pickingButton && e.getStateChange() == ItemEvent.SELECTED) {
 			listeners.forEach(l -> l.editingModeChanged());
-		} else if (e.getSource() == showLegendBox) {
-			listeners.forEach(l -> l.showLegendChanged());
-		} else if (e.getSource() == joinEdgesBox) {
-			listeners.forEach(l -> l.joinEdgesChanged());
-		} else if (e.getSource() == skipEdgelessNodesBox) {
-			listeners.forEach(l -> l.skipEdgelessNodesChanged());
-		} else if (e.getSource() == showEdgesInMetaNodeBox) {
-			listeners.forEach(l -> l.showEdgesInMetaNodeChanged());
 		} else if (e.getSource() == fontSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = fontSizeBox.getSelectedItem();
 
@@ -405,8 +397,6 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 				Dialogs.showErrorMessage(fontSizeBox, size + " is not a valid number", "Error");
 				fontSizeBox.setSelectedItem(fontSize);
 			}
-		} else if (e.getSource() == fontBoldBox) {
-			listeners.forEach(l -> l.fontChanged());
 		} else if (e.getSource() == nodeSizeBox && e.getStateChange() == ItemEvent.SELECTED) {
 			Object size = nodeSizeBox.getSelectedItem();
 
@@ -473,10 +463,6 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 				Dialogs.showErrorMessage(edgeMaxThicknessBox, size + " is not a valid number", "Error");
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 			}
-		} else if (e.getSource() == arrowInMiddleBox) {
-			listeners.forEach(l -> l.arrowInMiddleChanged());
-		} else if (e.getSource() == avoidOverlayBox) {
-			listeners.forEach(l -> l.avoidOverlayChanged());
 		}
 	}
 
@@ -502,19 +488,19 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
-		showLegendBox.addItemListener(this);
+		showLegendBox.addItemListener(e -> listeners.forEach(l -> l.showLegendChanged()));
 
 		joinEdgesBox = new JCheckBox("Activate");
 		joinEdgesBox.setSelected(DEFAULT_JOIN_EDGES);
-		joinEdgesBox.addItemListener(this);
+		joinEdgesBox.addItemListener(e -> listeners.forEach(l -> l.joinEdgesChanged()));
 
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
-		skipEdgelessNodesBox.addItemListener(this);
+		skipEdgelessNodesBox.addItemListener(e -> listeners.forEach(l -> l.skipEdgelessNodesChanged()));
 
 		showEdgesInMetaNodeBox = new JCheckBox("Activate");
 		showEdgesInMetaNodeBox.setSelected(DEFAULT_SHOW_EDGES_IN_META_NODE);
-		showEdgesInMetaNodeBox.addItemListener(this);
+		showEdgesInMetaNodeBox.addItemListener(e -> listeners.forEach(l -> l.showEdgesInMetaNodeChanged()));
 
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
@@ -524,7 +510,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
-		fontBoldBox.addItemListener(this);
+		fontBoldBox.addItemListener(e -> listeners.forEach(l -> l.fontChanged()));
 
 		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
@@ -552,7 +538,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
-		arrowInMiddleBox.addItemListener(this);
+		arrowInMiddleBox.addItemListener(e -> listeners.forEach(l -> l.arrowInMiddleChanged()));
 
 		label = null;
 		labelField = new JTextField(label, 20);
@@ -566,7 +552,7 @@ public class CanvasOptionsPanel extends JScrollPane implements ActionListener, I
 
 		avoidOverlayBox = new JCheckBox("Activate");
 		avoidOverlayBox.setSelected(DEFAULT_AVOID_OVERLAY);
-		avoidOverlayBox.addItemListener(this);
+		avoidOverlayBox.addItemListener(e -> listeners.forEach(l -> l.avoidOverlayChanged()));
 	}
 
 	private static JPanel getOptionPanel(String name, Component... components) {

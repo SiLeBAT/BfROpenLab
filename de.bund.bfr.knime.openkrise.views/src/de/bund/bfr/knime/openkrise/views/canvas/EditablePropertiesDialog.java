@@ -23,8 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,7 +65,7 @@ import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
-		implements ActionListener, CellEditorListener, RowSorterListener, ListSelectionListener {
+		implements CellEditorListener, RowSorterListener, ListSelectionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -83,14 +81,6 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 	private JScrollPane scrollPane;
 	private PropertiesTable table;
 	private InputTable inputTable;
-	private JButton okButton;
-	private JButton cancelButton;
-
-	private JButton selectButton;
-	private JButton weightButton;
-	private JButton contaminationButton;
-	private JButton killButton;
-	private JButton filterButton;
 
 	private boolean approved;
 
@@ -144,21 +134,23 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		values = new LinkedHashMap<>();
 		updateValues();
 
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+		JButton selectButton = new JButton("Select in View");
 
-		selectButton = new JButton("Select in View");
-		selectButton.addActionListener(this);
-		weightButton = new JButton("Set All " + TracingColumns.WEIGHT);
-		weightButton.addActionListener(this);
-		contaminationButton = new JButton("Set All " + TracingColumns.CROSS_CONTAMINATION);
-		contaminationButton.addActionListener(this);
-		killButton = new JButton("Set All " + TracingColumns.KILL_CONTAMINATION);
-		killButton.addActionListener(this);
-		filterButton = new JButton("Set All " + TracingColumns.OBSERVED);
-		filterButton.addActionListener(this);
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
+		selectButton.addActionListener(e -> selectButtonPressed());
+
+		JButton weightButton = new JButton("Set All " + TracingColumns.WEIGHT);
+		JButton crossButton = new JButton("Set All " + TracingColumns.CROSS_CONTAMINATION);
+		JButton killButton = new JButton("Set All " + TracingColumns.KILL_CONTAMINATION);
+		JButton observedButton = new JButton("Set All " + TracingColumns.OBSERVED);
+
+		weightButton.addActionListener(e -> weightSetAllButtonClicked());
+		crossButton.addActionListener(e -> booleanSetAllButtonClicked(TracingColumns.CROSS_CONTAMINATION));
+		killButton.addActionListener(e -> booleanSetAllButtonClicked(TracingColumns.KILL_CONTAMINATION));
+		observedButton.addActionListener(e -> booleanSetAllButtonClicked(TracingColumns.OBSERVED));
 
 		scrollPane = new JScrollPane();
 		scrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, inputTableHeader);
@@ -185,9 +177,9 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		}
 
 		buttons.add(weightButton);
-		buttons.add(contaminationButton);
+		buttons.add(crossButton);
 		buttons.add(killButton);
-		buttons.add(filterButton);
+		buttons.add(observedButton);
 		setLayout(new BorderLayout());
 		add(UI.createWestPanel(UI.createHorizontalPanel(buttons.toArray(new JButton[0]))), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
@@ -197,6 +189,8 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 		UI.adjustDialog(this);
 		setLocationRelativeTo(parent.getComponent());
 		getRootPane().setDefaultButton(okButton);
+
+		approved = false;
 	}
 
 	public static <V extends Node> EditablePropertiesDialog<V> createNodeDialog(ICanvas<V> parent, Collection<V> nodes,
@@ -211,97 +205,6 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 
 	public boolean isApproved() {
 		return approved;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			approved = true;
-
-			if (inputTable.isEditing()) {
-				inputTable.getCellEditor().stopCellEditing();
-			}
-
-			for (Element element : elementList) {
-				InputTable.Input input = values.get(element.getId());
-
-				element.getProperties().put(TracingColumns.WEIGHT, input.getWeight());
-				element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, input.isCrossContamination());
-				element.getProperties().put(TracingColumns.KILL_CONTAMINATION, input.isKillContamination());
-				element.getProperties().put(TracingColumns.OBSERVED, input.isObserved());
-			}
-
-			dispose();
-		} else if (e.getSource() == cancelButton) {
-			approved = false;
-			dispose();
-		} else if (e.getSource() == selectButton) {
-			switch (type) {
-			case NODE:
-				Set<V> nodes = new LinkedHashSet<>();
-
-				for (Element element : table.getSelectedElements()) {
-					nodes.add((V) element);
-				}
-
-				parent.setSelectedNodes(nodes);
-				break;
-			case EDGE:
-				Set<Edge<V>> edges = new LinkedHashSet<>();
-
-				for (Element element : table.getSelectedElements()) {
-					edges.add((Edge<V>) element);
-				}
-
-				parent.setSelectedEdges(edges);
-				break;
-			}
-		} else if (e.getSource() == weightButton) {
-			String result = Dialogs.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT, "1.0");
-			Double value = null;
-
-			if (result != null) {
-				try {
-					value = Double.parseDouble(result.toString());
-				} catch (NumberFormatException ex) {
-					Dialogs.showErrorMessage(this, result.toString() + " is not a valid number", "Error");
-				}
-			}
-
-			if (value != null) {
-				if (inputTable.isEditing()) {
-					inputTable.getCellEditor().stopCellEditing();
-				}
-
-				setAllValuesTo(TracingColumns.WEIGHT, value);
-			}
-		} else {
-			String property = null;
-
-			if (e.getSource() == contaminationButton) {
-				property = TracingColumns.CROSS_CONTAMINATION;
-			} else if (e.getSource() == killButton) {
-				property = TracingColumns.KILL_CONTAMINATION;
-			} else if (e.getSource() == filterButton) {
-				property = TracingColumns.OBSERVED;
-			}
-
-			if (property == null) {
-				return;
-			}
-
-			String result = Dialogs.showInputDialog(this, "Set All Values to?", property,
-					Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
-
-			if (result != null) {
-				if (inputTable.isEditing()) {
-					inputTable.getCellEditor().stopCellEditing();
-				}
-
-				setAllValuesTo(property, Boolean.parseBoolean(result));
-			}
-		}
 	}
 
 	@Override
@@ -361,6 +264,83 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 			String id = (String) table.getValueAt(row, idColumn);
 
 			inputTable.setValueAt(values.get(id), row, 0);
+		}
+	}
+
+	private void okButtonPressed() {
+		approved = true;
+
+		if (inputTable.isEditing()) {
+			inputTable.getCellEditor().stopCellEditing();
+		}
+
+		for (Element element : elementList) {
+			InputTable.Input input = values.get(element.getId());
+
+			element.getProperties().put(TracingColumns.WEIGHT, input.getWeight());
+			element.getProperties().put(TracingColumns.CROSS_CONTAMINATION, input.isCrossContamination());
+			element.getProperties().put(TracingColumns.KILL_CONTAMINATION, input.isKillContamination());
+			element.getProperties().put(TracingColumns.OBSERVED, input.isObserved());
+		}
+
+		dispose();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void selectButtonPressed() {
+		switch (type) {
+		case NODE:
+			Set<V> nodes = new LinkedHashSet<>();
+
+			for (Element element : table.getSelectedElements()) {
+				nodes.add((V) element);
+			}
+
+			parent.setSelectedNodes(nodes);
+			break;
+		case EDGE:
+			Set<Edge<V>> edges = new LinkedHashSet<>();
+
+			for (Element element : table.getSelectedElements()) {
+				edges.add((Edge<V>) element);
+			}
+
+			parent.setSelectedEdges(edges);
+			break;
+		}
+	}
+
+	private void weightSetAllButtonClicked() {
+		String result = Dialogs.showInputDialog(this, "Set All Values to?", TracingColumns.WEIGHT, "1.0");
+		Double value = null;
+
+		if (result != null) {
+			try {
+				value = Double.parseDouble(result.toString());
+			} catch (NumberFormatException ex) {
+				Dialogs.showErrorMessage(this, result.toString() + " is not a valid number", "Error");
+			}
+		}
+
+		if (value != null) {
+			if (inputTable.isEditing()) {
+				inputTable.getCellEditor().stopCellEditing();
+			}
+
+			setAllValuesTo(TracingColumns.WEIGHT, value);
+		}
+	}
+
+	private void booleanSetAllButtonClicked(String column) {
+		String result = Dialogs.showInputDialog(this, "Set All Values to?", column,
+				Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
+
+		if (result != null) {
+			if (inputTable.isEditing()) {
+				inputTable.getCellEditor().stopCellEditing();
+			}
+
+			setAllValuesTo(column, Boolean.parseBoolean(result));
 		}
 	}
 

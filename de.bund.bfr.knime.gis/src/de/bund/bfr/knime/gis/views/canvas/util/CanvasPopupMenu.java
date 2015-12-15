@@ -19,12 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.util;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,7 +30,7 @@ import javax.swing.JSeparator;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 
-public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
+public class CanvasPopupMenu extends JPopupMenu {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,7 +42,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 
 	private JMenuItem resetLayoutItem;
 	private JMenuItem saveAsItem;
-	private Map<JMenuItem, LayoutType> layoutItems;
+	private List<JMenuItem> layoutItems;
 
 	private JMenuItem selectConnectionsItem;
 	private JMenuItem selectIncomingItem;
@@ -84,7 +80,7 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		add(saveAsItem);
 
 		if (allowLayout) {
-			for (JMenuItem item : layoutItems.keySet()) {
+			for (JMenuItem item : layoutItems) {
 				layoutMenu.add(item);
 			}
 
@@ -170,67 +166,6 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		edgeSelectionMenu.setEnabled(enabled);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == resetLayoutItem) {
-			listeners.forEach(l -> l.resetLayoutItemClicked());
-		} else if (e.getSource() == saveAsItem) {
-			listeners.forEach(l -> l.saveAsItemClicked());
-		} else if (layoutItems.containsKey(e.getSource())) {
-			listeners.forEach(l -> l.layoutItemClicked(layoutItems.get(e.getSource())));
-		} else if (e.getSource() == selectConnectionsItem) {
-			listeners.forEach(l -> l.selectConnectionsItemClicked());
-		} else if (e.getSource() == selectIncomingItem) {
-			listeners.forEach(l -> l.selectIncomingItemClicked());
-		} else if (e.getSource() == selectOutgoingItem) {
-			listeners.forEach(l -> l.selectOutgoingItemClicked());
-		} else if (e.getSource() == clearSelectedNodesItem) {
-			listeners.forEach(l -> l.clearSelectedNodesItemClicked());
-		} else if (e.getSource() == clearSelectedEdgesItem) {
-			listeners.forEach(l -> l.clearSelectedEdgesItemClicked());
-		} else if (e.getSource() == highlightSelectedNodesItem) {
-			listeners.forEach(l -> l.highlightSelectedNodesItemClicked());
-		} else if (e.getSource() == highlightSelectedEdgesItem) {
-			listeners.forEach(l -> l.highlightSelectedEdgesItemClicked());
-		} else if (e.getSource() == highlightNodesItem) {
-			listeners.forEach(l -> l.highlightNodesItemClicked());
-		} else if (e.getSource() == highlightEdgesItem) {
-			listeners.forEach(l -> l.highlightEdgesItemClicked());
-		} else if (e.getSource() == clearHighlightedNodesItem) {
-			listeners.forEach(l -> l.clearHighlightedNodesItemClicked());
-		} else if (e.getSource() == clearHighlightedEdgesItem) {
-			listeners.forEach(l -> l.clearHighlightedEdgesItemClicked());
-		} else if (e.getSource() == selectHighlightedNodesItem) {
-			listeners.forEach(l -> l.selectHighlightedNodesItemClicked());
-		} else if (e.getSource() == selectHighlightedEdgesItem) {
-			listeners.forEach(l -> l.selectHighlightedEdgesItemClicked());
-		} else if (e.getSource() == highlightNodeCategoriesItem) {
-			listeners.forEach(l -> l.highlightNodeCategoriesItemClicked());
-		} else if (e.getSource() == highlightEdgeCategoriesItem) {
-			listeners.forEach(l -> l.highlightEdgeCategoriesItemClicked());
-		} else if (e.getSource() == selectNodesItem) {
-			listeners.forEach(l -> l.selectNodesItemClicked());
-		} else if (e.getSource() == selectEdgesItem) {
-			listeners.forEach(l -> l.selectEdgesItemClicked());
-		} else if (e.getSource() == nodePropertiesItem) {
-			listeners.forEach(l -> l.nodePropertiesItemClicked());
-		} else if (e.getSource() == nodeAllPropertiesItem) {
-			listeners.forEach(l -> l.nodeAllPropertiesItemClicked());
-		} else if (e.getSource() == edgePropertiesItem) {
-			listeners.forEach(l -> l.edgePropertiesItemClicked());
-		} else if (e.getSource() == edgeAllPropertiesItem) {
-			listeners.forEach(l -> l.edgeAllPropertiesItemClicked());
-		} else if (e.getSource() == collapseToNodeItem) {
-			listeners.forEach(l -> l.collapseToNodeItemClicked());
-		} else if (e.getSource() == expandFromNodeItem) {
-			listeners.forEach(l -> l.expandFromNodeItemClicked());
-		} else if (e.getSource() == collapseByPropertyItem) {
-			listeners.forEach(l -> l.collapseByPropertyItemClicked());
-		} else if (e.getSource() == clearCollapsedNodesItem) {
-			listeners.forEach(l -> l.clearCollapsedNodesItemClicked());
-		}
-	}
-
 	private void init(Canvas<?> owner) {
 		listeners = new ArrayList<>();
 
@@ -243,73 +178,79 @@ public class CanvasPopupMenu extends JPopupMenu implements ActionListener {
 		layoutMenu = new JMenu("Apply Layout");
 
 		resetLayoutItem = new JMenuItem("Reset Layout");
-		resetLayoutItem.addActionListener(this);
+		resetLayoutItem.addActionListener(e -> listeners.forEach(l -> l.resetLayoutItemClicked()));
 		saveAsItem = new JMenuItem("Save As ...");
-		saveAsItem.addActionListener(this);
+		saveAsItem.addActionListener(e -> listeners.forEach(l -> l.saveAsItemClicked()));
 
 		clearSelectedNodesItem = new JMenuItem("Clear");
-		clearSelectedNodesItem.addActionListener(this);
+		clearSelectedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearSelectedNodesItemClicked()));
 		nodePropertiesItem = new JMenuItem("Show Properties");
-		nodePropertiesItem.addActionListener(this);
+		nodePropertiesItem.addActionListener(e -> listeners.forEach(l -> l.nodePropertiesItemClicked()));
 		nodeAllPropertiesItem = new JMenuItem("Show Uncollapsed Properties");
-		nodeAllPropertiesItem.addActionListener(this);
+		nodeAllPropertiesItem.addActionListener(e -> listeners.forEach(l -> l.nodeAllPropertiesItemClicked()));
 		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedNodesItem.addActionListener(this);
+		highlightSelectedNodesItem
+				.addActionListener(e -> listeners.forEach(l -> l.highlightSelectedNodesItemClicked()));
 		selectConnectionsItem = new JMenuItem("Select Connections");
-		selectConnectionsItem.addActionListener(this);
+		selectConnectionsItem.addActionListener(e -> listeners.forEach(l -> l.selectConnectionsItemClicked()));
 		selectIncomingItem = new JMenuItem("Select Incoming");
-		selectIncomingItem.addActionListener(this);
+		selectIncomingItem.addActionListener(e -> listeners.forEach(l -> l.selectIncomingItemClicked()));
 		selectOutgoingItem = new JMenuItem("Select Outgoing");
-		selectOutgoingItem.addActionListener(this);
+		selectOutgoingItem.addActionListener(e -> listeners.forEach(l -> l.selectOutgoingItemClicked()));
 
 		clearSelectedEdgesItem = new JMenuItem("Clear");
-		clearSelectedEdgesItem.addActionListener(this);
+		clearSelectedEdgesItem.addActionListener(e -> listeners.forEach(l -> l.clearSelectedEdgesItemClicked()));
 		edgePropertiesItem = new JMenuItem("Show Properties");
-		edgePropertiesItem.addActionListener(this);
+		edgePropertiesItem.addActionListener(e -> listeners.forEach(l -> l.edgePropertiesItemClicked()));
 		edgeAllPropertiesItem = new JMenuItem("Show Unjoined Properties");
-		edgeAllPropertiesItem.addActionListener(this);
+		edgeAllPropertiesItem.addActionListener(e -> listeners.forEach(l -> l.edgeAllPropertiesItemClicked()));
 		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedEdgesItem.addActionListener(this);
+		highlightSelectedEdgesItem
+				.addActionListener(e -> listeners.forEach(l -> l.highlightSelectedEdgesItemClicked()));
 
 		highlightNodesItem = new JMenuItem("Edit");
-		highlightNodesItem.addActionListener(this);
+		highlightNodesItem.addActionListener(e -> listeners.forEach(l -> l.highlightNodesItemClicked()));
 		clearHighlightedNodesItem = new JMenuItem("Clear");
-		clearHighlightedNodesItem.addActionListener(this);
+		clearHighlightedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearHighlightedNodesItemClicked()));
 		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedNodesItem.addActionListener(this);
+		selectHighlightedNodesItem
+				.addActionListener(e -> listeners.forEach(l -> l.selectHighlightedNodesItemClicked()));
 		highlightNodeCategoriesItem = new JMenuItem("Add Category Highlighting");
-		highlightNodeCategoriesItem.addActionListener(this);
+		highlightNodeCategoriesItem
+				.addActionListener(e -> listeners.forEach(l -> l.highlightNodeCategoriesItemClicked()));
 
 		highlightEdgesItem = new JMenuItem("Edit");
-		highlightEdgesItem.addActionListener(this);
+		highlightEdgesItem.addActionListener(e -> listeners.forEach(l -> l.highlightEdgesItemClicked()));
 		clearHighlightedEdgesItem = new JMenuItem("Clear");
-		clearHighlightedEdgesItem.addActionListener(this);
+		clearHighlightedEdgesItem.addActionListener(e -> listeners.forEach(l -> l.clearHighlightedEdgesItemClicked()));
 		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedEdgesItem.addActionListener(this);
+		selectHighlightedEdgesItem
+				.addActionListener(e -> listeners.forEach(l -> l.selectHighlightedEdgesItemClicked()));
 		highlightEdgeCategoriesItem = new JMenuItem("Add Category Highlighting");
-		highlightEdgeCategoriesItem.addActionListener(this);
+		highlightEdgeCategoriesItem
+				.addActionListener(e -> listeners.forEach(l -> l.highlightEdgeCategoriesItemClicked()));
 
 		selectNodesItem = new JMenuItem("Set Selected " + owner.getNaming().Nodes());
-		selectNodesItem.addActionListener(this);
+		selectNodesItem.addActionListener(e -> listeners.forEach(l -> l.selectNodesItemClicked()));
 		selectEdgesItem = new JMenuItem("Set Selected " + owner.getNaming().Edges());
-		selectEdgesItem.addActionListener(this);
+		selectEdgesItem.addActionListener(e -> listeners.forEach(l -> l.selectEdgesItemClicked()));
 
 		collapseToNodeItem = new JMenuItem("Collapse to Meta " + owner.getNaming().Node());
-		collapseToNodeItem.addActionListener(this);
+		collapseToNodeItem.addActionListener(e -> listeners.forEach(l -> l.collapseToNodeItemClicked()));
 		expandFromNodeItem = new JMenuItem("Expand from Meta " + owner.getNaming().Node());
-		expandFromNodeItem.addActionListener(this);
+		expandFromNodeItem.addActionListener(e -> listeners.forEach(l -> l.expandFromNodeItemClicked()));
 		collapseByPropertyItem = new JMenuItem("Collapse by Property");
-		collapseByPropertyItem.addActionListener(this);
+		collapseByPropertyItem.addActionListener(e -> listeners.forEach(l -> l.collapseByPropertyItemClicked()));
 		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed " + owner.getNaming().Nodes());
-		clearCollapsedNodesItem.addActionListener(this);
+		clearCollapsedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearCollapsedNodesItemClicked()));
 
-		layoutItems = new LinkedHashMap<>();
+		layoutItems = new ArrayList<>();
 
 		for (LayoutType layoutType : LayoutType.values()) {
 			JMenuItem item = new JMenuItem(layoutType.toString());
 
-			item.addActionListener(this);
-			layoutItems.put(item, layoutType);
+			item.addActionListener(e -> listeners.forEach(l -> l.layoutItemClicked(layoutType)));
+			layoutItems.add(item);
 		}
 	}
 

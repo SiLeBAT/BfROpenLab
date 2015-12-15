@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -61,7 +59,7 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-public class TracingDelegate<V extends Node> implements ActionListener, ItemListener {
+public class TracingDelegate<V extends Node> implements ItemListener {
 
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
@@ -78,7 +76,6 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
-	private JMenuItem defaultHighlightItem;
 
 	public TracingDelegate(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
 			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
@@ -99,8 +96,12 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
 		showForwardBox.addItemListener(this);
 
-		defaultHighlightItem = new JMenuItem("Set default Highlighting");
-		defaultHighlightItem.addActionListener(this);
+		JMenuItem defaultHighlightItem = new JMenuItem("Set default Highlighting");
+
+		defaultHighlightItem.addActionListener(e -> {
+			canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
+			canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
+		});
 
 		canvas.getOptionsPanel().addOption("Enforce Temporal Order",
 				"If checked, the " + canvas.getNaming().edge()
@@ -372,14 +373,6 @@ public class TracingDelegate<V extends Node> implements ActionListener, ItemList
 				canvas.getNodes().add(edge.getTo());
 				canvas.getEdges().add(edge);
 			}
-		}
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == defaultHighlightItem) {
-			canvas.setNodeHighlightConditions(DefaultHighlighting.createNodeHighlighting());
-			canvas.setEdgeHighlightConditions(DefaultHighlighting.createEdgeHighlighting());
 		}
 	}
 

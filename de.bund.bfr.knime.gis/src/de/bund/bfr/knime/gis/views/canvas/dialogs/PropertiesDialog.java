@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -42,7 +41,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class PropertiesDialog<V extends Node> extends KnimeDialog implements ActionListener {
+public class PropertiesDialog<V extends Node> extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,8 +53,6 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog implements Act
 	private Type type;
 
 	private PropertiesTable table;
-	private JButton selectButton;
-	private JButton okButton;
 
 	private PropertiesDialog(ICanvas<V> parent, Collection<? extends Element> elements, PropertySchema schema,
 			Type type, boolean allowViewSelection, Set<String> idColumns) {
@@ -64,10 +61,12 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog implements Act
 		this.type = type;
 
 		table = new PropertiesTable(new ArrayList<>(elements), schema, idColumns);
-		selectButton = new JButton("Select in View");
-		selectButton.addActionListener(this);
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
+
+		JButton selectButton = new JButton("Select in View");
+		JButton okButton = new JButton("OK");
+
+		selectButton.addActionListener(e -> selectButtonPressed());
+		okButton.addActionListener(e -> dispose());
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
@@ -108,31 +107,26 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog implements Act
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == selectButton) {
-			switch (type) {
-			case NODE:
-				Set<V> nodes = new LinkedHashSet<>();
+	private void selectButtonPressed() {
+		switch (type) {
+		case NODE:
+			Set<V> nodes = new LinkedHashSet<>();
 
-				for (Element element : table.getSelectedElements()) {
-					nodes.add((V) element);
-				}
-
-				parent.setSelectedNodes(nodes);
-				break;
-			case EDGE:
-				Set<Edge<V>> edges = new LinkedHashSet<>();
-
-				for (Element element : table.getSelectedElements()) {
-					edges.add((Edge<V>) element);
-				}
-
-				parent.setSelectedEdges(edges);
-				break;
+			for (Element element : table.getSelectedElements()) {
+				nodes.add((V) element);
 			}
-		} else if (e.getSource() == okButton) {
-			dispose();
+
+			parent.setSelectedNodes(nodes);
+			break;
+		case EDGE:
+			Set<Edge<V>> edges = new LinkedHashSet<>();
+
+			for (Element element : table.getSelectedElements()) {
+				edges.add((Edge<V>) element);
+			}
+
+			parent.setSelectedEdges(edges);
+			break;
 		}
 	}
 }

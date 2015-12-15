@@ -21,8 +21,6 @@ package de.bund.bfr.knime.nls.fitting;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -65,7 +63,7 @@ import de.bund.bfr.knime.ui.IntTextField;
  * @author Christian Thoens
  */
 public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
-		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener, ActionListener {
+		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private boolean isDiff;
 	private Reader reader;
@@ -147,7 +145,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		useDifferentInitValuesBoxes = new LinkedHashMap<>();
-		fitAllAtOnceBox.addActionListener(this);
+		fitAllAtOnceBox.addActionListener(
+				e -> useDifferentInitValuesBoxes.values().forEach(b -> b.setEnabled(fitAllAtOnceBox.isSelected())));
 
 		stepSizeField = new DoubleTextField(false, 8);
 		stepSizeField.setMinValue(Double.MIN_NORMAL);
@@ -250,14 +249,5 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setMaxY(chartCreator.getMaxY());
 		configPanel.addConfigListener(this);
 		createChart();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == fitAllAtOnceBox) {
-			for (JCheckBox box : useDifferentInitValuesBoxes.values()) {
-				box.setEnabled(fitAllAtOnceBox.isSelected());
-			}
-		}
 	}
 }

@@ -96,12 +96,12 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		list.addMouseListener(this);
 		updateList();
 		addButton = new JButton("Add");
-		addButton.addActionListener(this);
+		addButton.addActionListener(e -> addCondition(null));
 		removeButton = new JButton("Remove");
 		removeButton.addActionListener(this);
 		prioritizeBox = new JCheckBox("Prioritize Colors");
 		prioritizeBox.setSelected(highlightConditions.isPrioritizeColors());
-		prioritizeBox.addActionListener(this);
+		prioritizeBox.addActionListener(e -> highlightConditions.setPrioritizeColors(prioritizeBox.isSelected()));
 		upButton = new JButton("Up");
 		upButton.addActionListener(this);
 		downButton = new JButton("Down");
@@ -109,7 +109,7 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel editPanel = new JPanel();
 
@@ -212,11 +212,6 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		if (e.getSource() == okButton) {
 			approved = true;
 			dispose();
-		} else if (e.getSource() == cancelButton) {
-			approved = false;
-			dispose();
-		} else if (e.getSource() == addButton) {
-			addCondition(null);
 		} else if (e.getSource() == removeButton) {
 			int i = list.getSelectedIndex();
 
@@ -224,8 +219,6 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 				highlightConditions.getConditions().remove(i);
 				updateList();
 			}
-		} else if (e.getSource() == prioritizeBox) {
-			highlightConditions.setPrioritizeColors(prioritizeBox.isSelected());
 		} else if (e.getSource() == upButton) {
 			int i = list.getSelectedIndex();
 

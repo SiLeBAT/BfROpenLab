@@ -23,8 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -61,7 +60,7 @@ import de.bund.bfr.knime.ui.IntTextField;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeDialog extends NodeDialogPane implements ActionListener {
+public class FittingNodeDialog extends NodeDialogPane {
 
 	private FittingSettings set;
 	private boolean isDiff;
@@ -104,11 +103,12 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
-		fitAllAtOnceBox.addActionListener(this);
+		fitAllAtOnceBox.addActionListener(
+				e -> useDifferentInitValuesBoxes.values().forEach(b -> b.setEnabled(fitAllAtOnceBox.isSelected())));
 		useDifferentInitValuesBoxes = new LinkedHashMap<>();
 		expertBox = new JCheckBox("Expert Settings");
 		expertBox.setSelected(set.isExpertSettings());
-		expertBox.addActionListener(this);
+		expertBox.addActionListener(e -> expertPanel.setVisible(expertBox.isSelected()));
 
 		JPanel p;
 
@@ -239,11 +239,13 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		return UI.createOptionsPanel("Nonlinear Regression Parameters", leftComps, rightComps);
 	}
 
-	private Component createRangePanel(Function f) {
+	private Component createRangePanel(Function function) {
 		limitsBox = new JCheckBox("Enforce start values as limits");
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
-		clearButton.addActionListener(this);
+		clearButton
+				.addActionListener(e -> Stream.concat(minimumFields.values().stream(), maximumFields.values().stream())
+						.forEach(f -> f.setValue(null)));
 		minimumFields = new LinkedHashMap<>();
 		maximumFields = new LinkedHashMap<>();
 
@@ -254,7 +256,7 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		JPanel modelPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		List<String> params = f.getParameters();
+		List<String> params = function.getParameters();
 
 		leftPanel.setLayout(new GridLayout(params.size(), 1));
 		rightPanel.setLayout(new GridLayout(params.size(), 1));
@@ -304,24 +306,5 @@ public class FittingNodeDialog extends NodeDialogPane implements ActionListener 
 		panel.add(new JScrollPane(rangePanel), BorderLayout.CENTER);
 
 		return panel;
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == fitAllAtOnceBox) {
-			for (JCheckBox box : useDifferentInitValuesBoxes.values()) {
-				box.setEnabled(fitAllAtOnceBox.isSelected());
-			}
-		} else if (e.getSource() == expertBox) {
-			expertPanel.setVisible(expertBox.isSelected());
-		} else if (e.getSource() == clearButton) {
-			for (DoubleTextField field : minimumFields.values()) {
-				field.setValue(null);
-			}
-
-			for (DoubleTextField field : maximumFields.values()) {
-				field.setValue(null);
-			}
-		}
 	}
 }

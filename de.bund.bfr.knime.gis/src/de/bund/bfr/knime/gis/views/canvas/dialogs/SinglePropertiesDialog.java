@@ -23,8 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -32,12 +30,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class SinglePropertiesDialog extends KnimeDialog implements ActionListener {
+public class SinglePropertiesDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,7 +72,7 @@ public class SinglePropertiesDialog extends KnimeDialog implements ActionListene
 
 		JButton okButton = new JButton("OK");
 
-		okButton.addActionListener(this);
+		okButton.addActionListener(e -> dispose());
 
 		setLayout(new BorderLayout());
 		add(new JScrollPane(UI.createNorthPanel(centerPanel)), BorderLayout.CENTER);
@@ -82,10 +81,5 @@ public class SinglePropertiesDialog extends KnimeDialog implements ActionListene
 		UI.adjustDialog(this, 0.5, 0.8);
 		setLocationRelativeTo(parent);
 		getRootPane().setDefaultButton(okButton);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		dispose();
 	}
 }

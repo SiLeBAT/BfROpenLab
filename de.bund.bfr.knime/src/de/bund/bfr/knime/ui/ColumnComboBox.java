@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.ui;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -35,7 +33,7 @@ import org.knime.core.node.util.DataColumnSpecListCellRenderer;
 
 import de.bund.bfr.knime.KnimeUtils;
 
-public class ColumnComboBox extends JPanel implements ActionListener {
+public class ColumnComboBox extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,7 +51,7 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 		selectionBox.setRenderer(new DataColumnSpecListCellRenderer());
 		enableBox = new JCheckBox();
 		enableBox.setSelected(true);
-		enableBox.addActionListener(this);
+		enableBox.addActionListener(e -> selectionBox.setEnabled(enableBox.isSelected()));
 
 		setLayout(new BorderLayout(5, 5));
 		add(selectionBox, BorderLayout.CENTER);
@@ -118,10 +116,5 @@ public class ColumnComboBox extends JPanel implements ActionListener {
 		}
 
 		setSelectedColumn(null);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		selectionBox.setEnabled(enableBox.isSelected());
 	}
 }

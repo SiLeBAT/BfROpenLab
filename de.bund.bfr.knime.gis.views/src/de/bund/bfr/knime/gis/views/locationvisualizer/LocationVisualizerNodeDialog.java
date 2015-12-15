@@ -21,10 +21,6 @@ package de.bund.bfr.knime.gis.views.locationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JButton;
-
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -82,8 +78,8 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog((JButton) e.getSource(),
+	protected void inputButtonPressed() {
+		LocationVisualizerInputDialog dialog = new LocationVisualizerInputDialog(inputButton,
 				shapeTable != null ? shapeTable.getSpec() : null, nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);

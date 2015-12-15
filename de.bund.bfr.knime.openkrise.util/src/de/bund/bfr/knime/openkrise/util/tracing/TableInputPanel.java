@@ -178,17 +178,6 @@ public class TableInputPanel<T> extends JPanel
 			tablePanel.add(createInputPanel(elements), BorderLayout.CENTER);
 			tablePanel.revalidate();
 			updateSetAll(setAllBox.isSelected());
-		} else if (e.getSource() == clearButton) {
-			if (setAllBox.isSelected()) {
-				setAllBox.setSelected(false);
-				updateSetAll(false);
-			}
-
-			for (int i = 0; i < inputTable.getRowCount(); i++) {
-				inputTable.setValueAt(null, i, 0);
-			}
-		} else if (e.getSource() == setAllBox) {
-			updateSetAll(setAllBox.isSelected());
 		}
 
 		removeFilterButton.setEnabled(condition != null);
@@ -257,9 +246,9 @@ public class TableInputPanel<T> extends JPanel
 		removeFilterButton.setEnabled(false);
 		removeFilterButton.addActionListener(this);
 		clearButton = new JButton("Clear");
-		clearButton.addActionListener(this);
+		clearButton.addActionListener(e -> clear());
 		setAllBox = new JCheckBox("Set All");
-		setAllBox.addActionListener(this);
+		setAllBox.addActionListener(e -> updateSetAll(setAllBox.isSelected()));
 		setAllField = new JTextField(10);
 		setAllField.setEnabled(false);
 
@@ -306,6 +295,17 @@ public class TableInputPanel<T> extends JPanel
 		rowHeader.setPreferredSize(new Dimension(100, rowHeader.getPreferredSize().height));
 
 		return scrollPane;
+	}
+
+	private void clear() {
+		if (setAllBox.isSelected()) {
+			setAllBox.setSelected(false);
+			updateSetAll(false);
+		}
+
+		for (int i = 0; i < inputTable.getRowCount(); i++) {
+			inputTable.setValueAt(null, i, 0);
+		}
 	}
 
 	private void updateSetAll(boolean setAll) {

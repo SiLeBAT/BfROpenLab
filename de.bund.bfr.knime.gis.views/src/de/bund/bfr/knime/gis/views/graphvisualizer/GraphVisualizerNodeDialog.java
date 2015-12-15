@@ -21,9 +21,7 @@ package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 
-import javax.swing.JButton;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -74,8 +72,8 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog((JButton) e.getSource(), nodeTable.getSpec(),
+	protected void inputButtonPressed() {
+		GraphVisualizerInputDialog dialog = new GraphVisualizerInputDialog(inputButton, nodeTable.getSpec(),
 				edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);

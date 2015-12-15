@@ -21,9 +21,7 @@ package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 
-import javax.swing.JButton;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.BufferedDataTable;
@@ -86,8 +84,8 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		RegionToRegionVisualizerInputDialog dialog = new RegionToRegionVisualizerInputDialog((JButton) e.getSource(),
+	protected void inputButtonPressed() {
+		RegionToRegionVisualizerInputDialog dialog = new RegionToRegionVisualizerInputDialog(inputButton,
 				shapeTable.getSpec(), nodeTable.getSpec(), edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);

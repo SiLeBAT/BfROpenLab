@@ -48,6 +48,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		this.out = out;
 		changeListeners = new ArrayList<>();
 		scheduler = Executors.newScheduledThreadPool(1);
+		lastTask = null;
 	}
 
 	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {

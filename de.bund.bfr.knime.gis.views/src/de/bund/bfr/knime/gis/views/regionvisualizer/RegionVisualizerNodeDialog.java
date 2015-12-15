@@ -21,9 +21,6 @@ package de.bund.bfr.knime.gis.views.regionvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JButton;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -75,9 +72,9 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		RegionVisualizerInputDialog dialog = new RegionVisualizerInputDialog((JButton) e.getSource(),
-				shapeTable.getSpec(), nodeTable.getSpec(), set);
+	protected void inputButtonPressed() {
+		RegionVisualizerInputDialog dialog = new RegionVisualizerInputDialog(inputButton, shapeTable.getSpec(),
+				nodeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 

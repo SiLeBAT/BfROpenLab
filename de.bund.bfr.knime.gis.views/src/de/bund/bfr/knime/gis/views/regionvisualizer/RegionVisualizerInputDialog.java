@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.gis.views.regionvisualizer;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
@@ -45,7 +43,7 @@ import de.bund.bfr.knime.ui.ColumnComboBox;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class RegionVisualizerInputDialog extends KnimeDialog implements ActionListener {
+public class RegionVisualizerInputDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,9 +52,6 @@ public class RegionVisualizerInputDialog extends KnimeDialog implements ActionLi
 	private ColumnComboBox shapeRegionBox;
 	private ColumnComboBox nodeRegionBox;
 	private JCheckBox exportAsSvgBox;
-
-	private JButton okButton;
-	private JButton cancelButton;
 
 	private boolean approved;
 	private RegionVisualizerSettings set;
@@ -77,10 +72,12 @@ public class RegionVisualizerInputDialog extends KnimeDialog implements ActionLi
 		nodeRegionBox.setSelectedColumnName(set.getGisSettings().getNodeRegionColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel mainPanel = new JPanel();
 
@@ -107,27 +104,22 @@ public class RegionVisualizerInputDialog extends KnimeDialog implements ActionLi
 		return approved;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
-			DataColumnSpec shapeRegionColumn = shapeRegionBox.getSelectedColumn();
-			DataColumnSpec nodeRegionColumn = nodeRegionBox.getSelectedColumn();
+	private void okButtonPressed() {
+		DataColumnSpec shapeColumn = shapeBox.getSelectedColumn();
+		DataColumnSpec shapeRegionColumn = shapeRegionBox.getSelectedColumn();
+		DataColumnSpec nodeRegionColumn = nodeRegionBox.getSelectedColumn();
 
-			if (shapeColumn == null || shapeRegionColumn == null || nodeRegionColumn == null) {
-				Dialogs.showErrorMessage(this, "\"Shape\" and all \"Region ID\" columns must be selected", "Error");
-			} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
-				Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type", "Type Error");
-			} else {
-				approved = true;
-				set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
-				set.getGisSettings().setShapeColumn(shapeColumn.getName());
-				set.getGisSettings().setShapeRegionColumn(shapeRegionColumn.getName());
-				set.getGisSettings().setNodeRegionColumn(nodeRegionColumn.getName());
-				set.setExportAsSvg(exportAsSvgBox.isSelected());
-				dispose();
-			}
-		} else if (e.getSource() == cancelButton) {
+		if (shapeColumn == null || shapeRegionColumn == null || nodeRegionColumn == null) {
+			Dialogs.showErrorMessage(this, "\"Shape\" and all \"Region ID\" columns must be selected", "Error");
+		} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
+			Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type", "Type Error");
+		} else {
+			approved = true;
+			set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());
+			set.getGisSettings().setShapeColumn(shapeColumn.getName());
+			set.getGisSettings().setShapeRegionColumn(shapeRegionColumn.getName());
+			set.getGisSettings().setNodeRegionColumn(nodeRegionColumn.getName());
+			set.setExportAsSvg(exportAsSvgBox.isSelected());
 			dispose();
 		}
 	}

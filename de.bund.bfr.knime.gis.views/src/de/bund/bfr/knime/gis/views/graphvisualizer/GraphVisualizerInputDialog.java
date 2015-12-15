@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.gis.views.graphvisualizer;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
@@ -42,7 +40,7 @@ import de.bund.bfr.knime.ui.ColumnComboBox;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class GraphVisualizerInputDialog extends KnimeDialog implements ActionListener {
+public class GraphVisualizerInputDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,8 +48,6 @@ public class GraphVisualizerInputDialog extends KnimeDialog implements ActionLis
 	private ColumnComboBox edgeFromBox;
 	private ColumnComboBox edgeToBox;
 	private JCheckBox exportAsSvgBox;
-	private JButton okButton;
-	private JButton cancelButton;
 
 	private boolean approved;
 	private GraphVisualizerSettings set;
@@ -70,10 +66,12 @@ public class GraphVisualizerInputDialog extends KnimeDialog implements ActionLis
 		edgeToBox.setSelectedColumnName(set.getGraphSettings().getEdgeToColumn());
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
-		okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+
+		okButton.addActionListener(e -> okButtonPressed());
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel mainPanel = new JPanel();
 
@@ -100,29 +98,23 @@ public class GraphVisualizerInputDialog extends KnimeDialog implements ActionLis
 		return approved;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			DataColumnSpec nodeIdColumn = nodeIdBox.getSelectedColumn();
-			DataColumnSpec edgeFromColumn = edgeFromBox.getSelectedColumn();
-			DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
+	private void okButtonPressed() {
+		DataColumnSpec nodeIdColumn = nodeIdBox.getSelectedColumn();
+		DataColumnSpec edgeFromColumn = edgeFromBox.getSelectedColumn();
+		DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
 
-			if (nodeIdColumn == null || edgeFromColumn == null || edgeToColumn == null) {
-				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must be selected", "Error");
-			} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
-					|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-				Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
-			} else {
-				approved = true;
-				set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
-				set.getGraphSettings().setEdgeFromColumn(edgeFromColumn.getName());
-				set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
-				set.setExportAsSvg(exportAsSvgBox.isSelected());
-				dispose();
-			}
-		} else if (e.getSource() == cancelButton) {
+		if (nodeIdColumn == null || edgeFromColumn == null || edgeToColumn == null) {
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must be selected", "Error");
+		} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
+				|| nodeIdColumn.getType() != edgeToColumn.getType()) {
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
+		} else {
+			approved = true;
+			set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());
+			set.getGraphSettings().setEdgeFromColumn(edgeFromColumn.getName());
+			set.getGraphSettings().setEdgeToColumn(edgeToColumn.getName());
+			set.setExportAsSvg(exportAsSvgBox.isSelected());
 			dispose();
 		}
 	}
-
 }

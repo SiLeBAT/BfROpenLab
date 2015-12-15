@@ -21,9 +21,6 @@ package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JButton;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.BufferedDataTable;
@@ -91,10 +88,9 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		LocationToLocationVisualizerInputDialog dialog = new LocationToLocationVisualizerInputDialog(
-				(JButton) e.getSource(), shapeTable != null ? shapeTable.getSpec() : null, nodeTable.getSpec(),
-				edgeTable.getSpec(), set);
+	protected void inputButtonPressed() {
+		LocationToLocationVisualizerInputDialog dialog = new LocationToLocationVisualizerInputDialog(inputButton,
+				shapeTable != null ? shapeTable.getSpec() : null, nodeTable.getSpec(), edgeTable.getSpec(), set);
 
 		dialog.setVisible(true);
 

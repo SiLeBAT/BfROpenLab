@@ -208,10 +208,10 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		colorButton.addActionListener(this);
 		colorBox = new JCheckBox("Use Color");
 		colorBox.setSelected(condition.getColor() != null);
-		colorBox.addActionListener(this);
+		colorBox.addActionListener(e -> updateOptionsPanel());
 		invisibleBox = new JCheckBox("Invisible");
 		invisibleBox.setSelected(condition.isInvisible());
-		invisibleBox.addActionListener(this);
+		invisibleBox.addActionListener(e -> updateOptionsPanel());
 		thicknessBox = new JCheckBox("Adjust Thickness");
 		thicknessBox.setSelected(condition.isUseThickness());
 		labelBox = new JComboBox<>(schema.getMap().keySet().toArray(new String[0]));
@@ -265,7 +265,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		okButton = new JButton("OK");
 		okButton.addActionListener(this);
 		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		cancelButton.addActionListener(e -> dispose());
 
 		JPanel bottomPanel = new JPanel();
 
@@ -316,8 +316,6 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			} else {
 				Dialogs.showErrorMessage(okButton, error, "Error");
 			}
-		} else if (e.getSource() == cancelButton) {
-			dispose();
 		} else if (e.getSource() == conditionTypeBox && !type.equals(conditionTypeBox.getSelectedItem())) {
 			remove(conditionPanel);
 
@@ -370,14 +368,6 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 			if (newColor != null) {
 				setNewColor(newColor);
 			}
-		} else if (e.getSource() == colorBox) {
-			updateOptionsPanel();
-		} else if (e.getSource() == invisibleBox) {
-			updateOptionsPanel();
-		} else if (logicalAddButtons.contains(e.getSource())) {
-			addRemoveButtonPressed((JButton) e.getSource());
-		} else if (logicalRemoveButtons.contains(e.getSource())) {
-			addRemoveButtonPressed((JButton) e.getSource());
 		}
 	}
 
@@ -478,8 +468,8 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				valueField.setPossibleValues(possibleValues);
 				valueField.setSelectedItem(cond.getValue());
 
-				addButton.addActionListener(this);
-				removeButton.addActionListener(this);
+				addButton.addActionListener(e -> addRemoveButtonPressed(addButton));
+				removeButton.addActionListener(e -> addRemoveButtonPressed(removeButton));
 
 				if (row != 1) {
 					JComboBox<AndOr> andOrBox = new JComboBox<>(AndOr.values());

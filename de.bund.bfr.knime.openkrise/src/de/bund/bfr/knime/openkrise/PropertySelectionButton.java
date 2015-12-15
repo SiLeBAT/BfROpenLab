@@ -24,8 +24,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -39,9 +37,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelector;
@@ -49,7 +44,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema.Type;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class PropertySelectionButton extends JButton implements PropertySelector, ActionListener {
+public class PropertySelectionButton extends JButton implements PropertySelector {
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,7 +56,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		super("Select Property");
 		selectedProperty = null;
 		groupedProperties = groupProperties(schema, metaProperty);
-		addActionListener(this);
+		addActionListener(e -> buttonPressed());
 
 		int maxWidth = getPreferredSize().width;
 		int maxHeight = getPreferredSize().height;
@@ -93,8 +88,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, selectedProperty, ItemEvent.SELECTED));
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	private void buttonPressed() {
 		PropertySelectionDialog dialog = new PropertySelectionDialog();
 
 		dialog.setVisible(true);
@@ -141,22 +135,20 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
-	private class PropertySelectionDialog extends KnimeDialog implements ActionListener {
+	private class PropertySelectionDialog extends KnimeDialog {
 
 		private static final long serialVersionUID = 1L;
 
 		private boolean approved;
 		private String selected;
 
-		private BiMap<String, JButton> selectButtons;
-		private JButton cancelButton;
-
 		public PropertySelectionDialog() {
 			super(PropertySelectionButton.this, "Select Property", DEFAULT_MODALITY_TYPE);
 			approved = false;
-			cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(this);
-			selectButtons = HashBiMap.create();
+
+			JButton cancelButton = new JButton("Cancel");
+
+			cancelButton.addActionListener(e -> dispose());
 
 			JPanel mainPanel = new JPanel();
 
@@ -178,11 +170,10 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 						p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 					}
 
-					button.addActionListener(this);
+					button.addActionListener(e -> selectButtonPressed(property));
 					p.setLayout(new BorderLayout());
 					p.add(button, BorderLayout.CENTER);
 					panel.add(p);
-					selectButtons.put(property, button);
 				}
 
 				mainPanel.add(UI.createTitledPanel(UI.createNorthPanel(panel), entry.getKey()));
@@ -206,15 +197,10 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 			return selected;
 		}
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == cancelButton) {
-				dispose();
-			} else if (selectButtons.containsValue(e.getSource())) {
-				approved = true;
-				selected = selectButtons.inverse().get(e.getSource());
-				dispose();
-			}
+		private void selectButtonPressed(String selected) {
+			this.selected = selected;
+			approved = true;
+			dispose();
 		}
 	}
 }
