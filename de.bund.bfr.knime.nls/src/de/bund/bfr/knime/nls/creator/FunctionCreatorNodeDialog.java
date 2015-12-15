@@ -47,7 +47,6 @@ import com.google.common.collect.Ordering;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.StringTextArea;
 import de.bund.bfr.knime.ui.StringTextField;
-import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.math.MathUtils;
 
 /**
@@ -55,7 +54,7 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextListener, ItemListener {
+public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemListener {
 
 	private FunctionCreatorSettings set;
 	private List<String> usedIndeps;
@@ -115,20 +114,15 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 		set.saveSettings(settings);
 	}
 
-	@Override
-	public void textChanged(Object source) {
-		if (source == depVarField) {
-			set.setDependentVariable(depVarField.getValue());
-		} else if (source == termField) {
-			set.setTerm(termField.getValue());
-			mainPanel.remove(functionPanel);
-			updateFunction();
-			functionPanel = createFunctionPanel();
-			mainPanel.add(functionPanel, BorderLayout.NORTH);
-			mainPanel.revalidate();
-			mainPanel.repaint();
-			termField.requestFocus();
-		}
+	private void termTextChanged() {
+		set.setTerm(termField.getValue());
+		mainPanel.remove(functionPanel);
+		updateFunction();
+		functionPanel = createFunctionPanel();
+		mainPanel.add(functionPanel, BorderLayout.NORTH);
+		mainPanel.revalidate();
+		mainPanel.repaint();
+		termField.requestFocus();
 	}
 
 	@Override
@@ -167,12 +161,12 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements TextLis
 	private JPanel createFormulaPanel() {
 		depVarField = new StringTextField(false, 10);
 		depVarField.setValue(set.getDependentVariable());
-		depVarField.addTextListener(this);
+		depVarField.addTextListener(e -> set.setDependentVariable(depVarField.getValue()));
 
 		if (termField == null || !Objects.equals(termField.getValue(), set.getTerm())) {
 			termField = new StringTextArea(false, 3, 100);
 			termField.setValue(set.getTerm());
-			termField.addTextListener(this);
+			termField.addTextListener(e -> termTextChanged());
 		}
 
 		JPanel formulaPanel = new JPanel();

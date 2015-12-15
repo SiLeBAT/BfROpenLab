@@ -213,7 +213,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 			if (dialog.isApproved()) {
 				selectedValues.put(var, dialog.getSelected());
-				valueListeners.forEach(l -> l.valuesChanged());
+				valueListeners.forEach(l -> l.valuesChanged(this));
 			}
 		} else if (rangeButtons.values().contains(e.getSource())) {
 			String var = rangeButtons.inverse().get(e.getSource());
@@ -259,7 +259,7 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 				slider.addChangeListener(this);
 			}
 
-			valueListeners.forEach(l -> l.valuesChanged());
+			valueListeners.forEach(l -> l.valuesChanged(this));
 		}
 	}
 
@@ -478,6 +478,6 @@ public class VariablePanel extends JPanel implements ActionListener, TextListene
 
 	public static interface ValueListener {
 
-		void valuesChanged();
+		void valuesChanged(VariablePanel source);
 	}
 }

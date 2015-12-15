@@ -23,9 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,12 +41,10 @@ import javax.swing.JSlider;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
-import de.bund.bfr.knime.ui.TextListener;
 import de.bund.bfr.knime.ui.VariablePanel;
 import de.bund.bfr.math.Transform;
 
-public class ChartConfigPanel extends JPanel
-		implements ItemListener, TextListener, MouseListener, VariablePanel.ValueListener {
+public class ChartConfigPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -84,21 +81,27 @@ public class ChartConfigPanel extends JPanel
 
 		drawLinesBox = new JCheckBox("Draw Lines");
 		drawLinesBox.setSelected(false);
-		drawLinesBox.addItemListener(this);
+		drawLinesBox.addItemListener(e -> configChanged());
 		showLegendBox = new JCheckBox("Show Legend");
 		showLegendBox.setSelected(true);
-		showLegendBox.addItemListener(this);
+		showLegendBox.addItemListener(e -> configChanged());
 		exportAsSvgBox = new JCheckBox("Export as SVG");
 		exportAsSvgBox.setSelected(false);
 		showConfidenceBox = new JCheckBox("Show Confidence");
 		showConfidenceBox.setSelected(false);
-		showConfidenceBox.addItemListener(this);
+		showConfidenceBox.addItemListener(e -> configChanged());
 		resolutionSlider = new JSlider(0, 1000, 1000);
 		resolutionSlider.setMinorTickSpacing(100);
 		resolutionSlider.setMajorTickSpacing(200);
 		resolutionSlider.setPaintTicks(true);
 		resolutionSlider.setPaintLabels(true);
-		resolutionSlider.addMouseListener(this);
+		resolutionSlider.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				configChanged();
+			}
+		});
 
 		JPanel resolutionPanel = new JPanel();
 
@@ -141,26 +144,26 @@ public class ChartConfigPanel extends JPanel
 
 		minToZeroBox = new JCheckBox("Set Minimum to Zero");
 		minToZeroBox.setSelected(false);
-		minToZeroBox.addItemListener(this);
+		minToZeroBox.addItemListener(e -> configChanged());
 		manualRangeBox = new JCheckBox("Set Manual Range");
 		manualRangeBox.setSelected(false);
-		manualRangeBox.addItemListener(this);
+		manualRangeBox.addItemListener(e -> manualRangeChanged());
 		minXField = new DoubleTextField(false, 8);
 		minXField.setValue(DEFAULT_MINX);
 		minXField.setEnabled(false);
-		minXField.addTextListener(this);
+		minXField.addTextListener(e -> configChanged());
 		minYField = new DoubleTextField(false, 8);
 		minYField.setValue(DEFAULT_MINY);
 		minYField.setEnabled(false);
-		minYField.addTextListener(this);
+		minYField.addTextListener(e -> configChanged());
 		maxXField = new DoubleTextField(false, 8);
 		maxXField.setValue(DEFAULT_MAXX);
 		maxXField.setEnabled(false);
-		maxXField.addTextListener(this);
+		maxXField.addTextListener(e -> configChanged());
 		maxYField = new DoubleTextField(false, 8);
 		maxYField.setValue(DEFAULT_MAXY);
 		maxYField.setEnabled(false);
-		maxYField.addTextListener(this);
+		maxYField.addTextListener(e -> configChanged());
 
 		rangePanel.setLayout(new GridBagLayout());
 		rangePanel.add(minToZeroBox, UI.westConstraints(0, 0, 4, 1));
@@ -181,12 +184,12 @@ public class ChartConfigPanel extends JPanel
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 
 		xBox = new JComboBox<>();
-		xBox.addItemListener(this);
+		xBox.addItemListener(e -> comboBoxConfigChanged(e));
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
-		xTransBox.addItemListener(this);
+		xTransBox.addItemListener(e -> comboBoxConfigChanged(e));
 		yTransBox = new JComboBox<>(Transform.values());
-		yTransBox.addItemListener(this);
+		yTransBox.addItemListener(e -> comboBoxConfigChanged(e));
 
 		JPanel variablesPanel = new JPanel();
 
@@ -361,7 +364,6 @@ public class ChartConfigPanel extends JPanel
 		yBox.removeAllItems();
 		yBox.addItem(varY);
 		yBox.setSelectedIndex(0);
-		xBox.removeItemListener(this);
 		xBox.removeAllItems();
 
 		if (variablesX != null && !variablesX.isEmpty()) {
@@ -372,8 +374,6 @@ public class ChartConfigPanel extends JPanel
 			xBox.setSelectedIndex(0);
 		}
 
-		xBox.addItemListener(this);
-
 		if (parameters != null && !parameters.isEmpty()) {
 			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
 
@@ -383,7 +383,7 @@ public class ChartConfigPanel extends JPanel
 
 			outerParameterPanel.remove(parameterPanel);
 			parameterPanel = new VariablePanel(paramMap, minValues, maxValues, false, true, true);
-			parameterPanel.addValueListener(this);
+			parameterPanel.addValueListener(e -> configChanged());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
 			Container container = getParent();
@@ -415,52 +415,22 @@ public class ChartConfigPanel extends JPanel
 		return parameterPanel.getMaxValues();
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == manualRangeBox) {
-			minToZeroBox.setEnabled(!manualRangeBox.isSelected());
-			minXField.setEnabled(manualRangeBox.isSelected());
-			minYField.setEnabled(manualRangeBox.isSelected());
-			maxXField.setEnabled(manualRangeBox.isSelected());
-			maxYField.setEnabled(manualRangeBox.isSelected());
-		}
-
-		if (e.getSource() instanceof JCheckBox
-				|| (e.getSource() instanceof JComboBox && e.getStateChange() == ItemEvent.SELECTED)) {
-			configListeners.forEach(l -> l.configChanged());
-		}
+	private void manualRangeChanged() {
+		minToZeroBox.setEnabled(!manualRangeBox.isSelected());
+		minXField.setEnabled(manualRangeBox.isSelected());
+		minYField.setEnabled(manualRangeBox.isSelected());
+		maxXField.setEnabled(manualRangeBox.isSelected());
+		maxYField.setEnabled(manualRangeBox.isSelected());
+		configChanged();
 	}
 
-	@Override
-	public void textChanged(Object source) {
-		configListeners.forEach(l -> l.configChanged());
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (e.getSource() == resolutionSlider) {
-			configListeners.forEach(l -> l.configChanged());
+	private void comboBoxConfigChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			configChanged();
 		}
 	}
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	@Override
-	public void valuesChanged() {
+	private void configChanged() {
 		configListeners.forEach(l -> l.configChanged());
 	}
 

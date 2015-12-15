@@ -21,5 +21,5 @@ package de.bund.bfr.knime.ui;
 
 public interface TextListener {
 
-	void textChanged(Object source);
+	void textChanged(TextInput source);
 }

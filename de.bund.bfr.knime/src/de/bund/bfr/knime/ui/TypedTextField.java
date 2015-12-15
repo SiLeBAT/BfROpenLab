@@ -27,7 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public abstract class TypedTextField extends JTextField implements DocumentListener {
+public abstract class TypedTextField extends JTextField implements TextInput, DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,18 +45,25 @@ public abstract class TypedTextField extends JTextField implements DocumentListe
 		getDocument().addDocumentListener(this);
 	}
 
+	@Override
+	public abstract Object getValue();
+
+	@Override
 	public boolean isOptional() {
 		return optional;
 	}
 
+	@Override
 	public boolean isValueValid() {
 		return valueValid;
 	}
 
+	@Override
 	public void addTextListener(TextListener listener) {
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeTextListener(TextListener listener) {
 		listeners.remove(listener);
 	}

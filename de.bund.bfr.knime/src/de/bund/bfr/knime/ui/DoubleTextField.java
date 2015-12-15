@@ -50,6 +50,7 @@ public class DoubleTextField extends TypedTextField implements FocusListener {
 		textChanged();
 	}
 
+	@Override
 	public Double getValue() {
 		return value;
 	}

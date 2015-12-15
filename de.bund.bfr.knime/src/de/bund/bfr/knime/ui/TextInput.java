@@ -19,35 +19,15 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-import com.google.common.base.Strings;
+public interface TextInput {
 
-public class StringTextField extends TypedTextField {
+	Object getValue();
 
-	private static final long serialVersionUID = 1L;
+	boolean isOptional();
 
-	private String value;
+	boolean isValueValid();
 
-	public StringTextField(boolean optional, int columns) {
-		super(optional, columns);
-		textChanged();
-	}
+	void addTextListener(TextListener listener);
 
-	@Override
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		getDocument().removeDocumentListener(this);
-		setText(Strings.nullToEmpty(value));
-		getDocument().addDocumentListener(this);
-		textChanged();
-	}
-
-	@Override
-	protected void textChanged() {
-		value = Strings.emptyToNull(getText().trim());
-		valueValid = value != null || isOptional();
-		super.textChanged();
-	}
+	void removeTextListener(TextListener listener);
 }

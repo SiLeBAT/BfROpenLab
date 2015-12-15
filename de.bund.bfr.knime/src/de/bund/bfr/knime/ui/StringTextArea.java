@@ -30,7 +30,7 @@ import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Strings;
 
-public class StringTextArea extends JTextArea implements DocumentListener {
+public class StringTextArea extends JTextArea implements TextInput, DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,18 +51,17 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 		textChanged();
 	}
 
+	@Override
 	public void addTextListener(TextListener listener) {
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeTextListener(TextListener listener) {
 		listeners.remove(listener);
 	}
 
-	public boolean isValueValid() {
-		return valueValid;
-	}
-
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -72,6 +71,16 @@ public class StringTextArea extends JTextArea implements DocumentListener {
 		setText(Strings.nullToEmpty(value));
 		getDocument().addDocumentListener(this);
 		textChanged();
+	}
+
+	@Override
+	public boolean isOptional() {
+		return optional;
+	}
+
+	@Override
+	public boolean isValueValid() {
+		return valueValid;
 	}
 
 	@Override

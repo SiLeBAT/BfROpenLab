@@ -45,6 +45,7 @@ public class IntTextField extends TypedTextField {
 		textChanged();
 	}
 
+	@Override
 	public Integer getValue() {
 		return value;
 	}
