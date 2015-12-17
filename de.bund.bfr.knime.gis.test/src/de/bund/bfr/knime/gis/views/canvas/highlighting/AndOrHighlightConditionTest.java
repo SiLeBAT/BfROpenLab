@@ -78,7 +78,7 @@ public class AndOrHighlightConditionTest {
 	public void testAndOrHighlightCondition() {
 		AndOrHighlightCondition c = new AndOrHighlightCondition();
 
-		assertEquals(Arrays.asList(Arrays.asList(new LogicalHighlightCondition())), c.getConditions());
+		assertEquals(Arrays.asList(Arrays.asList((LogicalHighlightCondition) null)), c.getConditions());
 		assertNull(c.getName());
 		assertTrue(c.isShowInLegend());
 		assertNull(c.getColor());

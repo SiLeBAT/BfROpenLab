@@ -45,7 +45,7 @@ public class AndOrHighlightCondition implements HighlightCondition, Serializable
 	private String labelProperty;
 
 	public AndOrHighlightCondition() {
-		this(new LogicalHighlightCondition(), null, true, null, false, false, null);
+		this((LogicalHighlightCondition) null, null, true, null, false, false, null);
 	}
 
 	public AndOrHighlightCondition(LogicalHighlightCondition condition, String name, boolean showInLegend, Color color,
