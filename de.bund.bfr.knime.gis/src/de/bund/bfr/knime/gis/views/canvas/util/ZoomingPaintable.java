@@ -137,7 +137,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 				viewer.repaint();
 			}
 
-			canvas.transformChanged();
+			canvas.transformFinished();
 		}
 	}
 

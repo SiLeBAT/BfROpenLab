@@ -74,7 +74,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 			lastTask.cancel(false);
 		}
 
-		lastTask = scheduler.schedule(() -> changeListeners.forEach(l -> l.transformChanged()), 200,
+		lastTask = scheduler.schedule(() -> changeListeners.forEach(l -> l.transformFinished()), 200,
 				TimeUnit.MILLISECONDS);
 	}
 }

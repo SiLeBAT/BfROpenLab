@@ -80,13 +80,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (!pickedVertexState.isPicked(vertex)) {
 						pickedVertexState.clear();
 						pickedVertexState.pick(vertex, true);
-						changeListeners.forEach(l -> l.nodePickingChanged());
+						changeListeners.forEach(l -> l.nodePickingFinished());
 					}
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (!pickedEdgeState.isPicked(edge)) {
 						pickedEdgeState.clear();
 						pickedEdgeState.pick(edge, true);
-						changeListeners.forEach(l -> l.edgePickingChanged());
+						changeListeners.forEach(l -> l.edgePickingFinished());
 					}
 				} else {
 					boolean nodesPicked = !pickedVertexState.getPicked().isEmpty();
@@ -95,13 +95,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (nodesPicked && edgesPicked) {
 						pickedVertexState.clear();
 						pickedEdgeState.clear();
-						changeListeners.forEach(l -> l.pickingChanged());
+						changeListeners.forEach(l -> l.pickingFinished());
 					} else if (nodesPicked) {
 						pickedVertexState.clear();
-						changeListeners.forEach(l -> l.nodePickingChanged());
+						changeListeners.forEach(l -> l.nodePickingFinished());
 					} else if (edgesPicked) {
 						pickedEdgeState.clear();
-						changeListeners.forEach(l -> l.edgePickingChanged());
+						changeListeners.forEach(l -> l.edgePickingFinished());
 					}
 				}
 			} else {
@@ -110,13 +110,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 						vertex = null;
 					}
 
-					changeListeners.forEach(l -> l.nodePickingChanged());
+					changeListeners.forEach(l -> l.nodePickingFinished());
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge))) {
 						edge = null;
 					}
 
-					changeListeners.forEach(l -> l.edgePickingChanged());
+					changeListeners.forEach(l -> l.edgePickingFinished());
 				}
 			}
 		}
@@ -140,11 +140,11 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 				pickedVertexState.pick(v, true);
 			}
 
-			changeListeners.forEach(l -> l.nodePickingChanged());
+			changeListeners.forEach(l -> l.nodePickingFinished());
 		}
 
 		if (nodesMoved) {
-			changeListeners.forEach(l -> l.nodesMoved());
+			changeListeners.forEach(l -> l.nodeMovementFinished());
 		}
 
 		down = null;

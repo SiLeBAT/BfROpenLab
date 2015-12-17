@@ -22,13 +22,10 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -50,8 +47,6 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -97,8 +92,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel implements ChangeListener, MouseListener,
-		BetterGraphMouse.ChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+public abstract class Canvas<V extends Node> extends JPanel implements BetterGraphMouse.ChangeListener,
+		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -152,7 +147,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
-		viewer.addMouseListener(this);
 		viewer.getRenderContext().setVertexFillPaintTransformer(
 				CanvasTransformers.nodeFillTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderContext()
@@ -161,7 +155,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 				CanvasTransformers.edgeDrawTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.addChangeListener(this);
+				.addChangeListener(e -> transformChanged());
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
@@ -388,7 +382,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setSelectedNodes(Set<V> selectedNodes) {
 		viewer.getPickedVertexState().clear();
 		selectedNodes.stream().filter(n -> nodes.contains(n)).forEach(n -> viewer.getPickedVertexState().pick(n, true));
-		nodePickingChanged();
+		nodePickingFinished();
 	}
 
 	@Override
@@ -400,7 +394,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	public void setSelectedEdges(Set<Edge<V>> selectedEdges) {
 		viewer.getPickedEdgeState().clear();
 		selectedEdges.stream().filter(e -> edges.contains(e)).forEach(e -> viewer.getPickedEdgeState().pick(e, true));
-		edgePickingChanged();
+		edgePickingFinished();
 	}
 
 	@Override
@@ -499,76 +493,40 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
-				.getTransformer(Layer.LAYOUT)).getTransform();
-		boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
-
-		this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
-		applyTransform();
-	}
-
-	@Override
-	public void transformChanged() {
+	public void transformFinished() {
 		canvasListeners.forEach(l -> l.transformChanged(this));
 	}
 
 	@Override
-	public void pickingChanged() {
+	public void pickingFinished() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 		canvasListeners.forEach(l -> l.selectionChanged(this));
 	}
 
 	@Override
-	public void nodePickingChanged() {
+	public void nodePickingFinished() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		canvasListeners.forEach(l -> l.nodeSelectionChanged(this));
 	}
 
 	@Override
-	public void edgePickingChanged() {
+	public void edgePickingFinished() {
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
 		canvasListeners.forEach(l -> l.edgeSelectionChanged(this));
 	}
 
 	@Override
-	public void nodesMoved() {
+	public void nodeMovementFinished() {
 		canvasListeners.forEach(l -> l.nodePositionsChanged(this));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
-			switch (getEditingMode()) {
-			case TRANSFORMING:
-				setEditingMode(Mode.PICKING);
-				viewer.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case PICKING:
-				setEditingMode(Mode.TRANSFORMING);
-				viewer.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
+	public void modeChangeFinished() {
+		optionsPanel.removeChangeListener(this);
+		optionsPanel.setEditingMode(((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).getMode());
+		optionsPanel.addChangeListener(this);
 	}
 
 	@Override
@@ -613,7 +571,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		edges.stream().filter(e -> selected.contains(e.getFrom()) && selected.contains(e.getTo()))
 				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
-		edgePickingChanged();
+		edgePickingFinished();
 	}
 
 	@Override
@@ -622,7 +580,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		edges.stream().filter(e -> selected.contains(e.getTo()))
 				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
-		edgePickingChanged();
+		edgePickingFinished();
 	}
 
 	@Override
@@ -631,19 +589,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 
 		edges.stream().filter(e -> selected.contains(e.getFrom()))
 				.forEach(e -> viewer.getPickedEdgeState().pick(e, true));
-		edgePickingChanged();
+		edgePickingFinished();
 	}
 
 	@Override
 	public void clearSelectedNodesItemClicked() {
 		viewer.getPickedVertexState().clear();
-		nodePickingChanged();
+		nodePickingFinished();
 	}
 
 	@Override
 	public void clearSelectedEdgesItemClicked() {
 		viewer.getPickedEdgeState().clear();
-		edgePickingChanged();
+		edgePickingFinished();
 	}
 
 	@Override
@@ -1282,6 +1240,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements ChangeLis
 	protected abstract void applyTransform();
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
+
+	private void transformChanged() {
+		AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
+				.getTransformer(Layer.LAYOUT)).getTransform();
+		boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
+
+		this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
+		applyTransform();
+	}
 
 	private class PostPaintable implements Paintable {
 

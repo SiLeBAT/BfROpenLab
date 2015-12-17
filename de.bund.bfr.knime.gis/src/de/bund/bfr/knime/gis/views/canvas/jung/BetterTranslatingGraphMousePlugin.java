@@ -73,7 +73,7 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 			vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (changed) {
-				changeListeners.forEach(l -> l.transformChanged());
+				changeListeners.forEach(l -> l.transformFinished());
 			}
 		}
 	}
