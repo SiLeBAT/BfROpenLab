@@ -367,11 +367,11 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		transformingButton = new JRadioButton("Transforming");
 		transformingButton.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
-		transformingButton.addItemListener(e -> editingModeChanged(e));
+		transformingButton.addItemListener(this::editingModeChanged);
 
 		pickingButton = new JRadioButton("Picking");
 		pickingButton.setSelected(DEFAULT_MODE == Mode.PICKING);
-		pickingButton.addItemListener(e -> editingModeChanged(e));
+		pickingButton.addItemListener(this::editingModeChanged);
 
 		UI.groupButtons(transformingButton, pickingButton);
 
@@ -395,7 +395,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		fontSizeBox.setSelectedItem(fontSize);
-		fontSizeBox.addItemListener(e -> fontSizeChanged(e));
+		fontSizeBox.addItemListener(this::fontSizeChanged);
 
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
@@ -405,25 +405,25 @@ public class CanvasOptionsPanel extends JScrollPane {
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addItemListener(e -> nodeSizeChanged(e));
+		nodeSizeBox.addItemListener(this::nodeSizeChanged);
 
 		nodeMaxSizeBox = new JComboBox<>(NODE_MAX_SIZES);
 		nodeMaxSizeBox.setEditable(true);
 		((JTextField) nodeMaxSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
-		nodeMaxSizeBox.addItemListener(e -> nodeMaxSizeChanged(e));
+		nodeMaxSizeBox.addItemListener(this::nodeMaxSizeChanged);
 
 		edgeThicknessBox = new JComboBox<>(new Vector<>(Ints.asList(EDGE_THICKNESSES)));
 		edgeThicknessBox.setEditable(true);
 		((JTextField) edgeThicknessBox.getEditor().getEditorComponent()).setColumns(3);
 		edgeThicknessBox.setSelectedItem(edgeThickness);
-		edgeThicknessBox.addItemListener(e -> edgeThicknessChanged(e));
+		edgeThicknessBox.addItemListener(this::edgeThicknessChanged);
 
 		edgeMaxThicknessBox = new JComboBox<>(EDGE_MAX_THICKNESSES);
 		edgeMaxThicknessBox.setEditable(true);
 		((JTextField) edgeMaxThicknessBox.getEditor().getEditorComponent()).setColumns(3);
 		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
-		edgeMaxThicknessBox.addItemListener(e -> edgeMaxThicknessChanged(e));
+		edgeMaxThicknessBox.addItemListener(this::edgeMaxThicknessChanged);
 
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);

@@ -184,12 +184,12 @@ public class ChartConfigPanel extends JPanel {
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 
 		xBox = new JComboBox<>();
-		xBox.addItemListener(e -> comboBoxConfigChanged(e));
+		xBox.addItemListener(this::comboBoxConfigChanged);
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
-		xTransBox.addItemListener(e -> comboBoxConfigChanged(e));
+		xTransBox.addItemListener(this::comboBoxConfigChanged);
 		yTransBox = new JComboBox<>(Transform.values());
-		yTransBox.addItemListener(e -> comboBoxConfigChanged(e));
+		yTransBox.addItemListener(this::comboBoxConfigChanged);
 
 		JPanel variablesPanel = new JPanel();
 
