@@ -20,8 +20,7 @@
 package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
@@ -34,8 +33,6 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 
 	private static final long serialVersionUID = 1L;
 
-	private List<TextListener> listeners;
-
 	private boolean optional;
 
 	private boolean valueValid;
@@ -47,18 +44,7 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 		setLineWrap(true);
 		setBorder(BorderFactory.createLoweredBevelBorder());
 		getDocument().addDocumentListener(this);
-		listeners = new ArrayList<>();
 		textChanged();
-	}
-
-	@Override
-	public void addTextListener(TextListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeTextListener(TextListener listener) {
-		listeners.remove(listener);
 	}
 
 	@Override
@@ -81,6 +67,16 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 	@Override
 	public boolean isValueValid() {
 		return valueValid;
+	}
+
+	@Override
+	public void addTextListener(TextListener listener) {
+		listenerList.add(TextListener.class, listener);
+	}
+
+	@Override
+	public void removeTextListener(TextListener listener) {
+		listenerList.remove(TextListener.class, listener);
 	}
 
 	@Override
@@ -119,6 +115,6 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 	private void textChanged() {
 		value = Strings.emptyToNull(getText().trim());
 		valueValid = value != null || optional;
-		listeners.forEach(l -> l.textChanged(this));
+		Arrays.asList(listenerList.getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
 	}
 }

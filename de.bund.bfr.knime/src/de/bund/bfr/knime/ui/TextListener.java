@@ -19,7 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-public interface TextListener {
+import java.util.EventListener;
+
+public interface TextListener extends EventListener {
 
 	void textChanged(TextInput source);
 }

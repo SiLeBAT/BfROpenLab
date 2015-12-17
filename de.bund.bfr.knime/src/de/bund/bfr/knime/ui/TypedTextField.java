@@ -20,8 +20,7 @@
 package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -34,14 +33,11 @@ public abstract class TypedTextField extends JTextField implements TextInput, Do
 	private boolean optional;
 	protected boolean valueValid;
 
-	private List<TextListener> listeners;
-
 	public TypedTextField(boolean optional, int columns) {
 		super(columns);
 
 		this.optional = optional;
 		valueValid = true;
-		listeners = new ArrayList<>();
 		getDocument().addDocumentListener(this);
 	}
 
@@ -60,12 +56,12 @@ public abstract class TypedTextField extends JTextField implements TextInput, Do
 
 	@Override
 	public void addTextListener(TextListener listener) {
-		listeners.add(listener);
+		listenerList.add(TextListener.class, listener);
 	}
 
 	@Override
 	public void removeTextListener(TextListener listener) {
-		listeners.remove(listener);
+		listenerList.remove(TextListener.class, listener);
 	}
 
 	@Override
@@ -102,6 +98,6 @@ public abstract class TypedTextField extends JTextField implements TextInput, Do
 	}
 
 	protected void textChanged() {
-		listeners.forEach(l -> l.textChanged(this));
+		Arrays.asList(listenerList.getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
 	}
 }

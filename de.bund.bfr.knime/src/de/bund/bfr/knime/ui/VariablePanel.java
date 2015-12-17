@@ -29,6 +29,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +42,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeListener;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -59,24 +61,15 @@ public class VariablePanel extends JPanel {
 	private Map<String, DoubleTextField> valueFields;
 	private Map<String, JSlider> valueSliders;
 
-	private List<ValueListener> valueListeners;
-
-	private boolean ignoreSliderChanges;
-	private boolean ignoreTextChanges;
-
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
 			Map<String, Double> maxValues, boolean multiSelection, boolean allowSetRanges, boolean instantSliders) {
 		this.variables = KnimeUtils.nullToEmpty(variables);
 		this.minValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(minValues));
 		this.maxValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(maxValues));
 		selectedValues = new LinkedHashMap<>();
-		valueListeners = new ArrayList<>();
 		valueFields = new LinkedHashMap<>();
 		valueSliders = new LinkedHashMap<>();
 		setLayout(new GridBagLayout());
-
-		ignoreSliderChanges = false;
-		ignoreTextChanges = false;
 
 		int row = 0;
 
@@ -156,11 +149,11 @@ public class VariablePanel extends JPanel {
 	}
 
 	public void addValueListener(ValueListener listener) {
-		valueListeners.add(listener);
+		listenerList.add(ValueListener.class, listener);
 	}
 
 	public void removeValueListener(ValueListener listener) {
-		valueListeners.remove(listener);
+		listenerList.remove(ValueListener.class, listener);
 	}
 
 	public Map<String, List<Boolean>> getSelectedValues() {
@@ -206,7 +199,7 @@ public class VariablePanel extends JPanel {
 
 		if (dialog.isApproved()) {
 			selectedValues.put(var, dialog.getSelected());
-			valueListeners.forEach(l -> l.valuesChanged(this));
+			Arrays.asList(listenerList.getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
 		}
 	}
 
@@ -228,18 +221,17 @@ public class VariablePanel extends JPanel {
 			}
 
 			slider.setEnabled(true);
-			ignoreSliderChanges = true;
+
+			List<ChangeListener> changeListeners = Arrays.asList(slider.getListeners(ChangeListener.class));
+
+			changeListeners.forEach(l -> slider.removeChangeListener(l));
 			slider.setValue(field.getValue() != null
 					? doubleToInt(field.getValue(), minValues.get(var), maxValues.get(var)) : 0);
-			ignoreSliderChanges = false;
+			changeListeners.forEach(l -> slider.addChangeListener(l));
 		}
 	}
 
 	private void textChanged(String var) {
-		if (ignoreTextChanges) {
-			return;
-		}
-
 		DoubleTextField field = valueFields.get(var);
 		JSlider slider = valueSliders.get(var);
 
@@ -248,30 +240,29 @@ public class VariablePanel extends JPanel {
 		}
 
 		if (slider != null && slider.isEnabled()) {
-			ignoreSliderChanges = true;
+			List<ChangeListener> changeListeners = Arrays.asList(slider.getListeners(ChangeListener.class));
+
+			changeListeners.forEach(l -> slider.removeChangeListener(l));
 			slider.setValue(doubleToInt(field.getValue(), minValues.get(var), maxValues.get(var)));
-			ignoreSliderChanges = false;
+			changeListeners.forEach(l -> slider.addChangeListener(l));
 		}
 
-		valueListeners.forEach(l -> l.valuesChanged(this));
+		Arrays.asList(listenerList.getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
 	}
 
 	private void sliderChanged(String var, boolean applyChange) {
-		if (ignoreSliderChanges) {
-			return;
-		}
-
 		JSlider slider = valueSliders.get(var);
 		DoubleTextField field = valueFields.get(var);
+		List<TextListener> textListeners = Arrays.asList(field.getListeners(TextListener.class));
 
 		if (!applyChange) {
-			ignoreTextChanges = true;
+			textListeners.forEach(l -> field.removeTextListener(l));
 		}
 
 		field.setValue(intToDouble(slider.getValue(), minValues.get(var), maxValues.get(var)));
 
 		if (!applyChange) {
-			ignoreTextChanges = false;
+			textListeners.forEach(l -> field.addTextListener(l));
 		}
 	}
 
@@ -416,7 +407,7 @@ public class VariablePanel extends JPanel {
 		}
 	}
 
-	public static interface ValueListener {
+	public static interface ValueListener extends EventListener {
 
 		void valuesChanged(VariablePanel source);
 	}
