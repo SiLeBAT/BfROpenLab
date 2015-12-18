@@ -271,7 +271,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setFontSize(int fontSize) {
-		this.fontSize = fontSize;
 		fontSizeBox.setSelectedItem(fontSize);
 	}
 
@@ -288,7 +287,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setNodeSize(int nodeSize) {
-		this.nodeSize = nodeSize;
 		nodeSizeBox.setSelectedItem(nodeSize);
 	}
 
@@ -297,7 +295,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setNodeMaxSize(Integer nodeMaxSize) {
-		this.nodeMaxSize = nodeMaxSize;
 		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 	}
 
@@ -306,7 +303,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setEdgeThickness(int edgeThickness) {
-		this.edgeThickness = edgeThickness;
 		edgeThicknessBox.setSelectedItem(edgeThickness);
 	}
 
@@ -315,7 +311,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
-		this.edgeMaxThickness = edgeMaxThickness;
 		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 	}
 
@@ -332,8 +327,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setLabel(String label) {
-		this.label = label;
-		labelField.setText(label != null ? label : "");
+		labelField.setText(Strings.nullToEmpty(label));
 		labelButton.doClick();
 	}
 
@@ -342,7 +336,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void setBorderAlpha(int borderAlpha) {
-		this.borderAlpha = borderAlpha;
 		borderAlphaSlider.setValue(borderAlpha);
 		borderAlphaButton.doClick();
 	}
@@ -434,7 +427,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(e -> {
-			label = labelField.getText();
+			label = Strings.emptyToNull(labelField.getText());
 			listeners.forEach(l -> l.labelChanged());
 		});
 
