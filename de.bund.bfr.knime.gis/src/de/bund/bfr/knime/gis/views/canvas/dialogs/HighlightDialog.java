@@ -46,8 +46,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -59,9 +57,10 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
+import de.bund.bfr.knime.ui.DocumentActionListener;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightDialog extends KnimeDialog implements DocumentListener {
+public class HighlightDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -199,7 +198,7 @@ public class HighlightDialog extends KnimeDialog implements DocumentListener {
 		conditionTypeBox.addItemListener(this::conditionTypeChanged);
 		nameField = new JTextField(20);
 		nameField.setText(condition.getName() != null ? condition.getName() : "");
-		nameField.getDocument().addDocumentListener(this);
+		nameField.getDocument().addDocumentListener(new DocumentActionListener(e -> updateOptionsPanel()));
 		legendBox = new JCheckBox("Show In Legend");
 		legendBox.setSelected(condition.isShowInLegend());
 		colorButton = new JButton("     ");
@@ -292,21 +291,6 @@ public class HighlightDialog extends KnimeDialog implements DocumentListener {
 		UI.adjustDialog(this);
 		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		updateOptionsPanel();
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		updateOptionsPanel();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		updateOptionsPanel();
 	}
 
 	public HighlightCondition getHighlightCondition() {

@@ -24,17 +24,16 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Strings;
 
-public class StringTextArea extends JTextArea implements TextInput, DocumentListener {
+public class StringTextArea extends JTextArea implements TextInput {
 
 	private static final long serialVersionUID = 1L;
 
+	private DocumentListener documentListener;
 	private boolean optional;
-
 	private boolean valueValid;
 	private String value;
 
@@ -43,7 +42,7 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 		this.optional = optional;
 		setLineWrap(true);
 		setBorder(BorderFactory.createLoweredBevelBorder());
-		getDocument().addDocumentListener(this);
+		getDocument().addDocumentListener(documentListener = new DocumentActionListener(e -> textChanged()));
 		textChanged();
 	}
 
@@ -53,9 +52,9 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 	}
 
 	public void setValue(String value) {
-		getDocument().removeDocumentListener(this);
+		getDocument().removeDocumentListener(documentListener);
 		setText(Strings.nullToEmpty(value));
-		getDocument().addDocumentListener(this);
+		getDocument().addDocumentListener(documentListener);
 		textChanged();
 	}
 
@@ -77,21 +76,6 @@ public class StringTextArea extends JTextArea implements TextInput, DocumentList
 	@Override
 	public void removeTextListener(TextListener listener) {
 		listenerList.remove(TextListener.class, listener);
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
 	}
 
 	@Override

@@ -19,33 +19,32 @@
  *******************************************************************************/
 package de.bund.bfr.knime.ui;
 
-import com.google.common.base.Strings;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class StringTextField extends TypedTextField {
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-	private static final long serialVersionUID = 1L;
+public class DocumentActionListener implements DocumentListener {
 
-	private String value;
+	private ActionListener listener;
 
-	public StringTextField(boolean optional, int columns) {
-		super(optional, columns);
-		textChanged();
+	public DocumentActionListener(ActionListener listener) {
+		this.listener = listener;
 	}
 
 	@Override
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		setTextWithoutListener(Strings.nullToEmpty(value));
-		textChanged();
+	public void insertUpdate(DocumentEvent e) {
+		listener.actionPerformed(new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "insertUpdate"));
 	}
 
 	@Override
-	protected void textChanged() {
-		value = Strings.emptyToNull(getText().trim());
-		valueValid = value != null || isOptional();
-		super.textChanged();
+	public void removeUpdate(DocumentEvent e) {
+		listener.actionPerformed(new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "removeUpdate"));
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		listener.actionPerformed(new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "changedUpdate"));
 	}
 }

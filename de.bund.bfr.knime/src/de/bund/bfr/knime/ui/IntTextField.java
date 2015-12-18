@@ -51,9 +51,7 @@ public class IntTextField extends TypedTextField {
 	}
 
 	public void setValue(Integer value) {
-		getDocument().removeDocumentListener(this);
-		setText(value != null ? value.toString() : "");
-		getDocument().addDocumentListener(this);
+		setTextWithoutListener(value != null ? value.toString() : "");
 		textChanged();
 	}
 

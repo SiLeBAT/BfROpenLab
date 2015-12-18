@@ -23,13 +23,13 @@ import java.awt.Color;
 import java.util.Arrays;
 
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public abstract class TypedTextField extends JTextField implements TextInput, DocumentListener {
+public abstract class TypedTextField extends JTextField implements TextInput {
 
 	private static final long serialVersionUID = 1L;
 
+	private DocumentListener documentListener;
 	private boolean optional;
 	protected boolean valueValid;
 
@@ -38,7 +38,7 @@ public abstract class TypedTextField extends JTextField implements TextInput, Do
 
 		this.optional = optional;
 		valueValid = true;
-		getDocument().addDocumentListener(this);
+		getDocument().addDocumentListener(documentListener = new DocumentActionListener(e -> textChanged()));
 	}
 
 	@Override
@@ -82,22 +82,13 @@ public abstract class TypedTextField extends JTextField implements TextInput, Do
 		return super.getBackground();
 	}
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
-
 	protected void textChanged() {
 		Arrays.asList(listenerList.getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
+	}
+
+	protected void setTextWithoutListener(String text) {
+		getDocument().removeDocumentListener(documentListener);
+		setText(text);
+		getDocument().addDocumentListener(documentListener);
 	}
 }
