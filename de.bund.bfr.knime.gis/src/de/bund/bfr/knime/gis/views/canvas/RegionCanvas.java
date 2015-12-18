@@ -21,8 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +41,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 /**
  * @author Christian Thoens
  */
-public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemListener {
+public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,8 +65,10 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
-		viewer.getPickedVertexState().addItemListener(this);
-		viewer.getPickedEdgeState().addItemListener(this);
+		viewer.getPickedVertexState().addItemListener(e -> {
+			flushImage();
+			viewer.repaint();
+		});
 		viewer.getRenderContext().setVertexShapeTransformer(CanvasTransformers.nodeShapeTransformer(2, null, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
@@ -86,14 +86,6 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode>implements ItemList
 	@Override
 	public Collection<RegionNode> getRegions() {
 		return nodes;
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getItem() instanceof RegionNode) {
-			flushImage();
-			viewer.repaint();
-		}
 	}
 
 	@Override

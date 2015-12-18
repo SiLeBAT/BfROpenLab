@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +57,7 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
-public class TracingDelegate<V extends Node> implements ItemListener {
+public class TracingDelegate<V extends Node> {
 
 	private static boolean DEFAULT_PERFORM_TRACING = true;
 	private static boolean DEFAULT_ENFORCE_TEMPORAL_ORDER = false;
@@ -90,11 +88,23 @@ public class TracingDelegate<V extends Node> implements ItemListener {
 
 		enforceTemporalOrderBox = new JCheckBox("Activate");
 		enforceTemporalOrderBox.setSelected(DEFAULT_ENFORCE_TEMPORAL_ORDER);
-		enforceTemporalOrderBox.addItemListener(this);
+		enforceTemporalOrderBox.addItemListener(e -> {
+			if (performTracing) {
+				canvas.applyChanges();
+			}
+
+			listeners.forEach(l -> l.enforceTemporalOrderChanged(canvas));
+		});
 
 		showForwardBox = new JCheckBox("Activate");
 		showForwardBox.setSelected(DEFAULT_SHOW_FORWARD);
-		showForwardBox.addItemListener(this);
+		showForwardBox.addItemListener(e -> {
+			if (performTracing) {
+				canvas.applyChanges();
+			}
+
+			listeners.forEach(l -> l.showForwardChanged(canvas));
+		});
 
 		JMenuItem defaultHighlightItem = new JMenuItem("Set default Highlighting");
 
@@ -372,23 +382,6 @@ public class TracingDelegate<V extends Node> implements ItemListener {
 				canvas.getNodes().add(edge.getTo());
 				canvas.getEdges().add(edge);
 			}
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == enforceTemporalOrderBox) {
-			if (performTracing) {
-				canvas.applyChanges();
-			}
-
-			listeners.forEach(l -> l.enforceTemporalOrderChanged(canvas));
-		} else if (e.getSource() == showForwardBox) {
-			if (performTracing) {
-				canvas.applyChanges();
-			}
-
-			listeners.forEach(l -> l.showForwardChanged(canvas));
 		}
 	}
 

@@ -19,10 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.cluster;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
@@ -55,7 +51,7 @@ import de.bund.bfr.knime.ui.IntTextField;
  * 
  * @author BfR
  */
-public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionListener, ItemListener {
+public class DBSCANNodeDialog extends DataAwareNodeDialogPane {
 
 	private DBSCANNSettings set;
 	private NodePropertySchema schema;
@@ -76,12 +72,12 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 		set = new DBSCANNSettings();
 
 		modelBox = new JComboBox<>(DBSCANNSettings.MODEL_CHOICES);
-		modelBox.addItemListener(this);
+		modelBox.addActionListener(e -> updatePanel());
 		filterButton = new JButton("Set Filter");
-		filterButton.addActionListener(this);
+		filterButton.addActionListener(e -> filterButtonPressed());
 		removeFilterButton = new JButton("Remove Filter");
 		removeFilterButton.setEnabled(false);
-		removeFilterButton.addActionListener(this);
+		removeFilterButton.addActionListener(e -> removeFilterButtonPressed());
 		minPointsField = new IntTextField(false, 5);
 		minPointsField.setMinValue(1);
 		maxDistField = new DoubleTextField(false, 5);
@@ -157,29 +153,21 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane implements ActionL
 		panel.revalidate();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, set.getFilter(),
-					new TracingPropertySelectorCreator());
+	private void filterButtonPressed() {
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, set.getFilter(),
+				new TracingPropertySelectorCreator());
 
-			dialog.setLocationRelativeTo(filterButton);
-			dialog.setVisible(true);
+		dialog.setLocationRelativeTo(filterButton);
+		dialog.setVisible(true);
 
-			if (dialog.isApproved()) {
-				set.setFilter((AndOrHighlightCondition) dialog.getHighlightCondition());
-			}
-		} else if (e.getSource() == removeFilterButton) {
-			set.setFilter(null);
+		if (dialog.isApproved()) {
+			set.setFilter((AndOrHighlightCondition) dialog.getHighlightCondition());
+			removeFilterButton.setEnabled(true);
 		}
-
-		removeFilterButton.setEnabled(set.getFilter() != null);
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == modelBox) {
-			updatePanel();
-		}
+	private void removeFilterButtonPressed() {
+		set.setFilter(null);
+		removeFilterButton.setEnabled(false);
 	}
 }

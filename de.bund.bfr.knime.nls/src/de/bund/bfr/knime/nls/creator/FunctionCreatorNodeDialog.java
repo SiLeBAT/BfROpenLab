@@ -21,8 +21,6 @@ package de.bund.bfr.knime.nls.creator;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,7 +52,7 @@ import de.bund.bfr.math.MathUtils;
  * 
  * @author Christian Thoens
  */
-public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemListener {
+public class FunctionCreatorNodeDialog extends NodeDialogPane {
 
 	private FunctionCreatorSettings set;
 	private List<String> usedIndeps;
@@ -64,7 +62,6 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemLis
 
 	private StringTextField depVarField;
 	private StringTextArea termField;
-	private List<JCheckBox> indepVarBoxes;
 
 	/**
 	 * New pane for configuring the FormulaCreator node.
@@ -125,21 +122,6 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemLis
 		termField.requestFocus();
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (indepVarBoxes != null && indepVarBoxes.contains(e.getSource())) {
-			String name = ((JCheckBox) e.getSource()).getText();
-
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				set.getIndependentVariables().add(name);
-				usedIndeps.add(name);
-			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-				set.getIndependentVariables().remove(name);
-				usedIndeps.remove(name);
-			}
-		}
-	}
-
 	private JPanel createFunctionPanel() {
 		JPanel editPanel = new JPanel();
 
@@ -183,7 +165,6 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemLis
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		indepVarBoxes = new ArrayList<>();
 
 		for (String el : Ordering.natural().sortedCopy(MathUtils.getSymbols(set.getTerm()))) {
 			JCheckBox box = new JCheckBox(el);
@@ -194,12 +175,21 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane implements ItemLis
 				box.setSelected(false);
 			}
 
-			box.addItemListener(this);
+			box.addItemListener(e -> indepVarChanged(box));
 			panel.add(box);
-			indepVarBoxes.add(box);
 		}
 
 		return panel;
+	}
+
+	private void indepVarChanged(JCheckBox box) {
+		if (box.isSelected()) {
+			set.getIndependentVariables().add(box.getText());
+			usedIndeps.add(box.getText());
+		} else {
+			set.getIndependentVariables().remove(box.getText());
+			usedIndeps.remove(box.getText());
+		}
 	}
 
 	private void updateFunction() {

@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.gis.geocode;
 
 import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +48,7 @@ import de.bund.bfr.knime.ui.ColumnComboBox;
  * 
  * @author Christian Thoens
  */
-public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener {
+public class GeocodingNodeDialog extends NodeDialogPane {
 
 	private GeocodingSettings set;
 
@@ -70,7 +68,7 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 	public GeocodingNodeDialog() {
 		set = new GeocodingSettings();
 		providerBox = new JComboBox<>(GeocodingSettings.PROVIDER_CHOICES);
-		providerBox.addItemListener(this);
+		providerBox.addActionListener(e -> updatePanel());
 		delayField = new JTextField();
 		multipleBox = new JComboBox<>(GeocodingSettings.MULTIPLE_CHOICES);
 
@@ -165,12 +163,4 @@ public class GeocodingNodeDialog extends NodeDialogPane implements ItemListener 
 		panel.add(UI.createOptionsPanel("Other Options", otherLabels, otherFields));
 		panel.revalidate();
 	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			updatePanel();
-		}
-	}
-
 }

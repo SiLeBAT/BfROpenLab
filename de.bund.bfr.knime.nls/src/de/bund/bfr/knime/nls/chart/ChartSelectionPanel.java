@@ -22,8 +22,6 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -58,7 +56,7 @@ import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
 import de.bund.bfr.knime.ui.Dialogs;
 
-public class ChartSelectionPanel extends JPanel implements ItemListener, CellEditorListener {
+public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -75,7 +73,7 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 
 		selectAllBox = new JCheckBox("Select All");
 		selectAllBox.setSelected(false);
-		selectAllBox.addItemListener(this);
+		selectAllBox.addItemListener(e -> selectAllChanged());
 
 		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
 				ChartUtils.createColorList(ids.size()), ChartUtils.createShapeList(ids.size())));
@@ -211,22 +209,21 @@ public class ChartSelectionPanel extends JPanel implements ItemListener, CellEdi
 	}
 
 	@Override
-	public void itemStateChanged(ItemEvent e) {
-		int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
-
-		selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
-		selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
-		selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
-		listeners.forEach(l -> l.selectionChanged());
-	}
-
-	@Override
 	public void editingStopped(ChangeEvent e) {
 		listeners.forEach(l -> l.selectionChanged());
 	}
 
 	@Override
 	public void editingCanceled(ChangeEvent e) {
+	}
+
+	private void selectAllChanged() {
+		int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
+
+		selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
+		selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
+		selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
+		listeners.forEach(l -> l.selectionChanged());
 	}
 
 	public static interface SelectionListener {

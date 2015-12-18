@@ -21,8 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +39,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListener {
+public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -65,8 +63,10 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, false));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, false, true, false));
-		viewer.getPickedVertexState().addItemListener(this);
-		viewer.getPickedEdgeState().addItemListener(this);
+		viewer.getPickedVertexState().addItemListener(e -> {
+			flushImage();
+			viewer.repaint();
+		});
 		viewer.getRenderContext().setVertexShapeTransformer(CanvasTransformers.nodeShapeTransformer(2, null, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
@@ -78,14 +78,6 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode>implements ItemListene
 
 		for (RegionNode node : this.nodes) {
 			viewer.getGraphLayout().setLocation(node, node.getCenter());
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getItem() instanceof RegionNode) {
-			flushImage();
-			viewer.repaint();
 		}
 	}
 

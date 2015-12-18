@@ -25,8 +25,6 @@ import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +59,7 @@ import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightDialog extends KnimeDialog implements ActionListener, DocumentListener, ItemListener {
+public class HighlightDialog extends KnimeDialog implements ActionListener, DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -372,18 +370,6 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 	}
 
 	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (logicalPropertyBoxes.contains(e.getSource())) {
-			int index = logicalPropertyBoxes.indexOf(e.getSource());
-			PropertySelector propertyBox = logicalPropertyBoxes.get(index);
-			AutoSuggestField valueField = logicalValueFields.get(index);
-			Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedProperty());
-
-			valueField.setPossibleValues(possibleValues);
-		}
-	}
-
-	@Override
 	public void changedUpdate(DocumentEvent e) {
 		updateOptionsPanel();
 	}
@@ -404,6 +390,13 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 	public boolean isApproved() {
 		return approved;
+	}
+
+	private void logicalPropertyChanged(PropertySelector propertyBox) {
+		AutoSuggestField valueField = logicalValueFields.get(logicalPropertyBoxes.indexOf(propertyBox));
+		Set<String> possibleValues = schema.getPossibleValues().get(propertyBox.getSelectedProperty());
+
+		valueField.setPossibleValues(possibleValues);
 	}
 
 	private void updateOptionsPanel() {
@@ -463,7 +456,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				JButton removeButton = new JButton("Remove");
 
 				propertyBox.setSelectedProperty(cond.getProperty());
-				propertyBox.addItemListener(this);
+				propertyBox.addItemListener(e -> logicalPropertyChanged(propertyBox));
 				typeBox.setSelectedItem(cond.getType());
 				valueField.setPossibleValues(possibleValues);
 				valueField.setSelectedItem(cond.getValue());

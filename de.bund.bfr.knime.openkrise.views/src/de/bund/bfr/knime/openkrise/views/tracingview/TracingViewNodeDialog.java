@@ -70,7 +70,7 @@ import de.bund.bfr.knime.ui.Dialogs;
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ItemListener, ComponentListener, CanvasListener, TracingListener {
+		implements ActionListener, ComponentListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -130,6 +130,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private JCheckBox exportAsSvgBox;
 	private JButton switchButton;
 	private JComboBox<GisType> gisBox;
+	private ItemListener gisBoxListener;
 
 	private JScrollPane northScrollPane;
 
@@ -157,7 +158,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		switchButton = new JButton();
 		switchButton.addActionListener(this);
 		gisBox = new JComboBox<>();
-		gisBox.addItemListener(this);
+		gisBox.addItemListener(gisBoxListener = e -> gisTypeChanged(e));
 
 		JPanel northPanel = new JPanel();
 
@@ -184,7 +185,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		undoStack.clear();
 		redoStack.clear();
 
-		gisBox.removeItemListener(this);
+		gisBox.removeItemListener(gisBoxListener);
 		gisBox.removeAllItems();
 
 		for (GisType type : GisType.values()) {
@@ -198,7 +199,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		gisBox.setSelectedItem(set.getGisType());
-		gisBox.addItemListener(this);
+		gisBox.addItemListener(gisBoxListener);
 		gisBox.setEnabled(set.isShowGis());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = false;
@@ -295,17 +296,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 					set.getGisType()));
 			set.setShowGis(!set.isShowGis());
 			gisBox.setEnabled(set.isShowGis());
-			updateCanvas();
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getSource() == gisBox && e.getStateChange() == ItemEvent.SELECTED) {
-			updateSettings();
-			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
-					(GisType) gisBox.getSelectedItem()));
-			set.setGisType((GisType) gisBox.getSelectedItem());
 			updateCanvas();
 		}
 	}
@@ -687,6 +677,16 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
+	private void gisTypeChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			updateSettings();
+			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
+					(GisType) gisBox.getSelectedItem()));
+			set.setGisType((GisType) gisBox.getSelectedItem());
+			updateCanvas();
+		}
+	}
+
 	private String createCanvas() throws NotConfigurableException {
 		if (canvas != null) {
 			panel.remove(canvas.getComponent());
@@ -740,10 +740,10 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void updateGisBox() {
-		gisBox.removeItemListener(this);
+		gisBox.removeItemListener(gisBoxListener);
 		gisBox.setEnabled(set.isShowGis());
 		gisBox.setSelectedItem(set.getGisType());
-		gisBox.addItemListener(this);
+		gisBox.addItemListener(gisBoxListener);
 	}
 
 	private void updateSettings() {

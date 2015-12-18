@@ -19,8 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 
@@ -42,7 +40,7 @@ import de.bund.bfr.knime.UI;
  * 
  * @author draaw
  */
-public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements ItemListener {
+public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private static final String FILE_HISTORY_ID = "SupplyChainReaderFileHistory";
 
@@ -65,7 +63,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 		JPanel dbPanel = new JPanel();
 
 		dbBox = new JCheckBox("Use External Database");
-		dbBox.addItemListener(this);
+		dbBox.addItemListener(e -> dbField.setEnabled(dbBox.isSelected()));
 		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
 		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(dbBox)));
@@ -99,10 +97,5 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane implements Item
 		set.setUseExternalDb(dbBox.isSelected());
 		set.setDbPath(dbField.getSelectedFile());
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		dbField.setEnabled(dbBox.isSelected());
 	}
 }
