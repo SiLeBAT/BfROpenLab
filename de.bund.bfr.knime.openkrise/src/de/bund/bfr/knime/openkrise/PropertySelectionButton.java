@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,9 +84,16 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 
 	@Override
 	public void setSelectedProperty(String selectedProperty) {
+		String oldProperty = this.selectedProperty;
+
 		this.selectedProperty = selectedProperty;
 		setText(selectedProperty);
-		fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, selectedProperty, ItemEvent.SELECTED));
+
+		if (!Objects.equals(oldProperty, selectedProperty)) {
+			fireItemStateChanged(new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, oldProperty, ItemEvent.DESELECTED));
+			fireItemStateChanged(
+					new ItemEvent(this, ItemEvent.ITEM_STATE_CHANGED, selectedProperty, ItemEvent.SELECTED));
+		}
 	}
 
 	private void buttonPressed() {

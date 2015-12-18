@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagLayout;
-import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -184,12 +183,12 @@ public class ChartConfigPanel extends JPanel {
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 
 		xBox = new JComboBox<>();
-		xBox.addItemListener(this::comboBoxConfigChanged);
+		xBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
-		xTransBox.addItemListener(this::comboBoxConfigChanged);
+		xTransBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
 		yTransBox = new JComboBox<>(Transform.values());
-		yTransBox.addItemListener(this::comboBoxConfigChanged);
+		yTransBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
 
 		JPanel variablesPanel = new JPanel();
 
@@ -422,12 +421,6 @@ public class ChartConfigPanel extends JPanel {
 		maxXField.setEnabled(manualRangeBox.isSelected());
 		maxYField.setEnabled(manualRangeBox.isSelected());
 		configChanged();
-	}
-
-	private void comboBoxConfigChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			configChanged();
-		}
 	}
 
 	private void configChanged() {

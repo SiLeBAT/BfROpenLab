@@ -28,6 +28,8 @@ import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Strings;
 
+import de.bund.bfr.knime.UI;
+
 public class StringTextArea extends JTextArea implements TextInput {
 
 	private static final long serialVersionUID = 1L;
@@ -42,7 +44,7 @@ public class StringTextArea extends JTextArea implements TextInput {
 		this.optional = optional;
 		setLineWrap(true);
 		setBorder(BorderFactory.createLoweredBevelBorder());
-		getDocument().addDocumentListener(documentListener = new DocumentActionListener(e -> textChanged()));
+		getDocument().addDocumentListener(documentListener = UI.newDocumentListener(e -> textChanged()));
 		textChanged();
 	}
 

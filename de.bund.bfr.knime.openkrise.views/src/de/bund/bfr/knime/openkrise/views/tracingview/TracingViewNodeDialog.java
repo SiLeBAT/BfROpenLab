@@ -22,7 +22,6 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.BorderLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Deque;
@@ -156,7 +155,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		switchButton = new JButton();
 		switchButton.addActionListener(e -> switchPressed());
 		gisBox = new JComboBox<>();
-		gisBox.addItemListener(gisBoxListener = e -> gisTypeChanged(e));
+		gisBox.addItemListener(gisBoxListener = UI.newItemSelectListener(e -> gisTypeChanged()));
 
 		JPanel northPanel = new JPanel();
 
@@ -595,14 +594,12 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private void gisTypeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			updateSettings();
-			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
-					(GisType) gisBox.getSelectedItem()));
-			set.setGisType((GisType) gisBox.getSelectedItem());
-			updateCanvas();
-		}
+	private void gisTypeChanged() {
+		updateSettings();
+		changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
+				(GisType) gisBox.getSelectedItem()));
+		set.setGisType((GisType) gisBox.getSelectedItem());
+		updateCanvas();
 	}
 
 	private String createCanvas() throws NotConfigurableException {

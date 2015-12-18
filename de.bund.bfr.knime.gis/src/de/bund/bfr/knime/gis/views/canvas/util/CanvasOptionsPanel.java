@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -41,6 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
 
 import de.bund.bfr.knime.UI;
@@ -367,11 +367,12 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		transformingButton = new JRadioButton("Transforming");
 		transformingButton.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
-		transformingButton.addItemListener(this::editingModeChanged);
+		transformingButton
+				.addItemListener(UI.newItemSelectListener(e -> listeners.forEach(l -> l.editingModeChanged())));
 
 		pickingButton = new JRadioButton("Picking");
 		pickingButton.setSelected(DEFAULT_MODE == Mode.PICKING);
-		pickingButton.addItemListener(this::editingModeChanged);
+		pickingButton.addItemListener(UI.newItemSelectListener(e -> listeners.forEach(l -> l.editingModeChanged())));
 
 		UI.groupButtons(transformingButton, pickingButton);
 
@@ -395,7 +396,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 		fontSizeBox.setEditable(true);
 		((JTextField) fontSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		fontSizeBox.setSelectedItem(fontSize);
-		fontSizeBox.addItemListener(this::fontSizeChanged);
+		fontSizeBox.addItemListener(UI.newItemSelectListener(e -> fontSizeChanged()));
 
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
@@ -405,25 +406,25 @@ public class CanvasOptionsPanel extends JScrollPane {
 		nodeSizeBox.setEditable(true);
 		((JTextField) nodeSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeSizeBox.setSelectedItem(nodeSize);
-		nodeSizeBox.addItemListener(this::nodeSizeChanged);
+		nodeSizeBox.addItemListener(UI.newItemSelectListener(e -> nodeSizeChanged()));
 
 		nodeMaxSizeBox = new JComboBox<>(NODE_MAX_SIZES);
 		nodeMaxSizeBox.setEditable(true);
 		((JTextField) nodeMaxSizeBox.getEditor().getEditorComponent()).setColumns(3);
 		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
-		nodeMaxSizeBox.addItemListener(this::nodeMaxSizeChanged);
+		nodeMaxSizeBox.addItemListener(UI.newItemSelectListener(e -> nodeMaxSizeChanged()));
 
 		edgeThicknessBox = new JComboBox<>(new Vector<>(Ints.asList(EDGE_THICKNESSES)));
 		edgeThicknessBox.setEditable(true);
 		((JTextField) edgeThicknessBox.getEditor().getEditorComponent()).setColumns(3);
 		edgeThicknessBox.setSelectedItem(edgeThickness);
-		edgeThicknessBox.addItemListener(this::edgeThicknessChanged);
+		edgeThicknessBox.addItemListener(UI.newItemSelectListener(e -> edgeThicknessChanged()));
 
 		edgeMaxThicknessBox = new JComboBox<>(EDGE_MAX_THICKNESSES);
 		edgeMaxThicknessBox.setEditable(true);
 		((JTextField) edgeMaxThicknessBox.getEditor().getEditorComponent()).setColumns(3);
 		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
-		edgeMaxThicknessBox.addItemListener(this::edgeMaxThicknessChanged);
+		edgeMaxThicknessBox.addItemListener(UI.newItemSelectListener(e -> edgeMaxThicknessChanged()));
 
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
@@ -464,104 +465,126 @@ public class CanvasOptionsPanel extends JScrollPane {
 		}
 	}
 
-	private void editingModeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			listeners.forEach(l -> l.editingModeChanged());
-		}
-	}
+	private void fontSizeChanged() {
+		String sizeString = toString(fontSizeBox.getSelectedItem());
 
-	private void fontSizeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Object size = fontSizeBox.getSelectedItem();
+		try {
+			int size = Integer.parseInt(sizeString);
 
-			if (size instanceof Integer) {
-				fontSize = (Integer) size;
-				listeners.forEach(l -> l.fontChanged());
-			} else {
-				Dialogs.showErrorMessage(fontSizeBox, size + " is not a valid number", "Error");
+			if (size < 1) {
+				Dialogs.showErrorMessage(fontSizeBox, "Value cannot be smaller than 1", "Error");
 				fontSizeBox.setSelectedItem(fontSize);
+			} else {
+				fontSize = size;
+				listeners.forEach(l -> l.fontChanged());
 			}
+		} catch (NumberFormatException e) {
+			Dialogs.showErrorMessage(fontSizeBox, sizeString + " is not a valid number", "Error");
+			fontSizeBox.setSelectedItem(fontSize);
+		} catch (NullPointerException e) {
+			Dialogs.showErrorMessage(fontSizeBox, "No value specified", "Error");
+			fontSizeBox.setSelectedItem(fontSize);
 		}
 	}
 
-	private void nodeSizeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Object size = nodeSizeBox.getSelectedItem();
+	private void nodeSizeChanged() {
+		String sizeString = toString(nodeSizeBox.getSelectedItem());
 
-			if (size instanceof Integer) {
-				if (nodeMaxSize != null && (Integer) size > nodeMaxSize) {
-					Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize,
-							"Error");
-					nodeSizeBox.setSelectedItem(nodeSize);
-				} else {
-					nodeSize = (Integer) size;
-					listeners.forEach(l -> l.nodeSizeChanged());
-				}
-			} else {
-				Dialogs.showErrorMessage(nodeSizeBox, size + " is not a valid number", "Error");
+		try {
+			int size = Integer.parseInt(sizeString);
+
+			if (size < 1) {
+				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be smaller than 1", "Error");
 				nodeSizeBox.setSelectedItem(nodeSize);
+			} else if (nodeMaxSize != null && size > nodeMaxSize) {
+				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize, "Error");
+				nodeSizeBox.setSelectedItem(nodeSize);
+			} else {
+				nodeSize = size;
+				listeners.forEach(l -> l.nodeSizeChanged());
 			}
+		} catch (NumberFormatException e) {
+			Dialogs.showErrorMessage(nodeSizeBox, sizeString + " is not a valid number", "Error");
+			nodeSizeBox.setSelectedItem(nodeSize);
+		} catch (NullPointerException e) {
+			Dialogs.showErrorMessage(nodeSizeBox, "No value specified", "Error");
+			nodeSizeBox.setSelectedItem(nodeSize);
 		}
 	}
 
-	private void nodeMaxSizeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Object size = nodeMaxSizeBox.getSelectedItem();
+	private void nodeMaxSizeChanged() {
+		String sizeString = toString(nodeMaxSizeBox.getSelectedItem());
 
-			if (size instanceof Integer || size == null) {
-				if (size != null && (Integer) size < nodeSize) {
-					Dialogs.showErrorMessage(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize,
-							"Error");
-					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
-				} else {
-					nodeMaxSize = (Integer) size;
-					listeners.forEach(l -> l.nodeSizeChanged());
-				}
-			} else {
-				Dialogs.showErrorMessage(nodeMaxSizeBox, size + " is not a valid number", "Error");
+		try {
+			int size = Integer.parseInt(sizeString);
+
+			if (size < nodeSize) {
+				Dialogs.showErrorMessage(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize, "Error");
 				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+			} else {
+				nodeMaxSize = size;
+				listeners.forEach(l -> l.nodeSizeChanged());
 			}
+		} catch (NumberFormatException e) {
+			Dialogs.showErrorMessage(nodeMaxSizeBox, sizeString + " is not a valid number", "Error");
+			nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+		} catch (NullPointerException e) {
+			nodeMaxSize = null;
+			listeners.forEach(l -> l.nodeSizeChanged());
 		}
 	}
 
-	private void edgeThicknessChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Object size = edgeThicknessBox.getSelectedItem();
+	private void edgeThicknessChanged() {
+		String sizeString = toString(edgeThicknessBox.getSelectedItem());
 
-			if (size instanceof Integer) {
-				if (edgeMaxThickness != null && (Integer) size > edgeMaxThickness) {
-					Dialogs.showErrorMessage(edgeThicknessBox,
-							"Value cannot be larger than max thickness " + edgeMaxThickness, "Error");
-					edgeThicknessBox.setSelectedItem(edgeThickness);
-				} else {
-					edgeThickness = (Integer) size;
-					listeners.forEach(l -> l.edgeThicknessChanged());
-				}
-			} else {
-				Dialogs.showErrorMessage(edgeThicknessBox, size + " is not a valid number", "Error");
+		try {
+			int size = Integer.parseInt(sizeString);
+
+			if (size < 1) {
+				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be smaller than 1", "Error");
 				edgeThicknessBox.setSelectedItem(edgeThickness);
+			} else if (edgeMaxThickness != null && size > edgeMaxThickness) {
+				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be larger than max size " + edgeMaxThickness,
+						"Error");
+				edgeThicknessBox.setSelectedItem(edgeThickness);
+			} else {
+				edgeThickness = size;
+				listeners.forEach(l -> l.edgeThicknessChanged());
 			}
+		} catch (NumberFormatException e) {
+			Dialogs.showErrorMessage(edgeThicknessBox, sizeString + " is not a valid number", "Error");
+			edgeThicknessBox.setSelectedItem(edgeThickness);
+		} catch (NullPointerException e) {
+			Dialogs.showErrorMessage(edgeThicknessBox, "No value specified", "Error");
+			edgeThicknessBox.setSelectedItem(edgeThickness);
 		}
 	}
 
-	private void edgeMaxThicknessChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Object size = edgeMaxThicknessBox.getSelectedItem();
+	private void edgeMaxThicknessChanged() {
+		String sizeString = toString(edgeMaxThicknessBox.getSelectedItem());
 
-			if (size instanceof Integer || size == null) {
-				if (size != null && (Integer) size < edgeThickness) {
-					Dialogs.showErrorMessage(edgeMaxThicknessBox,
-							"Value cannot be smaller than min thickness " + edgeThickness, "Error");
-					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
-				} else {
-					edgeMaxThickness = (Integer) size;
-					listeners.forEach(l -> l.edgeThicknessChanged());
-				}
-			} else {
-				Dialogs.showErrorMessage(edgeMaxThicknessBox, size + " is not a valid number", "Error");
+		try {
+			int size = Integer.parseInt(sizeString);
+
+			if (size < edgeThickness) {
+				Dialogs.showErrorMessage(edgeMaxThicknessBox, "Value cannot be smaller than min size " + edgeThickness,
+						"Error");
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+			} else {
+				edgeMaxThickness = size;
+				listeners.forEach(l -> l.edgeThicknessChanged());
 			}
+		} catch (NumberFormatException e) {
+			Dialogs.showErrorMessage(edgeMaxThicknessBox, sizeString + " is not a valid number", "Error");
+			edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+		} catch (NullPointerException e) {
+			edgeMaxThickness = null;
+			listeners.forEach(l -> l.edgeThicknessChanged());
 		}
+	}
+
+	private static String toString(Object o) {
+		return o != null ? Strings.emptyToNull(o.toString()) : null;
 	}
 
 	private static JPanel getOptionPanel(String name, Component... components) {

@@ -28,6 +28,10 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -42,6 +46,8 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -309,5 +315,41 @@ public class UI {
 				setTooltip((JComponent) child, tooltip);
 			}
 		}
+	}
+
+	public static DocumentListener newDocumentListener(ActionListener listener) {
+		return new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				listener.actionPerformed(
+						new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "insertUpdate"));
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				listener.actionPerformed(
+						new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "removeUpdate"));
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				listener.actionPerformed(
+						new ActionEvent(e.getDocument(), ActionEvent.ACTION_PERFORMED, "changedUpdate"));
+			}
+		};
+	}
+
+	public static ItemListener newItemSelectListener(ActionListener listener) {
+		return new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					listener.actionPerformed(
+							new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, e.getItem() + " selected"));
+				}
+			}
+		};
 	}
 }

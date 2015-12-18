@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +56,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
-import de.bund.bfr.knime.ui.DocumentActionListener;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
 public class HighlightDialog extends KnimeDialog {
@@ -195,10 +193,10 @@ public class HighlightDialog extends KnimeDialog {
 
 		conditionTypeBox = new JComboBox<>(onlyAllowLogical ? new Type[] { Type.LOGICAL_CONDITION } : Type.values());
 		conditionTypeBox.setSelectedItem(type);
-		conditionTypeBox.addItemListener(this::conditionTypeChanged);
+		conditionTypeBox.addItemListener(UI.newItemSelectListener(e -> conditionTypeChanged()));
 		nameField = new JTextField(20);
 		nameField.setText(condition.getName() != null ? condition.getName() : "");
-		nameField.getDocument().addDocumentListener(new DocumentActionListener(e -> updateOptionsPanel()));
+		nameField.getDocument().addDocumentListener(UI.newDocumentListener(e -> updateOptionsPanel()));
 		legendBox = new JCheckBox("Show In Legend");
 		legendBox.setSelected(condition.isShowInLegend());
 		colorButton = new JButton("     ");
@@ -365,7 +363,7 @@ public class HighlightDialog extends KnimeDialog {
 				JButton removeButton = new JButton("Remove");
 
 				propertyBox.setSelectedProperty(cond.getProperty());
-				propertyBox.addItemListener(e -> logicalPropertyChanged(propertyBox));
+				propertyBox.addItemListener(UI.newItemSelectListener(e -> logicalPropertyChanged(propertyBox)));
 				typeBox.setSelectedItem(cond.getType());
 				valueField.setPossibleValues(possibleValues);
 				valueField.setSelectedItem(cond.getValue());
@@ -652,54 +650,52 @@ public class HighlightDialog extends KnimeDialog {
 		pack();
 	}
 
-	private void conditionTypeChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			remove(conditionPanel);
+	private void conditionTypeChanged() {
+		remove(conditionPanel);
 
-			switch ((Type) conditionTypeBox.getSelectedItem()) {
-			case LOGICAL_CONDITION:
-				if (type == Type.LOGICAL_VALUE_CONDITION) {
-					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
+		switch ((Type) conditionTypeBox.getSelectedItem()) {
+		case LOGICAL_CONDITION:
+			if (type == Type.LOGICAL_VALUE_CONDITION) {
+				LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
 
-					conditionPanel = createLogicalPanel(c.getLogicalCondition());
-				} else {
-					conditionPanel = createLogicalPanel(null);
-				}
-
-				break;
-			case APPLY_TO_ALL:
-				conditionPanel = createApplyToAllPanel();
-				break;
-			case VALUE_CONDITION:
-				if (type == Type.LOGICAL_VALUE_CONDITION) {
-					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
-
-					conditionPanel = createValuePanel(c.getValueCondition());
-				} else {
-					conditionPanel = createValuePanel(null);
-				}
-
-				break;
-			case LOGICAL_VALUE_CONDITION:
-				if (type == Type.LOGICAL_CONDITION) {
-					AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
-
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(null, c));
-				} else if (type == Type.VALUE_CONDITION) {
-					ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
-
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c, null));
-				} else {
-					conditionPanel = createLogicalValuePanel(null);
-				}
-
-				break;
+				conditionPanel = createLogicalPanel(c.getLogicalCondition());
+			} else {
+				conditionPanel = createLogicalPanel(null);
 			}
 
-			type = (Type) conditionTypeBox.getSelectedItem();
-			add(conditionPanel, BorderLayout.CENTER);
-			pack();
+			break;
+		case APPLY_TO_ALL:
+			conditionPanel = createApplyToAllPanel();
+			break;
+		case VALUE_CONDITION:
+			if (type == Type.LOGICAL_VALUE_CONDITION) {
+				LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
+
+				conditionPanel = createValuePanel(c.getValueCondition());
+			} else {
+				conditionPanel = createValuePanel(null);
+			}
+
+			break;
+		case LOGICAL_VALUE_CONDITION:
+			if (type == Type.LOGICAL_CONDITION) {
+				AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
+
+				conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(null, c));
+			} else if (type == Type.VALUE_CONDITION) {
+				ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
+
+				conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c, null));
+			} else {
+				conditionPanel = createLogicalValuePanel(null);
+			}
+
+			break;
 		}
+
+		type = (Type) conditionTypeBox.getSelectedItem();
+		add(conditionPanel, BorderLayout.CENTER);
+		pack();
 	}
 
 	private void setNewColor(Color c) {

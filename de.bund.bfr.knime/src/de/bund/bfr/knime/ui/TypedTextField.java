@@ -25,6 +25,8 @@ import java.util.Arrays;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 
+import de.bund.bfr.knime.UI;
+
 public abstract class TypedTextField extends JTextField implements TextInput {
 
 	private static final long serialVersionUID = 1L;
@@ -38,7 +40,7 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 
 		this.optional = optional;
 		valueValid = true;
-		getDocument().addDocumentListener(documentListener = new DocumentActionListener(e -> textChanged()));
+		getDocument().addDocumentListener(documentListener = UI.newDocumentListener(e -> textChanged()));
 	}
 
 	@Override
