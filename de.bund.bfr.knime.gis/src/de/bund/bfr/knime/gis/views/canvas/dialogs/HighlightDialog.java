@@ -23,11 +23,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 
@@ -48,6 +49,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -59,7 +61,7 @@ import de.bund.bfr.knime.ui.AutoSuggestField;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightDialog extends KnimeDialog implements ActionListener, DocumentListener {
+public class HighlightDialog extends KnimeDialog implements DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -194,7 +196,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 		conditionTypeBox = new JComboBox<>(onlyAllowLogical ? new Type[] { Type.LOGICAL_CONDITION } : Type.values());
 		conditionTypeBox.setSelectedItem(type);
-		conditionTypeBox.addActionListener(this);
+		conditionTypeBox.addItemListener(this::conditionTypeChanged);
 		nameField = new JTextField(20);
 		nameField.setText(condition.getName() != null ? condition.getName() : "");
 		nameField.getDocument().addDocumentListener(this);
@@ -203,7 +205,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		colorButton = new JButton("     ");
 		colorButton.setContentAreaFilled(false);
 		colorButton.setOpaque(true);
-		colorButton.addActionListener(this);
+		colorButton.addActionListener(e -> colorButtonPressed());
 		colorBox = new JCheckBox("Use Color");
 		colorBox.setSelected(condition.getColor() != null);
 		colorBox.addActionListener(e -> updateOptionsPanel());
@@ -261,7 +263,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		}
 
 		okButton = new JButton("OK");
-		okButton.addActionListener(this);
+		okButton.addActionListener(e -> okButtonPressed());
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(e -> dispose());
 
@@ -290,83 +292,6 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 		UI.adjustDialog(this);
 		setLocationRelativeTo(owner);
 		getRootPane().setDefaultButton(okButton);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			String error = null;
-
-			condition = createCondition();
-
-			if (checkers != null) {
-				for (HighlightConditionChecker checker : checkers) {
-					if (checker != null) {
-						error = checker.findError(condition);
-						break;
-					}
-				}
-			}
-
-			if (error == null) {
-				approved = true;
-				dispose();
-			} else {
-				Dialogs.showErrorMessage(okButton, error, "Error");
-			}
-		} else if (e.getSource() == conditionTypeBox && !type.equals(conditionTypeBox.getSelectedItem())) {
-			remove(conditionPanel);
-
-			switch ((Type) conditionTypeBox.getSelectedItem()) {
-			case LOGICAL_CONDITION:
-				if (type == Type.LOGICAL_VALUE_CONDITION) {
-					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
-
-					conditionPanel = createLogicalPanel(c.getLogicalCondition());
-				} else {
-					conditionPanel = createLogicalPanel(null);
-				}
-
-				break;
-			case APPLY_TO_ALL:
-				conditionPanel = createApplyToAllPanel();
-				break;
-			case VALUE_CONDITION:
-				if (type == Type.LOGICAL_VALUE_CONDITION) {
-					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
-
-					conditionPanel = createValuePanel(c.getValueCondition());
-				} else {
-					conditionPanel = createValuePanel(null);
-				}
-
-				break;
-			case LOGICAL_VALUE_CONDITION:
-				if (type == Type.LOGICAL_CONDITION) {
-					AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
-
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(null, c));
-				} else if (type == Type.VALUE_CONDITION) {
-					ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
-
-					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c, null));
-				} else {
-					conditionPanel = createLogicalValuePanel(null);
-				}
-
-				break;
-			}
-
-			type = (Type) conditionTypeBox.getSelectedItem();
-			add(conditionPanel, BorderLayout.CENTER);
-			pack();
-		} else if (e.getSource() == colorButton) {
-			Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", color);
-
-			if (newColor != null) {
-				setNewColor(newColor);
-			}
-		}
 	}
 
 	@Override
@@ -491,7 +416,7 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 		JButton addButton = new JButton("Add");
 
-		addButton.addActionListener(this);
+		addButton.addActionListener(e -> addRemoveButtonPressed(addButton));
 		logicalAddButtons.add(addButton);
 		logicalPanel.add(addButton, UI.centerConstraints(4, row));
 
@@ -630,6 +555,28 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 				invisible, useThickness, labelProperty);
 	}
 
+	private void okButtonPressed() {
+		condition = createCondition();
+
+		Optional<String> error = KnimeUtils.nullToEmpty(checkers).stream().map(c -> c.findError(condition))
+				.filter(Objects::nonNull).findFirst();
+
+		if (error.isPresent()) {
+			Dialogs.showErrorMessage(okButton, error.get(), "Error");
+		} else {
+			approved = true;
+			dispose();
+		}
+	}
+
+	private void colorButtonPressed() {
+		Color newColor = Dialogs.showColorChooser(colorButton, "Choose Color", color);
+
+		if (newColor != null) {
+			setNewColor(newColor);
+		}
+	}
+
 	private void addRemoveButtonPressed(JButton button) {
 		boolean addPressed;
 		int index;
@@ -719,6 +666,56 @@ public class HighlightDialog extends KnimeDialog implements ActionListener, Docu
 
 		add(conditionPanel, BorderLayout.CENTER);
 		pack();
+	}
+
+	private void conditionTypeChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			remove(conditionPanel);
+
+			switch ((Type) conditionTypeBox.getSelectedItem()) {
+			case LOGICAL_CONDITION:
+				if (type == Type.LOGICAL_VALUE_CONDITION) {
+					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
+
+					conditionPanel = createLogicalPanel(c.getLogicalCondition());
+				} else {
+					conditionPanel = createLogicalPanel(null);
+				}
+
+				break;
+			case APPLY_TO_ALL:
+				conditionPanel = createApplyToAllPanel();
+				break;
+			case VALUE_CONDITION:
+				if (type == Type.LOGICAL_VALUE_CONDITION) {
+					LogicalValueHighlightCondition c = (LogicalValueHighlightCondition) createCondition();
+
+					conditionPanel = createValuePanel(c.getValueCondition());
+				} else {
+					conditionPanel = createValuePanel(null);
+				}
+
+				break;
+			case LOGICAL_VALUE_CONDITION:
+				if (type == Type.LOGICAL_CONDITION) {
+					AndOrHighlightCondition c = (AndOrHighlightCondition) createCondition();
+
+					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(null, c));
+				} else if (type == Type.VALUE_CONDITION) {
+					ValueHighlightCondition c = (ValueHighlightCondition) createCondition();
+
+					conditionPanel = createLogicalValuePanel(new LogicalValueHighlightCondition(c, null));
+				} else {
+					conditionPanel = createLogicalValuePanel(null);
+				}
+
+				break;
+			}
+
+			type = (Type) conditionTypeBox.getSelectedItem();
+			add(conditionPanel, BorderLayout.CENTER);
+			pack();
+		}
 	}
 
 	private void setNewColor(Color c) {

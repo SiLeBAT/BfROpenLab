@@ -63,7 +63,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		JPanel dbPanel = new JPanel();
 
 		dbBox = new JCheckBox("Use External Database");
-		dbBox.addItemListener(e -> dbField.setEnabled(dbBox.isSelected()));
+		dbBox.addActionListener(e -> dbField.setEnabled(dbBox.isSelected()));
 		dbField = new FilesHistoryPanel(FILE_HISTORY_ID, FilesHistoryPanel.LocationValidation.DirectoryInput);
 		dbPanel.setLayout(new BoxLayout(dbPanel, BoxLayout.Y_AXIS));
 		dbPanel.add(UI.createWestPanel(UI.createHorizontalPanel(dbBox)));

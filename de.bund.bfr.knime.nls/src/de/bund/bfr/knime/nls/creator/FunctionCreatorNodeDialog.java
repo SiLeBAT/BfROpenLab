@@ -175,7 +175,7 @@ public class FunctionCreatorNodeDialog extends NodeDialogPane {
 				box.setSelected(false);
 			}
 
-			box.addItemListener(e -> indepVarChanged(box));
+			box.addActionListener(e -> indepVarChanged(box));
 			panel.add(box);
 		}
 

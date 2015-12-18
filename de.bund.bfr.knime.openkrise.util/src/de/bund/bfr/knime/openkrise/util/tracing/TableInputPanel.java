@@ -22,8 +22,6 @@ package de.bund.bfr.knime.openkrise.util.tracing;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,8 +57,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingPropertySelectorCreator;
 
-public class TableInputPanel<T> extends JPanel
-		implements ActionListener, RowSorterListener, CellEditorListener, ListSelectionListener {
+public class TableInputPanel<T> extends JPanel implements RowSorterListener, CellEditorListener, ListSelectionListener {
 
 	public static enum Type {
 		NODE, EDGE
@@ -157,33 +154,6 @@ public class TableInputPanel<T> extends JPanel
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == filterButton) {
-			HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, condition,
-					new TracingPropertySelectorCreator());
-
-			dialog.setLocationRelativeTo(filterButton);
-			dialog.setVisible(true);
-
-			if (dialog.isApproved()) {
-				condition = (AndOrHighlightCondition) dialog.getHighlightCondition();
-				tablePanel.removeAll();
-				tablePanel.add(createInputPanel(filterElements(elements, condition)), BorderLayout.CENTER);
-				tablePanel.revalidate();
-				updateSetAll(setAllBox.isSelected());
-			}
-		} else if (e.getSource() == removeFilterButton) {
-			condition = null;
-			tablePanel.removeAll();
-			tablePanel.add(createInputPanel(elements), BorderLayout.CENTER);
-			tablePanel.revalidate();
-			updateSetAll(setAllBox.isSelected());
-		}
-
-		removeFilterButton.setEnabled(condition != null);
-	}
-
-	@Override
 	public void sorterChanged(RowSorterEvent e) {
 		if (inputTable.isEditing()) {
 			inputTable.getCellEditor().stopCellEditing();
@@ -241,10 +211,10 @@ public class TableInputPanel<T> extends JPanel
 
 	private JComponent createOptionsPanel() {
 		filterButton = new JButton("Set Filter");
-		filterButton.addActionListener(this);
+		filterButton.addActionListener(e -> filterPressed());
 		removeFilterButton = new JButton("Remove Filter");
 		removeFilterButton.setEnabled(false);
-		removeFilterButton.addActionListener(this);
+		removeFilterButton.addActionListener(e -> removeFilterPressed());
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(e -> clear());
 		setAllBox = new JCheckBox("Set All");
@@ -295,6 +265,32 @@ public class TableInputPanel<T> extends JPanel
 		rowHeader.setPreferredSize(new Dimension(100, rowHeader.getPreferredSize().height));
 
 		return scrollPane;
+	}
+
+	private void filterPressed() {
+		HighlightDialog dialog = HighlightDialog.createFilterDialog(filterButton, schema, condition,
+				new TracingPropertySelectorCreator());
+
+		dialog.setLocationRelativeTo(filterButton);
+		dialog.setVisible(true);
+
+		if (dialog.isApproved()) {
+			condition = (AndOrHighlightCondition) dialog.getHighlightCondition();
+			tablePanel.removeAll();
+			tablePanel.add(createInputPanel(filterElements(elements, condition)), BorderLayout.CENTER);
+			tablePanel.revalidate();
+			updateSetAll(setAllBox.isSelected());
+			removeFilterButton.setEnabled(true);
+		}
+	}
+
+	private void removeFilterPressed() {
+		condition = null;
+		tablePanel.removeAll();
+		tablePanel.add(createInputPanel(elements), BorderLayout.CENTER);
+		tablePanel.revalidate();
+		updateSetAll(setAllBox.isSelected());
+		removeFilterButton.setEnabled(false);
 	}
 
 	private void clear() {

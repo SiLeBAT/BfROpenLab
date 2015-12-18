@@ -23,12 +23,10 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +47,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.ui.KnimeDialog;
 
-public class HighlightListDialog extends KnimeDialog implements ActionListener, MouseListener, WindowListener {
+public class HighlightListDialog extends KnimeDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,7 +77,16 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 
 	public HighlightListDialog(Component owner, PropertySchema schema, HighlightConditionList highlightConditions) {
 		super(owner, "Highlight Condition List", DEFAULT_MODALITY_TYPE);
-		addWindowListener(this);
+		addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+				if (autoAddCondition != null) {
+					addCondition(autoAddCondition);
+				}
+			}
+		});
+
 		this.schema = schema;
 		this.highlightConditions = new HighlightConditionList(new ArrayList<>(highlightConditions.getConditions()),
 				highlightConditions.isPrioritizeColors());
@@ -93,21 +100,31 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		list = new JList<>();
 		list.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setCellRenderer(new HighlightListCellRenderer());
-		list.addMouseListener(this);
+		list.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				clickedOnList(e);
+			}
+		});
+
 		updateList();
 		addButton = new JButton("Add");
 		addButton.addActionListener(e -> addCondition(null));
 		removeButton = new JButton("Remove");
-		removeButton.addActionListener(this);
+		removeButton.addActionListener(e -> removePressed());
 		prioritizeBox = new JCheckBox("Prioritize Colors");
 		prioritizeBox.setSelected(highlightConditions.isPrioritizeColors());
 		prioritizeBox.addActionListener(e -> highlightConditions.setPrioritizeColors(prioritizeBox.isSelected()));
 		upButton = new JButton("Up");
-		upButton.addActionListener(this);
+		upButton.addActionListener(e -> upPressed());
 		downButton = new JButton("Down");
-		downButton.addActionListener(this);
+		downButton.addActionListener(e -> downPressed());
 		okButton = new JButton("OK");
-		okButton.addActionListener(this);
+		okButton.addActionListener(e -> {
+			approved = true;
+			dispose();
+		});
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(e -> dispose());
 
@@ -207,39 +224,7 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		return prioritizeBox.isSelected();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == okButton) {
-			approved = true;
-			dispose();
-		} else if (e.getSource() == removeButton) {
-			int i = list.getSelectedIndex();
-
-			if (i != -1) {
-				highlightConditions.getConditions().remove(i);
-				updateList();
-			}
-		} else if (e.getSource() == upButton) {
-			int i = list.getSelectedIndex();
-
-			if (i > 0) {
-				highlightConditions.getConditions().add(i - 1, highlightConditions.getConditions().remove(i));
-				updateList();
-				list.setSelectedIndex(i - 1);
-			}
-		} else if (e.getSource() == downButton) {
-			int i = list.getSelectedIndex();
-
-			if (i != -1 && i != list.getModel().getSize() - 1) {
-				highlightConditions.getConditions().add(i + 1, highlightConditions.getConditions().remove(i));
-				updateList();
-				list.setSelectedIndex(i + 1);
-			}
-		}
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
+	private void clickedOnList(MouseEvent e) {
 		int i = list.getSelectedIndex();
 
 		if (e.getClickCount() == 2 && i != -1) {
@@ -255,51 +240,33 @@ public class HighlightListDialog extends KnimeDialog implements ActionListener, 
 		}
 	}
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
+	private void removePressed() {
+		int i = list.getSelectedIndex();
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-		if (autoAddCondition != null) {
-			addCondition(autoAddCondition);
+		if (i != -1) {
+			highlightConditions.getConditions().remove(i);
+			updateList();
 		}
 	}
 
-	@Override
-	public void windowClosing(WindowEvent e) {
+	private void upPressed() {
+		int i = list.getSelectedIndex();
+
+		if (i > 0) {
+			highlightConditions.getConditions().add(i - 1, highlightConditions.getConditions().remove(i));
+			updateList();
+			list.setSelectedIndex(i - 1);
+		}
 	}
 
-	@Override
-	public void windowClosed(WindowEvent e) {
-	}
+	private void downPressed() {
+		int i = list.getSelectedIndex();
 
-	@Override
-	public void windowIconified(WindowEvent e) {
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {
+		if (i != -1 && i != list.getModel().getSize() - 1) {
+			highlightConditions.getConditions().add(i + 1, highlightConditions.getConditions().remove(i));
+			updateList();
+			list.setSelectedIndex(i + 1);
+		}
 	}
 
 	private void addCondition(HighlightCondition condition) {

@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
@@ -70,7 +68,7 @@ import de.bund.bfr.knime.ui.Dialogs;
  * @author Christian Thoens
  */
 public class TracingViewNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener, ComponentListener, CanvasListener, TracingListener {
+		implements ComponentListener, CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -143,20 +141,20 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		redoStack = new LinkedList<>();
 
 		undoButton = new JButton("Undo");
-		undoButton.addActionListener(this);
+		undoButton.addActionListener(e -> undoRedoPressed(true));
 		redoButton = new JButton("Redo");
-		redoButton.addActionListener(this);
+		redoButton.addActionListener(e -> undoRedoPressed(false));
 		resetWeightsButton = new JButton("Reset Weights");
-		resetWeightsButton.addActionListener(this);
+		resetWeightsButton.addActionListener(e -> resetPressed(resetWeightsButton));
 		resetCrossButton = new JButton("Reset Cross Contamination");
-		resetCrossButton.addActionListener(this);
+		resetCrossButton.addActionListener(e -> resetPressed(resetCrossButton));
 		resetKillButton = new JButton("Reset Kill Contamination");
-		resetKillButton.addActionListener(this);
+		resetKillButton.addActionListener(e -> resetPressed(resetKillButton));
 		resetObservedButton = new JButton("Reset Observed");
-		resetObservedButton.addActionListener(this);
+		resetObservedButton.addActionListener(e -> resetPressed(resetObservedButton));
 		exportAsSvgBox = new JCheckBox("Export As Svg");
 		switchButton = new JButton();
-		switchButton.addActionListener(this);
+		switchButton.addActionListener(e -> switchPressed());
 		gisBox = new JComboBox<>();
 		gisBox.addItemListener(gisBoxListener = e -> gisTypeChanged(e));
 
@@ -218,86 +216,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		updateSettings();
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == undoButton) {
-			TracingChange change = undoStack.pop();
-
-			undoButton.setEnabled(!undoStack.isEmpty());
-
-			if (change.isViewChange()) {
-				updateSettings();
-				change.undo(set);
-				updateGisBox();
-				updateCanvas();
-			} else {
-				canvas.removeCanvasListener(this);
-				canvas.removeTracingListener(this);
-				change.undo(canvas);
-				canvas.addCanvasListener(this);
-				canvas.addTracingListener(this);
-
-				updateStatusVariables();
-			}
-
-			redoStack.push(change);
-			redoButton.setEnabled(true);
-		} else if (e.getSource() == redoButton) {
-			TracingChange change = redoStack.pop();
-
-			redoButton.setEnabled(!redoStack.isEmpty());
-
-			if (change.isViewChange()) {
-				updateSettings();
-				change.redo(set);
-				updateGisBox();
-				updateCanvas();
-			} else {
-				canvas.removeCanvasListener(this);
-				canvas.removeTracingListener(this);
-				change.redo(canvas);
-				canvas.addCanvasListener(this);
-				canvas.addTracingListener(this);
-
-				updateStatusVariables();
-			}
-
-			undoStack.push(change);
-			undoButton.setEnabled(true);
-		} else if (e.getSource() == resetWeightsButton && doReset(resetWeightsButton.getText())) {
-			updateSettings();
-			set.clearWeights();
-			undoStack.clear();
-			redoStack.clear();
-			updateCanvas();
-		} else if (e.getSource() == resetCrossButton && doReset(resetCrossButton.getText())) {
-			updateSettings();
-			set.clearCrossContamination();
-			undoStack.clear();
-			redoStack.clear();
-			updateCanvas();
-		} else if (e.getSource() == resetKillButton && doReset(resetKillButton.getText())) {
-			updateSettings();
-			set.clearKillContamination();
-			undoStack.clear();
-			redoStack.clear();
-			updateCanvas();
-		} else if (e.getSource() == resetObservedButton && doReset(resetObservedButton.getText())) {
-			updateSettings();
-			set.clearObserved();
-			undoStack.clear();
-			redoStack.clear();
-			updateCanvas();
-		} else if (e.getSource() == switchButton) {
-			updateSettings();
-			changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(), set.getGisType(),
-					set.getGisType()));
-			set.setShowGis(!set.isShowGis());
-			gisBox.setEnabled(set.isShowGis());
-			updateCanvas();
-		}
 	}
 
 	@Override
@@ -811,9 +729,82 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		avoidOverlay = canvas.isAvoidOverlay();
 	}
 
-	private boolean doReset(String name) {
-		return Dialogs.showOkCancelDialog(canvas.getComponent(), "This cannot be made undone. Proceed?",
-				name) == Dialogs.Result.OK;
+	private void undoRedoPressed(boolean undo) {
+		TracingChange change = (undo ? undoStack : redoStack).pop();
+
+		if (undoStack.isEmpty()) {
+			undoButton.setEnabled(false);
+		}
+
+		if (redoStack.isEmpty()) {
+			redoButton.setEnabled(false);
+		}
+
+		if (change.isViewChange()) {
+			updateSettings();
+
+			if (undo) {
+				change.undo(set);
+			} else {
+				change.redo(set);
+			}
+
+			updateGisBox();
+			updateCanvas();
+		} else {
+			canvas.removeCanvasListener(this);
+			canvas.removeTracingListener(this);
+
+			if (undo) {
+				change.undo(canvas);
+			} else {
+				change.redo(canvas);
+			}
+
+			canvas.addCanvasListener(this);
+			canvas.addTracingListener(this);
+			updateStatusVariables();
+		}
+
+		(undo ? redoStack : undoStack).push(change);
+
+		if (!undoStack.isEmpty()) {
+			undoButton.setEnabled(true);
+		}
+
+		if (!redoStack.isEmpty()) {
+			redoButton.setEnabled(true);
+		}
+	}
+
+	private void resetPressed(JButton button) {
+		if (Dialogs.showOkCancelDialog(canvas.getComponent(), "This cannot be made undone. Proceed?",
+				button.getText()) == Dialogs.Result.OK) {
+			updateSettings();
+
+			if (button == resetWeightsButton) {
+				set.clearWeights();
+			} else if (button == resetCrossButton) {
+				set.clearCrossContamination();
+			} else if (button == resetKillButton) {
+				set.clearKillContamination();
+			} else if (button == resetObservedButton) {
+				set.clearObserved();
+			}
+
+			undoStack.clear();
+			redoStack.clear();
+			updateCanvas();
+		}
+	}
+
+	private void switchPressed() {
+		updateSettings();
+		changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), !set.isShowGis(), set.getGisType(),
+				set.getGisType()));
+		set.setShowGis(!set.isShowGis());
+		gisBox.setEnabled(set.isShowGis());
+		updateCanvas();
 	}
 
 	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {

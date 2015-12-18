@@ -20,10 +20,8 @@
 package de.bund.bfr.knime.gis.geocode;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -310,9 +309,9 @@ public class GeocodingNodeModel extends NodeModel {
 					countries.get(i), postalCodes.get(i), false));
 		}
 
-		int index = getIndex(address, choices);
+		Integer index = getIndex(address, choices);
 
-		if (index == -1) {
+		if (index == null) {
 			return new GeocodingResult(url);
 		}
 
@@ -383,9 +382,9 @@ public class GeocodingNodeModel extends NodeModel {
 					countryCodes.get(i), postalCodes.get(i), false));
 		}
 
-		int index = getIndex(address + ", " + countryCode, choices);
+		Integer index = getIndex(address + ", " + countryCode, choices);
 
-		if (index == -1) {
+		if (index == null) {
 			return new GeocodingResult(url);
 		}
 
@@ -447,9 +446,9 @@ public class GeocodingNodeModel extends NodeModel {
 					postalCodes.get(i), false));
 		}
 
-		int index = getIndex(address, choices);
+		Integer index = getIndex(address, choices);
 
-		if (index == -1) {
+		if (index == null) {
 			return new GeocodingResult(url);
 		}
 
@@ -457,13 +456,13 @@ public class GeocodingNodeModel extends NodeModel {
 				DE, postalCodes.get(index), latitudes.get(index), longitudes.get(index));
 	}
 
-	private int getIndex(String address, List<String> choices) throws CanceledExecutionException {
+	private Integer getIndex(String address, List<String> choices) throws CanceledExecutionException {
 		if (choices.size() == 0) {
-			return -1;
+			return null;
 		} else if (choices.size() == 1) {
 			return 0;
 		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
-			return -1;
+			return null;
 		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_USE_FIRST)) {
 			return 0;
 		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_ASK_USER)) {
@@ -478,7 +477,7 @@ public class GeocodingNodeModel extends NodeModel {
 			return dialog.getResult();
 		}
 
-		return -1;
+		return null;
 	}
 
 	private static String evaluateXPath(Document doc, String query) throws XPathExpressionException {
@@ -561,30 +560,44 @@ public class GeocodingNodeModel extends NodeModel {
 		}
 	}
 
-	private static class ChooseDialog extends JDialog implements ActionListener, MouseListener {
+	private static class ChooseDialog extends JDialog {
 
 		private static final long serialVersionUID = 1L;
 
 		private boolean isCanceled;
-		private int result;
-
-		private JList<String> choicesList;
-
-		private JButton selectButton;
-		private JButton skipButton;
-		private JButton cancelButton;
+		private Integer result;
 
 		public ChooseDialog(String searchTerm, List<String> choices) {
 			super(JOptionPane.getRootFrame(), "Select Best Fit", DEFAULT_MODALITY_TYPE);
 
-			choicesList = new JList<>(new Vector<>(choices));
-			choicesList.addMouseListener(this);
-			selectButton = new JButton("Select");
-			selectButton.addActionListener(this);
-			skipButton = new JButton("Skip");
-			skipButton.addActionListener(this);
-			cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(this);
+			JList<String> choicesList = new JList<>(new Vector<>(choices));
+
+			choicesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			choicesList.setSelectedIndex(0);
+			choicesList.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+						result = choicesList.getSelectedIndex();
+						dispose();
+					}
+				}
+			});
+
+			JButton selectButton = new JButton("Select");
+			JButton skipButton = new JButton("Skip");
+			JButton cancelButton = new JButton("Cancel");
+
+			selectButton.addActionListener(e -> {
+				result = choicesList.getSelectedIndex();
+				dispose();
+			});
+			skipButton.addActionListener(e -> dispose());
+			cancelButton.addActionListener(e -> {
+				isCanceled = true;
+				dispose();
+			});
 
 			setLayout(new BorderLayout());
 			add(UI.createHorizontalPanel(new JLabel(searchTerm)), BorderLayout.NORTH);
@@ -597,8 +610,8 @@ public class GeocodingNodeModel extends NodeModel {
 			setAlwaysOnTop(true);
 			getRootPane().setDefaultButton(selectButton);
 
-			isCanceled = true;
-			result = -1;
+			isCanceled = false;
+			result = null;
 		}
 
 		public boolean isCanceled() {
@@ -607,49 +620,6 @@ public class GeocodingNodeModel extends NodeModel {
 
 		public int getResult() {
 			return result;
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == selectButton) {
-				isCanceled = false;
-				result = choicesList.getSelectedIndex();
-			} else if (e.getSource() == skipButton) {
-				isCanceled = false;
-				result = -1;
-			} else if (e.getSource() == cancelButton) {
-				isCanceled = true;
-				result = -1;
-			}
-
-			dispose();
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			int i = choicesList.getSelectedIndex();
-
-			if (e.getClickCount() == 2 && i != -1) {
-				isCanceled = false;
-				result = i;
-				dispose();
-			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
 		}
 	}
 }
