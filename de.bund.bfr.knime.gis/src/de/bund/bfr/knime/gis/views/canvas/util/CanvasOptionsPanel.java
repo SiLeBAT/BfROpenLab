@@ -58,9 +58,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 	public static final int DEFAULT_FONT_SIZE = 12;
 	public static final boolean DEFAULT_FONT_BOLD = false;
 	public static final int DEFAULT_NODE_SIZE = 10;
-	public static final Integer DEFAULT_NODE_MAX_SIZE = null;
+	public static final String DEFAULT_NODE_MAX_SIZE = "";
 	public static final int DEFAULT_EDGE_THICKNESS = 1;
-	public static final Integer DEFAULT_EDGE_MAX_THICKNESS = null;
+	public static final String DEFAULT_EDGE_MAX_THICKNESS = "";
 	public static final boolean DEFAULT_ARROW_IN_MIDDLE = false;
 	public static final int DEFAULT_BORDER_ALPHA = 255;
 	public static final boolean DEFAULT_AVOID_OVERLAY = false;
@@ -69,9 +69,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 	private static final int[] TEXT_SIZES = { 10, 12, 14, 18, 24 };
 	private static final int[] NODE_SIZES = { 4, 6, 10, 14, 20, 30 };
-	private static final Integer[] NODE_MAX_SIZES = { null, 6, 10, 14, 20, 30, 40 };
+	private static final String[] NODE_MAX_SIZES = { "", "6", "10", "14", "20", "30", "40" };
 	private static final int[] EDGE_THICKNESSES = { 1, 2, 3, 5, 10 };
-	private static final Integer[] EDGE_MAX_THICKNESSES = { null, 2, 3, 5, 10, 20 };
+	private static final String[] EDGE_MAX_THICKNESSES = { "", "2", "3", "5", "10", "20" };
 
 	private static final String SHOW_ADVANCED = "<html>Show Advanced<br>Options</html>";
 	private static final String HIDE_ADVANCED = "<html>Hide Advanced<br>Options</html>";
@@ -92,12 +92,12 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private JCheckBox fontBoldBox;
 	private int nodeSize;
 	private JComboBox<Integer> nodeSizeBox;
-	private Integer nodeMaxSize;
-	private JComboBox<Integer> nodeMaxSizeBox;
+	private String nodeMaxSize;
+	private JComboBox<String> nodeMaxSizeBox;
 	private int edgeThickness;
 	private JComboBox<Integer> edgeThicknessBox;
-	private Integer edgeMaxThickness;
-	private JComboBox<Integer> edgeMaxThicknessBox;
+	private String edgeMaxThickness;
+	private JComboBox<String> edgeMaxThicknessBox;
 	private JCheckBox arrowInMiddleBox;
 	private String label;
 	private JTextField labelField;
@@ -291,11 +291,15 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public Integer getNodeMaxSize() {
-		return nodeMaxSize;
+		try {
+			return Integer.parseInt(nodeMaxSize);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	public void setNodeMaxSize(Integer nodeMaxSize) {
-		nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+		nodeMaxSizeBox.setSelectedItem(nodeMaxSize != null ? nodeMaxSize.toString() : "");
 	}
 
 	public int getEdgeThickness() {
@@ -307,11 +311,15 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public Integer getEdgeMaxThickness() {
-		return edgeMaxThickness;
+		try {
+			return Integer.parseInt(edgeMaxThickness);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	public void setEdgeMaxThickness(Integer edgeMaxThickness) {
-		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+		edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness != null ? edgeMaxThickness.toString() : "");
 	}
 
 	public boolean isArrowInMiddle() {
@@ -459,7 +467,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void fontSizeChanged() {
-		String sizeString = toString(fontSizeBox.getSelectedItem());
+		String sizeString = fontSizeBox.getSelectedItem().toString();
 
 		try {
 			int size = Integer.parseInt(sizeString);
@@ -481,15 +489,16 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void nodeSizeChanged() {
-		String sizeString = toString(nodeSizeBox.getSelectedItem());
+		String sizeString = nodeSizeBox.getSelectedItem().toString();
 
 		try {
 			int size = Integer.parseInt(sizeString);
+			Integer max = getNodeMaxSize();
 
 			if (size < 1) {
 				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be smaller than 1", "Error");
 				nodeSizeBox.setSelectedItem(nodeSize);
-			} else if (nodeMaxSize != null && size > nodeMaxSize) {
+			} else if (max != null && size > max) {
 				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize, "Error");
 				nodeSizeBox.setSelectedItem(nodeSize);
 			} else {
@@ -506,37 +515,41 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void nodeMaxSizeChanged() {
-		String sizeString = toString(nodeMaxSizeBox.getSelectedItem());
+		String sizeString = nodeMaxSizeBox.getSelectedItem().toString();
 
-		try {
-			int size = Integer.parseInt(sizeString);
-
-			if (size < nodeSize) {
-				Dialogs.showErrorMessage(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize, "Error");
-				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
-			} else {
-				nodeMaxSize = size;
-				listeners.forEach(l -> l.nodeSizeChanged());
-			}
-		} catch (NumberFormatException e) {
-			Dialogs.showErrorMessage(nodeMaxSizeBox, sizeString + " is not a valid number", "Error");
-			nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
-		} catch (NullPointerException e) {
-			nodeMaxSize = null;
+		if (sizeString.isEmpty()) {
+			nodeMaxSize = "";
 			listeners.forEach(l -> l.nodeSizeChanged());
+		} else {
+			try {
+				int size = Integer.parseInt(sizeString);
+
+				if (size < nodeSize) {
+					Dialogs.showErrorMessage(nodeMaxSizeBox, "Value cannot be smaller than min size " + nodeSize,
+							"Error");
+					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+				} else {
+					nodeMaxSize = String.valueOf(size);
+					listeners.forEach(l -> l.nodeSizeChanged());
+				}
+			} catch (NumberFormatException e) {
+				Dialogs.showErrorMessage(nodeMaxSizeBox, sizeString + " is not a valid number", "Error");
+				nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
+			}
 		}
 	}
 
 	private void edgeThicknessChanged() {
-		String sizeString = toString(edgeThicknessBox.getSelectedItem());
+		String sizeString = edgeThicknessBox.getSelectedItem().toString();
 
 		try {
 			int size = Integer.parseInt(sizeString);
+			Integer max = getEdgeMaxThickness();
 
 			if (size < 1) {
 				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be smaller than 1", "Error");
 				edgeThicknessBox.setSelectedItem(edgeThickness);
-			} else if (edgeMaxThickness != null && size > edgeMaxThickness) {
+			} else if (max != null && size > max) {
 				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be larger than max size " + edgeMaxThickness,
 						"Error");
 				edgeThicknessBox.setSelectedItem(edgeThickness);
@@ -554,30 +567,28 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void edgeMaxThicknessChanged() {
-		String sizeString = toString(edgeMaxThicknessBox.getSelectedItem());
+		String sizeString = edgeMaxThicknessBox.getSelectedItem().toString();
 
-		try {
-			int size = Integer.parseInt(sizeString);
-
-			if (size < edgeThickness) {
-				Dialogs.showErrorMessage(edgeMaxThicknessBox, "Value cannot be smaller than min size " + edgeThickness,
-						"Error");
-				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
-			} else {
-				edgeMaxThickness = size;
-				listeners.forEach(l -> l.edgeThicknessChanged());
-			}
-		} catch (NumberFormatException e) {
-			Dialogs.showErrorMessage(edgeMaxThicknessBox, sizeString + " is not a valid number", "Error");
-			edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
-		} catch (NullPointerException e) {
-			edgeMaxThickness = null;
+		if (sizeString.isEmpty()) {
+			edgeMaxThickness = "";
 			listeners.forEach(l -> l.edgeThicknessChanged());
-		}
-	}
+		} else {
+			try {
+				int size = Integer.parseInt(sizeString);
 
-	private static String toString(Object o) {
-		return o != null ? Strings.emptyToNull(o.toString()) : null;
+				if (size < edgeThickness) {
+					Dialogs.showErrorMessage(edgeMaxThicknessBox,
+							"Value cannot be smaller than min size " + edgeThickness, "Error");
+					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+				} else {
+					edgeMaxThickness = String.valueOf(size);
+					listeners.forEach(l -> l.edgeThicknessChanged());
+				}
+			} catch (NumberFormatException e) {
+				Dialogs.showErrorMessage(edgeMaxThicknessBox, sizeString + " is not a valid number", "Error");
+				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
+			}
+		}
 	}
 
 	private static JPanel getOptionPanel(String name, Component... components) {
