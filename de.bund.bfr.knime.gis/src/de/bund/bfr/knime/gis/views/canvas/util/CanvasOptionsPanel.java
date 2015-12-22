@@ -491,33 +491,36 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private void nodeSizeChanged() {
 		String sizeString = nodeSizeBox.getSelectedItem().toString();
 
-		try {
-			int size = Integer.parseInt(sizeString);
-			Integer max = getNodeMaxSize();
-
-			if (size < 1) {
-				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be smaller than 1", "Error");
-				nodeSizeBox.setSelectedItem(nodeSize);
-			} else if (max != null && size > max) {
-				Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize, "Error");
-				nodeSizeBox.setSelectedItem(nodeSize);
-			} else {
-				nodeSize = size;
-				listeners.forEach(l -> l.nodeSizeChanged());
-			}
-		} catch (NumberFormatException e) {
-			Dialogs.showErrorMessage(nodeSizeBox, sizeString + " is not a valid number", "Error");
-			nodeSizeBox.setSelectedItem(nodeSize);
-		} catch (NullPointerException e) {
+		if (sizeString.trim().isEmpty()) {
 			Dialogs.showErrorMessage(nodeSizeBox, "No value specified", "Error");
 			nodeSizeBox.setSelectedItem(nodeSize);
+		} else {
+			try {
+				int size = Integer.parseInt(sizeString);
+				Integer max = getNodeMaxSize();
+
+				if (size < 1) {
+					Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be smaller than 1", "Error");
+					nodeSizeBox.setSelectedItem(nodeSize);
+				} else if (max != null && size > max) {
+					Dialogs.showErrorMessage(nodeSizeBox, "Value cannot be larger than max size " + nodeMaxSize,
+							"Error");
+					nodeSizeBox.setSelectedItem(nodeSize);
+				} else {
+					nodeSize = size;
+					listeners.forEach(l -> l.nodeSizeChanged());
+				}
+			} catch (NumberFormatException e) {
+				Dialogs.showErrorMessage(nodeSizeBox, sizeString + " is not a valid number", "Error");
+				nodeSizeBox.setSelectedItem(nodeSize);
+			}
 		}
 	}
 
 	private void nodeMaxSizeChanged() {
 		String sizeString = nodeMaxSizeBox.getSelectedItem().toString();
 
-		if (sizeString.isEmpty()) {
+		if (sizeString.trim().isEmpty()) {
 			nodeMaxSize = "";
 			listeners.forEach(l -> l.nodeSizeChanged());
 		} else {
@@ -542,34 +545,36 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private void edgeThicknessChanged() {
 		String sizeString = edgeThicknessBox.getSelectedItem().toString();
 
-		try {
-			int size = Integer.parseInt(sizeString);
-			Integer max = getEdgeMaxThickness();
-
-			if (size < 1) {
-				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be smaller than 1", "Error");
-				edgeThicknessBox.setSelectedItem(edgeThickness);
-			} else if (max != null && size > max) {
-				Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be larger than max size " + edgeMaxThickness,
-						"Error");
-				edgeThicknessBox.setSelectedItem(edgeThickness);
-			} else {
-				edgeThickness = size;
-				listeners.forEach(l -> l.edgeThicknessChanged());
-			}
-		} catch (NumberFormatException e) {
-			Dialogs.showErrorMessage(edgeThicknessBox, sizeString + " is not a valid number", "Error");
-			edgeThicknessBox.setSelectedItem(edgeThickness);
-		} catch (NullPointerException e) {
+		if (sizeString.trim().isEmpty()) {
 			Dialogs.showErrorMessage(edgeThicknessBox, "No value specified", "Error");
 			edgeThicknessBox.setSelectedItem(edgeThickness);
+		} else {
+			try {
+				int size = Integer.parseInt(sizeString);
+				Integer max = getEdgeMaxThickness();
+
+				if (size < 1) {
+					Dialogs.showErrorMessage(edgeThicknessBox, "Value cannot be smaller than 1", "Error");
+					edgeThicknessBox.setSelectedItem(edgeThickness);
+				} else if (max != null && size > max) {
+					Dialogs.showErrorMessage(edgeThicknessBox,
+							"Value cannot be larger than max size " + edgeMaxThickness, "Error");
+					edgeThicknessBox.setSelectedItem(edgeThickness);
+				} else {
+					edgeThickness = size;
+					listeners.forEach(l -> l.edgeThicknessChanged());
+				}
+			} catch (NumberFormatException e) {
+				Dialogs.showErrorMessage(edgeThicknessBox, sizeString + " is not a valid number", "Error");
+				edgeThicknessBox.setSelectedItem(edgeThickness);
+			}
 		}
 	}
 
 	private void edgeMaxThicknessChanged() {
 		String sizeString = edgeMaxThicknessBox.getSelectedItem().toString();
 
-		if (sizeString.isEmpty()) {
+		if (sizeString.trim().isEmpty()) {
 			edgeMaxThickness = "";
 			listeners.forEach(l -> l.edgeThicknessChanged());
 		} else {
