@@ -39,7 +39,6 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.nls.chart.Plotable;
-import de.bund.bfr.math.MathUtils;
 
 public class NlsUtils {
 
@@ -162,16 +161,18 @@ public class NlsUtils {
 			values.put(var, new ArrayList<>());
 		}
 
-		for (DataRow row : table) {
+		loop: for (DataRow row : table) {
 			if (id.equals(IO.getString(row.getCell(spec.findColumnIndex(NlsUtils.ID_COLUMN))))) {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getIndependentVariables()) {
-					v.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
-				}
+					Double value = IO.getDouble(row.getCell(spec.findColumnIndex(var)));
 
-				if (MathUtils.containsInvalidDouble(v.values())) {
-					continue;
+					if (value == null || !Double.isFinite(value)) {
+						continue loop;
+					}
+
+					v.put(var, value);
 				}
 
 				for (Map.Entry<String, Double> entry : v.entrySet()) {
@@ -227,17 +228,19 @@ public class NlsUtils {
 				Map<String, Double> v = new LinkedHashMap<>();
 
 				for (String var : f.getVariables()) {
-					v.put(var, IO.getDouble(row.getCell(spec.findColumnIndex(var))));
+					Double value = IO.getDouble(row.getCell(spec.findColumnIndex(var)));
+
+					if (value == null || !Double.isFinite(value)) {
+						continue loop;
+					}
+
+					v.put(var, value);
 				}
 
 				for (Map.Entry<String, Double> entry : fixed.entrySet()) {
 					if (!entry.getValue().equals(v.get(entry.getKey()))) {
 						continue loop;
 					}
-				}
-
-				if (MathUtils.containsInvalidDouble(v.values())) {
-					continue;
 				}
 
 				for (Map.Entry<String, Double> entry : v.entrySet()) {
@@ -267,12 +270,10 @@ public class NlsUtils {
 				Double time = IO.getDouble(row.getCell(spec.findColumnIndex(f.getTimeVariable())));
 				Double target = IO.getDouble(row.getCell(spec.findColumnIndex(f.getDependentVariable())));
 
-				if (!MathUtils.isValidDouble(time) || !MathUtils.isValidDouble(target)) {
-					continue;
+				if (time != null && target != null && Double.isFinite(time) && Double.isFinite(target)) {
+					values.get(f.getTimeVariable()).add(time);
+					values.get(f.getDependentVariable()).add(target);
 				}
-
-				values.get(f.getTimeVariable()).add(time);
-				values.get(f.getDependentVariable()).add(target);
 			}
 		}
 

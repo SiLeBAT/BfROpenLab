@@ -146,7 +146,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 				}
 
 				if (shape == null) {
-					continue;
+					continue loop;
 				}
 
 				Point2D p = GisUtils.getCenterOfLargestPolygon(shape);

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
@@ -49,13 +48,13 @@ public class Evaluator {
 			return results.get(function);
 		}
 
-		DJep parser = MathUtils.createParser();
+		Parser parser = new Parser();
 
 		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
 			parser.addConstant(entry.getKey(), entry.getValue());
 		}
 
-		parser.addVariable(varX, 0.0);
+		parser.addVariable(varX);
 
 		Node f = parser.parse(formula);
 		double[] valuesY = new double[valuesX.length];
@@ -66,10 +65,10 @@ public class Evaluator {
 		for (int i = 0; i < valuesX.length; i++) {
 			parser.setVarValue(varX, valuesX[i]);
 
-			Object y = parser.evaluate(f);
+			double y = parser.evaluate(f);
 
-			if (MathUtils.isValidDouble(y)) {
-				valuesY[i] = (Double) y;
+			if (Double.isFinite(y)) {
+				valuesY[i] = y;
 				containsValidPoint = true;
 			} else {
 				valuesY[i] = Double.NaN;
@@ -95,13 +94,13 @@ public class Evaluator {
 			return errorResults.get(function);
 		}
 
-		DJep parser = MathUtils.createParser();
+		Parser parser = new Parser();
 
 		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
 			parser.addConstant(entry.getKey(), entry.getValue());
 		}
 
-		parser.addVariable(varX, 0.0);
+		parser.addVariable(varX);
 
 		List<String> paramList = new ArrayList<>(covariances.keySet());
 		Node f = parser.parse(formula);
@@ -126,28 +125,29 @@ public class Evaluator {
 
 			for (int i = 0; i < n; i++) {
 				String param = paramList.get(i);
-				Object obj = parser.evaluate(derivatives.get(param));
 
-				if (!MathUtils.isValidDouble(obj)) {
+				derivValues[i] = parser.evaluate(derivatives.get(param));
+				variance += derivValues[i] * derivValues[i] * covariances.get(param).get(param);
+
+				if (!Double.isFinite(variance)) {
 					continue loop;
 				}
-
-				derivValues[i] = (Double) obj;
-				variance += derivValues[i] * derivValues[i] * covariances.get(param).get(param);
 			}
 
 			for (int i = 0; i < n - 1; i++) {
 				for (int j = i + 1; j < n; j++) {
-					String param1 = paramList.get(i);
-					String param2 = paramList.get(j);
+					variance += 2.0 * derivValues[i] * derivValues[j]
+							* covariances.get(paramList.get(i)).get(paramList.get(j));
 
-					variance += 2.0 * derivValues[i] * derivValues[j] * covariances.get(param1).get(param2);
+					if (!Double.isFinite(variance)) {
+						continue loop;
+					}
 				}
 			}
 
 			double y = Math.sqrt(variance + extraVariance) * conf95;
 
-			if (!MathUtils.isValidDouble(y)) {
+			if (!Double.isFinite(y)) {
 				continue loop;
 			}
 
@@ -180,12 +180,12 @@ public class Evaluator {
 		double[] value = new double[functions.size()];
 		int depIndex = -1;
 		int index = 0;
-		DJep parser = MathUtils.createParser();
+		Parser parser = new Parser();
 
-		parser.addVariable(dependentVariable, 0.0);
+		parser.addVariable(dependentVariable);
 
 		for (String indep : independentVariables.keySet()) {
-			parser.addVariable(indep, 0.0);
+			parser.addVariable(indep);
 		}
 
 		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
@@ -218,7 +218,7 @@ public class Evaluator {
 		boolean containsValidPoint = false;
 
 		for (int i = 0; i < valuesX.length; i++) {
-			Double y = Double.NaN;
+			double y = Double.NaN;
 
 			if (valuesX[i] == diffValue) {
 				y = value[depIndex];
@@ -228,7 +228,7 @@ public class Evaluator {
 				diffValue = valuesX[i];
 			}
 
-			if (MathUtils.isValidDouble(y)) {
+			if (Double.isFinite(y)) {
 				valuesY[i] = y;
 				containsValidPoint = true;
 			} else {
@@ -309,7 +309,7 @@ public class Evaluator {
 
 				variance += value * value * covariances.get(param).get(param);
 
-				if (!MathUtils.isValidDouble(variance)) {
+				if (!Double.isFinite(variance)) {
 					continue loop;
 				}
 			}
@@ -322,7 +322,7 @@ public class Evaluator {
 					variance += 2.0 * derivValues.get(param1)[index] * derivValues.get(param2)[index]
 							* covariances.get(param1).get(param2);
 
-					if (!MathUtils.isValidDouble(variance)) {
+					if (!Double.isFinite(variance)) {
 						continue loop;
 					}
 				}
@@ -330,7 +330,7 @@ public class Evaluator {
 
 			double y = Math.sqrt(variance + extraVariance) * conf95;
 
-			if (!MathUtils.isValidDouble(y)) {
+			if (!Double.isFinite(y)) {
 				continue loop;
 			}
 

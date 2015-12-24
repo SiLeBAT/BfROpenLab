@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
@@ -38,7 +37,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 	private static final double EPSILON = 0.00001;
 
-	private DJep parser;
+	private Parser parser;
 	private Node function;
 	private String[] parameters;
 	private Map<String, Node> derivatives;
@@ -50,8 +49,7 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 		this.parameters = parameters;
 		this.variableValues = createArgumentVariationList(variableValues);
 
-		parser = MathUtils
-				.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
+		parser = new Parser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 
@@ -99,10 +97,10 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 				parser.setVarValue(entry.getKey(), entry.getValue()[index]);
 			}
 
-			Object number = parser.evaluate(derivatives.get(param));
+			double value = parser.evaluate(derivatives.get(param));
 
-			if (MathUtils.isValidDouble(number)) {
-				return (Double) number;
+			if (Double.isFinite(value)) {
+				return value;
 			}
 		}
 
@@ -113,14 +111,14 @@ public class VectorFunctionJacobian implements MultivariateMatrixFunction {
 
 			parser.setVarValue(param, paramValues.get(param) - EPSILON);
 
-			Object number1 = parser.evaluate(function);
+			double value1 = parser.evaluate(function);
 
 			parser.setVarValue(param, paramValues.get(param) + EPSILON);
 
-			Object number2 = parser.evaluate(function);
+			double value2 = parser.evaluate(function);
 
-			if (MathUtils.isValidDouble(number1) && MathUtils.isValidDouble(number2)) {
-				return ((Double) number2 - (Double) number1) / (2 * EPSILON);
+			if (Double.isFinite(value1) && Double.isFinite(value2)) {
+				return (value2 - value1) / (2 * EPSILON);
 			}
 		}
 

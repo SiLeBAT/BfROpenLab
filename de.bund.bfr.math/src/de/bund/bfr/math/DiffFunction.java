@@ -24,13 +24,12 @@ import java.util.Map;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 public class DiffFunction implements FirstOrderDifferentialEquations {
 
-	private DJep parser;
+	private Parser parser;
 	private Node[] functions;
 	private String[] dependentVariables;
 	private String timeVariable;
@@ -38,7 +37,7 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 	private int lastIndex;
 
-	public DiffFunction(DJep parser, Node[] functions, String[] dependentVariables,
+	public DiffFunction(Parser parser, Node[] functions, String[] dependentVariables,
 			Map<String, double[]> variableValues, String timeVariable) {
 		this.parser = parser;
 		this.functions = functions;

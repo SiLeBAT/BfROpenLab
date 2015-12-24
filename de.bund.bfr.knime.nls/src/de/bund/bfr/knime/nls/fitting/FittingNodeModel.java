@@ -65,7 +65,6 @@ import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.IntegratorFactory;
-import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.ParameterOptimizer;
 
 /**
@@ -310,16 +309,23 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			argumentValues.put(indep, argValues);
 		}
 
-		for (DataRow row : table) {
+		loop: for (DataRow row : table) {
 			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
+
+			if (id == null) {
+				continue loop;
+			}
+
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : f.getVariables()) {
-				values.put(var, IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var))));
-			}
+				Double value = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var)));
 
-			if (id == null || MathUtils.containsInvalidDouble(values.values())) {
-				continue;
+				if (value == null || !Double.isFinite(value)) {
+					continue loop;
+				}
+
+				values.put(var, value);
 			}
 
 			targetValues.put(id, values.get(f.getDependentVariable()));
@@ -576,7 +582,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			Double time = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getTimeVariable())));
 			Double target = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(f.getDependentVariable())));
 
-			if (id != null && MathUtils.isValidDouble(time) && MathUtils.isValidDouble(target)) {
+			if (id != null && time != null && target != null && Double.isFinite(time) && Double.isFinite(target)) {
 				timeValues.put(id, time);
 				targetValues.put(id, target);
 			}
@@ -594,18 +600,27 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			argumentValues.put(indep, argValues);
 		}
 
-		for (DataRow row : table) {
+		loop: for (DataRow row : table) {
 			String id = IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)));
+
+			if (id == null) {
+				continue loop;
+			}
+
 			Map<String, Double> values = new LinkedHashMap<>();
 
 			for (String var : f.getIndependentVariables()) {
-				values.put(var, IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var))));
+				Double value = IO.getDouble(row.getCell(table.getSpec().findColumnIndex(var)));
+
+				if (value == null || !Double.isFinite(value)) {
+					continue loop;
+				}
+
+				values.put(var, value);
 			}
 
-			if (id != null && !MathUtils.containsInvalidDouble(values.values())) {
-				for (String indep : f.getIndependentVariables()) {
-					argumentValues.get(indep).put(id, values.get(indep));
-				}
+			for (String indep : f.getIndependentVariables()) {
+				argumentValues.get(indep).put(id, values.get(indep));
 			}
 		}
 

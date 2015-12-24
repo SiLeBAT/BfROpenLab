@@ -24,12 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.TDistribution;
-import org.lsmp.djep.djep.DJep;
-import org.lsmp.djep.djep.DiffRulesI;
-import org.lsmp.djep.djep.diffRules.MacroDiffRules;
-import org.lsmp.djep.xjep.MacroFunction;
-import org.nfunk.jep.ASTFunNode;
-import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
 
@@ -38,20 +32,6 @@ import com.google.common.math.DoubleMath;
 public class MathUtils {
 
 	private MathUtils() {
-	}
-
-	public static boolean isValidDouble(Object o) {
-		return o instanceof Double && Double.isFinite((Double) o);
-	}
-
-	public static boolean containsInvalidDouble(Collection<Double> values) {
-		for (Double v : values) {
-			if (!isValidDouble(v)) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	public static String replaceVariable(String formula, String var, String newVar) {
@@ -99,20 +79,15 @@ public class MathUtils {
 	}
 
 	public static Set<String> getSymbols(String formula) {
-		Set<String> symbols = new LinkedHashSet<>();
-		DJep parser = MathUtils.createParser();
-
 		try {
+			Parser parser = new Parser();
+
 			parser.parse(formula);
+
+			return parser.getSymbols();
 		} catch (ParseException | NullPointerException | TokenMgrError e) {
-			return symbols;
+			return new LinkedHashSet<>();
 		}
-
-		for (Object symbol : parser.getSymbolTable().keySet()) {
-			symbols.add(symbol.toString());
-		}
-
-		return symbols;
 	}
 
 	public static Double getR2(double sse, double[] targetValues) {
@@ -153,69 +128,7 @@ public class MathUtils {
 		return dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 	}
 
-	public static DJep createParser() {
-		DJep parser = new DJep();
-
-		parser.setAllowAssignment(true);
-		parser.setAllowUndeclared(true);
-		parser.setImplicitMul(true);
-		parser.addStandardFunctions();
-		parser.addStandardDiffRules();
-		parser.removeVariable("x");
-
-		try {
-			parser.removeFunction("log");
-			parser.addFunction("log", new MacroFunction("log", 1, "ln(x)", parser));
-			parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
-			parser.addFunction("log10", new MacroFunction("log10", 1, "ln(x)/ln(10)", parser));
-			parser.addDiffRule(new MacroDiffRules(parser, "log10", "1/(x*ln(10))"));
-
-			parser.addDiffRule(new ZeroDiffRule("<"));
-			parser.addDiffRule(new ZeroDiffRule(">"));
-			parser.addDiffRule(new ZeroDiffRule("<="));
-			parser.addDiffRule(new ZeroDiffRule(">="));
-			parser.addDiffRule(new ZeroDiffRule("&&"));
-			parser.addDiffRule(new ZeroDiffRule("||"));
-			parser.addDiffRule(new ZeroDiffRule("=="));
-			parser.addDiffRule(new ZeroDiffRule("!="));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		return parser;
-	}
-
-	public static DJep createParser(Set<String> variables) {
-		DJep parser = createParser();
-
-		for (String var : variables) {
-			parser.addVariable(var, 0.0);
-		}
-
-		return parser;
-	}
-
 	public static Double toDouble(Integer value) {
 		return value != null ? value.doubleValue() : null;
-	}
-
-	private static class ZeroDiffRule implements DiffRulesI {
-
-		private String name;
-
-		public ZeroDiffRule(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Node differentiate(ASTFunNode node, String var, Node[] children, Node[] dchildren, DJep djep)
-				throws ParseException {
-			return djep.getNodeFactory().buildConstantNode(0.0);
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
 	}
 }

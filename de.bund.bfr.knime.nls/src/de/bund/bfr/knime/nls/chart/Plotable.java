@@ -31,7 +31,6 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.IntegratorFactory;
-import de.bund.bfr.math.MathUtils;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -215,7 +214,7 @@ public class Plotable {
 			Double x = transformX.to(xList[i]);
 			Double y = transformY.to(yList[i]);
 
-			if (MathUtils.isValidDouble(x) && MathUtils.isValidDouble(y)) {
+			if (x != null && y != null && Double.isFinite(x) && Double.isFinite(y)) {
 				points.add(new Point2D.Double(x, y));
 			}
 		}
@@ -260,7 +259,7 @@ public class Plotable {
 		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
-			if (MathUtils.isValidDouble(y)) {
+			if (y != null && Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -306,7 +305,7 @@ public class Plotable {
 		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
-			if (MathUtils.isValidDouble(y)) {
+			if (y != null && Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -354,7 +353,7 @@ public class Plotable {
 		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
-			if (MathUtils.isValidDouble(y)) {
+			if (y != null && Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -403,7 +402,7 @@ public class Plotable {
 		for (int i = 0; i < functionSteps; i++) {
 			Double y = transformY.to(convertedYs[i]);
 
-			if (MathUtils.isValidDouble(y)) {
+			if (y != null && Double.isFinite(y)) {
 				points[1][i] = y;
 				containsValidPoint = true;
 			} else {
@@ -450,7 +449,7 @@ public class Plotable {
 				boolean containsNull = false;
 
 				for (double[] list : valueLists.values()) {
-					if (!MathUtils.isValidDouble(list[i])) {
+					if (!Double.isFinite(list[i])) {
 						containsNull = true;
 						break;
 					}

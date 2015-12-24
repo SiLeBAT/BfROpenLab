@@ -28,13 +28,12 @@ import java.util.Set;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 
-	private DJep parser;
+	private Parser parser;
 	private Node[] functions;
 	private String[] dependentVariables;
 	private double[] initValues;
@@ -66,7 +65,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		variables.addAll(variableValues.keySet());
 		variables.addAll(Arrays.asList(parameters));
 
-		parser = MathUtils.createParser(variables);
+		parser = new Parser(variables);
 		functions = new Node[formulas.length];
 
 		for (int i = 0; i < formulas.length; i++) {
@@ -74,7 +73,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		}
 	}
 
-	public MultiVectorDiffFunction(DJep parser, Node[] functions, String[] dependentVariables, double[] initValues,
+	public MultiVectorDiffFunction(Parser parser, Node[] functions, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
 			List<double[]> timeValues, int dependentIndex, String timeVariable, IntegratorFactory integrator) {
 		this.parser = parser;

@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
@@ -32,7 +31,7 @@ import com.google.common.collect.Sets;
 
 public class VectorFunction implements MultivariateVectorFunction {
 
-	private DJep parser;
+	private Parser parser;
 	private Node function;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
@@ -43,8 +42,7 @@ public class VectorFunction implements MultivariateVectorFunction {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = MathUtils
-				.createParser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
+		parser = new Parser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
 		function = parser.parse(formula);
 
 		for (double[] values : variableValues.values()) {
@@ -67,13 +65,9 @@ public class VectorFunction implements MultivariateVectorFunction {
 					parser.setVarValue(entry.getKey(), entry.getValue()[i]);
 				}
 
-				Object number = parser.evaluate(function);
+				double value = parser.evaluate(function);
 
-				if (MathUtils.isValidDouble(number)) {
-					retValue[i] = (Double) number;
-				} else {
-					retValue[i] = Double.NaN;
-				}
+				retValue[i] = Double.isFinite(value) ? value : Double.NaN;
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();

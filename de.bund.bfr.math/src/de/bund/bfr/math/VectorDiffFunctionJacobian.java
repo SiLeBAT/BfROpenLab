@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
@@ -53,7 +52,7 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		diffFunctions = new VectorDiffFunction[nParams];
 
 		for (int i = 0; i < nParams; i++) {
-			DJep parser = MathUtils.createParser(variables);
+			Parser parser = new Parser(variables);
 			Node[] functions = new Node[formulas.length];
 
 			for (int j = 0; j < formulas.length; j++) {
