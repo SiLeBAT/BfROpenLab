@@ -19,15 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
-
-import com.google.common.collect.Sets;
 
 public class VectorFunction implements MultivariateVectorFunction {
 
@@ -35,42 +33,44 @@ public class VectorFunction implements MultivariateVectorFunction {
 	private Node function;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
-	private int dimension;
+
+	private int nParams;
+	private int nValues;
 
 	public VectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues)
 			throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 
-		parser = new Parser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
-		function = parser.parse(formula);
+		nParams = parameters.length;
+		nValues = variableValues.values().stream().findAny().get().length;
 
-		for (double[] values : variableValues.values()) {
-			dimension = values.length;
-			break;
-		}
+		parser = new Parser(
+				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
+		function = parser.parse(formula);
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		double[] retValue = new double[dimension];
+		double[] retValue = new double[nValues];
 
-		for (int i = 0; i < parameters.length; i++) {
-			parser.setVarValue(parameters[i], point[i]);
+		for (int ip = 0; ip < nParams; ip++) {
+			parser.setVarValue(parameters[ip], point[ip]);
 		}
 
-		try {
-			for (int i = 0; i < dimension; i++) {
-				for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-					parser.setVarValue(entry.getKey(), entry.getValue()[i]);
-				}
+		for (int iv = 0; iv < nValues; iv++) {
+			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
+			}
 
+			try {
 				double value = parser.evaluate(function);
 
-				retValue[i] = Double.isFinite(value) ? value : Double.NaN;
+				retValue[iv] = Double.isFinite(value) ? value : Double.NaN;
+			} catch (ParseException e) {
+				e.printStackTrace();
+				retValue[iv] = Double.NaN;
 			}
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 
 		return retValue;

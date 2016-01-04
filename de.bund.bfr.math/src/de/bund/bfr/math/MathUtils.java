@@ -33,7 +33,7 @@ import com.google.common.math.DoubleMath;
 
 public class MathUtils {
 
-	private static final double EPSILON = 1e-6;
+	public static final double DERIV_EPSILON = 1e-6;
 
 	private MathUtils() {
 	}
@@ -143,15 +143,16 @@ public class MathUtils {
 		IntStream.range(0, nPoint).parallel().forEach(ip -> {
 			double[] p = point.clone();
 
-			p[ip] = point[ip] - EPSILON;
+			p[ip] = point[ip] - DERIV_EPSILON;
 
 			double[] result1 = functions[ip].value(p);
 
-			p[ip] = point[ip] + EPSILON;
+			p[ip] = point[ip] + DERIV_EPSILON;
 
 			double[] result2 = functions[ip].value(p);
 
-			IntStream.range(0, nResult).forEach(ir -> result[ir][ip] = (result2[ir] - result1[ir]) / (2 * EPSILON));
+			IntStream.range(0, nResult)
+					.forEach(ir -> result[ir][ip] = (result2[ir] - result1[ir]) / (2 * DERIV_EPSILON));
 		});
 
 		return result;

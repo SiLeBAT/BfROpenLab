@@ -19,185 +19,83 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-import com.google.common.collect.Sets;
-
 public class VectorFunctionJacobian implements MultivariateMatrixFunction {
-
-	private static final double EPSILON = 0.00001;
 
 	private Parser parser;
 	private Node function;
 	private String[] parameters;
 	private Map<String, Node> derivatives;
-	private List<Map<String, double[]>> variableValues;
-	private int dimension;
+	private Map<String, double[]> variableValues;
+
+	private int nParams;
+	private int nValues;
 
 	public VectorFunctionJacobian(String formula, String[] parameters, Map<String, double[]> variableValues)
 			throws ParseException {
 		this.parameters = parameters;
-		this.variableValues = createArgumentVariationList(variableValues);
+		this.variableValues = variableValues;
 
-		parser = new Parser(Sets.union(new LinkedHashSet<>(Arrays.asList(parameters)), variableValues.keySet()));
+		nParams = parameters.length;
+		nValues = variableValues.values().stream().findAny().get().length;
+
+		parser = new Parser(
+				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 
 		for (String param : parameters) {
 			derivatives.put(param, parser.differentiate(function, param));
 		}
-
-		for (double[] values : variableValues.values()) {
-			dimension = values.length;
-			break;
-		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		double[][] retValue = new double[dimension][parameters.length];
+		double[][] retValue = new double[nValues][nParams];
 
-		try {
-			Map<String, Double> paramValues = new LinkedHashMap<>();
+		for (int ip = 0; ip < nParams; ip++) {
+			parser.setVarValue(parameters[ip], point[ip]);
+		}
 
-			for (int i = 0; i < parameters.length; i++) {
-				paramValues.put(parameters[i], point[i]);
+		for (int iv = 0; iv < nValues; iv++) {
+			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
+				parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
 			}
 
-			for (int i = 0; i < dimension; i++) {
-				for (int j = 0; j < parameters.length; j++) {
-					retValue[i][j] = evalWithSingularityCheck(parameters[j], paramValues, i);
+			for (int ip = 0; ip < nParams; ip++) {
+				try {
+					double value = parser.evaluate(derivatives.get(parameters[ip]));
+
+					if (!Double.isFinite(value)) {
+						parser.setVarValue(parameters[ip], point[ip] - MathUtils.DERIV_EPSILON);
+
+						double value1 = parser.evaluate(function);
+
+						parser.setVarValue(parameters[ip], point[ip] + MathUtils.DERIV_EPSILON);
+
+						double value2 = parser.evaluate(function);
+
+						parser.setVarValue(parameters[ip], point[ip]);
+
+						value = (value2 - value1) / (2 * MathUtils.DERIV_EPSILON);
+					}
+
+					retValue[iv][ip] = Double.isFinite(value) ? value : Double.NaN;
+				} catch (ParseException e) {
+					e.printStackTrace();
+					retValue[iv][ip] = Double.NaN;
 				}
 			}
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 
 		return retValue;
-	}
-
-	private double evalWithSingularityCheck(String param, Map<String, Double> paramValues, int index)
-			throws ParseException {
-		for (Map.Entry<String, Double> entry : paramValues.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue());
-		}
-
-		for (Map<String, double[]> argValues : variableValues) {
-			for (Map.Entry<String, double[]> entry : argValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue()[index]);
-			}
-
-			double value = parser.evaluate(derivatives.get(param));
-
-			if (Double.isFinite(value)) {
-				return value;
-			}
-		}
-
-		for (Map<String, double[]> argValues : variableValues) {
-			for (Map.Entry<String, double[]> entry : argValues.entrySet()) {
-				parser.setVarValue(entry.getKey(), entry.getValue()[index]);
-			}
-
-			parser.setVarValue(param, paramValues.get(param) - EPSILON);
-
-			double value1 = parser.evaluate(function);
-
-			parser.setVarValue(param, paramValues.get(param) + EPSILON);
-
-			double value2 = parser.evaluate(function);
-
-			if (Double.isFinite(value1) && Double.isFinite(value2)) {
-				return (value2 - value1) / (2 * EPSILON);
-			}
-		}
-
-		return Double.NaN;
-	}
-
-	private static List<Map<String, double[]>> createArgumentVariationList(Map<String, double[]> argumentValues) {
-		int n = argumentValues.size();
-		boolean done = false;
-		List<int[]> variationList = new ArrayList<>();
-		int[] variation = new int[n];
-
-		Arrays.fill(variation, -1);
-
-		while (!done) {
-			variationList.add(variation.clone());
-
-			for (int i = 0;; i++) {
-				if (i >= n) {
-					done = true;
-					break;
-				}
-
-				variation[i]++;
-
-				if (variation[i] > 1) {
-					variation[i] = -1;
-				} else {
-					break;
-				}
-			}
-		}
-
-		Collections.sort(variationList, (l1, l2) -> {
-			int n1 = 0;
-			int n2 = 0;
-
-			for (int i : l1) {
-				if (i == 0) {
-					n1++;
-				}
-			}
-
-			for (int i : l2) {
-				if (i == 0) {
-					n2++;
-				}
-			}
-
-			if (n1 < n2) {
-				return 1;
-			} else if (n1 > n2) {
-				return -1;
-			} else {
-				return 0;
-			}
-		});
-
-		List<Map<String, double[]>> argumentVariationList = new ArrayList<>();
-
-		for (int[] changeList : variationList) {
-			Map<String, double[]> newArgumentValues = new LinkedHashMap<>();
-			int index = 0;
-
-			for (Map.Entry<String, double[]> entry : argumentValues.entrySet()) {
-				double[] newValues = new double[entry.getValue().length];
-				double d = changeList[index] * EPSILON;
-
-				for (int i = 0; i < entry.getValue().length; i++) {
-					newValues[i] = entry.getValue()[i] + d;
-				}
-
-				newArgumentValues.put(entry.getKey(), newValues);
-				index++;
-			}
-
-			argumentVariationList.add(newArgumentValues);
-		}
-
-		return argumentVariationList;
 	}
 }

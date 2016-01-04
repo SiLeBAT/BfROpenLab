@@ -20,9 +20,9 @@
 package de.bund.bfr.math;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
@@ -56,13 +56,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
 
-		Set<String> variables = new LinkedHashSet<>();
-
-		variables.addAll(Arrays.asList(dependentVariables));
-		variables.addAll(variableValues.keySet());
-		variables.addAll(Arrays.asList(parameters));
-
-		parser = new Parser(variables);
+		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
+				variableValues.keySet().stream()).collect(Collectors.toSet()));
 		functions = new Node[formulas.length];
 
 		for (int i = 0; i < formulas.length; i++) {

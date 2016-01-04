@@ -74,18 +74,15 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 
 		parser.setVarValue(timeVariable, t);
 
-		try {
-			for (int i = 0; i < y.length; i++) {
-				Object number = parser.evaluate(functions[i]);
+		for (int i = 0; i < y.length; i++) {
+			try {
+				double value = parser.evaluate(functions[i]);
 
-				if (!(number instanceof Double)) {
-					number = Double.NaN;
-				}
-
-				yDot[i] = (Double) number;
+				yDot[i] = Double.isFinite(value) ? value : Double.NaN;
+			} catch (ParseException e) {
+				e.printStackTrace();
+				yDot[i] = Double.NaN;
 			}
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 	}
 

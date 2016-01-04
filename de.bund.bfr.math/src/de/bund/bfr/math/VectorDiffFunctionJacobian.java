@@ -19,10 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
@@ -39,25 +41,20 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 			String dependentVariable, String timeVariable, IntegratorFactory integrator) throws ParseException {
 		nParams = parameters.length;
 		nValues = timeValues.length;
-
-		Set<String> variables = new LinkedHashSet<>();
-
-		variables.addAll(Arrays.asList(dependentVariables));
-		variables.addAll(variableValues.keySet());
-		variables.addAll(Arrays.asList(parameters));
-
 		diffFunctions = new VectorDiffFunction[nParams];
 
-		for (int i = 0; i < nParams; i++) {
-			Parser parser = new Parser(variables);
-			Node[] functions = new Node[formulas.length];
+		for (int ip = 0; ip < nParams; ip++) {
+			Parser parser = new Parser(
+					Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
+							variableValues.keySet().stream()).collect(Collectors.toSet()));
+			List<Node> functions = new ArrayList<>();
 
-			for (int j = 0; j < formulas.length; j++) {
-				functions[j] = parser.parse(formulas[j]);
+			for (String f : formulas) {
+				functions.add(parser.parse(f));
 			}
 
-			diffFunctions[i] = new VectorDiffFunction(parser, functions, dependentVariables, initValues, initParameters,
-					parameters, variableValues, timeValues,
+			diffFunctions[ip] = new VectorDiffFunction(parser, functions.toArray(new Node[0]), dependentVariables,
+					initValues, initParameters, parameters, variableValues, timeValues,
 					Arrays.asList(dependentVariables).indexOf(dependentVariable), timeVariable, integrator);
 		}
 	}
