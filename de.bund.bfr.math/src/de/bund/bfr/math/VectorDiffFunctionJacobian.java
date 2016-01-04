@@ -23,15 +23,12 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
-
-	private static final double EPSILON = 1e-6;
 
 	private VectorDiffFunction[] diffFunctions;
 	private int nParams;
@@ -67,22 +64,6 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		double[][] result = new double[nValues][nParams];
-
-		IntStream.range(0, nParams).parallel().forEach(ip -> {
-			double[] p = point.clone();
-
-			p[ip] = point[ip] - EPSILON;
-
-			double[] result1 = diffFunctions[ip].value(p);
-
-			p[ip] = point[ip] + EPSILON;
-
-			double[] result2 = diffFunctions[ip].value(p);
-
-			IntStream.range(0, nValues).forEach(iv -> result[iv][ip] = (result2[iv] - result1[iv]) / (2 * EPSILON));
-		});
-
-		return result;
+		return MathUtils.aproxJacobianParallel(diffFunctions, point, nParams, nValues);
 	}
 }

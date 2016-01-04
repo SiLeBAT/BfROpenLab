@@ -22,7 +22,9 @@ package de.bund.bfr.math;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.IntStream;
 
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.TokenMgrError;
@@ -30,6 +32,8 @@ import org.nfunk.jep.TokenMgrError;
 import com.google.common.math.DoubleMath;
 
 public class MathUtils {
+
+	private static final double EPSILON = 1e-6;
 
 	private MathUtils() {
 	}
@@ -130,5 +134,26 @@ public class MathUtils {
 
 	public static Double toDouble(Integer value) {
 		return value != null ? value.doubleValue() : null;
+	}
+
+	public static double[][] aproxJacobianParallel(MultivariateVectorFunction[] functions, double[] point, int nPoint,
+			int nResult) {
+		double[][] result = new double[nResult][nPoint];
+
+		IntStream.range(0, nPoint).parallel().forEach(ip -> {
+			double[] p = point.clone();
+
+			p[ip] = point[ip] - EPSILON;
+
+			double[] result1 = functions[ip].value(p);
+
+			p[ip] = point[ip] + EPSILON;
+
+			double[] result2 = functions[ip].value(p);
+
+			IntStream.range(0, nResult).forEach(ir -> result[ir][ip] = (result2[ir] - result1[ir]) / (2 * EPSILON));
+		});
+
+		return result;
 	}
 }
