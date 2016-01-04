@@ -40,7 +40,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -67,6 +66,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Strings;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
@@ -274,21 +275,19 @@ public class GeocodingNodeModel extends NodeModel {
 		String url = uri.toASCIIString() + "&key=" + mapQuestKey + "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(yc.getInputStream());
-		int n = evaluateXPathToNodeList(doc, "/response/results/result/locations/location").getLength();
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
+		int n = getNodeCount(doc, "/response/results/result/locations/location");
 		List<GeocodingResult> results = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			String location = "/response/results/result/locations/location[" + (i + 1) + "]";
 
-			results.add(new GeocodingResult(url.replace(mapQuestKey, "XXXXXX"),
-					evaluateXPath(doc, location + "/street"), evaluateXPath(doc, location + "/adminArea5"),
-					evaluateXPath(doc, location + "/adminArea4"), evaluateXPath(doc, location + "/adminArea3"),
-					evaluateXPath(doc, location + "/adminArea1"), evaluateXPath(doc, location + "/postalCode"),
-					Double.parseDouble(evaluateXPath(doc, location + "/latLng/lat")),
-					Double.parseDouble(evaluateXPath(doc, location + "/latLng/lng"))));
+			results.add(new GeocodingResult(url.replace(mapQuestKey, "XXXXXX"), getValue(doc, location + "/street"),
+					getValue(doc, location + "/adminArea5"), getValue(doc, location + "/adminArea4"),
+					getValue(doc, location + "/adminArea3"), getValue(doc, location + "/adminArea1"),
+					getValue(doc, location + "/postalCode"),
+					Double.parseDouble(getValue(doc, location + "/latLng/lat")),
+					Double.parseDouble(getValue(doc, location + "/latLng/lng"))));
 		}
 
 		return getIndex(address, results, new GeocodingResult(url.replace(mapQuestKey, "XXXXXX")));
@@ -308,12 +307,10 @@ public class GeocodingNodeModel extends NodeModel {
 				null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = null;
 
 		try {
-			doc = dBuilder.parse(yc.getInputStream());
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
 		} catch (IOException e) {
 			JOptionPane options = new JOptionPane(e.getMessage() + "\nDo you want to continue?",
 					JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
@@ -329,17 +326,17 @@ public class GeocodingNodeModel extends NodeModel {
 			}
 		}
 
-		int n = evaluateXPathToNodeList(doc, "/results/result").getLength();
+		int n = getNodeCount(doc, "/results/result");
 		List<GeocodingResult> results = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			String location = "/results/result[" + (i + 1) + "]";
 
-			results.add(new GeocodingResult(url, evaluateXPath(doc, location + "/streetName"),
-					evaluateXPath(doc, location + "/city"), null, evaluateXPath(doc, location + "/state"),
-					evaluateXPath(doc, location + "/countryCode"), evaluateXPath(doc, location + "/zipCode"),
-					Double.parseDouble(evaluateXPath(doc, location + "/lat")),
-					Double.parseDouble(evaluateXPath(doc, location + "/lng"))));
+			results.add(
+					new GeocodingResult(url, getValue(doc, location + "/streetName"), getValue(doc, location + "/city"),
+							null, getValue(doc, location + "/state"), getValue(doc, location + "/countryCode"),
+							getValue(doc, location + "/zipCode"), Double.parseDouble(getValue(doc, location + "/lat")),
+							Double.parseDouble(getValue(doc, location + "/lng"))));
 		}
 
 		return getIndex(address + ", " + countryCode, results, new GeocodingResult(url));
@@ -359,23 +356,21 @@ public class GeocodingNodeModel extends NodeModel {
 		}
 
 		URI uri = new URI("http", "sg.geodatenzentrum.de", "/gdz_geokodierung__" + uuid + "/geosearch",
-				"query=" + address, null);
+				"query=" + address + "&outputformat=xml", null);
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(yc.getInputStream());
-		int n = evaluateXPathToNodeList(doc, "/FeatureCollection/featureMember").getLength();
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
+		int n = getNodeCount(doc, "/FeatureCollection/featureMember");
 		List<GeocodingResult> results = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
 			String location = "/FeatureCollection/featureMember[" + (i + 1) + "]/Ortsangabe";
-			String[] pos = evaluateXPath(doc, location + "/geometry/Point/pos").split(" ");
+			String[] pos = getValue(doc, location + "/geometry/Point/pos").split(" ");
 
-			results.add(new GeocodingResult(url.replace(uuid, "XXXXXX"), evaluateXPath(doc, location + "/strasse"),
-					evaluateXPath(doc, location + "/ort"), evaluateXPath(doc, location + "/kreis"),
-					evaluateXPath(doc, location + "/bundesland"), DE, evaluateXPath(doc, location + "/plz"),
+			results.add(new GeocodingResult(url.replace(uuid, "XXXXXX"), getValue(doc, location + "/strasse"),
+					getValue(doc, location + "/ort"), getValue(doc, location + "/kreis"),
+					getValue(doc, location + "/bundesland"), DE, getValue(doc, location + "/plz"),
 					Double.parseDouble(pos[1]), Double.parseDouble(pos[0])));
 		}
 
@@ -407,14 +402,13 @@ public class GeocodingNodeModel extends NodeModel {
 		return defaultValue;
 	}
 
-	private static String evaluateXPath(Document doc, String query) throws XPathExpressionException {
-		String result = XPathFactory.newInstance().newXPath().compile(query).evaluate(doc);
-
-		return result.trim().isEmpty() ? null : result.trim();
+	private static int getNodeCount(Document doc, String xPath) throws XPathExpressionException {
+		return ((NodeList) XPathFactory.newInstance().newXPath().compile(xPath).evaluate(doc, XPathConstants.NODESET))
+				.getLength();
 	}
 
-	private static NodeList evaluateXPathToNodeList(Document doc, String query) throws XPathExpressionException {
-		return (NodeList) XPathFactory.newInstance().newXPath().compile(query).evaluate(doc, XPathConstants.NODESET);
+	private static String getValue(Document doc, String xPath) throws XPathExpressionException {
+		return Strings.emptyToNull(XPathFactory.newInstance().newXPath().compile(xPath).evaluate(doc).trim());
 	}
 
 	private static class GeocodingResult {
