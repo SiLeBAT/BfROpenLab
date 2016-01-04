@@ -81,11 +81,7 @@ public class ChartUtils {
 	}
 
 	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
-		if (asSvg) {
-			return new ImagePortObjectSpec(SvgCell.TYPE);
-		} else {
-			return new ImagePortObjectSpec(PNGImageContent.TYPE);
-		}
+		return new ImagePortObjectSpec(asSvg ? SvgCell.TYPE : PNGImageContent.TYPE);
 	}
 
 	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg, int width, int height) {
@@ -117,13 +113,7 @@ public class ChartUtils {
 	}
 
 	public static void addDataSetToPlot(XYPlot plot, XYDataset dataSet, XYItemRenderer renderer) {
-		int i;
-
-		if (plot.getDataset(0) == null) {
-			i = 0;
-		} else {
-			i = plot.getDatasetCount();
-		}
+		int i = plot.getDataset(0) == null ? 0 : plot.getDatasetCount();
 
 		plot.setDataset(i, dataSet);
 		plot.setRenderer(i, renderer);
