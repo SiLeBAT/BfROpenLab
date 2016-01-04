@@ -5,7 +5,6 @@ Bundle-SymbolicName: de.bund.bfr.knime.openkrise.common;singleton:=true
 Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: de.bund.bfr.knime.openkrise.common.Activator
 Require-Bundle: org.eclipse.core.runtime,
- com.google.guava,
  de.bund.bfr.knime,
  de.bund.bfr.knime.openkrise.db.generated
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

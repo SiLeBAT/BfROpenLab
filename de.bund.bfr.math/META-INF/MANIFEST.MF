@@ -7,7 +7,7 @@ Bundle-Activator: de.bund.bfr.math.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,
- com.google.guava;visibility:=reexport,
+ com.google.guava.new;visibility:=reexport,
  org.apache.commons.math3;visibility:=reexport,
  org.knime.ext.jep;visibility:=reexport
 Export-Package: de.bund.bfr.math
