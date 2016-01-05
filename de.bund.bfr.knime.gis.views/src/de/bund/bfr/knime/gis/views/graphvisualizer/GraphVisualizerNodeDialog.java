@@ -93,7 +93,7 @@ public class GraphVisualizerNodeDialog extends VisualizerNodeDialog {
 
 		try {
 			canvas = creator.createGraphCanvas();
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			canvas = new GraphCanvas(true, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(new Dimension(400, 600));
 

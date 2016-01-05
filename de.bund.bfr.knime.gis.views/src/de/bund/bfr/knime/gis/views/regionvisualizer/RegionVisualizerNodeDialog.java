@@ -98,7 +98,7 @@ public class RegionVisualizerNodeDialog extends VisualizerNodeDialog {
 				Dialogs.showWarningMessage(panel, "Some regions from the table are not contained in the shapefile",
 						"Warning");
 			}
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			canvas = new RegionCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(new Dimension(400, 600));
 

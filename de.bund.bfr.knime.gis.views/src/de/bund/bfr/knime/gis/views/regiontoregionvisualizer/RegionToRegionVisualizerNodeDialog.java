@@ -281,7 +281,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 				Dialogs.showWarningMessage(panel, "Some regions from the table are not contained in the shapefile",
 						"Warning");
 			}
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
 			graphCanvas.setCanvasSize(new Dimension(400, 600));
 			gisCanvas = new RegionCanvas(true, Naming.DEFAULT_NAMING);

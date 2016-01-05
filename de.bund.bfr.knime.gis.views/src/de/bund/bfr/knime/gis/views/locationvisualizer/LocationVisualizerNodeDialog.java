@@ -99,7 +99,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 
 		try {
 			canvas = creator.createCanvas();
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			canvas = new LocationCanvas(false, Naming.DEFAULT_NAMING);
 			canvas.setCanvasSize(new Dimension(400, 600));
 

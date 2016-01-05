@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.ViewUtils;
@@ -48,7 +48,7 @@ public class LocationVisualizerCanvasCreator {
 		this.set = set;
 	}
 
-	public GisCanvas<LocationNode> createCanvas() throws InvalidSettingsException {
+	public GisCanvas<LocationNode> createCanvas() throws NotConfigurableException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		List<LocationNode> nodes = new ArrayList<>(ViewUtils.readLocationNodes(nodeTable, nodeProperties, null,
 				set.getGisSettings().getNodeLatitudeColumn(), set.getGisSettings().getNodeLongitudeColumn()).values());

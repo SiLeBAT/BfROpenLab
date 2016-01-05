@@ -76,9 +76,7 @@ public class TracingUtils {
 	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
 		Map<String, Class<?>> tableColumns = new LinkedHashMap<>();
 
-		for (int i = 0; i < spec.getNumColumns(); i++) {
-			DataColumnSpec cSpec = spec.getColumnSpec(i);
-
+		for (DataColumnSpec cSpec : spec) {
 			if (cSpec.getType().equals(IntCell.TYPE)) {
 				tableColumns.put(cSpec.getName(), Integer.class);
 			} else if (cSpec.getType().equals(DoubleCell.TYPE)) {
@@ -95,11 +93,7 @@ public class TracingUtils {
 
 	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
 			throws NotConfigurableException {
-		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-
-		if (idIndex == -1) {
-			throw new NotConfigurableException("Station Table: Column \"" + TracingColumns.ID + "\" is missing");
-		}
+		KnimeUtils.assertColumnNotMissing(nodeTable.getSpec(), TracingColumns.ID, "Station Table");
 
 		Map<String, GraphNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
@@ -107,7 +101,7 @@ public class TracingUtils {
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
+			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(TracingColumns.ID)));
 
 			if (id == null) {
 				throw new NotConfigurableException("Station Table: Missing value in " + TracingColumns.ID + " column");
@@ -134,23 +128,11 @@ public class TracingUtils {
 	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
 			NodePropertySchema nodeSchema, Set<RowKey> invalidRows, boolean skipInvalid)
 					throws NotConfigurableException {
-		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int latIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN);
-		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
+		DataTableSpec spec = nodeTable.getSpec();
 
-		if (idIndex == -1) {
-			throw new NotConfigurableException("Station Table: Column \"" + TracingColumns.ID + "\" is missing");
-		}
-
-		if (latIndex == -1) {
-			throw new NotConfigurableException(
-					"Station Table: Column \"" + GeocodingNodeModel.LATITUDE_COLUMN + "\" is missing");
-		}
-
-		if (lonIndex == -1) {
-			throw new NotConfigurableException(
-					"Station Table: Column \"" + GeocodingNodeModel.LONGITUDE_COLUMN + "\" is missing");
-		}
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Station Table");
+		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN, "Station Table");
+		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN, "Station Table");
 
 		Map<String, LocationNode> nodes = new LinkedHashMap<>();
 		Set<String> ids = new LinkedHashSet<>();
@@ -159,9 +141,9 @@ public class TracingUtils {
 		nodeSchema.getMap().put(TracingColumns.ID, String.class);
 
 		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
-			Double lat = IO.getDouble(row.getCell(latIndex));
-			Double lon = IO.getDouble(row.getCell(lonIndex));
+			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
+			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN)));
+			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN)));
 
 			if (id == null) {
 				throw new NotConfigurableException("Station Table: Missing value in " + TracingColumns.ID + " column");
@@ -204,27 +186,14 @@ public class TracingUtils {
 
 	public static <V extends Node> List<Edge<V>> readEdges(BufferedDataTable edgeTable, EdgePropertySchema edgeSchema,
 			Map<String, V> nodes, Set<RowKey> skippedRows) throws NotConfigurableException {
-		int idIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int fromIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.FROM);
-		int toIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.TO);
-		int deliveryDateIndex = edgeTable.getSpec().findColumnIndex(TracingColumns.DELIVERY_DEPARTURE);
+		DataTableSpec spec = edgeTable.getSpec();
 
-		if (idIndex == -1) {
-			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.ID + "\" is missing");
-		}
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Table");
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.FROM, "Delivery Table");
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.TO, "Delivery Table");
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.DELIVERY_DEPARTURE, "Delivery Table");
 
-		if (fromIndex == -1) {
-			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.FROM + "\" is missing");
-		}
-
-		if (toIndex == -1) {
-			throw new NotConfigurableException("Delivery Table: Column \"" + TracingColumns.TO + "\" is missing");
-		}
-
-		if (deliveryDateIndex == -1) {
-			throw new NotConfigurableException(
-					"Delivery Table: Column \"" + TracingColumns.DELIVERY_DEPARTURE + "\" is missing");
-		} else if (edgeTable.getSpec().getColumnSpec(deliveryDateIndex).getType() != StringCell.TYPE) {
+		if (spec.getColumnSpec(TracingColumns.DELIVERY_DEPARTURE).getType() != StringCell.TYPE) {
 			throw new NotConfigurableException(
 					"Delivery Table: Column \"" + TracingColumns.DELIVERY_DEPARTURE + "\" must be of type String");
 		}
@@ -237,7 +206,7 @@ public class TracingUtils {
 		edgeSchema.getMap().put(TracingColumns.TO, String.class);
 
 		for (DataRow row : edgeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
+			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
 
 			if (id == null) {
 				throw new NotConfigurableException("Delivery Table: Missing value in " + TracingColumns.ID + " column");
@@ -246,8 +215,8 @@ public class TracingUtils {
 						"Delivery Table: Duplicate value in " + TracingColumns.ID + " column: " + id);
 			}
 
-			String from = IO.getToCleanString(row.getCell(fromIndex));
-			String to = IO.getToCleanString(row.getCell(toIndex));
+			String from = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.FROM)));
+			String to = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.TO)));
 			V node1 = nodes.get(from);
 			V node2 = nodes.get(to);
 
@@ -271,21 +240,10 @@ public class TracingUtils {
 
 	public static <V extends Node> Map<String, Delivery> readDeliveries(BufferedDataTable tracingTable,
 			Collection<Edge<V>> edges, Set<RowKey> skippedRows) throws NotConfigurableException {
-		DataTableSpec dataSpec = tracingTable.getSpec();
-		int idIndex = tracingTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int nextIndex = tracingTable.getSpec().findColumnIndex(TracingColumns.NEXT);
+		DataTableSpec spec = tracingTable.getSpec();
 
-		if (idIndex == -1) {
-			throw new NotConfigurableException("Delivery Relations Table: Column \"" + TracingColumns.ID
-					+ "\" is missing. Try reexecuting the Supply Chain Reader"
-					+ " or downloading an up-to-date workflow.");
-		}
-
-		if (nextIndex == -1) {
-			throw new NotConfigurableException(
-					"Delivery Relations Table: Column \"" + TracingColumns.NEXT + "\" is missing."
-							+ " Try reexecuting the Supply Chain Reader" + " or downloading an up-to-date workflow.");
-		}
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Delivery Relations Table");
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.NEXT, "Delivery Relations Table");
 
 		Map<String, Delivery> deliveries = new LinkedHashMap<>();
 
@@ -300,8 +258,8 @@ public class TracingUtils {
 		}
 
 		for (DataRow row : tracingTable) {
-			String id = IO.getToCleanString(row.getCell(dataSpec.findColumnIndex(TracingColumns.ID)));
-			String next = IO.getToCleanString(row.getCell(dataSpec.findColumnIndex(TracingColumns.NEXT)));
+			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
+			String next = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.NEXT)));
 
 			if (!deliveries.containsKey(id) || !deliveries.containsKey(next)) {
 				skippedRows.add(row.getKey());
@@ -322,7 +280,7 @@ public class TracingUtils {
 				.getColumnNames(KnimeUtils.getColumns(shapeTable.getSpec(), ShapeBlobCell.TYPE));
 
 		if (shapeColumns.isEmpty()) {
-			throw new NotConfigurableException("No Shape Column in table");
+			throw new NotConfigurableException("Shape Table: Shape Column missing");
 		}
 
 		int shapeIndex = shapeTable.getSpec().findColumnIndex(shapeColumns.get(0));
@@ -349,14 +307,12 @@ public class TracingUtils {
 
 	private static void addToProperties(Map<String, Object> properties, PropertySchema schema, BufferedDataTable table,
 			DataRow row) {
-		for (String property : schema.getMap().keySet()) {
-			Class<?> type = schema.getMap().get(property);
-			int column = table.getSpec().findColumnIndex(property);
+		for (Map.Entry<String, Class<?>> property : schema.getMap().entrySet()) {
+			int column = table.getSpec().findColumnIndex(property.getKey());
 
 			if (column != -1) {
-				DataCell cell = row.getCell(column);
-
-				TracingUtils.addCellContentToMap(properties, property, type, cell);
+				TracingUtils.addCellContentToMap(properties, property.getKey(), property.getValue(),
+						row.getCell(column));
 			}
 		}
 	}

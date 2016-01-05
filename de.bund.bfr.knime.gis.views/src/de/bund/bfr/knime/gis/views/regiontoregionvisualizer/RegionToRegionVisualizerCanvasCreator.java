@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import com.vividsolutions.jts.geom.MultiPolygon;
 
@@ -62,7 +62,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		nonExistingRegions = new LinkedHashSet<>();
 	}
 
-	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
+	public GraphCanvas createGraphCanvas() throws NotConfigurableException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties,
@@ -82,7 +82,7 @@ public class RegionToRegionVisualizerCanvasCreator {
 		return canvas;
 	}
 
-	public GisCanvas<RegionNode> createGisCanvas(GraphCanvas graphCanvas) throws InvalidSettingsException {
+	public GisCanvas<RegionNode> createGisCanvas(GraphCanvas graphCanvas) throws NotConfigurableException {
 		Map<String, String> idToRegionMap = ViewUtils.getIdToRegionMap(nodeTable,
 				set.getGraphSettings().getNodeIdColumn(), set.getGisSettings().getNodeRegionColumn());
 		Map<String, MultiPolygon> polygonMap = ViewUtils.readPolygons(shapeTable, set.getGisSettings().getShapeColumn(),

@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.locationtolocationvisualizer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.BufferedDataTable;
@@ -298,7 +299,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 			gisCanvas = creator.createGisCanvas();
 			graphCanvas.addCanvasListener(this);
 			gisCanvas.addCanvasListener(this);
-		} catch (InvalidSettingsException e) {
+		} catch (NotConfigurableException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
 			graphCanvas.setCanvasSize(new Dimension(400, 600));
 			gisCanvas = new LocationCanvas(true, Naming.DEFAULT_NAMING);

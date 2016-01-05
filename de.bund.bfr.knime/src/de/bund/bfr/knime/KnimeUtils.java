@@ -43,7 +43,6 @@ import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
@@ -191,11 +190,12 @@ public class KnimeUtils {
 		assertColumnNotMissing(spec, columnName, null);
 	}
 
-	public static void assertColumnNotMissing(DataTableSpec spec, String columnName, String errorPrefix)
+	public static void assertColumnNotMissing(DataTableSpec spec, String columnName, String tableName)
 			throws NotConfigurableException {
 		if (!spec.containsName(columnName)) {
-			throw new NotConfigurableException(
-					Strings.nullToEmpty(errorPrefix) + "Column \"" + columnName + "\" is missing");
+			String prefix = tableName != null ? tableName + ": " : "";
+
+			throw new NotConfigurableException(prefix + "Column \"" + columnName + "\" is missing");
 		}
 	}
 }

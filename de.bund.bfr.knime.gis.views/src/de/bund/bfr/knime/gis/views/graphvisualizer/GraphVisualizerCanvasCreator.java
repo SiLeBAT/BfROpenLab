@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NotConfigurableException;
 
 import de.bund.bfr.knime.gis.views.ViewUtils;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
@@ -47,7 +47,7 @@ public class GraphVisualizerCanvasCreator {
 		this.set = set;
 	}
 
-	public GraphCanvas createGraphCanvas() throws InvalidSettingsException {
+	public GraphCanvas createGraphCanvas() throws NotConfigurableException {
 		Map<String, Class<?>> nodeProperties = ViewUtils.getTableColumns(nodeTable.getSpec());
 		Map<String, Class<?>> edgeProperties = ViewUtils.getTableColumns(edgeTable.getSpec());
 		Map<String, GraphNode> nodes = ViewUtils.readGraphNodes(nodeTable, nodeProperties,
