@@ -22,15 +22,17 @@ package de.bund.bfr.knime.openkrise.util.cluster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.ml.clustering.Cluster;
+import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import org.apache.commons.math3.ml.clustering.DoublePoint;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.clustering.MultiKMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
@@ -39,7 +41,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.IntCell;
@@ -54,6 +55,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.geocode.GeocodingNodeModel;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -84,96 +86,78 @@ public class DBSCANNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		BufferedDataTable nodeTable = inData[0];
+		BufferedDataTable table = inData[0];
+		DataTableSpec spec = table.getSpec();
 
-		int idIndex = nodeTable.getSpec().findColumnIndex(TracingColumns.ID);
-		int latIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN);
-		int lonIndex = nodeTable.getSpec().findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN);
+		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID);
+		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LATITUDE_COLUMN);
+		KnimeUtils.assertColumnNotMissing(spec, GeocodingNodeModel.LONGITUDE_COLUMN);
 
-		if (idIndex == -1) {
-			throw new Exception(TracingColumns.ID + " colum missing");
-		}
-
-		if (latIndex == -1) {
-			throw new Exception(GeocodingNodeModel.LATITUDE_COLUMN + " column missing");
-		}
-
-		if (lonIndex == -1) {
-			throw new Exception(GeocodingNodeModel.LONGITUDE_COLUMN + " column missing");
-		}
-
-		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
+		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(table.getSpec()),
 				TracingColumns.ID);
-		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
-		Set<String> filteredOut = new LinkedHashSet<>();
+		Collection<GraphNode> nodes = TracingUtils.readGraphNodes(table, nodeSchema).values();
+		Set<String> filteredOut;
 
 		if (set.getFilter() != null) {
-			Map<GraphNode, Double> filterResult = set.getFilter().getValues(nodes.values());
-
-			for (Map.Entry<GraphNode, Double> entry : filterResult.entrySet()) {
-				if (entry.getValue() == 0.0) {
-					filteredOut.add(entry.getKey().getId());
-				}
-			}
+			filteredOut = set.getFilter().getValues(nodes).entrySet().stream().filter(e -> e.getValue() == 0.0)
+					.map(e -> e.getKey().getId()).collect(Collectors.toSet());
+		} else {
+			filteredOut = new LinkedHashSet<>();
 		}
 
-		BufferedDataContainer buf = exec.createDataContainer(createSpec(nodeTable.getSpec()));
+		List<ClusterableRow> clusterableRows = new ArrayList<>();
 
-		Map<RowKey, DoublePoint> idp = new LinkedHashMap<>();
-		List<DoublePoint> points = new ArrayList<>();
-
-		for (DataRow row : nodeTable) {
-			String id = IO.getToCleanString(row.getCell(idIndex));
-			Double lat = IO.getDouble(row.getCell(latIndex));
-			Double lon = IO.getDouble(row.getCell(lonIndex));
+		for (DataRow row : table) {
+			String id = IO.getToCleanString(row.getCell(spec.findColumnIndex(TracingColumns.ID)));
+			Double lat = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LATITUDE_COLUMN)));
+			Double lon = IO.getDouble(row.getCell(spec.findColumnIndex(GeocodingNodeModel.LONGITUDE_COLUMN)));
 
 			if (id == null || lat == null || lon == null || filteredOut.contains(id)) {
 				continue;
 			}
 
-			DoublePoint dp = new DoublePoint(new double[] { Math.toRadians(lat), Math.toRadians(lon) });
-
-			idp.put(row.getKey(), dp);
-			points.add(dp);
-			exec.checkCanceled();
+			clusterableRows.add(new ClusterableRow(row.getKey(), Math.toRadians(lat), Math.toRadians(lon)));
 		}
 
-		List<? extends Cluster<DoublePoint>> cluster = null;
+		List<? extends Cluster<ClusterableRow>> clusters;
 
 		if (set.getModel().equals(DBSCANNSettings.MODEL_DBSCAN)) {
-			cluster = dbScan(points);
+			clusters = new DBSCANClusterer<ClusterableRow>(set.getMaxDistance(), set.getMinPoints(),
+					new HaversineDistance()).cluster(clusterableRows);
 		} else if (set.getModel().equals(DBSCANNSettings.MODEL_K_MEANS)) {
-			cluster = kMeans(points);
+			clusters = new MultiKMeansPlusPlusClusterer<ClusterableRow>(
+					new KMeansPlusPlusClusterer<>(set.getNumClusters(), -1, new HaversineDistance()), 5)
+							.cluster(clusterableRows);
 		} else {
 			throw new InvalidSettingsException(set.getModel());
 		}
 
-		int index = 0;
+		Map<RowKey, Integer> clusterIds = new LinkedHashMap<>();
 
-		for (DataRow row : nodeTable) {
-			int n = nodeTable.getSpec().getNumColumns() + 1;
-			DataCell[] cells = new DataCell[n];
+		for (int i = 0; i < clusters.size(); i++) {
+			for (ClusterableRow r : clusters.get(i).getPoints()) {
+				clusterIds.put(r.getKey(), i);
+			}
+		}
 
-			for (int i = 0; i < row.getNumCells(); i++) {
-				cells[i] = row.getCell(i);
+		DataTableSpec outSpec = createSpec(spec);
+		BufferedDataContainer container = exec.createDataContainer(outSpec);
+
+		for (DataRow row : table) {
+			DataCell[] cells = new DataCell[outSpec.getNumColumns()];
+
+			for (String column : spec.getColumnNames()) {
+				cells[outSpec.findColumnIndex(column)] = row.getCell(spec.findColumnIndex(column));
 			}
 
-			cells[n - 1] = DataType.getMissingCell();
-
-			for (int i = 0; i < cluster.size(); i++) {
-				if (cluster.get(i).getPoints().contains(idp.get(row.getKey()))) {
-					cells[n - 1] = new IntCell(i);
-					break;
-				}
-			}
-
-			buf.addRowToTable(new DefaultRow(String.valueOf(index++), cells));
+			cells[outSpec.findColumnIndex(TracingColumns.CLUSTER_ID)] = IO.createCell(clusterIds.get(row.getKey()));
+			container.addRowToTable(new DefaultRow(row.getKey(), cells));
 			exec.checkCanceled();
 		}
 
-		buf.close();
+		container.close();
 
-		return new BufferedDataTable[] { buf.getTable() };
+		return new BufferedDataTable[] { container.getTable() };
 	}
 
 	/**
@@ -230,31 +214,41 @@ public class DBSCANNodeModel extends NodeModel {
 			throws IOException, CanceledExecutionException {
 	}
 
-	private DataTableSpec createSpec(DataTableSpec inSpec) {
-		DataColumnSpec[] spec = new DataColumnSpec[inSpec.getNumColumns() + 1];
+	private static DataTableSpec createSpec(DataTableSpec inSpec) throws InvalidSettingsException {
+		List<DataColumnSpec> columns = new ArrayList<>();
 
-		for (int i = 0; i < inSpec.getNumColumns(); i++) {
-			spec[i] = inSpec.getColumnSpec(i);
+		for (DataColumnSpec column : inSpec) {
+			if (column.getName().equals(TracingColumns.CLUSTER_ID)) {
+				throw new InvalidSettingsException(
+						"Column name \"" + column.getName() + "\" not allowed in input table.");
+			}
+
+			columns.add(column);
 		}
 
-		spec[inSpec.getNumColumns()] = new DataColumnSpecCreator(TracingColumns.CLUSTER_ID, IntCell.TYPE).createSpec();
+		columns.add(new DataColumnSpecCreator(TracingColumns.CLUSTER_ID, IntCell.TYPE).createSpec());
 
-		return new DataTableSpec(spec);
+		return new DataTableSpec(columns.toArray(new DataColumnSpec[0]));
 	}
 
-	private List<? extends Cluster<DoublePoint>> dbScan(List<DoublePoint> points) {
-		DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(set.getMaxDistance(), set.getMinPoints(),
-				new HaversineDistance());
+	private static class ClusterableRow implements Clusterable {
 
-		return dbscan.cluster(points);
-	}
+		private RowKey key;
+		private double[] point;
 
-	private List<? extends Cluster<DoublePoint>> kMeans(List<DoublePoint> points) {
-		KMeansPlusPlusClusterer<DoublePoint> km = new KMeansPlusPlusClusterer<>(set.getNumClusters(), -1,
-				new HaversineDistance());
-		MultiKMeansPlusPlusClusterer<DoublePoint> mkm = new MultiKMeansPlusPlusClusterer<>(km, 5);
+		public ClusterableRow(RowKey key, double latitude, double longitude) {
+			this.key = key;
+			point = new double[] { latitude, longitude };
+		}
 
-		return mkm.cluster(points);
+		public RowKey getKey() {
+			return key;
+		}
+
+		@Override
+		public double[] getPoint() {
+			return point;
+		}
 	}
 
 	private static class HaversineDistance implements DistanceMeasure {

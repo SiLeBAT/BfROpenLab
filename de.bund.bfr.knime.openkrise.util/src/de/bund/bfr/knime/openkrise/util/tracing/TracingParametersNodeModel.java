@@ -179,9 +179,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = IO.getToCleanString(row.getCell(nodeTable.getSpec().findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[nodeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : nodeTable.getSpec()) {
-				cells[nodeOutSpec.findColumnIndex(column.getName())] = row
-						.getCell(nodeTable.getSpec().findColumnIndex(column.getName()));
+			for (String column : nodeTable.getSpec().getColumnNames()) {
+				cells[nodeOutSpec.findColumnIndex(column)] = row.getCell(nodeTable.getSpec().findColumnIndex(column));
 			}
 
 			cells[nodeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO
@@ -217,9 +216,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			String id = IO.getToCleanString(row.getCell(edgeTable.getSpec().findColumnIndex(TracingColumns.ID)));
 			DataCell[] cells = new DataCell[edgeOutSpec.getNumColumns()];
 
-			for (DataColumnSpec column : edgeTable.getSpec()) {
-				cells[edgeOutSpec.findColumnIndex(column.getName())] = row
-						.getCell(edgeTable.getSpec().findColumnIndex(column.getName()));
+			for (String column : edgeTable.getSpec().getColumnNames()) {
+				cells[edgeOutSpec.findColumnIndex(column)] = row.getCell(edgeTable.getSpec().findColumnIndex(column));
 			}
 
 			cells[edgeOutSpec.findColumnIndex(TracingColumns.WEIGHT)] = IO

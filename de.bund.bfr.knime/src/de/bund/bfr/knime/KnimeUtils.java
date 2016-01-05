@@ -38,10 +38,12 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.util.FileUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
@@ -183,5 +185,17 @@ public class KnimeUtils {
 				}
 			}
 		}).start();
+	}
+
+	public static void assertColumnNotMissing(DataTableSpec spec, String columnName) throws NotConfigurableException {
+		assertColumnNotMissing(spec, columnName, null);
+	}
+
+	public static void assertColumnNotMissing(DataTableSpec spec, String columnName, String errorPrefix)
+			throws NotConfigurableException {
+		if (!spec.containsName(columnName)) {
+			throw new NotConfigurableException(
+					Strings.nullToEmpty(errorPrefix) + "Column \"" + columnName + "\" is missing");
+		}
 	}
 }

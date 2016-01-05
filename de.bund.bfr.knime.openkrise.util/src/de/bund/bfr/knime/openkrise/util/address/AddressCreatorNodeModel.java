@@ -112,8 +112,8 @@ public class AddressCreatorNodeModel extends NodeModel {
 		for (DataRow row : table) {
 			DataCell[] cells = new DataCell[outSpec.getNumColumns()];
 
-			for (int i = 0; i < spec.getNumColumns(); i++) {
-				cells[outSpec.findColumnIndex(spec.getColumnNames()[i])] = row.getCell(i);
+			for (String column : spec.getColumnNames()) {
+				cells[outSpec.findColumnIndex(column)] = row.getCell(spec.findColumnIndex(column));
 			}
 
 			String street = null;

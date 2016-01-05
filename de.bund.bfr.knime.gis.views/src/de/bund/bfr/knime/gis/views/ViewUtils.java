@@ -58,17 +58,15 @@ public class ViewUtils {
 	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
 		Map<String, Class<?>> tableColumns = new LinkedHashMap<>();
 
-		for (int i = 0; i < spec.getNumColumns(); i++) {
-			DataColumnSpec cSpec = spec.getColumnSpec(i);
-
-			if (cSpec.getType().equals(IntCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Integer.class);
-			} else if (cSpec.getType().equals(DoubleCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Double.class);
-			} else if (cSpec.getType().equals(BooleanCell.TYPE)) {
-				tableColumns.put(cSpec.getName(), Boolean.class);
+		for (DataColumnSpec column : spec) {
+			if (column.getType().equals(IntCell.TYPE)) {
+				tableColumns.put(column.getName(), Integer.class);
+			} else if (column.getType().equals(DoubleCell.TYPE)) {
+				tableColumns.put(column.getName(), Double.class);
+			} else if (column.getType().equals(BooleanCell.TYPE)) {
+				tableColumns.put(column.getName(), Boolean.class);
 			} else {
-				tableColumns.put(cSpec.getName(), String.class);
+				tableColumns.put(column.getName(), String.class);
 			}
 		}
 

@@ -68,6 +68,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
@@ -91,6 +92,9 @@ public class GeocodingNodeModel extends NodeModel {
 	public static final String POSTAL_CODE_COLUMN = "GeocodingPostalCode";
 	public static final String LATITUDE_COLUMN = "GeocodingLatitude";
 	public static final String LONGITUDE_COLUMN = "GeocodingLongitude";
+
+	private ImmutableSet<String> GEOCODING_COLUMNS = ImmutableSet.of(URL_COLUMN, STREET_COLUMN, CITY_COLUMN,
+			DISTRICT_COLUMN, STATE_COLUMN, COUNTRY_COLUMN, POSTAL_CODE_COLUMN, LATITUDE_COLUMN, LONGITUDE_COLUMN);
 
 	private static final String DE = "DE";
 
@@ -119,8 +123,8 @@ public class GeocodingNodeModel extends NodeModel {
 		for (DataRow row : table) {
 			DataCell[] cells = new DataCell[outSpec.getNumColumns()];
 
-			for (int i = 0; i < spec.getNumColumns(); i++) {
-				cells[i] = row.getCell(i);
+			for (String column : spec.getColumnNames()) {
+				cells[outSpec.findColumnIndex(column)] = row.getCell(spec.findColumnIndex(column));
 			}
 
 			int addressIndex = spec.findColumnIndex(set.getAddressColumn());
@@ -191,17 +195,12 @@ public class GeocodingNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
-		for (int i = 0; i < inSpecs[0].getNumColumns(); i++) {
-			String name = inSpecs[0].getColumnSpec(i).getName();
-
-			if (name.equals(URL_COLUMN) || name.equals(STREET_COLUMN) || name.equals(CITY_COLUMN)
-					|| name.equals(DISTRICT_COLUMN) || name.equals(STATE_COLUMN) || name.equals(COUNTRY_COLUMN)
-					|| name.equals(POSTAL_CODE_COLUMN) || name.equals(LATITUDE_COLUMN)
-					|| name.equals(LONGITUDE_COLUMN)) {
-				throw new InvalidSettingsException("Column name \"" + name + "\" not allowed in input table");
+		for (DataColumnSpec c : inSpecs[0]) {
+			if (GEOCODING_COLUMNS.contains(c.getName())) {
+				throw new InvalidSettingsException("Column name \"" + c.getName() + "\" not allowed in input table");
 			}
 
-			columns.add(inSpecs[0].getColumnSpec(i));
+			columns.add(c);
 		}
 
 		columns.add(new DataColumnSpecCreator(URL_COLUMN, StringCell.TYPE).createSpec());
