@@ -25,6 +25,8 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
 public class TracingPropertySelectorCreator implements PropertySelectorCreator {
 
+	private static final long serialVersionUID = 1L;
+
 	private String metaProperty;
 
 	public TracingPropertySelectorCreator() {

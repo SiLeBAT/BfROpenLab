@@ -25,6 +25,8 @@ import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
 public class DefaultPropertySelectorCreator implements PropertySelectorCreator {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public PropertySelector createSelector(PropertySchema schema) {
 		return new PropertySelectionBox(new ArrayList<>(schema.getMap().keySet()));

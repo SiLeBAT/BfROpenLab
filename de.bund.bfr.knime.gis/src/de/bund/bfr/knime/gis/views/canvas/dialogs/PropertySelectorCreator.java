@@ -19,9 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
+import java.io.Serializable;
+
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 
-public interface PropertySelectorCreator {
+public interface PropertySelectorCreator extends Serializable {
 
 	PropertySelector createSelector(PropertySchema schema);
 }
