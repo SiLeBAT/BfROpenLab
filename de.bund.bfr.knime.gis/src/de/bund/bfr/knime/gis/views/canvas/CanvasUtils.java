@@ -41,7 +41,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -141,27 +143,18 @@ public class CanvasUtils {
 
 	public static List<HighlightCondition> createCategorialHighlighting(Collection<? extends Element> elements,
 			String property) {
-		Set<Object> categories = new LinkedHashSet<>();
-
-		for (Element element : elements) {
-			Object value = element.getProperties().get(property);
-
-			if (value != null) {
-				categories.add(value);
-			}
-		}
-
+		Set<Object> categories = elements.stream().map(e -> e.getProperties().get(property)).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 		List<HighlightCondition> conditions = new ArrayList<>();
 		int index = 0;
 
 		for (Object category : KnimeUtils.OBJECT_ORDERING.sortedCopy(categories)) {
-			Color color = COLORS[index % COLORS.length];
+			Color color = COLORS[index++ % COLORS.length];
 			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
 					LogicalHighlightCondition.EQUAL_TYPE, category.toString());
 
 			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category, true, color, false,
 					false, null));
-			index++;
 		}
 
 		return conditions;
@@ -284,35 +277,15 @@ public class CanvasUtils {
 	}
 
 	public static Set<String> getElementIds(Collection<? extends Element> elements) {
-		Set<String> ids = new LinkedHashSet<>();
-
-		for (Element element : elements) {
-			ids.add(element.getId());
-		}
-
-		return ids;
+		return elements.stream().map(e -> e.getId()).collect(Collectors.toSet());
 	}
 
 	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Set<String> ids) {
-		Set<T> result = new LinkedHashSet<>();
-
-		for (T element : elements) {
-			if (ids.contains(element.getId())) {
-				result.add(element);
-			}
-		}
-
-		return result;
+		return elements.stream().filter(e -> ids.contains(e.getId())).collect(Collectors.toSet());
 	}
 
 	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
-		Map<String, T> result = new LinkedHashMap<>();
-
-		for (T element : elements) {
-			result.put(element.getId(), element);
-		}
-
-		return result;
+		return elements.stream().collect(Collectors.toMap(e -> e.getId(), e -> e));
 	}
 
 	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
@@ -628,13 +601,8 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(Set<Edge<V>> edges, Set<V> nodes) {
-		Set<Edge<V>> removed = new LinkedHashSet<>();
-
-		for (Edge<V> edge : edges) {
-			if (!nodes.contains(edge.getFrom()) || !nodes.contains(edge.getTo())) {
-				removed.add(edge);
-			}
-		}
+		Set<Edge<V>> removed = edges.stream().filter(e -> !nodes.contains(e.getFrom()) || !nodes.contains(e.getTo()))
+				.collect(Collectors.toSet());
 
 		edges.removeAll(removed);
 
@@ -659,13 +627,8 @@ public class CanvasUtils {
 	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes, Collection<Edge<V>> edges) {
 		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
 
-		for (V node : nodes) {
-			graph.addVertex(node);
-		}
-
-		for (Edge<V> edge : edges) {
-			graph.addEdge(edge, edge.getFrom(), edge.getTo());
-		}
+		nodes.forEach(n -> graph.addVertex(n));
+		edges.forEach(e -> graph.addEdge(e, e.getFrom(), e.getTo()));
 
 		return graph;
 	}

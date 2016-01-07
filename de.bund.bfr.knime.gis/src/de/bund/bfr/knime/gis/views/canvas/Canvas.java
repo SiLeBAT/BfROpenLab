@@ -38,12 +38,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -1165,13 +1166,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	@Override
 	public void applyShowEdgesInMetaNode() {
 		if (!isShowEdgesInMetaNode()) {
-			for (Iterator<Edge<V>> iterator = edges.iterator(); iterator.hasNext();) {
-				Edge<V> edge = iterator.next();
+			Predicate<Edge<V>> isNotInMetaNode = e -> e.getFrom() != e.getTo()
+					|| !collapsedNodes.containsKey(e.getFrom().getId());
 
-				if (edge.getFrom() == edge.getTo() && collapsedNodes.containsKey(edge.getFrom().getId())) {
-					iterator.remove();
-				}
-			}
+			edges = edges.stream().filter(isNotInMetaNode).collect(Collectors.toCollection(LinkedHashSet::new));
 		}
 	}
 

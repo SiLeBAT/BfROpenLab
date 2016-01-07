@@ -31,6 +31,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.SwingUtilities;
 
@@ -82,10 +84,9 @@ public class KnimeUtils {
 	}
 
 	public static List<Double> stringToDoubleList(String s) {
-		List<String> list = stringToList(s);
 		List<Double> doubleList = new ArrayList<>();
 
-		for (String value : list) {
+		for (String value : stringToList(s)) {
 			try {
 				doubleList.add(Double.parseDouble(value));
 			} catch (NumberFormatException e) {
@@ -104,11 +105,8 @@ public class KnimeUtils {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
-			for (DataType type : types) {
-				if (column.getType().equals(type)) {
-					columns.add(column);
-					break;
-				}
+			if (Stream.of(types).anyMatch(t -> t.equals(column.getType()))) {
+				columns.add(column);
 			}
 		}
 
@@ -120,11 +118,8 @@ public class KnimeUtils {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		for (DataColumnSpec column : spec) {
-			for (Class<? extends DataValue> type : types) {
-				if (column.getType().isCompatible(type)) {
-					columns.add(column);
-					break;
-				}
+			if (Stream.of(types).anyMatch(t -> column.getType().isCompatible(t))) {
+				columns.add(column);
 			}
 		}
 
@@ -132,13 +127,7 @@ public class KnimeUtils {
 	}
 
 	public static List<String> getColumnNames(List<DataColumnSpec> columns) {
-		List<String> names = new ArrayList<>();
-
-		for (DataColumnSpec column : columns) {
-			names.add(column.getName());
-		}
-
-		return names;
+		return columns.stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 
 	public static String createNewValue(String value, Collection<String> values) {

@@ -24,8 +24,9 @@ import java.awt.Dimension;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -60,24 +61,13 @@ public class ChartUtils {
 			new Color(128, 255, 255) };
 
 	public static List<Color> createColorList(int n) {
-		List<Color> colorList = new ArrayList<>();
-
-		for (int i = 0; i < n; i++) {
-			colorList.add(COLORS[i % COLORS.length]);
-		}
-
-		return colorList;
+		return IntStream.range(0, n).mapToObj(i -> COLORS[i % COLORS.length]).collect(Collectors.toList());
 	}
 
 	public static List<NamedShape> createShapeList(int n) {
-		List<NamedShape> shapeList = new ArrayList<>();
 		NamedShape[] shapes = NamedShape.values();
 
-		for (int i = 0; i < n; i++) {
-			shapeList.add(shapes[i % shapes.length]);
-		}
-
-		return shapeList;
+		return IntStream.range(0, n).mapToObj(i -> shapes[i % shapes.length]).collect(Collectors.toList());
 	}
 
 	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {

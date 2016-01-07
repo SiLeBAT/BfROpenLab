@@ -21,7 +21,9 @@ package de.bund.bfr.knime.gis.views.regiontoregionvisualizer;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -39,32 +41,20 @@ public class RegionToRegionUtils {
 
 	public static Set<String> getSelectedGisNodeIds(Set<RegionNode> gisNodes, Set<GraphNode> selectedGraphNodes) {
 		Map<String, RegionNode> gisNodesByRegion = CanvasUtils.getElementsById(gisNodes);
-		Set<String> selectedGisNodeIds = new LinkedHashSet<>();
 
-		for (GraphNode graphNode : selectedGraphNodes) {
-			RegionNode gisNode = gisNodesByRegion.get(graphNode.getRegion());
-
-			if (gisNode != null) {
-				selectedGisNodeIds.add(gisNode.getId());
-			}
-		}
-
-		return selectedGisNodeIds;
+		return selectedGraphNodes.stream().map(n -> gisNodesByRegion.get(n.getRegion())).filter(Objects::nonNull)
+				.map(n -> n.getId()).collect(Collectors.toSet());
 	}
 
 	public static Set<String> getSelectedGraphNodeIds(Set<GraphNode> graphNodes, Set<RegionNode> selectedGisNodes) {
-		Set<String> selectedGraphNodeIds = new LinkedHashSet<>();
 		SetMultimap<String, String> graphNodesByRegion = LinkedHashMultimap.create();
 
 		for (GraphNode graphNode : graphNodes) {
 			graphNodesByRegion.put(graphNode.getRegion(), graphNode.getId());
 		}
 
-		for (RegionNode gisNode : selectedGisNodes) {
-			selectedGraphNodeIds.addAll(graphNodesByRegion.get(gisNode.getId()));
-		}
-
-		return selectedGraphNodeIds;
+		return selectedGisNodes.stream().map(n -> graphNodesByRegion.get(n.getId())).flatMap(Set::stream)
+				.collect(Collectors.toSet());
 	}
 
 	public static Set<String> getSelectedGisEdgeIds(Set<Edge<RegionNode>> gisEdges,

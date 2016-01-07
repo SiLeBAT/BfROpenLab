@@ -27,10 +27,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -59,12 +61,8 @@ public class RegionCanvasUtils {
 		}
 
 		List<Color> nodeColors = new ArrayList<>();
-		Map<RegionNode, List<Double>> nodeAlphas = new LinkedHashMap<>();
+		ListMultimap<RegionNode, Double> nodeAlphas = ArrayListMultimap.create();
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		for (RegionNode node : nodes) {
-			nodeAlphas.put(node, new ArrayList<>());
-		}
 
 		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
 			Map<RegionNode, Double> values = condition.getValues(nodes);
