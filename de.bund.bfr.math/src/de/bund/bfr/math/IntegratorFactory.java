@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.Objects;
+
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.apache.commons.math3.ode.nonstiff.EulerIntegrator;
@@ -70,14 +72,7 @@ public class IntegratorFactory {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp = Double.doubleToLongBits(step);
-
-		result = prime * result + type.hashCode();
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-
-		return result;
+		return Objects.hash(type, step);
 	}
 
 	@Override

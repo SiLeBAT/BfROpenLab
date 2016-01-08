@@ -167,7 +167,7 @@ public class Evaluator {
 	public static double[] getDiffPoints(Map<String, Double> parserConstants, Map<String, String> functions,
 			Map<String, Double> initValues, Map<String, String> initParameters, Map<String, double[]> conditionLists,
 			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
-			IntegratorFactory integrator) throws ParseException {
+			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		DiffFunctionConf function = new DiffFunctionConf(parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator);
 
@@ -212,7 +212,7 @@ public class Evaluator {
 		}
 
 		double[] valuesY = new double[valuesX.length];
-		DiffFunction f = new DiffFunction(parser, fs, valueVariables, conditionLists, varX);
+		DiffFunction f = new DiffFunction(parser, fs, valueVariables, conditionLists, varX, interpolator);
 		FirstOrderIntegrator instance = integrator.createIntegrator();
 		double diffValue = conditionLists.get(varX)[0];
 		boolean containsValidPoint = false;
@@ -248,8 +248,9 @@ public class Evaluator {
 	public static double[] getDiffErrors(Map<String, Double> parserConstants, Map<String, String> functions,
 			Map<String, Double> initValues, Map<String, String> initParameters, Map<String, double[]> conditionLists,
 			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
-			IntegratorFactory integrator, Map<String, Map<String, Double>> covariances, double extraVariance,
-			int degreesOfFreedom) throws ParseException {
+			IntegratorFactory integrator, InterpolationFactory interpolator,
+			Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom)
+					throws ParseException {
 		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions, initValues,
 				initParameters, conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
 				covariances, extraVariance, degreesOfFreedom);
@@ -274,9 +275,9 @@ public class Evaluator {
 
 			try {
 				valuesMinus = getDiffPoints(constantsMinus, functions, initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX, integrator);
+						dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
 				valuesPlus = getDiffPoints(constantsPlus, functions, initValues, initParameters, conditionLists,
-						dependentVariable, independentVariables, varX, valuesX, integrator);
+						dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
 			} catch (ParseException e) {
 			}
 

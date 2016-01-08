@@ -38,8 +38,8 @@ public class MultiVectorDiffFunctionJacobian implements MultivariateMatrixFuncti
 
 	public MultiVectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
-			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
-					throws ParseException {
+			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
+			InterpolationFactory interpolator) throws ParseException {
 		nParams = parameters.length;
 		nValues = timeValues.stream().mapToInt(t -> t.length).sum();
 		diffFunctions = new MultiVectorDiffFunction[nParams];
@@ -56,7 +56,8 @@ public class MultiVectorDiffFunctionJacobian implements MultivariateMatrixFuncti
 
 			diffFunctions[ip] = new MultiVectorDiffFunction(parser, functions.toArray(new Node[0]), dependentVariables,
 					initValues, initParameters, parameters, variableValues, timeValues,
-					Arrays.asList(dependentVariables).indexOf(dependentVariable), timeVariable, integrator);
+					Arrays.asList(dependentVariables).indexOf(dependentVariable), timeVariable, integrator,
+					interpolator);
 		}
 	}
 

@@ -31,6 +31,7 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.math.Evaluator;
 import de.bund.bfr.math.IntegratorFactory;
+import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
 public class Plotable {
@@ -340,8 +341,9 @@ public class Plotable {
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
+		InterpolationFactory interpolator = new InterpolationFactory(InterpolationFactory.Type.STEP);
 		double[] convertedYs = Evaluator.getDiffPoints(parserConstants, functions, initValues, initParameters,
-				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator);
+				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, interpolator);
 
 		if (convertedYs == null) {
 			return null;
@@ -388,9 +390,10 @@ public class Plotable {
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
+		InterpolationFactory interpolator = new InterpolationFactory(InterpolationFactory.Type.STEP);
 		double[] convertedYs = Evaluator.getDiffErrors(parserConstants, functions, initValues, initParameters,
-				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, covariances,
-				prediction ? mse : 0.0, degreesOfFreedom);
+				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, interpolator,
+				covariances, prediction ? mse : 0.0, degreesOfFreedom);
 
 		if (convertedYs == null) {
 			return null;

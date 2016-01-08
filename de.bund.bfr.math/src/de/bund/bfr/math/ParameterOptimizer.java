@@ -76,23 +76,25 @@ public class ParameterOptimizer {
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
-			IntegratorFactory integrator) throws ParseException {
+			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		this(parameters, targetValues);
 		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
-				variableValues, timeValues, dependentVariable, timeVariable, integrator);
+				variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
-				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
+				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
+				interpolator);
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
-			IntegratorFactory integrator) throws ParseException {
+			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		this(parameters, expand(targetValues));
 		optimizerFunction = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
-				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
+				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 		optimizerFunctionJacobian = new MultiVectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
-				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator);
+				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
+				interpolator);
 	}
 
 	public Map<String, Double> getMinValues() {

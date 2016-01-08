@@ -44,11 +44,12 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 	private int dependentIndex;
 	private String timeVariable;
 	private IntegratorFactory integrator;
+	private InterpolationFactory interpolator;
 
 	public MultiVectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
-			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator)
-					throws ParseException {
+			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
+			InterpolationFactory interpolator) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
@@ -58,6 +59,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		this.dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
+		this.interpolator = interpolator;
 
 		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
 				variableValues.keySet().stream()).collect(Collectors.toSet()));
@@ -70,7 +72,8 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 
 	public MultiVectorDiffFunction(Parser parser, Node[] functions, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
-			List<double[]> timeValues, int dependentIndex, String timeVariable, IntegratorFactory integrator) {
+			List<double[]> timeValues, int dependentIndex, String timeVariable, IntegratorFactory integrator,
+			InterpolationFactory interpolator) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -82,6 +85,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		this.dependentIndex = dependentIndex;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
+		this.interpolator = interpolator;
 	}
 
 	@Override
@@ -110,7 +114,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 				vv.put(entry.getKey(), entry.getValue().get(j));
 			}
 
-			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, vv, timeVariable);
+			DiffFunction f = new DiffFunction(parser, functions, dependentVariables, vv, timeVariable, interpolator);
 			double[] values = new double[dependentVariables.length];
 
 			for (int i = 0; i < dependentVariables.length; i++) {

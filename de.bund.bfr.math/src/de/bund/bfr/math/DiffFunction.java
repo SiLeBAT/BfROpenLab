@@ -19,8 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
@@ -33,46 +35,40 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 	private Node[] functions;
 	private String[] dependentVariables;
 	private String timeVariable;
-	private Map<String, double[]> variableValues;
 
-	private int lastIndex;
+	private Map<String, UnivariateFunction> variableFunctions;
 
 	public DiffFunction(Parser parser, Node[] functions, String[] dependentVariables,
-			Map<String, double[]> variableValues, String timeVariable) {
+			Map<String, double[]> variableValues, String timeVariable, InterpolationFactory interpolator) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
 		this.timeVariable = timeVariable;
-		this.variableValues = variableValues;
+
+		variableFunctions = new LinkedHashMap<>();
+
+		for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
+			if (entry.getKey().equals(timeVariable)) {
+				continue;
+			}
+
+			variableFunctions.put(entry.getKey(),
+					interpolator.createInterpolationFunction(variableValues.get(timeVariable), entry.getValue()));
+		}
 	}
 
 	@Override
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
-		double[] diffValues = variableValues.get(timeVariable);
-		int index = 0;
+		parser.setVarValue(timeVariable, t);
 
-		if (diffValues[lastIndex] <= t) {
-			index = lastIndex;
-		}
-
-		for (; index < diffValues.length; index++) {
-			if (index == diffValues.length - 1 || diffValues[index + 1] > t) {
-				break;
-			}
-		}
-
-		lastIndex = index;
-
-		for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue()[index]);
+		for (Map.Entry<String, UnivariateFunction> entry : variableFunctions.entrySet()) {
+			parser.setVarValue(entry.getKey(), entry.getValue().value(t));
 		}
 
 		for (int i = 0; i < y.length; i++) {
 			parser.setVarValue(dependentVariables[i], y[i]);
 		}
-
-		parser.setVarValue(timeVariable, t);
 
 		for (int i = 0; i < y.length; i++) {
 			try {

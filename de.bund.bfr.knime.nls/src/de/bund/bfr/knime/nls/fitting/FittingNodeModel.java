@@ -65,6 +65,7 @@ import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.IntegratorFactory;
+import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.ParameterOptimizer;
 
 /**
@@ -414,7 +415,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 					initParameters.toArray(new String[0]), f.getParameters().toArray(new String[0]),
 					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
 					f.getDependentVariable(), f.getTimeVariable(), argumentArrays,
-					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
+					new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
+					new InterpolationFactory(InterpolationFactory.Type.STEP));
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -509,7 +511,8 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				valueVariables.toArray(new String[0]), Doubles.toArray(initValues), initParameters,
 				parameters.toArray(new String[0]), timeArrays, targetArrays, f.getDependentVariable(),
 				f.getTimeVariable(), variableArrays,
-				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()));
+				new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, set.getStepSize()),
+				new InterpolationFactory(InterpolationFactory.Type.STEP));
 
 		if (set.isEnforceLimits()) {
 			optimizer.getMinValues().putAll(set.getMinStartValues());

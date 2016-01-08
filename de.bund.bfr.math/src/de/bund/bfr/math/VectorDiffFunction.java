@@ -42,10 +42,12 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 	private int dependentIndex;
 	private String timeVariable;
 	private IntegratorFactory integrator;
+	private InterpolationFactory interpolator;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
-			String dependentVariable, String timeVariable, IntegratorFactory integrator) throws ParseException {
+			String dependentVariable, String timeVariable, IntegratorFactory integrator,
+			InterpolationFactory interpolator) throws ParseException {
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
@@ -55,6 +57,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
+		this.interpolator = interpolator;
 
 		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
 				variableValues.keySet().stream()).collect(Collectors.toSet()));
@@ -67,7 +70,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 
 	public VectorDiffFunction(Parser parser, Node[] functions, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
-			int dependentIndex, String timeVariable, IntegratorFactory integrator) {
+			int dependentIndex, String timeVariable, IntegratorFactory integrator, InterpolationFactory interpolator) {
 		this.parser = parser;
 		this.functions = functions;
 		this.dependentVariables = dependentVariables;
@@ -79,6 +82,7 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		this.dependentIndex = dependentIndex;
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
+		this.interpolator = interpolator;
 	}
 
 	@Override
@@ -99,7 +103,8 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 			}
 		}
 
-		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable);
+		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable,
+				interpolator);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
 		double[] result = new double[timeValues.length];
 
