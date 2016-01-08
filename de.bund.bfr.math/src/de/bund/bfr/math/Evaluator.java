@@ -33,8 +33,6 @@ import com.google.common.primitives.Doubles;
 
 public class Evaluator {
 
-	private static final double EPSILON = 1e-6;
-
 	private static Map<FunctionConf, double[]> results = new LinkedHashMap<>();
 	private static Map<ErrorFunctionConf, double[]> errorResults = new LinkedHashMap<>();
 	private static Map<DiffFunctionConf, double[]> diffResults = new LinkedHashMap<>();
@@ -267,8 +265,8 @@ public class Evaluator {
 			Map<String, Double> constantsPlus = new LinkedHashMap<>(parserConstants);
 			double value = parserConstants.get(param);
 
-			constantsMinus.put(param, value - EPSILON);
-			constantsPlus.put(param, value + EPSILON);
+			constantsMinus.put(param, value - MathUtils.DERIV_EPSILON);
+			constantsPlus.put(param, value + MathUtils.DERIV_EPSILON);
 
 			double[] valuesMinus = null;
 			double[] valuesPlus = null;
@@ -285,7 +283,7 @@ public class Evaluator {
 
 			if (valuesMinus != null && valuesPlus != null) {
 				for (int i = 0; i < valuesX.length; i++) {
-					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * EPSILON);
+					deriv[i] = (valuesPlus[i] - valuesMinus[i]) / (2 * MathUtils.DERIV_EPSILON);
 				}
 			} else {
 				Arrays.fill(deriv, Double.NaN);
