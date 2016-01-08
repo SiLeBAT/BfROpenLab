@@ -34,6 +34,7 @@ import de.bund.bfr.knime.nls.NlsNodeSettings;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
+import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
 public class ViewSettings extends NlsNodeSettings {
@@ -49,6 +50,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private static final String CFG_EXPORT_AS_SVG = "ExportAsSvg";
 	private static final String CFG_SHOW_CONFIDENCE = "ShowConfidence";
 	private static final String CFG_RESOLUTION = "Resolution";
+	private static final String CFG_INTERPOLATOR = "Interpolator";
 	private static final String CFG_VAR_X = "CurrentParamX";
 	private static final String CFG_TRANSFORM_X = "TransformX";
 	private static final String CFG_TRANSFORM_Y = "TransformY";
@@ -68,6 +70,7 @@ public class ViewSettings extends NlsNodeSettings {
 	private boolean exportAsSvg;
 	private boolean showConfidence;
 	private int resolution;
+	private InterpolationFactory.Type interpolator;
 	private String varX;
 	private Transform transformX;
 	private Transform transformY;
@@ -88,6 +91,7 @@ public class ViewSettings extends NlsNodeSettings {
 		exportAsSvg = false;
 		showConfidence = false;
 		resolution = 1000;
+		interpolator = InterpolationFactory.Type.STEP;
 		varX = null;
 		transformX = Transform.NO_TRANSFORM;
 		transformY = Transform.NO_TRANSFORM;
@@ -156,6 +160,11 @@ public class ViewSettings extends NlsNodeSettings {
 		}
 
 		try {
+			interpolator = InterpolationFactory.Type.valueOf(settings.getString(CFG_INTERPOLATOR));
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
+		}
+
+		try {
 			varX = settings.getString(CFG_VAR_X);
 		} catch (InvalidSettingsException e) {
 		}
@@ -204,6 +213,7 @@ public class ViewSettings extends NlsNodeSettings {
 		settings.addBoolean(CFG_EXPORT_AS_SVG, exportAsSvg);
 		settings.addBoolean(CFG_SHOW_CONFIDENCE, showConfidence);
 		settings.addInt(CFG_RESOLUTION, resolution);
+		settings.addString(CFG_INTERPOLATOR, interpolator.name());
 		settings.addString(CFG_VAR_X, varX);
 		settings.addString(CFG_TRANSFORM_X, transformX.name());
 		settings.addString(CFG_TRANSFORM_Y, transformY.name());
@@ -225,6 +235,7 @@ public class ViewSettings extends NlsNodeSettings {
 		creator.setShowLegend(showLegend);
 		creator.setShowConfidence(showConfidence);
 		creator.setResolution(resolution);
+		creator.setInterpolator(interpolator);
 		creator.setVarX(varX);
 		creator.setTransformX(transformX);
 		creator.setTransformY(transformY);
@@ -246,6 +257,7 @@ public class ViewSettings extends NlsNodeSettings {
 		exportAsSvg = configPanel.isExportAsSvg();
 		showConfidence = configPanel.isShowConfidence();
 		resolution = configPanel.getResolution();
+		interpolator = configPanel.getInterpolator();
 		varX = configPanel.getVarX();
 		transformX = configPanel.getTransformX();
 		transformY = configPanel.getTransformY();
@@ -263,6 +275,7 @@ public class ViewSettings extends NlsNodeSettings {
 		configPanel.setExportAsSvg(exportAsSvg);
 		configPanel.setShowConfidence(showConfidence);
 		configPanel.setResolution(resolution);
+		configPanel.setInterpolator(interpolator);
 		configPanel.setVarX(varX);
 		configPanel.setTransformX(transformX);
 		configPanel.setTransformY(transformY);

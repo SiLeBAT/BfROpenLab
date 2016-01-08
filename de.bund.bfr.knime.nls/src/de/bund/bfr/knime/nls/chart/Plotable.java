@@ -59,6 +59,7 @@ public class Plotable {
 
 	private Type type;
 	private int functionSteps;
+	private InterpolationFactory.Type interpolator;
 
 	private Map<String, double[]> valueLists;
 	private Map<String, double[]> conditionLists;
@@ -83,6 +84,7 @@ public class Plotable {
 	public Plotable(Type type) {
 		this.type = type;
 		functionSteps = DEFAULT_FUNCTION_STEPS;
+		interpolator = InterpolationFactory.Type.STEP;
 
 		valueLists = new LinkedHashMap<>();
 		conditionLists = new LinkedHashMap<>();
@@ -115,6 +117,14 @@ public class Plotable {
 
 	public void setFunctionSteps(int functionSteps) {
 		this.functionSteps = functionSteps;
+	}
+
+	public InterpolationFactory.Type getInterpolator() {
+		return interpolator;
+	}
+
+	public void setInterpolator(InterpolationFactory.Type interpolator) {
+		this.interpolator = interpolator;
 	}
 
 	public Map<String, double[]> getValueLists() {
@@ -341,7 +351,7 @@ public class Plotable {
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
-		InterpolationFactory interpolator = new InterpolationFactory(InterpolationFactory.Type.STEP);
+		InterpolationFactory interpolator = new InterpolationFactory(this.interpolator);
 		double[] convertedYs = Evaluator.getDiffPoints(parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, interpolator);
 
@@ -390,7 +400,7 @@ public class Plotable {
 		}
 
 		IntegratorFactory integrator = new IntegratorFactory(IntegratorFactory.Type.RUNGE_KUTTA, stepSize / 10.0);
-		InterpolationFactory interpolator = new InterpolationFactory(InterpolationFactory.Type.STEP);
+		InterpolationFactory interpolator = new InterpolationFactory(this.interpolator);
 		double[] convertedYs = Evaluator.getDiffErrors(parserConstants, functions, initValues, initParameters,
 				conditionLists, dependentVariable, independentVariables, varX, convertedXs, integrator, interpolator,
 				covariances, prediction ? mse : 0.0, degreesOfFreedom);

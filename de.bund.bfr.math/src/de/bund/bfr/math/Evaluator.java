@@ -169,7 +169,7 @@ public class Evaluator {
 			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
 		DiffFunctionConf function = new DiffFunctionConf(parserConstants, functions, initValues, initParameters,
-				conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator);
+				conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator, interpolator);
 
 		if (diffResults.containsKey(function)) {
 			return diffResults.get(function);
@@ -253,7 +253,7 @@ public class Evaluator {
 					throws ParseException {
 		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions, initValues,
 				initParameters, conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
-				covariances, extraVariance, degreesOfFreedom);
+				interpolator, covariances, extraVariance, degreesOfFreedom);
 
 		if (errorDiffResults.containsKey(function)) {
 			return errorDiffResults.get(function);
@@ -448,11 +448,13 @@ public class Evaluator {
 		private String varX;
 		private double[] valuesX;
 		private IntegratorFactory integrator;
+		private InterpolationFactory interpolator;
 
 		public DiffFunctionConf(Map<String, Double> parserConstants, Map<String, String> functions,
 				Map<String, Double> initValues, Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
-				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator) {
+				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator,
+				InterpolationFactory interpolator) {
 			this.parserConstants = parserConstants;
 			this.functions = functions;
 			this.initValues = initValues;
@@ -463,6 +465,7 @@ public class Evaluator {
 			this.varX = varX;
 			this.valuesX = valuesX;
 			this.integrator = integrator;
+			this.interpolator = interpolator;
 		}
 
 		@Override
@@ -480,6 +483,7 @@ public class Evaluator {
 			result = prime * result + varX.hashCode();
 			result = prime * result + Arrays.hashCode(valuesX);
 			result = prime * result + integrator.hashCode();
+			result = prime * result + interpolator.hashCode();
 
 			return result;
 		}
@@ -501,7 +505,8 @@ public class Evaluator {
 					&& convert(conditionLists).equals(convert(f.conditionLists))
 					&& dependentVariable.equals(f.dependentVariable)
 					&& independentVariables.equals(f.independentVariables) && varX.equals(f.varX)
-					&& Arrays.equals(valuesX, f.valuesX) && integrator.equals(f.integrator);
+					&& Arrays.equals(valuesX, f.valuesX) && integrator.equals(f.integrator)
+					&& interpolator.equals(f.interpolator);
 		}
 
 		private static Map<String, List<Double>> convert(Map<String, double[]> map) {
@@ -525,9 +530,10 @@ public class Evaluator {
 				Map<String, Double> initValues, Map<String, String> initParameters,
 				Map<String, double[]> conditionLists, String dependentVariable,
 				Map<String, Double> independentVariables, String varX, double[] valuesX, IntegratorFactory integrator,
-				Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom) {
+				InterpolationFactory interpolator, Map<String, Map<String, Double>> covariances, double extraVariance,
+				int degreesOfFreedom) {
 			super(parserConstants, functions, initValues, initParameters, conditionLists, dependentVariable,
-					independentVariables, varX, valuesX, integrator);
+					independentVariables, varX, valuesX, integrator, interpolator);
 			this.covariances = covariances;
 			this.extraVariance = extraVariance;
 			this.degreesOfFreedom = degreesOfFreedom;

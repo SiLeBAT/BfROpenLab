@@ -41,6 +41,7 @@ import javax.swing.JSlider;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.VariablePanel;
+import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
 public class ChartConfigPanel extends JPanel {
@@ -59,6 +60,7 @@ public class ChartConfigPanel extends JPanel {
 	private JCheckBox exportAsSvgBox;
 	private JCheckBox showConfidenceBox;
 	private JSlider resolutionSlider;
+	private JComboBox<InterpolationFactory.Type> interpolatorBox;
 
 	private JCheckBox minToZeroBox;
 	private JCheckBox manualRangeBox;
@@ -75,7 +77,7 @@ public class ChartConfigPanel extends JPanel {
 	private JPanel outerParameterPanel;
 	private VariablePanel parameterPanel;
 
-	public ChartConfigPanel(boolean allowConfidence, boolean allowExport, boolean allowParameters) {
+	public ChartConfigPanel(boolean allowConfidence, boolean allowExport, boolean allowParameters, boolean isDiff) {
 		configListeners = new ArrayList<>();
 
 		drawLinesBox = new JCheckBox("Draw Lines");
@@ -101,6 +103,9 @@ public class ChartConfigPanel extends JPanel {
 				configChanged();
 			}
 		});
+		interpolatorBox = new JComboBox<>(InterpolationFactory.Type.values());
+		interpolatorBox.setSelectedIndex(0);
+		interpolatorBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
 
 		JPanel resolutionPanel = new JPanel();
 
@@ -109,6 +114,14 @@ public class ChartConfigPanel extends JPanel {
 		resolutionPanel.add(Box.createHorizontalStrut(5));
 		resolutionPanel.add(resolutionSlider);
 		resolutionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		JPanel interpolatorPanel = new JPanel();
+
+		interpolatorPanel.setLayout(new BoxLayout(interpolatorPanel, BoxLayout.X_AXIS));
+		interpolatorPanel.add(new JLabel("Interpolation Function:"));
+		interpolatorPanel.add(Box.createHorizontalStrut(5));
+		interpolatorPanel.add(interpolatorBox);
+		interpolatorPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel displayOptionsPanel = new JPanel();
 		int row = 0;
@@ -132,6 +145,11 @@ public class ChartConfigPanel extends JPanel {
 		}
 
 		displayOptionsPanel.add(resolutionPanel, UI.westConstraints(0, row, 2, 1));
+		row++;
+
+		if (isDiff) {
+			displayOptionsPanel.add(interpolatorPanel, UI.westConstraints(0, row, 2, 1));
+		}
 
 		JPanel outerDisplayOptionsPanel = new JPanel();
 
@@ -322,6 +340,14 @@ public class ChartConfigPanel extends JPanel {
 
 	public void setResolution(int resolution) {
 		resolutionSlider.setValue(resolution);
+	}
+
+	public InterpolationFactory.Type getInterpolator() {
+		return (InterpolationFactory.Type) interpolatorBox.getSelectedItem();
+	}
+
+	public void setInterpolator(InterpolationFactory.Type interpolator) {
+		interpolatorBox.setSelectedItem(interpolator);
 	}
 
 	public String getVarX() {

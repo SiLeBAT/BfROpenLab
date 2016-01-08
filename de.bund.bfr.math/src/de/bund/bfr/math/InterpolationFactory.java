@@ -19,6 +19,8 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.Objects;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.StepFunction;
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
@@ -55,5 +57,23 @@ public class InterpolationFactory {
 		}
 
 		return null;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
+			return false;
+		}
+
+		return type == ((InterpolationFactory) obj).type;
 	}
 }

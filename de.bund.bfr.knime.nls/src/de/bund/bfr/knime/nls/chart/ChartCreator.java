@@ -44,6 +44,7 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.chart.NamedShape;
+import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
 public class ChartCreator extends ChartPanel {
@@ -73,6 +74,7 @@ public class ChartCreator extends ChartPanel {
 	private boolean showLegend;
 	private boolean showConfidenceInterval;
 	private int resolution;
+	private InterpolationFactory.Type interpolator;
 
 	public ChartCreator(Map<String, Plotable> plotables, Map<String, String> legend) {
 		super(new JFreeChart(new XYPlot()));
@@ -199,6 +201,7 @@ public class ChartCreator extends ChartPanel {
 			}
 
 			plotable.setFunctionSteps(resolution);
+			plotable.setInterpolator(interpolator);
 
 			switch (plotable.getType()) {
 			case DATA:
@@ -306,6 +309,10 @@ public class ChartCreator extends ChartPanel {
 
 	public void setResolution(int resolution) {
 		this.resolution = resolution;
+	}
+
+	public void setInterpolator(InterpolationFactory.Type interpolator) {
+		this.interpolator = interpolator;
 	}
 
 	public void setColors(Map<String, Color> colors) {

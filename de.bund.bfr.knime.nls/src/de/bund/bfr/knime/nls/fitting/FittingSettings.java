@@ -29,6 +29,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.nls.NlsNodeSettings;
+import de.bund.bfr.math.InterpolationFactory;
 
 public class FittingSettings extends NlsNodeSettings {
 
@@ -44,6 +45,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_MAX_START_VALUES = "MaxStartValues";
 	private static final String CFG_START_VALUES = "StartValues";
 	private static final String CFG_STEP_SIZE = "StepSize";
+	private static final String CFG_INTERPOLATOR = "Interpolator";
 
 	private boolean fitAllAtOnce;
 	private Set<String> initValuesWithDifferentStart;
@@ -57,6 +59,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private Map<String, Double> maxStartValues;
 	private Map<String, Double> startValues;
 	private double stepSize;
+	private InterpolationFactory.Type interpolator;
 
 	public FittingSettings() {
 		fitAllAtOnce = false;
@@ -128,6 +131,11 @@ public class FittingSettings extends NlsNodeSettings {
 			stepSize = settings.getDouble(CFG_STEP_SIZE);
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			interpolator = InterpolationFactory.Type.valueOf(settings.getString(CFG_INTERPOLATOR));
+		} catch (InvalidSettingsException | IllegalArgumentException e) {
+		}
 	}
 
 	@Override
@@ -148,6 +156,7 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addString(CFG_MAX_START_VALUES, SERIALIZER.toXml(maxStartValues));
 		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
 		settings.addDouble(CFG_STEP_SIZE, stepSize);
+		settings.addString(CFG_INTERPOLATOR, interpolator.name());
 	}
 
 	public boolean isFitAllAtOnce() {
@@ -246,6 +255,14 @@ public class FittingSettings extends NlsNodeSettings {
 		this.stepSize = stepSize;
 	}
 
+	public InterpolationFactory.Type getInterpolator() {
+		return interpolator;
+	}
+
+	public void setInterpolator(InterpolationFactory.Type interpolator) {
+		this.interpolator = interpolator;
+	}
+
 	private void setExpertParametersToDefault() {
 		nParameterSpace = 10000;
 		nLevenberg = 10;
@@ -256,5 +273,6 @@ public class FittingSettings extends NlsNodeSettings {
 		maxStartValues = new LinkedHashMap<>();
 		startValues = new LinkedHashMap<>();
 		stepSize = 0.01;
+		interpolator = InterpolationFactory.Type.STEP;
 	}
 }

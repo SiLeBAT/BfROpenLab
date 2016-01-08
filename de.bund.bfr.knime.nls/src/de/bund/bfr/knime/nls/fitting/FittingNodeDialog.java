@@ -38,6 +38,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -54,6 +55,7 @@ import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
+import de.bund.bfr.math.InterpolationFactory;
 
 /**
  * <code>NodeDialog</code> for the "DiffFunctionFitting" Node.
@@ -73,6 +75,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 	private JCheckBox expertBox;
 
 	private DoubleTextField stepSizeField;
+	private JComboBox<InterpolationFactory.Type> interpolatorBox;
 	private IntTextField nParamSpaceField;
 	private IntTextField nLevenbergField;
 	private JCheckBox stopWhenSuccessBox;
@@ -179,6 +182,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 		set.setMinStartValues(minStartValues);
 		set.setMaxStartValues(maxStartValues);
 		set.setStepSize(stepSizeField.getValue());
+		set.setInterpolator((InterpolationFactory.Type) interpolatorBox.getSelectedItem());
 
 		set.saveSettings(settings);
 	}
@@ -223,6 +227,8 @@ public class FittingNodeDialog extends NodeDialogPane {
 		stepSizeField = new DoubleTextField(false, 8);
 		stepSizeField.setMinValue(Double.MIN_NORMAL);
 		stepSizeField.setValue(set.getStepSize());
+		interpolatorBox = new JComboBox<>(InterpolationFactory.Type.values());
+		interpolatorBox.setSelectedItem(set.getInterpolator());
 
 		List<Component> leftComps = new ArrayList<>(
 				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
@@ -234,6 +240,8 @@ public class FittingNodeDialog extends NodeDialogPane {
 		if (isDiff) {
 			leftComps.add(0, new JLabel("Integration Step Size"));
 			rightComps.add(0, stepSizeField);
+			leftComps.add(1, new JLabel("Interpolation Function"));
+			rightComps.add(1, interpolatorBox);
 		}
 
 		return UI.createOptionsPanel("Nonlinear Regression Parameters", leftComps, rightComps);
