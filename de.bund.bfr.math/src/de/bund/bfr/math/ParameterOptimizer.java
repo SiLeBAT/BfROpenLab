@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
@@ -38,6 +39,7 @@ import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
+import org.apache.commons.math3.util.Pair;
 import org.nfunk.jep.ParseException;
 
 public class ParameterOptimizer {
@@ -310,10 +312,6 @@ public class ParameterOptimizer {
 		r.aic = null;
 		r.degreesOfFreedom = null;
 
-		for (String param : parameters) {
-			r.covariances.put(param, new LinkedHashMap<>(0));
-		}
-
 		return r;
 	}
 
@@ -362,13 +360,9 @@ public class ParameterOptimizer {
 		}
 
 		for (int i = 0; i < parameters.length; i++) {
-			Map<String, Double> cov = new LinkedHashMap<>();
-
 			for (int j = 0; j < parameters.length; j++) {
-				cov.put(parameters[j], r.mse * covMatrix[i][j]);
+				r.covariances.put(new Pair<>(parameters[i], parameters[j]), r.mse * covMatrix[i][j]);
 			}
-
-			r.covariances.put(parameters[i], cov);
 		}
 
 		return r;
@@ -421,7 +415,7 @@ public class ParameterOptimizer {
 		private Map<String, Double> parameterStandardErrors;
 		private Map<String, Double> parameterTValues;
 		private Map<String, Double> parameterPValues;
-		private Map<String, Map<String, Double>> covariances;
+		private Map<Pair<String, String>, Double> covariances;
 		private Double sse;
 		private Double mse;
 		private Double rmse;
@@ -445,7 +439,7 @@ public class ParameterOptimizer {
 			return parameterPValues;
 		}
 
-		public Map<String, Map<String, Double>> getCovariances() {
+		public Map<Pair<String, String>, Double> getCovariances() {
 			return covariances;
 		}
 
@@ -480,11 +474,8 @@ public class ParameterOptimizer {
 			r.parameterStandardErrors = new LinkedHashMap<>(parameterStandardErrors);
 			r.parameterTValues = new LinkedHashMap<>(parameterTValues);
 			r.parameterPValues = new LinkedHashMap<>(parameterPValues);
-			r.covariances = new LinkedHashMap<>();
-
-			for (Map.Entry<String, Map<String, Double>> entry : covariances.entrySet()) {
-				r.covariances.put(entry.getKey(), new LinkedHashMap<>(entry.getValue()));
-			}
+			r.covariances = covariances.entrySet().stream()
+					.collect(Collectors.toMap(e -> new Pair<>(e.getKey()), e -> e.getValue()));
 
 			r.sse = sse;
 			r.mse = mse;

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math3.util.Pair;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -59,7 +60,6 @@ import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
-import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -149,7 +149,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 
 				for (String param2 : function.getParameters()) {
 					covCells[covSpec.findColumnIndex(param2)] = IO
-							.createCell(result.getCovariances().get(param1).get(param2));
+							.createCell(result.getCovariances().get(new Pair<>(param1, param2)));
 				}
 
 				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
@@ -547,10 +547,17 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 					r.getParameterStandardErrors().put(newName, r.getParameterStandardErrors().remove(oldName));
 					r.getParameterTValues().put(newName, r.getParameterTValues().remove(oldName));
 					r.getParameterPValues().put(newName, r.getParameterPValues().remove(oldName));
-					r.getCovariances().put(newName, r.getCovariances().remove(oldName));
 
-					for (Map<String, Double> c : r.getCovariances().values()) {
-						c.put(newName, c.remove(oldName));
+					Map<Pair<String, String>, Double> oldCovariances = new LinkedHashMap<>(r.getCovariances());
+
+					r.getCovariances().clear();
+
+					for (Map.Entry<Pair<String, String>, Double> entry : oldCovariances.entrySet()) {
+						String param1 = entry.getKey().getFirst();
+						String param2 = entry.getKey().getSecond();
+
+						r.getCovariances().put(new Pair<>(param1.equals(oldName) ? newName : param1,
+								param2.equals(oldName) ? newName : param2), entry.getValue());
 					}
 				}
 			}

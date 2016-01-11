@@ -97,12 +97,7 @@ public class MultiVectorDiffFunction implements MultivariateVectorFunction {
 		}
 
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
-		int n = 0;
-
-		for (double[] t : timeValues) {
-			n += t.length;
-		}
-
+		int n = timeValues.stream().mapToInt(t -> t.length).sum();
 		double[] result = new double[n];
 		int index = 0;
 

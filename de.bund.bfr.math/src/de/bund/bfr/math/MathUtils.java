@@ -22,6 +22,7 @@ package de.bund.bfr.math;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
@@ -73,13 +74,7 @@ public class MathUtils {
 	}
 
 	public static Set<String> getSymbols(Collection<String> terms) {
-		Set<String> symbols = new LinkedHashSet<>();
-
-		for (String term : terms) {
-			symbols.addAll(MathUtils.getSymbols(term));
-		}
-
-		return symbols;
+		return terms.stream().map(t -> MathUtils.getSymbols(t)).flatMap(Set::stream).collect(Collectors.toSet());
 	}
 
 	public static Set<String> getSymbols(String formula) {
