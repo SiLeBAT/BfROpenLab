@@ -43,19 +43,23 @@ public final class Pair<T, M> implements Serializable {
 	}
 
 	@Override
-	public boolean equals(final Object o) {
-		if (!(o instanceof Pair)) {
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != getClass()) {
 			return false;
 		}
 
-		Pair<?, ?> p = (Pair<?, ?>) o;
+		Pair<?, ?> p = (Pair<?, ?>) obj;
 
 		return Objects.equals(first, p.first) && Objects.equals(second, p.second);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(first) ^ Objects.hashCode(second);
+		return Objects.hash(first, second);
 	}
 
 	@Override

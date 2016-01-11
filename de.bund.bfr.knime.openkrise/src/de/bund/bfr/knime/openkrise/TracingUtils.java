@@ -54,12 +54,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -427,63 +421,5 @@ public class TracingUtils {
 		} catch (NumberFormatException | NullPointerException e) {
 			return null;
 		}
-	}
-
-	public static HighlightConditionList renameColumns(HighlightConditionList list, Set<String> columns) {
-		List<HighlightCondition> conditions = new ArrayList<>();
-
-		for (HighlightCondition c : list.getConditions()) {
-			if (c instanceof AndOrHighlightCondition) {
-				conditions.add(renameColumn((AndOrHighlightCondition) c, columns));
-			} else if (c instanceof ValueHighlightCondition) {
-				conditions.add(renameColumn((ValueHighlightCondition) c, columns));
-			} else if (c instanceof LogicalValueHighlightCondition) {
-				conditions.add(new LogicalValueHighlightCondition(
-						renameColumn(((LogicalValueHighlightCondition) c).getValueCondition(), columns),
-						renameColumn(((LogicalValueHighlightCondition) c).getLogicalCondition(), columns)));
-			}
-		}
-
-		return new HighlightConditionList(conditions, list.isPrioritizeColors());
-	}
-
-	private static AndOrHighlightCondition renameColumn(AndOrHighlightCondition c, Set<String> columns) {
-		List<List<LogicalHighlightCondition>> newConditions = new ArrayList<>();
-
-		for (List<LogicalHighlightCondition> andList : c.getConditions()) {
-			List<LogicalHighlightCondition> newAndList = new ArrayList<>();
-
-			for (LogicalHighlightCondition l : andList) {
-				newAndList.add(new LogicalHighlightCondition(renameColumn(l.getProperty(), columns), l.getType(),
-						l.getValue()));
-			}
-
-			newConditions.add(newAndList);
-		}
-
-		return new AndOrHighlightCondition(newConditions, c.getName(), c.isShowInLegend(), c.getColor(),
-				c.isInvisible(), c.isUseThickness(), (renameColumn(c.getLabelProperty(), columns)));
-	}
-
-	private static ValueHighlightCondition renameColumn(ValueHighlightCondition c, Set<String> columns) {
-		return new ValueHighlightCondition(renameColumn(c.getProperty(), columns), c.getType(), c.isZeroAsMinimum(),
-				c.getName(), c.isShowInLegend(), c.getColor(), c.isInvisible(), c.isUseThickness(),
-				renameColumn(c.getLabelProperty(), columns));
-	}
-
-	private static String renameColumn(String column, Set<String> columns) {
-		if (column == null) {
-			return null;
-		}
-
-		if (column.equals(TracingColumns.OLD_WEIGHT) && !columns.contains(TracingColumns.OLD_WEIGHT)) {
-			return TracingColumns.WEIGHT;
-		}
-
-		if (column.equals(TracingColumns.OLD_OBSERVED) && !columns.contains(TracingColumns.OLD_OBSERVED)) {
-			return TracingColumns.OBSERVED;
-		}
-
-		return column;
 	}
 }

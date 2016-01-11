@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
@@ -34,23 +35,12 @@ public class BackwardUtils {
 	}
 
 	public static Map<String, Set<String>> toNewCollapseFormat(Map<String, Map<String, Point2D>> map) {
-		Map<String, Set<String>> newMap = new LinkedHashMap<>();
-
-		for (Map.Entry<String, Map<String, Point2D>> entry : map.entrySet()) {
-			newMap.put(entry.getKey(), new LinkedHashSet<>(entry.getValue().keySet()));
-		}
-
-		return newMap;
+		return map.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> new LinkedHashSet<>(e.getValue().keySet())));
 	}
 
 	public static Map<String, Map<String, Point2D>> toOldCollapseFormat(Map<String, Set<String>> map) {
-		Map<String, Map<String, Point2D>> oldMap = new LinkedHashMap<>();
-
-		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
-			oldMap.put(entry.getKey(),
-					new LinkedHashMap<>(Maps.asMap(entry.getValue(), Functions.constant((Point2D) null))));
-		}
-
-		return oldMap;
+		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+				e -> new LinkedHashMap<>(Maps.asMap(e.getValue(), Functions.constant((Point2D) null)))));
 	}
 }
