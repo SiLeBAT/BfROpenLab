@@ -58,6 +58,8 @@ public class ParameterOptimizer {
 
 	private List<ProgressListener> progressListeners;
 
+	private boolean likelihoodApproach;
+
 	private ParameterOptimizer(String[] parameters, double[] targetValues) {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
@@ -65,6 +67,7 @@ public class ParameterOptimizer {
 		minValues = new LinkedHashMap<>();
 		maxValues = new LinkedHashMap<>();
 		progressListeners = new ArrayList<>();
+		likelihoodApproach = false;
 	}
 
 	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
@@ -82,6 +85,7 @@ public class ParameterOptimizer {
 				sdParam);
 		optimizerFunctionJacobian = new LodVectorFunctionJacobian(formula, parameters, variableValues, targetValues,
 				levelOfDetection, sdParam);
+		likelihoodApproach = true;
 
 	}
 
@@ -227,7 +231,7 @@ public class ParameterOptimizer {
 			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
 		}
 
-		RealVector targetVector = new ArrayRealVector(targetValues);
+		RealVector targetVector = new ArrayRealVector(likelihoodApproach ? new double[] { 0.0 } : targetValues);
 		int[] paramStepIndex = new int[parameters.length];
 		boolean done = false;
 		int allStepSize = 1;
@@ -280,7 +284,8 @@ public class ParameterOptimizer {
 
 	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
-				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations).target(targetValues).start(startValues);
+				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations)
+				.target(likelihoodApproach ? new double[] { 0.0 } : targetValues).start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder.parameterValidator(params -> {
