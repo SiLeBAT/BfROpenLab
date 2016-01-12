@@ -75,6 +75,16 @@ public class ParameterOptimizer {
 
 	}
 
+	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
+			Map<String, double[]> variableValues, double levelOfDetection, String sdParam) throws ParseException {
+		this(parameters, targetValues);
+		optimizerFunction = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
+				sdParam);
+		optimizerFunctionJacobian = new LodVectorFunctionJacobian(formula, parameters, variableValues, targetValues,
+				levelOfDetection, sdParam);
+
+	}
+
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,

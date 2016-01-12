@@ -36,16 +36,18 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 	private Map<String, double[]> variableValues;
 	private double[] targetValues;
 	private double levelOfDetection;
+	private String sdParam;
 
 	private int nParams;
 	private int nValues;
 
 	public LodVectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues,
-			double[] targetValues, double levelOfDetection) throws ParseException {
+			double[] targetValues, double levelOfDetection, String sdParam) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.targetValues = targetValues;
 		this.levelOfDetection = levelOfDetection;
+		this.sdParam = sdParam;
 
 		nParams = parameters.length;
 		nValues = targetValues.length;
@@ -57,12 +59,17 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
+		double sd = Double.NaN;
+
 		for (int ip = 0; ip < nParams; ip++) {
-			parser.setVarValue(parameters[ip], point[ip]);
+			if (parameters[ip].equals(sdParam)) {
+				sd = point[ip];
+			} else {
+				parser.setVarValue(parameters[ip], point[ip]);
+			}
 		}
 
 		double logLikelihood = 0.0;
-		double sd = point[nParams];
 
 		for (int iv = 0; iv < nValues; iv++) {
 			for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {

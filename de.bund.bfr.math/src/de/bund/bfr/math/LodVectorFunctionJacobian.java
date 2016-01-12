@@ -30,12 +30,13 @@ public class LodVectorFunctionJacobian implements MultivariateMatrixFunction {
 	private int nParams;
 
 	public LodVectorFunctionJacobian(String formula, String[] parameters, Map<String, double[]> variableValues,
-			double[] targetValues, double levelOfDetection) throws ParseException {
+			double[] targetValues, double levelOfDetection, String sdParam) throws ParseException {
 		nParams = parameters.length + 1;
 		functions = new LodVectorFunction[nParams];
 
 		for (int ip = 0; ip < nParams; ip++) {
-			functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection);
+			functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
+					sdParam);
 		}
 	}
 
