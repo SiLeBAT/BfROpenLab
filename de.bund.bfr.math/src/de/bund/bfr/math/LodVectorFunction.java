@@ -84,10 +84,9 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 				}
 
 				NormalDistribution normDist = new NormalDistribution(value, sd);
-				double target = targetValues[iv];
 
-				if (target > levelOfDetection) {
-					logLikelihood += Math.log(normDist.probability(target));
+				if (targetValues[iv] > levelOfDetection) {
+					logLikelihood += Math.log(normDist.probability(targetValues[iv]));
 				} else {
 					logLikelihood += Math.log(normDist.cumulativeProbability(levelOfDetection));
 				}
