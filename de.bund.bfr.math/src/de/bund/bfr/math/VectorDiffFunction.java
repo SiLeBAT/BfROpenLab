@@ -68,23 +68,6 @@ public class VectorDiffFunction implements MultivariateVectorFunction {
 		}
 	}
 
-	public VectorDiffFunction(Parser parser, Node[] functions, String[] dependentVariables, double[] initValues,
-			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
-			int dependentIndex, String timeVariable, IntegratorFactory integrator, InterpolationFactory interpolator) {
-		this.parser = parser;
-		this.functions = functions;
-		this.dependentVariables = dependentVariables;
-		this.initValues = initValues;
-		this.initParameters = initParameters;
-		this.parameters = parameters;
-		this.variableValues = variableValues;
-		this.timeValues = timeValues;
-		this.dependentIndex = dependentIndex;
-		this.timeVariable = timeVariable;
-		this.integrator = integrator;
-		this.interpolator = interpolator;
-	}
-
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
 		for (int i = 0; i < parameters.length; i++) {

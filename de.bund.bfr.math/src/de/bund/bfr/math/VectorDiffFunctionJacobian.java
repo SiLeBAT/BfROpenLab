@@ -19,15 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
@@ -45,19 +39,8 @@ public class VectorDiffFunctionJacobian implements MultivariateMatrixFunction {
 		diffFunctions = new VectorDiffFunction[nParams];
 
 		for (int ip = 0; ip < nParams; ip++) {
-			Parser parser = new Parser(
-					Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
-							variableValues.keySet().stream()).collect(Collectors.toSet()));
-			List<Node> functions = new ArrayList<>();
-
-			for (String f : formulas) {
-				functions.add(parser.parse(f));
-			}
-
-			diffFunctions[ip] = new VectorDiffFunction(parser, functions.toArray(new Node[0]), dependentVariables,
-					initValues, initParameters, parameters, variableValues, timeValues,
-					Arrays.asList(dependentVariables).indexOf(dependentVariable), timeVariable, integrator,
-					interpolator);
+			diffFunctions[ip] = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
+					parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 		}
 	}
 

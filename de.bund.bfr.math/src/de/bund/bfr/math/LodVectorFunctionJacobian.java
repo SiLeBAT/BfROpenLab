@@ -19,34 +19,28 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.ParseException;
 
-public class MultiVectorDiffFunctionJacobian implements MultivariateMatrixFunction {
+public class LodVectorFunctionJacobian implements MultivariateMatrixFunction {
 
-	private MultiVectorDiffFunction[] diffFunctions;
+	private LodVectorFunction[] functions;
 	private int nParams;
-	private int nValues;
 
-	public MultiVectorDiffFunctionJacobian(String[] formulas, String[] dependentVariables, double[] initValues,
-			List<String[]> initParameters, String[] parameters, Map<String, List<double[]>> variableValues,
-			List<double[]> timeValues, String dependentVariable, String timeVariable, IntegratorFactory integrator,
-			InterpolationFactory interpolator) throws ParseException {
-		nParams = parameters.length;
-		nValues = timeValues.stream().mapToInt(t -> t.length).sum();
-		diffFunctions = new MultiVectorDiffFunction[nParams];
+	public LodVectorFunctionJacobian(String formula, String[] parameters, Map<String, double[]> variableValues,
+			double[] targetValues, double levelOfDetection) throws ParseException {
+		nParams = parameters.length + 1;
+		functions = new LodVectorFunction[nParams];
 
 		for (int ip = 0; ip < nParams; ip++) {
-			diffFunctions[ip] = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
-					parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
+			functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection);
 		}
 	}
 
 	@Override
 	public double[][] value(double[] point) throws IllegalArgumentException {
-		return MathUtils.aproxJacobianParallel(diffFunctions, point, nParams, nValues);
+		return MathUtils.aproxJacobianParallel(functions, point, nParams, 1);
 	}
 }
