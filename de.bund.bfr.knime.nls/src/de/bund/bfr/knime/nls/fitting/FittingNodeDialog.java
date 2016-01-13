@@ -70,6 +70,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 	private JPanel mainPanel;
 	private JPanel expertPanel;
 
+	private DoubleTextField lodField;
 	private JCheckBox fitAllAtOnceBox;
 	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
 	private JCheckBox expertBox;
@@ -104,6 +105,8 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 		set.loadSettings(settings);
 
+		lodField = new DoubleTextField(true, 8);
+		lodField.setValue(set.getLevelOfDetection());
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		fitAllAtOnceBox.addActionListener(
@@ -134,7 +137,8 @@ public class FittingNodeDialog extends NodeDialogPane {
 			boxes.add(expertBox);
 			p = UI.createOptionsPanel(null, boxes, Collections.nCopies(boxes.size(), new JLabel()));
 		} else {
-			p = UI.createHorizontalPanel(expertBox);
+			p = UI.createOptionsPanel(null, Arrays.asList(new JLabel("Level of Detection"), expertBox),
+					Arrays.asList(lodField, new JLabel()));
 		}
 
 		mainPanel.add(p, BorderLayout.NORTH);
@@ -144,7 +148,11 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		if (isDiff && !stepSizeField.isValid()) {
+		if (!isDiff && !lodField.isValueValid()) {
+			throw new InvalidSettingsException("");
+		}
+
+		if (isDiff && !stepSizeField.isValueValid()) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -171,6 +179,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 			maxStartValues.put(entry.getKey(), entry.getValue().getValue());
 		}
 
+		set.setLevelOfDetection(lodField.getValue());
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setExpertSettings(expertBox.isSelected());

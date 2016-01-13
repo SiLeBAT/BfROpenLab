@@ -73,6 +73,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private ChartConfigPanel configPanel;
 	private JCheckBox enforceLimitsBox;
 	private IntTextField maxIterationsField;
+	private DoubleTextField lodField;
 	private JCheckBox fitAllAtOnceBox;
 	private Map<String, JCheckBox> useDifferentInitValuesBoxes;
 	private DoubleTextField stepSizeField;
@@ -113,6 +114,10 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		if (!isDiff && !lodField.isValueValid()) {
+			throw new InvalidSettingsException("");
+		}
+
 		Set<String> initValuesWithDifferentStart = new LinkedHashSet<>();
 
 		for (Map.Entry<String, JCheckBox> entry : useDifferentInitValuesBoxes.entrySet()) {
@@ -125,6 +130,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
+		set.setLevelOfDetection(lodField.getValue());
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());
 		set.setInitValuesWithDifferentStart(initValuesWithDifferentStart);
 		set.setEnforceLimits(enforceLimitsBox.isSelected());
@@ -143,6 +149,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
 		maxIterationsField.setValue(set.getMaxLevenbergIterations());
+		lodField = new DoubleTextField(true, 8);
+		lodField.setValue(set.getLevelOfDetection());
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		useDifferentInitValuesBoxes = new LinkedHashMap<>();
@@ -189,6 +197,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 			leftComponents.add(new JLabel("Integration Step Size"));
 			rightComponents.add(stepSizeField);
+		} else {
+			leftComponents.add(new JLabel("Level of Detection"));
+			rightComponents.add(lodField);
 		}
 
 		JPanel rightPanel = new JPanel();

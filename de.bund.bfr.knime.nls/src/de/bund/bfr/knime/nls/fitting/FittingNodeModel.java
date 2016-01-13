@@ -22,6 +22,7 @@ package de.bund.bfr.knime.nls.fitting;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -55,7 +56,9 @@ import org.knime.core.node.port.PortType;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
@@ -135,7 +138,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			ParameterOptimizer.Result result = entry.getValue();
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
-			if (result.getSse() == null) {
+			if (result.getParameterValues().isEmpty()) {
 				setWarningMessage("Fitting of data set with ID \"" + id + "\" failed");
 			}
 
@@ -305,9 +308,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		Map<String, ListMultimap<String, Double>> argumentValues = new LinkedHashMap<>();
 
 		for (String indep : f.getIndependentVariables()) {
-			ListMultimap<String, Double> argValues = ArrayListMultimap.create();
-
-			argumentValues.put(indep, argValues);
+			argumentValues.put(indep, ArrayListMultimap.create());
 		}
 
 		loop: for (DataRow row : table) {
@@ -349,8 +350,20 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
-					f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays);
+			String sdParam = KnimeUtils.createNewValue("sd", f.getParameters());
+			ParameterOptimizer optimizer;
+
+			if (set.getLevelOfDetection() != null) {
+				List<String> params = Lists.newArrayList(Iterables.concat(f.getParameters(), Arrays.asList(sdParam)));
+
+				optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
+						params.toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays,
+						set.getLevelOfDetection(), sdParam);
+			} else {
+				optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
+						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
+						argumentArrays);
+			}
 
 			if (set.isEnforceLimits()) {
 				optimizer.getMinValues().putAll(set.getMinStartValues());
@@ -605,9 +618,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		Map<String, ListMultimap<String, Double>> argumentValues = new LinkedHashMap<>();
 
 		for (String indep : f.getIndependentVariables()) {
-			ListMultimap<String, Double> argValues = ArrayListMultimap.create();
-
-			argumentValues.put(indep, argValues);
+			argumentValues.put(indep, ArrayListMultimap.create());
 		}
 
 		loop: for (DataRow row : table) {

@@ -42,6 +42,8 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.util.Pair;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.primitives.Doubles;
+
 public class ParameterOptimizer {
 
 	private static final double EPSILON = 0.00001;
@@ -105,7 +107,8 @@ public class ParameterOptimizer {
 			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
-		this(parameters, expand(targetValues));
+		this(parameters, Doubles.toArray(
+				targetValues.stream().map(v -> Doubles.asList(v)).flatMap(List::stream).collect(Collectors.toList())));
 		optimizerFunction = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
 				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 		optimizerFunctionJacobian = new MultiVectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
@@ -215,6 +218,13 @@ public class ParameterOptimizer {
 			}
 
 			count.incrementAndGet();
+		}
+
+		if (likelihoodApproach && result != null) {
+			Result r = getResults();
+
+			r.parameterValues.putAll(result.parameterValues);
+			return r;
 		}
 
 		return result != null ? result : getResults();
@@ -381,24 +391,6 @@ public class ParameterOptimizer {
 		}
 
 		return r;
-	}
-
-	private static double[] expand(List<double[]> values) {
-		int n = 0;
-
-		for (double[] v : values) {
-			n += v.length;
-		}
-
-		double[] result = new double[n];
-		int index = 0;
-
-		for (double[] v : values) {
-			System.arraycopy(v, 0, result, index, v.length);
-			index += v.length;
-		}
-
-		return result;
 	}
 
 	private void fireProgressChanged(double progress) {

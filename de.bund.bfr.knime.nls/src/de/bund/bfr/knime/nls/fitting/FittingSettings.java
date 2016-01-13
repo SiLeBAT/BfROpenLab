@@ -33,6 +33,7 @@ import de.bund.bfr.math.InterpolationFactory;
 
 public class FittingSettings extends NlsNodeSettings {
 
+	private static final String CFG_LEVEL_OF_DETECTION = "LevelOfDetection";
 	private static final String CFG_FIT_ALL_AT_ONCE = "FitAllAtOnce";
 	private static final String CFG_INIT_VALUES_WITH_DIFFERENT_START = "InitValuesWithDifferentStart";
 	private static final String CFG_EXPERT_SETTINGS = "ExpertSettings";
@@ -47,6 +48,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private static final String CFG_STEP_SIZE = "StepSize";
 	private static final String CFG_INTERPOLATOR = "Interpolator";
 
+	private Double levelOfDetection;
 	private boolean fitAllAtOnce;
 	private Set<String> initValuesWithDifferentStart;
 	private boolean expertSettings;
@@ -62,6 +64,7 @@ public class FittingSettings extends NlsNodeSettings {
 	private InterpolationFactory.Type interpolator;
 
 	public FittingSettings() {
+		levelOfDetection = null;
 		fitAllAtOnce = false;
 		initValuesWithDifferentStart = new LinkedHashSet<>();
 		expertSettings = false;
@@ -71,6 +74,11 @@ public class FittingSettings extends NlsNodeSettings {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			levelOfDetection = nanToNull(settings.getDouble(CFG_LEVEL_OF_DETECTION));
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			fitAllAtOnce = settings.getBoolean(CFG_FIT_ALL_AT_ONCE);
 		} catch (InvalidSettingsException e) {
@@ -144,6 +152,7 @@ public class FittingSettings extends NlsNodeSettings {
 			setExpertParametersToDefault();
 		}
 
+		settings.addDouble(CFG_LEVEL_OF_DETECTION, nullToNan(levelOfDetection));
 		settings.addBoolean(CFG_FIT_ALL_AT_ONCE, fitAllAtOnce);
 		settings.addString(CFG_INIT_VALUES_WITH_DIFFERENT_START, SERIALIZER.toXml(initValuesWithDifferentStart));
 		settings.addBoolean(CFG_EXPERT_SETTINGS, expertSettings);
@@ -157,6 +166,14 @@ public class FittingSettings extends NlsNodeSettings {
 		settings.addString(CFG_START_VALUES, SERIALIZER.toXml(startValues));
 		settings.addDouble(CFG_STEP_SIZE, stepSize);
 		settings.addString(CFG_INTERPOLATOR, interpolator.name());
+	}
+
+	public Double getLevelOfDetection() {
+		return levelOfDetection;
+	}
+
+	public void setLevelOfDetection(Double levelOfDetection) {
+		this.levelOfDetection = levelOfDetection;
 	}
 
 	public boolean isFitAllAtOnce() {
