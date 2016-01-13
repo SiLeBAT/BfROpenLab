@@ -65,25 +65,31 @@ class DeployToBintray {
 		def password = new Scanner(System.in).nextLine()
 		println ""
 
+		def client = new RESTClient("https://bintray.com/api/v1/")
+
+		client.headers['Authorization'] = 'Basic '+"${user}:${password}".bytes.encodeBase64()
+
+		if (USE_PROXY)
+			client.setProxy(PROXY, PORT, null)
+
 		if (featuresDir.exists() && pluginsDir.exists()) {
 			def version = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
-			createVersion(user, password, version)
+			createVersion(client, version)
 
 			for (File f : featuresDir.listFiles()) {
-				uploadFile(user, password, version, FEATURES, f)
+				uploadFile(client, version, FEATURES, f)
 			}
 
 			for (File f : pluginsDir.listFiles()) {
-				uploadFile(user, password, version, PLUGINS, f)
+				uploadFile(client, version, PLUGINS, f)
 			}
 		}
 
-		uploadFile(user, password, null, "", artifactsFile)
-		uploadFile(user, password, null, "", contentFile)
+		uploadFile(client, null, "", artifactsFile)
+		uploadFile(client, null, "", contentFile)
 	}
 
-	static void createVersion(String user, String password, String version) {
-		def client = getClient(user, password)
+	static void createVersion(RESTClient client, String version) {
 		def url = "packages/${SUBJECT}/${REPO}/${PACKAGE}/versions"
 
 		println "Create version"
@@ -99,8 +105,7 @@ class DeployToBintray {
 		assert 201 == response.status
 	}
 
-	static void uploadFile(String user, String password, String version, String path, File file) {
-		def client = getClient(user, password)
+	static void uploadFile(RESTClient client, String version, String path, File file) {
 		def url = "content/${SUBJECT}/${REPO}/${path}/${file.name}"
 
 		if (version != null) {
@@ -118,23 +123,5 @@ class DeployToBintray {
 		println "Status:\t${response.status}"
 		println ""
 		assert 201 == response.status
-	}
-
-	static RESTClient getClient(String user, String password) {
-		def bintrayClient = new RESTClient("https://bintray.com/api/v1/")
-		AbstractHttpClient http = bintrayClient.client
-		def basic = (user + ":" + password).bytes.encodeBase64().toString()
-
-		http.addRequestInterceptor(
-				new HttpRequestInterceptor() {
-					void process(HttpRequest httpRequest, HttpContext httpContext) {
-						httpRequest.addHeader('Cache-Control', 'no-cache, no-store, no-transform, must-revalidate')
-						httpRequest.addHeader('Pragma', 'no-cache')
-						httpRequest.addHeader('Authorization', 'Basic ' + basic)
-					}
-				})
-		if (USE_PROXY)
-			bintrayClient.setProxy(PROXY, PORT, null)
-		bintrayClient
 	}
 }

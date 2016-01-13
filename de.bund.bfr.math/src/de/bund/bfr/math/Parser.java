@@ -88,14 +88,9 @@ public class Parser {
 		return parser.parse(term);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Set<String> getSymbols() {
-		Set<String> symbols = new LinkedHashSet<>();
-
-		for (Object s : parser.getSymbolTable().keySet()) {
-			symbols.add(s.toString());
-		}
-
-		return symbols;
+		return new LinkedHashSet<>((Set<String>) parser.getSymbolTable().keySet());
 	}
 
 	public Node differentiate(Node function, String var) throws ParseException {
