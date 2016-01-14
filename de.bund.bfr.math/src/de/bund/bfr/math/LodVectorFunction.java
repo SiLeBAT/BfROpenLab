@@ -23,15 +23,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class LodVectorFunction implements MultivariateVectorFunction {
+public class LodVectorFunction implements MultivariateVectorFunctionWithJacobian {
 
-	private Parser parser;
-	private Node function;
+	private String formula;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private double[] targetValues;
@@ -40,9 +39,12 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 
 	private int nParams;
 	private int nValues;
+	private Parser parser;
+	private Node function;
 
 	public LodVectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues,
 			double[] targetValues, double levelOfDetection, String sdParam) throws ParseException {
+		this.formula = formula;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.targetValues = targetValues;
@@ -51,7 +53,6 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 
 		nParams = parameters.length;
 		nValues = targetValues.length;
-
 		parser = new Parser(
 				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
 		function = parser.parse(formula);
@@ -97,5 +98,21 @@ public class LodVectorFunction implements MultivariateVectorFunction {
 		}
 
 		return new double[] { logLikelihood };
+	}
+
+	@Override
+	public MultivariateMatrixFunction createJacobian() {
+		LodVectorFunction[] functions = new LodVectorFunction[nParams];
+
+		for (int ip = 0; ip < nParams; ip++) {
+			try {
+				functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues,
+						levelOfDetection, sdParam);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return point -> MathUtils.aproxJacobianParallel(functions, point, nParams, 1);
 	}
 }

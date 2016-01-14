@@ -19,23 +19,25 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorFunction implements MultivariateVectorFunction {
+public class VectorFunction implements MultivariateVectorFunctionWithJacobian {
 
-	private Parser parser;
-	private Node function;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 
 	private int nParams;
 	private int nValues;
+	private Parser parser;
+	private Node function;
+	private Map<String, Node> derivatives;
 
 	public VectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues)
 			throws ParseException {
@@ -44,10 +46,14 @@ public class VectorFunction implements MultivariateVectorFunction {
 
 		nParams = parameters.length;
 		nValues = variableValues.values().stream().findAny().get().length;
-
 		parser = new Parser(
 				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
 		function = parser.parse(formula);
+		derivatives = new LinkedHashMap<>();
+
+		for (String param : parameters) {
+			derivatives.put(param, parser.differentiate(function, param));
+		}
 	}
 
 	@Override
@@ -74,5 +80,49 @@ public class VectorFunction implements MultivariateVectorFunction {
 		}
 
 		return retValue;
+	}
+
+	@Override
+	public MultivariateMatrixFunction createJacobian() {
+		return point -> {
+			double[][] retValue = new double[nValues][nParams];
+
+			for (int ip = 0; ip < nParams; ip++) {
+				parser.setVarValue(parameters[ip], point[ip]);
+			}
+
+			for (int iv = 0; iv < nValues; iv++) {
+				for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
+					parser.setVarValue(entry.getKey(), entry.getValue()[iv]);
+				}
+
+				for (int ip = 0; ip < nParams; ip++) {
+					try {
+						double value = parser.evaluate(derivatives.get(parameters[ip]));
+
+						if (!Double.isFinite(value)) {
+							parser.setVarValue(parameters[ip], point[ip] - MathUtils.DERIV_EPSILON);
+
+							double value1 = parser.evaluate(function);
+
+							parser.setVarValue(parameters[ip], point[ip] + MathUtils.DERIV_EPSILON);
+
+							double value2 = parser.evaluate(function);
+
+							parser.setVarValue(parameters[ip], point[ip]);
+
+							value = (value2 - value1) / (2 * MathUtils.DERIV_EPSILON);
+						}
+
+						retValue[iv][ip] = Double.isFinite(value) ? value : Double.NaN;
+					} catch (ParseException e) {
+						e.printStackTrace();
+						retValue[iv][ip] = Double.NaN;
+					}
+				}
+			}
+
+			return retValue;
+		};
 	}
 }

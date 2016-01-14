@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,29 +19,10 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.Map;
-
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.nfunk.jep.ParseException;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 
-public class LodVectorFunctionJacobian implements MultivariateMatrixFunction {
+public interface MultivariateVectorFunctionWithJacobian extends MultivariateVectorFunction {
 
-	private LodVectorFunction[] functions;
-	private int nParams;
-
-	public LodVectorFunctionJacobian(String formula, String[] parameters, Map<String, double[]> variableValues,
-			double[] targetValues, double levelOfDetection, String sdParam) throws ParseException {
-		nParams = parameters.length;
-		functions = new LodVectorFunction[nParams];
-
-		for (int ip = 0; ip < nParams; ip++) {
-			functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
-					sdParam);
-		}
-	}
-
-	@Override
-	public double[][] value(double[] point) throws IllegalArgumentException {
-		return MathUtils.aproxJacobianParallel(functions, point, nParams, 1);
-	}
+	MultivariateMatrixFunction createJacobian();
 }

@@ -24,80 +24,108 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorDiffFunction implements MultivariateVectorFunction {
+public class VectorDiffFunction implements MultivariateVectorFunctionWithJacobian {
 
-	private Parser parser;
-	private Node[] functions;
+	private String[] formulas;
 	private String[] dependentVariables;
 	private double[] initValues;
 	private String[] initParameters;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
+	private String dependentVariable;
 	private double[] timeValues;
-	private int dependentIndex;
 	private String timeVariable;
 	private IntegratorFactory integrator;
 	private InterpolationFactory interpolator;
+
+	private int nParams;
+	private int nValues;
+	private int nTerms;
+	private int dependentIndex;
+	private Parser parser;
+	private Node[] functions;
 
 	public VectorDiffFunction(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, Map<String, double[]> variableValues, double[] timeValues,
 			String dependentVariable, String timeVariable, IntegratorFactory integrator,
 			InterpolationFactory interpolator) throws ParseException {
+		this.formulas = formulas;
 		this.dependentVariables = dependentVariables;
 		this.initValues = initValues;
 		this.initParameters = initParameters;
 		this.parameters = parameters;
 		this.variableValues = variableValues;
+		this.dependentVariable = dependentVariable;
 		this.timeValues = timeValues;
-		this.dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
 		this.timeVariable = timeVariable;
 		this.integrator = integrator;
 		this.interpolator = interpolator;
 
+		nParams = parameters.length;
+		nValues = timeValues.length;
+		nTerms = formulas.length;
+		dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
 		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
 				variableValues.keySet().stream()).collect(Collectors.toSet()));
-		functions = new Node[formulas.length];
+		functions = new Node[nTerms];
 
-		for (int i = 0; i < formulas.length; i++) {
-			functions[i] = parser.parse(formulas[i]);
+		for (int it = 0; it < nTerms; it++) {
+			functions[it] = parser.parse(formulas[it]);
 		}
 	}
 
 	@Override
 	public double[] value(double[] point) throws IllegalArgumentException {
-		for (int i = 0; i < parameters.length; i++) {
-			if (!Arrays.asList(initParameters).contains(parameters[i])) {
-				parser.setVarValue(parameters[i], point[i]);
+		for (int ip = 0; ip < nParams; ip++) {
+			if (!Arrays.asList(initParameters).contains(parameters[ip])) {
+				parser.setVarValue(parameters[ip], point[ip]);
 			}
 		}
 
-		double[] values = new double[dependentVariables.length];
+		double[] values = new double[nTerms];
 
-		for (int i = 0; i < dependentVariables.length; i++) {
-			if (Double.isFinite(initValues[i])) {
-				values[i] = initValues[i];
+		for (int it = 0; it < nTerms; it++) {
+			if (Double.isFinite(initValues[it])) {
+				values[it] = initValues[it];
 			} else {
-				values[i] = point[Arrays.asList(parameters).indexOf(initParameters[i])];
+				values[it] = point[Arrays.asList(parameters).indexOf(initParameters[it])];
 			}
 		}
 
 		DiffFunction f = new DiffFunction(parser, functions, dependentVariables, variableValues, timeVariable,
 				interpolator);
 		FirstOrderIntegrator integratorInstance = integrator.createIntegrator();
-		double[] result = new double[timeValues.length];
+		double[] result = new double[nValues];
 
 		result[0] = values[dependentIndex];
 
-		for (int i = 1; i < timeValues.length; i++) {
-			integratorInstance.integrate(f, timeValues[i - 1], values, timeValues[i], values);
-			result[i] = values[dependentIndex];
+		for (int iv = 1; iv < nValues; iv++) {
+			integratorInstance.integrate(f, timeValues[iv - 1], values, timeValues[iv], values);
+			result[iv] = values[dependentIndex];
 		}
 
 		return result;
+	}
+
+	@Override
+	public MultivariateMatrixFunction createJacobian() {
+		VectorDiffFunction[] diffFunctions = new VectorDiffFunction[nParams];
+
+		for (int ip = 0; ip < nParams; ip++) {
+			try {
+				diffFunctions[ip] = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
+						parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
+						interpolator);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return point -> MathUtils.aproxJacobianParallel(diffFunctions, point, nParams, nValues);
 	}
 }

@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
-import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
 import org.apache.commons.math3.exception.TooManyIterationsException;
@@ -49,8 +47,7 @@ public class ParameterOptimizer {
 	private static final double EPSILON = 0.00001;
 	private static final double COV_THRESHOLD = 1e-14;
 
-	private MultivariateVectorFunction optimizerFunction;
-	private MultivariateMatrixFunction optimizerFunctionJacobian;
+	private MultivariateVectorFunctionWithJacobian optimizerFunction;
 
 	private String[] parameters;
 	private double[] targetValues;
@@ -76,8 +73,6 @@ public class ParameterOptimizer {
 			Map<String, double[]> variableValues) throws ParseException {
 		this(parameters, targetValues);
 		optimizerFunction = new VectorFunction(formula, parameters, variableValues);
-		optimizerFunctionJacobian = new VectorFunctionJacobian(formula, parameters, variableValues);
-
 	}
 
 	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
@@ -85,8 +80,6 @@ public class ParameterOptimizer {
 		this(parameters, targetValues);
 		optimizerFunction = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
 				sdParam);
-		optimizerFunctionJacobian = new LodVectorFunctionJacobian(formula, parameters, variableValues, targetValues,
-				levelOfDetection, sdParam);
 		likelihoodApproach = true;
 
 	}
@@ -98,9 +91,6 @@ public class ParameterOptimizer {
 		this(parameters, targetValues);
 		optimizerFunction = new VectorDiffFunction(formulas, dependentVariables, initValues, initParameters, parameters,
 				variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
-		optimizerFunctionJacobian = new VectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
-				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
-				interpolator);
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
@@ -111,9 +101,6 @@ public class ParameterOptimizer {
 				targetValues.stream().map(v -> Doubles.asList(v)).flatMap(List::stream).collect(Collectors.toList())));
 		optimizerFunction = new MultiVectorDiffFunction(formulas, dependentVariables, initValues, initParameters,
 				parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
-		optimizerFunctionJacobian = new MultiVectorDiffFunctionJacobian(formulas, dependentVariables, initValues,
-				initParameters, parameters, variableValues, timeValues, dependentVariable, timeVariable, integrator,
-				interpolator);
 	}
 
 	public Map<String, Double> getMinValues() {
@@ -293,9 +280,10 @@ public class ParameterOptimizer {
 	}
 
 	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
-		LeastSquaresBuilder builder = new LeastSquaresBuilder().model(optimizerFunction, optimizerFunctionJacobian)
-				.maxEvaluations(Integer.MAX_VALUE).maxIterations(maxIterations)
-				.target(likelihoodApproach ? new double[] { 0.0 } : targetValues).start(startValues);
+		LeastSquaresBuilder builder = new LeastSquaresBuilder()
+				.model(optimizerFunction, optimizerFunction.createJacobian()).maxEvaluations(Integer.MAX_VALUE)
+				.maxIterations(maxIterations).target(likelihoodApproach ? new double[] { 0.0 } : targetValues)
+				.start(startValues);
 
 		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 			builder.parameterValidator(params -> {
