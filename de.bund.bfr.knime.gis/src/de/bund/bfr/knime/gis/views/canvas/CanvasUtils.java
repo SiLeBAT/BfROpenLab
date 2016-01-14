@@ -78,11 +78,11 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterDirectedSparseMultigraph;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.RenderContext;
@@ -625,7 +625,7 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> Graph<V, Edge<V>> createGraph(Collection<V> nodes, Collection<Edge<V>> edges) {
-		Graph<V, Edge<V>> graph = new DirectedSparseMultigraph<>();
+		Graph<V, Edge<V>> graph = new BetterDirectedSparseMultigraph<>();
 
 		nodes.forEach(n -> graph.addVertex(n));
 		edges.forEach(e -> graph.addEdge(e, e.getFrom(), e.getTo()));
