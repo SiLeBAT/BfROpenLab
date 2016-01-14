@@ -54,6 +54,7 @@ import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.openkrise.TracingColumns;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingGisCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingGraphCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingOsmCanvas;
@@ -252,6 +253,7 @@ public class TracingViewNodeModel extends NodeModel {
 				column = new DataColumnSpecCreator(column.getName(), StringCell.TYPE).createSpec();
 			}
 
+			column = TracingUtils.toCompatibleColumn(column);
 			newNodeSpec.add(column);
 			columns.put(column.getName(), column.getType());
 		}
@@ -280,6 +282,7 @@ public class TracingViewNodeModel extends NodeModel {
 				column = new DataColumnSpecCreator(column.getName(), StringCell.TYPE).createSpec();
 			}
 
+			column = TracingUtils.toCompatibleColumn(column);
 			newEdgeSpec.add(column);
 			columns.put(column.getName(), column.getType());
 		}

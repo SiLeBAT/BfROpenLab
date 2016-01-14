@@ -30,8 +30,10 @@ import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
@@ -40,6 +42,7 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NotConfigurableException;
 
+import com.google.common.collect.ImmutableSet;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
@@ -64,6 +67,9 @@ public class TracingUtils {
 
 	public static final Naming NAMING = new Naming("Station", "Stations", "Delivery", "Deliveries");
 
+	public static final ImmutableSet<DataType> COMPATIBLE_COLUMNS_TYPES = ImmutableSet.of(StringCell.TYPE, IntCell.TYPE,
+			DoubleCell.TYPE, BooleanCell.TYPE);
+
 	private TracingUtils() {
 	}
 
@@ -83,6 +89,14 @@ public class TracingUtils {
 		}
 
 		return tableColumns;
+	}
+
+	public static DataColumnSpec toCompatibleColumn(DataColumnSpec spec) {
+		if (COMPATIBLE_COLUMNS_TYPES.contains(spec.getType())) {
+			return spec;
+		}
+
+		return new DataColumnSpecCreator(spec.getName(), StringCell.TYPE).createSpec();
 	}
 
 	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable, NodePropertySchema nodeSchema)
