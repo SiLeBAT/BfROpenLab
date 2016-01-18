@@ -96,11 +96,10 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");
 		}
 
-		boolean idsUnique = Sets.intersection(nodes.keySet(), edges.keySet()).isEmpty();
 		String nodeIdPrefix = "";
 		String edgeIdPrefix = "";
 
-		if (!idsUnique) {
+		if (!Sets.intersection(nodes.keySet(), edges.keySet()).isEmpty()) {
 			nodeIdPrefix = "Node:";
 			edgeIdPrefix = "Edge:";
 			setWarningMessage("Some stations and deliveries are using the same IDs. Therefore a prefix will be added.");
