@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./FoodChainLab_transp.png" type="Manipulator" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>To Knime Network</name>
+
+	<shortDescription>
+		Converts a FoodChain-Lab network to the KNIME Network mining format.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Converts a FoodChain-Lab network to the KNIME Network mining format.
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Stations">
+			Table with Station data. Is provided by first out port of Supply
+			Chain Reader.
+		</inPort>
+		<inPort index="1" name="Deliveries">
+			Table with Delivery data. Is provided by second out port of Supply
+			Chain Reader.
+		</inPort>
+	</ports>
+	<views>
+		<view index="0" name="KNIME Network">
+			Network in KNIME Network mining format
+		</view>
+	</views>
+</knimeNode>

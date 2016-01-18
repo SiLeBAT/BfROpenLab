@@ -8,7 +8,8 @@ Bundle-Activator: de.bund.bfr.knime.openkrise.util.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.knime.base;bundle-version="3.0.0",
  org.apache.commons.math3,
- de.bund.bfr.knime.openkrise
+ de.bund.bfr.knime.openkrise,
+ org.knime.network.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 
