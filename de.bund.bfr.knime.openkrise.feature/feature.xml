@@ -34,9 +34,10 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.ext.poi"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.ext.svg"/>
-      <import plugin="com.google.guava" version="16.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.apache.commons.math3"/>
+      <import plugin="org.knime.network.core"/>
+      <import plugin="org.knime.network.base"/>
       <import plugin="org.eclipse.core.resources"/>
    </requires>
 
@@ -141,5 +142,11 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="com.google.guava.new"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
