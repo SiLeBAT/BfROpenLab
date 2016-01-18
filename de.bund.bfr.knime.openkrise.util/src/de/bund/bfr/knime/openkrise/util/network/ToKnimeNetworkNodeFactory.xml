@@ -9,7 +9,9 @@
 
 	<fullDescription>
 		<intro>
-			Converts a FoodChain-Lab network to the KNIME Network mining format.
+			Converts a FoodChain-Lab network to the KNIME Network Mining format. This allows you to analyze
+			the network with Network Mining node
+			<a href="https://tech.knime.org/network-mining">https://tech.knime.org/network-mining.</a>
 		</intro>
 	</fullDescription>
 
@@ -25,7 +27,7 @@
 	</ports>
 	<views>
 		<view index="0" name="KNIME Network">
-			Network in KNIME Network mining format
+			KNIME Network.
 		</view>
 	</views>
 </knimeNode>
