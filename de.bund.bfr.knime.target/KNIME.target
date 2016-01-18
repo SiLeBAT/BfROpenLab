@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="8">
+<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="9">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -26,6 +26,7 @@
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.1.0.v201512012046"/>
 <unit id="org.knime.features.js.quickforms.feature.group" version="3.1.0.v201512021139"/>
 <unit id="org.knime.features.ext.jep.feature.group" version="3.1.0.v201511241214"/>
+<unit id="org.knime.features.network.source.feature.group" version="3.1.0.v201511241214"/>
 <unit id="org.knime.features.testingapplication.feature.group" version="3.1.0.v201512011302"/>
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
