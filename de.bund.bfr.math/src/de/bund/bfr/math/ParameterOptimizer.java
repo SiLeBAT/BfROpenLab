@@ -58,6 +58,7 @@ public class ParameterOptimizer {
 	private List<ProgressListener> progressListeners;
 
 	private boolean likelihoodApproach;
+	private int sdParamIndex;
 
 	private ParameterOptimizer(String[] parameters, double[] targetValues) {
 		this.parameters = parameters;
@@ -81,7 +82,7 @@ public class ParameterOptimizer {
 		optimizerFunction = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
 				sdParam);
 		likelihoodApproach = true;
-
+		sdParamIndex = Arrays.asList(parameters).indexOf(sdParam);
 	}
 
 	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
@@ -285,8 +286,8 @@ public class ParameterOptimizer {
 				.maxIterations(maxIterations).target(likelihoodApproach ? new double[] { 0.0 } : targetValues)
 				.start(startValues);
 
-		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
-			builder.parameterValidator(params -> {
+		builder.parameterValidator(params -> {
+			if (!minValues.isEmpty() || !maxValues.isEmpty()) {
 				for (int i = 0; i < parameters.length; i++) {
 					double value = params.getEntry(i);
 					Double min = minValues.get(parameters[i]);
@@ -302,10 +303,14 @@ public class ParameterOptimizer {
 
 					params.setEntry(i, value);
 				}
+			}
 
-				return params;
-			});
-		}
+			if (likelihoodApproach && params.getEntry(sdParamIndex) <= 0) {
+				params.setEntry(sdParamIndex, EPSILON);
+			}
+
+			return params;
+		});
 
 		return builder;
 	}
