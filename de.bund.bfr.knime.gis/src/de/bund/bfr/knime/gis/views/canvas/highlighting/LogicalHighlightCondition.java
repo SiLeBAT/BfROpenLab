@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableList;
+
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class LogicalHighlightCondition implements Serializable {
@@ -38,8 +40,9 @@ public class LogicalHighlightCondition implements Serializable {
 	public static final String REGEX_NOT_EQUAL_TYPE = "!= (Regex)";
 	public static final String REGEX_EQUAL_IGNORE_CASE_TYPE = "== (Regex Ignore Case)";
 	public static final String REGEX_NOT_EQUAL_IGNORE_CASE_TYPE = "!= (Regex Ignore Case)";
-	public static final String[] TYPES = { EQUAL_TYPE, NOT_EQUAL_TYPE, GREATER_TYPE, LESS_TYPE, REGEX_EQUAL_TYPE,
-			REGEX_NOT_EQUAL_TYPE, REGEX_EQUAL_IGNORE_CASE_TYPE, REGEX_NOT_EQUAL_IGNORE_CASE_TYPE };
+	public static final ImmutableList<String> TYPES = ImmutableList.of(EQUAL_TYPE, NOT_EQUAL_TYPE, GREATER_TYPE,
+			LESS_TYPE, REGEX_EQUAL_TYPE, REGEX_NOT_EQUAL_TYPE, REGEX_EQUAL_IGNORE_CASE_TYPE,
+			REGEX_NOT_EQUAL_IGNORE_CASE_TYPE);
 
 	private static final long serialVersionUID = 1L;
 

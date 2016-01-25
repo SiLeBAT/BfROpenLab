@@ -42,6 +42,8 @@ import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.svg.SVGDocument;
 
+import com.google.common.collect.ImmutableList;
+
 public class ChartUtils {
 
 	private ChartUtils() {
@@ -50,7 +52,7 @@ public class ChartUtils {
 	public static final int SHAPE_SIZE = 6;
 	public static final int SHAPE_DELTA = 3;
 
-	public static final Color[] COLORS = new Color[] { new Color(255, 85, 85), new Color(85, 85, 255),
+	public static final ImmutableList<Color> COLORS = ImmutableList.of(new Color(255, 85, 85), new Color(85, 85, 255),
 			new Color(85, 255, 85), new Color(255, 85, 255), new Color(85, 255, 255), new Color(255, 175, 175),
 			new Color(128, 128, 128), new Color(192, 0, 0), new Color(0, 0, 192), new Color(0, 192, 0),
 			new Color(192, 192, 0), new Color(192, 0, 192), new Color(0, 192, 192), new Color(64, 64, 64),
@@ -58,10 +60,10 @@ public class ChartUtils {
 			new Color(64, 255, 255), new Color(192, 192, 192), new Color(128, 0, 0), new Color(0, 0, 128),
 			new Color(0, 128, 0), new Color(128, 128, 0), new Color(128, 0, 128), new Color(0, 128, 128),
 			new Color(255, 128, 128), new Color(128, 128, 255), new Color(128, 255, 128), new Color(255, 128, 255),
-			new Color(128, 255, 255) };
+			new Color(128, 255, 255));
 
 	public static List<Color> createColorList(int n) {
-		return IntStream.range(0, n).mapToObj(i -> COLORS[i % COLORS.length]).collect(Collectors.toList());
+		return IntStream.range(0, n).mapToObj(i -> COLORS.get(i % COLORS.size())).collect(Collectors.toList());
 	}
 
 	public static List<NamedShape> createShapeList(int n) {

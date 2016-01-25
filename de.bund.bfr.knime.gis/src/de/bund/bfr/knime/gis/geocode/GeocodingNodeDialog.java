@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -67,10 +68,10 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	 */
 	public GeocodingNodeDialog() {
 		set = new GeocodingSettings();
-		providerBox = new JComboBox<>(GeocodingSettings.PROVIDER_CHOICES);
+		providerBox = new JComboBox<>(new Vector<>(GeocodingSettings.PROVIDER_CHOICES));
 		providerBox.addActionListener(e -> updatePanel());
 		delayField = new JTextField();
-		multipleBox = new JComboBox<>(GeocodingSettings.MULTIPLE_CHOICES);
+		multipleBox = new JComboBox<>(new Vector<>(GeocodingSettings.MULTIPLE_CHOICES));
 
 		addressBox = new ColumnComboBox(false);
 		countryCodeBox = new ColumnComboBox(false);

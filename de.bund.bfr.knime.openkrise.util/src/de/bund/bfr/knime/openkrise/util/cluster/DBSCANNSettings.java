@@ -23,6 +23,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import com.google.common.collect.ImmutableList;
+
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -34,7 +36,7 @@ public class DBSCANNSettings extends NodeSettings {
 
 	public static final String MODEL_DBSCAN = "DBSCAN";
 	public static final String MODEL_K_MEANS = "k-means";
-	public static final String[] MODEL_CHOICES = { MODEL_DBSCAN, MODEL_K_MEANS };
+	public static final ImmutableList<String> MODEL_CHOICES = ImmutableList.of(MODEL_DBSCAN, MODEL_K_MEANS);
 
 	private static final String CFG_MODEL = "chosenmodel";
 	private static final String CFG_FILTER = "filter";

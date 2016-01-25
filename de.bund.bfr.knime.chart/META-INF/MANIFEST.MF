@@ -6,7 +6,8 @@ Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: de.bund.bfr.knime.chart.Activator
 Require-Bundle: org.knime.base;bundle-version="3.0.0",
  org.knime.ext.jfreechart;visibility:=reexport,
- org.knime.ext.svg;visibility:=reexport
+ org.knime.ext.svg;visibility:=reexport,
+ com.google.guava.new
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)

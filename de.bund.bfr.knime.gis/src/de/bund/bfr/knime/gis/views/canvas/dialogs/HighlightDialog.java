@@ -356,7 +356,7 @@ public class HighlightDialog extends KnimeDialog {
 
 			for (LogicalHighlightCondition cond : conds) {
 				PropertySelector propertyBox = selectorCreator.createSelector(schema);
-				JComboBox<String> typeBox = new JComboBox<>(LogicalHighlightCondition.TYPES);
+				JComboBox<String> typeBox = new JComboBox<>(new Vector<>(LogicalHighlightCondition.TYPES));
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());
 				JButton addButton = new JButton("Add");
@@ -429,7 +429,7 @@ public class HighlightDialog extends KnimeDialog {
 		}
 
 		valuePropertyBox = new JComboBox<>(new Vector<>(numberProperties));
-		valueTypeBox = new JComboBox<>(ValueHighlightCondition.TYPES);
+		valueTypeBox = new JComboBox<>(new Vector<>(ValueHighlightCondition.TYPES));
 		zeroAsMinimumBox = new JCheckBox("Zero As Minimum");
 
 		if (condition != null) {

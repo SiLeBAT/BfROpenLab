@@ -28,6 +28,8 @@ import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -35,7 +37,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 
 	public static final String VALUE_TYPE = "Value";
 	public static final String LOG_VALUE_TYPE = "Log Value";
-	public static final String[] TYPES = { VALUE_TYPE, LOG_VALUE_TYPE };
+	public static final ImmutableList<String> TYPES = ImmutableList.of(VALUE_TYPE, LOG_VALUE_TYPE);
 
 	private static final long serialVersionUID = 1L;
 

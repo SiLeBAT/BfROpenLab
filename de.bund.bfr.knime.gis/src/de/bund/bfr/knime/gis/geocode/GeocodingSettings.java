@@ -23,6 +23,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import com.google.common.collect.ImmutableList;
+
 import de.bund.bfr.knime.NodeSettings;
 
 public class GeocodingSettings extends NodeSettings {
@@ -30,12 +32,14 @@ public class GeocodingSettings extends NodeSettings {
 	public static final String PROVIDER_MAPQUEST = "MapQuest";
 	public static final String PROVIDER_GISGRAPHY = "Gisgraphy";
 	public static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
-	public static final String[] PROVIDER_CHOICES = { PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY, PROVIDER_BKG };
+	public static final ImmutableList<String> PROVIDER_CHOICES = ImmutableList.of(PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY,
+			PROVIDER_BKG);
 
 	public static final String MULTIPLE_DO_NOT_USE = "Do not use";
 	public static final String MULTIPLE_USE_FIRST = "Use first";
 	public static final String MULTIPLE_ASK_USER = "Ask User";
-	public static final String[] MULTIPLE_CHOICES = { MULTIPLE_DO_NOT_USE, MULTIPLE_USE_FIRST, MULTIPLE_ASK_USER };
+	public static final ImmutableList<String> MULTIPLE_CHOICES = ImmutableList.of(MULTIPLE_DO_NOT_USE,
+			MULTIPLE_USE_FIRST, MULTIPLE_ASK_USER);
 
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";

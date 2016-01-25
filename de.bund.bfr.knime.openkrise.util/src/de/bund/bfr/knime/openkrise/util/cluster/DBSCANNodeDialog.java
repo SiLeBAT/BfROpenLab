@@ -21,6 +21,7 @@ package de.bund.bfr.knime.openkrise.util.cluster;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -71,7 +72,7 @@ public class DBSCANNodeDialog extends DataAwareNodeDialogPane {
 	public DBSCANNodeDialog() {
 		set = new DBSCANNSettings();
 
-		modelBox = new JComboBox<>(DBSCANNSettings.MODEL_CHOICES);
+		modelBox = new JComboBox<>(new Vector<>(DBSCANNSettings.MODEL_CHOICES));
 		modelBox.addActionListener(e -> updatePanel());
 		filterButton = new JButton("Set Filter");
 		filterButton.addActionListener(e -> filterButtonPressed());
