@@ -21,11 +21,14 @@ package de.bund.bfr.knime.gis;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -110,17 +113,11 @@ public class GisUtils {
 		return new ShapefileDataStore(KnimeUtils.getFile(shpFile).toURI().toURL());
 	}
 
-	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile) throws IOException, FactoryException {
-		try (BufferedReader reader = new BufferedReader(
-				new FileReader(KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj")))) {
-			StringBuilder wkt = new StringBuilder();
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-				wkt.append(line);
-			}
-
-			return CRS.parseWKT(wkt.toString());
+	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile)
+			throws InvalidPathException, MalformedURLException, IOException, FactoryException {
+		try (Stream<String> stream = Files
+				.lines(KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj").toPath())) {
+			return CRS.parseWKT(stream.collect(Collectors.joining()));
 		}
 	}
 
