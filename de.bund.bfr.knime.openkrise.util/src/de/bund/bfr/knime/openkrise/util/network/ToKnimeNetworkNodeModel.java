@@ -19,19 +19,14 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.network;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -45,6 +40,7 @@ import org.knime.network.core.core.EndObject;
 import org.knime.network.core.core.GraphFactory;
 import org.knime.network.core.core.GraphMetaData;
 import org.knime.network.core.core.feature.StandardFeature;
+import org.knime.network.core.knime.node.AbstractGraphNodeModel;
 import org.knime.network.core.knime.port.GraphPortObject;
 import org.knime.network.core.knime.port.GraphPortObjectSpec;
 
@@ -64,7 +60,7 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
  *
  * @author Christian Thoens
  */
-public class ToKnimeNetworkNodeModel extends NodeModel {
+public class ToKnimeNetworkNodeModel extends AbstractGraphNodeModel {
 
 	protected static final String CFG_ADD_PREFIX = "AddPrefix";
 
@@ -86,7 +82,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+	protected PortObject[] executeInternal(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		BufferedDataTable nodeTable = (BufferedDataTable) inObjects[0];
 		BufferedDataTable edgeTable = (BufferedDataTable) inObjects[1];
 		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(nodeTable.getSpec()),
@@ -128,7 +124,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void reset() {
+	protected void resetInternal() {
 	}
 
 	/**
@@ -162,21 +158,5 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 		addPrefix.validateSettings(settings);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
-			throws IOException, CanceledExecutionException {
 	}
 }
