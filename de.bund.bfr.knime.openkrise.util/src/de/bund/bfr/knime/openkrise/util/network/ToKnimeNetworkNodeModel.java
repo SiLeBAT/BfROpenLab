@@ -34,6 +34,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -65,8 +66,12 @@ import de.bund.bfr.knime.openkrise.TracingUtils;
  */
 public class ToKnimeNetworkNodeModel extends NodeModel {
 
+	protected static final String CFG_ADD_PREFIX = "AddPrefix";
+
 	private static final String NET_ID = "FoodChainLab-Network";
 	private static final String NET_URI = "FoodChainLab-Network";
+
+	private SettingsModelBoolean addPrefix;
 
 	/**
 	 * Constructor for the node model.
@@ -74,6 +79,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	protected ToKnimeNetworkNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE },
 				new PortType[] { GraphPortObject.TYPE });
+		addPrefix = new SettingsModelBoolean(CFG_ADD_PREFIX, false);
 	}
 
 	/**
@@ -96,16 +102,14 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 			setWarningMessage("Delivery Table: Row " + key.getString() + " skipped");
 		}
 
-		String nodeIdPrefix = "";
-		String edgeIdPrefix = "";
-
-		if (!Sets.intersection(nodes.keySet(), edges.keySet()).isEmpty()) {
-			nodeIdPrefix = "Node:";
-			edgeIdPrefix = "Edge:";
-			setWarningMessage("Some stations and deliveries are using the same IDs. Therefore a prefix will be added.");
+		if (!addPrefix.getBooleanValue() && !Sets.intersection(nodes.keySet(), edges.keySet()).isEmpty()) {
+			throw new Exception(
+					"Some stations and deliveries are using the same IDs. Therefore you must enable \"Add Prefix to Node and Edge IDs\".");
 		}
 
 		KPartiteGraph<PersistentObject, Partition> net = GraphFactory.createNet(NET_ID, NET_URI);
+		String nodeIdPrefix = addPrefix.getBooleanValue() ? "Node:" : "";
+		String edgeIdPrefix = addPrefix.getBooleanValue() ? "Edge:" : "";
 
 		net.defineFeature(StandardFeature.IS_TARGET);
 
@@ -141,6 +145,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		addPrefix.saveSettingsTo(settings);
 	}
 
 	/**
@@ -148,6 +153,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		addPrefix.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -155,6 +161,7 @@ public class ToKnimeNetworkNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+		addPrefix.validateSettings(settings);
 	}
 
 	/**

@@ -61,7 +61,7 @@ public class ToKnimeNetworkNodeFactory extends NodeFactory<ToKnimeNetworkNodeMod
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class ToKnimeNetworkNodeFactory extends NodeFactory<ToKnimeNetworkNodeMod
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return null;
+		return new ToKnimeNetworkNodeDialog();
 	}
 
 }
