@@ -22,7 +22,7 @@ package de.bund.bfr.math;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 
-public interface MultivariateVectorFunctionWithJacobian extends MultivariateVectorFunction {
+public interface ValueAndJacobianFunction extends MultivariateVectorFunction {
 
 	MultivariateMatrixFunction createJacobian();
 }

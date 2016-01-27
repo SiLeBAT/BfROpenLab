@@ -28,7 +28,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class LodVectorFunction implements MultivariateVectorFunctionWithJacobian {
+public class LodVectorFunction implements ValueAndJacobianFunction {
 
 	private String formula;
 	private String[] parameters;

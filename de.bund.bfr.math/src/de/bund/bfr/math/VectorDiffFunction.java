@@ -29,7 +29,7 @@ import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorDiffFunction implements MultivariateVectorFunctionWithJacobian {
+public class VectorDiffFunction implements ValueAndJacobianFunction {
 
 	private String[] formulas;
 	private String[] dependentVariables;

@@ -28,7 +28,7 @@ import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class VectorFunction implements MultivariateVectorFunctionWithJacobian {
+public class VectorFunction implements ValueAndJacobianFunction {
 
 	private String[] parameters;
 	private Map<String, double[]> variableValues;

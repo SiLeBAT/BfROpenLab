@@ -47,7 +47,7 @@ public class ParameterOptimizer {
 	private static final double EPSILON = 0.00001;
 	private static final double COV_THRESHOLD = 1e-14;
 
-	private MultivariateVectorFunctionWithJacobian optimizerFunction;
+	private ValueAndJacobianFunction optimizerFunction;
 
 	private String[] parameters;
 	private double[] targetValues;
