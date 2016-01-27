@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
+import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
-public class LodVectorFunction implements ValueAndJacobianFunction {
+public class LodFunction implements MultivariateFunction {
 
-	private String formula;
 	private String[] parameters;
 	private Map<String, double[]> variableValues;
 	private double[] targetValues;
@@ -42,9 +41,8 @@ public class LodVectorFunction implements ValueAndJacobianFunction {
 	private Parser parser;
 	private Node function;
 
-	public LodVectorFunction(String formula, String[] parameters, Map<String, double[]> variableValues,
-			double[] targetValues, double levelOfDetection, String sdParam) throws ParseException {
-		this.formula = formula;
+	public LodFunction(String formula, String[] parameters, Map<String, double[]> variableValues, double[] targetValues,
+			double levelOfDetection, String sdParam) throws ParseException {
 		this.parameters = parameters;
 		this.variableValues = variableValues;
 		this.targetValues = targetValues;
@@ -59,12 +57,12 @@ public class LodVectorFunction implements ValueAndJacobianFunction {
 	}
 
 	@Override
-	public double[] value(double[] point) throws IllegalArgumentException {
+	public double value(double[] point) {
 		double sd = Double.NaN;
 
 		for (int ip = 0; ip < nParams; ip++) {
 			if (parameters[ip].equals(sdParam)) {
-				sd = point[ip];
+				sd = Math.abs(point[ip]);
 			} else {
 				parser.setVarValue(parameters[ip], point[ip]);
 			}
@@ -81,7 +79,7 @@ public class LodVectorFunction implements ValueAndJacobianFunction {
 				double value = parser.evaluate(function);
 
 				if (!Double.isFinite(value)) {
-					return new double[] { Double.NaN };
+					return Double.NaN;
 				}
 
 				NormalDistribution normDist = new NormalDistribution(value, sd);
@@ -93,26 +91,10 @@ public class LodVectorFunction implements ValueAndJacobianFunction {
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
-				return new double[] { Double.NaN };
+				return Double.NaN;
 			}
 		}
 
-		return new double[] { logLikelihood };
-	}
-
-	@Override
-	public MultivariateMatrixFunction createJacobian() {
-		LodVectorFunction[] functions = new LodVectorFunction[nParams];
-
-		for (int ip = 0; ip < nParams; ip++) {
-			try {
-				functions[ip] = new LodVectorFunction(formula, parameters, variableValues, targetValues,
-						levelOfDetection, sdParam);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return point -> MathUtils.aproxJacobianParallel(functions, point, nParams, 1);
+		return logLikelihood;
 	}
 }

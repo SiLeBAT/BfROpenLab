@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.fitting;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +34,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
@@ -56,9 +56,7 @@ import org.knime.core.node.port.PortType;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
@@ -69,7 +67,10 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.InterpolationFactory;
-import de.bund.bfr.math.ParameterOptimizer;
+import de.bund.bfr.math.LeastSquaresFitting;
+import de.bund.bfr.math.MultivariateOptimization;
+import de.bund.bfr.math.OptimizationResult;
+import de.bund.bfr.math.ProgressListener;
 
 /**
  * This is the model implementation of DiffFunctionFitting.
@@ -77,7 +78,7 @@ import de.bund.bfr.math.ParameterOptimizer;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeModel extends NodeModel implements ParameterOptimizer.ProgressListener {
+public class FittingNodeModel extends NodeModel implements ProgressListener {
 
 	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE };
 	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
@@ -108,7 +109,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		currentExec = exec;
 
 		Function function = ((FunctionPortObject) inObjects[0]).getFunction();
-		Map<String, ParameterOptimizer.Result> results;
+		Map<String, OptimizationResult> results;
 		PortObjectSpec[] outSpec;
 
 		if (isDiff) {
@@ -133,9 +134,9 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		int iParam = 0;
 		int iCov = 0;
 
-		for (Map.Entry<String, ParameterOptimizer.Result> entry : results.entrySet()) {
+		for (Map.Entry<String, OptimizationResult> entry : results.entrySet()) {
 			String id = entry.getKey();
-			ParameterOptimizer.Result result = entry.getValue();
+			OptimizationResult result = entry.getValue();
 			DataCell[] paramCells = new DataCell[paramSpec.getNumColumns()];
 
 			if (result.getParameterValues().isEmpty()) {
@@ -145,27 +146,45 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			for (String param1 : function.getParameters()) {
 				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result.getParameterValues().get(param1));
 
-				DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
+				if (result instanceof LeastSquaresFitting.Result) {
+					DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
 
-				covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
-				covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO.createCell(param1);
+					covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
+					covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO.createCell(param1);
 
-				for (String param2 : function.getParameters()) {
-					covCells[covSpec.findColumnIndex(param2)] = IO
-							.createCell(result.getCovariances().get(new Pair<>(param1, param2)));
+					for (String param2 : function.getParameters()) {
+						covCells[covSpec.findColumnIndex(param2)] = IO.createCell(
+								((LeastSquaresFitting.Result) result).getCovariances().get(new Pair<>(param1, param2)));
+					}
+
+					covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
+					iCov++;
 				}
-
-				covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
-				iCov++;
 			}
 
 			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
-			paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO.createCell(result.getSse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO.createCell(result.getMse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO.createCell(result.getRmse());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO.createCell(result.getR2());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO.createCell(result.getAic());
-			paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO.createCell(result.getDegreesOfFreedom());
+
+			if (result instanceof LeastSquaresFitting.Result) {
+				paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getSse());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getMse());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getRmse());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getR2());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getAic());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
+						.createCell(((LeastSquaresFitting.Result) result).getDegreesOfFreedom());
+			} else {
+				paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = DataType.getMissingCell();
+			}
 
 			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam), paramCells));
 			iParam++;
@@ -298,8 +317,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			throws IOException, CanceledExecutionException {
 	}
 
-	private Map<String, ParameterOptimizer.Result> doFitting(Function f, BufferedDataTable table)
-			throws ParseException {
+	private Map<String, OptimizationResult> doFitting(Function f, BufferedDataTable table) throws ParseException {
 		if (f.getTimeVariable() != null) {
 			return new LinkedHashMap<>();
 		}
@@ -337,7 +355,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			}
 		}
 
-		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
+		Map<String, OptimizationResult> results = new LinkedHashMap<>();
 		List<String> ids = readIds(table);
 
 		numberOfFittings = ids.size();
@@ -350,36 +368,52 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
 			}
 
-			String sdParam = KnimeUtils.createNewValue("sd", f.getParameters());
-			ParameterOptimizer optimizer;
-
 			if (set.getLevelOfDetection() != null) {
-				List<String> params = Lists.newArrayList(Iterables.concat(f.getParameters(), Arrays.asList(sdParam)));
+				MultivariateOptimization optimizer = new MultivariateOptimization(
+						f.getTerms().get(f.getDependentVariable()), f.getParameters().toArray(new String[0]),
+						Doubles.toArray(targetValues.get(id)), argumentArrays, set.getLevelOfDetection());
 
-				optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
-						params.toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays,
-						set.getLevelOfDetection(), sdParam);
+				if (set.isEnforceLimits()) {
+					optimizer.getMinValues().putAll(set.getMinStartValues());
+					optimizer.getMaxValues().putAll(set.getMaxStartValues());
+				}
+
+				optimizer.addProgressListener(this);
+
+				if (!set.getStartValues().isEmpty()) {
+					results.put(id,
+							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+									set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<>(0),
+									set.getMaxLevenbergIterations()));
+				} else {
+					results.put(id,
+							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+									set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues(),
+									set.getMaxLevenbergIterations()));
+				}
 			} else {
-				optimizer = new ParameterOptimizer(f.getTerms().get(f.getDependentVariable()),
+				LeastSquaresFitting optimizer = new LeastSquaresFitting(f.getTerms().get(f.getDependentVariable()),
 						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
 						argumentArrays);
-			}
 
-			if (set.isEnforceLimits()) {
-				optimizer.getMinValues().putAll(set.getMinStartValues());
-				optimizer.getMaxValues().putAll(set.getMaxStartValues());
-			}
+				if (set.isEnforceLimits()) {
+					optimizer.getMinValues().putAll(set.getMinStartValues());
+					optimizer.getMaxValues().putAll(set.getMaxStartValues());
+				}
 
-			optimizer.addProgressListener(this);
+				optimizer.addProgressListener(this);
 
-			if (!set.getStartValues().isEmpty()) {
-				results.put(id,
-						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations()));
-			} else {
-				results.put(id,
-						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
+				if (!set.getStartValues().isEmpty()) {
+					results.put(id,
+							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+									set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<>(0),
+									set.getMaxLevenbergIterations()));
+				} else {
+					results.put(id,
+							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
+									set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues(),
+									set.getMaxLevenbergIterations()));
+				}
 			}
 
 			currentFitting++;
@@ -388,7 +422,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer.Result> doDiffFitting(Function f, BufferedDataTable dataTable,
+	private Map<String, OptimizationResult> doDiffFitting(Function f, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
 		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
@@ -399,7 +433,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		ListMultimap<String, Double> targetValues = data.getSecond();
 		Map<String, ListMultimap<String, Double>> argumentValues = readConditionTable(conditionTable, f);
 
-		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
+		Map<String, OptimizationResult> results = new LinkedHashMap<>();
 		List<String> ids = readIds(dataTable);
 
 		numberOfFittings = ids.size();
@@ -423,7 +457,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 				initParameters.add(f.getInitParameters().get(var));
 			}
 
-			ParameterOptimizer optimizer = new ParameterOptimizer(terms.toArray(new String[0]),
+			LeastSquaresFitting optimizer = new LeastSquaresFitting(terms.toArray(new String[0]),
 					valueVariables.toArray(new String[0]), Doubles.toArray(initValues),
 					initParameters.toArray(new String[0]), f.getParameters().toArray(new String[0]),
 					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
@@ -454,7 +488,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		return results;
 	}
 
-	private Map<String, ParameterOptimizer.Result> doMultiDiffFitting(Function f, BufferedDataTable dataTable,
+	private Map<String, OptimizationResult> doMultiDiffFitting(Function f, BufferedDataTable dataTable,
 			BufferedDataTable conditionTable) throws ParseException {
 		if (f.getTimeVariable() == null) {
 			return new LinkedHashMap<>();
@@ -520,7 +554,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 			initParameters.add(initParams.toArray(new String[0]));
 		}
 
-		ParameterOptimizer optimizer = new ParameterOptimizer(terms.toArray(new String[0]),
+		LeastSquaresFitting optimizer = new LeastSquaresFitting(terms.toArray(new String[0]),
 				valueVariables.toArray(new String[0]), Doubles.toArray(initValues), initParameters,
 				parameters.toArray(new String[0]), timeArrays, targetArrays, f.getDependentVariable(),
 				f.getTimeVariable(), variableArrays,
@@ -536,7 +570,7 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 		numberOfFittings = 1;
 		currentFitting = 0;
 
-		ParameterOptimizer.Result result;
+		LeastSquaresFitting.Result result;
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
@@ -546,10 +580,10 @@ public class FittingNodeModel extends NodeModel implements ParameterOptimizer.Pr
 					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations());
 		}
 
-		Map<String, ParameterOptimizer.Result> results = new LinkedHashMap<>();
+		Map<String, OptimizationResult> results = new LinkedHashMap<>();
 
 		for (int i = 0; i < ids.size(); i++) {
-			ParameterOptimizer.Result r = result.copy();
+			LeastSquaresFitting.Result r = result.copy();
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
 				if (f.getInitValues().get(var) == null) {

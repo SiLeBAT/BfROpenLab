@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import org.nfunk.jep.ParseException;
 
 import com.google.common.primitives.Doubles;
 
-public class ParameterOptimizer {
+public class LeastSquaresFitting {
 
 	private static final double EPSILON = 0.00001;
 	private static final double COV_THRESHOLD = 1e-14;
@@ -57,35 +57,22 @@ public class ParameterOptimizer {
 
 	private List<ProgressListener> progressListeners;
 
-	private boolean likelihoodApproach;
-	private int sdParamIndex;
-
-	private ParameterOptimizer(String[] parameters, double[] targetValues) {
+	private LeastSquaresFitting(String[] parameters, double[] targetValues) {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
 
 		minValues = new LinkedHashMap<>();
 		maxValues = new LinkedHashMap<>();
 		progressListeners = new ArrayList<>();
-		likelihoodApproach = false;
 	}
 
-	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
+	public LeastSquaresFitting(String formula, String[] parameters, double[] targetValues,
 			Map<String, double[]> variableValues) throws ParseException {
 		this(parameters, targetValues);
 		optimizerFunction = new VectorFunction(formula, parameters, variableValues);
 	}
 
-	public ParameterOptimizer(String formula, String[] parameters, double[] targetValues,
-			Map<String, double[]> variableValues, double levelOfDetection, String sdParam) throws ParseException {
-		this(parameters, targetValues);
-		optimizerFunction = new LodVectorFunction(formula, parameters, variableValues, targetValues, levelOfDetection,
-				sdParam);
-		likelihoodApproach = true;
-		sdParamIndex = Arrays.asList(parameters).indexOf(sdParam);
-	}
-
-	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
+	public LeastSquaresFitting(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
@@ -94,7 +81,7 @@ public class ParameterOptimizer {
 				variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 	}
 
-	public ParameterOptimizer(String[] formulas, String[] dependentVariables, double[] initValues,
+	public LeastSquaresFitting(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
@@ -208,13 +195,6 @@ public class ParameterOptimizer {
 			count.incrementAndGet();
 		}
 
-		if (likelihoodApproach && result != null) {
-			Result r = getResults();
-
-			r.parameterValues.putAll(result.parameterValues);
-			return r;
-		}
-
 		return result != null ? result : getResults();
 	}
 
@@ -229,7 +209,7 @@ public class ParameterOptimizer {
 			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
 		}
 
-		RealVector targetVector = new ArrayRealVector(likelihoodApproach ? new double[] { 0.0 } : targetValues);
+		RealVector targetVector = new ArrayRealVector(targetValues);
 		int[] paramStepIndex = new int[parameters.length];
 		boolean done = false;
 		int allStepSize = 1;
@@ -283,11 +263,11 @@ public class ParameterOptimizer {
 	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
 		LeastSquaresBuilder builder = new LeastSquaresBuilder()
 				.model(optimizerFunction, optimizerFunction.createJacobian()).maxEvaluations(Integer.MAX_VALUE)
-				.maxIterations(maxIterations).target(likelihoodApproach ? new double[] { 0.0 } : targetValues)
-				.start(startValues);
+				.maxIterations(maxIterations).target(targetValues).start(startValues);
 
-		builder.parameterValidator(params -> {
-			if (!minValues.isEmpty() || !maxValues.isEmpty()) {
+		if (!minValues.isEmpty() || !maxValues.isEmpty()) {
+			builder.parameterValidator(params -> {
+
 				for (int i = 0; i < parameters.length; i++) {
 					double value = params.getEntry(i);
 					Double min = minValues.get(parameters[i]);
@@ -303,14 +283,10 @@ public class ParameterOptimizer {
 
 					params.setEntry(i, value);
 				}
-			}
 
-			if (likelihoodApproach && params.getEntry(sdParamIndex) <= 0) {
-				params.setEntry(sdParamIndex, EPSILON);
-			}
-
-			return params;
-		});
+				return params;
+			});
+		}
 
 		return builder;
 	}
@@ -409,7 +385,7 @@ public class ParameterOptimizer {
 		}
 	}
 
-	public static class Result {
+	public static class Result implements OptimizationResult {
 
 		private Map<String, Double> parameterValues;
 		private Map<String, Double> parameterStandardErrors;
@@ -423,6 +399,7 @@ public class ParameterOptimizer {
 		private Double aic;
 		private Integer degreesOfFreedom;
 
+		@Override
 		public Map<String, Double> getParameterValues() {
 			return parameterValues;
 		}
@@ -486,10 +463,5 @@ public class ParameterOptimizer {
 
 			return r;
 		}
-	}
-
-	public static interface ProgressListener {
-
-		void progressChanged(double progress);
 	}
 }
