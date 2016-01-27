@@ -152,7 +152,7 @@ public class MultivariateOptimization {
 						new MaxIter(maxIterations), new InitialGuess(startValues.getValues()),
 						new ObjectiveFunction(optimizerFunction), GoalType.MAXIMIZE,
 						new NelderMeadSimplex(parameters.length));
-				double error = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;
+				double error = optimizerResults.getValue() != null ? -optimizerResults.getValue() : Double.NaN;
 
 				if (result == null || error < result.error) {
 					result = getResults(optimizerResults);
@@ -236,7 +236,7 @@ public class MultivariateOptimization {
 	private Result getResults(PointValuePair optimizerResults) {
 		Result r = getResults();
 
-		r.error = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;
+		r.error = optimizerResults.getValue() != null ? -optimizerResults.getValue() : Double.NaN;
 
 		for (int i = 0; i < parameters.length; i++) {
 			if (!parameters[i].equals(sdParam)) {
