@@ -37,6 +37,7 @@ import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleValueChecker;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
@@ -145,7 +146,18 @@ public class MultivariateOptimization implements Optimization {
 	private Result optimize(final List<StartValues> startValuesList, final boolean stopWhenSuccessful,
 			final int maxIterations) {
 		Result result = null;
-		SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-10);
+		final AtomicInteger currentIteration = new AtomicInteger();
+		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-10, 1e-10) {
+
+			@Override
+			public boolean converged(int iteration, PointValuePair previous, PointValuePair current) {
+				if (super.converged(iteration, previous, current)) {
+					return true;
+				}
+
+				return currentIteration.incrementAndGet() >= maxIterations;
+			}
+		});
 		final AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {

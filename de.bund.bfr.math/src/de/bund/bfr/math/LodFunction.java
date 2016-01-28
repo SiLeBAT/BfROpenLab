@@ -68,6 +68,10 @@ public class LodFunction implements MultivariateFunction {
 			}
 		}
 
+		if (sd == 0.0) {
+			return Double.NaN;
+		}
+
 		double logLikelihood = 0.0;
 
 		for (int iv = 0; iv < nValues; iv++) {
