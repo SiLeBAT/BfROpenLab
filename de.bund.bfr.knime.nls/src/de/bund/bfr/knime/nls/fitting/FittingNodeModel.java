@@ -177,13 +177,19 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 						.createCell(((LeastSquaresFitting.Result) result).getAic());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
 						.createCell(((LeastSquaresFitting.Result) result).getDegreesOfFreedom());
-			} else {
+				paramCells[paramSpec.findColumnIndex(NlsUtils.SD_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.LOG_LIKELIHOOD_COLUMN)] = DataType.getMissingCell();
+			} else if (result instanceof MultivariateOptimization.Result) {
 				paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = DataType.getMissingCell();
+				paramCells[paramSpec.findColumnIndex(NlsUtils.SD_COLUMN)] = IO
+						.createCell(((MultivariateOptimization.Result) result).getSdValue());
+				paramCells[paramSpec.findColumnIndex(NlsUtils.LOG_LIKELIHOOD_COLUMN)] = IO
+						.createCell(((MultivariateOptimization.Result) result).getLogLikelihood());
 			}
 
 			paramContainer.addRowToTable(new DefaultRow(String.valueOf(iParam), paramCells));
@@ -273,6 +279,8 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 		specs1.add(new DataColumnSpecCreator(NlsUtils.R2_COLUMN, DoubleCell.TYPE).createSpec());
 		specs1.add(new DataColumnSpecCreator(NlsUtils.AIC_COLUMN, DoubleCell.TYPE).createSpec());
 		specs1.add(new DataColumnSpecCreator(NlsUtils.DOF_COLUMN, IntCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.SD_COLUMN, DoubleCell.TYPE).createSpec());
+		specs1.add(new DataColumnSpecCreator(NlsUtils.LOG_LIKELIHOOD_COLUMN, DoubleCell.TYPE).createSpec());
 
 		return new PortObjectSpec[] { new DataTableSpec(specs1.toArray(new DataColumnSpec[0])),
 				new DataTableSpec(specs2.toArray(new DataColumnSpec[0])) };

@@ -175,8 +175,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		chartCreator.addZoomListener(this);
 		createChart();
 
-		List<Component> leftComponents = new ArrayList<>(
-				Arrays.asList(enforceLimitsBox, new JLabel("Maximal Iterations in each run of Levenberg Algorithm")));
+		List<Component> leftComponents = new ArrayList<>(Arrays.asList(enforceLimitsBox,
+				new JLabel("Maximal Iterations in each run of Optimization Algorithm")));
 		List<Component> rightComponents = new ArrayList<>(Arrays.asList(new JLabel(), maxIterationsField));
 
 		if (isDiff) {

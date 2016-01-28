@@ -51,6 +51,9 @@ public class NlsUtils {
 	public static final String DOF_COLUMN = "DOF";
 	public static final String PARAM_COLUMN = "Param";
 
+	public static final String SD_COLUMN = "Standard Deviation";
+	public static final String LOG_LIKELIHOOD_COLUMN = "Log Likelihood";
+
 	private NlsUtils() {
 	}
 

@@ -152,17 +152,16 @@ public class MultivariateOptimization {
 						new MaxIter(maxIterations), new InitialGuess(startValues.getValues()),
 						new ObjectiveFunction(optimizerFunction), GoalType.MAXIMIZE,
 						new NelderMeadSimplex(parameters.length));
-				double error = optimizerResults.getValue() != null ? -optimizerResults.getValue() : Double.NaN;
+				double logLikelihood = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;
 
-				if (result == null || error < result.error) {
+				if (result == null || logLikelihood > result.logLikelihood) {
 					result = getResults(optimizerResults);
 
-					if (result.error == 0.0 || stopWhenSuccessful) {
+					if (result.logLikelihood == 0.0 || stopWhenSuccessful) {
 						break;
 					}
 				}
 			} catch (TooManyEvaluationsException | TooManyIterationsException | ConvergenceException e) {
-				System.out.println(e.getMessage());
 			}
 
 			count.incrementAndGet();
@@ -174,6 +173,14 @@ public class MultivariateOptimization {
 	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount, double[] paramStepSize,
 			int n) {
 		List<StartValues> valuesList = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			double[] values = new double[parameters.length];
+
+			Arrays.fill(values, i + 1.0);
+			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
+		}
+
 		int[] paramStepIndex = new int[parameters.length];
 		boolean done = false;
 		int allStepSize = 1;
@@ -221,14 +228,15 @@ public class MultivariateOptimization {
 
 		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
 
-		return valuesList.size() > n ? valuesList.subList(0, n) : valuesList;
+		return valuesList.subList(0, n);
 	}
 
 	private Result getResults() {
 		Result r = new Result();
 
 		r.parameterValues = new LinkedHashMap<>();
-		r.error = null;
+		r.sdValue = null;
+		r.logLikelihood = null;
 
 		return r;
 	}
@@ -236,10 +244,12 @@ public class MultivariateOptimization {
 	private Result getResults(PointValuePair optimizerResults) {
 		Result r = getResults();
 
-		r.error = optimizerResults.getValue() != null ? -optimizerResults.getValue() : Double.NaN;
+		r.logLikelihood = optimizerResults.getValue();
 
 		for (int i = 0; i < parameters.length; i++) {
-			if (!parameters[i].equals(sdParam)) {
+			if (parameters[i].equals(sdParam)) {
+				r.sdValue = optimizerResults.getPoint()[i];
+			} else {
 				r.parameterValues.put(parameters[i], optimizerResults.getPoint()[i]);
 			}
 		}
@@ -273,22 +283,28 @@ public class MultivariateOptimization {
 	public static class Result implements OptimizationResult {
 
 		private Map<String, Double> parameterValues;
-		private Double error;
+		private Double sdValue;
+		private Double logLikelihood;
 
 		@Override
 		public Map<String, Double> getParameterValues() {
 			return parameterValues;
 		}
 
-		public Double getError() {
-			return error;
+		public Double getSdValue() {
+			return sdValue;
+		}
+
+		public Double getLogLikelihood() {
+			return logLikelihood;
 		}
 
 		public Result copy() {
 			Result r = new Result();
 
 			r.parameterValues = new LinkedHashMap<>(parameterValues);
-			r.error = error;
+			r.sdValue = sdValue;
+			r.logLikelihood = logLikelihood;
 
 			return r;
 		}
