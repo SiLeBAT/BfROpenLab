@@ -19,9 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
@@ -64,10 +62,6 @@ public enum GisType {
 	}
 
 	public static GisType[] valuesWithoutShapefile() {
-		List<GisType> types = new ArrayList<>(Arrays.asList(values()));
-
-		types.remove(SHAPEFILE);
-
-		return types.toArray(new GisType[0]);
+		return Stream.of(values()).filter(t -> t != SHAPEFILE).toArray(GisType[]::new);
 	}
 }

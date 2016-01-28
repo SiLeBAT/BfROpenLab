@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,36 +78,26 @@ public class GisUtils {
 				new LinearRing[] { FACTORY.createLinearRing(innerRing) });
 	}
 
-	public static Point2D latLonToViz(Point2D latLon) {
-		return new Point2D.Double(OsmMercator.LonToX(latLon.getY(), 0), OsmMercator.LatToY(latLon.getX(), 0));
+	public static Point2D latLonToViz(Point2D p) {
+		return new Point2D.Double(OsmMercator.LonToX(p.getY(), 0), OsmMercator.LatToY(p.getX(), 0));
 	}
 
-	public static MultiPolygon latLonToViz(MultiPolygon polygon) {
-		Polygon[] transformed = new Polygon[polygon.getNumGeometries()];
-
-		for (int i = 0; i < polygon.getNumGeometries(); i++) {
-			Polygon poly = (Polygon) polygon.getGeometryN(i);
-			LinearRing exterior = FACTORY.createLinearRing(latLonToViz(poly.getExteriorRing().getCoordinates()));
-			LinearRing[] interior = new LinearRing[poly.getNumInteriorRing()];
-
-			for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-				interior[j] = FACTORY.createLinearRing(latLonToViz(poly.getInteriorRingN(j).getCoordinates()));
-			}
-
-			transformed[i] = FACTORY.createPolygon(exterior, interior);
-		}
-		return FACTORY.createMultiPolygon(transformed);
+	public static MultiPolygon latLonToViz(MultiPolygon multiPolygon) {
+		return FACTORY.createMultiPolygon(
+				getPolygons(multiPolygon).stream().map(p -> latLonToViz(p)).toArray(Polygon[]::new));
 	}
 
-	private static Coordinate[] latLonToViz(Coordinate[] coordinates) {
-		Coordinate[] transformed = new Coordinate[coordinates.length];
+	private static Polygon latLonToViz(Polygon polygon) {
+		LinearRing exterior = latLonToViz((LinearRing) polygon.getExteriorRing());
+		LinearRing[] interior = getInteriorRings(polygon).stream().map(r -> latLonToViz(r)).toArray(LinearRing[]::new);
 
-		for (int i = 0; i < coordinates.length; i++) {
-			transformed[i] = new Coordinate(OsmMercator.LonToX(coordinates[i].y, 0),
-					OsmMercator.LatToY(coordinates[i].x, 0));
-		}
+		return FACTORY.createPolygon(exterior, interior);
+	}
 
-		return transformed;
+	private static LinearRing latLonToViz(LinearRing ring) {
+		return FACTORY.createLinearRing(Stream.of(ring.getCoordinates())
+				.map(c -> new Coordinate(OsmMercator.LonToX(c.y, 0), OsmMercator.LatToY(c.x, 0)))
+				.toArray(Coordinate[]::new));
 	}
 
 	public static ShapefileDataStore getDataStore(String shpFile) throws IOException {
@@ -122,11 +113,7 @@ public class GisUtils {
 	}
 
 	public static Geometry getShape(DataCell cell) {
-		if (cell instanceof ShapeValue) {
-			return ((ShapeValue) cell).getShape();
-		}
-
-		return null;
+		return cell instanceof ShapeValue ? ((ShapeValue) cell).getShape() : null;
 	}
 
 	public static List<DataColumnSpec> getShapeColumns(DataTableSpec spec) {
@@ -142,20 +129,30 @@ public class GisUtils {
 	}
 
 	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {
-		double largestArea = 0.0;
-		Point center = null;
+		Point center = Collections.max(getPolygons(poly), (p1, p2) -> Double.compare(p1.getArea(), p2.getArea()))
+				.getCentroid();
 
-		for (int i = 0; i < poly.getNumGeometries(); i++) {
-			Polygon p = (Polygon) poly.getGeometryN(i);
-			double area = p.getArea();
+		return new Point2D.Double(center.getX(), center.getY());
+	}
 
-			if (area > largestArea) {
-				largestArea = area;
-				center = p.getCentroid();
-			}
+	private static List<Polygon> getPolygons(MultiPolygon multiPolygon) {
+		List<Polygon> polygons = new ArrayList<>();
+
+		for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+			polygons.add((Polygon) multiPolygon.getGeometryN(i));
 		}
 
-		return center != null ? new Point2D.Double(center.getX(), center.getY()) : null;
+		return polygons;
+	}
+
+	private static List<LinearRing> getInteriorRings(Polygon polygon) {
+		List<LinearRing> rings = new ArrayList<>();
+
+		for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+			rings.add((LinearRing) polygon.getInteriorRingN(i));
+		}
+
+		return rings;
 	}
 
 	public static String getAddress(String street, String houseNumber, String city, String district, String state,
