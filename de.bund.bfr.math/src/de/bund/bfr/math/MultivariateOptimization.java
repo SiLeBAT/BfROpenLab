@@ -43,7 +43,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.nfunk.jep.ParseException;
 
-public class MultivariateOptimization {
+public class MultivariateOptimization implements Optimization {
 
 	private static final double EPSILON = 0.00001;
 
@@ -77,15 +77,18 @@ public class MultivariateOptimization {
 		return maxValues;
 	}
 
+	@Override
 	public void addProgressListener(ProgressListener listener) {
 		progressListeners.add(listener);
 	}
 
+	@Override
 	public void removeProgressListener(ProgressListener listener) {
 		progressListeners.remove(listener);
 	}
 
-	public Result optimize(int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
+	@Override
+	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
 		double[] paramMin = new double[parameters.length];
 		int[] paramStepCount = new int[parameters.length];
@@ -133,7 +136,8 @@ public class MultivariateOptimization {
 			}
 		}
 
-		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize, nLevenberg);
+		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize,
+				nOptimizations);
 
 		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
 	}

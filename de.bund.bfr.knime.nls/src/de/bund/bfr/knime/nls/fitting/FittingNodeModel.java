@@ -69,6 +69,7 @@ import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.LeastSquaresFitting;
 import de.bund.bfr.math.MultivariateOptimization;
+import de.bund.bfr.math.Optimization;
 import de.bund.bfr.math.OptimizationResult;
 import de.bund.bfr.math.ProgressListener;
 
@@ -376,52 +377,33 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 				argumentArrays.put(indep, Doubles.toArray(argumentValues.get(indep).get(id)));
 			}
 
+			Optimization optimizer;
+
 			if (set.getLevelOfDetection() != null) {
-				MultivariateOptimization optimizer = new MultivariateOptimization(
-						f.getTerms().get(f.getDependentVariable()), f.getParameters().toArray(new String[0]),
-						Doubles.toArray(targetValues.get(id)), argumentArrays, set.getLevelOfDetection());
-
-				if (set.isEnforceLimits()) {
-					optimizer.getMinValues().putAll(set.getMinStartValues());
-					optimizer.getMaxValues().putAll(set.getMaxStartValues());
-				}
-
-				optimizer.addProgressListener(this);
-
-				if (!set.getStartValues().isEmpty()) {
-					results.put(id,
-							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-									set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<>(0),
-									set.getMaxLevenbergIterations()));
-				} else {
-					results.put(id,
-							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-									set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues(),
-									set.getMaxLevenbergIterations()));
-				}
+				optimizer = new MultivariateOptimization(f.getTerms().get(f.getDependentVariable()),
+						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays,
+						set.getLevelOfDetection());
 			} else {
-				LeastSquaresFitting optimizer = new LeastSquaresFitting(f.getTerms().get(f.getDependentVariable()),
+				optimizer = new LeastSquaresFitting(f.getTerms().get(f.getDependentVariable()),
 						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
 						argumentArrays);
 
 				if (set.isEnforceLimits()) {
-					optimizer.getMinValues().putAll(set.getMinStartValues());
-					optimizer.getMaxValues().putAll(set.getMaxStartValues());
+					((LeastSquaresFitting) optimizer).getMinValues().putAll(set.getMinStartValues());
+					((LeastSquaresFitting) optimizer).getMaxValues().putAll(set.getMaxStartValues());
 				}
+			}
 
-				optimizer.addProgressListener(this);
+			optimizer.addProgressListener(this);
 
-				if (!set.getStartValues().isEmpty()) {
-					results.put(id,
-							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-									set.isStopWhenSuccessful(), set.getStartValues(), new LinkedHashMap<>(0),
-									set.getMaxLevenbergIterations()));
-				} else {
-					results.put(id,
-							optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(),
-									set.isStopWhenSuccessful(), set.getMinStartValues(), set.getMaxStartValues(),
-									set.getMaxLevenbergIterations()));
-				}
+			if (!set.getStartValues().isEmpty()) {
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations()));
+			} else {
+				results.put(id,
+						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
 			}
 
 			currentFitting++;
