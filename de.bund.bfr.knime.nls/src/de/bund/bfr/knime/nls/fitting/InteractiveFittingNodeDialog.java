@@ -144,13 +144,15 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
+		lodField = new DoubleTextField(true, 8);
+		lodField.setValue(set.getLevelOfDetection());
+		lodField.addTextListener(e -> enforceLimitsBox.setEnabled(lodField.getValue() == null));
 		enforceLimitsBox = new JCheckBox("Enforce Limits");
+		enforceLimitsBox.setEnabled(lodField.getValue() == null);
 		enforceLimitsBox.setSelected(set.isEnforceLimits());
 		maxIterationsField = new IntTextField(false, 8);
 		maxIterationsField.setMinValue(1);
 		maxIterationsField.setValue(set.getMaxLevenbergIterations());
-		lodField = new DoubleTextField(true, 8);
-		lodField.setValue(set.getLevelOfDetection());
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		useDifferentInitValuesBoxes = new LinkedHashMap<>();

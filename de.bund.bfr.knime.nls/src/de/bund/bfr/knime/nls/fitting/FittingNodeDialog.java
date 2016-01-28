@@ -107,6 +107,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 		lodField = new DoubleTextField(true, 8);
 		lodField.setValue(set.getLevelOfDetection());
+		lodField.addTextListener(e -> limitsBox.setEnabled(lodField.getValue() == null));
 		fitAllAtOnceBox = new JCheckBox("Fit All At Once");
 		fitAllAtOnceBox.setSelected(set.isFitAllAtOnce());
 		fitAllAtOnceBox.addActionListener(
@@ -258,6 +259,7 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 	private Component createRangePanel(Function function) {
 		limitsBox = new JCheckBox("Enforce start values as limits");
+		limitsBox.setEnabled(lodField.getValue() == null);
 		limitsBox.setSelected(set.isEnforceLimits());
 		clearButton = new JButton("Clear");
 		clearButton
