@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -64,8 +65,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
@@ -266,11 +265,8 @@ public class CanvasUtils {
 		Set<T> highlightedElements = new LinkedHashSet<>();
 
 		for (HighlightCondition condition : highlightConditions) {
-			for (Map.Entry<T, Double> entry : condition.getValues(elements).entrySet()) {
-				if (entry.getValue() > 0.0) {
-					highlightedElements.add(entry.getKey());
-				}
-			}
+			condition.getValues(elements).entrySet().stream().filter(e -> e.getValue() != 0.0)
+					.forEach(e -> highlightedElements.add(e.getKey()));
 		}
 
 		return highlightedElements;
@@ -289,15 +285,7 @@ public class CanvasUtils {
 	}
 
 	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
-		Set<T> result = new LinkedHashSet<>();
-
-		for (String id : ids) {
-			if (elements.containsKey(id)) {
-				result.add(elements.get(id));
-			}
-		}
-
-		return result;
+		return ids.stream().map(id -> elements.get(id)).filter(Objects::nonNull).collect(Collectors.toSet());
 	}
 
 	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
@@ -314,24 +302,6 @@ public class CanvasUtils {
 		}
 
 		return Multimaps.asMap(values);
-	}
-
-	public static Double getMeanValue(Collection<? extends Element> elements, String property) {
-		List<Double> values = new ArrayList<>();
-
-		for (Element element : elements) {
-			Object o = element.getProperties().get(property);
-
-			if (o instanceof Double) {
-				values.add((Double) o);
-			}
-		}
-
-		if (values.isEmpty()) {
-			return null;
-		}
-
-		return DoubleMath.mean(Doubles.toArray(values));
 	}
 
 	public static AndOrHighlightCondition createIdHighlightCondition(Collection<String> ids, String idProperty) {
@@ -363,11 +333,8 @@ public class CanvasUtils {
 		Set<String> properties = new LinkedHashSet<>();
 
 		if (logicalCondition != null) {
-			for (List<LogicalHighlightCondition> cc : logicalCondition.getConditions()) {
-				for (LogicalHighlightCondition c : cc) {
-					properties.add(c.getProperty());
-				}
-			}
+			logicalCondition.getConditions().stream().flatMap(List::stream)
+					.forEach(c -> properties.add(c.getProperty()));
 		}
 
 		if (valueCondition != null) {
@@ -397,9 +364,7 @@ public class CanvasUtils {
 		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
 
 		if (!labelsOnly) {
-			for (V node : nodes) {
-				thicknessValues.put(node, 0.0);
-			}
+			nodes.forEach(n -> thicknessValues.put(n, 0.0));
 		}
 
 		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
@@ -410,9 +375,7 @@ public class CanvasUtils {
 			Map<V, Double> values = condition.getValues(nodes);
 
 			if (!labelsOnly && condition.isUseThickness()) {
-				for (V node : nodes) {
-					thicknessValues.put(node, thicknessValues.get(node) + values.get(node));
-				}
+				nodes.forEach(n -> thicknessValues.put(n, thicknessValues.get(n) + values.get(n)));
 			}
 
 			if (!labelsOnly && condition.getColor() != null) {
@@ -465,9 +428,7 @@ public class CanvasUtils {
 		SetMultimap<Edge<V>, String> labelLists = LinkedHashMultimap.create();
 		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
 
-		for (Edge<V> edge : edges) {
-			thicknessValues.put(edge, 0.0);
-		}
+		edges.forEach(e -> thicknessValues.put(e, 0.0));
 
 		for (HighlightCondition condition : edgeHighlightConditions.getConditions()) {
 			if (condition.isInvisible()) {
@@ -491,9 +452,7 @@ public class CanvasUtils {
 			}
 
 			if (condition.isUseThickness()) {
-				for (Edge<V> edge : edges) {
-					thicknessValues.put(edge, thicknessValues.get(edge) + values.get(edge));
-				}
+				edges.forEach(e -> thicknessValues.put(e, thicknessValues.get(e) + values.get(e)));
 			}
 
 			if (condition.getLabelProperty() != null) {
@@ -581,21 +540,13 @@ public class CanvasUtils {
 			HighlightConditionList highlightConditions) {
 		Set<T> removed = new LinkedHashSet<>();
 
-		for (HighlightCondition condition : highlightConditions.getConditions()) {
-			if (!condition.isInvisible()) {
-				continue;
-			}
+		highlightConditions.getConditions().stream().filter(c -> c.isInvisible()).forEach(c -> {
+			Set<T> toRemove = c.getValues(elements).entrySet().stream().filter(e -> e.getValue() != 0.0)
+					.map(e -> e.getKey()).collect(Collectors.toSet());
 
-			Map<T, Double> values = condition.getValues(elements);
-
-			for (T element : elements) {
-				if (values.get(element) != 0.0) {
-					removed.add(element);
-				}
-			}
-
-			elements.removeAll(removed);
-		}
+			elements.removeAll(toRemove);
+			removed.addAll(toRemove);
+		});
 
 		return removed;
 	}
@@ -634,17 +585,8 @@ public class CanvasUtils {
 	}
 
 	public static BufferedImage getBufferedImage(ICanvas<?>... canvas) {
-		int width = 0;
-		int height = 0;
-
-		for (ICanvas<?> c : canvas) {
-			width += c.getCanvasSize().width;
-			height = Math.max(height, c.getCanvasSize().height);
-		}
-
-		width = Math.max(width, 1);
-		height = Math.max(height, 1);
-
+		int width = Math.max(Stream.of(canvas).mapToInt(c -> c.getCanvasSize().width).sum(), 1);
+		int height = Stream.of(canvas).mapToInt(c -> c.getCanvasSize().height).max().orElse(1);
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		int x = 0;
@@ -661,17 +603,8 @@ public class CanvasUtils {
 	}
 
 	public static SVGDocument getSvgDocument(ICanvas<?>... canvas) {
-		int width = 0;
-		int height = 0;
-
-		for (ICanvas<?> c : canvas) {
-			width += c.getCanvasSize().width;
-			height = Math.max(height, c.getCanvasSize().height);
-		}
-
-		width = Math.max(width, 1);
-		height = Math.max(height, 1);
-
+		int width = Math.max(Stream.of(canvas).mapToInt(c -> c.getCanvasSize().width).sum(), 1);
+		int height = Stream.of(canvas).mapToInt(c -> c.getCanvasSize().height).max().orElse(1);
 		SVGDocument document = (SVGDocument) new SVGDOMImplementation().createDocument(null, "svg", null);
 		SVGGraphics2D g = new SVGGraphics2D(document);
 		int x = 0;
