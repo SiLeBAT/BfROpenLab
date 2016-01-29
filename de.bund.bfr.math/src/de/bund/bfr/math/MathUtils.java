@@ -127,10 +127,6 @@ public class MathUtils {
 		return dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 	}
 
-	public static Double toDouble(Integer value) {
-		return value != null ? value.doubleValue() : null;
-	}
-
 	public static double[][] aproxJacobianParallel(MultivariateVectorFunction[] functions, double[] point, int nPoint,
 			int nResult) {
 		double[][] result = new double[nResult][nPoint];
