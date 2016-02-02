@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -79,16 +80,16 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		return new ZoomingPaintable(this, 2.0);
 	}
 
-	protected abstract void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground);
+	protected abstract void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground);
 
-	private void paintGisImage(Graphics g) {
+	private void paintGisImage(Graphics2D g) {
 		int width = getCanvasSize().width;
 		int height = getCanvasSize().height;
 
 		if (image == null || image.getWidth() != width || image.getHeight() != height) {
 			flushImage();
 			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			paintGis(image.getGraphics(), false, true);
+			paintGis(image.createGraphics(), false, true);
 		}
 
 		g.drawImage(image, 0, 0, null);
@@ -110,9 +111,9 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 		@Override
 		public void paint(Graphics g) {
 			if (toSvg) {
-				paintGis(g, true, true);
+				paintGis((Graphics2D) g, true, true);
 			} else {
-				paintGisImage(g);
+				paintGisImage((Graphics2D) g);
 			}
 		}
 	}

@@ -22,8 +22,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
@@ -86,12 +86,12 @@ public class CanvasLegend<V extends Node> {
 		}
 	}
 
-	public void paint(Graphics g, int width, int height, int fontSize, boolean fontBold) {
+	public void paint(Graphics2D g, int width, int height, int fontSize, boolean fontBold) {
 		if (nodeLegend.isEmpty() && edgeLegend.isEmpty()) {
 			return;
 		}
 
-		FontRenderContext fontRenderContext = ((Graphics2D) g).getFontRenderContext();
+		FontRenderContext fontRenderContext = g.getFontRenderContext();
 		int maxNodeWidth = 0;
 		int maxEdgeWidth = 0;
 		Font legendFont = new Font("Default", fontBold ? Font.BOLD : Font.PLAIN, fontSize);
@@ -123,6 +123,8 @@ public class CanvasLegend<V extends Node> {
 				- legendHeadHeight - 3 * LEGEND_DY;
 		int yNode = yStart + LEGEND_DY;
 		int yEdge = yStart + LEGEND_DY;
+		Color currentColor = g.getColor();
+		Font currentFont = g.getFont();
 
 		g.setColor(CanvasUtils.LEGEND_BACKGROUND);
 		g.fillRect(-1, yStart, xEnd, height - yStart);
@@ -157,6 +159,9 @@ public class CanvasLegend<V extends Node> {
 			g.drawString(entry.getKey(), xEdgeName, yEdge + fontAscent);
 			yEdge += legendHeight + LEGEND_DY;
 		}
+
+		g.setColor(currentColor);
+		g.setFont(currentFont);
 	}
 
 	private static String toRangeString(Point2D p) {
@@ -186,14 +191,12 @@ public class CanvasLegend<V extends Node> {
 			color = null;
 		}
 
-		public void paint(Graphics g, int x, int y, int width, int height) {
-			if (color != null) {
-				g.setColor(color);
-			} else {
-				((Graphics2D) g).setPaint(new GradientPaint(x, 0, fromColor, x + width, 0, toColor));
-			}
+		public void paint(Graphics2D g, int x, int y, int width, int height) {
+			Paint currentPaint = g.getPaint();
 
+			g.setPaint(color != null ? color : new GradientPaint(x, 0, fromColor, x + width, 0, toColor));
 			g.fillRect(x, y, width, height);
+			g.setPaint(currentPaint);
 		}
 	}
 }

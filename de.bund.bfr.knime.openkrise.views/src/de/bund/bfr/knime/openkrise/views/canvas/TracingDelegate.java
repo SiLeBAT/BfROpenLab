@@ -574,12 +574,14 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		@Override
-		public void paint(Graphics g) {
+		public void paint(Graphics graphics) {
 			int w = canvas.getCanvasSize().width;
 			int h = canvas.getCanvasSize().height;
-
 			Font font = new Font("Default", Font.BOLD, 20);
 
+			Graphics2D g = (Graphics2D) graphics;
+			Color currentColor = g.getColor();
+			Font currentFont = g.getFont();
 			int height = 28;
 			int fontHeight = g.getFontMetrics(font).getHeight();
 			int fontAscent = g.getFontMetrics(font).getAscent();
@@ -589,9 +591,9 @@ public class TracingDelegate<V extends Node> {
 
 			int dx = 10;
 			String s1 = "Created with";
-			int sw1 = (int) font.getStringBounds(s1, ((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw1 = (int) font.getStringBounds(s1, g.getFontRenderContext()).getWidth();
 			String s2 = "by";
-			int sw2 = (int) font.getStringBounds(s2, ((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw2 = (int) font.getStringBounds(s2, g.getFontRenderContext()).getWidth();
 			FoodChainLabLogo logo1 = new FoodChainLabLogo();
 			int iw1 = logo1.getOrigWidth() * logoHeight / logo1.getOrigHeight();
 			BfrLogo logo2 = new BfrLogo();
@@ -608,6 +610,9 @@ public class TracingDelegate<V extends Node> {
 			g.drawString(s2, w - sw2 - iw2 - 2 * dx, h - fontHeight - dFont + fontAscent);
 			logo2.setDimension(new Dimension(iw2, logoHeight));
 			logo2.paintIcon(null, g, w - iw2 - dx, h - logoHeight - dLogo);
+
+			g.setColor(currentColor);
+			g.setFont(currentFont);
 		}
 	}
 

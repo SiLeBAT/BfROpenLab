@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
@@ -53,12 +52,12 @@ public class RegionCanvasUtils {
 		return bounds;
 	}
 
-	public static void paintRegions(Graphics g, Collection<RegionNode> nodes, Set<RegionNode> selectedNodes,
+	public static void paintRegions(Graphics2D g, Collection<RegionNode> nodes, Set<RegionNode> selectedNodes,
 			HighlightConditionList nodeHighlightConditions) {
-		for (RegionNode node : selectedNodes) {
-			g.setColor(Color.BLUE);
-			((Graphics2D) g).fill(node.getTransformedPolygon());
-		}
+		Paint currentPaint = g.getPaint();
+
+		g.setPaint(Color.BLUE);
+		selectedNodes.forEach(n -> g.fill(n.getTransformedPolygon()));
 
 		List<Color> nodeColors = new ArrayList<>();
 		ListMultimap<RegionNode, Double> nodeAlphas = ArrayListMultimap.create();
@@ -84,9 +83,11 @@ public class RegionCanvasUtils {
 			Paint color = CanvasUtils.mixColors(Color.WHITE, nodeColors, nodeAlphas.get(node), false);
 
 			if (!color.equals(Color.WHITE) && !selectedNodes.contains(node)) {
-				((Graphics2D) g).setPaint(color);
-				((Graphics2D) g).fill(node.getTransformedPolygon());
+				g.setPaint(color);
+				g.fill(node.getTransformedPolygon());
 			}
 		}
+
+		g.setPaint(currentPaint);
 	}
 }

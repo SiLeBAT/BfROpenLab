@@ -62,7 +62,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(Graphics graphics) {
 		int w = canvas.getCanvasSize().width;
 		int h = canvas.getCanvasSize().height;
 		int size = 30;
@@ -75,6 +75,10 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 		int xMinus = xPlus;
 		int yMinus = h - size - d - size;
 
+		Graphics2D g = (Graphics2D) graphics;
+		Color currentColor = g.getColor();
+		Stroke currentStroke = g.getStroke();
+
 		g.setColor(plusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
 		g.fillRect(xPlus, yPlus, size, size);
 		g.setColor(minusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
@@ -82,16 +86,16 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 		g.setColor(Color.BLACK);
 		g.drawRect(xPlus, yPlus, size, size);
 		g.drawRect(xMinus, yMinus, size, size);
-		plusRect = new Rectangle(xPlus, yPlus, size, size);
-		minusRect = new Rectangle(xMinus, yMinus, size, size);
-
-		Stroke currentStroke = ((Graphics2D) g).getStroke();
-
-		((Graphics2D) g).setStroke(new BasicStroke(lineWidth));
+		g.setStroke(new BasicStroke(lineWidth));
 		g.drawLine(xPlus + lineD, yPlus + size / 2, xPlus + size - lineD, yPlus + size / 2);
 		g.drawLine(xPlus + size / 2, yPlus + lineD, xPlus + size / 2, yPlus + size - lineD);
 		g.drawLine(xMinus + lineD, yMinus + size / 2, xMinus + size - lineD, yMinus + size / 2);
-		((Graphics2D) g).setStroke(currentStroke);
+
+		g.setColor(currentColor);
+		g.setStroke(currentStroke);
+
+		plusRect = new Rectangle(xPlus, yPlus, size, size);
+		minusRect = new Rectangle(xMinus, yMinus, size, size);
 	}
 
 	@Override

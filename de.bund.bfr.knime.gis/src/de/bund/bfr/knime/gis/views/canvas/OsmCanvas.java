@@ -112,15 +112,17 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
 		for (Map.Entry<Point, Tile> entry : getTiles(false).entrySet()) {
 			entry.getValue().paint(g, entry.getKey().x, entry.getKey().y);
 		}
 
 		int size = (int) (Math.pow(2.0, lastZoom) * tileController.getTileSource().getTileSize());
+		Color currentColor = g.getColor();
 
 		g.setColor(Color.BLACK);
 		g.drawRect((int) transform.getTranslationX(), (int) transform.getTranslationY(), size, size);
+		g.setColor(currentColor);
 	}
 
 	private Map<Point, Tile> getTiles(boolean waitForLoading) {
@@ -189,7 +191,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 		}
 
 		@Override
-		public void paint(Graphics g) {
+		public void paint(Graphics graphics) {
 			textRect = null;
 			imgRect = null;
 
@@ -200,10 +202,13 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 			String text = tileController.getTileSource().getAttributionText(lastZoom, lastTopLeft, lastBottomRight);
 			Image img = tileController.getTileSource().getAttributionImage();
 			int startY = 0;
+			Graphics2D g = (Graphics2D) graphics;
+			Color currentColor = g.getColor();
+			Font currentFont = g.getFont();
 
 			if (text != null && !text.isEmpty()) {
 				Font font = new Font("Default", Font.PLAIN, 9);
-				int w = (int) font.getStringBounds(text, ((Graphics2D) g).getFontRenderContext()).getWidth();
+				int w = (int) font.getStringBounds(text, g.getFontRenderContext()).getWidth();
 				int h = g.getFontMetrics(font).getHeight();
 				int d = 3;
 
@@ -223,6 +228,9 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 				g.drawImage(img, 0, startY, null);
 				imgRect = new Rectangle(0, startY, img.getWidth(null), img.getHeight(null));
 			}
+
+			g.setColor(currentColor);
+			g.setFont(currentFont);
 		}
 
 		@Override

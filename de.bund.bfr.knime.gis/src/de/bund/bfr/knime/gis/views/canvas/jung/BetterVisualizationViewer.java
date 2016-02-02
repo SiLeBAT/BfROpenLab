@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -45,16 +44,16 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 	}
 
 	public void drawRect(Rectangle2D rect) {
-		Graphics g = this.getGraphics();
+		Graphics2D g = (Graphics2D) getGraphics();
 
 		g.drawImage(offscreen, 0, 0, null);
 
 		if (rect != null) {
-			Color oldColor = g.getColor();
+			Color currentColor = g.getColor();
 
 			g.setColor(Color.CYAN);
-			((Graphics2D) g).draw(rect);
-			g.setColor(oldColor);
+			g.draw(rect);
+			g.setColor(currentColor);
 		}
 	}
 

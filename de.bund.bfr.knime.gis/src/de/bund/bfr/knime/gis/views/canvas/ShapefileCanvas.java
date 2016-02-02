@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -75,32 +74,36 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
+		Color currentColor = g.getColor();
+
 		if (onWhiteBackground) {
 			g.setColor(new Color(255 - getBorderAlpha(), 255 - getBorderAlpha(), 255 - getBorderAlpha()));
 
 			for (RegionNode node : getRegions()) {
-				((Graphics2D) g).draw(node.getTransformedPolygon());
+				g.draw(node.getTransformedPolygon());
 			}
 		} else if (toSvg || getBorderAlpha() == 255) {
 			g.setColor(new Color(0, 0, 0, getBorderAlpha()));
 
 			for (RegionNode node : getRegions()) {
-				((Graphics2D) g).draw(node.getTransformedPolygon());
+				g.draw(node.getTransformedPolygon());
 			}
 		} else {
 			BufferedImage borderImage = new BufferedImage(getCanvasSize().width, getCanvasSize().height,
 					BufferedImage.TYPE_INT_ARGB);
-			Graphics borderGraphics = borderImage.getGraphics();
+			Graphics2D borderGraphics = borderImage.createGraphics();
 
 			borderGraphics.setColor(Color.BLACK);
 
 			for (RegionNode node : getRegions()) {
-				((Graphics2D) borderGraphics).draw(node.getTransformedPolygon());
+				borderGraphics.draw(node.getTransformedPolygon());
 			}
 
 			CanvasUtils.drawImageWithAlpha(g, borderImage, getBorderAlpha());
 			borderImage.flush();
 		}
+
+		g.setColor(currentColor);
 	}
 }

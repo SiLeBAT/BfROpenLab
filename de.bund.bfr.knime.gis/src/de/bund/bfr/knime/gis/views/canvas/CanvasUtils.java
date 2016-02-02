@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -529,11 +528,11 @@ public class CanvasUtils {
 		return new TexturePaint(img, new Rectangle(img.getWidth(), img.getHeight()));
 	}
 
-	public static void drawImageWithAlpha(Graphics g, BufferedImage img, int alpha) {
+	public static void drawImageWithAlpha(Graphics2D g, BufferedImage img, int alpha) {
 		float[] edgeScales = { 1f, 1f, 1f, alpha / 255.0f };
 		float[] edgeOffsets = new float[4];
 
-		((Graphics2D) g).drawImage(img, new RescaleOp(edgeScales, edgeOffsets, null), 0, 0);
+		g.drawImage(img, new RescaleOp(edgeScales, edgeOffsets, null), 0, 0);
 	}
 
 	public static <T extends Element> Set<T> removeInvisibleElements(Set<T> elements,
@@ -588,7 +587,7 @@ public class CanvasUtils {
 		int width = Math.max(Stream.of(canvas).mapToInt(c -> c.getCanvasSize().width).sum(), 1);
 		int height = Stream.of(canvas).mapToInt(c -> c.getCanvasSize().height).max().orElse(1);
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = (Graphics2D) img.getGraphics();
+		Graphics2D g = img.createGraphics();
 		int x = 0;
 
 		for (ICanvas<?> c : canvas) {

@@ -1262,7 +1262,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		}
 
 		@Override
-		public void paint(Graphics g) {
+		public void paint(Graphics graphics) {
+			Graphics2D g = (Graphics2D) graphics;
+
 			if (getLabel() != null && !getLabel().isEmpty()) {
 				paintLabel(g);
 			}
@@ -1274,12 +1276,15 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 			}
 
 			if (toImage) {
+				Color currentColor = g.getColor();
+
 				g.setColor(Color.BLACK);
 				g.drawRect(0, 0, getCanvasSize().width - 1, getCanvasSize().height - 1);
+				g.setColor(currentColor);
 			}
 		}
 
-		private void paintLabel(Graphics g) {
+		private void paintLabel(Graphics2D g) {
 			int w = getCanvasSize().width;
 			Font font = new Font("Default", Font.BOLD, 10);
 			int fontHeight = g.getFontMetrics(font).getHeight();
@@ -1287,7 +1292,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 			int dy = 2;
 
 			int dx = 5;
-			int sw = (int) font.getStringBounds(getLabel(), ((Graphics2D) g).getFontRenderContext()).getWidth();
+			int sw = (int) font.getStringBounds(getLabel(), g.getFontRenderContext()).getWidth();
+			Color currentColor = g.getColor();
+			Font currentFont = g.getFont();
 
 			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
 			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
@@ -1295,6 +1302,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
 			g.setFont(font);
 			g.drawString(getLabel(), w - sw - dx, dy + fontAscent);
+
+			g.setColor(currentColor);
+			g.setFont(currentFont);
 		}
 	}
 }

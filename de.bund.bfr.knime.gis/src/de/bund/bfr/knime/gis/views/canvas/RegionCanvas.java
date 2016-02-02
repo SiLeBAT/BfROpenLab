@@ -20,7 +20,7 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -107,7 +107,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
 		RegionCanvasUtils.paintRegions(g, nodes, getSelectedNodes(), nodeHighlightConditions);
 		super.paintGis(g, toSvg, false);
 	}

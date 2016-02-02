@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -122,7 +122,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 	}
 
 	@Override
-	protected void paintGis(Graphics g, boolean toSvg, boolean onWhiteBackground) {
+	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
 		super.paintGis(g, toSvg, onWhiteBackground);
 
 		if (invalidArea != null) {

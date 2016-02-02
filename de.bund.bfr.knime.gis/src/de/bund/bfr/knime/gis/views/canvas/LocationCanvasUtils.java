@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -177,10 +175,8 @@ public class LocationCanvasUtils {
 
 			Rectangle2D rect = new Rectangle2D.Double(bounds.getX() - d - r, bounds.getY() - d - r,
 					bounds.getWidth() + 2 * (d + r), bounds.getHeight() + 2 * (d + r));
-			Set<LocationNode> nodesToDo = new LinkedHashSet<>(invalidNodes);
 
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-				LocationNode node = iterator.next();
+			for (LocationNode node : new LinkedHashSet<>(invalidNodes)) {
 				Set<LocationNode> validConnections = invalidToValid.get(node);
 
 				if (!validConnections.isEmpty()) {
@@ -194,19 +190,18 @@ public class LocationCanvasUtils {
 
 					node.updateCenter(p);
 					layout.setLocation(node, p);
-					iterator.remove();
+					invalidNodes.remove(node);
 				}
 			}
 
 			while (true) {
 				boolean nothingChanged = true;
 
-				for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-					LocationNode node = iterator.next();
-					Set<LocationNode> inValidConnections = invalidToInvalid.get(node);
+				for (LocationNode node : new LinkedHashSet<>(invalidNodes)) {
+					Set<LocationNode> invalidConnections = invalidToInvalid.get(node);
 					List<Point2D> points = new ArrayList<>();
 
-					for (LocationNode n : inValidConnections) {
+					for (LocationNode n : invalidConnections) {
 						if (n.getCenter() != null) {
 							points.add(n.getCenter());
 						}
@@ -217,7 +212,7 @@ public class LocationCanvasUtils {
 
 						node.updateCenter(p);
 						layout.setLocation(node, p);
-						iterator.remove();
+						invalidNodes.remove(node);
 						nothingChanged = false;
 					}
 				}
@@ -227,28 +222,26 @@ public class LocationCanvasUtils {
 				}
 			}
 
-			for (Iterator<LocationNode> iterator = nodesToDo.iterator(); iterator.hasNext();) {
-				LocationNode node = iterator.next();
+			for (LocationNode node : invalidNodes) {
 				Point2D p = new Point2D.Double(bounds.getMinX() - d - r, bounds.getMaxY() - d - r);
 
 				node.updateCenter(p);
 				layout.setLocation(node, p);
-				iterator.remove();
 			}
 		}
 
 		return invalidArea;
 	}
 
-	public static void paintNonLatLonArea(Graphics g, int w, int h, Shape invalidArea) {
+	public static void paintNonLatLonArea(Graphics2D g, int w, int h, Shape invalidArea) {
 		BufferedImage invalidAreaImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics imgGraphics = invalidAreaImage.getGraphics();
+		Graphics2D imgGraphics = invalidAreaImage.createGraphics();
 
-		((Graphics2D) imgGraphics).setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
+		imgGraphics.setPaint(CanvasUtils.mixColors(Color.WHITE, Arrays.asList(Color.RED, Color.WHITE),
 				Arrays.asList(1.0, 1.0), false));
-		((Graphics2D) imgGraphics).fill(invalidArea);
+		imgGraphics.fill(invalidArea);
 		imgGraphics.setColor(Color.BLACK);
-		((Graphics2D) imgGraphics).draw(invalidArea);
+		imgGraphics.draw(invalidArea);
 		CanvasUtils.drawImageWithAlpha(g, invalidAreaImage, 75);
 		invalidAreaImage.flush();
 	}
