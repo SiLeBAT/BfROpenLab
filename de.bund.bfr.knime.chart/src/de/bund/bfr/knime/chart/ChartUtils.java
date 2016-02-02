@@ -89,7 +89,7 @@ public class ChartUtils {
 
 			g.dispose();
 			document.replaceChild(g.getRoot(), document.getDocumentElement());
-			return new ImagePortObject(new SvgImageContent(document, true), new ImagePortObjectSpec(SvgCell.TYPE));
+			return new ImagePortObject(new SvgImageContent(document), new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			try {
 				BufferedImage img = chart != null ? chart.createBufferedImage(width, height)

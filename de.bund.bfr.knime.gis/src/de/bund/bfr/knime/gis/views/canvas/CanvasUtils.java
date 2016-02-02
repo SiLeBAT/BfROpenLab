@@ -626,7 +626,7 @@ public class CanvasUtils {
 
 	public static ImagePortObject getImage(boolean asSvg, ICanvas<?>... canvas) throws IOException {
 		if (asSvg) {
-			return new ImagePortObject(new SvgImageContent(CanvasUtils.getSvgDocument(canvas), true),
+			return new ImagePortObject(new SvgImageContent(CanvasUtils.getSvgDocument(canvas)),
 					new ImagePortObjectSpec(SvgCell.TYPE));
 		} else {
 			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
