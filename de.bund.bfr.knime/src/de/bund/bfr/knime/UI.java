@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -50,6 +51,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import com.google.common.collect.Iterables;
 
 import de.bund.bfr.knime.ui.KnimeDialog;
 
@@ -310,10 +313,8 @@ public class UI {
 	public static void setTooltip(JComponent c, String tooltip) {
 		c.setToolTipText("<html>" + tooltip.replace("\n", "<br>") + "</html>");
 
-		for (Component child : c.getComponents()) {
-			if (child instanceof JComponent) {
-				setTooltip((JComponent) child, tooltip);
-			}
+		for (JComponent child : Iterables.filter(Arrays.asList(c.getComponents()), JComponent.class)) {
+			setTooltip(child, tooltip);
 		}
 	}
 
@@ -341,14 +342,10 @@ public class UI {
 	}
 
 	public static ItemListener newItemSelectListener(ActionListener listener) {
-		return new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					listener.actionPerformed(
-							new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, e.getItem() + " selected"));
-				}
+		return e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				listener.actionPerformed(
+						new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, e.getItem() + " selected"));
 			}
 		};
 	}

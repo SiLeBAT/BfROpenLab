@@ -25,7 +25,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +37,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.Maps;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
@@ -392,22 +395,15 @@ public class ChartConfigPanel extends JPanel {
 		xBox.removeAllItems();
 
 		if (variablesX != null && !variablesX.isEmpty()) {
-			for (String var : variablesX) {
-				xBox.addItem(var);
-			}
-
+			variablesX.forEach(x -> xBox.addItem(x));
 			xBox.setSelectedIndex(0);
 		}
 
 		if (parameters != null && !parameters.isEmpty()) {
-			Map<String, List<Double>> paramMap = new LinkedHashMap<>();
-
-			for (String param : parameters) {
-				paramMap.put(param, new ArrayList<>(0));
-			}
-
 			outerParameterPanel.remove(parameterPanel);
-			parameterPanel = new VariablePanel(paramMap, minValues, maxValues, false, true, true);
+			parameterPanel = new VariablePanel(
+					Maps.asMap(new LinkedHashSet<>(parameters), Functions.constant(new ArrayList<>())), minValues,
+					maxValues, false, true, true);
 			parameterPanel.addValueListener(e -> configChanged());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 

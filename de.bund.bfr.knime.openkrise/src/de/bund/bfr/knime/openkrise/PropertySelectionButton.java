@@ -132,7 +132,7 @@ public class PropertySelectionButton extends JButton implements PropertySelector
 		}
 
 		if (!otherProperties.isEmpty()) {
-			result.put("Other", KnimeUtils.OBJECT_ORDERING.sortedCopy(otherProperties));
+			result.put("Other", KnimeUtils.ORDERING.sortedCopy(otherProperties));
 		}
 
 		return result;

@@ -20,8 +20,6 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -96,8 +94,8 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false, true);
-		configPanel.init(reader.getDepVar(),
-				new ArrayList<>(NlsChartUtils.getVariables(reader.getPlotables().values())), null, null, null);
+		configPanel.init(reader.getDepVar(), NlsChartUtils.getOrderedVariables(reader.getPlotables().values()), null,
+				null, null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());

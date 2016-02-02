@@ -900,7 +900,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		}
 
 		ListFilterDialog<Object> dialog = new ListFilterDialog<>(this,
-				KnimeUtils.OBJECT_ORDERING.sortedCopy(nodesByProperty.keySet()));
+				KnimeUtils.ORDERING.sortedCopy(nodesByProperty.keySet()));
 
 		dialog.setVisible(true);
 

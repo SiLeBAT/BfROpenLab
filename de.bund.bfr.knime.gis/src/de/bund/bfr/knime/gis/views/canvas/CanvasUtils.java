@@ -147,7 +147,7 @@ public class CanvasUtils {
 		List<HighlightCondition> conditions = new ArrayList<>();
 		int index = 0;
 
-		for (Object category : KnimeUtils.OBJECT_ORDERING.sortedCopy(categories)) {
+		for (Object category : KnimeUtils.ORDERING.sortedCopy(categories)) {
 			Color color = COLORS[index++ % COLORS.length];
 			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
 					LogicalHighlightCondition.EQUAL_TYPE, category.toString());

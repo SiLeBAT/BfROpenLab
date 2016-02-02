@@ -20,8 +20,11 @@
 package de.bund.bfr.knime.nls.chart;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import de.bund.bfr.knime.KnimeUtils;
 
 public class NlsChartUtils {
 
@@ -34,23 +37,8 @@ public class NlsChartUtils {
 	private NlsChartUtils() {
 	}
 
-	public static Set<String> getVariables(Collection<Plotable> plotables) {
-		Set<String> variables = new LinkedHashSet<>();
-
-		for (Plotable plotable : plotables) {
-			variables.addAll(plotable.getIndependentVariables().keySet());
-		}
-
-		return variables;
-	}
-
-	public static Set<String> getParameters(Collection<Plotable> plotables) {
-		Set<String> parameters = new LinkedHashSet<>();
-
-		for (Plotable plotable : plotables) {
-			parameters.addAll(plotable.getParameters().keySet());
-		}
-
-		return parameters;
+	public static List<String> getOrderedVariables(Collection<Plotable> plotables) {
+		return KnimeUtils.ORDERING.sortedCopy(plotables.stream().map(p -> p.getIndependentVariables().keySet())
+				.flatMap(Set::stream).collect(Collectors.toSet()));
 	}
 }

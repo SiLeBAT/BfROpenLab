@@ -52,7 +52,7 @@ import de.bund.bfr.knime.ui.Dialogs;
 
 public class KnimeUtils {
 
-	public static final Ordering<Object> OBJECT_ORDERING = Ordering.from((o1, o2) -> {
+	public static final Ordering<Object> ORDERING = Ordering.from((o1, o2) -> {
 		if (o1 == o2) {
 			return 0;
 		} else if (o1 == null) {

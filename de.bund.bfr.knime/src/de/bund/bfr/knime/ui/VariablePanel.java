@@ -88,13 +88,9 @@ public class VariablePanel extends JPanel {
 				DoubleTextField input = new DoubleTextField(false, 8);
 				JSlider slider = new JSlider(0, SLIDER_MAX);
 				JButton rangeButton = new JButton("Set Limits");
-				Double value = null;
+				Double value = !entry.getValue().isEmpty() ? entry.getValue().get(0) : null;
 				Double min = this.minValues.get(var);
 				Double max = this.maxValues.get(var);
-
-				if (!entry.getValue().isEmpty()) {
-					value = entry.getValue().get(0);
-				}
 
 				if (value == null) {
 					if (min != null) {
