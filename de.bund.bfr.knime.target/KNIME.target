@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="9">
+<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="13">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -7,27 +7,27 @@
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.2.0.v201512012219"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.2.3.v201601291159"/>
 <repository location="http://update.knime.org/server/4.2"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.knime.knip.feature.feature.group" version="1.4.1.201601071342"/>
+<unit id="org.knime.knip.feature.feature.group" version="1.4.1.201602020712"/>
 <unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.3.0.v201512011223"/>
 <repository location="http://tech.knime.org/update/community-contributions/trusted/3.1"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.knime.features.reporting.designer.feature.group" version="3.1.0.v201511131603"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.1.0.v201511131603"/>
-<unit id="org.knime.features.ext.poi.feature.group" version="3.1.0.v201511232105"/>
+<unit id="org.knime.features.ext.poi.feature.group" version="3.1.1.v201601291109"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.1.0.v201511232105"/>
 <unit id="org.knime.features.xml.feature.group" version="3.1.0.v201511061023"/>
 <unit id="org.knime.features.js.views.feature.group" version="3.1.0.v201512021347"/>
 <unit id="org.knime.features.network.feature.group" version="3.1.0.v201511241214"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.1.0.v201512012046"/>
-<unit id="org.knime.features.js.quickforms.feature.group" version="3.1.0.v201512021139"/>
+<unit id="org.knime.features.js.quickforms.feature.group" version="3.1.1.v201601281239"/>
 <unit id="org.knime.features.ext.jep.feature.group" version="3.1.0.v201511241214"/>
 <unit id="org.knime.features.network.source.feature.group" version="3.1.0.v201511241214"/>
-<unit id="org.knime.features.testingapplication.feature.group" version="3.1.0.v201512011302"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.1.1.v201601281711"/>
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
 </locations>
