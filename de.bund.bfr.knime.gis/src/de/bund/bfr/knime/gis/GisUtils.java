@@ -118,15 +118,7 @@ public class GisUtils {
 	}
 
 	public static List<DataColumnSpec> getShapeColumns(DataTableSpec spec) {
-		List<DataColumnSpec> columns = new ArrayList<>();
-
-		for (DataColumnSpec column : spec) {
-			if (column.getType() == ShapeBlobCell.TYPE) {
-				columns.add(column);
-			}
-		}
-
-		return columns;
+		return KnimeUtils.streamOf(spec).filter(c -> c.getType() == ShapeBlobCell.TYPE).collect(Collectors.toList());
 	}
 
 	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {

@@ -69,6 +69,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
@@ -284,9 +285,8 @@ public class GeocodingNodeModel extends NodeModel {
 			results.add(new GeocodingResult(url.replace(mapQuestKey, "XXXXXX"), getValue(doc, location + "/street"),
 					getValue(doc, location + "/adminArea5"), getValue(doc, location + "/adminArea4"),
 					getValue(doc, location + "/adminArea3"), getValue(doc, location + "/adminArea1"),
-					getValue(doc, location + "/postalCode"),
-					Double.parseDouble(getValue(doc, location + "/latLng/lat")),
-					Double.parseDouble(getValue(doc, location + "/latLng/lng"))));
+					getValue(doc, location + "/postalCode"), Doubles.tryParse(getValue(doc, location + "/latLng/lat")),
+					Doubles.tryParse(getValue(doc, location + "/latLng/lng"))));
 		}
 
 		return getIndex(address, results, new GeocodingResult(url.replace(mapQuestKey, "XXXXXX")));
@@ -334,8 +334,8 @@ public class GeocodingNodeModel extends NodeModel {
 			results.add(
 					new GeocodingResult(url, getValue(doc, location + "/streetName"), getValue(doc, location + "/city"),
 							null, getValue(doc, location + "/state"), getValue(doc, location + "/countryCode"),
-							getValue(doc, location + "/zipCode"), Double.parseDouble(getValue(doc, location + "/lat")),
-							Double.parseDouble(getValue(doc, location + "/lng"))));
+							getValue(doc, location + "/zipCode"), Doubles.tryParse(getValue(doc, location + "/lat")),
+							Doubles.tryParse(getValue(doc, location + "/lng"))));
 		}
 
 		return getIndex(address + ", " + countryCode, results, new GeocodingResult(url));
@@ -370,7 +370,7 @@ public class GeocodingNodeModel extends NodeModel {
 			results.add(new GeocodingResult(url.replace(uuid, "XXXXXX"), getValue(doc, location + "/strasse"),
 					getValue(doc, location + "/ort"), getValue(doc, location + "/kreis"),
 					getValue(doc, location + "/bundesland"), DE, getValue(doc, location + "/plz"),
-					Double.parseDouble(pos[1]), Double.parseDouble(pos[0])));
+					Doubles.tryParse(pos[1]), Doubles.tryParse(pos[0])));
 		}
 
 		return getIndex(address, results, new GeocodingResult(url.replace(uuid, "XXXXXX")));

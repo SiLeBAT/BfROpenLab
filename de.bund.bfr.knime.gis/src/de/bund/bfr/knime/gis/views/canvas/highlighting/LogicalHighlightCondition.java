@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
@@ -90,11 +91,7 @@ public class LogicalHighlightCondition implements Serializable {
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
 		Map<T, Double> values = new LinkedHashMap<>();
 
-		try {
-			doubleValue = Double.parseDouble(value);
-		} catch (NullPointerException | NumberFormatException e) {
-			doubleValue = null;
-		}
+		doubleValue = value != null ? Doubles.tryParse(value) : null;
 
 		if (value == null) {
 			booleanValue = null;

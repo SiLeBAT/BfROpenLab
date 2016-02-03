@@ -31,8 +31,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.swing.SwingUtilities;
 
@@ -43,9 +45,6 @@ import org.knime.core.data.DataValue;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.util.FileUtil;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.ui.Dialogs;
@@ -75,55 +74,21 @@ public class KnimeUtils {
 	private KnimeUtils() {
 	}
 
-	public static String listToString(List<?> list) {
-		return Joiner.on(",").useForNull("null").join(list);
-	}
-
-	public static List<String> stringToList(String s) {
-		return Lists.newArrayList(Splitter.on(",").omitEmptyStrings().split(s));
-	}
-
-	public static List<Double> stringToDoubleList(String s) {
-		List<Double> doubleList = new ArrayList<>();
-
-		for (String value : stringToList(s)) {
-			try {
-				doubleList.add(Double.parseDouble(value));
-			} catch (NumberFormatException e) {
-				doubleList.add(null);
-			}
-		}
-
-		return doubleList;
-	}
-
 	public static File getFile(String fileName) throws InvalidPathException, MalformedURLException {
 		return FileUtil.getFileFromURL(FileUtil.toURL(fileName));
 	}
 
 	public static List<DataColumnSpec> getColumns(DataTableSpec spec, DataType... types) {
-		List<DataColumnSpec> columns = new ArrayList<>();
+		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> t.equals(c.getType()));
 
-		for (DataColumnSpec column : spec) {
-			if (Stream.of(types).anyMatch(t -> t.equals(column.getType()))) {
-				columns.add(column);
-			}
-		}
-
-		return columns;
+		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
 	public static List<DataColumnSpec> getColumns(DataTableSpec spec, Class<? extends DataValue>... types) {
-		List<DataColumnSpec> columns = new ArrayList<>();
+		Predicate<DataColumnSpec> isCompatible = c -> Stream.of(types).anyMatch(t -> c.getType().isCompatible(t));
 
-		for (DataColumnSpec column : spec) {
-			if (Stream.of(types).anyMatch(t -> column.getType().isCompatible(t))) {
-				columns.add(column);
-			}
-		}
-
-		return columns;
+		return KnimeUtils.streamOf(spec).filter(isCompatible).collect(Collectors.toList());
 	}
 
 	public static List<String> getColumnNames(List<DataColumnSpec> columns) {
@@ -186,5 +151,9 @@ public class KnimeUtils {
 
 			throw new NotConfigurableException(prefix + "Column \"" + columnName + "\" is missing");
 		}
+	}
+
+	public static <T> Stream<T> streamOf(Iterable<T> iterable) {
+		return StreamSupport.stream(iterable.spliterator(), false);
 	}
 }

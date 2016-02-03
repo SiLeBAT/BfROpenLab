@@ -26,7 +26,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class DiffFunctionCreatorSettings extends NlsNodeSettings {
@@ -54,22 +53,22 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			dependentVariables = KnimeUtils.stringToList(settings.getString(CFG_DEPENDENT_VARIABLES));
+			dependentVariables = BackwardUtils.stringToList(settings.getString(CFG_DEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			terms = KnimeUtils.stringToList(settings.getString(CFG_TERMS));
+			terms = BackwardUtils.stringToList(settings.getString(CFG_TERMS));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			initValues = KnimeUtils.stringToDoubleList(settings.getString(CFG_INIT_VALUES));
+			initValues = BackwardUtils.stringToDoubleList(settings.getString(CFG_INIT_VALUES));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			independentVariables = KnimeUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
+			independentVariables = BackwardUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -81,10 +80,10 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_DEPENDENT_VARIABLES, KnimeUtils.listToString(dependentVariables));
-		settings.addString(CFG_TERMS, KnimeUtils.listToString(terms));
-		settings.addString(CFG_INIT_VALUES, KnimeUtils.listToString(initValues));
-		settings.addString(CFG_INDEPENDENT_VARIABLES, KnimeUtils.listToString(independentVariables));
+		settings.addString(CFG_DEPENDENT_VARIABLES, BackwardUtils.listToString(dependentVariables));
+		settings.addString(CFG_TERMS, BackwardUtils.listToString(terms));
+		settings.addString(CFG_INIT_VALUES, BackwardUtils.listToString(initValues));
+		settings.addString(CFG_INDEPENDENT_VARIABLES, BackwardUtils.listToString(independentVariables));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
 	}
 
