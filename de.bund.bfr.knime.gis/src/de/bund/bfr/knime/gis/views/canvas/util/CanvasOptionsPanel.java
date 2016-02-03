@@ -489,9 +489,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void nodeSizeChanged() {
-		String sizeString = nodeSizeBox.getSelectedItem().toString();
+		String sizeString = nodeSizeBox.getSelectedItem().toString().trim();
 
-		if (sizeString.trim().isEmpty()) {
+		if (sizeString.isEmpty()) {
 			Dialogs.showErrorMessage(nodeSizeBox, "No value specified", "Error");
 			nodeSizeBox.setSelectedItem(nodeSize);
 		} else {
@@ -518,9 +518,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void nodeMaxSizeChanged() {
-		String sizeString = nodeMaxSizeBox.getSelectedItem().toString();
+		String sizeString = nodeMaxSizeBox.getSelectedItem().toString().trim();
 
-		if (sizeString.trim().isEmpty()) {
+		if (sizeString.isEmpty()) {
 			nodeMaxSize = "";
 			listeners.forEach(l -> l.nodeSizeChanged());
 		} else {
@@ -543,9 +543,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void edgeThicknessChanged() {
-		String sizeString = edgeThicknessBox.getSelectedItem().toString();
+		String sizeString = edgeThicknessBox.getSelectedItem().toString().trim();
 
-		if (sizeString.trim().isEmpty()) {
+		if (sizeString.isEmpty()) {
 			Dialogs.showErrorMessage(edgeThicknessBox, "No value specified", "Error");
 			edgeThicknessBox.setSelectedItem(edgeThickness);
 		} else {
@@ -572,9 +572,9 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void edgeMaxThicknessChanged() {
-		String sizeString = edgeMaxThicknessBox.getSelectedItem().toString();
+		String sizeString = edgeMaxThicknessBox.getSelectedItem().toString().trim();
 
-		if (sizeString.trim().isEmpty()) {
+		if (sizeString.isEmpty()) {
 			edgeMaxThickness = "";
 			listeners.forEach(l -> l.edgeThicknessChanged());
 		} else {

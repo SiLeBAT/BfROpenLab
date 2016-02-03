@@ -32,6 +32,8 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.google.common.base.Strings;
+
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -59,7 +61,7 @@ public class CanvasLegend<V extends Node> {
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
+			if (condition.isShowInLegend() && !Strings.isNullOrEmpty(name) && color != null) {
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
 					nodeLegend.put(name + " [" + toRangeString(condition.getValueRange(nodes)) + "]",
@@ -74,7 +76,7 @@ public class CanvasLegend<V extends Node> {
 			String name = condition.getName();
 			Color color = condition.getColor();
 
-			if (condition.isShowInLegend() && name != null && !name.isEmpty() && color != null) {
+			if (condition.isShowInLegend() && !Strings.isNullOrEmpty(name) && color != null) {
 				if (condition instanceof ValueHighlightCondition
 						|| condition instanceof LogicalValueHighlightCondition) {
 					edgeLegend.put(name + " [" + toRangeString(condition.getValueRange(edges)) + "]",

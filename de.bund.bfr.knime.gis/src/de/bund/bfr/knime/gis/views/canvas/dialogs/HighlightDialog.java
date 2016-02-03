@@ -46,6 +46,8 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
+import com.google.common.base.Strings;
+
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
@@ -474,7 +476,7 @@ public class HighlightDialog extends KnimeDialog {
 	private HighlightCondition createCondition() {
 		boolean invisible = allowInvisible && invisibleBox.isSelected();
 		boolean useThickness = allowThickness && thicknessBox.isSelected();
-		String name = allowName && !nameField.getText().isEmpty() ? nameField.getText() : null;
+		String name = allowName ? Strings.emptyToNull(nameField.getText().trim()) : null;
 		boolean showInLegend = allowColor && legendBox.isEnabled() && legendBox.isSelected();
 		Color color = null;
 		String labelProperty = null;

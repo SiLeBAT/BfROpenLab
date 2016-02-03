@@ -266,7 +266,7 @@ public class GeocodingNodeModel extends NodeModel {
 		String mapQuestKey = Activator.getDefault().getPreferenceStore()
 				.getString(GeocodingPreferencePage.MAPQUEST_KEY);
 
-		if (mapQuestKey == null || mapQuestKey.isEmpty()) {
+		if (Strings.isNullOrEmpty(mapQuestKey)) {
 			throw new InvalidSettingsException(
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
@@ -350,7 +350,7 @@ public class GeocodingNodeModel extends NodeModel {
 
 		String uuid = Activator.getDefault().getPreferenceStore().getString(GeocodingPreferencePage.BKG_UUID);
 
-		if (uuid == null || uuid.isEmpty()) {
+		if (Strings.isNullOrEmpty(uuid)) {
 			throw new InvalidSettingsException("UUID in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 

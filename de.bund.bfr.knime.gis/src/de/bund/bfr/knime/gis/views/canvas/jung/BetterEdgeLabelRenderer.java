@@ -25,6 +25,8 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
+import com.google.common.base.Strings;
+
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -34,7 +36,7 @@ public class BetterEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 
 	@Override
 	public void labelEdge(RenderContext<V, E> rc, Layout<V, E> layout, E e, String label) {
-		if (label == null || label.isEmpty()) {
+		if (Strings.isNullOrEmpty(label)) {
 			return;
 		}
 

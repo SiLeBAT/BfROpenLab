@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
 
@@ -173,7 +174,7 @@ public class LogicalHighlightCondition implements Serializable {
 		} else if (nodeValue instanceof String && value != null) {
 			return ((String) nodeValue).equalsIgnoreCase(value);
 		} else if (nodeValue == null || (nodeValue instanceof String && ((String) nodeValue).isEmpty())) {
-			return value == null || value.isEmpty();
+			return Strings.isNullOrEmpty(value);
 		} else {
 			return false;
 		}
@@ -202,7 +203,7 @@ public class LogicalHighlightCondition implements Serializable {
 
 			return matcher.matches();
 		} else if (nodeValue == null) {
-			return value == null || value.isEmpty();
+			return Strings.isNullOrEmpty(value);
 		} else {
 			return false;
 		}

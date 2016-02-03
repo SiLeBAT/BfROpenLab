@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -1265,7 +1266,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		public void paint(Graphics graphics) {
 			Graphics2D g = (Graphics2D) graphics;
 
-			if (getLabel() != null && !getLabel().isEmpty()) {
+			if (!Strings.isNullOrEmpty(getLabel())) {
 				paintLabel(g);
 			}
 

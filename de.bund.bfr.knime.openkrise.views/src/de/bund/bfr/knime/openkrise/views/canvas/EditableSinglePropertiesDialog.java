@@ -146,7 +146,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 	}
 
 	private void okButtonPressed() {
-		if (caseField.getText().isEmpty()) {
+		if (caseField.getText().trim().isEmpty()) {
 			element.getProperties().put(TracingColumns.WEIGHT, 0.0);
 		} else {
 			try {
