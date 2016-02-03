@@ -20,12 +20,16 @@
 package de.bund.bfr.knime.nls.creator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class DiffFunctionCreatorSettings extends NlsNodeSettings {
@@ -53,23 +57,40 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			dependentVariables = BackwardUtils.stringToList(settings.getString(CFG_DEPENDENT_VARIABLES));
+			dependentVariables = Arrays.asList(settings.getStringArray(CFG_DEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
+			try {
+				dependentVariables = BackwardUtils.stringToList(settings.getString(CFG_DEPENDENT_VARIABLES));
+			} catch (InvalidSettingsException ex) {
+			}
 		}
 
 		try {
-			terms = BackwardUtils.stringToList(settings.getString(CFG_TERMS));
+			terms = Arrays.asList(settings.getStringArray(CFG_TERMS));
 		} catch (InvalidSettingsException e) {
+			try {
+				terms = BackwardUtils.stringToList(settings.getString(CFG_TERMS));
+			} catch (InvalidSettingsException ex) {
+			}
 		}
 
 		try {
-			initValues = BackwardUtils.stringToDoubleList(settings.getString(CFG_INIT_VALUES));
+			initValues = DoubleStream.of(settings.getDoubleArray(CFG_INIT_VALUES)).mapToObj(NodeSettings::nanToNull)
+					.collect(Collectors.toList());
 		} catch (InvalidSettingsException e) {
+			try {
+				initValues = BackwardUtils.stringToDoubleList(settings.getString(CFG_INIT_VALUES));
+			} catch (InvalidSettingsException ex) {
+			}
 		}
 
 		try {
-			independentVariables = BackwardUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
+			independentVariables = Arrays.asList(settings.getStringArray(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
+			try {
+				independentVariables = BackwardUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
+			} catch (InvalidSettingsException ex) {
+			}
 		}
 
 		try {
@@ -80,10 +101,10 @@ public class DiffFunctionCreatorSettings extends NlsNodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_DEPENDENT_VARIABLES, BackwardUtils.listToString(dependentVariables));
-		settings.addString(CFG_TERMS, BackwardUtils.listToString(terms));
-		settings.addString(CFG_INIT_VALUES, BackwardUtils.listToString(initValues));
-		settings.addString(CFG_INDEPENDENT_VARIABLES, BackwardUtils.listToString(independentVariables));
+		settings.addStringArray(CFG_DEPENDENT_VARIABLES, dependentVariables.toArray(new String[0]));
+		settings.addStringArray(CFG_TERMS, terms.toArray(new String[0]));
+		settings.addDoubleArray(CFG_INIT_VALUES, initValues.stream().mapToDouble(NodeSettings::nullToNan).toArray());
+		settings.addStringArray(CFG_INDEPENDENT_VARIABLES, independentVariables.toArray(new String[0]));
 		settings.addString(CFG_DIFF_VARIABLE, diffVariable);
 	}
 

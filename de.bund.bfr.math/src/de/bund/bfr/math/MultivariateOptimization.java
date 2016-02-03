@@ -44,6 +44,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.nfunk.jep.ParseException;
 
+import com.google.common.collect.ObjectArrays;
+
 public class MultivariateOptimization implements Optimization {
 
 	private static final double EPSILON = 0.00001;
@@ -62,7 +64,7 @@ public class MultivariateOptimization implements Optimization {
 	public MultivariateOptimization(String formula, String[] parameters, double[] targetValues,
 			Map<String, double[]> variableValues, double levelOfDetection) throws ParseException {
 		sdParam = Stream.of(parameters).collect(Collectors.joining());
-		this.parameters = Stream.concat(Stream.of(parameters), Stream.of(sdParam)).toArray(String[]::new);
+		this.parameters = ObjectArrays.concat(parameters, sdParam);
 		optimizerFunction = new LodFunction(formula, this.parameters, variableValues, targetValues, levelOfDetection,
 				sdParam);
 		minValues = new LinkedHashMap<>();

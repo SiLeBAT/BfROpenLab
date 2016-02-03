@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.creator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
@@ -30,10 +29,6 @@ import com.google.common.primitives.Doubles;
 public class BackwardUtils {
 
 	private BackwardUtils() {
-	}
-
-	public static String listToString(List<?> list) {
-		return Joiner.on(",").useForNull("null").join(list);
 	}
 
 	public static List<String> stringToList(String s) {

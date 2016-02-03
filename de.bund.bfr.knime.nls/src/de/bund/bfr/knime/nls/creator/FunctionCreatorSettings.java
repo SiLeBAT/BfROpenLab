@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.nls.creator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -57,8 +58,12 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 		}
 
 		try {
-			independentVariables = BackwardUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
+			independentVariables = Arrays.asList(settings.getStringArray(CFG_INDEPENDENT_VARIABLES));
 		} catch (InvalidSettingsException e) {
+			try {
+				independentVariables = BackwardUtils.stringToList(settings.getString(CFG_INDEPENDENT_VARIABLES));
+			} catch (InvalidSettingsException ex) {
+			}
 		}
 	}
 
@@ -66,7 +71,7 @@ public class FunctionCreatorSettings extends NlsNodeSettings {
 	public void saveSettings(NodeSettingsWO settings) {
 		settings.addString(CFG_DEPENDENT_VARIABLE, dependentVariable);
 		settings.addString(CFG_TERM, term);
-		settings.addString(CFG_INDEPENDENT_VARIABLES, BackwardUtils.listToString(independentVariables));
+		settings.addStringArray(CFG_INDEPENDENT_VARIABLES, independentVariables.toArray(new String[0]));
 	}
 
 	public String getDependentVariable() {
