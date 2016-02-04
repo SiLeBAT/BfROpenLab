@@ -27,6 +27,7 @@ import java.util.Set;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
@@ -34,7 +35,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public interface ICanvas<V extends Node> {
@@ -156,7 +156,7 @@ public interface ICanvas<V extends Node> {
 
 	void setTransform(Transform transform);
 
-	VisualizationViewer<V, Edge<V>> getViewer();
+	BetterVisualizationViewer<V, Edge<V>> getViewer();
 
 	VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg);
 

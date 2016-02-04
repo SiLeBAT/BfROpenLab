@@ -89,7 +89,6 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
@@ -160,7 +159,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 				.addChangeListener(e -> transformChanged());
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(this.nodes, this.edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, this.nodes, this.edges));
 		viewer.setPickSupport(new BetterShapePickSupport<>(viewer));
 
 		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
@@ -1012,7 +1011,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	}
 
 	@Override
-	public VisualizationViewer<V, Edge<V>> getViewer() {
+	public BetterVisualizationViewer<V, Edge<V>> getViewer() {
 		return viewer;
 	}
 
@@ -1068,7 +1067,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		applyJoinEdgesAndSkipEdgeless();
 		applyShowEdgesInMetaNode();
 		applyHighlights();
-		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(nodes, edges));
+		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, nodes, edges));
 
 		setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		setSelectedEdgeIdsWithoutListener(selectedEdgeIds);

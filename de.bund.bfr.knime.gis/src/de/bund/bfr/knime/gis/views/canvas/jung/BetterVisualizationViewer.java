@@ -30,6 +30,7 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.LayoutDecorator;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.util.ChangeEventSupport;
 import edu.uci.ics.jung.visualization.util.DefaultChangeEventSupport;
@@ -39,7 +40,8 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 	private static final long serialVersionUID = 1L;
 
 	public BetterVisualizationViewer() {
-		super(new StaticLayout<>(new BetterDirectedSparseMultigraph<>()));
+		super(new StaticLayout<>(new DirectedSparseMultigraph<>()));
+		getGraphLayout().setGraph(new BetterDirectedSparseMultigraph<>(this));
 		setDoubleBuffered(true);
 	}
 

@@ -342,7 +342,8 @@ public class TracingDelegate<V extends Node> {
 		applyTracing();
 		canvas.applyShowEdgesInMetaNode();
 		canvas.applyHighlights();
-		canvas.getViewer().getGraphLayout().setGraph(CanvasUtils.createGraph(canvas.getNodes(), canvas.getEdges()));
+		canvas.getViewer().getGraphLayout()
+				.setGraph(CanvasUtils.createGraph(canvas.getViewer(), canvas.getNodes(), canvas.getEdges()));
 
 		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);

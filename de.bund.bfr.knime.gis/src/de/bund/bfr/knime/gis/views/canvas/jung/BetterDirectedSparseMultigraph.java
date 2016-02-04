@@ -19,7 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.jung;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
@@ -27,8 +31,19 @@ public class BetterDirectedSparseMultigraph<V, E> extends DirectedSparseMultigra
 
 	private static final long serialVersionUID = 1L;
 
-	public BetterDirectedSparseMultigraph() {
+	private BetterVisualizationViewer<V, E> owner;
+
+	public BetterDirectedSparseMultigraph(BetterVisualizationViewer<V, E> owner) {
+		this.owner = owner;
 		vertices = new LinkedHashMap<>();
 		edges = new LinkedHashMap<>();
+	}
+
+	@Override
+	public Collection<V> getVertices() {
+		Set<V> picked = owner.getPickedVertexState().getPicked();
+		Set<V> unPicked = Sets.difference(vertices.keySet(), picked);
+
+		return Sets.union(unPicked, picked);
 	}
 }
