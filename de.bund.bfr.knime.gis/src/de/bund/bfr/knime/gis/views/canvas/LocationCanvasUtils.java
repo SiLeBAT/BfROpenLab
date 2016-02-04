@@ -38,8 +38,6 @@ import java.util.Set;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 import com.vividsolutions.jts.geom.Polygon;
 
 import de.bund.bfr.knime.PointUtils;
@@ -248,28 +246,10 @@ public class LocationCanvasUtils {
 
 	public static LocationNode createMetaNode(String id, Collection<LocationNode> nodes, NodePropertySchema nodeSchema,
 			String metaNodeProperty, Layout<LocationNode, Edge<LocationNode>> layout) {
-		Map<String, Object> properties = new LinkedHashMap<>();
-
-		for (LocationNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema, node.getProperties());
-		}
-
-		properties.put(nodeSchema.getId(), id);
-		properties.put(metaNodeProperty, true);
-		properties.put(nodeSchema.getLatitude(), null);
-		properties.put(nodeSchema.getLongitude(), null);
-
-		List<Double> xList = new ArrayList<>();
-		List<Double> yList = new ArrayList<>();
-
-		for (LocationNode node : nodes) {
-			xList.add(node.getCenter().getX());
-			yList.add(node.getCenter().getY());
-		}
-
-		double x = DoubleMath.mean(Doubles.toArray(xList));
-		double y = DoubleMath.mean(Doubles.toArray(yList));
-		LocationNode newNode = new LocationNode(id, properties, new Point2D.Double(x, y));
+		double x = nodes.stream().mapToDouble(n -> n.getCenter().getX()).average().getAsDouble();
+		double y = nodes.stream().mapToDouble(n -> n.getCenter().getY()).average().getAsDouble();
+		LocationNode newNode = new LocationNode(id,
+				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty), new Point2D.Double(x, y));
 
 		layout.setLocation(newNode, newNode.getCenter());
 

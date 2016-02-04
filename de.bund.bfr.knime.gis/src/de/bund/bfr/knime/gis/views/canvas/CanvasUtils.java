@@ -80,6 +80,7 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterDirectedSparseMultigraph;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.graph.Graph;
@@ -178,7 +179,7 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
-			EdgePropertySchema properties, Set<String> usedIds) {
+			EdgePropertySchema schema, Set<String> usedIds) {
 		SetMultimap<Pair<V, V>, Edge<V>> edgeMap = LinkedHashMultimap.create();
 
 		for (Edge<V> edge : edges) {
@@ -191,20 +192,20 @@ public class CanvasUtils {
 		for (Map.Entry<Pair<V, V>, Set<Edge<V>>> entry : Multimaps.asMap(edgeMap).entrySet()) {
 			V from = entry.getKey().getFirst();
 			V to = entry.getKey().getSecond();
-			Map<String, Object> prop = new LinkedHashMap<>();
+			Map<String, Object> properties = new LinkedHashMap<>();
 
 			for (Edge<V> edge : entry.getValue()) {
-				CanvasUtils.addMapToMap(prop, properties, edge.getProperties());
+				CanvasUtils.addMapToMap(properties, schema, edge.getProperties());
 			}
 
-			while (!usedIds.add(index + "")) {
+			while (!usedIds.add(String.valueOf(index))) {
 				index++;
 			}
 
-			prop.put(properties.getId(), index + "");
-			prop.put(properties.getFrom(), from.getId());
-			prop.put(properties.getTo(), to.getId());
-			joined.put(new Edge<>(index + "", prop, from, to), entry.getValue());
+			properties.put(schema.getId(), String.valueOf(index));
+			properties.put(schema.getFrom(), from.getId());
+			properties.put(schema.getTo(), to.getId());
+			joined.put(new Edge<>(String.valueOf(index), properties, from, to), entry.getValue());
 		}
 
 		return joined;
@@ -258,6 +259,22 @@ public class CanvasUtils {
 				map.put(property, value);
 			}
 		}
+	}
+
+	public static Map<String, Object> joinPropertiesOfNodes(Collection<? extends Node> nodes, NodePropertySchema schema,
+			String id, String metaNodeProperty) {
+		Map<String, Object> properties = new LinkedHashMap<>();
+
+		for (Node node : nodes) {
+			addMapToMap(properties, schema, node.getProperties());
+		}
+
+		properties.put(schema.getId(), id);
+		properties.put(metaNodeProperty, true);
+		properties.put(schema.getLatitude(), null);
+		properties.put(schema.getLongitude(), null);
+
+		return properties;
 	}
 
 	public static <T extends Element> Set<T> getHighlightedElements(Collection<T> elements,

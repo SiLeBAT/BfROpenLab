@@ -178,18 +178,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	protected GraphNode createMetaNode(String id, Collection<GraphNode> nodes) {
-		Map<String, Object> properties = new LinkedHashMap<>();
-
-		for (GraphNode node : nodes) {
-			CanvasUtils.addMapToMap(properties, nodeSchema, node.getProperties());
-		}
-
-		properties.put(nodeSchema.getId(), id);
-		properties.put(metaNodeProperty, true);
-		properties.put(nodeSchema.getLatitude(), null);
-		properties.put(nodeSchema.getLongitude(), null);
-
-		GraphNode newNode = new GraphNode(id, properties);
+		GraphNode newNode = new GraphNode(id,
+				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty));
 
 		viewer.getGraphLayout().setLocation(newNode, PointUtils.getCenter(getNodePositions(nodes).values()));
 
