@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -169,9 +168,8 @@ public class HighlightDialog extends KnimeDialog {
 
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(
-					Arrays.asList(Arrays
-							.asList(new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-									LogicalHighlightCondition.EQUAL_TYPE, ""))),
+					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
+							LogicalHighlightCondition.EQUAL_TYPE, ""),
 					null, true, lastColor, false, false, null);
 		}
 
@@ -328,9 +326,9 @@ public class HighlightDialog extends KnimeDialog {
 
 	private JComponent createLogicalPanel(AndOrHighlightCondition condition) {
 		if (condition == null) {
-			condition = new AndOrHighlightCondition(Arrays.asList(
-					Arrays.asList(new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.EQUAL_TYPE, ""))),
+			condition = new AndOrHighlightCondition(
+					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
+							LogicalHighlightCondition.EQUAL_TYPE, ""),
 					null, false, null, false, false, null);
 		}
 

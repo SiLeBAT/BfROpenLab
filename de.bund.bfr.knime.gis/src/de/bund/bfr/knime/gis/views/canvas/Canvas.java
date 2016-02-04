@@ -819,7 +819,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
-		setSelectedNodeIdsWithoutListener(new LinkedHashSet<>(Arrays.asList(newId)));
+		setSelectedNodeIdsWithoutListener(Sets.newHashSet(newId));
 		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
@@ -929,7 +929,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		nodeSaveMap.keySet().removeAll(collapsedNodes.keySet());
 		collapsedNodes.clear();
 		applyChanges();
-		viewer.getPickedVertexState().clear();
 		popup.setNodeSelectionEnabled(false);
 		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}

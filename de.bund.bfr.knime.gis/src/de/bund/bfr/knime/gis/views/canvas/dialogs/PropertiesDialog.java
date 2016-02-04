@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas.dialogs;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import com.google.common.collect.Sets;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -97,13 +98,13 @@ public class PropertiesDialog<V extends Node> extends KnimeDialog {
 	public static <V extends Node> PropertiesDialog<V> createNodeDialog(ICanvas<V> parent, Collection<V> nodes,
 			NodePropertySchema schema, boolean allowViewSelection) {
 		return new PropertiesDialog<>(parent, nodes, schema, Type.NODE, allowViewSelection,
-				new LinkedHashSet<>(Arrays.asList(schema.getId())));
+				Sets.newHashSet(schema.getId()));
 	}
 
 	public static <V extends Node> PropertiesDialog<V> createEdgeDialog(ICanvas<V> parent, Collection<Edge<V>> edges,
 			EdgePropertySchema schema, boolean allowViewSelection) {
 		return new PropertiesDialog<>(parent, edges, schema, Type.EDGE, allowViewSelection,
-				new LinkedHashSet<>(Arrays.asList(schema.getId(), schema.getFrom(), schema.getTo())));
+				Sets.newHashSet(schema.getId(), schema.getFrom(), schema.getTo()));
 	}
 
 	@SuppressWarnings("unchecked")

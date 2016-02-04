@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.fitting;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +43,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
+
+import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.NlsUtils;
@@ -177,9 +178,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		chartCreator.addZoomListener(this);
 		createChart();
 
-		List<Component> leftComponents = new ArrayList<>(Arrays.asList(enforceLimitsBox,
-				new JLabel("Maximal Iterations in each run of Optimization Algorithm")));
-		List<Component> rightComponents = new ArrayList<>(Arrays.asList(new JLabel(), maxIterationsField));
+		List<Component> leftComponents = Lists.newArrayList(enforceLimitsBox,
+				new JLabel("Maximal Iterations in each run of Optimization Algorithm"));
+		List<Component> rightComponents = Lists.newArrayList(new JLabel(), maxIterationsField);
 
 		if (isDiff) {
 			leftComponents.add(fitAllAtOnceBox);

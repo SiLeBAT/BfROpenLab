@@ -50,6 +50,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import com.google.common.collect.Lists;
+
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
@@ -240,12 +242,11 @@ public class FittingNodeDialog extends NodeDialogPane {
 		interpolatorBox = new JComboBox<>(InterpolationFactory.Type.values());
 		interpolatorBox.setSelectedItem(set.getInterpolator());
 
-		List<Component> leftComps = new ArrayList<>(
-				Arrays.asList(new JLabel("Maximal Evaluations to Find Start Values"),
-						new JLabel("Maximal Executions of Optimization Algorithm"), stopWhenSuccessBox,
-						new JLabel("Maximal Iterations in each run of Optimization Algorithm")));
-		List<Component> rightComps = new ArrayList<>(
-				Arrays.asList(nParamSpaceField, nLevenbergField, new JLabel(), maxIterationsField));
+		List<Component> leftComps = Lists.newArrayList(new JLabel("Maximal Evaluations to Find Start Values"),
+				new JLabel("Maximal Executions of Optimization Algorithm"), stopWhenSuccessBox,
+				new JLabel("Maximal Iterations in each run of Optimization Algorithm"));
+		List<Component> rightComps = Lists.newArrayList(nParamSpaceField, nLevenbergField, new JLabel(),
+				maxIterationsField);
 
 		if (isDiff) {
 			leftComps.add(0, new JLabel("Integration Step Size"));

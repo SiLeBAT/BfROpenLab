@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.gis.geocode;
 
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -39,6 +38,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
+
+import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
@@ -144,11 +145,11 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	}
 
 	private void updatePanel() {
-		List<JLabel> addressLabels = new ArrayList<>(Arrays.asList(new JLabel("Address:")));
-		List<ColumnComboBox> addressBoxes = new ArrayList<>(Arrays.asList(addressBox));
-		List<JLabel> otherLabels = new ArrayList<>(
-				Arrays.asList(new JLabel("Delay between Request (ms):"), new JLabel("When multiple Results:")));
-		List<Component> otherFields = new ArrayList<>(Arrays.asList(delayField, multipleBox));
+		List<JLabel> addressLabels = Lists.newArrayList(new JLabel("Address:"));
+		List<ColumnComboBox> addressBoxes = Lists.newArrayList(addressBox);
+		List<JLabel> otherLabels = Lists.newArrayList(new JLabel("Delay between Request (ms):"),
+				new JLabel("When multiple Results:"));
+		List<Component> otherFields = Lists.newArrayList(delayField, multipleBox);
 
 		if (providerBox.getSelectedItem().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
 			addressLabels.add(new JLabel("Country Code:"));
