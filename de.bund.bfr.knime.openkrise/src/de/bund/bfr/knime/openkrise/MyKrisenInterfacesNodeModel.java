@@ -202,7 +202,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
 		if (!useSerialAsId)
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_SERIAL, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_HOUSENO, StringCell.TYPE).createSpec());
@@ -216,25 +216,24 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_DEADEND, BooleanCell.TYPE).createSpec());
 
 		if (containsValues(conn, STATION.VATNUMBER))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_VAT, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_VAT, StringCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.BETRIEBSART))
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_TOB, StringCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.ANZAHLFAELLE))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_NUMCASES, IntCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_NUMCASES, IntCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.DATUMBEGINN))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.STATION_DATESTART, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_DATESTART, StringCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.DATUMHOEHEPUNKT))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_DATEPEAK, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_DATEPEAK, StringCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.DATUMENDE))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_DATEEND, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_DATEEND, StringCell.TYPE).createSpec());
 		if (containsValues(conn, STATION.IMPORTSOURCES))
 			columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
 		// Backward Compatibility Stuff
 		if (set.isEnsureBackwardCompatibility()) {
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_NODE, StringCell.TYPE).createSpec());
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.STATION_COUNTY, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_NODE, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_COUNTY, StringCell.TYPE).createSpec());
 		}
 
 		// ExtraFields
@@ -262,15 +261,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		if (containsValues(conn, PRODUKTKATALOG.ARTIKELNUMMER))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNUM, StringCell.TYPE).createSpec());
 		if (containsValues(conn, PRODUKTKATALOG.PROZESSIERUNG))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_PROCESSING, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_PROCESSING, StringCell.TYPE).createSpec());
 		if (containsValues(conn, PRODUKTKATALOG.INTENDEDUSE))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_USAGE, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_USAGE, StringCell.TYPE).createSpec());
 		if (containsValues(conn, CHARGEN.MHD_DAY, CHARGEN.MHD_MONTH, CHARGEN.MHD_YEAR))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_DATEEXP, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_DATEEXP, StringCell.TYPE).createSpec());
 		if (containsValues(conn, CHARGEN.PD_DAY, CHARGEN.PD_MONTH, CHARGEN.PD_YEAR))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_DATEMANU, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_DATEMANU, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.UNITMENGE))
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_AMOUNT, DoubleCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.NUMPU)) {
@@ -279,28 +276,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_TYPE_PU, StringCell.TYPE).createSpec());
 		}
 		if (containsValues(conn, CHARGEN.ORIGINCOUNTRY))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_ORIGIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.ENDCHAIN))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_ENDCHAIN, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.EXPLANATION_ENDCHAIN))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_ENDCHAINWHY, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.CONTACT_QUESTIONS_REMARKS))
-			columns.add(new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_REMARKS, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.FURTHER_TRACEBACK))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_FURTHERTB, StringCell.TYPE).createSpec());
 		if (containsValues(conn, CHARGEN.MICROBIOSAMPLE))
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_MICROSAMPLE, StringCell.TYPE).createSpec());
 		if (containsValues(conn, LIEFERUNGEN.IMPORTSOURCES))
 			columns.add(new DataColumnSpecCreator(TracingColumns.FILESOURCES, StringCell.TYPE).createSpec());
 
 		// Backward Compatibility Stuff
 		if (set.isEnsureBackwardCompatibility()) {
-			columns.add(
-					new DataColumnSpecCreator(TracingBackwardUtils.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
+			columns.add(new DataColumnSpecCreator(BackwardUtils.DELIVERY_CHARGENUM, StringCell.TYPE).createSpec());
 		}
 
 		// ExtraFields
@@ -334,7 +326,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
 			fillCell(spec, cells, TracingColumns.ID, createCell(id));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_NODE, createCell(company));
+			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_STREET,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.STRASSE)));
@@ -349,15 +341,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(state));
 			fillCell(spec, cells, TracingColumns.STATION_COUNTRY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(country));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_VAT,
+			fillCell(spec, cells, BackwardUtils.STATION_VAT,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(STATION.VATNUMBER)));
 			fillCell(spec, cells, TracingColumns.STATION_TOB, createCell(r.getValue(STATION.BETRIEBSART)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_NUMCASES, createCell(r.getValue(STATION.ANZAHLFAELLE)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_DATESTART, createCell(r.getValue(STATION.DATUMBEGINN)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_DATEPEAK,
-					createCell(r.getValue(STATION.DATUMHOEHEPUNKT)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
+			fillCell(spec, cells, BackwardUtils.STATION_NUMCASES, createCell(r.getValue(STATION.ANZAHLFAELLE)));
+			fillCell(spec, cells, BackwardUtils.STATION_DATESTART, createCell(r.getValue(STATION.DATUMBEGINN)));
+			fillCell(spec, cells, BackwardUtils.STATION_DATEPEAK, createCell(r.getValue(STATION.DATUMHOEHEPUNKT)));
+			fillCell(spec, cells, BackwardUtils.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
+			fillCell(spec, cells, BackwardUtils.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
 			fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
 					isSimpleSupplier(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.STATION_DEADSTART,
@@ -365,7 +356,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, TracingColumns.STATION_DEADEND,
 					isStationEnd(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
-			fillCell(spec, cells, TracingBackwardUtils.STATION_COUNTY,
+			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
 
 			// Extras
@@ -425,34 +416,32 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					createCell(DeliveryUtils.formatDate(r.getValue(LIEFERUNGEN.AD_DAY),
 							r.getValue(LIEFERUNGEN.AD_MONTH), r.getValue(LIEFERUNGEN.AD_YEAR))));
 			fillCell(spec, cells, TracingColumns.DELIVERY_SERIAL, createCell(r.getValue(LIEFERUNGEN.SERIAL)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_PROCESSING,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_PROCESSING,
 					createCell(r.getValue(PRODUKTKATALOG.PROZESSIERUNG)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_USAGE,
-					createCell(r.getValue(PRODUKTKATALOG.INTENDEDUSE)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_USAGE, createCell(r.getValue(PRODUKTKATALOG.INTENDEDUSE)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_DATEEXP,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_DATEEXP,
 					createCell(DeliveryUtils.formatDate(r.getValue(CHARGEN.MHD_DAY), r.getValue(CHARGEN.MHD_MONTH),
 							r.getValue(CHARGEN.MHD_YEAR))));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_DATEMANU,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_DATEMANU,
 					createCell(DeliveryUtils.formatDate(r.getValue(CHARGEN.PD_DAY), r.getValue(CHARGEN.PD_MONTH),
 							r.getValue(CHARGEN.PD_YEAR))));
 			fillCell(spec, cells, TracingColumns.DELIVERY_AMOUNT, createCell(DeliveryUtils
 					.getAmountInKg(r.getValue(LIEFERUNGEN.UNITMENGE), r.getValue(LIEFERUNGEN.UNITEINHEIT))));
 			fillCell(spec, cells, TracingColumns.DELIVERY_NUM_PU, createCell(r.getValue(LIEFERUNGEN.NUMPU)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_TYPE_PU, createCell(r.getValue(LIEFERUNGEN.TYPEPU)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_ENDCHAIN, createCell(r.getValue(LIEFERUNGEN.ENDCHAIN)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_ORIGIN, createCell(r.getValue(CHARGEN.ORIGINCOUNTRY)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_ENDCHAINWHY,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_ENDCHAIN, createCell(r.getValue(LIEFERUNGEN.ENDCHAIN)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_ORIGIN, createCell(r.getValue(CHARGEN.ORIGINCOUNTRY)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_ENDCHAINWHY,
 					createCell(r.getValue(LIEFERUNGEN.EXPLANATION_ENDCHAIN)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_REMARKS,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_REMARKS,
 					createCell(r.getValue(LIEFERUNGEN.CONTACT_QUESTIONS_REMARKS)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_FURTHERTB,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_FURTHERTB,
 					createCell(r.getValue(LIEFERUNGEN.FURTHER_TRACEBACK)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_MICROSAMPLE,
-					createCell(r.getValue(CHARGEN.MICROBIOSAMPLE)));
+			fillCell(spec, cells, BackwardUtils.DELIVERY_MICROSAMPLE, createCell(r.getValue(CHARGEN.MICROBIOSAMPLE)));
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(LIEFERUNGEN.IMPORTSOURCES)));
-			fillCell(spec, cells, TracingBackwardUtils.DELIVERY_CHARGENUM,
+			fillCell(spec, cells, BackwardUtils.DELIVERY_CHARGENUM,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(r.getValue(CHARGEN.CHARGENNR)));
 
 			// Extras

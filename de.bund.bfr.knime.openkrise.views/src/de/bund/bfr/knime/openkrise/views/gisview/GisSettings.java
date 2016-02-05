@@ -36,7 +36,6 @@ import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-import de.bund.bfr.knime.openkrise.TracingBackwardUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
@@ -224,8 +223,8 @@ public class GisSettings extends NodeSettings {
 		canvas.setAvoidOverlay(avoidOverlay);
 
 		if (applySelectionAndHighlighting) {
-			canvas.setNodeHighlightConditions(TracingBackwardUtils.renameColumns(nodeHighlightConditions,
-					canvas.getNodeSchema().getMap().keySet()));
+			canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
+					.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
 			canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		}
 

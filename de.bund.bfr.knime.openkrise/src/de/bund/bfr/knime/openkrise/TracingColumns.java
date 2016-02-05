@@ -74,16 +74,15 @@ public interface TracingColumns {
 	public static final String DELIVERY_SERIAL = "Serial";
 	public static final String DELIVERY_LOTNUM = "Lot Number";
 
-	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID,
-			TracingBackwardUtils.STATION_SERIAL, STATION_NAME, TracingBackwardUtils.STATION_NODE, STATION_TOB,
-			STATION_SIMPLESUPPLIER, STATION_DEADSTART, STATION_DEADEND, FILESOURCES);
+	public static final ImmutableList<String> STATION_COLUMNS = ImmutableList.of(ID, BackwardUtils.STATION_SERIAL,
+			STATION_NAME, BackwardUtils.STATION_NODE, STATION_TOB, STATION_SIMPLESUPPLIER, STATION_DEADSTART,
+			STATION_DEADEND, FILESOURCES);
 	public static final ImmutableList<String> DELIVERY_COLUMNS = ImmutableList.of(ID, DELIVERY_SERIAL, FROM, TO,
 			DELIVERY_ITEMNUM, DELIVERY_ITEMNAME, DELIVERY_LOTNUM, DELIVERY_AMOUNT, DELIVERY_NUM_PU, DELIVERY_TYPE_PU,
 			DELIVERY_DEPARTURE, DELIVERY_ARRIVAL, FILESOURCES);
 	public static final ImmutableList<String> ADDRESS_COLUMNS = ImmutableList.of(ADDRESS, STATION_STREET,
 			STATION_HOUSENO, STATION_ZIP, STATION_CITY, STATION_DISTRICT, STATION_STATE, STATION_COUNTRY,
-			TracingBackwardUtils.STATION_COUNTY, GeocodingNodeModel.LATITUDE_COLUMN,
-			GeocodingNodeModel.LONGITUDE_COLUMN);
+			BackwardUtils.STATION_COUNTY, GeocodingNodeModel.LATITUDE_COLUMN, GeocodingNodeModel.LONGITUDE_COLUMN);
 	public static final ImmutableList<String> INPUT_COLUMNS = ImmutableList.of(WEIGHT, CROSS_CONTAMINATION,
 			KILL_CONTAMINATION, OBSERVED);
 	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,

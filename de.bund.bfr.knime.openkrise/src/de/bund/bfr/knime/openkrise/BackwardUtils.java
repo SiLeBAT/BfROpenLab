@@ -30,7 +30,7 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
 
-public class TracingBackwardUtils {
+public class BackwardUtils {
 
 	public static final String STATION_NODE = "node";
 	public static final String STATION_VAT = "VAT";
@@ -56,7 +56,7 @@ public class TracingBackwardUtils {
 	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String OLD_OBSERVED = "Filter";
 
-	private TracingBackwardUtils() {
+	private BackwardUtils() {
 	}
 
 	public static HighlightConditionList renameColumns(HighlightConditionList list, Set<String> columns) {

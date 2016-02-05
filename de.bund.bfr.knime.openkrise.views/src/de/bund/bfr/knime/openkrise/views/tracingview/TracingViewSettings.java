@@ -38,7 +38,6 @@ import de.bund.bfr.knime.XmlConverter;
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.openkrise.TracingBackwardUtils;
 import de.bund.bfr.knime.openkrise.views.Activator;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -358,10 +357,10 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setShowEdgesInMetaNode(showEdgesInMetaNode);
 		canvas.setCollapsedNodes(BackwardUtils.toNewCollapseFormat(collapsedNodes));
 
-		canvas.setNodeHighlightConditions(
-				TracingBackwardUtils.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
-		canvas.setEdgeHighlightConditions(
-				TracingBackwardUtils.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
+		canvas.setNodeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
+				.renameColumns(nodeHighlightConditions, canvas.getNodeSchema().getMap().keySet()));
+		canvas.setEdgeHighlightConditions(de.bund.bfr.knime.openkrise.BackwardUtils
+				.renameColumns(edgeHighlightConditions, canvas.getEdgeSchema().getMap().keySet()));
 		canvas.setSelectedNodeIds(new LinkedHashSet<>(selectedNodes));
 		canvas.setSelectedEdgeIds(new LinkedHashSet<>(selectedEdges));
 
