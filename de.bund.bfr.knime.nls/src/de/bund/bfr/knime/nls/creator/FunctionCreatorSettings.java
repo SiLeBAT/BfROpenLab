@@ -28,6 +28,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.Lists;
 
+import de.bund.bfr.knime.nls.BackwardUtils;
 import de.bund.bfr.knime.nls.NlsNodeSettings;
 
 public class FunctionCreatorSettings extends NlsNodeSettings {

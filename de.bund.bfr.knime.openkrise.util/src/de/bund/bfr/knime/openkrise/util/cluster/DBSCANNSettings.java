@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
-import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
+import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.util.Activator;
 

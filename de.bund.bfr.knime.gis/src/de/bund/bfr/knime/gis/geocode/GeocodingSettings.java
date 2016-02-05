@@ -24,7 +24,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
-import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
+import de.bund.bfr.knime.gis.BackwardUtils;
 
 public class GeocodingSettings extends NodeSettings {
 

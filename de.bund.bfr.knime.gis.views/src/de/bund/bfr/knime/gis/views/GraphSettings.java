@@ -33,9 +33,9 @@ import org.knime.core.node.NodeSettingsWO;
 
 import com.google.common.collect.Ordering;
 
+import de.bund.bfr.knime.gis.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.GraphCanvas;
-import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;

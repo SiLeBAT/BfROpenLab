@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.backward;
+package de.bund.bfr.knime.gis;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
