@@ -21,10 +21,10 @@ package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import com.google.common.primitives.Doubles;
@@ -94,8 +94,6 @@ public class LogicalHighlightCondition implements Serializable {
 	}
 
 	public <T extends Element> Map<T, Double> getValues(Collection<? extends T> elements) {
-		Map<T, Double> values = new LinkedHashMap<>();
-
 		doubleValue = value != null ? Doubles.tryParse(value) : null;
 
 		if (value == null) {
@@ -108,11 +106,7 @@ public class LogicalHighlightCondition implements Serializable {
 			booleanValue = null;
 		}
 
-		for (T element : elements) {
-			values.put(element, evaluate(element));
-		}
-
-		return values;
+		return elements.stream().collect(Collectors.toMap(e -> e, e -> evaluate(e)));
 	}
 
 	@Override

@@ -141,17 +141,7 @@ public class GeocodingNodeModel extends NodeModel {
 				countryCode = IO.getCleanString(row.getCell(countryCodeIndex));
 			}
 
-			GeocodingResult result = null;
-
-			if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_MAPQUEST)) {
-				result = performMapQuestGeocoding(address);
-			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
-				result = performGisgraphyGeocoding(address, countryCode);
-			} else if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_BKG)) {
-				result = performBkgGeocoding(address);
-			} else {
-				throw new IllegalArgumentException("Unknown Service Provider: " + set.getServiceProvider());
-			}
+			GeocodingResult result = performGeocoding(address, countryCode);
 
 			if (result.getLatitude() == null || result.getLongitude() == null) {
 				setWarningMessage("Geocoding failed for row " + row.getKey().getString());
@@ -254,6 +244,21 @@ public class GeocodingNodeModel extends NodeModel {
 	@Override
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
+	}
+
+	private GeocodingResult performGeocoding(String address, String countryCode)
+			throws XPathExpressionException, IOException, ParserConfigurationException, URISyntaxException,
+			SAXException, CanceledExecutionException, InvalidSettingsException {
+		switch (set.getServiceProvider()) {
+		case MAPQUEST:
+			return performMapQuestGeocoding(address);
+		case GISGRAPHY:
+			return performGisgraphyGeocoding(address, countryCode);
+		case BKG:
+			return performBkgGeocoding(address);
+		}
+
+		throw new RuntimeException("Should not happen");
 	}
 
 	private GeocodingResult performMapQuestGeocoding(String address)
@@ -382,11 +387,11 @@ public class GeocodingNodeModel extends NodeModel {
 			return defaultValue;
 		} else if (choices.size() == 1) {
 			return choices.get(0);
-		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_DO_NOT_USE)) {
+		} else if (set.getMultipleResults() == GeocodingSettings.Multiple.DO_NOT_USE) {
 			return defaultValue;
-		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_USE_FIRST)) {
+		} else if (set.getMultipleResults() == GeocodingSettings.Multiple.USE_FIRST) {
 			return choices.get(0);
-		} else if (set.getMultipleResults().equals(GeocodingSettings.MULTIPLE_ASK_USER)) {
+		} else if (set.getMultipleResults() == GeocodingSettings.Multiple.ASK_USER) {
 			ChooseDialog dialog = new ChooseDialog(address, choices, defaultValue);
 
 			dialog.setVisible(true);

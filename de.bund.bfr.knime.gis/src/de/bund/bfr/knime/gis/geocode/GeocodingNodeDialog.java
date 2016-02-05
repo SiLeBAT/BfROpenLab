@@ -22,7 +22,6 @@ package de.bund.bfr.knime.gis.geocode;
 import java.awt.Component;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -54,9 +53,9 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 
 	private GeocodingSettings set;
 
-	private JComboBox<String> providerBox;
+	private JComboBox<GeocodingSettings.Provider> providerBox;
 	private JTextField delayField;
-	private JComboBox<String> multipleBox;
+	private JComboBox<GeocodingSettings.Multiple> multipleBox;
 
 	private ColumnComboBox addressBox;
 	private ColumnComboBox countryCodeBox;
@@ -69,10 +68,10 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 	 */
 	public GeocodingNodeDialog() {
 		set = new GeocodingSettings();
-		providerBox = new JComboBox<>(new Vector<>(GeocodingSettings.PROVIDER_CHOICES));
+		providerBox = new JComboBox<>(GeocodingSettings.Provider.values());
 		providerBox.addActionListener(e -> updatePanel());
 		delayField = new JTextField();
-		multipleBox = new JComboBox<>(new Vector<>(GeocodingSettings.MULTIPLE_CHOICES));
+		multipleBox = new JComboBox<>(GeocodingSettings.Multiple.values());
 
 		addressBox = new ColumnComboBox(false);
 		countryCodeBox = new ColumnComboBox(false);
@@ -123,17 +122,16 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 		}
 
 		set.setAddressColumn(addressBox.getSelectedColumnName());
-		set.setServiceProvider((String) providerBox.getSelectedItem());
+		set.setServiceProvider((GeocodingSettings.Provider) providerBox.getSelectedItem());
 		set.setRequestDelay(Integer.parseInt(delayField.getText()));
-		set.setMultipleResults((String) multipleBox.getSelectedItem());
+		set.setMultipleResults((GeocodingSettings.Multiple) multipleBox.getSelectedItem());
 
-		if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+		if (set.getServiceProvider() == GeocodingSettings.Provider.GISGRAPHY) {
 			if (countryCodeBox.getSelectedColumnName() == null) {
 				throw new InvalidSettingsException("No Country Code specified");
 			}
 
-			if (set.getServiceProvider().equals(GeocodingSettings.PROVIDER_GISGRAPHY)
-					&& serverField.getText().trim().isEmpty()) {
+			if (serverField.getText().trim().isEmpty()) {
 				throw new InvalidSettingsException("No Server specified");
 			}
 
@@ -151,7 +149,7 @@ public class GeocodingNodeDialog extends NodeDialogPane {
 				new JLabel("When multiple Results:"));
 		List<Component> otherFields = Lists.newArrayList(delayField, multipleBox);
 
-		if (providerBox.getSelectedItem().equals(GeocodingSettings.PROVIDER_GISGRAPHY)) {
+		if (providerBox.getSelectedItem() == GeocodingSettings.Provider.GISGRAPHY) {
 			addressLabels.add(new JLabel("Country Code:"));
 			addressBoxes.add(countryCodeBox);
 			otherLabels.add(0, new JLabel("Server Address:"));

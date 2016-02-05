@@ -23,23 +23,40 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import com.google.common.collect.ImmutableList;
-
 import de.bund.bfr.knime.NodeSettings;
+import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 
 public class GeocodingSettings extends NodeSettings {
 
-	public static final String PROVIDER_MAPQUEST = "MapQuest";
-	public static final String PROVIDER_GISGRAPHY = "Gisgraphy";
-	public static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
-	public static final ImmutableList<String> PROVIDER_CHOICES = ImmutableList.of(PROVIDER_MAPQUEST, PROVIDER_GISGRAPHY,
-			PROVIDER_BKG);
+	public static enum Provider {
+		MAPQUEST("MapQuest"), GISGRAPHY("Gisgraphy"), BKG("Bundesamt für Kartographie und Geodäsie");
 
-	public static final String MULTIPLE_DO_NOT_USE = "Do not use";
-	public static final String MULTIPLE_USE_FIRST = "Use first";
-	public static final String MULTIPLE_ASK_USER = "Ask User";
-	public static final ImmutableList<String> MULTIPLE_CHOICES = ImmutableList.of(MULTIPLE_DO_NOT_USE,
-			MULTIPLE_USE_FIRST, MULTIPLE_ASK_USER);
+		private String name;
+
+		private Provider(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	public static enum Multiple {
+		DO_NOT_USE("Do not use"), USE_FIRST("Use first"), ASK_USER("Ask User");
+
+		private String name;
+
+		private Multiple(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 
 	private static final String CFG_SERVICE_PROVIDER = "ServiceProvider";
 	private static final String CFG_ADDRESS_COLUMN = "AddressColumn";
@@ -48,26 +65,30 @@ public class GeocodingSettings extends NodeSettings {
 	private static final String CFG_REQUEST_DELAY = "RequestDelay";
 	private static final String CFG_MULTIPLE_RESULTS = "UseMultiple";
 
-	private String serviceProvider;
+	private Provider serviceProvider;
 	private String addressColumn;
 	private String countryCodeColumn;
 	private String gisgraphyServer;
 	private int requestDelay;
-	private String multipleResults;
+	private Multiple multipleResults;
 
 	public GeocodingSettings() {
-		serviceProvider = PROVIDER_MAPQUEST;
+		serviceProvider = Provider.MAPQUEST;
 		addressColumn = null;
 		countryCodeColumn = null;
 		gisgraphyServer = null;
 		requestDelay = 500;
-		multipleResults = MULTIPLE_DO_NOT_USE;
+		multipleResults = Multiple.DO_NOT_USE;
 	}
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			serviceProvider = settings.getString(CFG_SERVICE_PROVIDER);
+			try {
+				serviceProvider = Provider.valueOf(settings.getString(CFG_SERVICE_PROVIDER));
+			} catch (IllegalArgumentException e) {
+				serviceProvider = BackwardUtils.toNewProviderFormat(settings.getString(CFG_SERVICE_PROVIDER));
+			}
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -92,26 +113,30 @@ public class GeocodingSettings extends NodeSettings {
 		}
 
 		try {
-			multipleResults = settings.getString(CFG_MULTIPLE_RESULTS);
+			try {
+				multipleResults = Multiple.valueOf(settings.getString(CFG_MULTIPLE_RESULTS));
+			} catch (IllegalArgumentException e) {
+				multipleResults = BackwardUtils.toNewMultipleFormat(settings.getString(CFG_MULTIPLE_RESULTS));
+			}
 		} catch (InvalidSettingsException e) {
 		}
 	}
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_SERVICE_PROVIDER, serviceProvider);
+		settings.addString(CFG_SERVICE_PROVIDER, serviceProvider.name());
 		settings.addString(CFG_ADDRESS_COLUMN, addressColumn);
 		settings.addString(CFG_COUNTRY_CODE_COLUMN, countryCodeColumn);
 		settings.addString(CFG_GISGRAPHY_SERVER, gisgraphyServer);
 		settings.addInt(CFG_REQUEST_DELAY, requestDelay);
-		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults);
+		settings.addString(CFG_MULTIPLE_RESULTS, multipleResults.name());
 	}
 
-	public String getServiceProvider() {
+	public Provider getServiceProvider() {
 		return serviceProvider;
 	}
 
-	public void setServiceProvider(String serviceProvider) {
+	public void setServiceProvider(Provider serviceProvider) {
 		this.serviceProvider = serviceProvider;
 	}
 
@@ -147,11 +172,11 @@ public class GeocodingSettings extends NodeSettings {
 		this.requestDelay = requestDelay;
 	}
 
-	public String getMultipleResults() {
+	public Multiple getMultipleResults() {
 		return multipleResults;
 	}
 
-	public void setMultipleResults(String multipleResults) {
+	public void setMultipleResults(Multiple multipleResults) {
 		this.multipleResults = multipleResults;
 	}
 }

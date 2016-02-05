@@ -30,10 +30,20 @@ import java.util.stream.Stream;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 
+import de.bund.bfr.knime.gis.geocode.GeocodingSettings;
+
 public class BackwardUtils {
 
 	private BackwardUtils() {
 	}
+
+	private static final String PROVIDER_MAPQUEST = "MapQuest";
+	private static final String PROVIDER_GISGRAPHY = "Gisgraphy";
+	private static final String PROVIDER_BKG = "Bundesamt für Kartographie und Geodäsie";
+
+	private static final String MULTIPLE_DO_NOT_USE = "Do not use";
+	private static final String MULTIPLE_USE_FIRST = "Use first";
+	private static final String MULTIPLE_ASK_USER = "Ask User";
 
 	public static Map<String, Set<String>> toNewCollapseFormat(Map<String, Map<String, Point2D>> map) {
 		return map.entrySet().stream()
@@ -43,6 +53,30 @@ public class BackwardUtils {
 	public static Map<String, Map<String, Point2D>> toOldCollapseFormat(Map<String, Set<String>> map) {
 		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
 				e -> new LinkedHashMap<>(Maps.asMap(e.getValue(), Functions.constant((Point2D) null)))));
+	}
+
+	public static GeocodingSettings.Provider toNewProviderFormat(String provider) {
+		if (provider.equals(PROVIDER_MAPQUEST)) {
+			return GeocodingSettings.Provider.MAPQUEST;
+		} else if (provider.equals(PROVIDER_GISGRAPHY)) {
+			return GeocodingSettings.Provider.GISGRAPHY;
+		} else if (provider.equals(PROVIDER_BKG)) {
+			return GeocodingSettings.Provider.BKG;
+		}
+
+		throw new RuntimeException("Should not happen");
+	}
+
+	public static GeocodingSettings.Multiple toNewMultipleFormat(String multiple) {
+		if (multiple.equals(MULTIPLE_DO_NOT_USE)) {
+			return GeocodingSettings.Multiple.DO_NOT_USE;
+		} else if (multiple.equals(MULTIPLE_USE_FIRST)) {
+			return GeocodingSettings.Multiple.USE_FIRST;
+		} else if (multiple.equals(MULTIPLE_ASK_USER)) {
+			return GeocodingSettings.Multiple.ASK_USER;
+		}
+
+		throw new RuntimeException("Should not happen");
 	}
 
 	public static String toNewHighlightingFormat(String settings) {
