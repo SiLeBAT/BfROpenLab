@@ -46,7 +46,7 @@ public class LogicalHighlightConditionTest {
 	@Test
 	public void testLogicalHighlightConditionStringStringString() {
 		final String PROPERTY = "property";
-		final String TYPE = LogicalHighlightCondition.EQUAL_TYPE;
+		final LogicalHighlightCondition.Type TYPE = LogicalHighlightCondition.Type.EQUAL;
 		final String VALUE = "value";
 		LogicalHighlightCondition c = new LogicalHighlightCondition(PROPERTY, TYPE, VALUE);
 
@@ -91,7 +91,7 @@ public class LogicalHighlightConditionTest {
 		final String VALUE = "value1";
 		final String OTHER_VALUE = "value2";
 		LogicalHighlightCondition equalCondition = new LogicalHighlightCondition(PROPERTY,
-				LogicalHighlightCondition.EQUAL_TYPE, VALUE);
+				LogicalHighlightCondition.Type.EQUAL, VALUE);
 		Element e1 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE));
 		Element e2 = new GraphNode(null, ImmutableMap.of(PROPERTY, OTHER_VALUE));
 		Map<Element, Double> values = equalCondition.getValues(Arrays.asList(e1, e2));

@@ -59,7 +59,7 @@ public class LogicalValueHighlightConditionTest {
 	@Before
 	public void setUp() throws Exception {
 		equal1Condition = new AndOrHighlightCondition(
-				new LogicalHighlightCondition(PROPERTY, LogicalHighlightCondition.EQUAL_TYPE, VALUE_1), NAME,
+				new LogicalHighlightCondition(PROPERTY, LogicalHighlightCondition.Type.EQUAL, VALUE_1), NAME,
 				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
 		valueCondition = new ValueHighlightCondition(VALUE_PROPERTY, ValueHighlightCondition.Type.VALUE, true, NAME,
 				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);

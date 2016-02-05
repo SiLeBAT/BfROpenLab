@@ -64,10 +64,10 @@ public class AndOrHighlightConditionTest {
 
 	@Before
 	public void setUp() throws Exception {
-		equal11Condition = new LogicalHighlightCondition(PROPERTY_1, LogicalHighlightCondition.EQUAL_TYPE, VALUE_1);
-		equal12Condition = new LogicalHighlightCondition(PROPERTY_1, LogicalHighlightCondition.EQUAL_TYPE, VALUE_2);
-		equal21Condition = new LogicalHighlightCondition(PROPERTY_2, LogicalHighlightCondition.EQUAL_TYPE, VALUE_1);
-		equal22Condition = new LogicalHighlightCondition(PROPERTY_2, LogicalHighlightCondition.EQUAL_TYPE, VALUE_2);
+		equal11Condition = new LogicalHighlightCondition(PROPERTY_1, LogicalHighlightCondition.Type.EQUAL, VALUE_1);
+		equal12Condition = new LogicalHighlightCondition(PROPERTY_1, LogicalHighlightCondition.Type.EQUAL, VALUE_2);
+		equal21Condition = new LogicalHighlightCondition(PROPERTY_2, LogicalHighlightCondition.Type.EQUAL, VALUE_1);
+		equal22Condition = new LogicalHighlightCondition(PROPERTY_2, LogicalHighlightCondition.Type.EQUAL, VALUE_2);
 		element11 = new GraphNode(null, ImmutableMap.of(PROPERTY_1, VALUE_1, PROPERTY_2, VALUE_1));
 		element12 = new GraphNode(null, ImmutableMap.of(PROPERTY_1, VALUE_1, PROPERTY_2, VALUE_2));
 		element21 = new GraphNode(null, ImmutableMap.of(PROPERTY_1, VALUE_2, PROPERTY_2, VALUE_1));

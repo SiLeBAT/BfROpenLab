@@ -28,6 +28,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.util.Activator;
 
@@ -164,49 +165,49 @@ public class TracingParametersSettings extends NodeSettings {
 
 		try {
 			nodeWeightCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_WEIGHT_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_NODE_WEIGHT_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			edgeWeightCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_WEIGHT_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_EDGE_WEIGHT_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			nodeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_CONTAMINATION_CONDITION));
+			nodeContaminationCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(
+					BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_NODE_CONTAMINATION_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			edgeContaminationCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_CONTAMINATION_CONDITION));
+			edgeContaminationCondition = (AndOrHighlightCondition) SERIALIZER.fromXml(
+					BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_EDGE_CONTAMINATION_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			nodeKillCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_KILL_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_NODE_KILL_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			edgeKillCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_KILL_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_EDGE_KILL_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			observedNodesCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_OBSERVED_NODES_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_OBSERVED_NODES_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			observedEdgesCondition = (AndOrHighlightCondition) SERIALIZER
-					.fromXml(settings.getString(CFG_OBSERVED_EDGES_CONDITION));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_OBSERVED_EDGES_CONDITION)));
 		} catch (InvalidSettingsException e) {
 		}
 

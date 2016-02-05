@@ -151,7 +151,7 @@ public class CanvasUtils {
 		for (Object category : KnimeUtils.ORDERING.sortedCopy(categories)) {
 			Color color = COLORS[index++ % COLORS.length];
 			LogicalHighlightCondition condition = new LogicalHighlightCondition(property,
-					LogicalHighlightCondition.EQUAL_TYPE, category.toString());
+					LogicalHighlightCondition.Type.EQUAL, category.toString());
 
 			conditions.add(new AndOrHighlightCondition(condition, property + " = " + category, true, color, false,
 					false, null));
@@ -326,7 +326,7 @@ public class CanvasUtils {
 
 		for (String id : ids) {
 			LogicalHighlightCondition c = new LogicalHighlightCondition(idProperty,
-					LogicalHighlightCondition.EQUAL_TYPE, id);
+					LogicalHighlightCondition.Type.EQUAL, id);
 
 			conditions.add(Arrays.asList(c));
 		}

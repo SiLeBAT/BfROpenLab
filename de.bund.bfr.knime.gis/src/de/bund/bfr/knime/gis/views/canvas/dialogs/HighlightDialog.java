@@ -118,7 +118,7 @@ public class HighlightDialog extends KnimeDialog {
 
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
 	private List<PropertySelector> logicalPropertyBoxes;
-	private List<JComboBox<String>> logicalTypeBoxes;
+	private List<JComboBox<LogicalHighlightCondition.Type>> logicalTypeBoxes;
 	private List<AutoSuggestField> logicalValueFields;
 	private List<JButton> logicalAddButtons;
 	private List<JButton> logicalRemoveButtons;
@@ -169,7 +169,7 @@ public class HighlightDialog extends KnimeDialog {
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(
 					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.EQUAL_TYPE, ""),
+							LogicalHighlightCondition.Type.EQUAL, ""),
 					null, true, lastColor, false, false, null);
 		}
 
@@ -328,7 +328,7 @@ public class HighlightDialog extends KnimeDialog {
 		if (condition == null) {
 			condition = new AndOrHighlightCondition(
 					new LogicalHighlightCondition(schema.getMap().keySet().toArray(new String[0])[0],
-							LogicalHighlightCondition.EQUAL_TYPE, ""),
+							LogicalHighlightCondition.Type.EQUAL, ""),
 					null, false, null, false, false, null);
 		}
 
@@ -356,7 +356,8 @@ public class HighlightDialog extends KnimeDialog {
 
 			for (LogicalHighlightCondition cond : conds) {
 				PropertySelector propertyBox = selectorCreator.createSelector(schema);
-				JComboBox<String> typeBox = new JComboBox<>(new Vector<>(LogicalHighlightCondition.TYPES));
+				JComboBox<LogicalHighlightCondition.Type> typeBox = new JComboBox<>(
+						LogicalHighlightCondition.Type.values());
 				AutoSuggestField valueField = new AutoSuggestField(30);
 				Set<String> possibleValues = schema.getPossibleValues().get(cond.getProperty());
 				JButton addButton = new JButton("Add");
@@ -518,7 +519,8 @@ public class HighlightDialog extends KnimeDialog {
 			}
 
 			String property = logicalPropertyBoxes.get(i).getSelectedProperty();
-			String type = (String) logicalTypeBoxes.get(i).getSelectedItem();
+			LogicalHighlightCondition.Type type = (LogicalHighlightCondition.Type) logicalTypeBoxes.get(i)
+					.getSelectedItem();
 			String value = (String) logicalValueFields.get(i).getSelectedItem();
 
 			andList.add(new LogicalHighlightCondition(property, type, value));
@@ -584,7 +586,7 @@ public class HighlightDialog extends KnimeDialog {
 
 		List<List<LogicalHighlightCondition>> conditions = logicalCondition.getConditions();
 		LogicalHighlightCondition newCond = new LogicalHighlightCondition(
-				schema.getMap().keySet().toArray(new String[0])[0], LogicalHighlightCondition.EQUAL_TYPE, "");
+				schema.getMap().keySet().stream().findFirst().get(), LogicalHighlightCondition.Type.EQUAL, "");
 		LogicalHighlightCondition lastCond = null;
 		boolean done = false;
 		int count = 0;

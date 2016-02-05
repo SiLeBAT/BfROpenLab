@@ -62,35 +62,35 @@ public class DefaultHighlighting {
 
 	private static HighlightCondition createOutbreakCondition() {
 		LogicalHighlightCondition weight = new LogicalHighlightCondition(TracingColumns.WEIGHT,
-				LogicalHighlightCondition.GREATER_TYPE, "0");
+				LogicalHighlightCondition.Type.GREATER, "0");
 
 		return new AndOrHighlightCondition(weight, "Outbreak", true, Color.RED, false, false, null);
 	}
 
 	private static HighlightCondition createObservedCondition(Color color) {
 		LogicalHighlightCondition observed = new LogicalHighlightCondition(TracingColumns.OBSERVED,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				LogicalHighlightCondition.Type.EQUAL, "1");
 
 		return new AndOrHighlightCondition(observed, "Observed", true, color, false, false, null);
 	}
 
 	private static HighlightCondition createForwardCondition() {
 		LogicalHighlightCondition forward = new LogicalHighlightCondition(TracingColumns.FORWARD,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				LogicalHighlightCondition.Type.EQUAL, "1");
 
 		return new AndOrHighlightCondition(forward, "Forward Trace", true, Color.ORANGE, false, false, null);
 	}
 
 	private static HighlightCondition createBackwardCondition() {
 		LogicalHighlightCondition backward = new LogicalHighlightCondition(TracingColumns.BACKWARD,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				LogicalHighlightCondition.Type.EQUAL, "1");
 
 		return new AndOrHighlightCondition(backward, "Backward Trace", true, Color.MAGENTA, false, false, null);
 	}
 
 	private static HighlightCondition createCrossContaminationCondition() {
 		LogicalHighlightCondition crossContamination = new LogicalHighlightCondition(TracingColumns.CROSS_CONTAMINATION,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				LogicalHighlightCondition.Type.EQUAL, "1");
 
 		return new AndOrHighlightCondition(crossContamination, "Cross Contamination", true, Color.BLACK, false, false,
 				null);
@@ -98,7 +98,7 @@ public class DefaultHighlighting {
 
 	private static HighlightCondition createCommonLinkCondition() {
 		LogicalHighlightCondition commonLink = new LogicalHighlightCondition(TracingColumns.SCORE,
-				LogicalHighlightCondition.EQUAL_TYPE, "1");
+				LogicalHighlightCondition.Type.EQUAL, "1");
 
 		return new AndOrHighlightCondition(commonLink, "Common Link", true, Color.YELLOW, false, false, null);
 	}

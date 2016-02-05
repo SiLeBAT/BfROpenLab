@@ -46,6 +46,10 @@ public class BackwardUtils {
 	}
 
 	public static String toNewHighlightingFormat(String settings) {
+		if (settings == null) {
+			return null;
+		}
+
 		String oldValuePrefix = "<void property=\"type\"><string>";
 		String oldValuePostfix = "</string></void>";
 		String newValuePrefix = "<void property=\"type\"><object class=\"java.lang.Enum\" method=\"valueOf\"><class>de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition$Type</class><string>";
@@ -56,8 +60,34 @@ public class BackwardUtils {
 		String oldLogValueType = oldValuePrefix + "Log Value" + oldValuePostfix;
 		String newLogValueType = newValuePrefix + "LOG_VALUE" + newValuePostfix;
 
-		return trimLineAndRemoveLineBreaks(settings).replace(oldValueType, newValueType).replace(oldLogValueType,
-				newLogValueType);
+		String oldLogicPrefix = "<void property=\"type\"><string>";
+		String oldLogicPostfix = "</string></void>";
+		String newLogicPrefix = "<void property=\"type\"><object class=\"java.lang.Enum\" method=\"valueOf\"><class>de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition$Type</class><string>";
+		String newLogicPostfix = "</string></object></void>";
+
+		String oldEqualType = oldLogicPrefix + "==" + oldLogicPostfix;
+		String newEqualType = newLogicPrefix + "EQUAL" + newLogicPostfix;
+		String oldNotEqualType = oldLogicPrefix + "!=" + oldLogicPostfix;
+		String newNotEqualType = newLogicPrefix + "NOT_EQUAL" + newLogicPostfix;
+		String oldGreaterType = oldLogicPrefix + "&gt;" + oldLogicPostfix;
+		String newGreaterType = newLogicPrefix + "GREATER" + newLogicPostfix;
+		String oldLessType = oldLogicPrefix + "&lt;" + oldLogicPostfix;
+		String newLessType = newLogicPrefix + "LESS" + newLogicPostfix;
+		String oldRgxEqualType = oldLogicPrefix + "== (Regex)" + oldLogicPostfix;
+		String newRgxEqualType = newLogicPrefix + "REGEX_EQUAL" + newLogicPostfix;
+		String oldRgxNotEqualType = oldLogicPrefix + "!= (Regex)" + oldLogicPostfix;
+		String newRgxNotEqualType = newLogicPrefix + "REGEX_NOT_EQUAL" + newLogicPostfix;
+		String oldRgxEqualCaseType = oldLogicPrefix + "== (Regex Ignore Case)" + oldLogicPostfix;
+		String newRgxEqualCaseType = newLogicPrefix + "REGEX_EQUAL_IGNORE_CASE" + newLogicPostfix;
+		String oldRgxNotEqualCaseType = oldLogicPrefix + "!= (Regex Ignore Case)" + oldLogicPostfix;
+		String newRgxNotEqualCaseType = newLogicPrefix + "REGEX_NOT_EQUAL_IGNORE_CASE" + newLogicPostfix;
+
+		return trimLineAndRemoveLineBreaks(settings).replace(oldValueType, newValueType)
+				.replace(oldLogValueType, newLogValueType).replace(oldEqualType, newEqualType)
+				.replace(oldNotEqualType, newNotEqualType).replace(oldGreaterType, newGreaterType)
+				.replace(oldLessType, newLessType).replace(oldRgxEqualType, newRgxEqualType)
+				.replace(oldRgxNotEqualType, newRgxNotEqualType).replace(oldRgxEqualCaseType, newRgxEqualCaseType)
+				.replace(oldRgxNotEqualCaseType, newRgxNotEqualCaseType);
 	}
 
 	private static String trimLineAndRemoveLineBreaks(String s) {

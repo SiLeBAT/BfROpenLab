@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 
 import de.bund.bfr.knime.NodeSettings;
 import de.bund.bfr.knime.XmlConverter;
+import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.AndOrHighlightCondition;
 import de.bund.bfr.knime.openkrise.util.Activator;
 
@@ -66,7 +67,8 @@ public class DBSCANNSettings extends NodeSettings {
 		}
 
 		try {
-			filter = (AndOrHighlightCondition) SERIALIZER.fromXml(settings.getString(CFG_FILTER));
+			filter = (AndOrHighlightCondition) SERIALIZER
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_FILTER)));
 		} catch (InvalidSettingsException e) {
 		}
 

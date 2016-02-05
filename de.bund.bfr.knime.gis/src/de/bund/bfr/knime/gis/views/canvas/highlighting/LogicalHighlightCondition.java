@@ -27,29 +27,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class LogicalHighlightCondition implements Serializable {
 
-	public static final String EQUAL_TYPE = "==";
-	public static final String NOT_EQUAL_TYPE = "!=";
-	public static final String GREATER_TYPE = ">";
-	public static final String LESS_TYPE = "<";
-	public static final String REGEX_EQUAL_TYPE = "== (Regex)";
-	public static final String REGEX_NOT_EQUAL_TYPE = "!= (Regex)";
-	public static final String REGEX_EQUAL_IGNORE_CASE_TYPE = "== (Regex Ignore Case)";
-	public static final String REGEX_NOT_EQUAL_IGNORE_CASE_TYPE = "!= (Regex Ignore Case)";
-	public static final ImmutableList<String> TYPES = ImmutableList.of(EQUAL_TYPE, NOT_EQUAL_TYPE, GREATER_TYPE,
-			LESS_TYPE, REGEX_EQUAL_TYPE, REGEX_NOT_EQUAL_TYPE, REGEX_EQUAL_IGNORE_CASE_TYPE,
-			REGEX_NOT_EQUAL_IGNORE_CASE_TYPE);
+	public static enum Type {
+		EQUAL("=="), NOT_EQUAL("!="), GREATER(">"), LESS("<"), REGEX_EQUAL("== (Regex)"), REGEX_NOT_EQUAL(
+				"!= (Regex)"), REGEX_EQUAL_IGNORE_CASE("== (Regex Ignore Case)"), REGEX_NOT_EQUAL_IGNORE_CASE(
+						"!= (Regex Ignore Case)");
+
+		private String name;
+
+		private Type(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 
 	private String property;
-	private String type;
+	private Type type;
 	private String value;
 
 	private transient Double doubleValue;
@@ -59,7 +63,7 @@ public class LogicalHighlightCondition implements Serializable {
 		this(null, null, null);
 	}
 
-	public LogicalHighlightCondition(String property, String type, String value) {
+	public LogicalHighlightCondition(String property, Type type, String value) {
 		setProperty(property);
 		setType(type);
 		setValue(value);
@@ -73,11 +77,11 @@ public class LogicalHighlightCondition implements Serializable {
 		this.property = property;
 	}
 
-	public String getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
@@ -105,25 +109,7 @@ public class LogicalHighlightCondition implements Serializable {
 		}
 
 		for (T element : elements) {
-			Object nodeValue = element.getProperties().get(property);
-
-			if (type.equals(EQUAL_TYPE)) {
-				values.put(element, isEqual(nodeValue) ? 1.0 : 0.0);
-			} else if (type.equals(NOT_EQUAL_TYPE)) {
-				values.put(element, isEqual(nodeValue) ? 0.0 : 1.0);
-			} else if (type.equals(GREATER_TYPE)) {
-				values.put(element, isGreater(nodeValue) ? 1.0 : 0.0);
-			} else if (type.equals(LESS_TYPE)) {
-				values.put(element, isLess(nodeValue) ? 1.0 : 0.0);
-			} else if (type.equals(REGEX_EQUAL_TYPE)) {
-				values.put(element, isEqualRegex(nodeValue, false) ? 1.0 : 0.0);
-			} else if (type.equals(REGEX_NOT_EQUAL_TYPE)) {
-				values.put(element, isEqualRegex(nodeValue, false) ? 0.0 : 1.0);
-			} else if (type.equals(REGEX_EQUAL_IGNORE_CASE_TYPE)) {
-				values.put(element, isEqualRegex(nodeValue, true) ? 1.0 : 0.0);
-			} else if (type.equals(REGEX_NOT_EQUAL_IGNORE_CASE_TYPE)) {
-				values.put(element, isEqualRegex(nodeValue, true) ? 0.0 : 1.0);
-			}
+			values.put(element, evaluate(element));
 		}
 
 		return values;
@@ -164,6 +150,31 @@ public class LogicalHighlightCondition implements Serializable {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	private double evaluate(Element element) {
+		Object nodeValue = element.getProperties().get(property);
+
+		switch (type) {
+		case EQUAL:
+			return isEqual(nodeValue) ? 1.0 : 0.0;
+		case NOT_EQUAL:
+			return isEqual(nodeValue) ? 0.0 : 1.0;
+		case GREATER:
+			return isGreater(nodeValue) ? 1.0 : 0.0;
+		case LESS:
+			return isLess(nodeValue) ? 1.0 : 0.0;
+		case REGEX_EQUAL:
+			return isEqualRegex(nodeValue, false) ? 1.0 : 0.0;
+		case REGEX_NOT_EQUAL:
+			return isEqualRegex(nodeValue, false) ? 0.0 : 1.0;
+		case REGEX_EQUAL_IGNORE_CASE:
+			return isEqualRegex(nodeValue, true) ? 1.0 : 0.0;
+		case REGEX_NOT_EQUAL_IGNORE_CASE:
+			return isEqualRegex(nodeValue, true) ? 0.0 : 1.0;
+		}
+
+		throw new RuntimeException("Should not happen");
 	}
 
 	private boolean isEqual(Object nodeValue) {
