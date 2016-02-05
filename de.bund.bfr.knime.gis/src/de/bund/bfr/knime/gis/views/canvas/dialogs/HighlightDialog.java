@@ -113,7 +113,7 @@ public class HighlightDialog extends KnimeDialog {
 	private JButton cancelButton;
 
 	private JComboBox<String> valuePropertyBox;
-	private JComboBox<String> valueTypeBox;
+	private JComboBox<ValueHighlightCondition.Type> valueTypeBox;
 	private JCheckBox zeroAsMinimumBox;
 
 	private List<JComboBox<AndOr>> logicalAndOrBoxes;
@@ -429,7 +429,7 @@ public class HighlightDialog extends KnimeDialog {
 		}
 
 		valuePropertyBox = new JComboBox<>(new Vector<>(numberProperties));
-		valueTypeBox = new JComboBox<>(new Vector<>(ValueHighlightCondition.TYPES));
+		valueTypeBox = new JComboBox<>(ValueHighlightCondition.Type.values());
 		zeroAsMinimumBox = new JCheckBox("Zero As Minimum");
 
 		if (condition != null) {
@@ -533,8 +533,8 @@ public class HighlightDialog extends KnimeDialog {
 	private ValueHighlightCondition createValueCondition(String name, boolean showInLegend, Color color,
 			boolean invisible, boolean useThickness, String labelProperty) {
 		return new ValueHighlightCondition((String) valuePropertyBox.getSelectedItem(),
-				(String) valueTypeBox.getSelectedItem(), zeroAsMinimumBox.isSelected(), name, showInLegend, color,
-				invisible, useThickness, labelProperty);
+				(ValueHighlightCondition.Type) valueTypeBox.getSelectedItem(), zeroAsMinimumBox.isSelected(), name,
+				showInLegend, color, invisible, useThickness, labelProperty);
 	}
 
 	private void okButtonPressed() {

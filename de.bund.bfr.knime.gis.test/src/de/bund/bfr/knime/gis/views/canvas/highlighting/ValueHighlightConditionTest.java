@@ -41,7 +41,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 public class ValueHighlightConditionTest {
 
 	private static final String PROPERTY = "property";
-	private static final String TYPE = ValueHighlightCondition.LOG_VALUE_TYPE;
+	private static final ValueHighlightCondition.Type TYPE = ValueHighlightCondition.Type.LOG_VALUE;
 	private static final boolean ZERO_AS_MINIMUM = true;
 	private static final String NAME = "name";
 	private static final boolean SHOW_IN_LEGEND = false;
@@ -57,9 +57,9 @@ public class ValueHighlightConditionTest {
 
 	@Before
 	public void setUp() throws Exception {
-		valueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.VALUE_TYPE, false, NAME,
+		valueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.Type.VALUE, false, NAME,
 				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
-		zeroAsMinLogValueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.LOG_VALUE_TYPE, true,
+		zeroAsMinLogValueCondition = new ValueHighlightCondition(PROPERTY, ValueHighlightCondition.Type.LOG_VALUE, true,
 				NAME, SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
 		element5 = new GraphNode(null, ImmutableMap.of(PROPERTY, 5.0));
 		element10 = new GraphNode(null, ImmutableMap.of(PROPERTY, 10.0));

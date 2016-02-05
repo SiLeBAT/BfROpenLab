@@ -208,5 +208,4 @@ public class LogicalHighlightCondition implements Serializable {
 			return false;
 		}
 	}
-
 }

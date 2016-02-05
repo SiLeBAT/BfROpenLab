@@ -129,7 +129,7 @@ public class LogicalValueHighlightCondition implements HighlightCondition, Seria
 			}
 		}
 
-		if (valueCondition.getType().equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
+		if (valueCondition.getType() == ValueHighlightCondition.Type.LOG_VALUE) {
 			for (Map.Entry<T, Double> entry : values.entrySet()) {
 				entry.setValue(Math.log10(entry.getValue() * 9.0 + 1.0));
 			}

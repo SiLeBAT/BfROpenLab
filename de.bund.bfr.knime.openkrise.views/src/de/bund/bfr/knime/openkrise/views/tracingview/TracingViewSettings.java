@@ -204,13 +204,13 @@ public class TracingViewSettings extends NodeSettings {
 
 		try {
 			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS)));
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
 			edgeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_EDGE_HIGHLIGHT_CONDITIONS)));
 		} catch (InvalidSettingsException e) {
 		}
 

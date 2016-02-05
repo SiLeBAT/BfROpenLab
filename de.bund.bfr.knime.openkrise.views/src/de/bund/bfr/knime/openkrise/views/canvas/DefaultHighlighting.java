@@ -104,7 +104,7 @@ public class DefaultHighlighting {
 	}
 
 	private static HighlightCondition createScoreCondition() {
-		return new ValueHighlightCondition(TracingColumns.SCORE, ValueHighlightCondition.VALUE_TYPE, true, "Score",
+		return new ValueHighlightCondition(TracingColumns.SCORE, ValueHighlightCondition.Type.VALUE, true, "Score",
 				false, null, false, true, null);
 	}
 }

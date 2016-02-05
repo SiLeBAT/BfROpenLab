@@ -61,7 +61,7 @@ public class LogicalValueHighlightConditionTest {
 		equal1Condition = new AndOrHighlightCondition(
 				new LogicalHighlightCondition(PROPERTY, LogicalHighlightCondition.EQUAL_TYPE, VALUE_1), NAME,
 				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
-		valueCondition = new ValueHighlightCondition(VALUE_PROPERTY, ValueHighlightCondition.VALUE_TYPE, true, NAME,
+		valueCondition = new ValueHighlightCondition(VALUE_PROPERTY, ValueHighlightCondition.Type.VALUE, true, NAME,
 				SHOW_IN_LEGEND, COLOR, INVISIBLE, USE_THICKNESS, LABEL_PROPERTY);
 		element1withValue1 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_1, VALUE_PROPERTY, 1));
 		element1withValue2 = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_1, VALUE_PROPERTY, 2));

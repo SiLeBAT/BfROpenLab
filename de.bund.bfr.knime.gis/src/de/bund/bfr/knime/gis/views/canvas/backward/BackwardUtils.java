@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
@@ -42,5 +43,24 @@ public class BackwardUtils {
 	public static Map<String, Map<String, Point2D>> toOldCollapseFormat(Map<String, Set<String>> map) {
 		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
 				e -> new LinkedHashMap<>(Maps.asMap(e.getValue(), Functions.constant((Point2D) null)))));
+	}
+
+	public static String toNewHighlightingFormat(String settings) {
+		String oldValuePrefix = "<void property=\"type\"><string>";
+		String oldValuePostfix = "</string></void>";
+		String newValuePrefix = "<void property=\"type\"><object class=\"java.lang.Enum\" method=\"valueOf\"><class>de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition$Type</class><string>";
+		String newValuePostfix = "</string></object></void>";
+
+		String oldValueType = oldValuePrefix + "Value" + oldValuePostfix;
+		String newValueType = newValuePrefix + "VALUE" + newValuePostfix;
+		String oldLogValueType = oldValuePrefix + "Log Value" + oldValuePostfix;
+		String newLogValueType = newValuePrefix + "LOG_VALUE" + newValuePostfix;
+
+		return trimLineAndRemoveLineBreaks(settings).replace(oldValueType, newValueType).replace(oldLogValueType,
+				newLogValueType);
+	}
+
+	private static String trimLineAndRemoveLineBreaks(String s) {
+		return Stream.of(s.split("\n")).map(l -> l.trim()).collect(Collectors.joining());
 	}
 }

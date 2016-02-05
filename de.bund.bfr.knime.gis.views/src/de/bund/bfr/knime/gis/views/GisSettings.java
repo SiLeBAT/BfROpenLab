@@ -32,6 +32,7 @@ import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.gis.GisType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
+import de.bund.bfr.knime.gis.views.canvas.backward.BackwardUtils;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -133,7 +134,7 @@ public class GisSettings extends Settings {
 
 		try {
 			nodeHighlightConditions = (HighlightConditionList) SERIALIZER
-					.fromXml(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS));
+					.fromXml(BackwardUtils.toNewHighlightingFormat(settings.getString(CFG_NODE_HIGHLIGHT_CONDITIONS)));
 		} catch (InvalidSettingsException e) {
 		}
 

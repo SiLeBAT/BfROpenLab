@@ -28,21 +28,30 @@ import java.util.DoubleSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableList;
-
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 
 public class ValueHighlightCondition implements HighlightCondition, Serializable {
 
-	public static final String VALUE_TYPE = "Value";
-	public static final String LOG_VALUE_TYPE = "Log Value";
-	public static final ImmutableList<String> TYPES = ImmutableList.of(VALUE_TYPE, LOG_VALUE_TYPE);
+	public static enum Type {
+		VALUE("Value"), LOG_VALUE("Log Value");
+
+		private String name;
+
+		private Type(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 
 	private String property;
-	private String type;
+	private Type type;
 	private boolean zeroAsMinimum;
 	private String name;
 	private boolean showInLegend;
@@ -55,8 +64,8 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		this(null, null, false, null, true, null, false, false, null);
 	}
 
-	public ValueHighlightCondition(String property, String type, boolean zeroAsMinimum, String name,
-			boolean showInLegend, Color color, boolean invisible, boolean useThickness, String labelProperty) {
+	public ValueHighlightCondition(String property, Type type, boolean zeroAsMinimum, String name, boolean showInLegend,
+			Color color, boolean invisible, boolean useThickness, String labelProperty) {
 		setProperty(property);
 		setType(type);
 		setZeroAsMinimum(zeroAsMinimum);
@@ -76,11 +85,11 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 		this.property = property;
 	}
 
-	public String getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
@@ -174,7 +183,7 @@ public class ValueHighlightCondition implements HighlightCondition, Serializable
 			}
 		}
 
-		if (type.equals(ValueHighlightCondition.LOG_VALUE_TYPE)) {
+		if (type == Type.LOG_VALUE) {
 			for (Map.Entry<T, Double> entry : values.entrySet()) {
 				entry.setValue(Math.log10(entry.getValue() * 9.0 + 1.0));
 			}

@@ -36,7 +36,6 @@ public interface TracingColumns {
 	public static final String NEXT = "Next";
 	public static final String FILESOURCES = "ImportSources";
 
-	public static final String OLD_WEIGHT = "CaseWeight";
 	public static final String WEIGHT = "Weight";
 	public static final String CROSS_CONTAMINATION = "CrossContamination";
 	public static final String KILL_CONTAMINATION = "Kill Contamination";
@@ -45,7 +44,6 @@ public interface TracingColumns {
 	public static final String POSITIVE_SCORE = "Positive Score";
 	public static final String NEGATIVE_SCORE = "Negative Score";
 
-	public static final String OLD_OBSERVED = "Filter";
 	public static final String OBSERVED = "Observed";
 	public static final String BACKWARD = "Backward";
 	public static final String FORWARD = "Forward";
