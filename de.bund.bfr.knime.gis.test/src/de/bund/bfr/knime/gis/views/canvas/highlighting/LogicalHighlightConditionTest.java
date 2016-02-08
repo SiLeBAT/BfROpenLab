@@ -88,16 +88,17 @@ public class LogicalHighlightConditionTest {
 	@Test
 	public void testGetValues() {
 		final String PROPERTY = "property";
-		final String VALUE = "value1";
-		final String OTHER_VALUE = "value2";
-		LogicalHighlightCondition equalCondition = new LogicalHighlightCondition(PROPERTY,
-				LogicalHighlightCondition.Type.EQUAL, VALUE);
-		Element valueElement = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE));
-		Element otherValueElement = new GraphNode(null, ImmutableMap.of(PROPERTY, OTHER_VALUE));
-		Map<Element, Double> values = equalCondition.getValues(Arrays.asList(valueElement, otherValueElement));
+		final String VALUE_1 = "value1";
+		final String VALUE_2 = "value2";
 
-		assertEquals(1.0, values.get(valueElement), 0.0);
-		assertEquals(0.0, values.get(otherValueElement), 0.0);
+		LogicalHighlightCondition value1Condition = new LogicalHighlightCondition(PROPERTY,
+				LogicalHighlightCondition.Type.EQUAL, VALUE_1);
+		Element value1Element = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_1));
+		Element value2Element = new GraphNode(null, ImmutableMap.of(PROPERTY, VALUE_2));
+		Map<Element, Double> value1Values = value1Condition.getValues(Arrays.asList(value1Element, value2Element));
+
+		assertEquals(1.0, value1Values.get(value1Element), 0.0);
+		assertEquals(0.0, value1Values.get(value2Element), 0.0);
 
 		LogicalHighlightCondition greaterCondition = new LogicalHighlightCondition(PROPERTY,
 				LogicalHighlightCondition.Type.GREATER, "1");
@@ -117,6 +118,27 @@ public class LogicalHighlightConditionTest {
 		assertEquals(0.0, lessValues.get(greaterElement), 0.0);
 		assertEquals(0.0, lessValues.get(equalElement), 0.0);
 		assertEquals(1.0, lessValues.get(lessElement), 0.0);
+
+		LogicalHighlightCondition regex1Condition = new LogicalHighlightCondition(PROPERTY,
+				LogicalHighlightCondition.Type.REGEX_EQUAL, ".*1");
+		Map<Element, Double> regex1Values = regex1Condition.getValues(Arrays.asList(value1Element, value2Element));
+
+		assertEquals(1.0, regex1Values.get(value1Element), 0.0);
+		assertEquals(0.0, regex1Values.get(value2Element), 0.0);
+
+		LogicalHighlightCondition regexCaseCondition = new LogicalHighlightCondition(PROPERTY,
+				LogicalHighlightCondition.Type.REGEX_EQUAL, "Value.*");
+		LogicalHighlightCondition regexNoCaseCondition = new LogicalHighlightCondition(PROPERTY,
+				LogicalHighlightCondition.Type.REGEX_EQUAL_IGNORE_CASE, "Value.*");
+		Map<Element, Double> regexCaseValues = regexCaseCondition
+				.getValues(Arrays.asList(value1Element, value2Element));
+		Map<Element, Double> regexNoCaseValues = regexNoCaseCondition
+				.getValues(Arrays.asList(value1Element, value2Element));
+
+		assertEquals(0.0, regexCaseValues.get(value1Element), 0.0);
+		assertEquals(0.0, regexCaseValues.get(value2Element), 0.0);
+		assertEquals(1.0, regexNoCaseValues.get(value1Element), 0.0);
+		assertEquals(1.0, regexNoCaseValues.get(value2Element), 0.0);
 	}
 
 	@Test
