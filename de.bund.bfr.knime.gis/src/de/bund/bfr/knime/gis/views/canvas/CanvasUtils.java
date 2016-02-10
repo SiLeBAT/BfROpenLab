@@ -144,7 +144,7 @@ public class CanvasUtils {
 	public static List<HighlightCondition> createCategorialHighlighting(Collection<? extends Element> elements,
 			String property) {
 		Set<Object> categories = elements.stream().map(e -> e.getProperties().get(property)).filter(Objects::nonNull)
-				.collect(Collectors.toSet());
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 		List<HighlightCondition> conditions = new ArrayList<>();
 		int index = 0;
 
@@ -290,19 +290,21 @@ public class CanvasUtils {
 	}
 
 	public static Set<String> getElementIds(Collection<? extends Element> elements) {
-		return elements.stream().map(e -> e.getId()).collect(Collectors.toSet());
+		return elements.stream().map(e -> e.getId()).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T extends Element> Set<T> getElementsById(Collection<T> elements, Set<String> ids) {
-		return elements.stream().filter(e -> ids.contains(e.getId())).collect(Collectors.toSet());
+		return elements.stream().filter(e -> ids.contains(e.getId()))
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
-		return elements.stream().collect(Collectors.toMap(e -> e.getId(), e -> e));
+		return elements.stream().collect(Collectors.toMap(e -> e.getId(), e -> e, (u, v) -> null, LinkedHashMap::new));
 	}
 
 	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
-		return ids.stream().map(id -> elements.get(id)).filter(Objects::nonNull).collect(Collectors.toSet());
+		return ids.stream().map(id -> elements.get(id)).filter(Objects::nonNull)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static Map<String, Set<String>> getPossibleValues(Collection<? extends Element> elements) {
@@ -559,7 +561,7 @@ public class CanvasUtils {
 
 		highlightConditions.getConditions().stream().filter(c -> c.isInvisible()).forEach(c -> {
 			Set<T> toRemove = c.getValues(elements).entrySet().stream().filter(e -> e.getValue() != 0.0)
-					.map(e -> e.getKey()).collect(Collectors.toSet());
+					.map(e -> e.getKey()).collect(Collectors.toCollection(LinkedHashSet::new));
 
 			elements.removeAll(toRemove);
 			removed.addAll(toRemove);
@@ -570,7 +572,7 @@ public class CanvasUtils {
 
 	public static <V extends Node> Set<Edge<V>> removeNodelessEdges(Set<Edge<V>> edges, Set<V> nodes) {
 		Set<Edge<V>> removed = edges.stream().filter(e -> !nodes.contains(e.getFrom()) || !nodes.contains(e.getTo()))
-				.collect(Collectors.toSet());
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 
 		edges.removeAll(removed);
 

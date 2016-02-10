@@ -336,6 +336,7 @@ public class TracingDelegate<V extends Node> {
 		Set<String> selectedNodeIds = canvas.getSelectedNodeIds();
 		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
 
+		canvas.resetNodesAndEdges();
 		canvas.applyNodeCollapse();
 		canvas.applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();

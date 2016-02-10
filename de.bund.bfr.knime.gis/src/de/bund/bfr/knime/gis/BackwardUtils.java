@@ -46,13 +46,15 @@ public class BackwardUtils {
 	private static final String MULTIPLE_ASK_USER = "Ask User";
 
 	public static Map<String, Set<String>> toNewCollapseFormat(Map<String, Map<String, Point2D>> map) {
-		return map.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> new LinkedHashSet<>(e.getValue().keySet())));
+		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+				e -> new LinkedHashSet<>(e.getValue().keySet()), (u, v) -> null, LinkedHashMap::new));
 	}
 
 	public static Map<String, Map<String, Point2D>> toOldCollapseFormat(Map<String, Set<String>> map) {
-		return map.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
-				e -> new LinkedHashMap<>(Maps.asMap(e.getValue(), Functions.constant((Point2D) null)))));
+		return map.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey(),
+						e -> new LinkedHashMap<>(Maps.asMap(e.getValue(), Functions.constant((Point2D) null))),
+						(u, v) -> null, LinkedHashMap::new));
 	}
 
 	public static GeocodingSettings.Provider toNewProviderFormat(String provider) {

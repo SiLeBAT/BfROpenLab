@@ -21,6 +21,7 @@ package de.bund.bfr.math;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class MultiVectorDiffFunction implements ValueAndJacobianFunction {
 		nTerms = formulas.length;
 		dependentIndex = Arrays.asList(dependentVariables).indexOf(dependentVariable);
 		parser = new Parser(Stream.concat(Stream.concat(Stream.of(dependentVariables), Stream.of(parameters)),
-				variableValues.keySet().stream()).collect(Collectors.toSet()));
+				variableValues.keySet().stream()).collect(Collectors.toCollection(LinkedHashSet::new)));
 		functions = new Node[nTerms];
 
 		for (int it = 0; it < nTerms; it++) {

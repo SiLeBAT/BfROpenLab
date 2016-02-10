@@ -455,8 +455,8 @@ public class LeastSquaresFitting implements Optimization {
 			r.parameterStandardErrors = new LinkedHashMap<>(parameterStandardErrors);
 			r.parameterTValues = new LinkedHashMap<>(parameterTValues);
 			r.parameterPValues = new LinkedHashMap<>(parameterPValues);
-			r.covariances = covariances.entrySet().stream()
-					.collect(Collectors.toMap(e -> new Pair<>(e.getKey()), e -> e.getValue()));
+			r.covariances = new LinkedHashMap<>();
+			covariances.entrySet().forEach(e -> r.covariances.put(new Pair<>(e.getKey()), e.getValue()));
 
 			r.sse = sse;
 			r.mse = mse;

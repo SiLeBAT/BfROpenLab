@@ -74,7 +74,8 @@ public class MathUtils {
 	}
 
 	public static Set<String> getSymbols(Collection<String> terms) {
-		return terms.stream().map(t -> MathUtils.getSymbols(t)).flatMap(Set::stream).collect(Collectors.toSet());
+		return terms.stream().map(t -> MathUtils.getSymbols(t)).flatMap(Set::stream)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static Set<String> getSymbols(String formula) {

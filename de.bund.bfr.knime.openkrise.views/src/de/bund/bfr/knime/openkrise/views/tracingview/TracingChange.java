@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -508,13 +509,8 @@ public class TracingChange implements Serializable {
 	}
 
 	private static <K, V> Map<K, V> toMap(Set<Pair<K, V>> set) {
-		Map<K, V> map = new LinkedHashMap<>();
-
-		for (Pair<K, V> entry : set) {
-			map.put(entry.getFirst(), entry.getSecond());
-		}
-
-		return map;
+		return set.stream()
+				.collect(Collectors.toMap(e -> e.getFirst(), e -> e.getSecond(), (u, v) -> null, LinkedHashMap::new));
 	}
 
 	private static <T> Pair<T, T> createDiff(T before, T after) {

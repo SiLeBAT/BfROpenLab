@@ -819,7 +819,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
-		setSelectedNodeIdsWithoutListener(Sets.newHashSet(newId));
+		setSelectedNodeIdsWithoutListener(new LinkedHashSet<>(Arrays.asList(newId)));
 		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
@@ -1061,6 +1061,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		Set<String> selectedNodeIds = getSelectedNodeIds();
 		Set<String> selectedEdgeIds = getSelectedEdgeIds();
 
+		resetNodesAndEdges();
 		applyNodeCollapse();
 		applyInvisibility();
 		applyJoinEdgesAndSkipEdgeless();
@@ -1074,10 +1075,13 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	}
 
 	@Override
-	public void applyNodeCollapse() {
-		nodes.clear();
-		edges.clear();
+	public void resetNodesAndEdges() {
+		nodes = CanvasUtils.getElementsById(nodeSaveMap, CanvasUtils.getElementIds(allNodes));
+		edges = CanvasUtils.getElementsById(edgeSaveMap, CanvasUtils.getElementIds(allEdges));
+	}
 
+	@Override
+	public void applyNodeCollapse() {
 		Map<String, String> collapseTo = new LinkedHashMap<>();
 
 		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
@@ -1086,50 +1090,44 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 			}
 		}
 
-		Map<String, V> nodesById = new LinkedHashMap<>();
-
-		allNodes.stream().filter(n -> !collapseTo.containsKey(n.getId())).map(n -> nodeSaveMap.get(n.getId()))
-				.forEach(n -> {
-					nodes.add(n);
-					nodesById.put(n.getId(), n);
-				});
+		Set<V> newNodes = nodes.stream().filter(n -> !collapseTo.containsKey(n.getId()))
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 
 		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
-			String newId = entry.getKey();
-			V newNode = nodeSaveMap.get(newId);
+			if (nodeSaveMap.containsKey(entry.getKey())) {
+				newNodes.add(nodeSaveMap.get(entry.getKey()));
+			} else {
+				V newNode = createMetaNode(entry.getKey(), CanvasUtils.getElementsById(nodeSaveMap, entry.getValue()));
 
-			if (newNode == null) {
-				newNode = createMetaNode(newId, CanvasUtils.getElementsById(nodeSaveMap, entry.getValue()));
-				nodeSaveMap.put(newId, newNode);
+				nodeSaveMap.put(newNode.getId(), newNode);
+				newNodes.add(newNode);
 			}
-
-			nodes.add(newNode);
-			nodesById.put(newId, newNode);
 		}
 
-		for (Edge<V> edge : allEdges) {
-			V from = nodesById.get(edge.getFrom().getId());
-			V to = nodesById.get(edge.getTo().getId());
+		Set<Edge<V>> newEdges = new LinkedHashSet<>();
+		Map<String, V> nodesById = CanvasUtils.getElementsById(newNodes);
+		Map<String, Edge<V>> allEdgesById = CanvasUtils.getElementsById(allEdges);
 
-			if (from == null) {
-				from = nodesById.get(collapseTo.get(edge.getFrom().getId()));
-			}
+		for (Edge<V> edge : edges) {
+			String fromId = allEdgesById.get(edge.getId()).getFrom().getId();
+			String toId = allEdgesById.get(edge.getId()).getTo().getId();
+			V from = nodesById.get(collapseTo.containsKey(fromId) ? collapseTo.get(fromId) : fromId);
+			V to = nodesById.get(collapseTo.containsKey(toId) ? collapseTo.get(toId) : toId);
 
-			if (to == null) {
-				to = nodesById.get(collapseTo.get(edge.getTo().getId()));
-			}
+			if (edge.getFrom().equals(from) && edge.getTo().equals(to)) {
+				newEdges.add(edge);
+			} else {
+				Edge<V> newEdge = new Edge<>(edge.getId(), edge.getProperties(), from, to);
 
-			Edge<V> newEdge = edgeSaveMap.get(edge.getId());
-
-			if (!newEdge.getFrom().equals(from) || !newEdge.getTo().equals(to)) {
-				newEdge = new Edge<>(newEdge.getId(), newEdge.getProperties(), from, to);
 				newEdge.getProperties().put(edgeSchema.getFrom(), from.getId());
 				newEdge.getProperties().put(edgeSchema.getTo(), to.getId());
 				edgeSaveMap.put(newEdge.getId(), newEdge);
+				newEdges.add(newEdge);
 			}
-
-			edges.add(newEdge);
 		}
+
+		nodes = newNodes;
+		edges = newEdges;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ package de.bund.bfr.knime.gis.views.canvas.highlighting;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,7 +107,8 @@ public class LogicalHighlightCondition implements Serializable {
 			booleanValue = null;
 		}
 
-		return elements.stream().collect(Collectors.toMap(e -> e, e -> evaluate(e)));
+		return elements.stream()
+				.collect(Collectors.toMap(e -> e, e -> evaluate(e), (u, v) -> null, LinkedHashMap::new));
 	}
 
 	@Override

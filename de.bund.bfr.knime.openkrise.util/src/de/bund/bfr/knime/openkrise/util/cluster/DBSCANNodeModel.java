@@ -100,7 +100,7 @@ public class DBSCANNodeModel extends NodeModel {
 
 		if (set.getFilter() != null) {
 			filteredOut = set.getFilter().getValues(nodes).entrySet().stream().filter(e -> e.getValue() == 0.0)
-					.map(e -> e.getKey().getId()).collect(Collectors.toSet());
+					.map(e -> e.getKey().getId()).collect(Collectors.toCollection(LinkedHashSet::new));
 		} else {
 			filteredOut = new LinkedHashSet<>();
 		}

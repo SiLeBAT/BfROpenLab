@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -122,7 +123,8 @@ public class GisUtils {
 	}
 
 	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {
-		Map<Polygon, Double> areas = getPolygons(poly).stream().collect(Collectors.toMap(p -> p, p -> p.getArea()));
+		Map<Polygon, Double> areas = getPolygons(poly).stream()
+				.collect(Collectors.toMap(p -> p, p -> p.getArea(), (u, v) -> null, LinkedHashMap::new));
 		Point center = Collections.max(areas.entrySet(), (p1, p2) -> Double.compare(p1.getValue(), p2.getValue()))
 				.getKey().getCentroid();
 

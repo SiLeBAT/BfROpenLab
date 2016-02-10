@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,8 +52,8 @@ public class LodFunction implements MultivariateFunction {
 
 		nParams = parameters.length;
 		nValues = targetValues.length;
-		parser = new Parser(
-				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
+		parser = new Parser(Stream.concat(Stream.of(parameters), variableValues.keySet().stream())
+				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		function = parser.parse(formula);
 	}
 

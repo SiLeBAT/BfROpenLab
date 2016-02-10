@@ -170,6 +170,8 @@ public interface ICanvas<V extends Node> {
 
 	void applyChanges();
 
+	void resetNodesAndEdges();
+
 	void applyNodeCollapse();
 
 	void applyInvisibility();

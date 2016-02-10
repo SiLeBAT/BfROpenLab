@@ -43,7 +43,7 @@ public class RegionToRegionUtils {
 		Map<String, RegionNode> gisNodesByRegion = CanvasUtils.getElementsById(gisNodes);
 
 		return selectedGraphNodes.stream().map(n -> gisNodesByRegion.get(n.getRegion())).filter(Objects::nonNull)
-				.map(n -> n.getId()).collect(Collectors.toSet());
+				.map(n -> n.getId()).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static Set<String> getSelectedGraphNodeIds(Set<GraphNode> graphNodes, Set<RegionNode> selectedGisNodes) {
@@ -54,7 +54,7 @@ public class RegionToRegionUtils {
 		}
 
 		return selectedGisNodes.stream().map(n -> graphNodesByRegion.get(n.getId())).flatMap(Set::stream)
-				.collect(Collectors.toSet());
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static Set<String> getSelectedGisEdgeIds(Set<Edge<RegionNode>> gisEdges,

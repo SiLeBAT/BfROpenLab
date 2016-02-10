@@ -20,6 +20,7 @@
 package de.bund.bfr.math;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,8 +47,8 @@ public class VectorFunction implements ValueAndJacobianFunction {
 
 		nParams = parameters.length;
 		nValues = variableValues.values().stream().findAny().get().length;
-		parser = new Parser(
-				Stream.concat(Stream.of(parameters), variableValues.keySet().stream()).collect(Collectors.toSet()));
+		parser = new Parser(Stream.concat(Stream.of(parameters), variableValues.keySet().stream())
+				.collect(Collectors.toCollection(LinkedHashSet::new)));
 		function = parser.parse(formula);
 		derivatives = new LinkedHashMap<>();
 

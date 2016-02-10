@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.nls.chart;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +40,6 @@ public class NlsChartUtils {
 
 	public static List<String> getOrderedVariables(Collection<Plotable> plotables) {
 		return KnimeUtils.ORDERING.sortedCopy(plotables.stream().map(p -> p.getIndependentVariables().keySet())
-				.flatMap(Set::stream).collect(Collectors.toSet()));
+				.flatMap(Set::stream).collect(Collectors.toCollection(LinkedHashSet::new)));
 	}
 }
