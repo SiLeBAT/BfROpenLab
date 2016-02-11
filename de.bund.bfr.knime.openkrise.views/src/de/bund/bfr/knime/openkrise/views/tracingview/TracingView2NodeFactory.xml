@@ -142,7 +142,7 @@
 			</option>
 			<option name="Show Cross Contaminated Deliveries">
 				If checked, all invisible deliveries, that can be reached from the visible
-				deliveries via the cross contamination specified by the user, are made visible.
+				deliveries only via the cross contamination specified by the user, are made visible.
 			</option>
 		</tab>
 		<tab name="Context Menu">
@@ -220,7 +220,8 @@
 				Removes all Highlight Conditions for deliveries.
 			</option>
 			<option name="Delivery Highlighting -> Select Highlighted">
-				All deliveries that have non zero values for the specified Highlight Condition
+				All deliveries that have non zero values for the specified Highlight
+				Condition
 				will be selected.
 			</option>
 			<option name="Delivery Highlighting -> Add Category Highlighting">

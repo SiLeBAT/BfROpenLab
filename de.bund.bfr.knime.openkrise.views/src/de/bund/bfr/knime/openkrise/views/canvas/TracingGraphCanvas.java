@@ -209,11 +209,6 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	}
 
 	@Override
-	public void applyInvisibility() {
-		tracing.applyInvisibility();
-	}
-
-	@Override
 	protected BetterPickingGraphMousePlugin<GraphNode, Edge<GraphNode>> createPickingPlugin() {
 		return new TracingDelegate.PickingPlugin<>(this);
 	}

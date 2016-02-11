@@ -338,7 +338,7 @@ public class TracingDelegate<V extends Node> {
 
 		canvas.resetNodesAndEdges();
 		canvas.applyNodeCollapse();
-		canvas.applyInvisibility();
+		applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
 		applyTracing();
 		canvas.applyShowEdgesInMetaNode();
@@ -351,7 +351,7 @@ public class TracingDelegate<V extends Node> {
 		canvas.getViewer().repaint();
 	}
 
-	public void applyInvisibility() {
+	private void applyInvisibility() {
 		if (!isShowForward()) {
 			CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
 			CanvasUtils.removeInvisibleElements(canvas.getEdges(), canvas.getEdgeHighlightConditions());
@@ -385,44 +385,6 @@ public class TracingDelegate<V extends Node> {
 				canvas.getEdges().add(edge);
 			}
 		}
-	}
-
-	private Tracing.Result createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
-		Map<String, Delivery> activeDeliveries = new LinkedHashMap<>();
-
-		for (Edge<V> edge : edges) {
-			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));
-		}
-
-		Tracing tracing = new Tracing(activeDeliveries.values());
-
-		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
-			tracing.mergeStations(entry.getValue(), entry.getKey());
-		}
-
-		for (V node : canvas.getNodes()) {
-			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) node.getProperties().get(TracingColumns.KILL_CONTAMINATION);
-
-			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
-			tracing.setCrossContaminationOfStation(node.getId(),
-					contaminationValue != null && useCrossContamination ? contaminationValue : false);
-			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue : false);
-		}
-
-		for (Edge<V> edge : edges) {
-			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) edge.getProperties().get(TracingColumns.KILL_CONTAMINATION);
-
-			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
-			tracing.setCrossContaminationOfDelivery(edge.getId(),
-					contaminationValue != null && useCrossContamination ? contaminationValue : false);
-			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue : false);
-		}
-
-		return tracing.getResult(isEnforceTemporalOrder());
 	}
 
 	private void applyTracing() {
@@ -512,6 +474,44 @@ public class TracingDelegate<V extends Node> {
 				}
 			}
 		}
+	}
+
+	private Tracing.Result createTracing(Set<Edge<V>> edges, boolean useCrossContamination) {
+		Map<String, Delivery> activeDeliveries = new LinkedHashMap<>();
+
+		for (Edge<V> edge : edges) {
+			activeDeliveries.put(edge.getId(), deliveries.get(edge.getId()));
+		}
+
+		Tracing tracing = new Tracing(activeDeliveries.values());
+
+		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
+			tracing.mergeStations(entry.getValue(), entry.getKey());
+		}
+
+		for (V node : canvas.getNodes()) {
+			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
+			Boolean contaminationValue = (Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
+			Boolean killValue = (Boolean) node.getProperties().get(TracingColumns.KILL_CONTAMINATION);
+
+			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
+			tracing.setCrossContaminationOfStation(node.getId(),
+					contaminationValue != null && useCrossContamination ? contaminationValue : false);
+			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue : false);
+		}
+
+		for (Edge<V> edge : edges) {
+			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
+			Boolean contaminationValue = (Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
+			Boolean killValue = (Boolean) edge.getProperties().get(TracingColumns.KILL_CONTAMINATION);
+
+			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
+			tracing.setCrossContaminationOfDelivery(edge.getId(),
+					contaminationValue != null && useCrossContamination ? contaminationValue : false);
+			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue : false);
+		}
+
+		return tracing.getResult(isEnforceTemporalOrder());
 	}
 
 	@SuppressWarnings("unchecked")

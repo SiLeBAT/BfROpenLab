@@ -211,11 +211,6 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 	}
 
 	@Override
-	public void applyInvisibility() {
-		tracing.applyInvisibility();
-	}
-
-	@Override
 	protected BetterPickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
 		return new TracingDelegate.PickingPlugin<>(this);
 	}

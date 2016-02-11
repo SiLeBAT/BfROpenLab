@@ -209,11 +209,6 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
-	public void applyInvisibility() {
-		tracing.applyInvisibility();
-	}
-
-	@Override
 	protected BetterPickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
 		return new TracingDelegate.PickingPlugin<>(this);
 	}
