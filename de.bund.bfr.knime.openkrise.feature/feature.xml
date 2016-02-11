@@ -39,6 +39,9 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
       <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.knime.timeseries"/>
+      <import plugin="org.knime.js.views"/>
+      <import plugin="org.knime.ext.jep"/>
    </requires>
 
    <plugin
