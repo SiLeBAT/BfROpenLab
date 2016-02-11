@@ -353,9 +353,7 @@ public class TracingDelegate<V extends Node> {
 
 	private void applyInvisibility() {
 		if (!isShowForward()) {
-			CanvasUtils.removeInvisibleElements(canvas.getNodes(), canvas.getNodeHighlightConditions());
-			CanvasUtils.removeInvisibleElements(canvas.getEdges(), canvas.getEdgeHighlightConditions());
-			CanvasUtils.removeNodelessEdges(canvas.getEdges(), canvas.getNodes());
+			canvas.applyInvisibility();
 			return;
 		}
 
