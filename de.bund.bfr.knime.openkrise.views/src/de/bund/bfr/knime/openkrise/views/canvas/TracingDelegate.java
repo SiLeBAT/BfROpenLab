@@ -26,6 +26,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -337,6 +338,7 @@ public class TracingDelegate<V extends Node> {
 		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
 
 		canvas.resetNodesAndEdges();
+		applyTimeWindow(null, null, true);
 		canvas.applyNodeCollapse();
 		applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
@@ -349,6 +351,24 @@ public class TracingDelegate<V extends Node> {
 		canvas.setSelectedNodeIdsWithoutListener(selectedNodeIds);
 		canvas.setSelectedEdgeIdsWithoutListener(selectedEdgeIds);
 		canvas.getViewer().repaint();
+	}
+
+	private void applyTimeWindow(Calendar from, Calendar to, boolean showEdgesWithoutDate) {
+		if (from == null && to == null && showEdgesWithoutDate) {
+			return;
+		}
+
+		Delivery beforeDelivery = createDateDelivery(from);
+		Delivery afterDelivery = createDateDelivery(to);
+
+		for (Edge<V> edge : new LinkedHashSet<>(canvas.getEdges())) {
+			Delivery d = deliveries.get(edge.getId());
+
+			if ((d.getDepartureYear() == null && d.getArrivalYear() == null && !showEdgesWithoutDate)
+					|| !beforeDelivery.isBefore(d) || !d.isBefore(afterDelivery)) {
+				canvas.getEdges().remove(edge);
+			}
+		}
 	}
 
 	private void applyInvisibility() {
@@ -510,6 +530,13 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		return tracing.getResult(isEnforceTemporalOrder());
+	}
+
+	private Delivery createDateDelivery(Calendar c) {
+		return c != null
+				? new Delivery(null, null, null, c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1,
+						c.get(Calendar.YEAR), null, null, null)
+				: new Delivery(null, null, null, null, null, null, null, null, null);
 	}
 
 	@SuppressWarnings("unchecked")
