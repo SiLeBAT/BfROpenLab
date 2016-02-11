@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse version="3.0"?><plugin>
 
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/FoodChainLab.png" level-id="network" name="Network" path="/foodchain" />
+	</extension>
+
 	<extension point="org.knime.workbench.repository.nodes">
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.cluster.DBSCANNodeFactory" id="de.bund.bfr.knime.openkrise.util.cluster.DBSCANNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.geocode.GeocodingNodeFactory" id="de.bund.bfr.knime.openkrise.util.geocode.GeocodingNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.shapefilereader.ShapefileReaderNodeFactory" id="de.bund.bfr.knime.openkrise.util.shapefilereader.ShapefileReaderNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory" id="de.bund.bfr.knime.openkrise.util.tracing.TracingParametersNodeFactory"/>
 		<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory" id="de.bund.bfr.knime.openkrise.util.address.AddressCreatorNodeFactory"/>
-	<node category-path="/foodchain" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory" id="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
+	<node category-path="/foodchain/network" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory" id="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 </extension>
 
 </plugin>
