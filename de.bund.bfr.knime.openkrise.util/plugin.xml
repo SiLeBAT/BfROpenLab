@@ -24,5 +24,11 @@
             workflowDir="metanode_templates/DegreeDistribution/">
       </PersistedMetaNode>
    </extension>
+ <extension
+       point="org.knime.network.core.AnalyzerType">
+    <NetworkAnalyzer
+          AnalyzerType="de.bund.bfr.knime.openkrise.util.closeness.ClosenessAnalyzerType">
+    </NetworkAnalyzer>
+ </extension>
 
 </plugin>
