@@ -44,16 +44,36 @@ public class DateSlider extends JPanel {
 	private JLabel dateLabel;
 	private JCheckBox withoutDateBox;
 
+	private boolean mouseDown;
+
 	public DateSlider(GregorianCalendar from, GregorianCalendar to) {
 		int max = getDifferenceInDays(from, to);
 
+		mouseDown = false;
 		date = from;
 		slider = new JSlider(0, max, max);
-		slider.addChangeListener(e -> updateDateLabel());
+		slider.addChangeListener(e -> {
+			updateDateLabel();
+
+			if (!mouseDown) {
+				configChanged();
+			}
+		});
 		slider.addMouseListener(new MouseAdapter() {
 
 			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					mouseDown = true;
+				}
+			}
+
+			@Override
 			public void mouseReleased(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					mouseDown = false;
+				}
+
 				configChanged();
 			}
 		});
