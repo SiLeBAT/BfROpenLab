@@ -19,13 +19,13 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.closeness;
 
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
@@ -46,10 +46,35 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 	private static final String[] COLUMN_NAMES = new String[] { "Closeness" };
 	private static final DataType[] COLUMN_TYPES = new DataType[] { DoubleCell.TYPE };
 
-	private static AtomicInteger i = new AtomicInteger();
+	private int numberOfNodes;
+	private int numberOfEdges;
+	private Map<PersistentObject, Collection<PersistentObject>> incidentNodes;
+	private Map<PersistentObject, Collection<PersistentObject>> incidentEdges;
 
 	protected ClosenessAnalyzer() {
 		super(new String[] { "Closeness" });
+		numberOfNodes = 0;
+		numberOfEdges = 0;
+		incidentNodes = new HashMap<>();
+		incidentEdges = new HashMap<>();
+	}
+
+	@Override
+	protected void initializeInternal(KPartiteGraphView<PersistentObject, Partition> view, ExecutionMonitor exec)
+			throws PersistenceException, CanceledExecutionException {
+		super.initializeInternal(view, exec);
+		numberOfNodes = (int) view.getNoOfNodes();
+		numberOfEdges = (int) view.getNoOfEdges();
+		incidentNodes.clear();
+		incidentEdges.clear();
+
+		for (PersistentObject edge : view.getEdges()) {
+			incidentNodes.put(edge, view.getIncidentNodes(edge));
+		}
+
+		for (PersistentObject node : view.getNodes()) {
+			incidentEdges.put(node, view.getIncidentEdges(node));
+		}
 	}
 
 	@Override
@@ -57,8 +82,8 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			KPartiteGraphView<PersistentObject, Partition> view, PersistentObject object)
 					throws PersistenceException, CanceledExecutionException {
 		Deque<PersistentObject> nodeQueue = new LinkedList<>();
-		Map<String, Integer> visitedNodes = new HashMap<>((int) view.getNoOfNodes(), 1.0f);
-		Set<String> visitedEdges = new HashSet<>((int) view.getNoOfEdges(), 1.0f);
+		Map<String, Integer> visitedNodes = new HashMap<>(numberOfNodes, 1.0f);
+		Set<String> visitedEdges = new HashSet<>(numberOfEdges, 1.0f);
 		int distanceSum = 0;
 
 		visitedNodes.put(object.getId(), 0);
@@ -69,9 +94,9 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			String currentNodeId = currentNode.getId();
 			int distance = visitedNodes.get(currentNodeId) + 1;
 
-			for (PersistentObject edge : view.getIncidentEdges(currentNode)) {
+			for (PersistentObject edge : incidentEdges.get(currentNode)) {
 				if (visitedEdges.add(edge.getId())) {
-					for (PersistentObject targetNode : view.getIncidentNodes(edge)) {
+					for (PersistentObject targetNode : incidentNodes.get(edge)) {
 						String targetNodeId = targetNode.getId();
 
 						if (!currentNodeId.equals(targetNodeId) && !visitedNodes.containsKey(targetNodeId)) {
@@ -84,13 +109,12 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			}
 		}
 
-		System.out.println(i.getAndIncrement());
 		return new double[] { distanceSum != 0 ? 1.0 / distanceSum : 0.0 };
 	}
 
 	@Override
 	public Analyzer<PersistentObject> createInstance() {
-		return new ClosenessAnalyzer();
+		return this;
 	}
 
 	@Override
