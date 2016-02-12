@@ -19,10 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JPanel;
 
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
@@ -182,5 +183,5 @@ public interface ICanvas<V extends Node> {
 
 	void applyShowEdgesInMetaNode();
 
-	Component getComponent();
+	JPanel getComponent();
 }

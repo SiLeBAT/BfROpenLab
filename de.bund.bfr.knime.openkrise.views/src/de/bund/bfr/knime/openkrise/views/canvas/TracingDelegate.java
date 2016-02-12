@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,10 +29,13 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
@@ -41,6 +45,7 @@ import javax.swing.JSeparator;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -75,6 +80,7 @@ public class TracingDelegate<V extends Node> {
 
 	private JCheckBox enforceTemporalOrderBox;
 	private JCheckBox showForwardBox;
+	private DateSlider dateSlider;
 
 	public TracingDelegate(ITracingCanvas<V> canvas, Map<String, V> nodeSaveMap, Map<String, Edge<V>> edgeSaveMap,
 			Map<Edge<V>, Set<Edge<V>>> joinMap, Map<String, Delivery> deliveries) {
@@ -106,6 +112,14 @@ public class TracingDelegate<V extends Node> {
 
 			listeners.forEach(l -> l.showForwardChanged(canvas));
 		});
+
+		Pair<GregorianCalendar, GregorianCalendar> dateRange = getDateRange(deliveries.values());
+
+		if (dateRange != null) {
+			dateSlider = new DateSlider(dateRange.getFirst(), dateRange.getSecond());
+			dateSlider.addDateListener(e -> applyChanges());
+			canvas.getComponent().add(dateSlider, BorderLayout.NORTH);
+		}
 
 		JMenuItem defaultHighlightItem = new JMenuItem("Set default Highlighting");
 
@@ -338,7 +352,7 @@ public class TracingDelegate<V extends Node> {
 		Set<String> selectedEdgeIds = canvas.getSelectedEdgeIds();
 
 		canvas.resetNodesAndEdges();
-		applyTimeWindow(null, null, true);
+		applyTimeWindow();
 		canvas.applyNodeCollapse();
 		applyInvisibility();
 		canvas.applyJoinEdgesAndSkipEdgeless();
@@ -353,19 +367,25 @@ public class TracingDelegate<V extends Node> {
 		canvas.getViewer().repaint();
 	}
 
-	private void applyTimeWindow(Calendar from, Calendar to, boolean showEdgesWithoutDate) {
-		if (from == null && to == null && showEdgesWithoutDate) {
+	private void applyTimeWindow() {
+		if (dateSlider == null) {
 			return;
 		}
 
-		Delivery beforeDelivery = createDateDelivery(from);
-		Delivery afterDelivery = createDateDelivery(to);
+		GregorianCalendar to = dateSlider.getDate();
+		boolean showEdgesWithoutDate = dateSlider.isShowDeliveriesWithoutDate();
+
+		if (to == null && showEdgesWithoutDate) {
+			return;
+		}
+
+		Delivery afterDelivery = createDeliveryFromDate(to);
 
 		for (Edge<V> edge : new LinkedHashSet<>(canvas.getEdges())) {
 			Delivery d = deliveries.get(edge.getId());
 
 			if ((d.getDepartureYear() == null && d.getArrivalYear() == null && !showEdgesWithoutDate)
-					|| !beforeDelivery.isBefore(d) || !d.isBefore(afterDelivery)) {
+					|| !d.isBefore(afterDelivery)) {
 				canvas.getEdges().remove(edge);
 			}
 		}
@@ -532,11 +552,40 @@ public class TracingDelegate<V extends Node> {
 		return tracing.getResult(isEnforceTemporalOrder());
 	}
 
-	private Delivery createDateDelivery(Calendar c) {
+	private static Pair<GregorianCalendar, GregorianCalendar> getDateRange(Collection<Delivery> deliveries) {
+		Optional<GregorianCalendar> from = deliveries.stream().map(d -> createDateFromDelivery(d, false))
+				.filter(Objects::nonNull).min(GregorianCalendar::compareTo);
+		Optional<GregorianCalendar> to = deliveries.stream().map(d -> createDateFromDelivery(d, true))
+				.filter(Objects::nonNull).max(GregorianCalendar::compareTo);
+
+		return from.isPresent() && to.isPresent() ? new Pair<>(from.get(), to.get()) : null;
+	}
+
+	private static Delivery createDeliveryFromDate(GregorianCalendar c) {
 		return c != null
 				? new Delivery(null, null, null, c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH) + 1,
 						c.get(Calendar.YEAR), null, null, null)
 				: new Delivery(null, null, null, null, null, null, null, null, null);
+	}
+
+	private static GregorianCalendar createDateFromDelivery(Delivery d, boolean arrival) {
+		Integer year = arrival ? d.getArrivalYear() : d.getDepartureYear();
+		Integer month = arrival ? d.getArrivalMonth() : d.getDepartureMonth();
+		Integer day = arrival ? d.getArrivalDay() : d.getDepartureDay();
+
+		if (year == null) {
+			return null;
+		}
+
+		if (month == null) {
+			month = arrival ? 12 : 1;
+		}
+
+		if (day == null) {
+			day = arrival ? new GregorianCalendar(year, month - 1, 1).get(Calendar.DAY_OF_MONTH) : 1;
+		}
+
+		return new GregorianCalendar(year, month - 1, day);
 	}
 
 	@SuppressWarnings("unchecked")
