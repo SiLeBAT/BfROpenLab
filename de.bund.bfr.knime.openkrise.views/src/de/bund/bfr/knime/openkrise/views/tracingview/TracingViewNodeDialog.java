@@ -25,6 +25,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Deque;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -106,6 +107,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private boolean showLegend;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
+	private boolean showDeliveriesWithoutDate;
+	private GregorianCalendar showToDate;
 
 	private int nodeSize;
 	private Integer nodeMaxSize;
@@ -594,6 +597,19 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
+	@Override
+	public void dateSettingsChanged(ITracingCanvas<?> source) {
+		boolean newShowDeliveriesWithoutDate = canvas.isShowDeliveriesWithoutDate();
+		GregorianCalendar newShowToDate = canvas.getShowToDate();
+
+		if (changeOccured(new TracingChange.Builder()
+				.showWithoutDateChanged(showDeliveriesWithoutDate, newShowDeliveriesWithoutDate)
+				.showToDateChanged(showToDate, newShowToDate).build())) {
+			showDeliveriesWithoutDate = newShowDeliveriesWithoutDate;
+			showToDate = newShowToDate;
+		}
+	}
+
 	private void gisTypeChanged() {
 		updateSettings();
 		changeOccured(TracingChange.Builder.createViewChange(set.isShowGis(), set.isShowGis(), set.getGisType(),
@@ -713,6 +729,8 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		showLegend = canvas.isShowLegend();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
+		showDeliveriesWithoutDate = canvas.isShowDeliveriesWithoutDate();
+		showToDate = canvas.getShowToDate();
 
 		nodeSize = canvas.getNodeSize();
 		nodeMaxSize = canvas.getNodeMaxSize();

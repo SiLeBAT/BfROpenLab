@@ -44,4 +44,6 @@ public interface TracingListener {
 	void enforceTemporalOrderChanged(ITracingCanvas<?> source);
 
 	void showForwardChanged(ITracingCanvas<?> source);
+
+	void dateSettingsChanged(ITracingCanvas<?> source);
 }

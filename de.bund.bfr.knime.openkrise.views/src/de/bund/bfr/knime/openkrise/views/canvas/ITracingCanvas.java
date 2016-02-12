@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,14 @@ public interface ITracingCanvas<V extends Node> extends ICanvas<V> {
 	boolean isShowForward();
 
 	void setShowForward(boolean showForward);
+
+	GregorianCalendar getShowToDate();
+
+	void setShowToDate(GregorianCalendar showToDate);
+
+	boolean isShowDeliveriesWithoutDate();
+
+	void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate);
 
 	boolean isPerformTracing();
 

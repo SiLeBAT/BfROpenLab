@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +170,26 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 	@Override
 	public void setShowForward(boolean showForward) {
 		tracing.setShowForward(showForward);
+	}
+
+	@Override
+	public GregorianCalendar getShowToDate() {
+		return tracing.getShowToDate();
+	}
+
+	@Override
+	public void setShowToDate(GregorianCalendar showToDate) {
+		tracing.setShowToDate(showToDate);
+	}
+
+	@Override
+	public boolean isShowDeliveriesWithoutDate() {
+		return tracing.isShowDeliveriesWithoutDate();
+	}
+
+	@Override
+	public void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate) {
+		tracing.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
 	}
 
 	@Override

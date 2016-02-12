@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -84,6 +85,8 @@ public class TracingChange implements Serializable {
 
 		private boolean enforceTempChanged;
 		private boolean showForwardChanged;
+		private boolean showWithoutDateChanged;
+		private Pair<GregorianCalendar, GregorianCalendar> showToDateDiff;
 
 		private Pair<Integer, Integer> nodeSizeDiff;
 		private Pair<Integer, Integer> nodeMaxSizeDiff;
@@ -131,6 +134,8 @@ public class TracingChange implements Serializable {
 			showLegendChanged = false;
 			enforceTempChanged = false;
 			showForwardChanged = false;
+			showWithoutDateChanged = false;
+			showToDateDiff = null;
 
 			nodeSizeDiff = null;
 			nodeMaxSizeDiff = null;
@@ -265,6 +270,16 @@ public class TracingChange implements Serializable {
 			return this;
 		}
 
+		public Builder showWithoutDateChanged(boolean showWithoutDateBefore, boolean showWithoutDateAfter) {
+			showWithoutDateChanged = showWithoutDateBefore != showWithoutDateAfter;
+			return this;
+		}
+
+		public Builder showToDateChanged(GregorianCalendar showToDateBefore, GregorianCalendar showToDateAfter) {
+			showToDateDiff = createDiff(showToDateBefore, showToDateAfter);
+			return this;
+		}
+
 		public Builder nodeSize(int nodeSizeBefore, int nodeSizeAfter, Integer nodeMaxSizeBefore,
 				Integer nodeMaxSizeAfter) {
 			nodeSizeDiff = createDiff(nodeSizeBefore, nodeSizeAfter);
@@ -370,6 +385,14 @@ public class TracingChange implements Serializable {
 
 		if (builder.showForwardChanged) {
 			canvas.setShowForward(!canvas.isShowForward());
+		}
+
+		if (builder.showWithoutDateChanged) {
+			canvas.setShowDeliveriesWithoutDate(!canvas.isShowDeliveriesWithoutDate());
+		}
+
+		if (builder.showToDateDiff != null) {
+			canvas.setShowToDate(undo ? builder.showToDateDiff.getFirst() : builder.showToDateDiff.getSecond());
 		}
 
 		if (!builder.changedCollapsedNodes.isEmpty()) {
@@ -488,10 +511,10 @@ public class TracingChange implements Serializable {
 				&& builder.changedObservedNodes.isEmpty() && builder.changedObservedEdges.isEmpty()
 				&& !builder.edgeJoinChanged && !builder.skipEdgelessChanged && !builder.showEdgesInMetaChanged
 				&& !builder.arrowInMiddleChanged && !builder.showLegendChanged && !builder.enforceTempChanged
-				&& !builder.showForwardChanged && builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null
-				&& builder.edgeThicknessDiff == null && builder.edgeMaxThicknessDiff == null
-				&& builder.fontSizeDiff == null && !builder.fontBoldChanged && builder.labelDiff == null
-				&& builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
+				&& !builder.showForwardChanged && !builder.showWithoutDateChanged && builder.showToDateDiff == null
+				&& builder.nodeSizeDiff == null && builder.nodeMaxSizeDiff == null && builder.edgeThicknessDiff == null
+				&& builder.edgeMaxThicknessDiff == null && builder.fontSizeDiff == null && !builder.fontBoldChanged
+				&& builder.labelDiff == null && builder.borderAlphaDiff == null && !builder.avoidOverlayChanged;
 	}
 
 	private static <T> Set<T> symDiff(Set<T> before, Set<T> after) {

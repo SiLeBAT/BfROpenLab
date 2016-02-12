@@ -22,6 +22,7 @@ package de.bund.bfr.knime.openkrise.views.tracingview;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -73,6 +74,8 @@ public class TracingViewSettings extends NodeSettings {
 	private static final String CFG_OBSERVED_EDGES = "EdgeFilter";
 	private static final String CFG_ENFORCE_TEMPORAL_ORDER = "EnforceTemporalOrder";
 	private static final String CFG_SHOW_FORWARD = "ShowConnected";
+	private static final String CFG_SHOW_DELIVERIES_WITHOUT_DATE = "ShowDeliveriesWithoutDate";
+	private static final String CFG_SHOW_TO_DATE = "ShowToDate";
 
 	private boolean showGis;
 	private GisType gisType;
@@ -101,6 +104,8 @@ public class TracingViewSettings extends NodeSettings {
 	private Map<String, Boolean> observedEdges;
 	private boolean enforeTemporalOrder;
 	private boolean showForward;
+	private boolean showDeliveriesWithoutDate;
+	private GregorianCalendar showToDate;
 
 	private GraphSettings graphSettings;
 	private GisSettings gisSettings;
@@ -133,6 +138,8 @@ public class TracingViewSettings extends NodeSettings {
 		observedEdges = new LinkedHashMap<>();
 		enforeTemporalOrder = true;
 		showForward = false;
+		showDeliveriesWithoutDate = true;
+		showToDate = null;
 
 		graphSettings = new GraphSettings();
 		gisSettings = new GisSettings();
@@ -278,6 +285,16 @@ public class TracingViewSettings extends NodeSettings {
 		} catch (InvalidSettingsException e) {
 		}
 
+		try {
+			showDeliveriesWithoutDate = settings.getBoolean(CFG_SHOW_DELIVERIES_WITHOUT_DATE);
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			showToDate = (GregorianCalendar) SERIALIZER.fromXml(settings.getString(CFG_SHOW_TO_DATE));
+		} catch (InvalidSettingsException e) {
+		}
+
 		graphSettings.loadSettings(settings);
 		gisSettings.loadSettings(settings);
 	}
@@ -311,6 +328,8 @@ public class TracingViewSettings extends NodeSettings {
 		settings.addString(CFG_OBSERVED_EDGES, SERIALIZER.toXml(observedEdges));
 		settings.addBoolean(CFG_ENFORCE_TEMPORAL_ORDER, enforeTemporalOrder);
 		settings.addBoolean(CFG_SHOW_FORWARD, showForward);
+		settings.addBoolean(CFG_SHOW_DELIVERIES_WITHOUT_DATE, showDeliveriesWithoutDate);
+		settings.addString(CFG_SHOW_TO_DATE, SERIALIZER.toXml(showToDate));
 
 		graphSettings.saveSettings(settings);
 		gisSettings.saveSettings(settings);
@@ -345,6 +364,8 @@ public class TracingViewSettings extends NodeSettings {
 		observedEdges = canvas.getObservedEdges();
 		enforeTemporalOrder = canvas.isEnforceTemporalOrder();
 		showForward = canvas.isShowForward();
+		showDeliveriesWithoutDate = canvas.isShowDeliveriesWithoutDate();
+		showToDate = canvas.getShowToDate();
 	}
 
 	public void setToCanvas(ITracingCanvas<?> canvas) {
@@ -378,6 +399,8 @@ public class TracingViewSettings extends NodeSettings {
 		canvas.setObservedEdges(observedEdges);
 		canvas.setEnforceTemporalOrder(enforeTemporalOrder);
 		canvas.setShowForward(showForward);
+		canvas.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
+		canvas.setShowToDate(showToDate);
 	}
 
 	public GraphSettings getGraphSettings() {

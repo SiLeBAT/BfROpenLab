@@ -117,7 +117,10 @@ public class TracingDelegate<V extends Node> {
 
 		if (dateRange != null) {
 			dateSlider = new DateSlider(dateRange.getFirst(), dateRange.getSecond());
-			dateSlider.addDateListener(e -> applyChanges());
+			dateSlider.addDateListener(e -> {
+				applyChanges();
+				listeners.forEach(l -> l.dateSettingsChanged(canvas));
+			});
 			canvas.getComponent().add(dateSlider, BorderLayout.NORTH);
 		}
 
@@ -282,6 +285,24 @@ public class TracingDelegate<V extends Node> {
 		showForwardBox.setSelected(showForward);
 	}
 
+	public GregorianCalendar getShowToDate() {
+		return dateSlider != null ? dateSlider.getShowToDate() : null;
+	}
+
+	public void setShowToDate(GregorianCalendar showToDate) {
+		if (dateSlider != null) {
+			dateSlider.setShowToDate(showToDate);
+		}
+	}
+
+	public boolean isShowDeliveriesWithoutDate() {
+		return dateSlider.isShowDeliveriesWithoutDate();
+	}
+
+	public void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate) {
+		dateSlider.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
+	}
+
 	public boolean isPerformTracing() {
 		return performTracing;
 	}
@@ -372,7 +393,7 @@ public class TracingDelegate<V extends Node> {
 			return;
 		}
 
-		GregorianCalendar to = dateSlider.getDate();
+		GregorianCalendar to = dateSlider.getShowToDate();
 		boolean showEdgesWithoutDate = dateSlider.isShowDeliveriesWithoutDate();
 
 		if (to == null && showEdgesWithoutDate) {

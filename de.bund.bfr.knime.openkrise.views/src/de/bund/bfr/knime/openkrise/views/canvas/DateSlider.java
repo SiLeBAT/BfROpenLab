@@ -34,8 +34,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
-import de.bund.bfr.knime.UI;
-
 public class DateSlider extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -56,20 +54,24 @@ public class DateSlider extends JPanel {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				Arrays.asList(listenerList.getListeners(DateListener.class))
-						.forEach(l -> l.configChanged(DateSlider.this));
+				configChanged();
 			}
 		});
 		dateLabel = new JLabel();
 		updateDateLabel();
 		withoutDateBox = new JCheckBox("Show Deliveries without Date", true);
-		withoutDateBox.addItemListener(e -> Arrays.asList(listenerList.getListeners(DateListener.class))
-				.forEach(l -> l.configChanged(DateSlider.this)));
+		withoutDateBox.addItemListener(e -> configChanged());
+
+		JPanel leftPanel = new JPanel();
+
+		leftPanel.setLayout(new BorderLayout(10, 0));
+		leftPanel.add(withoutDateBox, BorderLayout.WEST);
+		leftPanel.add(dateLabel, BorderLayout.CENTER);
 
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		setLayout(new BorderLayout());
 		add(slider, BorderLayout.CENTER);
-		add(UI.createHorizontalPanel(withoutDateBox, dateLabel), BorderLayout.WEST);
+		add(leftPanel, BorderLayout.WEST);
 	}
 
 	public void addDateListener(DateListener listener) {
@@ -80,16 +82,30 @@ public class DateSlider extends JPanel {
 		listenerList.remove(DateListener.class, listener);
 	}
 
-	public GregorianCalendar getDate() {
-		return addDaysTo(date, slider.getValue());
+	public GregorianCalendar getShowToDate() {
+		return slider.getValue() != slider.getMaximum() ? addDaysTo(date, slider.getValue()) : null;
+	}
+
+	public void setShowToDate(GregorianCalendar showToDate) {
+		slider.setValue(showToDate != null ? getDifferenceInDays(date, showToDate) : slider.getMaximum());
+		configChanged();
 	}
 
 	public boolean isShowDeliveriesWithoutDate() {
 		return withoutDateBox.isSelected();
 	}
 
+	public void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate) {
+		withoutDateBox.setSelected(showDeliveriesWithoutDate);
+	}
+
 	private void updateDateLabel() {
-		dateLabel.setText(new SimpleDateFormat("yyyy-MM-dd").format(addDaysTo(date, slider.getValue()).getTime()));
+		dateLabel.setText("Show Deliveries until: "
+				+ new SimpleDateFormat("yyyy-MM-dd").format(addDaysTo(date, slider.getValue()).getTime()));
+	}
+
+	private void configChanged() {
+		Arrays.asList(listenerList.getListeners(DateListener.class)).forEach(l -> l.configChanged(this));
 	}
 
 	private static GregorianCalendar addDaysTo(GregorianCalendar c, int days) {
