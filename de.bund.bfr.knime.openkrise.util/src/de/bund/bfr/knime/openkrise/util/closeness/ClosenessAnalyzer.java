@@ -48,13 +48,15 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 
 	private int numberOfNodes;
 	private int numberOfEdges;
-	private Map<PersistentObject, Collection<PersistentObject>> incidentNodes;
-	private Map<PersistentObject, Collection<PersistentObject>> outgoingEdges;
+	private Map<String, Double> edgeWeights;
+	private Map<String, Collection<PersistentObject>> incidentNodes;
+	private Map<String, Collection<PersistentObject>> outgoingEdges;
 
 	protected ClosenessAnalyzer() {
 		super(new String[] { "Closeness" });
 		numberOfNodes = 0;
 		numberOfEdges = 0;
+		edgeWeights = new HashMap<>();
 		incidentNodes = new HashMap<>();
 		outgoingEdges = new HashMap<>();
 	}
@@ -65,15 +67,21 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		super.initializeInternal(view, exec);
 		numberOfNodes = (int) view.getNoOfNodes();
 		numberOfEdges = (int) view.getNoOfEdges();
+		edgeWeights.clear();
 		incidentNodes.clear();
 		outgoingEdges.clear();
 
 		for (PersistentObject edge : view.getEdges()) {
-			incidentNodes.put(edge, view.getIncidentNodes(edge));
+			edgeWeights.put(edge.getId(), view.getEdgeWeight(edge));
+			incidentNodes.put(edge.getId(), view.getIncidentNodes(edge));
+		}
+
+		if (edgeWeights.values().stream().allMatch(v -> v == 1.0)) {
+			edgeWeights.clear();
 		}
 
 		for (PersistentObject node : view.getNodes()) {
-			outgoingEdges.put(node, view.getOutgoingEdges(node));
+			outgoingEdges.put(node.getId(), view.getOutgoingEdges(node));
 		}
 	}
 
@@ -81,37 +89,50 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 	protected double[] numericAnalyzeInternal(ExecutionMonitor exec,
 			KPartiteGraphView<PersistentObject, Partition> view, PersistentObject object)
 					throws PersistenceException, CanceledExecutionException {
+		if (edgeWeights.isEmpty()) {
+			return new double[] { computeWithoutEdgeWeights(object) };
+		} else {
+			return new double[] { computeWithEdgeWeights(object) };
+		}
+	}
+
+	private double computeWithoutEdgeWeights(PersistentObject node) {
 		Deque<PersistentObject> nodeQueue = new LinkedList<>();
 		Map<String, Integer> visitedNodes = new HashMap<>(numberOfNodes, 1.0f);
 		Set<String> visitedEdges = new HashSet<>(numberOfEdges, 1.0f);
 		int distanceSum = 0;
 
-		visitedNodes.put(object.getId(), 0);
-		nodeQueue.addFirst(object);
+		visitedNodes.put(node.getId(), 0);
+		nodeQueue.addFirst(node);
 
 		while (!nodeQueue.isEmpty()) {
 			PersistentObject currentNode = nodeQueue.removeLast();
 			String currentNodeId = currentNode.getId();
-			int distance = visitedNodes.get(currentNodeId) + 1;
+			int targetNodeDistance = visitedNodes.get(currentNodeId) + 1;
 
-			for (PersistentObject edge : outgoingEdges.get(currentNode)) {
-				if (visitedEdges.add(edge.getId())) {
-					for (PersistentObject targetNode : incidentNodes.get(edge)) {
+			for (PersistentObject edge : outgoingEdges.get(currentNodeId)) {
+				String edgeId = edge.getId();
+
+				if (visitedEdges.add(edgeId)) {
+					for (PersistentObject targetNode : incidentNodes.get(edgeId)) {
 						String targetNodeId = targetNode.getId();
 
 						if (!currentNodeId.equals(targetNodeId) && !visitedNodes.containsKey(targetNodeId)) {
-							visitedNodes.put(targetNodeId, distance);
+							visitedNodes.put(targetNodeId, targetNodeDistance);
 							nodeQueue.addFirst(targetNode);
-							distanceSum += distance;
+							distanceSum += targetNodeDistance;
 						}
 					}
 				}
 			}
 		}
 
-		int denom = distanceSum + (numberOfNodes - visitedNodes.size()) * numberOfNodes;
+		return 1.0 / (distanceSum + (numberOfNodes - visitedNodes.size()) * numberOfNodes);
+	}
 
-		return new double[] { 1.0 / denom };
+	private double computeWithEdgeWeights(PersistentObject node) {
+		// TODO
+		return 0.0;
 	}
 
 	@Override
