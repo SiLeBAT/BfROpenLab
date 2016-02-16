@@ -19,13 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.closeness;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
@@ -49,8 +52,8 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 	private int numberOfNodes;
 	private int numberOfEdges;
 	private Map<String, Double> edgeWeights;
-	private Map<String, Collection<PersistentObject>> incidentNodes;
-	private Map<String, Collection<PersistentObject>> outgoingEdges;
+	private Map<String, Collection<String>> incidentNodes;
+	private Map<String, Collection<String>> outgoingEdges;
 
 	protected ClosenessAnalyzer() {
 		super(new String[] { "Closeness" });
@@ -73,7 +76,7 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 
 		for (PersistentObject edge : view.getEdges()) {
 			edgeWeights.put(edge.getId(), view.getEdgeWeight(edge));
-			incidentNodes.put(edge.getId(), view.getIncidentNodes(edge));
+			incidentNodes.put(edge.getId(), getIds(view.getIncidentNodes(edge)));
 		}
 
 		if (edgeWeights.values().stream().allMatch(v -> v == 1.0)) {
@@ -81,7 +84,7 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		}
 
 		for (PersistentObject node : view.getNodes()) {
-			outgoingEdges.put(node.getId(), view.getOutgoingEdges(node));
+			outgoingEdges.put(node.getId(), getIds(view.getOutgoingEdges(node)));
 		}
 	}
 
@@ -90,36 +93,31 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			KPartiteGraphView<PersistentObject, Partition> view, PersistentObject object)
 					throws PersistenceException, CanceledExecutionException {
 		if (edgeWeights.isEmpty()) {
-			return new double[] { computeWithoutEdgeWeights(object) };
+			return new double[] { computeWithoutEdgeWeights(object.getId()) };
 		} else {
-			return new double[] { computeWithEdgeWeights(object) };
+			return new double[] { computeWithEdgeWeights(object.getId()) };
 		}
 	}
 
-	private double computeWithoutEdgeWeights(PersistentObject node) {
-		Deque<PersistentObject> nodeQueue = new LinkedList<>();
+	private double computeWithoutEdgeWeights(String nodeId) {
+		Deque<String> nodeQueue = new LinkedList<>();
 		Map<String, Integer> visitedNodes = new HashMap<>(numberOfNodes, 1.0f);
 		Set<String> visitedEdges = new HashSet<>(numberOfEdges, 1.0f);
 		int distanceSum = 0;
 
-		visitedNodes.put(node.getId(), 0);
-		nodeQueue.addFirst(node);
+		visitedNodes.put(nodeId, 0);
+		nodeQueue.addLast(nodeId);
 
 		while (!nodeQueue.isEmpty()) {
-			PersistentObject currentNode = nodeQueue.removeLast();
-			String currentNodeId = currentNode.getId();
+			String currentNodeId = nodeQueue.removeFirst();
 			int targetNodeDistance = visitedNodes.get(currentNodeId) + 1;
 
-			for (PersistentObject edge : outgoingEdges.get(currentNodeId)) {
-				String edgeId = edge.getId();
-
+			for (String edgeId : outgoingEdges.get(currentNodeId)) {
 				if (visitedEdges.add(edgeId)) {
-					for (PersistentObject targetNode : incidentNodes.get(edgeId)) {
-						String targetNodeId = targetNode.getId();
-
+					for (String targetNodeId : incidentNodes.get(edgeId)) {
 						if (!currentNodeId.equals(targetNodeId) && !visitedNodes.containsKey(targetNodeId)) {
 							visitedNodes.put(targetNodeId, targetNodeDistance);
-							nodeQueue.addFirst(targetNode);
+							nodeQueue.addLast(targetNodeId);
 							distanceSum += targetNodeDistance;
 						}
 					}
@@ -128,11 +126,79 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		}
 
 		return 1.0 / (distanceSum + (numberOfNodes - visitedNodes.size()) * numberOfNodes);
+
 	}
 
-	private double computeWithEdgeWeights(PersistentObject node) {
-		// TODO
-		return 0.0;
+	private double computeWithEdgeWeights(String nodeId) {
+		List<NodeWithDistance> nodeQueue = new ArrayList<>();
+		Map<String, Double> nodeDistances = new HashMap<>(numberOfNodes, 1.0f);
+		Set<String> visitedEdges = new HashSet<>(numberOfEdges, 1.0f);
+
+		nodeQueue.add(new NodeWithDistance(nodeId, 0.0));
+
+		while (!nodeQueue.isEmpty()) {
+			NodeWithDistance currentNodeWithDistance = nodeQueue.remove(0);
+			String currentNodeId = currentNodeWithDistance.getNodeId();
+
+			if (nodeDistances.containsKey(currentNodeId)) {
+				continue;
+			}
+
+			double currentNodeDistance = currentNodeWithDistance.getDistance();
+
+			nodeDistances.put(currentNodeId, currentNodeDistance);
+
+			for (String edgeId : outgoingEdges.get(currentNodeId)) {
+				if (visitedEdges.add(edgeId)) {
+					for (String targetNodeId : incidentNodes.get(edgeId)) {
+						if (!currentNodeId.equals(targetNodeId) && !nodeDistances.containsKey(targetNodeId)) {
+							insertToQueue(nodeQueue,
+									new NodeWithDistance(targetNodeId, currentNodeDistance + edgeWeights.get(edgeId)));
+						}
+					}
+				}
+			}
+		}
+
+		return 1.0 / (nodeDistances.values().stream().collect(Collectors.summingDouble(Double::doubleValue))
+				+ (numberOfNodes - nodeDistances.size()) * numberOfNodes);
+	}
+
+	private static Collection<String> getIds(Collection<PersistentObject> objects) {
+		return objects.stream().map(o -> o.getId()).collect(Collectors.toList());
+	}
+
+	private static void insertToQueue(List<NodeWithDistance> list, NodeWithDistance n) {
+		for (int i = list.size(); i >= 0; i--) {
+			if (i == 0 || n.getDistance() >= list.get(i - 1).getDistance()) {
+				list.add(i, n);
+				return;
+			}
+		}
+	}
+
+	private static class NodeWithDistance {
+
+		private String nodeId;
+		private double distance;
+
+		public NodeWithDistance(String nodeId, double distance) {
+			this.nodeId = nodeId;
+			this.distance = distance;
+		}
+
+		public String getNodeId() {
+			return nodeId;
+		}
+
+		public double getDistance() {
+			return distance;
+		}
+
+		@Override
+		public String toString() {
+			return "NodeWithDistance [nodeId=" + nodeId + ", distance=" + distance + "]";
+		}
 	}
 
 	@Override
