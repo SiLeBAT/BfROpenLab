@@ -73,7 +73,7 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		}
 
 		for (PersistentObject node : view.getNodes()) {
-			incidentEdges.put(node, view.getIncidentEdges(node));
+			incidentEdges.put(node, view.getOutgoingEdges(node));
 		}
 	}
 
@@ -109,7 +109,9 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			}
 		}
 
-		return new double[] { distanceSum != 0 ? 1.0 / distanceSum : 0.0 };
+		int denom = distanceSum + (numberOfNodes - visitedNodes.size()) * numberOfNodes;
+
+		return new double[] { 1.0 / denom };
 	}
 
 	@Override
@@ -137,5 +139,4 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			KPartiteGraphView<PersistentObject, Partition> view) throws PersistenceException {
 		return view.getNodes();
 	}
-
 }
