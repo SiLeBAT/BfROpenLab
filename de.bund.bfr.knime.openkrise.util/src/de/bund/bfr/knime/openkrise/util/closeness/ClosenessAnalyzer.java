@@ -127,7 +127,6 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		}
 
 		return 1.0 / (distanceSum + (numberOfNodes - visitedNodes.size()) * numberOfNodes);
-
 	}
 
 	private double computeWithEdgeWeights(String nodeId) {
