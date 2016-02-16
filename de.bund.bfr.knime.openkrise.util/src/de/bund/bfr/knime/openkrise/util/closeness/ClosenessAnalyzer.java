@@ -75,7 +75,8 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 
 		for (PersistentObject edge : view.getEdges()) {
 			edgeWeights.put(edge.getId(), view.getEdgeWeight(edge));
-			incidentNodes.put(edge.getId(), getIds(view.getIncidentNodes(edge)));
+			incidentNodes.put(edge.getId(),
+					view.getIncidentNodes(edge).stream().map(o -> o.getId()).collect(Collectors.toList()));
 		}
 
 		if (edgeWeights.values().stream().allMatch(v -> v == 1.0)) {
@@ -83,7 +84,8 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		}
 
 		for (PersistentObject node : view.getNodes()) {
-			outgoingEdges.put(node.getId(), getIds(view.getOutgoingEdges(node)));
+			outgoingEdges.put(node.getId(),
+					view.getOutgoingEdges(node).stream().map(o -> o.getId()).collect(Collectors.toList()));
 		}
 	}
 
@@ -162,10 +164,6 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 
 		return 1.0 / (nodeDistances.values().stream().collect(Collectors.summingDouble(Double::doubleValue))
 				+ (numberOfNodes - nodeDistances.size()) * numberOfNodes);
-	}
-
-	private static Collection<String> getIds(Collection<PersistentObject> objects) {
-		return objects.stream().map(o -> o.getId()).collect(Collectors.toList());
 	}
 
 	@Override
