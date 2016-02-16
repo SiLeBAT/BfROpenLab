@@ -19,13 +19,12 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.util.closeness;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -130,30 +129,31 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 	}
 
 	private double computeWithEdgeWeights(String nodeId) {
-		List<NodeWithDistance> nodeQueue = new ArrayList<>();
+		Map<String, Double> nextNodes = new HashMap<>();
 		Map<String, Double> nodeDistances = new HashMap<>(numberOfNodes, 1.0f);
 		Set<String> visitedEdges = new HashSet<>(numberOfEdges, 1.0f);
 
-		nodeQueue.add(new NodeWithDistance(nodeId, 0.0));
+		nextNodes.put(nodeId, 0.0);
 
-		while (!nodeQueue.isEmpty()) {
-			NodeWithDistance currentNodeWithDistance = nodeQueue.remove(0);
-			String currentNodeId = currentNodeWithDistance.getNodeId();
+		while (!nextNodes.isEmpty()) {
+			Map.Entry<String, Double> currentNode = Collections.min(nextNodes.entrySet(),
+					(e1, e2) -> e1.getValue().compareTo(e2.getValue()));
+			String currentNodeId = currentNode.getKey();
+			double currentNodeDistance = currentNode.getValue();
 
-			if (nodeDistances.containsKey(currentNodeId)) {
-				continue;
-			}
-
-			double currentNodeDistance = currentNodeWithDistance.getDistance();
-
+			nextNodes.remove(currentNodeId);
 			nodeDistances.put(currentNodeId, currentNodeDistance);
 
 			for (String edgeId : outgoingEdges.get(currentNodeId)) {
 				if (visitedEdges.add(edgeId)) {
 					for (String targetNodeId : incidentNodes.get(edgeId)) {
 						if (!currentNodeId.equals(targetNodeId) && !nodeDistances.containsKey(targetNodeId)) {
-							insertToQueue(nodeQueue,
-									new NodeWithDistance(targetNodeId, currentNodeDistance + edgeWeights.get(edgeId)));
+							double newDistance = currentNodeDistance + edgeWeights.get(edgeId);
+							Double oldDistance = nextNodes.get(targetNodeId);
+
+							if (oldDistance == null || newDistance < oldDistance) {
+								nextNodes.put(targetNodeId, newDistance);
+							}
 						}
 					}
 				}
@@ -166,39 +166,6 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 
 	private static Collection<String> getIds(Collection<PersistentObject> objects) {
 		return objects.stream().map(o -> o.getId()).collect(Collectors.toList());
-	}
-
-	private static void insertToQueue(List<NodeWithDistance> list, NodeWithDistance n) {
-		for (int i = list.size(); i >= 0; i--) {
-			if (i == 0 || n.getDistance() >= list.get(i - 1).getDistance()) {
-				list.add(i, n);
-				return;
-			}
-		}
-	}
-
-	private static class NodeWithDistance {
-
-		private String nodeId;
-		private double distance;
-
-		public NodeWithDistance(String nodeId, double distance) {
-			this.nodeId = nodeId;
-			this.distance = distance;
-		}
-
-		public String getNodeId() {
-			return nodeId;
-		}
-
-		public double getDistance() {
-			return distance;
-		}
-
-		@Override
-		public String toString() {
-			return "NodeWithDistance [nodeId=" + nodeId + ", distance=" + distance + "]";
-		}
 	}
 
 	@Override
