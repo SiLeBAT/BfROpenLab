@@ -49,14 +49,14 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 	private int numberOfNodes;
 	private int numberOfEdges;
 	private Map<PersistentObject, Collection<PersistentObject>> incidentNodes;
-	private Map<PersistentObject, Collection<PersistentObject>> incidentEdges;
+	private Map<PersistentObject, Collection<PersistentObject>> outgoingEdges;
 
 	protected ClosenessAnalyzer() {
 		super(new String[] { "Closeness" });
 		numberOfNodes = 0;
 		numberOfEdges = 0;
 		incidentNodes = new HashMap<>();
-		incidentEdges = new HashMap<>();
+		outgoingEdges = new HashMap<>();
 	}
 
 	@Override
@@ -66,14 +66,14 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 		numberOfNodes = (int) view.getNoOfNodes();
 		numberOfEdges = (int) view.getNoOfEdges();
 		incidentNodes.clear();
-		incidentEdges.clear();
+		outgoingEdges.clear();
 
 		for (PersistentObject edge : view.getEdges()) {
 			incidentNodes.put(edge, view.getIncidentNodes(edge));
 		}
 
 		for (PersistentObject node : view.getNodes()) {
-			incidentEdges.put(node, view.getOutgoingEdges(node));
+			outgoingEdges.put(node, view.getOutgoingEdges(node));
 		}
 	}
 
@@ -94,7 +94,7 @@ public class ClosenessAnalyzer extends NumericAnalyzer<PersistentObject> {
 			String currentNodeId = currentNode.getId();
 			int distance = visitedNodes.get(currentNodeId) + 1;
 
-			for (PersistentObject edge : incidentEdges.get(currentNode)) {
+			for (PersistentObject edge : outgoingEdges.get(currentNode)) {
 				if (visitedEdges.add(edge.getId())) {
 					for (PersistentObject targetNode : incidentNodes.get(edge)) {
 						String targetNodeId = targetNode.getId();
