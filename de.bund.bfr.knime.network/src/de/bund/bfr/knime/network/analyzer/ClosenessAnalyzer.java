@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.network.analyzer;
+package de.bund.bfr.knime.network.analyzer;
 
 import java.util.Collection;
 import java.util.Collections;

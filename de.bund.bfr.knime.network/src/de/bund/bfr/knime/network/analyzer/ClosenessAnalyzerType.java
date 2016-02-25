@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.network.analyzer;
+package de.bund.bfr.knime.network.analyzer;
 
 import org.knime.core.data.DataType;
 import org.knime.network.core.analyzer.Analyzer;
@@ -28,6 +28,7 @@ import org.knime.network.core.api.PersistentObject;
 public class ClosenessAnalyzerType implements AnalyzerType<PersistentObject> {
 
 	private static final String ID = "Closeness";
+	private static final String NAME = "Closeness Centrality (BfR)";
 	private static final ClosenessAnalyzer ANALYZER = new ClosenessAnalyzer();
 
 	@Override
@@ -52,12 +53,12 @@ public class ClosenessAnalyzerType implements AnalyzerType<PersistentObject> {
 
 	@Override
 	public String getName() {
-		return ID;
+		return NAME;
 	}
 
 	@Override
 	public String getToolTip() {
-		return ID;
+		return NAME;
 	}
 
 	@Override

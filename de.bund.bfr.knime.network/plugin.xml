@@ -4,7 +4,7 @@
    <extension
          point="org.knime.network.core.AnalyzerType">
       <NetworkAnalyzer
-            AnalyzerType="de.bund.bfr.network.analyzer.ClosenessAnalyzerType">
+            AnalyzerType="de.bund.bfr.knime.network.analyzer.ClosenessAnalyzerType">
       </NetworkAnalyzer>
    </extension>
 
