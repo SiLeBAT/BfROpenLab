@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.openkrise.util.closeness;
+package de.bund.bfr.network.analyzer;
 
 import java.util.Collection;
 import java.util.Collections;

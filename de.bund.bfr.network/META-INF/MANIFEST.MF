@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Network Utils
+Bundle-SymbolicName: de.bund.bfr.network;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: de.bund.bfr.network.Activator
+Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Require-Bundle: org.knime.base;bundle-version="3.0.0",
+ org.knime.network.base,
+ org.knime.network.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
