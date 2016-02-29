@@ -44,7 +44,7 @@ class FixContentJar {
 		
 		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))
 		
-		root.units.unit.find{ it.@id == CATEGORY }.requires.required.each { 
+		root.units.unit.each{ it.@id == CATEGORY }.requires.required.each { 
 			s -> s.@range = "0.0.0"
 		}
 
