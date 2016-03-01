@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/network.png" level-id="bfrnetwork" name="BfR-Network Utilities" path="/" />
+	</extension>
+
    <extension
          point="org.knime.network.core.AnalyzerType">
       <NetworkAnalyzer
             AnalyzerType="de.bund.bfr.knime.network.analyzer.ClosenessAnalyzerType">
       </NetworkAnalyzer>
+   </extension>
+   
+   <extension
+         point="org.knime.workbench.repository.metanode">
+      <PersistedMetaNode
+            category-path="/bfrnetwork"            
+            icon="icons/network.png"
+            id="de.bund.bfr.knime.pmm.dataviewandselect.numlwriter"
+            name="(Cumulative) Node Degree Distribution"
+            workflowDir="metanode_templates/DegreeDistribution/">
+      </PersistedMetaNode>
    </extension>
 
 </plugin>

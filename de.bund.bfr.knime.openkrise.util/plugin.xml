@@ -14,15 +14,4 @@
 	<node category-path="/foodchain/network" factory-class="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory" id="de.bund.bfr.knime.openkrise.util.network.ToKnimeNetworkNodeFactory"/>
 </extension>
 
-	<extension
-         point="org.knime.workbench.repository.metanode">
-      <PersistedMetaNode
-            category-path="/foodchain/network"            
-            icon="icons/FoodChainLab.png"
-            id="de.bund.bfr.knime.pmm.dataviewandselect.numlwriter"
-            name="(Cumulative) Node Degree Distribution"
-            workflowDir="metanode_templates/DegreeDistribution/">
-      </PersistedMetaNode>
-   </extension>
-
 </plugin>

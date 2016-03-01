@@ -7,6 +7,9 @@ Bundle-Activator: de.bund.bfr.knime.network.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.knime.base;bundle-version="3.0.0",
  org.knime.network.base,
- org.knime.network.core
+ org.knime.network.core,
+ org.knime.timeseries,
+ org.knime.js.views,
+ org.knime.ext.jep
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
