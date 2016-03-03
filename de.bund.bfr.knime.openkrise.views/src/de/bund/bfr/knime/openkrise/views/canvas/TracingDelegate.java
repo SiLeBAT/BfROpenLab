@@ -116,7 +116,12 @@ public class TracingDelegate<V extends Node> {
 		Pair<GregorianCalendar, GregorianCalendar> dateRange = getDateRange(deliveries.values());
 
 		if (dateRange != null) {
-			dateSlider = new DateSlider(dateRange.getFirst(), dateRange.getSecond());
+			GregorianCalendar from = dateRange.getFirst();
+			GregorianCalendar to = dateRange.getSecond();
+
+			from.add(Calendar.DAY_OF_MONTH, -1);
+
+			dateSlider = new DateSlider(from, to);
 			dateSlider.addDateListener(e -> {
 				applyChanges();
 				listeners.forEach(l -> l.dateSettingsChanged(canvas));

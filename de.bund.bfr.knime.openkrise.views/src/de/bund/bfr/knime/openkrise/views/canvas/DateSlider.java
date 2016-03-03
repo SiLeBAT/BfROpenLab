@@ -79,7 +79,7 @@ public class DateSlider extends JPanel {
 		});
 		dateLabel = new JLabel();
 		updateDateLabel();
-		withoutDateBox = new JCheckBox("Show Deliveries without Date", true);
+		withoutDateBox = new JCheckBox("Omit Deliveries without Date", false);
 		withoutDateBox.addItemListener(e -> configChanged());
 
 		JPanel leftPanel = new JPanel();
@@ -112,11 +112,11 @@ public class DateSlider extends JPanel {
 	}
 
 	public boolean isShowDeliveriesWithoutDate() {
-		return withoutDateBox.isSelected();
+		return !withoutDateBox.isSelected();
 	}
 
 	public void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate) {
-		withoutDateBox.setSelected(showDeliveriesWithoutDate);
+		withoutDateBox.setSelected(!showDeliveriesWithoutDate);
 	}
 
 	private void updateDateLabel() {

@@ -142,6 +142,10 @@ public class Tracing {
 	}
 
 	public Result getResult(boolean enforceTemporalOrder) {
+		if (deliveries.isEmpty()) {
+			return new Result();
+		}
+
 		positiveWeightSum = 0.0;
 		negativeWeightSum = 0.0;
 
