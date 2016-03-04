@@ -90,6 +90,14 @@
 				OpenStreetMap, ...
 			</option>
 		</tab>
+		<tab name="Date Slider">
+			<option name="Omit Deliveries without Date">
+				If checked, all deliveries without a date are not shown.
+			</option>
+			<option name="Show Deliveries until">
+				Only deliveries whose date is before the date specified here are shown.
+			</option>
+		</tab>
 		<tab name="Options Bar">
 			<option name="Editing Mode">
 				Current editing mode. If "Transforming" is selected the user can move the
