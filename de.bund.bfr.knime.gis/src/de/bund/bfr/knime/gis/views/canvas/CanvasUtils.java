@@ -179,7 +179,7 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> Map<Edge<V>, Set<Edge<V>>> joinEdges(Collection<Edge<V>> edges,
-			EdgePropertySchema schema, Set<String> usedIds) {
+			EdgePropertySchema schema, Collection<Edge<V>> allEdges) {
 		SetMultimap<Pair<V, V>, Edge<V>> edgeMap = LinkedHashMultimap.create();
 
 		for (Edge<V> edge : edges) {
@@ -187,25 +187,24 @@ public class CanvasUtils {
 		}
 
 		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<>();
-		int index = 0;
+		Set<String> usedIds = CanvasUtils.getElementIds(allEdges);
 
 		for (Map.Entry<Pair<V, V>, Set<Edge<V>>> entry : Multimaps.asMap(edgeMap).entrySet()) {
-			V from = entry.getKey().getFirst();
-			V to = entry.getKey().getSecond();
 			Map<String, Object> properties = new LinkedHashMap<>();
 
 			for (Edge<V> edge : entry.getValue()) {
 				CanvasUtils.addMapToMap(properties, schema, edge.getProperties());
 			}
 
-			while (!usedIds.add(String.valueOf(index))) {
-				index++;
-			}
+			V from = entry.getKey().getFirst();
+			V to = entry.getKey().getSecond();
+			String id = KnimeUtils.createNewValue(from.getId() + "->" + to.getId(), usedIds);
 
-			properties.put(schema.getId(), String.valueOf(index));
+			usedIds.add(id);
+			properties.put(schema.getId(), id);
 			properties.put(schema.getFrom(), from.getId());
 			properties.put(schema.getTo(), to.getId());
-			joined.put(new Edge<>(String.valueOf(index), properties, from, to), entry.getValue());
+			joined.put(new Edge<>(id, properties, from, to), entry.getValue());
 		}
 
 		return joined;

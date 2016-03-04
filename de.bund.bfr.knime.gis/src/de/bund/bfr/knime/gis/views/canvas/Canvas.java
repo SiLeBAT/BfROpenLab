@@ -1141,7 +1141,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		joinMap.clear();
 
 		if (isJoinEdges()) {
-			joinMap.putAll(CanvasUtils.joinEdges(edges, edgeSchema, CanvasUtils.getElementIds(allEdges)));
+			joinMap.putAll(CanvasUtils.joinEdges(edges, edgeSchema, allEdges));
 			edges.clear();
 			edges.addAll(joinMap.keySet());
 		}
