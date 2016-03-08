@@ -57,7 +57,7 @@ public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject>impl
 	private Map<String, Collection<String>> outgoingEdges;
 
 	public ClosenessAnalyzerType() {
-		super(new String[] { "Closeness" });
+		super(COLUMN_NAMES);
 		numberOfNodes = 0;
 		numberOfEdges = 0;
 		edgeWeights = new HashMap<>();
