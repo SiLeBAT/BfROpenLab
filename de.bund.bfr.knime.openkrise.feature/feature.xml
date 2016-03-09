@@ -39,6 +39,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.knime.network.core"/>
       <import plugin="org.knime.network.base"/>
       <import plugin="org.eclipse.core.resources"/>
+      <import plugin="edu.umd.cs.findbugs.annotations"/>
    </requires>
 
    <plugin

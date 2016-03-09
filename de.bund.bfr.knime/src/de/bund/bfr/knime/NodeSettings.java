@@ -22,6 +22,8 @@ package de.bund.bfr.knime;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public abstract class NodeSettings {
 
 	public abstract void loadSettings(NodeSettingsRO settings);
@@ -32,6 +34,7 @@ public abstract class NodeSettings {
 		return b != null ? b : false;
 	}
 
+	@SuppressFBWarnings(value = "NP")
 	protected static Boolean falseToNull(boolean b) {
 		return b ? b : null;
 	}

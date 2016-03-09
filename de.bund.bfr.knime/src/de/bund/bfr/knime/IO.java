@@ -32,6 +32,8 @@ import org.knime.core.data.def.StringCell;
 
 import com.google.common.base.Strings;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class IO {
 
 	private IO() {
@@ -77,6 +79,7 @@ public class IO {
 		return cell instanceof DoubleValue ? ((DoubleValue) cell).getDoubleValue() : null;
 	}
 
+	@SuppressFBWarnings(value = "NP")
 	public static Boolean getBoolean(DataCell cell) {
 		return cell instanceof BooleanValue ? ((BooleanValue) cell).getBooleanValue() : null;
 	}
