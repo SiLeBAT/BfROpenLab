@@ -24,5 +24,16 @@
 		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory"
 			id="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory" />
 	</extension>
+ <extension
+       point="org.knime.core.PortType">
+    <portType
+          hidden="false"
+          name="Function Port"
+          objectClass="de.bund.bfr.knime.nls.functionport.FunctionPortObject"
+          objectSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSerializer"
+          specClass="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec"
+          specSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpecSerializer">
+    </portType>
+ </extension>
 
 </plugin>
