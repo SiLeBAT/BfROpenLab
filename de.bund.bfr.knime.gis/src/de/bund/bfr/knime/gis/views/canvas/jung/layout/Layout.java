@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -60,10 +61,5 @@ public abstract class Layout<V, E> {
 		return locked.contains(v);
 	}
 
-	public abstract Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener);
-
-	public static interface ProgressListener {
-
-		void progressChanged(double progress);
-	}
+	public abstract Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener);
 }

@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -35,7 +36,7 @@ public class GridLayout<V, E> extends Layout<V, E> {
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener) {
 		Map<V, Point2D> newPositions = new LinkedHashMap<>(initialPositions);
 		Set<V> nodes = new LinkedHashSet<>(graph.getVertices());
 

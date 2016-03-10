@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 
@@ -52,7 +53,7 @@ public class ISOMLayout<V, E> extends Layout<V, E> {
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener) {
 		random = new Random();
 		newPositions = new LinkedHashMap<>();
 

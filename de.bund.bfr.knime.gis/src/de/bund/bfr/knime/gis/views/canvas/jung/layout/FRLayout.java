@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -50,7 +51,7 @@ public class FRLayout<V, E> extends Layout<V, E> {
 	}
 
 	@Override
-	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, ProgressListener listener) {
+	public Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener) {
 		Random random = new Random();
 
 		max_dimension = Math.max(size.height, size.width);
@@ -76,8 +77,8 @@ public class FRLayout<V, E> extends Layout<V, E> {
 		}
 
 		while (!done()) {
-			if (listener != null) {
-				listener.progressChanged((double) currentIteration / (double) MAX_ITERATIONS);
+			if (progressListener != null) {
+				progressListener.accept((double) currentIteration / (double) MAX_ITERATIONS);
 			}
 
 			step();
