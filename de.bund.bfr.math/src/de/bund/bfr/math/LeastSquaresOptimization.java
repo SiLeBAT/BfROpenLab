@@ -42,7 +42,7 @@ import org.nfunk.jep.ParseException;
 
 import com.google.common.primitives.Doubles;
 
-public class LeastSquaresFitting implements Optimization {
+public class LeastSquaresOptimization implements Optimization {
 
 	private static final double EPSILON = 0.00001;
 	private static final double COV_THRESHOLD = 1e-14;
@@ -57,7 +57,7 @@ public class LeastSquaresFitting implements Optimization {
 
 	private List<ProgressListener> progressListeners;
 
-	private LeastSquaresFitting(String[] parameters, double[] targetValues) {
+	private LeastSquaresOptimization(String[] parameters, double[] targetValues) {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
 
@@ -66,13 +66,13 @@ public class LeastSquaresFitting implements Optimization {
 		progressListeners = new ArrayList<>();
 	}
 
-	public LeastSquaresFitting(String formula, String[] parameters, double[] targetValues,
+	public LeastSquaresOptimization(String formula, String[] parameters, double[] targetValues,
 			Map<String, double[]> variableValues) throws ParseException {
 		this(parameters, targetValues);
 		optimizerFunction = new VectorFunction(formula, parameters, variableValues);
 	}
 
-	public LeastSquaresFitting(String[] formulas, String[] dependentVariables, double[] initValues,
+	public LeastSquaresOptimization(String[] formulas, String[] dependentVariables, double[] initValues,
 			String[] initParameters, String[] parameters, double[] timeValues, double[] targetValues,
 			String dependentVariable, String timeVariable, Map<String, double[]> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {
@@ -81,7 +81,7 @@ public class LeastSquaresFitting implements Optimization {
 				variableValues, timeValues, dependentVariable, timeVariable, integrator, interpolator);
 	}
 
-	public LeastSquaresFitting(String[] formulas, String[] dependentVariables, double[] initValues,
+	public LeastSquaresOptimization(String[] formulas, String[] dependentVariables, double[] initValues,
 			List<String[]> initParameters, String[] parameters, List<double[]> timeValues, List<double[]> targetValues,
 			String dependentVariable, String timeVariable, Map<String, List<double[]>> variableValues,
 			IntegratorFactory integrator, InterpolationFactory interpolator) throws ParseException {

@@ -67,7 +67,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec;
 import de.bund.bfr.math.IntegratorFactory;
 import de.bund.bfr.math.InterpolationFactory;
-import de.bund.bfr.math.LeastSquaresFitting;
+import de.bund.bfr.math.LeastSquaresOptimization;
 import de.bund.bfr.math.MultivariateOptimization;
 import de.bund.bfr.math.Optimization;
 import de.bund.bfr.math.OptimizationResult;
@@ -147,15 +147,16 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 			for (String param1 : function.getParameters()) {
 				paramCells[paramSpec.findColumnIndex(param1)] = IO.createCell(result.getParameterValues().get(param1));
 
-				if (result instanceof LeastSquaresFitting.Result) {
+				if (result instanceof LeastSquaresOptimization.Result) {
 					DataCell[] covCells = new DataCell[covSpec.getNumColumns()];
 
 					covCells[covSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
 					covCells[covSpec.findColumnIndex(NlsUtils.PARAM_COLUMN)] = IO.createCell(param1);
 
 					for (String param2 : function.getParameters()) {
-						covCells[covSpec.findColumnIndex(param2)] = IO.createCell(
-								((LeastSquaresFitting.Result) result).getCovariances().get(new Pair<>(param1, param2)));
+						covCells[covSpec.findColumnIndex(param2)] = IO
+								.createCell(((LeastSquaresOptimization.Result) result).getCovariances()
+										.get(new Pair<>(param1, param2)));
 					}
 
 					covContainer.addRowToTable(new DefaultRow(String.valueOf(iCov), covCells));
@@ -165,19 +166,19 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 
 			paramCells[paramSpec.findColumnIndex(NlsUtils.ID_COLUMN)] = IO.createCell(id);
 
-			if (result instanceof LeastSquaresFitting.Result) {
+			if (result instanceof LeastSquaresOptimization.Result) {
 				paramCells[paramSpec.findColumnIndex(NlsUtils.SSE_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getSse());
+						.createCell(((LeastSquaresOptimization.Result) result).getSse());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.MSE_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getMse());
+						.createCell(((LeastSquaresOptimization.Result) result).getMse());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.RMSE_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getRmse());
+						.createCell(((LeastSquaresOptimization.Result) result).getRmse());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.R2_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getR2());
+						.createCell(((LeastSquaresOptimization.Result) result).getR2());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.AIC_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getAic());
+						.createCell(((LeastSquaresOptimization.Result) result).getAic());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.DOF_COLUMN)] = IO
-						.createCell(((LeastSquaresFitting.Result) result).getDegreesOfFreedom());
+						.createCell(((LeastSquaresOptimization.Result) result).getDegreesOfFreedom());
 				paramCells[paramSpec.findColumnIndex(NlsUtils.SD_COLUMN)] = DataType.getMissingCell();
 				paramCells[paramSpec.findColumnIndex(NlsUtils.LOG_LIKELIHOOD_COLUMN)] = DataType.getMissingCell();
 			} else if (result instanceof MultivariateOptimization.Result) {
@@ -384,13 +385,13 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)), argumentArrays,
 						set.getLevelOfDetection());
 			} else {
-				optimizer = new LeastSquaresFitting(f.getTerms().get(f.getDependentVariable()),
+				optimizer = new LeastSquaresOptimization(f.getTerms().get(f.getDependentVariable()),
 						f.getParameters().toArray(new String[0]), Doubles.toArray(targetValues.get(id)),
 						argumentArrays);
 
 				if (set.isEnforceLimits()) {
-					((LeastSquaresFitting) optimizer).getMinValues().putAll(set.getMinStartValues());
-					((LeastSquaresFitting) optimizer).getMaxValues().putAll(set.getMaxStartValues());
+					((LeastSquaresOptimization) optimizer).getMinValues().putAll(set.getMinStartValues());
+					((LeastSquaresOptimization) optimizer).getMaxValues().putAll(set.getMaxStartValues());
 				}
 			}
 
@@ -447,7 +448,7 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 				initParameters.add(f.getInitParameters().get(var));
 			}
 
-			LeastSquaresFitting optimizer = new LeastSquaresFitting(terms.toArray(new String[0]),
+			LeastSquaresOptimization optimizer = new LeastSquaresOptimization(terms.toArray(new String[0]),
 					valueVariables.toArray(new String[0]), Doubles.toArray(initValues),
 					initParameters.toArray(new String[0]), f.getParameters().toArray(new String[0]),
 					Doubles.toArray(timeValues.get(id)), Doubles.toArray(targetValues.get(id)),
@@ -544,7 +545,7 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 			initParameters.add(initParams.toArray(new String[0]));
 		}
 
-		LeastSquaresFitting optimizer = new LeastSquaresFitting(terms.toArray(new String[0]),
+		LeastSquaresOptimization optimizer = new LeastSquaresOptimization(terms.toArray(new String[0]),
 				valueVariables.toArray(new String[0]), Doubles.toArray(initValues), initParameters,
 				parameters.toArray(new String[0]), timeArrays, targetArrays, f.getDependentVariable(),
 				f.getTimeVariable(), variableArrays,
@@ -560,7 +561,7 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 		numberOfFittings = 1;
 		currentFitting = 0;
 
-		LeastSquaresFitting.Result result;
+		LeastSquaresOptimization.Result result;
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
@@ -573,7 +574,7 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 		Map<String, OptimizationResult> results = new LinkedHashMap<>();
 
 		for (int i = 0; i < ids.size(); i++) {
-			LeastSquaresFitting.Result r = result.copy();
+			LeastSquaresOptimization.Result r = result.copy();
 
 			for (String var : set.getInitValuesWithDifferentStart()) {
 				if (f.getInitValues().get(var) == null) {
