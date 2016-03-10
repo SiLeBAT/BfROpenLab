@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleConsumer;
 import java.util.function.ToDoubleFunction;
@@ -154,6 +155,44 @@ public class MathUtils {
 		});
 
 		return result;
+	}
+
+	public static ParamRange[] getParamRanges(String[] parameters, Map<String, Double> minStartValues,
+			Map<String, Double> maxStartValues, int n) {
+		final double EPSILON = DERIV_EPSILON * 10.0;
+		List<ParamRange> paramRanges = new ArrayList<>();
+		int paramsWithRange = 0;
+		int maxStepCount = n;
+
+		for (String param : parameters) {
+			Double min = minStartValues.get(param);
+			Double max = maxStartValues.get(param);
+
+			if (min != null && max != null) {
+				paramsWithRange++;
+			}
+		}
+
+		if (paramsWithRange != 0) {
+			maxStepCount = (int) Math.pow(n, 1.0 / paramsWithRange);
+		}
+
+		for (String param : parameters) {
+			Double min = minStartValues.get(param);
+			Double max = maxStartValues.get(param);
+
+			if (min != null && max != null) {
+				paramRanges.add(new ParamRange(min, maxStepCount, (max - min) / (maxStepCount - 1)));
+			} else if (min != null) {
+				paramRanges.add(new ParamRange(min != 0.0 ? min : EPSILON, 1, 1.0));
+			} else if (max != null) {
+				paramRanges.add(new ParamRange(max != 0.0 ? max : -EPSILON, 1, 1.0));
+			} else {
+				paramRanges.add(new ParamRange(EPSILON, 1, 1.0));
+			}
+		}
+
+		return paramRanges.toArray(new ParamRange[0]);
 	}
 
 	public static List<StartValues> createStartValuesList(ParamRange[] ranges, int n,

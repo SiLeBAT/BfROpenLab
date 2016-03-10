@@ -45,7 +45,6 @@ import de.bund.bfr.math.MathUtils.StartValues;
 
 public class LeastSquaresOptimization implements Optimization {
 
-	private static final double EPSILON = 0.00001;
 	private static final double COV_THRESHOLD = 1e-14;
 
 	private ValueAndJacobianFunction optimizerFunction;
@@ -113,43 +112,11 @@ public class LeastSquaresOptimization implements Optimization {
 	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
-		List<ParamRange> paramRanges = new ArrayList<>();
-		int paramsWithRange = 0;
-		int maxStepCount = nParameterSpace;
-
-		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
-
-			if (min != null && max != null) {
-				paramsWithRange++;
-			}
-		}
-
-		if (paramsWithRange != 0) {
-			maxStepCount = (int) Math.pow(nParameterSpace, 1.0 / paramsWithRange);
-		}
-
-		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
-
-			if (min != null && max != null) {
-				paramRanges.add(new ParamRange(min, maxStepCount, (max - min) / (maxStepCount - 1)));
-			} else if (min != null) {
-				paramRanges.add(new ParamRange(min != 0.0 ? min : EPSILON, 1, 1.0));
-			} else if (max != null) {
-				paramRanges.add(new ParamRange(max != 0.0 ? max : -EPSILON, 1, 1.0));
-			} else {
-				paramRanges.add(new ParamRange(EPSILON, 1, 1.0));
-			}
-		}
-
 		fireProgressChanged(0.0);
 
+		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 		RealVector targetVector = new ArrayRealVector(targetValues);
-		List<StartValues> startValuesList = MathUtils.createStartValuesList(paramRanges.toArray(new ParamRange[0]),
-				nOptimizations,
+		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
 				progress -> fireProgressChanged(0.5 * progress));
 

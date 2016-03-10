@@ -20,6 +20,7 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +49,6 @@ import de.bund.bfr.math.MathUtils.ParamRange;
 import de.bund.bfr.math.MathUtils.StartValues;
 
 public class MultivariateOptimization implements Optimization {
-
-	private static final double EPSILON = 0.00001;
 
 	private MultivariateFunction optimizerFunction;
 
@@ -94,45 +93,16 @@ public class MultivariateOptimization implements Optimization {
 	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
-		List<ParamRange> paramRanges = new ArrayList<>();
-		int paramsWithRange = 0;
-		int maxStepCount = nParameterSpace;
-
-		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
-
-			if (min != null && max != null) {
-				paramsWithRange++;
-			}
-		}
-
-		if (paramsWithRange != 0) {
-			maxStepCount = (int) Math.pow(nParameterSpace, 1.0 / paramsWithRange);
-		}
-
-		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
-
-			if (param.equals(sdParam)) {
-				paramRanges.add(new ParamRange(1.0, 1, 1.0));
-			} else if (min != null && max != null) {
-				paramRanges.add(new ParamRange(min, maxStepCount, (max - min) / (maxStepCount - 1)));
-			} else if (min != null) {
-				paramRanges.add(new ParamRange(min != 0.0 ? min : EPSILON, 1, 1.0));
-			} else if (max != null) {
-				paramRanges.add(new ParamRange(max != 0.0 ? max : -EPSILON, 1, 1.0));
-			} else {
-				paramRanges.add(new ParamRange(EPSILON, 1, 1.0));
-			}
-		}
-
 		fireProgressChanged(0.0);
 
-		List<StartValues> startValuesList = MathUtils.createStartValuesList(paramRanges.toArray(new ParamRange[0]),
-				nOptimizations, values -> optimizerFunction.value(values),
-				progress -> fireProgressChanged(0.5 * progress));
+		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
+
+		if (Arrays.asList(parameters).contains(sdParam)) {
+			ranges[Arrays.asList(parameters).indexOf(sdParam)] = new ParamRange(1.0, 1, 1.0);
+		}
+
+		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
+				values -> optimizerFunction.value(values), progress -> fireProgressChanged(0.5 * progress));
 
 		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
 	}
