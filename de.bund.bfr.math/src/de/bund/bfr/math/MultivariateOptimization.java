@@ -20,8 +20,6 @@
 package de.bund.bfr.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.nfunk.jep.ParseException;
 
 import com.google.common.collect.ObjectArrays;
+
+import de.bund.bfr.math.MathUtils.StartValues;
 
 public class MultivariateOptimization implements Optimization {
 
@@ -139,8 +139,11 @@ public class MultivariateOptimization implements Optimization {
 			}
 		}
 
-		List<StartValues> startValuesList = createStartValuesList(paramMin, paramStepCount, paramStepSize,
-				nOptimizations);
+		fireProgressChanged(0.0);
+
+		List<StartValues> startValuesList = MathUtils.createStartValuesList(paramMin, paramStepCount, paramStepSize,
+				nOptimizations, values -> optimizerFunction.value(values),
+				progress -> fireProgressChanged(0.5 * progress));
 
 		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
 	}
@@ -188,67 +191,6 @@ public class MultivariateOptimization implements Optimization {
 		return result != null ? result : getResults();
 	}
 
-	private List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount, double[] paramStepSize,
-			int n) {
-		List<StartValues> valuesList = new ArrayList<>();
-
-		for (int i = 0; i < n; i++) {
-			double[] values = new double[parameters.length];
-
-			Arrays.fill(values, i + 1.0);
-			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
-		}
-
-		int[] paramStepIndex = new int[parameters.length];
-		boolean done = false;
-		int allStepSize = 1;
-		int count = 0;
-
-		for (int s : paramStepCount) {
-			allStepSize *= s;
-		}
-
-		Arrays.fill(paramStepIndex, 0);
-
-		while (!done) {
-			fireProgressChanged(0.5 * count / allStepSize);
-
-			double[] values = new double[parameters.length];
-
-			for (int i = 0; i < parameters.length; i++) {
-				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
-			}
-
-			double error = optimizerFunction.value(values);
-
-			if (Double.isFinite(error)) {
-				valuesList.add(new StartValues(values, error));
-			}
-
-			for (int i = 0;; i++) {
-				if (i >= parameters.length) {
-					done = true;
-					break;
-				}
-
-				paramStepIndex[i]++;
-
-				if (paramStepIndex[i] >= paramStepCount[i]) {
-					paramStepIndex[i] = 0;
-				} else {
-					break;
-				}
-			}
-
-			fireProgressChanged(0.5 * count / allStepSize);
-			count++;
-		}
-
-		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
-
-		return valuesList.subList(0, n);
-	}
-
 	private Result getResults() {
 		Result r = new Result();
 
@@ -277,25 +219,6 @@ public class MultivariateOptimization implements Optimization {
 
 	private void fireProgressChanged(double progress) {
 		progressListeners.forEach(l -> l.progressChanged(progress));
-	}
-
-	private static class StartValues {
-
-		private double[] values;
-		private double error;
-
-		public StartValues(double[] values, double error) {
-			this.values = values;
-			this.error = error;
-		}
-
-		public double[] getValues() {
-			return values;
-		}
-
-		public double getError() {
-			return error;
-		}
 	}
 
 	public static class Result implements OptimizationResult {

@@ -19,9 +19,15 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.DoubleConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -148,5 +154,82 @@ public class MathUtils {
 		});
 
 		return result;
+	}
+
+	public static List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount,
+			double[] paramStepSize, int n, Function<double[], Double> errorFunction, DoubleConsumer progessListener) {
+		List<StartValues> valuesList = new ArrayList<>();
+
+		for (int i = 0; i < n; i++) {
+			double[] values = new double[paramMin.length];
+
+			Arrays.fill(values, i + 1.0);
+			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
+		}
+
+		int[] paramStepIndex = new int[paramMin.length];
+		boolean done = false;
+		int allStepSize = 1;
+		int count = 0;
+
+		for (int s : paramStepCount) {
+			allStepSize *= s;
+		}
+
+		Arrays.fill(paramStepIndex, 0);
+
+		while (!done) {
+			double[] values = new double[paramMin.length];
+
+			for (int i = 0; i < paramMin.length; i++) {
+				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
+			}
+
+			double error = errorFunction.apply(values);
+
+			if (Double.isFinite(error)) {
+				valuesList.add(new StartValues(values, error));
+			}
+
+			for (int i = 0;; i++) {
+				if (i >= paramMin.length) {
+					done = true;
+					break;
+				}
+
+				paramStepIndex[i]++;
+
+				if (paramStepIndex[i] >= paramStepCount[i]) {
+					paramStepIndex[i] = 0;
+				} else {
+					break;
+				}
+			}
+
+			progessListener.accept((double) ++count / (double) allStepSize);
+		}
+
+		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
+
+		return valuesList.subList(0, n);
+	}
+
+	public static class StartValues {
+
+		private double[] values;
+		private double error;
+
+		public StartValues(double[] values, double error) {
+			this.values = values;
+			this.error = error;
+		}
+
+		public double[] getValues() {
+			return values;
+		}
+
+		public double getError() {
+			return error;
+		}
 	}
 }
