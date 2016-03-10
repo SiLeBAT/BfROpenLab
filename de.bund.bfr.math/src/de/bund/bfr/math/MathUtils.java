@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.DoubleConsumer;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -157,7 +157,7 @@ public class MathUtils {
 	}
 
 	public static List<StartValues> createStartValuesList(ParamRange[] ranges, int n,
-			Function<double[], Double> errorFunction, DoubleConsumer progessListener) {
+			ToDoubleFunction<double[]> errorFunction, DoubleConsumer progessListener) {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
@@ -185,7 +185,7 @@ public class MathUtils {
 				values[i] = ranges[i].getMin() + paramStepIndex[i] * ranges[i].getStepSize();
 			}
 
-			double error = errorFunction.apply(values);
+			double error = errorFunction.applyAsDouble(values);
 
 			if (Double.isFinite(error)) {
 				valuesList.add(new StartValues(values, error));
