@@ -156,33 +156,33 @@ public class MathUtils {
 		return result;
 	}
 
-	public static List<StartValues> createStartValuesList(double[] paramMin, int[] paramStepCount,
-			double[] paramStepSize, int n, Function<double[], Double> errorFunction, DoubleConsumer progessListener) {
+	public static List<StartValues> createStartValuesList(ParamRange[] ranges, int n,
+			Function<double[], Double> errorFunction, DoubleConsumer progessListener) {
 		List<StartValues> valuesList = new ArrayList<>();
 
 		for (int i = 0; i < n; i++) {
-			double[] values = new double[paramMin.length];
+			double[] values = new double[ranges.length];
 
 			Arrays.fill(values, i + 1.0);
 			valuesList.add(new StartValues(values, Double.POSITIVE_INFINITY));
 		}
 
-		int[] paramStepIndex = new int[paramMin.length];
+		int[] paramStepIndex = new int[ranges.length];
 		boolean done = false;
 		int allStepSize = 1;
 		int count = 0;
 
-		for (int s : paramStepCount) {
-			allStepSize *= s;
+		for (ParamRange range : ranges) {
+			allStepSize *= range.getStepCount();
 		}
 
 		Arrays.fill(paramStepIndex, 0);
 
 		while (!done) {
-			double[] values = new double[paramMin.length];
+			double[] values = new double[ranges.length];
 
-			for (int i = 0; i < paramMin.length; i++) {
-				values[i] = paramMin[i] + paramStepIndex[i] * paramStepSize[i];
+			for (int i = 0; i < ranges.length; i++) {
+				values[i] = ranges[i].getMin() + paramStepIndex[i] * ranges[i].getStepSize();
 			}
 
 			double error = errorFunction.apply(values);
@@ -192,14 +192,14 @@ public class MathUtils {
 			}
 
 			for (int i = 0;; i++) {
-				if (i >= paramMin.length) {
+				if (i >= ranges.length) {
 					done = true;
 					break;
 				}
 
 				paramStepIndex[i]++;
 
-				if (paramStepIndex[i] >= paramStepCount[i]) {
+				if (paramStepIndex[i] >= ranges[i].getStepCount()) {
 					paramStepIndex[i] = 0;
 				} else {
 					break;
@@ -212,6 +212,31 @@ public class MathUtils {
 		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
 
 		return valuesList.subList(0, n);
+	}
+
+	public static class ParamRange {
+
+		private double min;
+		private int stepCount;
+		private double stepSize;
+
+		public ParamRange(double min, int stepCount, double stepSize) {
+			this.min = min;
+			this.stepCount = stepCount;
+			this.stepSize = stepSize;
+		}
+
+		public double getMin() {
+			return min;
+		}
+
+		public int getStepCount() {
+			return stepCount;
+		}
+
+		public double getStepSize() {
+			return stepSize;
+		}
 	}
 
 	public static class StartValues {

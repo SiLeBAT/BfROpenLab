@@ -40,6 +40,7 @@ import org.nfunk.jep.ParseException;
 
 import com.google.common.primitives.Doubles;
 
+import de.bund.bfr.math.MathUtils.ParamRange;
 import de.bund.bfr.math.MathUtils.StartValues;
 
 public class LeastSquaresOptimization implements Optimization {
@@ -112,9 +113,7 @@ public class LeastSquaresOptimization implements Optimization {
 	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
 			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
-		double[] paramMin = new double[parameters.length];
-		int[] paramStepCount = new int[parameters.length];
-		double[] paramStepSize = new double[parameters.length];
+		List<ParamRange> paramRanges = new ArrayList<>();
 		int paramsWithRange = 0;
 		int maxStepCount = nParameterSpace;
 
@@ -131,33 +130,25 @@ public class LeastSquaresOptimization implements Optimization {
 			maxStepCount = (int) Math.pow(nParameterSpace, 1.0 / paramsWithRange);
 		}
 
-		for (int i = 0; i < parameters.length; i++) {
-			Double min = minStartValues.get(parameters[i]);
-			Double max = maxStartValues.get(parameters[i]);
+		for (String param : parameters) {
+			Double min = minStartValues.get(param);
+			Double max = maxStartValues.get(param);
 
 			if (min != null && max != null) {
-				paramMin[i] = min;
-				paramStepCount[i] = maxStepCount;
-				paramStepSize[i] = (max - min) / (maxStepCount - 1);
+				paramRanges.add(new ParamRange(min, maxStepCount, (max - min) / (maxStepCount - 1)));
 			} else if (min != null) {
-				paramMin[i] = min != 0.0 ? min : EPSILON;
-				paramStepCount[i] = 1;
-				paramStepSize[i] = 1.0;
+				paramRanges.add(new ParamRange(min != 0.0 ? min : EPSILON, 1, 1.0));
 			} else if (max != null) {
-				paramMin[i] = max != 0.0 ? max : -EPSILON;
-				paramStepCount[i] = 1;
-				paramStepSize[i] = 1.0;
+				paramRanges.add(new ParamRange(max != 0.0 ? max : -EPSILON, 1, 1.0));
 			} else {
-				paramMin[i] = EPSILON;
-				paramStepCount[i] = 1;
-				paramStepSize[i] = 1.0;
+				paramRanges.add(new ParamRange(EPSILON, 1, 1.0));
 			}
 		}
 
 		fireProgressChanged(0.0);
 
 		RealVector targetVector = new ArrayRealVector(targetValues);
-		List<StartValues> startValuesList = MathUtils.createStartValuesList(paramMin, paramStepCount, paramStepSize,
+		List<StartValues> startValuesList = MathUtils.createStartValuesList(paramRanges.toArray(new ParamRange[0]),
 				nOptimizations,
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
 				progress -> fireProgressChanged(0.5 * progress));
