@@ -318,7 +318,7 @@ public class UI {
 		}
 	}
 
-	public static DocumentListener newDocumentListener(ActionListener listener) {
+	public static DocumentListener newDocumentActionListener(ActionListener listener) {
 		return new DocumentListener() {
 
 			@Override
@@ -341,11 +341,10 @@ public class UI {
 		};
 	}
 
-	public static ItemListener newItemSelectListener(ActionListener listener) {
+	public static ItemListener newItemSelectListener(ItemListener listener) {
 		return e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				listener.actionPerformed(
-						new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, e.getItem() + " selected"));
+				listener.itemStateChanged(e);
 			}
 		};
 	}

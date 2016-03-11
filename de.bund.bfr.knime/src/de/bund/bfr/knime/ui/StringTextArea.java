@@ -44,7 +44,7 @@ public class StringTextArea extends JTextArea implements TextInput {
 		this.optional = optional;
 		setLineWrap(true);
 		setBorder(BorderFactory.createLoweredBevelBorder());
-		getDocument().addDocumentListener(documentListener = UI.newDocumentListener(e -> textChanged()));
+		getDocument().addDocumentListener(documentListener = UI.newDocumentActionListener(e -> textChanged()));
 		textChanged();
 	}
 

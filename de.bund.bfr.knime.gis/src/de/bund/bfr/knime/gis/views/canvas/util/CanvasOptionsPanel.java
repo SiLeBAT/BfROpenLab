@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.util.EventListener;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -364,35 +365,29 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		transformingButton = new JRadioButton("Transforming");
 		transformingButton.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
-		transformingButton.addItemListener(UI.newItemSelectListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.editingModeChanged())));
+		transformingButton.addItemListener(UI.newItemSelectListener(e -> call(ChangeListener::editingModeChanged)));
 
 		pickingButton = new JRadioButton("Picking");
 		pickingButton.setSelected(DEFAULT_MODE == Mode.PICKING);
-		pickingButton.addItemListener(UI.newItemSelectListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.editingModeChanged())));
+		pickingButton.addItemListener(UI.newItemSelectListener(e -> call(ChangeListener::editingModeChanged)));
 
 		UI.groupButtons(transformingButton, pickingButton);
 
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
-		showLegendBox.addItemListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.showLegendChanged()));
+		showLegendBox.addItemListener(e -> call(ChangeListener::showLegendChanged));
 
 		joinEdgesBox = new JCheckBox("Activate");
 		joinEdgesBox.setSelected(DEFAULT_JOIN_EDGES);
-		joinEdgesBox
-				.addItemListener(e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.joinEdgesChanged()));
+		joinEdgesBox.addItemListener(e -> call(ChangeListener::joinEdgesChanged));
 
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
-		skipEdgelessNodesBox.addItemListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.skipEdgelessNodesChanged()));
+		skipEdgelessNodesBox.addItemListener(e -> call(ChangeListener::skipEdgelessNodesChanged));
 
 		showEdgesInMetaNodeBox = new JCheckBox("Activate");
 		showEdgesInMetaNodeBox.setSelected(DEFAULT_SHOW_EDGES_IN_META_NODE);
-		showEdgesInMetaNodeBox.addItemListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.showEdgesInMetaNodeChanged()));
+		showEdgesInMetaNodeBox.addItemListener(e -> call(ChangeListener::showEdgesInMetaNodeChanged));
 
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
@@ -402,7 +397,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
-		fontBoldBox.addItemListener(e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.fontChanged()));
+		fontBoldBox.addItemListener(e -> call(ChangeListener::fontChanged));
 
 		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
@@ -430,15 +425,14 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
-		arrowInMiddleBox.addItemListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.arrowInMiddleChanged()));
+		arrowInMiddleBox.addItemListener(e -> call(ChangeListener::arrowInMiddleChanged));
 
 		label = null;
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(e -> {
 			label = Strings.emptyToNull(labelField.getText());
-			Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.labelChanged());
+			call(ChangeListener::labelChanged);
 		});
 
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
@@ -446,13 +440,12 @@ public class CanvasOptionsPanel extends JScrollPane {
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(e -> {
 			borderAlpha = borderAlphaSlider.getValue();
-			Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.borderAlphaChanged());
+			call(ChangeListener::borderAlphaChanged);
 		});
 
 		avoidOverlayBox = new JCheckBox("Activate");
 		avoidOverlayBox.setSelected(DEFAULT_AVOID_OVERLAY);
-		avoidOverlayBox.addItemListener(
-				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.avoidOverlayChanged()));
+		avoidOverlayBox.addItemListener(e -> call(ChangeListener::avoidOverlayChanged));
 	}
 
 	private void advancedButtonClicked() {
@@ -511,7 +504,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					nodeSizeBox.setSelectedItem(nodeSize);
 				} else {
 					nodeSize = size;
-					fireNodeSizeChanged();
+					call(ChangeListener::nodeSizeChanged);
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(nodeSizeBox, sizeString + " is not a valid number", "Error");
@@ -525,7 +518,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		if (sizeString.isEmpty()) {
 			nodeMaxSize = "";
-			fireNodeSizeChanged();
+			call(ChangeListener::nodeSizeChanged);
 		} else {
 			try {
 				int size = Integer.parseInt(sizeString);
@@ -536,7 +529,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 				} else {
 					nodeMaxSize = String.valueOf(size);
-					fireNodeSizeChanged();
+					call(ChangeListener::nodeSizeChanged);
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(nodeMaxSizeBox, sizeString + " is not a valid number", "Error");
@@ -565,7 +558,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					edgeThicknessBox.setSelectedItem(edgeThickness);
 				} else {
 					edgeThickness = size;
-					fireEdgeThicknessChanged();
+					call(ChangeListener::edgeThicknessChanged);
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(edgeThicknessBox, sizeString + " is not a valid number", "Error");
@@ -579,7 +572,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		if (sizeString.isEmpty()) {
 			edgeMaxThickness = "";
-			fireEdgeThicknessChanged();
+			call(ChangeListener::edgeThicknessChanged);
 		} else {
 			try {
 				int size = Integer.parseInt(sizeString);
@@ -590,13 +583,17 @@ public class CanvasOptionsPanel extends JScrollPane {
 					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 				} else {
 					edgeMaxThickness = String.valueOf(size);
-					fireEdgeThicknessChanged();
+					call(ChangeListener::edgeThicknessChanged);
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(edgeMaxThicknessBox, sizeString + " is not a valid number", "Error");
 				edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 			}
 		}
+	}
+
+	private void call(Consumer<ChangeListener> action) {
+		Stream.of(getListeners(ChangeListener.class)).forEach(action);
 	}
 
 	private static JPanel getOptionPanel(String name, Component... components) {
@@ -618,14 +615,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 		}
 
 		return panel;
-	}
-
-	private void fireNodeSizeChanged() {
-		Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.nodeSizeChanged());
-	}
-
-	private void fireEdgeThicknessChanged() {
-		Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.edgeThicknessChanged());
 	}
 
 	public static interface ChangeListener extends EventListener {

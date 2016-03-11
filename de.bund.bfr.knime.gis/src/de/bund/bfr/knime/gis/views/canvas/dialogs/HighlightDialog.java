@@ -196,7 +196,7 @@ public class HighlightDialog extends KnimeDialog {
 		conditionTypeBox.addItemListener(UI.newItemSelectListener(e -> conditionTypeChanged()));
 		nameField = new JTextField(20);
 		nameField.setText(condition.getName() != null ? condition.getName() : "");
-		nameField.getDocument().addDocumentListener(UI.newDocumentListener(e -> updateOptionsPanel()));
+		nameField.getDocument().addDocumentListener(UI.newDocumentActionListener(e -> updateOptionsPanel()));
 		legendBox = new JCheckBox("Show In Legend");
 		legendBox.setSelected(condition.isShowInLegend());
 		colorButton = new JButton("     ");

@@ -40,7 +40,7 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 
 		this.optional = optional;
 		valueValid = true;
-		getDocument().addDocumentListener(documentListener = UI.newDocumentListener(e -> textChanged()));
+		getDocument().addDocumentListener(documentListener = UI.newDocumentActionListener(e -> textChanged()));
 	}
 
 	@Override
