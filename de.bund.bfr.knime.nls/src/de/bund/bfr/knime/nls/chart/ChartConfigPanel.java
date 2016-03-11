@@ -25,6 +25,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventListener;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +58,6 @@ public class ChartConfigPanel extends JPanel {
 	private static final double DEFAULT_MINY = 0.0;
 	private static final double DEFAULT_MAXY = 1.0;
 
-	private List<ConfigListener> configListeners;
-
 	private JCheckBox drawLinesBox;
 	private JCheckBox showLegendBox;
 	private JCheckBox exportAsSvgBox;
@@ -81,19 +81,17 @@ public class ChartConfigPanel extends JPanel {
 	private VariablePanel parameterPanel;
 
 	public ChartConfigPanel(boolean allowConfidence, boolean allowExport, boolean allowParameters, boolean isDiff) {
-		configListeners = new ArrayList<>();
-
 		drawLinesBox = new JCheckBox("Draw Lines");
 		drawLinesBox.setSelected(false);
-		drawLinesBox.addItemListener(e -> configChanged());
+		drawLinesBox.addItemListener(e -> fireConfigChanged());
 		showLegendBox = new JCheckBox("Show Legend");
 		showLegendBox.setSelected(true);
-		showLegendBox.addItemListener(e -> configChanged());
+		showLegendBox.addItemListener(e -> fireConfigChanged());
 		exportAsSvgBox = new JCheckBox("Export as SVG");
 		exportAsSvgBox.setSelected(false);
 		showConfidenceBox = new JCheckBox("Show Confidence");
 		showConfidenceBox.setSelected(false);
-		showConfidenceBox.addItemListener(e -> configChanged());
+		showConfidenceBox.addItemListener(e -> fireConfigChanged());
 		resolutionSlider = new JSlider(0, 1000, 1000);
 		resolutionSlider.setMinorTickSpacing(100);
 		resolutionSlider.setMajorTickSpacing(200);
@@ -103,12 +101,12 @@ public class ChartConfigPanel extends JPanel {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				configChanged();
+				fireConfigChanged();
 			}
 		});
 		interpolatorBox = new JComboBox<>(InterpolationFactory.Type.values());
 		interpolatorBox.setSelectedIndex(0);
-		interpolatorBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
+		interpolatorBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
 
 		JPanel resolutionPanel = new JPanel();
 
@@ -164,26 +162,33 @@ public class ChartConfigPanel extends JPanel {
 
 		minToZeroBox = new JCheckBox("Set Minimum to Zero");
 		minToZeroBox.setSelected(false);
-		minToZeroBox.addItemListener(e -> configChanged());
+		minToZeroBox.addItemListener(e -> fireConfigChanged());
 		manualRangeBox = new JCheckBox("Set Manual Range");
 		manualRangeBox.setSelected(false);
-		manualRangeBox.addItemListener(e -> manualRangeChanged());
+		manualRangeBox.addItemListener(e -> {
+			minToZeroBox.setEnabled(!manualRangeBox.isSelected());
+			minXField.setEnabled(manualRangeBox.isSelected());
+			minYField.setEnabled(manualRangeBox.isSelected());
+			maxXField.setEnabled(manualRangeBox.isSelected());
+			maxYField.setEnabled(manualRangeBox.isSelected());
+			fireConfigChanged();
+		});
 		minXField = new DoubleTextField(false, 8);
 		minXField.setValue(DEFAULT_MINX);
 		minXField.setEnabled(false);
-		minXField.addTextListener(e -> configChanged());
+		minXField.addTextListener(e -> fireConfigChanged());
 		minYField = new DoubleTextField(false, 8);
 		minYField.setValue(DEFAULT_MINY);
 		minYField.setEnabled(false);
-		minYField.addTextListener(e -> configChanged());
+		minYField.addTextListener(e -> fireConfigChanged());
 		maxXField = new DoubleTextField(false, 8);
 		maxXField.setValue(DEFAULT_MAXX);
 		maxXField.setEnabled(false);
-		maxXField.addTextListener(e -> configChanged());
+		maxXField.addTextListener(e -> fireConfigChanged());
 		maxYField = new DoubleTextField(false, 8);
 		maxYField.setValue(DEFAULT_MAXY);
 		maxYField.setEnabled(false);
-		maxYField.addTextListener(e -> configChanged());
+		maxYField.addTextListener(e -> fireConfigChanged());
 
 		rangePanel.setLayout(new GridBagLayout());
 		rangePanel.add(minToZeroBox, UI.westConstraints(0, 0, 4, 1));
@@ -204,12 +209,12 @@ public class ChartConfigPanel extends JPanel {
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 
 		xBox = new JComboBox<>();
-		xBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
+		xBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
-		xTransBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
+		xTransBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
 		yTransBox = new JComboBox<>(Transform.values());
-		yTransBox.addItemListener(UI.newItemSelectListener(e -> configChanged()));
+		yTransBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
 
 		JPanel variablesPanel = new JPanel();
 
@@ -250,11 +255,11 @@ public class ChartConfigPanel extends JPanel {
 	}
 
 	public void addConfigListener(ConfigListener listener) {
-		configListeners.add(listener);
+		listenerList.add(ConfigListener.class, listener);
 	}
 
 	public void removeConfigListener(ConfigListener listener) {
-		configListeners.remove(listener);
+		listenerList.remove(ConfigListener.class, listener);
 	}
 
 	public boolean isMinToZero() {
@@ -404,7 +409,7 @@ public class ChartConfigPanel extends JPanel {
 			parameterPanel = new VariablePanel(
 					Maps.asMap(new LinkedHashSet<>(parameters), Functions.constant(new ArrayList<>())), minValues,
 					maxValues, false, true, true);
-			parameterPanel.addValueListener(e -> configChanged());
+			parameterPanel.addValueListener(e -> fireConfigChanged());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
 			Container container = getParent();
@@ -436,21 +441,12 @@ public class ChartConfigPanel extends JPanel {
 		return parameterPanel.getMaxValues();
 	}
 
-	private void manualRangeChanged() {
-		minToZeroBox.setEnabled(!manualRangeBox.isSelected());
-		minXField.setEnabled(manualRangeBox.isSelected());
-		minYField.setEnabled(manualRangeBox.isSelected());
-		maxXField.setEnabled(manualRangeBox.isSelected());
-		maxYField.setEnabled(manualRangeBox.isSelected());
-		configChanged();
+	private void fireConfigChanged() {
+		Arrays.asList(listenerList.getListeners(ConfigListener.class)).forEach(l -> l.configChanged(this));
 	}
 
-	private void configChanged() {
-		configListeners.forEach(l -> l.configChanged());
-	}
+	public static interface ConfigListener extends EventListener {
 
-	public static interface ConfigListener {
-
-		void configChanged();
+		void configChanged(ChartConfigPanel source);
 	}
 }

@@ -121,12 +121,12 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void selectionChanged() {
+	public void selectionChanged(ChartSelectionPanel source) {
 		createChart();
 	}
 
 	@Override
-	public void configChanged() {
+	public void configChanged(ChartConfigPanel source) {
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
@@ -139,7 +139,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void zoomChanged() {
+	public void zoomChanged(ChartCreator source) {
 		configPanel.removeConfigListener(this);
 		configPanel.setManualRange(true);
 		configPanel.setMinX(chartCreator.getMinX());

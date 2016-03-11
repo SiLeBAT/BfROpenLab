@@ -238,7 +238,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void configChanged() {
+	public void configChanged(ChartConfigPanel source) {
 		if (!configPanel.getVarX().equals(set.getViewSettings().getVarX())) {
 			set.getViewSettings().setFromConfigPanel(configPanel);
 
@@ -256,7 +256,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void zoomChanged() {
+	public void zoomChanged(ChartCreator source) {
 		configPanel.removeConfigListener(this);
 		configPanel.setManualRange(true);
 		configPanel.setMinX(chartCreator.getMinX());

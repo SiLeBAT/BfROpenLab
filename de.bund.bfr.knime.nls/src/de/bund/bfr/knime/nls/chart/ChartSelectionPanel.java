@@ -23,7 +23,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -60,8 +62,6 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<SelectionListener> listeners;
-
 	private JTable selectTable;
 	private JCheckBox selectAllBox;
 
@@ -69,11 +69,16 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 
 	public ChartSelectionPanel(List<String> ids, Map<String, List<String>> stringValues,
 			Map<String, List<Double>> doubleValues) {
-		listeners = new ArrayList<>();
-
 		selectAllBox = new JCheckBox("Select All");
 		selectAllBox.setSelected(false);
-		selectAllBox.addItemListener(e -> selectAllChanged());
+		selectAllBox.addItemListener(e -> {
+			int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
+
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
+			selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
+			fireSelectionChanged();
+		});
 
 		selectTable = new JTable(new SelectTableModel(ids, stringValues, doubleValues,
 				ChartUtils.createColorList(ids.size()), ChartUtils.createShapeList(ids.size())));
@@ -157,7 +162,7 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 			}
 		}
 
-		listeners.forEach(l -> l.selectionChanged());
+		fireSelectionChanged();
 	}
 
 	public Map<String, Color> getColors() {
@@ -201,34 +206,29 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 	}
 
 	public void addSelectionListener(SelectionListener listener) {
-		listeners.add(listener);
+		listenerList.add(SelectionListener.class, listener);
 	}
 
 	public void removeSelectionListener(SelectionListener listener) {
-		listeners.remove(listener);
+		listenerList.remove(SelectionListener.class, listener);
 	}
 
 	@Override
 	public void editingStopped(ChangeEvent e) {
-		listeners.forEach(l -> l.selectionChanged());
+		fireSelectionChanged();
 	}
 
 	@Override
 	public void editingCanceled(ChangeEvent e) {
 	}
 
-	private void selectAllChanged() {
-		int width = selectAllBox.isSelected() ? 0 : selectColumnWidth;
-
-		selectTable.getColumn(NlsChartUtils.SELECTED).setMinWidth(width);
-		selectTable.getColumn(NlsChartUtils.SELECTED).setMaxWidth(width);
-		selectTable.getColumn(NlsChartUtils.SELECTED).setPreferredWidth(width);
-		listeners.forEach(l -> l.selectionChanged());
+	private void fireSelectionChanged() {
+		Arrays.asList(listenerList.getListeners(SelectionListener.class)).forEach(l -> l.selectionChanged(this));
 	}
 
-	public static interface SelectionListener {
+	public static interface SelectionListener extends EventListener {
 
-		void selectionChanged();
+		void selectionChanged(ChartSelectionPanel source);
 	}
 
 	private static class SelectTableModel extends AbstractTableModel {

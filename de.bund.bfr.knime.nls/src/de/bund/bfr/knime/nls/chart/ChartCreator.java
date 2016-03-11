@@ -22,6 +22,8 @@ package de.bund.bfr.knime.nls.chart;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +52,6 @@ import de.bund.bfr.math.Transform;
 public class ChartCreator extends ChartPanel {
 
 	private static final long serialVersionUID = 1L;
-
-	private List<ZoomListener> zoomListeners;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
@@ -82,7 +82,6 @@ public class ChartCreator extends ChartPanel {
 		this.legend = legend;
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
-		zoomListeners = new ArrayList<>();
 		getPopupMenu().removeAll();
 	}
 
@@ -102,16 +101,16 @@ public class ChartCreator extends ChartPanel {
 			maxX = xRange2.getUpperBound();
 			minY = yRange2.getLowerBound();
 			maxY = yRange2.getUpperBound();
-			fireZoomChanged();
+			Arrays.asList(listenerList.getListeners(ZoomListener.class)).forEach(l -> l.zoomChanged(this));
 		}
 	}
 
 	public void addZoomListener(ZoomListener listener) {
-		zoomListeners.add(listener);
+		listenerList.add(ZoomListener.class, listener);
 	}
 
 	public void removeZoomListener(ZoomListener listener) {
-		zoomListeners.remove(listener);
+		listenerList.remove(ZoomListener.class, listener);
 	}
 
 	public JFreeChart createChart() throws ParseException {
@@ -331,10 +330,6 @@ public class ChartCreator extends ChartPanel {
 		this.selectedIds = selectedIds;
 	}
 
-	private void fireZoomChanged() {
-		zoomListeners.forEach(l -> l.zoomChanged());
-	}
-
 	private void plotData(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape) {
 		XYDataset dataSet = createDataDataSet(plotable, id);
 		XYItemRenderer renderer = createDataRenderer(plotable, id, defaultColor, defaultShape);
@@ -491,8 +486,8 @@ public class ChartCreator extends ChartPanel {
 		return null;
 	}
 
-	public static interface ZoomListener {
+	public static interface ZoomListener extends EventListener {
 
-		void zoomChanged();
+		void zoomChanged(ChartCreator source);
 	}
 }
