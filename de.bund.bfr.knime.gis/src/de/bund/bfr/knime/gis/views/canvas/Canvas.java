@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -118,8 +117,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	protected HighlightConditionList nodeHighlightConditions;
 	protected HighlightConditionList edgeHighlightConditions;
 
-	protected List<CanvasListener> canvasListeners;
-
 	private CanvasOptionsPanel optionsPanel;
 	private CanvasPopupMenu popup;
 
@@ -129,7 +126,6 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		this.edgeSchema = edgeSchema;
 		this.naming = naming;
 		transform = Transform.IDENTITY_TRANSFORM;
-		canvasListeners = new ArrayList<>();
 		nodeHighlightConditions = new HighlightConditionList();
 		edgeHighlightConditions = new HighlightConditionList();
 
@@ -155,7 +151,14 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 				CanvasTransformers.edgeDrawTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.addChangeListener(e -> transformChanged());
+				.addChangeListener(e -> {
+					AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext()
+							.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).getTransform();
+					boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
+
+					this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
+					applyTransform();
+				});
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, this.nodes, this.edges));
@@ -179,12 +182,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 	@Override
 	public void addCanvasListener(CanvasListener listener) {
-		canvasListeners.add(listener);
+		listenerList.add(CanvasListener.class, listener);
 	}
 
 	@Override
 	public void removeCanvasListener(CanvasListener listener) {
-		canvasListeners.remove(listener);
+		listenerList.remove(CanvasListener.class, listener);
 	}
 
 	@Override
@@ -442,7 +445,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	public void setNodeHighlightConditions(HighlightConditionList nodeHighlightConditions) {
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		applyChanges();
-		canvasListeners.forEach(l -> l.nodeHighlightingChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.nodeHighlightingChanged(this));
 	}
 
 	@Override
@@ -454,7 +457,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	public void setEdgeHighlightConditions(HighlightConditionList edgeHighlightConditions) {
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
-		canvasListeners.forEach(l -> l.edgeHighlightingChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.edgeHighlightingChanged(this));
 	}
 
 	@Override
@@ -463,7 +466,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		this.nodeHighlightConditions = nodeHighlightConditions;
 		this.edgeHighlightConditions = edgeHighlightConditions;
 		applyChanges();
-		canvasListeners.forEach(l -> l.highlightingChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.highlightingChanged(this));
 	}
 
 	@Override
@@ -475,7 +478,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
-		canvasListeners.forEach(l -> l.collapsedNodesChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.collapsedNodesChanged(this));
 	}
 
 	@Override
@@ -494,31 +497,31 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 	@Override
 	public void transformFinished() {
-		canvasListeners.forEach(l -> l.transformChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.transformChanged(this));
 	}
 
 	@Override
 	public void pickingFinished() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-		canvasListeners.forEach(l -> l.selectionChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.selectionChanged(this));
 	}
 
 	@Override
 	public void nodePickingFinished() {
 		popup.setNodeSelectionEnabled(!viewer.getPickedVertexState().getPicked().isEmpty());
-		canvasListeners.forEach(l -> l.nodeSelectionChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.nodeSelectionChanged(this));
 	}
 
 	@Override
 	public void edgePickingFinished() {
 		popup.setEdgeSelectionEnabled(!viewer.getPickedEdgeState().getPicked().isEmpty());
-		canvasListeners.forEach(l -> l.edgeSelectionChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.edgeSelectionChanged(this));
 	}
 
 	@Override
 	public void nodeMovementFinished() {
-		canvasListeners.forEach(l -> l.nodePositionsChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.nodePositionsChanged(this));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -819,7 +822,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		collapsedNodes.put(newId, selectedIds);
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(new LinkedHashSet<>(Arrays.asList(newId)));
-		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -840,7 +843,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(newIds);
-		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -920,7 +923,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(newCollapsedIds);
-		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@Override
@@ -929,7 +932,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		collapsedNodes.clear();
 		applyChanges();
 		popup.setNodeSelectionEnabled(false);
-		canvasListeners.forEach(l -> l.collapsedNodesAndPickingChanged(this));
+		fireCollapsedNodesAndPickingChanged();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -941,25 +944,25 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	@Override
 	public void showLegendChanged() {
 		viewer.repaint();
-		canvasListeners.forEach(l -> l.showLegendChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.showLegendChanged(this));
 	}
 
 	@Override
 	public void joinEdgesChanged() {
 		applyChanges();
-		canvasListeners.forEach(l -> l.edgeJoinChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.edgeJoinChanged(this));
 	}
 
 	@Override
 	public void skipEdgelessNodesChanged() {
 		applyChanges();
-		canvasListeners.forEach(l -> l.skipEdgelessChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.skipEdgelessChanged(this));
 	}
 
 	@Override
 	public void showEdgesInMetaNodeChanged() {
 		applyChanges();
-		canvasListeners.forEach(l -> l.showEdgesInMetaNodeChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.showEdgesInMetaNodeChanged(this));
 	}
 
 	@Override
@@ -969,19 +972,19 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		viewer.getRenderContext().setVertexFontTransformer(node -> font);
 		viewer.getRenderContext().setEdgeFontTransformer(edge -> font);
 		viewer.repaint();
-		canvasListeners.forEach(l -> l.fontChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.fontChanged(this));
 	}
 
 	@Override
 	public void nodeSizeChanged() {
 		applyChanges();
-		canvasListeners.forEach(l -> l.nodeSizeChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.nodeSizeChanged(this));
 	}
 
 	@Override
 	public void edgeThicknessChanged() {
 		applyChanges();
-		canvasListeners.forEach(l -> l.edgeThicknessChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.edgeThicknessChanged(this));
 	}
 
 	@Override
@@ -989,23 +992,23 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		viewer.getRenderer().getEdgeRenderer().setEdgeArrowRenderingSupport(optionsPanel.isArrowInMiddle()
 				? new MiddleEdgeArrowRenderingSupport<>() : new BasicEdgeArrowRenderingSupport<>());
 		viewer.repaint();
-		canvasListeners.forEach(l -> l.arrowInMiddleChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.arrowInMiddleChanged(this));
 	}
 
 	@Override
 	public void labelChanged() {
 		viewer.repaint();
-		canvasListeners.forEach(l -> l.labelChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.labelChanged(this));
 	}
 
 	@Override
 	public void borderAlphaChanged() {
-		canvasListeners.forEach(l -> l.borderAlphaChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.borderAlphaChanged(this));
 	}
 
 	@Override
 	public void avoidOverlayChanged() {
-		canvasListeners.forEach(l -> l.avoidOverlayChanged(this));
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.avoidOverlayChanged(this));
 	}
 
 	@Override
@@ -1235,13 +1238,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 	protected abstract V createMetaNode(String id, Collection<V> nodes);
 
-	private void transformChanged() {
-		AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer()
-				.getTransformer(Layer.LAYOUT)).getTransform();
-		boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
-
-		this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
-		applyTransform();
+	private void fireCollapsedNodesAndPickingChanged() {
+		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.collapsedNodesAndPickingChanged(this));
 	}
 
 	private class PostPaintable implements Paintable {

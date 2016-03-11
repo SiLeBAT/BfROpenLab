@@ -85,7 +85,7 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 	}
 
 	protected void textChanged() {
-		Arrays.asList(listenerList.getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
+		Arrays.asList(getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
 	}
 
 	protected void setTextWithoutListener(String text) {

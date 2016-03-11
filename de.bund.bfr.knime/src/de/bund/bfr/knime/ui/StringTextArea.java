@@ -101,6 +101,6 @@ public class StringTextArea extends JTextArea implements TextInput {
 	private void textChanged() {
 		value = Strings.emptyToNull(getText().trim());
 		valueValid = value != null || optional;
-		Arrays.asList(listenerList.getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
+		Arrays.asList(getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
 	}
 }

@@ -125,7 +125,7 @@ public class DateSlider extends JPanel {
 	}
 
 	private void configChanged() {
-		Arrays.asList(listenerList.getListeners(DateListener.class)).forEach(l -> l.configChanged(this));
+		Arrays.asList(getListeners(DateListener.class)).forEach(l -> l.configChanged(this));
 	}
 
 	private static GregorianCalendar addDaysTo(GregorianCalendar c, int days) {

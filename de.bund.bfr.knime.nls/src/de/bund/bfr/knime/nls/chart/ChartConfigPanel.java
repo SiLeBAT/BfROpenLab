@@ -442,7 +442,7 @@ public class ChartConfigPanel extends JPanel {
 	}
 
 	private void fireConfigChanged() {
-		Arrays.asList(listenerList.getListeners(ConfigListener.class)).forEach(l -> l.configChanged(this));
+		Arrays.asList(getListeners(ConfigListener.class)).forEach(l -> l.configChanged(this));
 	}
 
 	public static interface ConfigListener extends EventListener {

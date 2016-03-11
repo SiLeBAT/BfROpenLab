@@ -195,7 +195,7 @@ public class VariablePanel extends JPanel {
 
 		if (dialog.isApproved()) {
 			selectedValues.put(var, dialog.getSelected());
-			Arrays.asList(listenerList.getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
+			fireValuesChanged();
 		}
 	}
 
@@ -243,7 +243,7 @@ public class VariablePanel extends JPanel {
 			changeListeners.forEach(l -> slider.addChangeListener(l));
 		}
 
-		Arrays.asList(listenerList.getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
+		fireValuesChanged();
 	}
 
 	private void sliderChanged(String var, boolean applyChange) {
@@ -270,6 +270,10 @@ public class VariablePanel extends JPanel {
 
 	private double intToDouble(int i, double min, double max) {
 		return (double) i / (double) SLIDER_MAX * (max - min) + min;
+	}
+
+	private void fireValuesChanged() {
+		Arrays.asList(getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
 	}
 
 	private class SelectDialog extends KnimeDialog {

@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.chart;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -49,9 +52,11 @@ import de.bund.bfr.knime.chart.NamedShape;
 import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
-public class ChartCreator extends ChartPanel {
+public class ChartCreator extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+
+	private ChartPanel chartPanel;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
@@ -77,32 +82,39 @@ public class ChartCreator extends ChartPanel {
 	private InterpolationFactory.Type interpolator;
 
 	public ChartCreator(Map<String, Plotable> plotables, Map<String, String> legend) {
-		super(new JFreeChart(new XYPlot()));
 		this.plotables = plotables;
 		this.legend = legend;
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
-		getPopupMenu().removeAll();
-	}
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		ValueAxis domainAxis = ((XYPlot) getChart().getPlot()).getDomainAxis();
-		ValueAxis rangeAxis = ((XYPlot) getChart().getPlot()).getRangeAxis();
+		chartPanel = new ChartPanel(new JFreeChart(new XYPlot())) {
 
-		Range xRange1 = domainAxis.getRange();
-		Range yRange1 = rangeAxis.getRange();
-		super.mouseReleased(e);
-		Range xRange2 = domainAxis.getRange();
-		Range yRange2 = rangeAxis.getRange();
+			private static final long serialVersionUID = 1L;
 
-		if (!xRange1.equals(xRange2) || !yRange1.equals(yRange2)) {
-			minX = xRange2.getLowerBound();
-			maxX = xRange2.getUpperBound();
-			minY = yRange2.getLowerBound();
-			maxY = yRange2.getUpperBound();
-			Arrays.asList(listenerList.getListeners(ZoomListener.class)).forEach(l -> l.zoomChanged(this));
-		}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				ValueAxis domainAxis = ((XYPlot) chartPanel.getChart().getPlot()).getDomainAxis();
+				ValueAxis rangeAxis = ((XYPlot) chartPanel.getChart().getPlot()).getRangeAxis();
+
+				Range xRange1 = domainAxis.getRange();
+				Range yRange1 = rangeAxis.getRange();
+				super.mouseReleased(e);
+				Range xRange2 = domainAxis.getRange();
+				Range yRange2 = rangeAxis.getRange();
+
+				if (!xRange1.equals(xRange2) || !yRange1.equals(yRange2)) {
+					minX = xRange2.getLowerBound();
+					maxX = xRange2.getUpperBound();
+					minY = yRange2.getLowerBound();
+					maxY = yRange2.getUpperBound();
+					fireZoomChanged();
+				}
+			}
+		};
+		chartPanel.getPopupMenu().removeAll();
+
+		setLayout(new BorderLayout());
+		add(chartPanel, BorderLayout.CENTER);
 	}
 
 	public void addZoomListener(ZoomListener listener) {
@@ -111,6 +123,10 @@ public class ChartCreator extends ChartPanel {
 
 	public void removeZoomListener(ZoomListener listener) {
 		listenerList.remove(ZoomListener.class, listener);
+	}
+
+	public void setChart(JFreeChart chart) {
+		chartPanel.setChart(chart);
 	}
 
 	public JFreeChart createChart() throws ParseException {
@@ -484,6 +500,10 @@ public class ChartCreator extends ChartPanel {
 		}
 
 		return null;
+	}
+
+	private void fireZoomChanged() {
+		Arrays.asList(getListeners(ZoomListener.class)).forEach(l -> l.zoomChanged(this));
 	}
 
 	public static interface ZoomListener extends EventListener {

@@ -223,7 +223,7 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 	}
 
 	private void fireSelectionChanged() {
-		Arrays.asList(listenerList.getListeners(SelectionListener.class)).forEach(l -> l.selectionChanged(this));
+		Arrays.asList(getListeners(SelectionListener.class)).forEach(l -> l.selectionChanged(this));
 	}
 
 	public static interface SelectionListener extends EventListener {

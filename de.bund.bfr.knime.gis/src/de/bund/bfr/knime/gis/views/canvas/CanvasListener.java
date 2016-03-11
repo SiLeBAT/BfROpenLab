@@ -19,7 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-public interface CanvasListener {
+import java.util.EventListener;
+
+public interface CanvasListener extends EventListener {
 
 	void transformChanged(ICanvas<?> source);
 
