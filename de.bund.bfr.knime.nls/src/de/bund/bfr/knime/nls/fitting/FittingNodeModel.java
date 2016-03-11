@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleConsumer;
 
 import org.apache.commons.math3.util.Pair;
 import org.knime.core.data.DataCell;
@@ -71,7 +72,6 @@ import de.bund.bfr.math.LeastSquaresOptimization;
 import de.bund.bfr.math.MultivariateOptimization;
 import de.bund.bfr.math.Optimization;
 import de.bund.bfr.math.OptimizationResult;
-import de.bund.bfr.math.ProgressListener;
 
 /**
  * This is the model implementation of DiffFunctionFitting.
@@ -79,7 +79,7 @@ import de.bund.bfr.math.ProgressListener;
  * 
  * @author Christian Thoens
  */
-public class FittingNodeModel extends NodeModel implements ProgressListener {
+public class FittingNodeModel extends NodeModel {
 
 	private static final PortType[] INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE };
 	private static final PortType[] DIFF_INPUT_TYPE = new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE,
@@ -88,9 +88,10 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 	private boolean isDiff;
 	private FittingSettings set;
 
-	private ExecutionContext currentExec;
 	private int numberOfFittings;
 	private int currentFitting;
+
+	private DoubleConsumer progressListener;
 
 	/**
 	 * Constructor for the node model.
@@ -99,7 +100,6 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 		super(isDiff ? DIFF_INPUT_TYPE : INPUT_TYPE, new PortType[] { BufferedDataTable.TYPE, BufferedDataTable.TYPE });
 		this.isDiff = isDiff;
 		this.set = set;
-		currentExec = null;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		currentExec = exec;
+		progressListener = progress -> exec.setProgress((progress + currentFitting) / numberOfFittings);
 
 		Function function = ((FunctionPortObject) inObjects[0]).getFunction();
 		Map<String, OptimizationResult> results;
@@ -395,16 +395,16 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 				}
 			}
 
-			optimizer.addProgressListener(this);
-
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations()));
+								set.getStartValues(), new LinkedHashMap<>(0), set.getMaxLevenbergIterations(),
+								progressListener));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
+								progressListener));
 			}
 
 			currentFitting++;
@@ -461,16 +461,16 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 				optimizer.getMaxValues().putAll(set.getMaxStartValues());
 			}
 
-			optimizer.addProgressListener(this);
-
 			if (!set.getStartValues().isEmpty()) {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations()));
+								set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations(),
+								progressListener));
 			} else {
 				results.put(id,
 						optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations()));
+								set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
+								progressListener));
 			}
 
 			currentFitting++;
@@ -557,7 +557,6 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 			optimizer.getMaxValues().putAll(set.getMaxStartValues());
 		}
 
-		optimizer.addProgressListener(this);
 		numberOfFittings = 1;
 		currentFitting = 0;
 
@@ -565,10 +564,11 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 
 		if (!set.getStartValues().isEmpty()) {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations());
+					set.getStartValues(), new LinkedHashMap<>(), set.getMaxLevenbergIterations(), progressListener);
 		} else {
 			result = optimizer.optimize(set.getnParameterSpace(), set.getnLevenberg(), set.isStopWhenSuccessful(),
-					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations());
+					set.getMinStartValues(), set.getMaxStartValues(), set.getMaxLevenbergIterations(),
+					progressListener);
 		}
 
 		Map<String, OptimizationResult> results = new LinkedHashMap<>();
@@ -672,10 +672,4 @@ public class FittingNodeModel extends NodeModel implements ProgressListener {
 
 		return argumentValues;
 	}
-
-	@Override
-	public void progressChanged(double progress) {
-		currentExec.setProgress((progress + currentFitting) / numberOfFittings);
-	}
-
 }

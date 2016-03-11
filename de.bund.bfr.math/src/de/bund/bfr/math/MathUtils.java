@@ -22,7 +22,6 @@ package de.bund.bfr.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -226,8 +225,14 @@ public class MathUtils {
 
 			double error = errorFunction.applyAsDouble(values);
 
-			if (Double.isFinite(error)) {
-				valuesList.add(new StartValues(values, error));
+			if (Double.isFinite(error) || error < valuesList.get(n - 1).getError()) {
+				for (int i = 0; i < n; i++) {
+					if (error < valuesList.get(i).getError()) {
+						valuesList.add(i, new StartValues(values, error));
+						valuesList.remove(n);
+						break;
+					}
+				}
 			}
 
 			for (int i = 0;; i++) {
@@ -248,9 +253,7 @@ public class MathUtils {
 			progessListener.accept((double) ++count / (double) allStepSize);
 		}
 
-		Collections.sort(valuesList, (o1, o2) -> Double.compare(o1.getError(), o2.getError()));
-
-		return valuesList.subList(0, n);
+		return valuesList;
 	}
 
 	public static class ParamRange {

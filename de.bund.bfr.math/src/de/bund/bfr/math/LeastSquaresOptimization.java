@@ -19,11 +19,11 @@
  *******************************************************************************/
 package de.bund.bfr.math;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleConsumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.exception.ConvergenceException;
@@ -55,15 +55,12 @@ public class LeastSquaresOptimization implements Optimization {
 	private Map<String, Double> minValues;
 	private Map<String, Double> maxValues;
 
-	private List<ProgressListener> progressListeners;
-
 	private LeastSquaresOptimization(String[] parameters, double[] targetValues) {
 		this.parameters = parameters;
 		this.targetValues = targetValues;
 
 		minValues = new LinkedHashMap<>();
 		maxValues = new LinkedHashMap<>();
-		progressListeners = new ArrayList<>();
 	}
 
 	public LeastSquaresOptimization(String formula, String[] parameters, double[] targetValues,
@@ -100,37 +97,22 @@ public class LeastSquaresOptimization implements Optimization {
 	}
 
 	@Override
-	public void addProgressListener(ProgressListener listener) {
-		progressListeners.add(listener);
-	}
-
-	@Override
-	public void removeProgressListener(ProgressListener listener) {
-		progressListeners.remove(listener);
-	}
-
-	@Override
 	public Result optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
-			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations) {
-		fireProgressChanged(0.0);
+			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations,
+			DoubleConsumer progressListener) {
+		progressListener.accept(0.0);
 
 		ParamRange[] ranges = MathUtils.getParamRanges(parameters, minStartValues, maxStartValues, nParameterSpace);
 		RealVector targetVector = new ArrayRealVector(targetValues);
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
-				progress -> fireProgressChanged(0.5 * progress));
-
-		return optimize(startValuesList, stopWhenSuccessful, maxIterations);
-	}
-
-	private Result optimize(final List<StartValues> startValuesList, final boolean stopWhenSuccessful,
-			final int maxIterations) {
+				progress -> progressListener.accept(0.5 * progress));
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		Result result = null;
 		final AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {
-			fireProgressChanged(0.5 * count.get() / startValuesList.size() + 0.5);
+			progressListener.accept(0.5 * count.get() / startValuesList.size() + 0.5);
 
 			try {
 				LeastSquaresBuilder builder = createLeastSquaresBuilder(startValues.getValues(), maxIterations);
@@ -138,7 +120,7 @@ public class LeastSquaresOptimization implements Optimization {
 				builder.checker((iteration, previous, current) -> {
 					double currentProgress = (double) iteration / (double) maxIterations;
 
-					fireProgressChanged(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
+					progressListener.accept(0.5 * (count.get() + currentProgress) / startValuesList.size() + 0.5);
 					return iteration == maxIterations;
 				});
 
@@ -265,10 +247,6 @@ public class LeastSquaresOptimization implements Optimization {
 		}
 
 		return r;
-	}
-
-	private void fireProgressChanged(double progress) {
-		progressListeners.forEach(l -> l.progressChanged(progress));
 	}
 
 	public static class Result implements OptimizationResult {

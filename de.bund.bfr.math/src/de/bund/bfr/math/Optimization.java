@@ -20,13 +20,11 @@
 package de.bund.bfr.math;
 
 import java.util.Map;
+import java.util.function.DoubleConsumer;
 
 public interface Optimization {
 
 	OptimizationResult optimize(int nParameterSpace, int nOptimizations, boolean stopWhenSuccessful,
-			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations);
-
-	void addProgressListener(ProgressListener listener);
-
-	void removeProgressListener(ProgressListener listener);
+			Map<String, Double> minStartValues, Map<String, Double> maxStartValues, int maxIterations,
+			DoubleConsumer progessListener);
 }
