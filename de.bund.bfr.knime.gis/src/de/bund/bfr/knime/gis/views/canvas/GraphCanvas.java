@@ -25,12 +25,12 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -273,7 +273,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
 		}
 
-		Arrays.asList(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
+		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
 	}
 
 	private void updatePositionsOfCollapsedNodes() {

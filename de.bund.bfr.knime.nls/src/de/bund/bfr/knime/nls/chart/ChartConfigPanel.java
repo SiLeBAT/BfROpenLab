@@ -25,11 +25,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventListener;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -442,7 +442,7 @@ public class ChartConfigPanel extends JPanel {
 	}
 
 	private void fireConfigChanged() {
-		Arrays.asList(getListeners(ConfigListener.class)).forEach(l -> l.configChanged(this));
+		Stream.of(getListeners(ConfigListener.class)).forEach(l -> l.configChanged(this));
 	}
 
 	public static interface ConfigListener extends EventListener {

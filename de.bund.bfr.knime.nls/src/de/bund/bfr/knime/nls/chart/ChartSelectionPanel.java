@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
@@ -31,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
@@ -223,7 +223,7 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 	}
 
 	private void fireSelectionChanged() {
-		Arrays.asList(getListeners(SelectionListener.class)).forEach(l -> l.selectionChanged(this));
+		Stream.of(getListeners(SelectionListener.class)).forEach(l -> l.selectionChanged(this));
 	}
 
 	public static interface SelectionListener extends EventListener {

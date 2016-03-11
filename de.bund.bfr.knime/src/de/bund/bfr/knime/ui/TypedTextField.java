@@ -20,7 +20,7 @@
 package de.bund.bfr.knime.ui;
 
 import java.awt.Color;
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
@@ -85,7 +85,7 @@ public abstract class TypedTextField extends JTextField implements TextInput {
 	}
 
 	protected void textChanged() {
-		Arrays.asList(getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
+		Stream.of(getListeners(TextListener.class)).forEach(l -> l.textChanged(this));
 	}
 
 	protected void setTextWithoutListener(String text) {

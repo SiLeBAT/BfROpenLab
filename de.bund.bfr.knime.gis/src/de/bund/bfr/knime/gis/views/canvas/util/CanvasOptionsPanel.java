@@ -21,9 +21,9 @@ package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EventListener;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -106,8 +106,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	private JSlider borderAlphaSlider;
 	private JButton borderAlphaButton;
 	private JCheckBox avoidOverlayBox;
-
-	private List<ChangeListener> listeners;
 
 	public CanvasOptionsPanel(Canvas<?> owner, boolean allowEdges, boolean allowNodeResize, boolean allowPolygons,
 			boolean allowGisLocations) {
@@ -201,11 +199,11 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	public void addChangeListener(ChangeListener listener) {
-		listeners.add(listener);
+		listenerList.add(ChangeListener.class, listener);
 	}
 
 	public void removeChangeListener(ChangeListener listener) {
-		listeners.remove(listener);
+		listenerList.remove(ChangeListener.class, listener);
 	}
 
 	public void addOption(String name, String tooltip, boolean advanced, Component... components) {
@@ -357,8 +355,6 @@ public class CanvasOptionsPanel extends JScrollPane {
 	}
 
 	private void init() {
-		listeners = new ArrayList<>();
-
 		fontSize = DEFAULT_FONT_SIZE;
 		nodeSize = DEFAULT_NODE_SIZE;
 		nodeMaxSize = DEFAULT_NODE_MAX_SIZE;
@@ -368,30 +364,35 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		transformingButton = new JRadioButton("Transforming");
 		transformingButton.setSelected(DEFAULT_MODE == Mode.TRANSFORMING);
-		transformingButton
-				.addItemListener(UI.newItemSelectListener(e -> listeners.forEach(l -> l.editingModeChanged())));
+		transformingButton.addItemListener(UI.newItemSelectListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.editingModeChanged())));
 
 		pickingButton = new JRadioButton("Picking");
 		pickingButton.setSelected(DEFAULT_MODE == Mode.PICKING);
-		pickingButton.addItemListener(UI.newItemSelectListener(e -> listeners.forEach(l -> l.editingModeChanged())));
+		pickingButton.addItemListener(UI.newItemSelectListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.editingModeChanged())));
 
 		UI.groupButtons(transformingButton, pickingButton);
 
 		showLegendBox = new JCheckBox("Activate");
 		showLegendBox.setSelected(DEFAULT_SHOW_LEGEND);
-		showLegendBox.addItemListener(e -> listeners.forEach(l -> l.showLegendChanged()));
+		showLegendBox.addItemListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.showLegendChanged()));
 
 		joinEdgesBox = new JCheckBox("Activate");
 		joinEdgesBox.setSelected(DEFAULT_JOIN_EDGES);
-		joinEdgesBox.addItemListener(e -> listeners.forEach(l -> l.joinEdgesChanged()));
+		joinEdgesBox
+				.addItemListener(e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.joinEdgesChanged()));
 
 		skipEdgelessNodesBox = new JCheckBox("Activate");
 		skipEdgelessNodesBox.setSelected(DEFAULT_SKIP_EDGELESS_NODES);
-		skipEdgelessNodesBox.addItemListener(e -> listeners.forEach(l -> l.skipEdgelessNodesChanged()));
+		skipEdgelessNodesBox.addItemListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.skipEdgelessNodesChanged()));
 
 		showEdgesInMetaNodeBox = new JCheckBox("Activate");
 		showEdgesInMetaNodeBox.setSelected(DEFAULT_SHOW_EDGES_IN_META_NODE);
-		showEdgesInMetaNodeBox.addItemListener(e -> listeners.forEach(l -> l.showEdgesInMetaNodeChanged()));
+		showEdgesInMetaNodeBox.addItemListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.showEdgesInMetaNodeChanged()));
 
 		fontSizeBox = new JComboBox<>(new Vector<>(Ints.asList(TEXT_SIZES)));
 		fontSizeBox.setEditable(true);
@@ -401,7 +402,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		fontBoldBox = new JCheckBox("Bold");
 		fontBoldBox.setSelected(DEFAULT_FONT_BOLD);
-		fontBoldBox.addItemListener(e -> listeners.forEach(l -> l.fontChanged()));
+		fontBoldBox.addItemListener(e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.fontChanged()));
 
 		nodeSizeBox = new JComboBox<>(new Vector<>(Ints.asList(NODE_SIZES)));
 		nodeSizeBox.setEditable(true);
@@ -429,14 +430,15 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		arrowInMiddleBox = new JCheckBox("Activate");
 		arrowInMiddleBox.setSelected(DEFAULT_ARROW_IN_MIDDLE);
-		arrowInMiddleBox.addItemListener(e -> listeners.forEach(l -> l.arrowInMiddleChanged()));
+		arrowInMiddleBox.addItemListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.arrowInMiddleChanged()));
 
 		label = null;
 		labelField = new JTextField(label, 20);
 		labelButton = new JButton("Apply");
 		labelButton.addActionListener(e -> {
 			label = Strings.emptyToNull(labelField.getText());
-			listeners.forEach(l -> l.labelChanged());
+			Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.labelChanged());
 		});
 
 		borderAlphaSlider = new JSlider(0, 255, borderAlpha);
@@ -444,12 +446,13 @@ public class CanvasOptionsPanel extends JScrollPane {
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(e -> {
 			borderAlpha = borderAlphaSlider.getValue();
-			listeners.forEach(l -> l.borderAlphaChanged());
+			Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.borderAlphaChanged());
 		});
 
 		avoidOverlayBox = new JCheckBox("Activate");
 		avoidOverlayBox.setSelected(DEFAULT_AVOID_OVERLAY);
-		avoidOverlayBox.addItemListener(e -> listeners.forEach(l -> l.avoidOverlayChanged()));
+		avoidOverlayBox.addItemListener(
+				e -> Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.avoidOverlayChanged()));
 	}
 
 	private void advancedButtonClicked() {
@@ -477,7 +480,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 				fontSizeBox.setSelectedItem(fontSize);
 			} else {
 				fontSize = size;
-				listeners.forEach(l -> l.fontChanged());
+				Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.fontChanged());
 			}
 		} catch (NumberFormatException e) {
 			Dialogs.showErrorMessage(fontSizeBox, sizeString + " is not a valid number", "Error");
@@ -508,7 +511,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					nodeSizeBox.setSelectedItem(nodeSize);
 				} else {
 					nodeSize = size;
-					listeners.forEach(l -> l.nodeSizeChanged());
+					fireNodeSizeChanged();
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(nodeSizeBox, sizeString + " is not a valid number", "Error");
@@ -522,7 +525,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		if (sizeString.isEmpty()) {
 			nodeMaxSize = "";
-			listeners.forEach(l -> l.nodeSizeChanged());
+			fireNodeSizeChanged();
 		} else {
 			try {
 				int size = Integer.parseInt(sizeString);
@@ -533,7 +536,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					nodeMaxSizeBox.setSelectedItem(nodeMaxSize);
 				} else {
 					nodeMaxSize = String.valueOf(size);
-					listeners.forEach(l -> l.nodeSizeChanged());
+					fireNodeSizeChanged();
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(nodeMaxSizeBox, sizeString + " is not a valid number", "Error");
@@ -562,7 +565,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					edgeThicknessBox.setSelectedItem(edgeThickness);
 				} else {
 					edgeThickness = size;
-					listeners.forEach(l -> l.edgeThicknessChanged());
+					fireEdgeThicknessChanged();
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(edgeThicknessBox, sizeString + " is not a valid number", "Error");
@@ -576,7 +579,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		if (sizeString.isEmpty()) {
 			edgeMaxThickness = "";
-			listeners.forEach(l -> l.edgeThicknessChanged());
+			fireEdgeThicknessChanged();
 		} else {
 			try {
 				int size = Integer.parseInt(sizeString);
@@ -587,7 +590,7 @@ public class CanvasOptionsPanel extends JScrollPane {
 					edgeMaxThicknessBox.setSelectedItem(edgeMaxThickness);
 				} else {
 					edgeMaxThickness = String.valueOf(size);
-					listeners.forEach(l -> l.edgeThicknessChanged());
+					fireEdgeThicknessChanged();
 				}
 			} catch (NumberFormatException e) {
 				Dialogs.showErrorMessage(edgeMaxThicknessBox, sizeString + " is not a valid number", "Error");
@@ -617,7 +620,15 @@ public class CanvasOptionsPanel extends JScrollPane {
 		return panel;
 	}
 
-	public static interface ChangeListener {
+	private void fireNodeSizeChanged() {
+		Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.nodeSizeChanged());
+	}
+
+	private void fireEdgeThicknessChanged() {
+		Stream.of(getListeners(ChangeListener.class)).forEach(l -> l.edgeThicknessChanged());
+	}
+
+	public static interface ChangeListener extends EventListener {
 
 		void editingModeChanged();
 

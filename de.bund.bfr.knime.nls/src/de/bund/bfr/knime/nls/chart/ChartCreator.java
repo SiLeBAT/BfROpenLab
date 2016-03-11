@@ -23,11 +23,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
@@ -503,7 +503,7 @@ public class ChartCreator extends JPanel {
 	}
 
 	private void fireZoomChanged() {
-		Arrays.asList(getListeners(ZoomListener.class)).forEach(l -> l.zoomChanged(this));
+		Stream.of(getListeners(ZoomListener.class)).forEach(l -> l.zoomChanged(this));
 	}
 
 	public static interface ZoomListener extends EventListener {

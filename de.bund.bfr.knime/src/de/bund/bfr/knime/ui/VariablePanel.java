@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -273,7 +274,7 @@ public class VariablePanel extends JPanel {
 	}
 
 	private void fireValuesChanged() {
-		Arrays.asList(getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
+		Stream.of(getListeners(ValueListener.class)).forEach(l -> l.valuesChanged(this));
 	}
 
 	private class SelectDialog extends KnimeDialog {
