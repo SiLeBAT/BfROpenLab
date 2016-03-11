@@ -20,7 +20,10 @@
 package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -70,8 +73,6 @@ public class CanvasPopupMenu extends JPopupMenu {
 	private JMenuItem expandFromNodeItem;
 	private JMenuItem collapseByPropertyItem;
 	private JMenuItem clearCollapsedNodesItem;
-
-	private List<ClickListener> listeners;
 
 	public CanvasPopupMenu(Canvas<?> owner, boolean allowEdges, boolean allowLayout, boolean allowCollapse) {
 		init(owner);
@@ -151,11 +152,11 @@ public class CanvasPopupMenu extends JPopupMenu {
 	}
 
 	public void addClickListener(ClickListener listener) {
-		listeners.add(listener);
+		listenerList.add(ClickListener.class, listener);
 	}
 
 	public void removeClickListener(ClickListener listener) {
-		listeners.remove(listener);
+		listenerList.remove(ClickListener.class, listener);
 	}
 
 	public void setNodeSelectionEnabled(boolean enabled) {
@@ -167,8 +168,6 @@ public class CanvasPopupMenu extends JPopupMenu {
 	}
 
 	private void init(Canvas<?> owner) {
-		listeners = new ArrayList<>();
-
 		nodeSelectionMenu = new JMenu(owner.getNaming().Node() + " Selection");
 		nodeSelectionMenu.setEnabled(false);
 		edgeSelectionMenu = new JMenu(owner.getNaming().Edge() + " Selection");
@@ -177,84 +176,63 @@ public class CanvasPopupMenu extends JPopupMenu {
 		edgeHighlightMenu = new JMenu(owner.getNaming().Edge() + " Highlighting");
 		layoutMenu = new JMenu("Apply Layout");
 
-		resetLayoutItem = new JMenuItem("Reset Layout");
-		resetLayoutItem.addActionListener(e -> listeners.forEach(l -> l.resetLayoutItemClicked()));
-		saveAsItem = new JMenuItem("Save As ...");
-		saveAsItem.addActionListener(e -> listeners.forEach(l -> l.saveAsItemClicked()));
+		resetLayoutItem = createItem("Reset Layout", ClickListener::resetLayoutItemClicked);
+		saveAsItem = createItem("Save As ...", ClickListener::saveAsItemClicked);
 
-		clearSelectedNodesItem = new JMenuItem("Clear");
-		clearSelectedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearSelectedNodesItemClicked()));
-		nodePropertiesItem = new JMenuItem("Show Properties");
-		nodePropertiesItem.addActionListener(e -> listeners.forEach(l -> l.nodePropertiesItemClicked()));
-		nodeAllPropertiesItem = new JMenuItem("Show Uncollapsed Properties");
-		nodeAllPropertiesItem.addActionListener(e -> listeners.forEach(l -> l.nodeAllPropertiesItemClicked()));
-		highlightSelectedNodesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedNodesItem
-				.addActionListener(e -> listeners.forEach(l -> l.highlightSelectedNodesItemClicked()));
-		selectConnectionsItem = new JMenuItem("Select Connections");
-		selectConnectionsItem.addActionListener(e -> listeners.forEach(l -> l.selectConnectionsItemClicked()));
-		selectIncomingItem = new JMenuItem("Select Incoming");
-		selectIncomingItem.addActionListener(e -> listeners.forEach(l -> l.selectIncomingItemClicked()));
-		selectOutgoingItem = new JMenuItem("Select Outgoing");
-		selectOutgoingItem.addActionListener(e -> listeners.forEach(l -> l.selectOutgoingItemClicked()));
+		clearSelectedNodesItem = createItem("Clear", ClickListener::clearSelectedNodesItemClicked);
+		nodePropertiesItem = createItem("Show Properties", ClickListener::nodePropertiesItemClicked);
+		nodeAllPropertiesItem = createItem("Show Uncollapsed Properties", ClickListener::nodeAllPropertiesItemClicked);
+		highlightSelectedNodesItem = createItem("Highlight Selected", ClickListener::highlightSelectedNodesItemClicked);
+		selectConnectionsItem = createItem("Select Connections", ClickListener::selectConnectionsItemClicked);
+		selectIncomingItem = createItem("Select Incoming", ClickListener::selectIncomingItemClicked);
+		selectOutgoingItem = createItem("Select Outgoing", ClickListener::selectOutgoingItemClicked);
 
-		clearSelectedEdgesItem = new JMenuItem("Clear");
-		clearSelectedEdgesItem.addActionListener(e -> listeners.forEach(l -> l.clearSelectedEdgesItemClicked()));
-		edgePropertiesItem = new JMenuItem("Show Properties");
-		edgePropertiesItem.addActionListener(e -> listeners.forEach(l -> l.edgePropertiesItemClicked()));
-		edgeAllPropertiesItem = new JMenuItem("Show Unjoined Properties");
-		edgeAllPropertiesItem.addActionListener(e -> listeners.forEach(l -> l.edgeAllPropertiesItemClicked()));
-		highlightSelectedEdgesItem = new JMenuItem("Highlight Selected");
-		highlightSelectedEdgesItem
-				.addActionListener(e -> listeners.forEach(l -> l.highlightSelectedEdgesItemClicked()));
+		clearSelectedEdgesItem = createItem("Clear", ClickListener::clearSelectedEdgesItemClicked);
+		edgePropertiesItem = createItem("Show Properties", ClickListener::edgePropertiesItemClicked);
+		edgeAllPropertiesItem = createItem("Show Unjoined Properties", ClickListener::edgeAllPropertiesItemClicked);
+		highlightSelectedEdgesItem = createItem("Highlight Selected", ClickListener::highlightSelectedEdgesItemClicked);
 
-		highlightNodesItem = new JMenuItem("Edit");
-		highlightNodesItem.addActionListener(e -> listeners.forEach(l -> l.highlightNodesItemClicked()));
-		clearHighlightedNodesItem = new JMenuItem("Clear");
-		clearHighlightedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearHighlightedNodesItemClicked()));
-		selectHighlightedNodesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedNodesItem
-				.addActionListener(e -> listeners.forEach(l -> l.selectHighlightedNodesItemClicked()));
-		highlightNodeCategoriesItem = new JMenuItem("Add Category Highlighting");
-		highlightNodeCategoriesItem
-				.addActionListener(e -> listeners.forEach(l -> l.highlightNodeCategoriesItemClicked()));
+		highlightNodesItem = createItem("Edit", ClickListener::highlightNodesItemClicked);
+		clearHighlightedNodesItem = createItem("Clear", ClickListener::clearHighlightedNodesItemClicked);
+		selectHighlightedNodesItem = createItem("Select Highlighted", ClickListener::selectHighlightedNodesItemClicked);
+		highlightNodeCategoriesItem = createItem("Add Category Highlighting",
+				ClickListener::highlightNodeCategoriesItemClicked);
 
-		highlightEdgesItem = new JMenuItem("Edit");
-		highlightEdgesItem.addActionListener(e -> listeners.forEach(l -> l.highlightEdgesItemClicked()));
-		clearHighlightedEdgesItem = new JMenuItem("Clear");
-		clearHighlightedEdgesItem.addActionListener(e -> listeners.forEach(l -> l.clearHighlightedEdgesItemClicked()));
-		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted");
-		selectHighlightedEdgesItem
-				.addActionListener(e -> listeners.forEach(l -> l.selectHighlightedEdgesItemClicked()));
-		highlightEdgeCategoriesItem = new JMenuItem("Add Category Highlighting");
-		highlightEdgeCategoriesItem
-				.addActionListener(e -> listeners.forEach(l -> l.highlightEdgeCategoriesItemClicked()));
+		highlightEdgesItem = createItem("Edit", ClickListener::highlightEdgesItemClicked);
+		clearHighlightedEdgesItem = createItem("Clear", ClickListener::clearHighlightedEdgesItemClicked);
+		selectHighlightedEdgesItem = createItem("Select Highlighted", ClickListener::selectHighlightedEdgesItemClicked);
+		highlightEdgeCategoriesItem = createItem("Add Category Highlighting",
+				ClickListener::highlightEdgeCategoriesItemClicked);
 
-		selectNodesItem = new JMenuItem("Set Selected " + owner.getNaming().Nodes());
-		selectNodesItem.addActionListener(e -> listeners.forEach(l -> l.selectNodesItemClicked()));
-		selectEdgesItem = new JMenuItem("Set Selected " + owner.getNaming().Edges());
-		selectEdgesItem.addActionListener(e -> listeners.forEach(l -> l.selectEdgesItemClicked()));
+		selectNodesItem = createItem("Set Selected " + owner.getNaming().Nodes(),
+				ClickListener::selectNodesItemClicked);
+		selectEdgesItem = createItem("Set Selected " + owner.getNaming().Edges(),
+				ClickListener::selectEdgesItemClicked);
 
-		collapseToNodeItem = new JMenuItem("Collapse to Meta " + owner.getNaming().Node());
-		collapseToNodeItem.addActionListener(e -> listeners.forEach(l -> l.collapseToNodeItemClicked()));
-		expandFromNodeItem = new JMenuItem("Expand from Meta " + owner.getNaming().Node());
-		expandFromNodeItem.addActionListener(e -> listeners.forEach(l -> l.expandFromNodeItemClicked()));
-		collapseByPropertyItem = new JMenuItem("Collapse by Property");
-		collapseByPropertyItem.addActionListener(e -> listeners.forEach(l -> l.collapseByPropertyItemClicked()));
-		clearCollapsedNodesItem = new JMenuItem("Clear Collapsed " + owner.getNaming().Nodes());
-		clearCollapsedNodesItem.addActionListener(e -> listeners.forEach(l -> l.clearCollapsedNodesItemClicked()));
+		collapseToNodeItem = createItem("Collapse to Meta " + owner.getNaming().Node(),
+				ClickListener::collapseToNodeItemClicked);
+		expandFromNodeItem = createItem("Expand from Meta " + owner.getNaming().Node(),
+				ClickListener::expandFromNodeItemClicked);
+		collapseByPropertyItem = createItem("Collapse by Property", ClickListener::collapseByPropertyItemClicked);
+		clearCollapsedNodesItem = createItem("Clear Collapsed " + owner.getNaming().Nodes(),
+				ClickListener::clearCollapsedNodesItemClicked);
 
 		layoutItems = new ArrayList<>();
 
 		for (LayoutType layoutType : LayoutType.values()) {
-			JMenuItem item = new JMenuItem(layoutType.toString());
-
-			item.addActionListener(e -> listeners.forEach(l -> l.layoutItemClicked(layoutType)));
-			layoutItems.add(item);
+			layoutItems.add(createItem(layoutType.toString(), l -> l.layoutItemClicked(layoutType)));
 		}
 	}
 
-	public static interface ClickListener {
+	private JMenuItem createItem(String text, Consumer<ClickListener> action) {
+		JMenuItem item = new JMenuItem(text);
+
+		item.addActionListener(e -> Stream.of(getListeners(ClickListener.class)).forEach(action));
+
+		return item;
+	}
+
+	public static interface ClickListener extends EventListener {
 
 		void resetLayoutItemClicked();
 
