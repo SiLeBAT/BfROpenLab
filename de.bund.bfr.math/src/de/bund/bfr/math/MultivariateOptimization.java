@@ -91,8 +91,8 @@ public class MultivariateOptimization implements Optimization {
 
 		List<StartValues> startValuesList = MathUtils.createStartValuesList(ranges, nOptimizations,
 				values -> optimizerFunction.value(values), progress -> progessListener.accept(0.5 * progress));
-		Result result = null;
-		final AtomicInteger currentIteration = new AtomicInteger();
+		Result result = getResults();
+		AtomicInteger currentIteration = new AtomicInteger();
 		SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-10, 1e-10) {
 
 			@Override
@@ -104,10 +104,10 @@ public class MultivariateOptimization implements Optimization {
 				return currentIteration.incrementAndGet() >= maxIterations;
 			}
 		});
-		final AtomicInteger count = new AtomicInteger(0);
+		int count = 0;
 
 		for (StartValues startValues : startValuesList) {
-			progessListener.accept(0.5 * count.get() / startValuesList.size() + 0.5);
+			progessListener.accept(0.5 * count++ / startValuesList.size() + 0.5);
 
 			try {
 				PointValuePair optimizerResults = optimizer.optimize(new MaxEval(Integer.MAX_VALUE),
@@ -116,7 +116,7 @@ public class MultivariateOptimization implements Optimization {
 						new NelderMeadSimplex(parameters.length));
 				double logLikelihood = optimizerResults.getValue() != null ? optimizerResults.getValue() : Double.NaN;
 
-				if (result == null || logLikelihood > result.logLikelihood) {
+				if (result.logLikelihood == null || logLikelihood > result.logLikelihood) {
 					result = getResults(optimizerResults);
 
 					if (result.logLikelihood == 0.0 || stopWhenSuccessful) {
@@ -125,11 +125,9 @@ public class MultivariateOptimization implements Optimization {
 				}
 			} catch (TooManyEvaluationsException | TooManyIterationsException | ConvergenceException e) {
 			}
-
-			count.incrementAndGet();
 		}
 
-		return result != null ? result : getResults();
+		return result;
 	}
 
 	private Result getResults() {

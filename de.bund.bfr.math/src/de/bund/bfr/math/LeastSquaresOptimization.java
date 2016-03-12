@@ -108,8 +108,8 @@ public class LeastSquaresOptimization implements Optimization {
 				values -> targetVector.getDistance(new ArrayRealVector(optimizerFunction.value(values))),
 				progress -> progressListener.accept(0.5 * progress));
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-		Result result = null;
-		final AtomicInteger count = new AtomicInteger(0);
+		Result result = getResults();
+		AtomicInteger count = new AtomicInteger(0);
 
 		for (StartValues startValues : startValuesList) {
 			progressListener.accept(0.5 * count.get() / startValuesList.size() + 0.5);
@@ -127,7 +127,7 @@ public class LeastSquaresOptimization implements Optimization {
 				LeastSquaresOptimizer.Optimum optimizerResults = optimizer.optimize(builder.build());
 				double cost = optimizerResults.getCost();
 
-				if (result == null || cost * cost < result.sse) {
+				if (result.sse == null || cost * cost < result.sse) {
 					result = getResults(optimizerResults);
 
 					if (result.sse == 0.0) {
@@ -144,7 +144,7 @@ public class LeastSquaresOptimization implements Optimization {
 			count.incrementAndGet();
 		}
 
-		return result != null ? result : getResults();
+		return result;
 	}
 
 	private LeastSquaresBuilder createLeastSquaresBuilder(double[] startValues, int maxIterations) {
