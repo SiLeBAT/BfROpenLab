@@ -21,20 +21,22 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
+import javax.swing.event.EventListenerList;
+
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 
 public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin implements MouseWheelListener {
 
-	private List<BetterGraphMouse.ChangeListener> changeListeners;
+	private EventListenerList listeners;
 
 	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> lastTask;
@@ -46,17 +48,17 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		super(0);
 		this.in = in;
 		this.out = out;
-		changeListeners = new ArrayList<>();
+		listeners = new EventListenerList();
 		scheduler = Executors.newScheduledThreadPool(1);
 		lastTask = null;
 	}
 
-	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.add(listener);
+	public void addChangeListener(ChangeListener listener) {
+		listeners.add(ChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.remove(listener);
+	public void removeChangeListener(ChangeListener listener) {
+		listeners.remove(ChangeListener.class, listener);
 	}
 
 	@Override
@@ -74,7 +76,8 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 			lastTask.cancel(false);
 		}
 
-		lastTask = scheduler.schedule(() -> changeListeners.forEach(l -> l.transformFinished()), 200,
+		lastTask = scheduler.schedule(
+				() -> Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.transformFinished()), 200,
 				TimeUnit.MILLISECONDS);
 	}
 }

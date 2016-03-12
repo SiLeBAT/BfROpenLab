@@ -54,7 +54,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements TileLoaderListener {
+public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements TileLoaderListener {
 
 	private static final long serialVersionUID = 1L;
 

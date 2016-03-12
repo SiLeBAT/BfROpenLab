@@ -21,22 +21,24 @@ package de.bund.bfr.knime.gis.views.canvas.jung;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EventListener;
+import java.util.stream.Stream;
+
+import javax.swing.event.EventListenerList;
 
 import edu.uci.ics.jung.visualization.control.AbstractModalGraphMouse;
 
 public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
-	private boolean pickingDeactivated;
+	private EventListenerList listeners;
 
-	private List<BetterGraphMouse.ChangeListener> changeListeners;
+	private boolean pickingDeactivated;
 
 	public BetterGraphMouse(BetterPickingGraphMousePlugin<V, E> pickingPlugin,
 			BetterScalingGraphMousePlugin scalingPlugin) {
 		super(1, 1);
 
-		changeListeners = new ArrayList<>();
+		listeners = new EventListenerList();
 		translatingPlugin = new BetterTranslatingGraphMousePlugin();
 		this.pickingPlugin = pickingPlugin;
 		this.scalingPlugin = scalingPlugin;
@@ -65,7 +67,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 			}
 		}
 
-		changeListeners.forEach(l -> l.modeChangeFinished());
+		Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.modeChangeFinished());
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	@SuppressWarnings("unchecked")
 	public void addChangeListener(ChangeListener listener) {
-		changeListeners.add(listener);
+		listeners.add(ChangeListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).addChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
@@ -97,7 +99,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 
 	@SuppressWarnings("unchecked")
 	public void removeChangeListener(ChangeListener listener) {
-		changeListeners.remove(listener);
+		listeners.remove(ChangeListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).removeChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
@@ -119,7 +121,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 		this.pickingDeactivated = pickingDeactivated;
 	}
 
-	public interface ChangeListener {
+	public interface ChangeListener extends EventListener {
 
 		void pickingFinished();
 

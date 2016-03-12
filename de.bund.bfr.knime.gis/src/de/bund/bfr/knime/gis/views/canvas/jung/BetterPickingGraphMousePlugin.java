@@ -26,10 +26,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import javax.swing.event.EventListenerList;
 
 import de.bund.bfr.knime.PointUtils;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
@@ -43,21 +46,21 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	private Rectangle2D rect = new Rectangle2D.Float();
 
-	private List<BetterGraphMouse.ChangeListener> changeListeners;
+	private EventListenerList listeners;
 
 	private boolean nodesMoved;
 
 	public BetterPickingGraphMousePlugin() {
 		super(0);
-		changeListeners = new ArrayList<>();
+		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.add(listener);
+	public void addChangeListener(ChangeListener listener) {
+		listeners.add(ChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.remove(listener);
+	public void removeChangeListener(ChangeListener listener) {
+		listeners.remove(ChangeListener.class, listener);
 	}
 
 	@Override
@@ -80,13 +83,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (!pickedVertexState.isPicked(vertex)) {
 						pickedVertexState.clear();
 						pickedVertexState.pick(vertex, true);
-						changeListeners.forEach(l -> l.nodePickingFinished());
+						call(l -> l.nodePickingFinished());
 					}
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (!pickedEdgeState.isPicked(edge)) {
 						pickedEdgeState.clear();
 						pickedEdgeState.pick(edge, true);
-						changeListeners.forEach(l -> l.edgePickingFinished());
+						call(l -> l.edgePickingFinished());
 					}
 				} else {
 					boolean nodesPicked = !pickedVertexState.getPicked().isEmpty();
@@ -95,13 +98,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					if (nodesPicked && edgesPicked) {
 						pickedVertexState.clear();
 						pickedEdgeState.clear();
-						changeListeners.forEach(l -> l.pickingFinished());
+						call(l -> l.pickingFinished());
 					} else if (nodesPicked) {
 						pickedVertexState.clear();
-						changeListeners.forEach(l -> l.nodePickingFinished());
+						call(l -> l.nodePickingFinished());
 					} else if (edgesPicked) {
 						pickedEdgeState.clear();
-						changeListeners.forEach(l -> l.edgePickingFinished());
+						call(l -> l.edgePickingFinished());
 					}
 				}
 			} else {
@@ -110,13 +113,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 						vertex = null;
 					}
 
-					changeListeners.forEach(l -> l.nodePickingFinished());
+					call(l -> l.nodePickingFinished());
 				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
 					if (pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge))) {
 						edge = null;
 					}
 
-					changeListeners.forEach(l -> l.edgePickingFinished());
+					call(l -> l.edgePickingFinished());
 				}
 			}
 		}
@@ -140,11 +143,11 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 				pickedVertexState.pick(v, true);
 			}
 
-			changeListeners.forEach(l -> l.nodePickingFinished());
+			call(l -> l.nodePickingFinished());
 		}
 
 		if (nodesMoved) {
-			changeListeners.forEach(l -> l.nodeMovementFinished());
+			call(l -> l.nodeMovementFinished());
 		}
 
 		down = null;
@@ -199,5 +202,9 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+	}
+
+	private void call(Consumer<ChangeListener> action) {
+		Stream.of(listeners.getListeners(ChangeListener.class)).forEach(action);
 	}
 }

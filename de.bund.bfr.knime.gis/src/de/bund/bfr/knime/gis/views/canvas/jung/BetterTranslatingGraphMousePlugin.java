@@ -24,9 +24,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
+import javax.swing.event.EventListenerList;
+
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
@@ -35,21 +37,21 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 		implements MouseListener, MouseMotionListener {
 
-	private List<BetterGraphMouse.ChangeListener> changeListeners;
+	private EventListenerList listeners;
 
 	private boolean changed;
 
 	public BetterTranslatingGraphMousePlugin() {
 		super(0);
-		changeListeners = new ArrayList<>();
+		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.add(listener);
+	public void addChangeListener(ChangeListener listener) {
+		listeners.add(ChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(BetterGraphMouse.ChangeListener listener) {
-		changeListeners.remove(listener);
+	public void removeChangeListener(ChangeListener listener) {
+		listeners.remove(ChangeListener.class, listener);
 	}
 
 	@Override
@@ -73,7 +75,7 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 			vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (changed) {
-				changeListeners.forEach(l -> l.transformFinished());
+				Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.transformFinished());
 			}
 		}
 	}
