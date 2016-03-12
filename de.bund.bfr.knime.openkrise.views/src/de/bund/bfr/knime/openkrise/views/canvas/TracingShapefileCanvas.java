@@ -59,17 +59,12 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 
 	@Override
 	public void addTracingListener(TracingListener listener) {
-		tracing.addTracingListener(listener);
+		listenerList.add(TracingListener.class, listener);
 	}
 
 	@Override
 	public void removeTracingListener(TracingListener listener) {
-		tracing.removeTracingListener(listener);
-	}
-
-	@Override
-	public List<TracingListener> getTracingListeners() {
-		return tracing.getTracingListeners();
+		listenerList.remove(TracingListener.class, listener);
 	}
 
 	@Override

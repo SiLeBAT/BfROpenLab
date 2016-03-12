@@ -19,7 +19,9 @@
  *******************************************************************************/
 package de.bund.bfr.knime.openkrise.views.canvas;
 
-public interface TracingListener {
+import java.util.EventListener;
+
+public interface TracingListener extends EventListener {
 
 	void nodePropertiesChanged(ITracingCanvas<?> source);
 

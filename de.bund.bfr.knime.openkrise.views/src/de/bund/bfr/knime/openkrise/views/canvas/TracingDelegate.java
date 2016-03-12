@@ -26,17 +26,17 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
@@ -75,7 +75,6 @@ public class TracingDelegate<V extends Node> {
 	private Map<Edge<V>, Set<Edge<V>>> joinMap;
 	private Map<String, Delivery> deliveries;
 
-	private List<TracingListener> listeners;
 	private boolean performTracing;
 
 	private JCheckBox enforceTemporalOrderBox;
@@ -90,7 +89,6 @@ public class TracingDelegate<V extends Node> {
 		this.joinMap = joinMap;
 		this.deliveries = deliveries;
 
-		listeners = new ArrayList<>();
 		performTracing = DEFAULT_PERFORM_TRACING;
 
 		enforceTemporalOrderBox = new JCheckBox("Activate");
@@ -100,7 +98,7 @@ public class TracingDelegate<V extends Node> {
 				canvas.applyChanges();
 			}
 
-			listeners.forEach(l -> l.enforceTemporalOrderChanged(canvas));
+			call(l -> l.enforceTemporalOrderChanged(canvas));
 		});
 
 		showForwardBox = new JCheckBox("Activate");
@@ -110,7 +108,7 @@ public class TracingDelegate<V extends Node> {
 				canvas.applyChanges();
 			}
 
-			listeners.forEach(l -> l.showForwardChanged(canvas));
+			call(l -> l.showForwardChanged(canvas));
 		});
 
 		Pair<GregorianCalendar, GregorianCalendar> dateRange = getDateRange(deliveries.values());
@@ -124,7 +122,7 @@ public class TracingDelegate<V extends Node> {
 			dateSlider = new DateSlider(from, to);
 			dateSlider.addDateListener(e -> {
 				applyChanges();
-				listeners.forEach(l -> l.dateSettingsChanged(canvas));
+				call(l -> l.dateSettingsChanged(canvas));
 			});
 			canvas.getComponent().add(dateSlider, BorderLayout.NORTH);
 		}
@@ -150,18 +148,6 @@ public class TracingDelegate<V extends Node> {
 		canvas.getViewer().addPostRenderPaintable(new PostPaintable(canvas));
 	}
 
-	public void addTracingListener(TracingListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeTracingListener(TracingListener listener) {
-		listeners.remove(listener);
-	}
-
-	public List<TracingListener> getTracingListeners() {
-		return listeners;
-	}
-
 	public Map<String, Double> getNodeWeights() {
 		return getPropertyValues(nodeSaveMap.values(), TracingColumns.WEIGHT);
 	}
@@ -173,7 +159,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.nodeWeightsChanged(canvas));
+		call(l -> l.nodeWeightsChanged(canvas));
 	}
 
 	public Map<String, Double> getEdgeWeights() {
@@ -187,7 +173,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.edgeWeightsChanged(canvas));
+		call(l -> l.edgeWeightsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getNodeCrossContaminations() {
@@ -201,7 +187,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.nodeCrossContaminationsChanged(canvas));
+		call(l -> l.nodeCrossContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getEdgeCrossContaminations() {
@@ -215,7 +201,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.edgeCrossContaminationsChanged(canvas));
+		call(l -> l.edgeCrossContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getNodeKillContaminations() {
@@ -229,7 +215,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.nodeKillContaminationsChanged(canvas));
+		call(l -> l.nodeKillContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getEdgeKillContaminations() {
@@ -243,7 +229,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.edgeKillContaminationsChanged(canvas));
+		call(l -> l.edgeKillContaminationsChanged(canvas));
 	}
 
 	public Map<String, Boolean> getObservedNodes() {
@@ -257,7 +243,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.observedNodesChanged(canvas));
+		call(l -> l.observedNodesChanged(canvas));
 	}
 
 	public Map<String, Boolean> getObservedEdges() {
@@ -271,7 +257,7 @@ public class TracingDelegate<V extends Node> {
 			canvas.applyChanges();
 		}
 
-		listeners.forEach(l -> l.observedEdgesChanged(canvas));
+		call(l -> l.observedEdgesChanged(canvas));
 	}
 
 	public boolean isEnforceTemporalOrder() {
@@ -328,7 +314,7 @@ public class TracingDelegate<V extends Node> {
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
-			listeners.forEach(l -> l.nodePropertiesChanged(canvas));
+			call(l -> l.nodePropertiesChanged(canvas));
 		}
 	}
 
@@ -346,7 +332,7 @@ public class TracingDelegate<V extends Node> {
 
 			if (dialog.isApproved()) {
 				canvas.applyChanges();
-				listeners.forEach(l -> l.edgePropertiesChanged(canvas));
+				call(l -> l.edgePropertiesChanged(canvas));
 			}
 		}
 	}
@@ -369,7 +355,7 @@ public class TracingDelegate<V extends Node> {
 
 		if (dialog.isApproved()) {
 			canvas.applyChanges();
-			listeners.forEach(l -> l.edgePropertiesChanged(canvas));
+			call(l -> l.edgePropertiesChanged(canvas));
 		}
 	}
 
@@ -578,6 +564,10 @@ public class TracingDelegate<V extends Node> {
 		return tracing.getResult(isEnforceTemporalOrder());
 	}
 
+	private void call(Consumer<TracingListener> action) {
+		Stream.of(canvas.getComponent().getListeners(TracingListener.class)).forEach(action);
+	}
+
 	private static Pair<GregorianCalendar, GregorianCalendar> getDateRange(Collection<Delivery> deliveries) {
 		Optional<GregorianCalendar> from = deliveries.stream().map(d -> createDateFromDelivery(d, false))
 				.filter(Objects::nonNull).min(GregorianCalendar::compareTo);
@@ -742,7 +732,8 @@ public class TracingDelegate<V extends Node> {
 
 					if (dialog.isApproved()) {
 						canvas.applyChanges();
-						canvas.getTracingListeners().forEach(l -> l.nodePropertiesChanged(canvas));
+						Stream.of(canvas.getComponent().getListeners(TracingListener.class))
+								.forEach(l -> l.nodePropertiesChanged(canvas));
 					}
 				} else if (edge != null) {
 					if (!canvas.isJoinEdges()) {
@@ -753,7 +744,8 @@ public class TracingDelegate<V extends Node> {
 
 						if (dialog.isApproved()) {
 							canvas.applyChanges();
-							canvas.getTracingListeners().forEach(l -> l.edgePropertiesChanged(canvas));
+							Stream.of(canvas.getComponent().getListeners(TracingListener.class))
+									.forEach(l -> l.edgePropertiesChanged(canvas));
 						}
 					} else {
 						SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,

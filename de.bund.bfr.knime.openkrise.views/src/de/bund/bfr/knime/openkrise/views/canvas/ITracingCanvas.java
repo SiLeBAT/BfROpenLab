@@ -20,7 +20,6 @@
 package de.bund.bfr.knime.openkrise.views.canvas;
 
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Map;
 
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
@@ -31,8 +30,6 @@ public interface ITracingCanvas<V extends Node> extends ICanvas<V> {
 	void addTracingListener(TracingListener listener);
 
 	void removeTracingListener(TracingListener listener);
-
-	List<TracingListener> getTracingListeners();
 
 	Map<String, Double> getNodeWeights();
 
