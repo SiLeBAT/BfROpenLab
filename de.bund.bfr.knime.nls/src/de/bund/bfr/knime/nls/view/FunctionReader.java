@@ -28,7 +28,7 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.chart.NlsChartUtils;
+import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
@@ -67,7 +67,7 @@ public class FunctionReader implements Reader {
 		doubleColumns = new LinkedHashMap<>();
 		stringColumns = new LinkedHashMap<>();
 		stringColumns.put(NlsUtils.ID_COLUMN, new ArrayList<>());
-		stringColumns.put(NlsChartUtils.STATUS, new ArrayList<>());
+		stringColumns.put(ChartSelectionPanel.STATUS, new ArrayList<>());
 		doubleColumns = new LinkedHashMap<>();
 
 		for (String i : f.getIndependentVariables()) {
@@ -136,7 +136,7 @@ public class FunctionReader implements Reader {
 					plotable.setDegreesOfFreedom(qualityValues.get(NlsUtils.DOF_COLUMN).intValue());
 				}
 
-				stringColumns.get(NlsChartUtils.STATUS).add(plotable.getStatus().toString());
+				stringColumns.get(ChartSelectionPanel.STATUS).add(plotable.getStatus().toString());
 				plotables.put(newId, plotable);
 			}
 		}

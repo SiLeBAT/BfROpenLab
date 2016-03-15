@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -32,11 +33,11 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.NlsChartUtils;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -92,8 +93,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false, false);
-		configPanel.init(reader.getDepVar(), NlsChartUtils.getOrderedVariables(reader.getPlotables().values()), null,
-				null, null);
+		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()), null, null,
+				null);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());

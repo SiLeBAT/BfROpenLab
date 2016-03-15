@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -38,6 +39,7 @@ import org.knime.core.node.BufferedDataTable;
 import com.google.common.primitives.Doubles;
 
 import de.bund.bfr.knime.IO;
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.nls.chart.Plotable;
 
 public class NlsUtils {
@@ -307,5 +309,10 @@ public class NlsUtils {
 		}
 
 		return parameters;
+	}
+
+	public static List<String> getOrderedVariables(Collection<Plotable> plotables) {
+		return KnimeUtils.ORDERING.sortedCopy(plotables.stream().map(p -> p.getIndependentVariables().keySet())
+				.flatMap(Set::stream).collect(Collectors.toCollection(LinkedHashSet::new)));
 	}
 }
