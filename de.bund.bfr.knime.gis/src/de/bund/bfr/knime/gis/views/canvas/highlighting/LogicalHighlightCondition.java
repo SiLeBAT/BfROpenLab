@@ -35,9 +35,11 @@ import de.bund.bfr.knime.gis.views.canvas.element.Element;
 public class LogicalHighlightCondition implements Serializable {
 
 	public static enum Type {
-		EQUAL("=="), NOT_EQUAL("!="), GREATER(">"), LESS("<"), REGEX_EQUAL("== (Regex)"), REGEX_NOT_EQUAL(
-				"!= (Regex)"), REGEX_EQUAL_IGNORE_CASE("== (Regex Ignore Case)"), REGEX_NOT_EQUAL_IGNORE_CASE(
-						"!= (Regex Ignore Case)");
+		EQUAL("=="), NOT_EQUAL("!="), GREATER(">"), LESS("<"),
+
+		REGEX_EQUAL("== (Regex)"), REGEX_NOT_EQUAL("!= (Regex)"),
+
+		REGEX_EQUAL_IGNORE_CASE("== (Regex Ignore Case)"), REGEX_NOT_EQUAL_IGNORE_CASE("!= (Regex Ignore Case)");
 
 		private String name;
 
