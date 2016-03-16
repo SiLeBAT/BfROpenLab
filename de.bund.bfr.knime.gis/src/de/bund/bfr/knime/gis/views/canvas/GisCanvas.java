@@ -36,7 +36,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.ZoomingPaintable;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
-public abstract class GisCanvas<V extends Node> extends Canvas<V> implements IGisCanvas<V> {
+public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGisCanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 

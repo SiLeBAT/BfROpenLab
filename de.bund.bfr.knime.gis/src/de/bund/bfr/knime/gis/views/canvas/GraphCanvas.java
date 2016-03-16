@@ -140,6 +140,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
+			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}

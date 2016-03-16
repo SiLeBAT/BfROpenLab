@@ -87,6 +87,7 @@ public class RegionOsmCanvas extends OsmCanvas<RegionNode> {
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
+			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}

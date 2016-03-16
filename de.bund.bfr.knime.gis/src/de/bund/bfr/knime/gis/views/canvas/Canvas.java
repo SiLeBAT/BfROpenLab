@@ -537,6 +537,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	@Override
 	public void resetLayoutItemClicked() {
 		setTransform(Transform.IDENTITY_TRANSFORM);
+		transformFinished();
 	}
 
 	@Override

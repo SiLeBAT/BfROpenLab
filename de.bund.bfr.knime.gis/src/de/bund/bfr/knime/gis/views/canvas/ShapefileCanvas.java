@@ -50,6 +50,7 @@ public abstract class ShapefileCanvas<V extends Node> extends GisCanvas<V> {
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
+			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}

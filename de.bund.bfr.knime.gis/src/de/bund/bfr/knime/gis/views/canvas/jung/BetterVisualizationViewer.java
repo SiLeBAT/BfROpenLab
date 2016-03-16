@@ -64,7 +64,7 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 		super.setGraphLayout(layout instanceof ChangeEventSupport ? layout : new ChangeSupportLayout<>(layout));
 	}
 
-	private static class ChangeSupportLayout<V, E> extends LayoutDecorator<V, E> implements ChangeEventSupport {
+	private static class ChangeSupportLayout<V, E> extends LayoutDecorator<V, E>implements ChangeEventSupport {
 
 		private ChangeEventSupport changeSupport;
 

@@ -25,7 +25,7 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 
-public class PropertySelectionBox extends JComboBox<String> implements PropertySelector {
+public class PropertySelectionBox extends JComboBox<String>implements PropertySelector {
 
 	private static final long serialVersionUID = 1L;
 

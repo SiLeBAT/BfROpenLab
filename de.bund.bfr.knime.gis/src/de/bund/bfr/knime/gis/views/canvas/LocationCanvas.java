@@ -98,6 +98,7 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
+			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}

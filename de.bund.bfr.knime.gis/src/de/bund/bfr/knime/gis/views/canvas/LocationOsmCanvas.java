@@ -85,6 +85,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));
+			transformFinished();
 		} else {
 			super.resetLayoutItemClicked();
 		}
