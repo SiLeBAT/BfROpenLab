@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Federal Institute for Risk Assessment (BfR), Germany
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,37 +23,23 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-class FixContentJar {
+class SetVersionNumber {
 
-	static String CATEGORY = "bfropenlab"
-	static String UPDATE_SITE = "../de.bund.bfr.knime.update.p2"
-
-	static String CONTENT_JAR = "content.jar"
-	static String CONTENT_XML = "content.xml"
+	static String ROOT = ".."
+	static String VERSION = "1.1.1"
 
 	static main(args) {
-		def contentJar = new File("${UPDATE_SITE}/${CONTENT_JAR}")
-		def zip = new ZipFile(contentJar)
-		def declarations = []
-		
-		zip.getInputStream(zip.getEntry(CONTENT_XML)).eachLine {
-			if (it.startsWith("<?")) {
-				declarations.add(it)
+		for (File d : new File(ROOT).listFiles())
+			if (d.isDirectory() && d.name.startsWith("de.bund.bfr")) {
+				def manifest = new File("${d.absolutePath}/META-INF/MANIFEST.MF")
+				def feature = new File("${d.absolutePath}/feature.xml")
+
+				if (manifest.exists()) {
+					manifest.text = manifest.text.replaceFirst(/Bundle-Version: [\d\.]+\.qualifier/, "Bundle-Version: ${VERSION}.qualifier")
+				}
+
+				if (feature.exists())
+					feature.text = feature.text.replaceFirst(/version="[\d\.]+\.qualifier"/, "version=\"${VERSION}.qualifier\"")				
 			}
-		}
-		
-		def root = new XmlParser().parse(zip.getInputStream(zip.getEntry(CONTENT_XML)))
-		
-		root.units.unit.each{ it.@id == CATEGORY }.requires.required.each { 
-			s -> s.@range = "0.0.0"
-		}
-
-		def out = new ZipOutputStream(new FileOutputStream(contentJar))
-
-		out.putNextEntry(new ZipEntry(CONTENT_XML))
-		declarations.each { out << it + "\n" }
-		new XmlNodePrinter(new PrintWriter(out)).print(root)
-		out.closeEntry()
-		out.close()
 	}
 }
