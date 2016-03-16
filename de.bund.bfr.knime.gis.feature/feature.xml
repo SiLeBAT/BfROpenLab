@@ -34,7 +34,6 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.knime.ext.svg"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="edu.umd.cs.findbugs.annotations"/>
    </requires>
 
    <plugin
@@ -83,6 +82,12 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
 
    <plugin
          id="com.google.guava.new"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="edu.umd.cs.findbugs.annotations"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

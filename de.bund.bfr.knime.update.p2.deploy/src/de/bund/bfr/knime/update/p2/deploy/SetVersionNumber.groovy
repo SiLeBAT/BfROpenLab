@@ -25,10 +25,12 @@ import java.util.zip.ZipOutputStream
 
 class SetVersionNumber {
 
-	static String ROOT = ".."
-	static String VERSION = "1.1.2"
+	static String ROOT = ".."	
 
 	static main(args) {
+		println "version:"
+		def version = new Scanner(System.in).nextLine()
+		
 		for (File d : new File(ROOT).listFiles())
 			if (d.isDirectory() && d.name.startsWith("de.bund.bfr")) {
 				def manifest = new File("${d.absolutePath}/META-INF/MANIFEST.MF")
@@ -37,19 +39,19 @@ class SetVersionNumber {
 
 				if (manifest.exists()) {
 					manifest.text = manifest.text
-						.replaceFirst(/Bundle-Version: [\d\.]+\.qualifier/, "Bundle-Version: ${VERSION}.qualifier")
+						.replaceFirst(/Bundle-Version: [\d\.]+\.qualifier/, "Bundle-Version: ${version}.qualifier")
 				}
 
 				if (feature.exists())
 					feature.text = feature.text
-						.replaceFirst(/version="[\d\.]+\.qualifier"/, "version=\"${VERSION}.qualifier\"")
+						.replaceFirst(/version="[\d\.]+\.qualifier"/, "version=\"${version}.qualifier\"")
 					
 				if (site.exists()) {
 					site.text = site.text
-						.replaceAll(/version="[\d\.]+\.qualifier"/, "version=\"${VERSION}.qualifier\"")
-						.replaceAll(/_[\d\.]+\.qualifier\.jar/, "_${VERSION}.qualifier.jar")
-						.replaceAll(/version="[\d\.]+\.\d\d+"/, "version=\"${VERSION}.qualifier\"")
-						.replaceAll(/_[\d\.]+\.\d\d+\.jar/, "_${VERSION}.qualifier.jar")
+						.replaceAll(/version="[\d\.]+\.qualifier"/, "version=\"${version}.qualifier\"")
+						.replaceAll(/_[\d\.]+\.qualifier\.jar/, "_${version}.qualifier.jar")
+						.replaceAll(/version="[\d\.]+\.\d\d+"/, "version=\"${version}.qualifier\"")
+						.replaceAll(/_[\d\.]+\.\d\d+\.jar/, "_${version}.qualifier.jar")
 				}
 			}
 	}
