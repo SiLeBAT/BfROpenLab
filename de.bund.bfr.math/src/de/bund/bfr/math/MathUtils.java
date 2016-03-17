@@ -149,8 +149,9 @@ public class MathUtils {
 
 			double[] result2 = functions[ip].value(p);
 
-			IntStream.range(0, nResult)
-					.forEach(ir -> result[ir][ip] = (result2[ir] - result1[ir]) / (2 * DERIV_EPSILON));
+			for (int ir = 0; ir < nResult; ir++) {
+				result[ir][ip] = (result2[ir] - result1[ir]) / (2 * DERIV_EPSILON);
+			}
 		});
 
 		return result;
@@ -164,10 +165,7 @@ public class MathUtils {
 		int maxStepCount = n;
 
 		for (String param : parameters) {
-			Double min = minStartValues.get(param);
-			Double max = maxStartValues.get(param);
-
-			if (min != null && max != null) {
+			if (minStartValues.get(param) != null && maxStartValues.get(param) != null) {
 				paramsWithRange++;
 			}
 		}

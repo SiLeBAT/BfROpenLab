@@ -84,7 +84,7 @@ public class Evaluator {
 
 	public static double[] getFunctionErrors(Map<String, Double> parserConstants, String formula, String varX,
 			double[] valuesX, Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom)
-			throws ParseException {
+					throws ParseException {
 		ErrorFunctionConf function = new ErrorFunctionConf(parserConstants, formula, varX, valuesX, covariances,
 				extraVariance, degreesOfFreedom);
 
@@ -248,7 +248,7 @@ public class Evaluator {
 			String dependentVariable, Map<String, Double> independentVariables, String varX, double[] valuesX,
 			IntegratorFactory integrator, InterpolationFactory interpolator,
 			Map<String, Map<String, Double>> covariances, double extraVariance, int degreesOfFreedom)
-			throws ParseException {
+					throws ParseException {
 		ErrorDiffFunctionConf function = new ErrorDiffFunctionConf(parserConstants, functions, initValues,
 				initParameters, conditionLists, dependentVariable, independentVariables, varX, valuesX, integrator,
 				interpolator, covariances, extraVariance, degreesOfFreedom);
