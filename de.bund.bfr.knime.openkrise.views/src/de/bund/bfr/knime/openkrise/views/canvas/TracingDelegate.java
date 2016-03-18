@@ -287,11 +287,13 @@ public class TracingDelegate<V extends Node> {
 	}
 
 	public boolean isShowDeliveriesWithoutDate() {
-		return dateSlider.isShowDeliveriesWithoutDate();
+		return dateSlider != null ? dateSlider.isShowDeliveriesWithoutDate() : true;
 	}
 
 	public void setShowDeliveriesWithoutDate(boolean showDeliveriesWithoutDate) {
-		dateSlider.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
+		if (dateSlider != null) {
+			dateSlider.setShowDeliveriesWithoutDate(showDeliveriesWithoutDate);
+		}
 	}
 
 	public boolean isPerformTracing() {
