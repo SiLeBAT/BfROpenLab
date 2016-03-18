@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -415,7 +417,7 @@ public class CanvasUtils {
 
 				for (V node : nodes) {
 					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
-						labelLists.put(node, node.getProperties().get(property).toString());
+						labelLists.put(node, toString(node.getProperties().get(property)));
 					}
 				}
 			}
@@ -478,7 +480,7 @@ public class CanvasUtils {
 
 				for (Edge<V> edge : edges) {
 					if (values.get(edge) != 0.0 && edge.getProperties().get(property) != null) {
-						labelLists.put(edge, edge.getProperties().get(property).toString());
+						labelLists.put(edge, toString(edge.getProperties().get(property)));
 					}
 				}
 			}
@@ -660,5 +662,13 @@ public class CanvasUtils {
 
 	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
 		return new ImagePortObjectSpec(asSvg ? SvgCell.TYPE : PNGImageContent.TYPE);
+	}
+
+	public static String toString(Object obj) {
+		if (obj instanceof Number) {
+			return NumberFormat.getInstance(Locale.US).format(obj);
+		}
+
+		return obj != null ? obj.toString() : null;
 	}
 }
