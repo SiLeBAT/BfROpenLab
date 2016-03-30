@@ -14,7 +14,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -23,13 +22,14 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import de.bund.bfr.busstopp.dao.Dao;
 import de.bund.bfr.busstopp.dao.ItemLoader;
 import de.bund.bfr.busstopp.model.Item;
+import de.bund.bfr.busstopp.model.ResponseX;
 
 // Will map the resource to the URL items
 @Path("/items")
 public class ItemsResource {
 
 	// Allows to insert contextual objects into the class,
-	// e.g. ServletContext, Request, Response, UriInfo
+	// e.g. ServletContext, Request, ResponseX, UriInfo
 	@Context
 	UriInfo uriInfo;
 	@Context
@@ -82,10 +82,13 @@ public class ItemsResource {
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response itemFile(@FormDataParam("file") InputStream fileInputStream,
+	@Produces({ MediaType.APPLICATION_XML})
+	public ResponseX itemFile(@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
 			@FormDataParam("comment") String comment) {
 
+		ResponseX response = new ResponseX();
+		response.setAction("UPLOAD");
 		try {
 			long newId = System.currentTimeMillis();
 			String filename = contentDispositionHeader.getFileName();
@@ -94,11 +97,13 @@ public class ItemsResource {
 			item.save(fileInputStream);
 			Dao.instance.getModel().put(newId, item);
 
-			String output = "Id for your uploaded file: " + newId;
-			return Response.status(Response.Status.OK).entity(output).build();
+			response.setSuccess(true);
+			response.setId(newId);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+			response.setSuccess(false);
+			response.setError(e.getMessage());
 		}
+		return response;
 	}
 }

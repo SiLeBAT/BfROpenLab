@@ -17,6 +17,7 @@ import de.bund.bfr.busstopp.Constants;
 import de.bund.bfr.busstopp.dao.Dao;
 import de.bund.bfr.busstopp.dao.ItemLoader;
 import de.bund.bfr.busstopp.model.Item;
+import de.bund.bfr.busstopp.model.ResponseX;
 
 import javax.ws.rs.core.UriInfo;
 
@@ -55,20 +56,28 @@ public class ItemResource {
 	}
 
 	@DELETE
-	public Response deleteItem() {
+	@Produces({ MediaType.APPLICATION_XML})
+	public ResponseX deleteItem() {
+		ResponseX response = new ResponseX();
+		response.setId(id);
+		response.setAction("DELETE");
 		ItemLoader c = Dao.instance.getModel().get(id);
 		if (c != null) {
 			try {
 				c.delete();
 			} catch (IOException e) {
 				e.printStackTrace();
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Delete of ItemLoader with ID '" + id + "' failed -> '" + e.getMessage() + "'").build();
-				//throw new RuntimeException("Delete of ItemLoader with ID '" + id + "' failed -> '" + e.getMessage() + "'");
+				response.setSuccess(false);
+				response.setError(e.getMessage());
 			}
 			c = Dao.instance.getModel().remove(id);
-			return Response.status(Response.Status.OK).entity("Id '" + id + " successfully deleted").build();
+			response.setSuccess(true);
 		}
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Delete: ItemLoader with ID '" + id + "' not found").build();
+		else  {
+			response.setSuccess(false);
+			response.setError("ID not found");
+		}
+		return response;
 	}
 	
 	private ResponseBuilder getDownloadResponse(String filename) {
