@@ -1,10 +1,10 @@
-package de.bund.bfr.bus.stop.dao;
+package de.bund.bfr.busstopp.dao;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.bund.bfr.bus.stop.Constants;
+import de.bund.bfr.busstopp.Constants;
 
 public enum Dao {
 	instance;

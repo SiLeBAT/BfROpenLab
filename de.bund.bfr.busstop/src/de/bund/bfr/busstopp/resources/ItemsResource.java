@@ -1,4 +1,4 @@
-package de.bund.bfr.bus.stop.resources;
+package de.bund.bfr.busstopp.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +20,9 @@ import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import de.bund.bfr.bus.stop.dao.Dao;
-import de.bund.bfr.bus.stop.dao.ItemLoader;
-import de.bund.bfr.bus.stop.model.Item;
+import de.bund.bfr.busstopp.dao.Dao;
+import de.bund.bfr.busstopp.dao.ItemLoader;
+import de.bund.bfr.busstopp.model.Item;
 
 // Will map the resource to the URL items
 @Path("/items")
@@ -67,7 +67,7 @@ public class ItemsResource {
 
 	// Defines that the next path parameter after items is
 	// treated as a parameter and passed to the ItemResources
-	// Allows to type http://localhost:8080/de.bund.bfr.bus.stop/rest/app/1
+	// Allows to type http://localhost:8080/de.bund.bfr.busstopp/rest/app/1
 	@Path("{id}")
 	public ItemResource getItem(@PathParam("id") Long id) {
 		return new ItemResource(uriInfo, request, id);

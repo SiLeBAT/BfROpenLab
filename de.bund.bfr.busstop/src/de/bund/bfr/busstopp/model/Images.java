@@ -1,4 +1,4 @@
-package de.bund.bfr.bus.stop.model;
+package de.bund.bfr.busstopp.model;
 
 import java.util.List;
 

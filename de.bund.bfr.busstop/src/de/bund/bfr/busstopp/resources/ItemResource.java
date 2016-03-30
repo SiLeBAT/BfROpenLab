@@ -1,4 +1,4 @@
-package de.bund.bfr.bus.stop.resources;
+package de.bund.bfr.busstopp.resources;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +13,10 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import de.bund.bfr.bus.stop.Constants;
-import de.bund.bfr.bus.stop.dao.Dao;
-import de.bund.bfr.bus.stop.dao.ItemLoader;
-import de.bund.bfr.bus.stop.model.Item;
+import de.bund.bfr.busstopp.Constants;
+import de.bund.bfr.busstopp.dao.Dao;
+import de.bund.bfr.busstopp.dao.ItemLoader;
+import de.bund.bfr.busstopp.model.Item;
 
 import javax.ws.rs.core.UriInfo;
 

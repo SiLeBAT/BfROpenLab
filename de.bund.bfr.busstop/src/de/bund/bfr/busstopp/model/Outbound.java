@@ -1,4 +1,4 @@
-package de.bund.bfr.bus.stop.model;
+package de.bund.bfr.busstopp.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
