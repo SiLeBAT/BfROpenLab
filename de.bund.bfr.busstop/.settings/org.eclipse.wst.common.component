@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="de.bund.bfr.busstop">
+    <wb-module deploy-name="de.bund.bfr.bus.stop">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <property name="context-root" value="de.bund.bfr.busstop"/>
-        <property name="java-output-path" value="/de.bund.bfr.busstop/build/classes"/>
+        <property name="context-root" value="de.bund.bfr.bus.stop"/>
+        <property name="java-output-path" value="/de.bund.bfr.bus.stop/build/classes"/>
     </wb-module>
 </project-modules>

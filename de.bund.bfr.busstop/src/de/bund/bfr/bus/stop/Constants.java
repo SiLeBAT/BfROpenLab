@@ -1,4 +1,4 @@
-package de.bund.bfr.busstop;
+package de.bund.bfr.bus.stop;
 
 public class Constants {
 	//public static final String SERVER_UPLOAD_LOCATION_FOLDER = "C:/Users/Armin/Desktop/busstop_folder/";

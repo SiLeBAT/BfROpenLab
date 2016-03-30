@@ -1,4 +1,4 @@
-package de.bund.bfr.busstop.dao;
+package de.bund.bfr.bus.stop.dao;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-import de.bund.bfr.busstop.Constants;
-import de.bund.bfr.busstop.model.Item;
+import de.bund.bfr.bus.stop.Constants;
+import de.bund.bfr.bus.stop.model.Item;
 
 public class ItemLoader {
 	private Item xml = new Item();

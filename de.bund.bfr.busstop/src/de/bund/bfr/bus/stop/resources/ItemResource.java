@@ -1,4 +1,4 @@
-package de.bund.bfr.busstop.resources;
+package de.bund.bfr.bus.stop.resources;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,12 +12,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 
-import de.bund.bfr.busstop.Constants;
-import de.bund.bfr.busstop.dao.Dao;
-import de.bund.bfr.busstop.dao.ItemLoader;
-import de.bund.bfr.busstop.model.Item;
+import de.bund.bfr.bus.stop.Constants;
+import de.bund.bfr.bus.stop.dao.Dao;
+import de.bund.bfr.bus.stop.dao.ItemLoader;
+import de.bund.bfr.bus.stop.model.Item;
+
+import javax.ws.rs.core.UriInfo;
 
 public class ItemResource {
 	@Context
