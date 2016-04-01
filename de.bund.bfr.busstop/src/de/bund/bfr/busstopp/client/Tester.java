@@ -81,9 +81,9 @@ public class Tester {
     Response response = service.path("rest").path("items").path("1459355818486").request().delete(); System.out.println("Form response " + response.getStatus() + "\n" + response.readEntity(String.class));
 
     //Upload a ItemLoader
-    //upload(service, "C:/Users/Armin/Desktop/Pressemitteilung.docx");
+    upload(service, "C:/Users/Armin/Desktop/Pressemitteilung.docx");
     //upload(service, "C:/Users/weiser/Desktop/NRW.txt");
-    upload(service, "C:/Users/weiser/Desktop/lims_todo.txt");
+    //upload(service, "C:/Users/weiser/Desktop/lims_todo.txt");
 
   }
   private static void upload(WebTarget service, String fileName) throws IOException {
