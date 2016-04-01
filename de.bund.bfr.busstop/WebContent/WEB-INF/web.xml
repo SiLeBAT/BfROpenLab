@@ -38,7 +38,7 @@
     </user-data-constraint>
   </security-constraint>
   <login-config>
-    <auth-method>DIGEST</auth-method>
+    <auth-method>BASIC</auth-method>
     <realm-name>Evaluation Area</realm-name>
   </login-config>
 </web-app>
