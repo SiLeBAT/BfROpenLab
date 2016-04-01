@@ -1,7 +1,6 @@
 package de.bund.bfr.busstopp.client;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -67,8 +66,8 @@ public class Tester {
     ClientConfig config = new ClientConfig();
     config.register(MultiPartFeature.class);
     Client client = ClientBuilder.newClient(config);
-    client.register(HttpAuthenticationFeature.digest(usr, pwd));
-    getCertClient(usr, pwd);
+    client.register(HttpAuthenticationFeature.basic(usr, pwd));
+    //getCertClient(usr, pwd);
     
     WebTarget service = client.target(getBaseURI());
     
@@ -79,13 +78,28 @@ public class Tester {
     System.out.println(service.path("rest").path("items").request().accept(MediaType.APPLICATION_XML).get(String.class));
 
     //Delete ItemLoader with id 1
-    Response response = service.path("rest").path("items").path("1459283002443").request().delete();
-    System.out.println("Form response " + response.getStatus() + "\n" + response.readEntity(String.class));
+    Response response = service.path("rest").path("items").path("1459355818486").request().delete(); System.out.println("Form response " + response.getStatus() + "\n" + response.readEntity(String.class));
 
-    //Create a ItemLoader
-    //upload(service, "C:/Users/Armin/Desktop/Pressemitteilung.docx");
-    upload(service, "C:/Users/weiser/Desktop/NRW.txt");
+    //Upload a ItemLoader
+    upload(service, "C:/Users/Armin/Desktop/Pressemitteilung.docx");
+    //upload(service, "C:/Users/weiser/Desktop/NRW.txt");
 
+  }
+  private static void upload(WebTarget service, String fileName) throws IOException {
+	    final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(fileName));
+	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
+	    final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.field("comment", "bar").bodyPart(filePart);
+	      
+	    final Response response = service.path("rest").path("items").path("upload").request().post(Entity.entity(multipart, multipart.getMediaType()));
+	     
+	    System.out.println("Form response " + response.getStatus() + "\n" + response.readEntity(String.class));
+	     
+	    formDataMultiPart.close();
+	    multipart.close();	    
+	}
+  private static URI getBaseURI() {
+	    //return UriBuilder.fromUri("http://localhost:8080/de.bund.bfr.busstop").build();
+	    return UriBuilder.fromUri("https://foodrisklabs.bfr.bund.de/busstop").build();
   }
   private static Client getCertClient(String usr, String pwd) throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
 	  SslConfigurator sslConfig = SslConfigurator.newInstance()
@@ -109,20 +123,5 @@ public class Tester {
       
       
 	  return client;	  
-  }
-  private static void upload(WebTarget service, String fileName) throws IOException {
-	    final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(fileName));
-	    FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-	    final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.field("foo", "bar").bodyPart(filePart);
-	      
-	    final Response response = service.path("rest").path("items").path("upload").request().post(Entity.entity(multipart, multipart.getMediaType()));
-	     
-	    System.out.println("Form response " + response.getStatus() + "\n" + response.readEntity(String.class));
-	     
-	    formDataMultiPart.close();
-	    multipart.close();	    
-	}
-  private static URI getBaseURI() {
-    return UriBuilder.fromUri("http://localhost:8080/de.bund.bfr.busstopp").build();
   }
 } 
