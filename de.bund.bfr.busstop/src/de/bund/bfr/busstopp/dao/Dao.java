@@ -1,7 +1,9 @@
 package de.bund.bfr.busstopp.dao;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.bund.bfr.busstopp.Constants;
@@ -9,7 +11,7 @@ import de.bund.bfr.busstopp.Constants;
 public enum Dao {
 	instance;
 
-	private Map<Long, ItemLoader> contentProvider = new HashMap<>();
+	private Map<Long, ItemLoader> contentProvider = new LinkedHashMap<>();
 
 	private Dao() {
 		try {
@@ -18,10 +20,10 @@ public enum Dao {
 
 			// returns pathnames for files and directory
 			File[] paths = f.listFiles();
+			Arrays.sort(paths, Collections.reverseOrder());
 
 			// for each pathname in pathname array
-			for (File path : paths) {
-				// prints file and directory paths
+			for (File path : paths) {				
 				//System.out.println(path);
 				if (path.isDirectory()) {
 					long l = Long.parseLong(path.getName());
@@ -37,7 +39,6 @@ public enum Dao {
 			e.printStackTrace();
 		}
 	}
-
 	public Map<Long, ItemLoader> getModel() {
 		return contentProvider;
 	}
