@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="18">
+<?pde version="3.8"?><target name="KNIME 3.1 TP" sequenceNumber="21">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -7,7 +7,7 @@
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.2.3.v201601291159"/>
+<unit id="com.knime.features.explorer.serverspace.feature.group" version="4.2.5.v201603311411"/>
 <repository location="http://update.knime.org/server/4.2"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -21,7 +21,7 @@
 <unit id="org.knime.features.network.feature.group" version="3.1.0.v201511241214"/>
 <unit id="org.knime.features.ext.jfreechart.feature.group" version="3.1.0.v201512012046"/>
 <unit id="org.knime.features.ext.jep.feature.group" version="3.1.0.v201511241214"/>
-<unit id="org.knime.features.testingapplication.feature.group" version="3.1.2.v201603040957"/>
+<unit id="org.knime.features.testingapplication.feature.group" version="3.1.2.v201603311002"/>
 <unit id="org.knime.features.ext.poi.feature.group" version="3.1.1.v201601291109"/>
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
