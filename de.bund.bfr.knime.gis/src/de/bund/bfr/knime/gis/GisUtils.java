@@ -123,8 +123,10 @@ public class GisUtils {
 	}
 
 	public static Point2D getCenterOfLargestPolygon(MultiPolygon poly) {
-		Map<Polygon, Double> areas = getPolygons(poly).stream()
-				.collect(Collectors.toMap(p -> p, p -> p.getArea(), (u, v) -> null, LinkedHashMap::new));
+		Map<Polygon, Double> areas = new LinkedHashMap<>();
+
+		getPolygons(poly).forEach(p -> areas.put(p, p.getArea()));
+
 		Point center = Collections.max(areas.entrySet(), (p1, p2) -> Double.compare(p1.getValue(), p2.getValue()))
 				.getKey().getCentroid();
 

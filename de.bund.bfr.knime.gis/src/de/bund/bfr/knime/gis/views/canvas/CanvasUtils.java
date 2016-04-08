@@ -300,7 +300,11 @@ public class CanvasUtils {
 	}
 
 	public static <T extends Element> Map<String, T> getElementsById(Collection<T> elements) {
-		return elements.stream().collect(Collectors.toMap(e -> e.getId(), e -> e, (u, v) -> null, LinkedHashMap::new));
+		Map<String, T> result = new LinkedHashMap<>();
+
+		elements.forEach(e -> result.put(e.getId(), e));
+
+		return result;
 	}
 
 	public static <T> Set<T> getElementsById(Map<String, T> elements, Collection<String> ids) {
