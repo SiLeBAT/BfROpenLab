@@ -53,9 +53,8 @@ public class CanvasTransformers {
 		Map<V, Paint> nodeColors = new LinkedHashMap<>();
 
 		if (alphaValues != null && colors != null) {
-			for (Map.Entry<V, List<Double>> entry : alphaValues.entrySet()) {
-				nodeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.WHITE, colors, entry.getValue(), false));
-			}
+			alphaValues.forEach(
+					(node, alphas) -> nodeColors.put(node, CanvasUtils.mixColors(Color.WHITE, colors, alphas, false)));
 		}
 
 		return node -> {

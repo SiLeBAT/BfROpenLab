@@ -191,23 +191,23 @@ public class CanvasUtils {
 		Map<Edge<V>, Set<Edge<V>>> joined = new LinkedHashMap<>();
 		Set<String> usedIds = CanvasUtils.getElementIds(allEdges);
 
-		for (Map.Entry<Pair<V, V>, Set<Edge<V>>> entry : Multimaps.asMap(edgeMap).entrySet()) {
+		Multimaps.asMap(edgeMap).forEach((endpoints, edgesInBetween) -> {
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			for (Edge<V> edge : entry.getValue()) {
+			for (Edge<V> edge : edgesInBetween) {
 				CanvasUtils.addMapToMap(properties, schema, edge.getProperties());
 			}
 
-			V from = entry.getKey().getFirst();
-			V to = entry.getKey().getSecond();
+			V from = endpoints.getFirst();
+			V to = endpoints.getSecond();
 			String id = KnimeUtils.createNewValue(from.getId() + "->" + to.getId(), usedIds);
 
 			usedIds.add(id);
 			properties.put(schema.getId(), id);
 			properties.put(schema.getFrom(), from.getId());
 			properties.put(schema.getTo(), to.getId());
-			joined.put(new Edge<>(id, properties, from, to), entry.getValue());
-		}
+			joined.put(new Edge<>(id, properties, from, to), edgesInBetween);
+		});
 
 		return joined;
 	}
@@ -316,13 +316,13 @@ public class CanvasUtils {
 		SetMultimap<String, String> values = LinkedHashMultimap.create();
 
 		for (Element e : elements) {
-			for (Map.Entry<String, Object> entry : e.getProperties().entrySet()) {
-				if (entry.getValue() instanceof Boolean) {
-					values.putAll(entry.getKey(), Arrays.asList(Boolean.FALSE.toString(), Boolean.TRUE.toString()));
-				} else if (entry.getValue() != null) {
-					values.put(entry.getKey(), entry.getValue().toString());
+			e.getProperties().forEach((property, value) -> {
+				if (value instanceof Boolean) {
+					values.putAll(property, Arrays.asList(Boolean.FALSE.toString(), Boolean.TRUE.toString()));
+				} else if (value != null) {
+					values.put(property, value.toString());
 				}
-			}
+			});
 		}
 
 		return Multimaps.asMap(values);
@@ -429,9 +429,7 @@ public class CanvasUtils {
 
 		Map<V, String> labels = new LinkedHashMap<>();
 
-		for (Map.Entry<V, Set<String>> entry : Multimaps.asMap(labelLists).entrySet()) {
-			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
-		}
+		Multimaps.asMap(labelLists).forEach((node, labelList) -> labels.put(node, Joiner.on("/").join(labelList)));
 
 		if (!labelsOnly) {
 			renderContext.setVertexShapeTransformer(
@@ -494,9 +492,7 @@ public class CanvasUtils {
 				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, thicknessValues);
 		Map<Edge<V>, String> labels = new LinkedHashMap<>();
 
-		for (Map.Entry<Edge<V>, Set<String>> entry : Multimaps.asMap(labelLists).entrySet()) {
-			labels.put(entry.getKey(), Joiner.on("/").join(entry.getValue()));
-		}
+		Multimaps.asMap(labelLists).forEach((edge, labelList) -> labels.put(edge, Joiner.on("/").join(labelList)));
 
 		renderContext.setEdgeDrawPaintTransformer(
 				CanvasTransformers.edgeDrawTransformer(renderContext, Multimaps.asMap(alphaValues), colors));

@@ -917,12 +917,12 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		Set<String> newCollapsedIds = new LinkedHashSet<>();
 
-		for (Map.Entry<Object, Set<V>> entry : Multimaps.asMap(nodesByProperty).entrySet()) {
-			String newId = KnimeUtils.createNewValue(entry.getKey().toString(), nodeSaveMap.keySet());
+		Multimaps.asMap(nodesByProperty).forEach((property, nodes) -> {
+			String newId = KnimeUtils.createNewValue(property.toString(), nodeSaveMap.keySet());
 
-			collapsedNodes.put(newId, CanvasUtils.getElementIds(entry.getValue()));
+			collapsedNodes.put(newId, CanvasUtils.getElementIds(nodes));
 			newCollapsedIds.add(newId);
-		}
+		});
 
 		applyChanges();
 		setSelectedNodeIdsWithoutListener(newCollapsedIds);
