@@ -100,9 +100,8 @@ public class CanvasTransformers {
 		Map<Edge<V>, Paint> edgeColors = new LinkedHashMap<>();
 
 		if (alphaValues != null && colors != null) {
-			for (Map.Entry<Edge<V>, List<Double>> entry : alphaValues.entrySet()) {
-				edgeColors.put(entry.getKey(), CanvasUtils.mixColors(Color.BLACK, colors, entry.getValue(), true));
-			}
+			alphaValues.forEach(
+					(edge, alphas) -> edgeColors.put(edge, CanvasUtils.mixColors(Color.BLACK, colors, alphas, true)));
 		}
 
 		return edge -> {

@@ -119,29 +119,12 @@ public class TracingParametersNodeModel extends NodeModel {
 		Map<String, Boolean> killEdges = createValueMap(edges, set.getEdgeKillCondition(),
 				set.getEdgeKillConditionValue(), false, set.getEdgeKillContaminations());
 
-		for (Map.Entry<String, Double> entry : nodeWeights.entrySet()) {
-			tracing.setStationWeight(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, Double> entry : edgeWeights.entrySet()) {
-			tracing.setDeliveryWeight(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, Boolean> entry : crossNodes.entrySet()) {
-			tracing.setCrossContaminationOfStation(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, Boolean> entry : crossEdges.entrySet()) {
-			tracing.setCrossContaminationOfDelivery(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, Boolean> entry : killNodes.entrySet()) {
-			tracing.setKillContaminationOfStation(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, Boolean> entry : killEdges.entrySet()) {
-			tracing.setKillContaminationOfDelivery(entry.getKey(), entry.getValue());
-		}
+		nodeWeights.forEach((stationId, weight) -> tracing.setStationWeight(stationId, weight));
+		edgeWeights.forEach((deliveryId, weight) -> tracing.setDeliveryWeight(deliveryId, weight));
+		crossNodes.forEach((stationId, isCross) -> tracing.setCrossContaminationOfStation(stationId, isCross));
+		crossEdges.forEach((deliveryId, isCross) -> tracing.setCrossContaminationOfDelivery(deliveryId, isCross));
+		killNodes.forEach((stationId, isKill) -> tracing.setKillContaminationOfStation(stationId, isKill));
+		killEdges.forEach((deliveryId, isKill) -> tracing.setKillContaminationOfDelivery(deliveryId, isKill));
 
 		Tracing.Result result = tracing.getResult(set.isEnforeTemporalOrder());
 		Map<String, Boolean> observedNodes = createValueMap(nodes.values(), set.getObservedNodesCondition(),

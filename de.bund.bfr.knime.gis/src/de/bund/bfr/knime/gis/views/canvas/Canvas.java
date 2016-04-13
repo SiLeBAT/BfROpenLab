@@ -1089,25 +1089,21 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	public void applyNodeCollapse() {
 		Map<String, String> collapseTo = new LinkedHashMap<>();
 
-		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
-			for (String from : entry.getValue()) {
-				collapseTo.put(from, entry.getKey());
-			}
-		}
+		collapsedNodes.forEach((to, fromList) -> fromList.forEach(from -> collapseTo.put(from, to)));
 
 		Set<V> newNodes = nodes.stream().filter(n -> !collapseTo.containsKey(n.getId()))
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 
-		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
-			if (nodeSaveMap.containsKey(entry.getKey())) {
-				newNodes.add(nodeSaveMap.get(entry.getKey()));
+		collapsedNodes.forEach((metaId, containedNodes) -> {
+			if (nodeSaveMap.containsKey(metaId)) {
+				newNodes.add(nodeSaveMap.get(metaId));
 			} else {
-				V newNode = createMetaNode(entry.getKey(), CanvasUtils.getElementsById(nodeSaveMap, entry.getValue()));
+				V newNode = createMetaNode(metaId, CanvasUtils.getElementsById(nodeSaveMap, containedNodes));
 
 				nodeSaveMap.put(newNode.getId(), newNode);
 				newNodes.add(newNode);
 			}
-		}
+		});
 
 		Set<Edge<V>> newEdges = new LinkedHashSet<>();
 		Map<String, V> nodesById = CanvasUtils.getElementsById(newNodes);
