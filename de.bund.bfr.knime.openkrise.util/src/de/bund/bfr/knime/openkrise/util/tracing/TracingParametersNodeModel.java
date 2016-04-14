@@ -34,7 +34,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -298,9 +297,8 @@ public class TracingParametersNodeModel extends NodeModel {
 			outSpec.add(column);
 		}
 
-		for (Map.Entry<String, DataType> entry : TracingColumns.COLUMN_TYPES.entrySet()) {
-			outSpec.add(new DataColumnSpecCreator(entry.getKey(), entry.getValue()).createSpec());
-		}
+		TracingColumns.COLUMN_TYPES
+				.forEach((name, type) -> outSpec.add(new DataColumnSpecCreator(name, type).createSpec()));
 
 		return new DataTableSpec(outSpec.toArray(new DataColumnSpec[0]));
 	}
@@ -311,13 +309,10 @@ public class TracingParametersNodeModel extends NodeModel {
 
 		if (inValue != null) {
 			if (condition != null) {
-				for (Map.Entry<? extends Element, Double> entry : condition.getValues(elements).entrySet()) {
-					result.put(entry.getKey().getId(), entry.getValue() != 0.0 ? inValue : outValue);
-				}
+				condition.getValues(elements)
+						.forEach((element, value) -> result.put(element.getId(), value != 0.0 ? inValue : outValue));
 			} else {
-				for (Element element : elements) {
-					result.put(element.getId(), inValue);
-				}
+				elements.forEach(e -> result.put(e.getId(), inValue));
 			}
 		} else {
 			for (Element element : elements) {

@@ -609,30 +609,16 @@ public class TracingChange implements Serializable {
 			List<HighlightCondition> oldConditions = highlighting.getConditions();
 			List<HighlightCondition> conditions = new ArrayList<>(Collections.nCopies(n, (HighlightCondition) null));
 
-			for (Map.Entry<Integer, Integer> entry : undo ? highlightingOrderChanges.entrySet()
-					: highlightingOrderChanges.inverse().entrySet()) {
-				conditions.set(entry.getKey(), oldConditions.get(entry.getValue()));
-			}
-
-			for (HighlightCondition c : undo ? removedConditions : addedConditions) {
-				conditions.set(conditions.indexOf(null), c);
-			}
+			(undo ? highlightingOrderChanges : highlightingOrderChanges.inverse())
+					.forEach((newIndex, oldIndex) -> conditions.set(newIndex, oldConditions.get(oldIndex)));
+			(undo ? removedConditions : addedConditions).forEach(c -> conditions.set(conditions.indexOf(null), c));
 
 			return new HighlightConditionList(conditions, highlighting.isPrioritizeColors() != prioritizeColorsChanged);
 		}
 
 		public boolean isIdentity() {
-			if (!removedConditions.isEmpty() || !addedConditions.isEmpty() || prioritizeColorsChanged) {
-				return false;
-			}
-
-			for (Map.Entry<Integer, Integer> entry : highlightingOrderChanges.entrySet()) {
-				if (!entry.getKey().equals(entry.getValue())) {
-					return false;
-				}
-			}
-
-			return true;
+			return removedConditions.isEmpty() && addedConditions.isEmpty() && !prioritizeColorsChanged
+					&& highlightingOrderChanges.entrySet().stream().allMatch(e -> e.getKey().equals(e.getValue()));
 		}
 	}
 }
