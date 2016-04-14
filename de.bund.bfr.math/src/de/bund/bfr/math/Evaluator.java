@@ -48,10 +48,7 @@ public class Evaluator {
 
 		Parser parser = new Parser();
 
-		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
-			parser.addConstant(entry.getKey(), entry.getValue());
-		}
-
+		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
 		parser.addVariable(varX);
 
 		Node f = parser.parse(formula);
@@ -94,10 +91,7 @@ public class Evaluator {
 
 		Parser parser = new Parser();
 
-		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
-			parser.addConstant(entry.getKey(), entry.getValue());
-		}
-
+		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
 		parser.addVariable(varX);
 
 		List<String> paramList = new ArrayList<>(covariances.keySet());
@@ -175,20 +169,14 @@ public class Evaluator {
 
 		Node[] fs = new Node[functions.size()];
 		String[] valueVariables = new String[functions.size()];
-		double[] value = new double[functions.size()];
+		double[] values = new double[functions.size()];
 		int depIndex = -1;
 		int index = 0;
 		Parser parser = new Parser();
 
+		parserConstants.forEach((constant, value) -> parser.addConstant(constant, value));
 		parser.addVariable(dependentVariable);
-
-		for (String indep : independentVariables.keySet()) {
-			parser.addVariable(indep);
-		}
-
-		for (Map.Entry<String, Double> entry : parserConstants.entrySet()) {
-			parser.addConstant(entry.getKey(), entry.getValue());
-		}
+		independentVariables.keySet().forEach(var -> parser.addVariable(var));
 
 		for (Map.Entry<String, String> entry : functions.entrySet()) {
 			String var = entry.getKey();
@@ -197,9 +185,9 @@ public class Evaluator {
 			valueVariables[index] = var;
 
 			if (initValues.containsKey(var)) {
-				value[index] = initValues.get(var);
+				values[index] = initValues.get(var);
 			} else {
-				value[index] = parserConstants.get(initParameters.get(var));
+				values[index] = parserConstants.get(initParameters.get(var));
 			}
 
 			if (var.equals(dependentVariable)) {
@@ -219,10 +207,10 @@ public class Evaluator {
 			double y = Double.NaN;
 
 			if (valuesX[i] == diffValue) {
-				y = value[depIndex];
+				y = values[depIndex];
 			} else if (valuesX[i] > diffValue) {
-				instance.integrate(f, diffValue, value, valuesX[i], value);
-				y = value[depIndex];
+				instance.integrate(f, diffValue, values, valuesX[i], values);
+				y = values[depIndex];
 				diffValue = valuesX[i];
 			}
 
@@ -510,9 +498,7 @@ public class Evaluator {
 		private static Map<String, List<Double>> convert(Map<String, double[]> map) {
 			Map<String, List<Double>> converted = new LinkedHashMap<>();
 
-			for (Map.Entry<String, double[]> entry : map.entrySet()) {
-				converted.put(entry.getKey(), Doubles.asList(entry.getValue()));
-			}
+			map.forEach((key, value) -> converted.put(key, Doubles.asList(value)));
 
 			return converted;
 		}

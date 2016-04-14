@@ -46,25 +46,19 @@ public class DiffFunction implements FirstOrderDifferentialEquations {
 		this.timeVariable = timeVariable;
 
 		variableFunctions = new LinkedHashMap<>();
-
-		for (Map.Entry<String, double[]> entry : variableValues.entrySet()) {
-			if (entry.getKey().equals(timeVariable)) {
-				continue;
+		variableValues.forEach((var, values) -> {
+			if (!var.equals(timeVariable)) {
+				variableFunctions.put(var,
+						interpolator.createInterpolationFunction(variableValues.get(timeVariable), values));
 			}
-
-			variableFunctions.put(entry.getKey(),
-					interpolator.createInterpolationFunction(variableValues.get(timeVariable), entry.getValue()));
-		}
+		});
 	}
 
 	@Override
 	public void computeDerivatives(double t, double[] y, double[] yDot)
 			throws MaxCountExceededException, DimensionMismatchException {
 		parser.setVarValue(timeVariable, t);
-
-		for (Map.Entry<String, UnivariateFunction> entry : variableFunctions.entrySet()) {
-			parser.setVarValue(entry.getKey(), entry.getValue().value(t));
-		}
+		variableFunctions.forEach((var, function) -> parser.setVarValue(var, function.value(t)));
 
 		for (int i = 0; i < y.length; i++) {
 			parser.setVarValue(dependentVariables[i], y[i]);
