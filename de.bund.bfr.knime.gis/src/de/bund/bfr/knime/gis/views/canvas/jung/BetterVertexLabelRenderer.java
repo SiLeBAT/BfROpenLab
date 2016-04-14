@@ -1,0 +1,104 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
+package de.bund.bfr.knime.gis.views.canvas.jung;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.renderers.Renderer;
+
+public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, E> {
+
+	private Position position;
+
+	public BetterVertexLabelRenderer() {
+		position = Position.SE;
+	}
+
+	@Override
+	public void labelVertex(RenderContext<V, E> rc, Layout<V, E> layout, V v, String label) {
+		Point2D vPos = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v));
+		AffineTransform transform = AffineTransform.getTranslateInstance(vPos.getX(), vPos.getY());
+		Shape shape = transform.createTransformedShape(rc.getVertexShapeTransformer().transform(v));
+
+		Component component = rc.getVertexLabelRenderer().<V> getVertexLabelRendererComponent(rc.getScreenDevice(),
+				label, rc.getVertexFontTransformer().transform(v), rc.getPickedVertexState().isPicked(v), v);
+		Dimension size = component.getPreferredSize();
+		Point p = getAnchorPoint(shape.getBounds2D(), size);
+
+		rc.getGraphicsContext().draw(component, rc.getRendererPane(), p.x, p.y, size.width, size.height, true);
+	}
+
+	@Override
+	public Position getPosition() {
+		return position;
+	}
+
+	@Override
+	public void setPosition(Position position) {
+		this.position = position;
+	}
+
+	@Override
+	public Positioner getPositioner() {
+		return null;
+	}
+
+	@Override
+	public void setPositioner(Positioner positioner) {
+	}
+
+	private Point getAnchorPoint(Rectangle2D vertexBounds, Dimension labelSize) {
+		switch (position) {
+		case N:
+			return new Point((int) vertexBounds.getCenterX() - labelSize.width / 2,
+					(int) vertexBounds.getMinY() - labelSize.height);
+		case NE:
+			return new Point((int) vertexBounds.getMaxX(), (int) vertexBounds.getMinY() - labelSize.height);
+		case E:
+			return new Point((int) vertexBounds.getMaxX(), (int) vertexBounds.getCenterY() - labelSize.height / 2);
+		case SE:
+			return new Point((int) vertexBounds.getMaxX(), (int) vertexBounds.getMaxY());
+		case S:
+			return new Point((int) vertexBounds.getCenterX() - labelSize.width / 2, (int) vertexBounds.getMaxY());
+		case SW:
+			return new Point((int) vertexBounds.getMinX() - labelSize.width, (int) vertexBounds.getMaxY());
+		case W:
+			return new Point((int) vertexBounds.getMinX() - labelSize.width,
+					(int) vertexBounds.getCenterY() - labelSize.height / 2);
+		case NW:
+			return new Point((int) vertexBounds.getMinX() - labelSize.width,
+					(int) vertexBounds.getMinY() - labelSize.height);
+		case CNTR:
+			return new Point((int) vertexBounds.getCenterX() - labelSize.width / 2,
+					(int) vertexBounds.getCenterY() - labelSize.height / 2);
+		default:
+			throw new RuntimeException("Should not happen");
+		}
+	}
+}

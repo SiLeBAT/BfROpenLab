@@ -73,6 +73,7 @@ import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterVertexLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
@@ -152,6 +153,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		viewer.getRenderContext().setEdgeDrawPaintTransformer(
 				CanvasTransformers.edgeDrawTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
+		viewer.getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>());
 		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
 				.addChangeListener(e -> {
 					AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext()
