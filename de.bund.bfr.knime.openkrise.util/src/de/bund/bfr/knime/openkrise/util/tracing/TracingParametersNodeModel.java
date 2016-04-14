@@ -136,23 +136,23 @@ public class TracingParametersNodeModel extends NodeModel {
 		Set<String> backwardEdges = new LinkedHashSet<>();
 		Set<String> forwardEdges = new LinkedHashSet<>();
 
-		for (Map.Entry<String, Boolean> entry : observedNodes.entrySet()) {
-			if (entry.getValue()) {
-				backwardNodes.addAll(result.getBackwardStationsByStation().get(entry.getKey()));
-				forwardNodes.addAll(result.getForwardStationsByStation().get(entry.getKey()));
-				backwardEdges.addAll(result.getBackwardDeliveriesByStation().get(entry.getKey()));
-				forwardEdges.addAll(result.getForwardDeliveriesByStation().get(entry.getKey()));
+		observedNodes.forEach((stationId, observed) -> {
+			if (observed) {
+				backwardNodes.addAll(result.getBackwardStationsByStation().get(stationId));
+				forwardNodes.addAll(result.getForwardStationsByStation().get(stationId));
+				backwardEdges.addAll(result.getBackwardDeliveriesByStation().get(stationId));
+				forwardEdges.addAll(result.getForwardDeliveriesByStation().get(stationId));
 			}
-		}
+		});
 
-		for (Map.Entry<String, Boolean> entry : observedNodes.entrySet()) {
-			if (entry.getValue()) {
-				backwardNodes.addAll(result.getBackwardStationsByDelivery().get(entry.getKey()));
-				forwardNodes.addAll(result.getForwardStationsByDelivery().get(entry.getKey()));
-				backwardEdges.addAll(result.getBackwardDeliveriesByDelivery().get(entry.getKey()));
-				forwardEdges.addAll(result.getForwardDeliveriesByDelivery().get(entry.getKey()));
+		observedEdges.forEach((deliveryId, observed) -> {
+			if (observed) {
+				backwardNodes.addAll(result.getBackwardStationsByDelivery().get(deliveryId));
+				forwardNodes.addAll(result.getForwardStationsByDelivery().get(deliveryId));
+				backwardEdges.addAll(result.getBackwardDeliveriesByDelivery().get(deliveryId));
+				forwardEdges.addAll(result.getForwardDeliveriesByDelivery().get(deliveryId));
 			}
-		}
+		});
 
 		int index = 0;
 		DataTableSpec nodeOutSpec = createOutSpec(nodeTable.getSpec());
