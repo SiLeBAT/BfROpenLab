@@ -825,9 +825,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	private static Map<String, Set<String>> copy(Map<String, Set<String>> map) {
 		Map<String, Set<String>> copy = new LinkedHashMap<>();
 
-		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
-			copy.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
-		}
+		map.forEach((key, value) -> copy.put(key, new LinkedHashSet<>(value)));
 
 		return copy;
 	}

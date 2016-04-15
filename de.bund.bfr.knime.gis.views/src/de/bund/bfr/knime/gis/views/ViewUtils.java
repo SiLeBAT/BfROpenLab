@@ -139,7 +139,7 @@ public class ViewUtils {
 				region = IO.getToCleanString(row.getCell(spec.findColumnIndex(nodeRegionColumn)));
 			}
 
-			ViewUtils.addToProperties(properties, nodeProperties, nodeTable, row);
+			ViewUtils.addToProperties(properties, nodeProperties, nodeTable.getSpec(), row);
 			properties.put(nodeIdColumn, id);
 			properties.put(nodeRegionColumn, region);
 			nodes.put(id, new GraphNode(id, properties, region));
@@ -189,15 +189,14 @@ public class ViewUtils {
 
 				Map<String, Object> map = nodeMap.get(id);
 
-				ViewUtils.addToProperties(map, nodeProperties, nodeTable, row);
+				ViewUtils.addToProperties(map, nodeProperties, nodeTable.getSpec(), row);
 				map.put(nodeIdColumn, id);
 			}
 		}
 
 		Map<String, RegionNode> nodes = new LinkedHashMap<>();
 
-		for (Map.Entry<String, MultiPolygon> entry : polygonMap.entrySet()) {
-			String id = entry.getKey();
+		polygonMap.forEach((id, polygon) -> {
 			Map<String, Object> properties = nodeMap.get(id);
 
 			if (properties == null) {
@@ -210,8 +209,8 @@ public class ViewUtils {
 				properties.put(nodeIdColumn, id);
 			}
 
-			nodes.put(id, new RegionNode(id, properties, entry.getValue()));
-		}
+			nodes.put(id, new RegionNode(id, properties, polygon));
+		});
 
 		for (String id : nodeMap.keySet()) {
 			if (!polygonMap.containsKey(id)) {
@@ -255,7 +254,7 @@ public class ViewUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			ViewUtils.addToProperties(properties, nodeProperties, nodeTable, row);
+			ViewUtils.addToProperties(properties, nodeProperties, nodeTable.getSpec(), row);
 			properties.put(nodeIdColumn, id);
 			nodes.put(id, new LocationNode(id, properties, new Point2D.Double(lat, lon)));
 		}
@@ -291,7 +290,7 @@ public class ViewUtils {
 			if (node1 != null && node2 != null) {
 				Map<String, Object> properties = new LinkedHashMap<>();
 
-				ViewUtils.addToProperties(properties, edgeProperties, edgeTable, row);
+				ViewUtils.addToProperties(properties, edgeProperties, edgeTable.getSpec(), row);
 				properties.put(edgeFromColumn, from);
 				properties.put(edgeToColumn, to);
 				edges.add(new Edge<>(String.valueOf(index++), properties, node1, node2));
@@ -314,12 +313,9 @@ public class ViewUtils {
 	}
 
 	private static void addToProperties(Map<String, Object> properties, Map<String, Class<?>> propertyTypes,
-			BufferedDataTable table, DataRow row) {
-		for (Map.Entry<String, Class<?>> entry : propertyTypes.entrySet()) {
-			int column = table.getSpec().findColumnIndex(entry.getKey());
-
-			ViewUtils.addCellContentToMap(properties, entry.getKey(), entry.getValue(), row.getCell(column));
-		}
+			DataTableSpec spec, DataRow row) {
+		propertyTypes.forEach((property, type) -> ViewUtils.addCellContentToMap(properties, property, type,
+				row.getCell(spec.findColumnIndex(property))));
 	}
 
 	private static void addCellContentToMap(Map<String, Object> map, String property, Class<?> type, DataCell cell) {

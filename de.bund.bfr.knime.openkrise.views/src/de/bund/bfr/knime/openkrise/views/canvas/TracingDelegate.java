@@ -537,9 +537,7 @@ public class TracingDelegate<V extends Node> {
 
 		Tracing tracing = new Tracing(activeDeliveries.values());
 
-		for (Map.Entry<String, Set<String>> entry : canvas.getCollapsedNodes().entrySet()) {
-			tracing.mergeStations(entry.getValue(), entry.getKey());
-		}
+		canvas.getCollapsedNodes().forEach((metaId, containedIds) -> tracing.mergeStations(containedIds, metaId));
 
 		for (V node : canvas.getNodes()) {
 			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);

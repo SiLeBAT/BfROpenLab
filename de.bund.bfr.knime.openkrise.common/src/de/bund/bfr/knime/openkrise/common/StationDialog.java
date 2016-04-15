@@ -22,11 +22,9 @@ package de.bund.bfr.knime.openkrise.common;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -230,17 +228,10 @@ public class StationDialog extends JDialog {
 
 		private List<Station> stations;
 		private List<String> columnNames;
-		private List<Method> getters;
 
 		public StationTableModel(List<Station> stations) {
 			this.stations = stations;
-			columnNames = new ArrayList<>();
-			getters = new ArrayList<>();
-
-			for (Map.Entry<String, Method> entry : Station.PROPERTIES.entrySet()) {
-				columnNames.add(entry.getKey());
-				getters.add(entry.getValue());
-			}
+			columnNames = new ArrayList<>(Station.PROPERTIES.keySet());
 		}
 
 		@Override
@@ -266,7 +257,7 @@ public class StationDialog extends JDialog {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			try {
-				return getters.get(columnIndex).invoke(stations.get(rowIndex));
+				return Station.PROPERTIES.get(columnNames.get(columnIndex)).invoke(stations.get(rowIndex));
 			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 				e.printStackTrace();
 				return null;

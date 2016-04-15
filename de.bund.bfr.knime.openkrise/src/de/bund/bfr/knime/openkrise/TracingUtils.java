@@ -120,7 +120,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeSchema, nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeSchema, nodeTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new GraphNode(id, properties));
@@ -175,7 +175,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, nodeSchema, nodeTable, row);
+			TracingUtils.addToProperties(properties, nodeSchema, nodeTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			replaceNullsInInputProperties(properties, nodeSchema);
 			nodes.put(id, new LocationNode(id, properties, center));
@@ -235,7 +235,7 @@ public class TracingUtils {
 
 			Map<String, Object> properties = new LinkedHashMap<>();
 
-			TracingUtils.addToProperties(properties, edgeSchema, edgeTable, row);
+			TracingUtils.addToProperties(properties, edgeSchema, edgeTable.getSpec(), row);
 			properties.put(TracingColumns.ID, id);
 			properties.put(TracingColumns.FROM, from);
 			properties.put(TracingColumns.TO, to);
@@ -313,16 +313,14 @@ public class TracingUtils {
 		return nodes;
 	}
 
-	private static void addToProperties(Map<String, Object> properties, PropertySchema schema, BufferedDataTable table,
+	private static void addToProperties(Map<String, Object> properties, PropertySchema schema, DataTableSpec spec,
 			DataRow row) {
-		for (Map.Entry<String, Class<?>> property : schema.getMap().entrySet()) {
-			int column = table.getSpec().findColumnIndex(property.getKey());
-
-			if (column != -1) {
-				TracingUtils.addCellContentToMap(properties, property.getKey(), property.getValue(),
-						row.getCell(column));
+		schema.getMap().forEach((property, type) -> {
+			if (spec.containsName(property)) {
+				TracingUtils.addCellContentToMap(properties, property, type,
+						row.getCell(spec.findColumnIndex(property)));
 			}
-		}
+		});
 	}
 
 	private static void addCellContentToMap(Map<String, Object> map, String property, Class<?> type, DataCell cell) {

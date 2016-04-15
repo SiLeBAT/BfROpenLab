@@ -316,7 +316,7 @@ public class LeastSquaresOptimization implements Optimization {
 			r.parameterTValues = new LinkedHashMap<>(parameterTValues);
 			r.parameterPValues = new LinkedHashMap<>(parameterPValues);
 			r.covariances = new LinkedHashMap<>();
-			covariances.entrySet().forEach(e -> r.covariances.put(new Pair<>(e.getKey()), e.getValue()));
+			covariances.forEach((key, value) -> r.covariances.put(new Pair<>(key), value));
 
 			r.sse = sse;
 			r.mse = mse;
