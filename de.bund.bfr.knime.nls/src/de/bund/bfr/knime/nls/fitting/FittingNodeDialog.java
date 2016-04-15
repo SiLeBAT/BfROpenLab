@@ -126,16 +126,16 @@ public class FittingNodeDialog extends NodeDialogPane {
 
 			boxes.add(fitAllAtOnceBox);
 
-			for (Map.Entry<String, String> entry : f.getInitParameters().entrySet()) {
-				if (f.getInitValues().get(entry.getKey()) == null) {
-					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
+			f.getInitParameters().forEach((depVar, param) -> {
+				if (f.getInitValues().get(depVar) == null) {
+					JCheckBox box = new JCheckBox("Use Different Values for " + param);
 
-					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getKey()));
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(depVar));
 					box.setEnabled(fitAllAtOnceBox.isSelected());
 					boxes.add(box);
-					useDifferentInitValuesBoxes.put(entry.getKey(), box);
+					useDifferentInitValuesBoxes.put(depVar, box);
 				}
-			}
+			});
 
 			boxes.add(expertBox);
 			p = UI.createOptionsPanel(null, boxes, Collections.nCopies(boxes.size(), new JLabel()));
@@ -168,19 +168,14 @@ public class FittingNodeDialog extends NodeDialogPane {
 		Map<String, Double> minStartValues = new LinkedHashMap<>();
 		Map<String, Double> maxStartValues = new LinkedHashMap<>();
 
-		for (Map.Entry<String, JCheckBox> entry : useDifferentInitValuesBoxes.entrySet()) {
-			if (entry.getValue().isSelected()) {
-				initValuesWithDifferentStart.add(entry.getKey());
+		useDifferentInitValuesBoxes.forEach((depVar, box) -> {
+			if (box.isSelected()) {
+				initValuesWithDifferentStart.add(depVar);
 			}
-		}
+		});
 
-		for (Map.Entry<String, DoubleTextField> entry : minimumFields.entrySet()) {
-			minStartValues.put(entry.getKey(), entry.getValue().getValue());
-		}
-
-		for (Map.Entry<String, DoubleTextField> entry : maximumFields.entrySet()) {
-			maxStartValues.put(entry.getKey(), entry.getValue().getValue());
-		}
+		minimumFields.forEach((param, field) -> minStartValues.put(param, field.getValue()));
+		maximumFields.forEach((param, field) -> maxStartValues.put(param, field.getValue()));
 
 		set.setLevelOfDetection(lodField.getValue());
 		set.setFitAllAtOnce(fitAllAtOnceBox.isSelected());

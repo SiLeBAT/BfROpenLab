@@ -121,11 +121,11 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		Set<String> initValuesWithDifferentStart = new LinkedHashSet<>();
 
-		for (Map.Entry<String, JCheckBox> entry : useDifferentInitValuesBoxes.entrySet()) {
-			if (entry.getValue().isSelected()) {
-				initValuesWithDifferentStart.add(entry.getKey());
+		useDifferentInitValuesBoxes.forEach((depVar, box) -> {
+			if (box.isSelected()) {
+				initValuesWithDifferentStart.add(depVar);
 			}
-		}
+		});
 
 		if (!maxIterationsField.isValueValid()) {
 			throw new InvalidSettingsException("");
@@ -186,17 +186,17 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			leftComponents.add(fitAllAtOnceBox);
 			rightComponents.add(new JLabel());
 
-			for (Map.Entry<String, String> entry : functionObject.getFunction().getInitParameters().entrySet()) {
-				if (functionObject.getFunction().getInitValues().get(entry.getKey()) == null) {
-					JCheckBox box = new JCheckBox("Use Different Values for " + entry.getValue());
+			functionObject.getFunction().getInitParameters().forEach((depVar, param) -> {
+				if (functionObject.getFunction().getInitValues().get(depVar) == null) {
+					JCheckBox box = new JCheckBox("Use Different Values for " + param);
 
-					box.setSelected(set.getInitValuesWithDifferentStart().contains(entry.getKey()));
+					box.setSelected(set.getInitValuesWithDifferentStart().contains(depVar));
 					box.setEnabled(fitAllAtOnceBox.isSelected());
 					leftComponents.add(box);
 					rightComponents.add(new JLabel());
-					useDifferentInitValuesBoxes.put(entry.getKey(), box);
+					useDifferentInitValuesBoxes.put(depVar, box);
 				}
-			}
+			});
 
 			leftComponents.add(new JLabel("Integration Step Size"));
 			rightComponents.add(stepSizeField);

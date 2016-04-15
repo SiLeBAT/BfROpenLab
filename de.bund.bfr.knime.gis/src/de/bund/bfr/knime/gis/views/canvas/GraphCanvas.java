@@ -260,10 +260,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		Map<String, Point2D> newPositions = new LinkedHashMap<>();
 
-		for (Map.Entry<GraphNode, Point2D> entry : layoutResult.entrySet()) {
-			newPositions.put(entry.getKey().getId(), entry.getValue());
-		}
-
+		layoutResult.forEach((node, pos) -> newPositions.put(node.getId(), pos));
 		setNodePositions(newPositions);
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
@@ -278,17 +275,16 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	private void updatePositionsOfCollapsedNodes() {
-		for (Map.Entry<String, Set<String>> entry : collapsedNodes.entrySet()) {
-			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap, entry.getValue());
+		collapsedNodes.forEach((metaId, containedIds) -> {
+			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap, containedIds);
 			Point2D oldCenter = PointUtils.getCenter(getNodePositions(newNodes).values());
-			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(entry.getKey()));
+			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(metaId));
 			Point2D diff = PointUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {
-				Point2D newPos = PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff);
-
-				viewer.getGraphLayout().setLocation(newNode, newPos);
+				viewer.getGraphLayout().setLocation(newNode,
+						PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff));
 			}
-		}
+		});
 	}
 }
