@@ -127,7 +127,7 @@ public class KnimeUtils {
 				Window window = SwingUtilities.getWindowAncestor(c);
 
 				if (window != null && window.isActive()) {
-					Dialogs.showWarningMessage(c, warning, "Warning");
+					SwingUtilities.invokeLater(() -> Dialogs.showWarningMessage(c, warning, "Warning"));
 					break;
 				}
 

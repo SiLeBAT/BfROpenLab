@@ -252,7 +252,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 				layoutResult.putAll(layout.getNodePositions(initialPositions,
 						p -> progressBar.setValue((int) Math.round(p * 100))));
-				layoutDialog.setVisible(false);
+				SwingUtilities.invokeLater(() -> layoutDialog.setVisible(false));
 			}).start();
 
 			layoutDialog.setVisible(true);
