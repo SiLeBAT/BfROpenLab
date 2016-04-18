@@ -310,6 +310,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
 			Collection<Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
 					throws CanceledExecutionException {
+		SetMultimap<String, String> deliversTo = LinkedHashMultimap.create();
+		SetMultimap<String, String> receivesFrom = LinkedHashMultimap.create();
+
+		for (Delivery d : deliveries) {
+			deliversTo.put(d.getSupplierId(), d.getRecipientId());
+			receivesFrom.put(d.getRecipientId(), d.getSupplierId());
+		}
+
 		DataTableSpec spec = getStationSpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		long index = 0;
@@ -350,11 +358,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, BackwardUtils.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
 			fillCell(spec, cells, BackwardUtils.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
 			fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
-					isSimpleSupplier(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					!receivesFrom.containsKey(id) && deliversTo.get(id).size() == 1 ? BooleanCell.TRUE
+							: BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.STATION_DEADSTART,
-					isStationStart(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					!receivesFrom.containsKey(id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.STATION_DEADEND,
-					isStationEnd(deliveries, id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					!deliversTo.containsKey(id) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
@@ -554,6 +563,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private static Connection createLocalConnection(String dbUsername, String dbPassword, String dbFolder)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		MyDBI db = new MyDBTablesNew();
+
 		db.establishNewConnection(dbUsername, dbPassword, dbFolder + File.separator, false);
 		db.updateCheck("");
 
@@ -562,45 +572,5 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		result.setReadOnly(true);
 
 		return result;
-	}
-
-	private static boolean isStationStart(Collection<Delivery> deliveries, String id) {
-		for (Delivery d : deliveries) {
-			if (d.getRecipientId().equals(id)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private static boolean isSimpleSupplier(Collection<Delivery> deliveries, String id) {
-		if (!isStationStart(deliveries, id)) {
-			return false;
-		}
-
-		String recId = null;
-
-		for (Delivery d : deliveries) {
-			if (d.getSupplierId().equals(id)) {
-				if (recId == null) {
-					recId = d.getRecipientId();
-				} else if (!recId.equals(d.getRecipientId())) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	private static boolean isStationEnd(Collection<Delivery> deliveries, String id) {
-		for (Delivery d : deliveries) {
-			if (d.getSupplierId().equals(id)) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 }

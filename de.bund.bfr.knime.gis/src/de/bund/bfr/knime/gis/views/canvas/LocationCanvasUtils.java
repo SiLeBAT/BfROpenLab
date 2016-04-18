@@ -112,9 +112,7 @@ public class LocationCanvasUtils {
 			positions.put(n1, bestPoint);
 		}
 
-		for (Map.Entry<LocationNode, Point2D> entry : positions.entrySet()) {
-			layout.setLocation(entry.getKey(), entry.getValue());
-		}
+		positions.forEach((node, pos) -> layout.setLocation(node, pos));
 	}
 
 	public static Polygon placeNodes(Collection<LocationNode> nodes, Collection<Edge<LocationNode>> edges,

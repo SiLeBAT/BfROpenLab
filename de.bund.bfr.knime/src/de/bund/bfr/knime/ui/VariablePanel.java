@@ -174,11 +174,11 @@ public class VariablePanel extends JPanel {
 	}
 
 	public void setValues(Map<String, Double> values) {
-		for (Map.Entry<String, DoubleTextField> entry : valueFields.entrySet()) {
-			if (values.containsKey(entry.getKey())) {
-				entry.getValue().setValue(values.get(entry.getKey()));
+		valueFields.forEach((var, field) -> {
+			if (values.containsKey(var)) {
+				field.setValue(values.get(var));
 			}
-		}
+		});
 	}
 
 	public Map<String, Double> getMinValues() {

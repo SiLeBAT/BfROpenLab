@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -329,15 +330,7 @@ public class TableInputPanel<T> extends JPanel implements RowSorterListener, Cel
 			return nodes;
 		}
 
-		Collection<T> filteredNodes = new ArrayList<>();
-		Map<T, Double> values = condition.getValues(nodes);
-
-		for (Map.Entry<T, Double> entry : values.entrySet()) {
-			if (entry.getValue() != 0.0) {
-				filteredNodes.add(entry.getKey());
-			}
-		}
-
-		return filteredNodes;
+		return condition.getValues(nodes).entrySet().stream().filter(e -> e.getValue() != 0.0).map(e -> e.getKey())
+				.collect(Collectors.toList());
 	}
 }
