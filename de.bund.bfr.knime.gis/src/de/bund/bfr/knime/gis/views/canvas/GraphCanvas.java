@@ -84,6 +84,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public Map<String, Point2D> getNodePositions() {
+		updatePositionsOfCollapsedNodes();
 		return getNodePositions(nodeSaveMap.values());
 	}
 
