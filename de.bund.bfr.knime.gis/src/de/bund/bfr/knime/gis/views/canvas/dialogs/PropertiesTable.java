@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
@@ -51,10 +50,10 @@ public class PropertiesTable extends JTable {
 		List<Class<?>> columnTypes = new ArrayList<>();
 		List<List<Object>> columnValueTuples = new ArrayList<>();
 
-		for (Map.Entry<String, Class<?>> entry : schema.getMap().entrySet()) {
-			columnNames.add(entry.getKey());
-			columnTypes.add(entry.getValue());
-		}
+		schema.getMap().forEach((name, type) -> {
+			columnNames.add(name);
+			columnTypes.add(type);
+		});
 
 		for (Element element : elements) {
 			List<Object> tuple = new ArrayList<>();

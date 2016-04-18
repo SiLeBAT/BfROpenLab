@@ -115,9 +115,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 
 	@Override
 	protected void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground) {
-		for (Map.Entry<Point, Tile> entry : getTiles(false).entrySet()) {
-			entry.getValue().paint(g, entry.getKey().x, entry.getKey().y);
-		}
+		getTiles(false).forEach((pos, tile) -> tile.paint(g, pos.x, pos.y));
 
 		int size = (int) (Math.pow(2.0, lastZoom) * tileController.getTileSource().getTileSize());
 		Color currentColor = g.getColor();

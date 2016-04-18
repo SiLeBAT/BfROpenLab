@@ -28,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.Clusterable;
@@ -96,13 +95,14 @@ public class DBSCANNodeModel extends NodeModel {
 		NodePropertySchema nodeSchema = new NodePropertySchema(TracingUtils.getTableColumns(table.getSpec()),
 				TracingColumns.ID);
 		Collection<GraphNode> nodes = TracingUtils.readGraphNodes(table, nodeSchema).values();
-		Set<String> filteredOut;
+		Set<String> filteredOut = new LinkedHashSet<>();
 
 		if (set.getFilter() != null) {
-			filteredOut = set.getFilter().getValues(nodes).entrySet().stream().filter(e -> e.getValue() == 0.0)
-					.map(e -> e.getKey().getId()).collect(Collectors.toCollection(LinkedHashSet::new));
-		} else {
-			filteredOut = new LinkedHashSet<>();
+			set.getFilter().getValues(nodes).forEach((node, value) -> {
+				if (value == 0.0) {
+					filteredOut.add(node.getId());
+				}
+			});
 		}
 
 		List<ClusterableRow> clusterableRows = new ArrayList<>();
