@@ -100,13 +100,8 @@ public class FunctionReader implements Reader {
 				legend.put(newId, newId);
 				stringColumns.get(NlsUtils.ID_COLUMN).add(id);
 
-				for (Map.Entry<String, Double> entry : fixed.entrySet()) {
-					doubleColumns.get(entry.getKey()).add(entry.getValue());
-				}
-
-				for (String column : qualityColumns) {
-					doubleColumns.get(column).add(qualityValues.get(column));
-				}
+				fixed.forEach((var, value) -> doubleColumns.get(var).add(value));
+				qualityColumns.forEach(column -> doubleColumns.get(column).add(qualityValues.get(column)));
 
 				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
 				Map<String, Double> variables = new LinkedHashMap<>(fixed);

@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,32 +48,30 @@ public class FunctionPortObjectView extends JComponent {
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		for (Map.Entry<String, String> entry : f.getTerms().entrySet()) {
+		f.getTerms().forEach((depVar, term) -> {
 			JLabel label;
 
 			if (f.getTimeVariable() != null) {
-				label = new JLabel("d" + entry.getKey() + "/d" + f.getTimeVariable() + " = " + entry.getValue());
+				label = new JLabel("d" + depVar + "/d" + f.getTimeVariable() + " = " + term);
 			} else {
-				label = new JLabel(entry.getKey() + " = " + entry.getValue());
+				label = new JLabel(depVar + " = " + term);
 			}
 
 			label.setAlignmentX(Component.LEFT_ALIGNMENT);
 			panel.add(label);
 			panel.add(Box.createVerticalStrut(5));
-		}
+		});
 
 		if (!f.getInitValues().isEmpty()) {
 			List<String> initValues = new ArrayList<>();
-			boolean hasInitialValues = false;
 
-			for (Map.Entry<String, Double> entry : f.getInitValues().entrySet()) {
-				if (entry.getValue() != null) {
-					initValues.add(entry.getKey() + "_0=" + entry.getValue());
-					hasInitialValues = true;
+			f.getInitValues().forEach((depVar, value) -> {
+				if (value != null) {
+					initValues.add(depVar + "_0=" + value);
 				}
-			}
+			});
 
-			if (hasInitialValues) {
+			if (!initValues.isEmpty()) {
 				JLabel label = new JLabel("Initial Values: " + Joiner.on(", ").join(initValues));
 
 				label.setAlignmentX(Component.LEFT_ALIGNMENT);

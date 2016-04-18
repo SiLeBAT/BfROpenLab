@@ -590,13 +590,12 @@ public class FittingNodeModel extends NodeModel {
 
 					r.getCovariances().clear();
 
-					for (Map.Entry<Pair<String, String>, Double> entry : oldCovariances.entrySet()) {
-						String param1 = entry.getKey().getFirst();
-						String param2 = entry.getKey().getSecond();
+					oldCovariances.forEach((params, cov) -> {
+						String param1 = params.getFirst().equals(oldName) ? newName : params.getFirst();
+						String param2 = params.getSecond().equals(oldName) ? newName : params.getSecond();
 
-						r.getCovariances().put(new Pair<>(param1.equals(oldName) ? newName : param1,
-								param2.equals(oldName) ? newName : param2), entry.getValue());
-					}
+						r.getCovariances().put(new Pair<>(param1, param2), cov);
+					});
 				}
 			}
 
