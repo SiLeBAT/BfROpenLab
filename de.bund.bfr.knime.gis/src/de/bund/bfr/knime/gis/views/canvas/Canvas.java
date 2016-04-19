@@ -69,6 +69,7 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
+import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
@@ -146,6 +147,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
+		viewer.getRenderContext().setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>());
 		viewer.getRenderContext().setVertexFillPaintTransformer(
 				CanvasTransformers.nodeFillTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderContext()

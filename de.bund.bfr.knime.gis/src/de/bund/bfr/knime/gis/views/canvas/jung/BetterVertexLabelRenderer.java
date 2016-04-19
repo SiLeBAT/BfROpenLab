@@ -28,6 +28,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
@@ -42,6 +44,10 @@ public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, 
 
 	@Override
 	public void labelVertex(RenderContext<V, E> rc, Layout<V, E> layout, V v, String label) {
+		if (!rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V> getInstance(layout.getGraph(), v))) {
+			return;
+		}
+
 		Point2D vPos = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(v));
 		AffineTransform transform = AffineTransform.getTranslateInstance(vPos.getX(), vPos.getY());
 		Shape shape = transform.createTransformedShape(rc.getVertexShapeTransformer().transform(v));
