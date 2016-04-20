@@ -370,135 +370,34 @@ public class CanvasUtils {
 
 	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
 			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, nodeSize, nodeMaxSize, false);
+		HighlightResult<V> result = getResult(nodes, nodeHighlightConditions);
+
+		renderContext.setVertexShapeTransformer(
+				CanvasTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
+		renderContext.setVertexFillPaintTransformer(
+				CanvasTransformers.nodeFillTransformer(renderContext, result.alphaValues, result.colors));
+		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
 	}
 
 	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
 			HighlightConditionList nodeHighlightConditions) {
-		applyNodeHighlights(renderContext, nodes, nodeHighlightConditions, 0, null, true);
-	}
+		HighlightResult<V> result = getResult(nodes, nodeHighlightConditions);
 
-	private static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
-			boolean labelsOnly) {
-		List<Color> colors = new ArrayList<>();
-		ListMultimap<V, Double> alphaValues = ArrayListMultimap.create();
-		Map<V, Double> thicknessValues = new LinkedHashMap<>();
-		SetMultimap<V, String> labelLists = LinkedHashMultimap.create();
-		boolean prioritize = nodeHighlightConditions.isPrioritizeColors();
-
-		if (!labelsOnly) {
-			nodes.forEach(n -> thicknessValues.put(n, 0.0));
-		}
-
-		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
-			if (condition.isInvisible()) {
-				continue;
-			}
-
-			Map<V, Double> values = condition.getValues(nodes);
-
-			if (!labelsOnly && condition.isUseThickness()) {
-				nodes.forEach(n -> thicknessValues.put(n, thicknessValues.get(n) + values.get(n)));
-			}
-
-			if (!labelsOnly && condition.getColor() != null) {
-				colors.add(condition.getColor());
-
-				for (V node : nodes) {
-					List<Double> alphas = alphaValues.get(node);
-
-					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
-						alphas.add(values.get(node));
-					} else {
-						alphas.add(0.0);
-					}
-				}
-			}
-
-			if (condition.getLabelProperty() != null) {
-				String property = condition.getLabelProperty();
-
-				for (V node : nodes) {
-					if (values.get(node) != 0.0 && node.getProperties().get(property) != null) {
-						labelLists.put(node, toString(node.getProperties().get(property)));
-					}
-				}
-			}
-		}
-
-		Map<V, String> labels = new LinkedHashMap<>();
-
-		Multimaps.asMap(labelLists).forEach((node, labelList) -> labels.put(node, Joiner.on("/").join(labelList)));
-
-		if (!labelsOnly) {
-			renderContext.setVertexShapeTransformer(
-					CanvasTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, thicknessValues));
-			renderContext.setVertexFillPaintTransformer(
-					CanvasTransformers.nodeFillTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
-		}
-
-		renderContext.setVertexLabelTransformer(node -> labels.get(node));
+		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
 	}
 
 	public static <V extends Node> void applyEdgeHighlights(RenderContext<V, Edge<V>> renderContext,
 			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
-		List<Color> colors = new ArrayList<>();
-		ListMultimap<Edge<V>, Double> alphaValues = ArrayListMultimap.create();
-		Map<Edge<V>, Double> thicknessValues = new LinkedHashMap<>();
-		SetMultimap<Edge<V>, String> labelLists = LinkedHashMultimap.create();
-		boolean prioritize = edgeHighlightConditions.isPrioritizeColors();
-
-		edges.forEach(e -> thicknessValues.put(e, 0.0));
-
-		for (HighlightCondition condition : edgeHighlightConditions.getConditions()) {
-			if (condition.isInvisible()) {
-				continue;
-			}
-
-			Map<Edge<V>, Double> values = condition.getValues(edges);
-
-			if (condition.getColor() != null) {
-				colors.add(condition.getColor());
-
-				for (Edge<V> edge : edges) {
-					List<Double> alphas = alphaValues.get(edge);
-
-					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
-						alphas.add(values.get(edge));
-					} else {
-						alphas.add(0.0);
-					}
-				}
-			}
-
-			if (condition.isUseThickness()) {
-				edges.forEach(e -> thicknessValues.put(e, thicknessValues.get(e) + values.get(e)));
-			}
-
-			if (condition.getLabelProperty() != null) {
-				String property = condition.getLabelProperty();
-
-				for (Edge<V> edge : edges) {
-					if (values.get(edge) != 0.0 && edge.getProperties().get(property) != null) {
-						labelLists.put(edge, toString(edge.getProperties().get(property)));
-					}
-				}
-			}
-		}
-
+		HighlightResult<Edge<V>> result = getResult(edges, edgeHighlightConditions);
 		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = CanvasTransformers
-				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, thicknessValues);
-		Map<Edge<V>, String> labels = new LinkedHashMap<>();
-
-		Multimaps.asMap(labelLists).forEach((edge, labelList) -> labels.put(edge, Joiner.on("/").join(labelList)));
+				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, result.thicknessValues);
 
 		renderContext.setEdgeDrawPaintTransformer(
-				CanvasTransformers.edgeDrawTransformer(renderContext, Multimaps.asMap(alphaValues), colors));
+				CanvasTransformers.edgeDrawTransformer(renderContext, result.alphaValues, result.colors));
 		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
 		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
-		renderContext.setEdgeLabelTransformer(edge -> labels.get(edge));
+		renderContext.setEdgeLabelTransformer(edge -> result.labels.get(edge));
 	}
 
 	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas, boolean forEdges) {
@@ -670,5 +569,73 @@ public class CanvasUtils {
 		}
 
 		return obj != null ? obj.toString() : null;
+	}
+
+	private static <E extends Element> HighlightResult<E> getResult(Collection<E> elements,
+			HighlightConditionList highlightConditions) {
+		List<Color> colors = new ArrayList<>();
+		ListMultimap<E, Double> alphaValues = ArrayListMultimap.create();
+		Map<E, Double> thicknessValues = new LinkedHashMap<>();
+		SetMultimap<E, String> labelLists = LinkedHashMultimap.create();
+
+		elements.forEach(e -> thicknessValues.put(e, 0.0));
+
+		for (HighlightCondition condition : highlightConditions.getConditions()) {
+			if (condition.isInvisible()) {
+				continue;
+			}
+
+			Map<E, Double> values = condition.getValues(elements);
+
+			if (condition.getColor() != null) {
+				colors.add(condition.getColor());
+
+				for (E e : elements) {
+					List<Double> alphas = alphaValues.get(e);
+
+					if (!highlightConditions.isPrioritizeColors() || alphas.isEmpty()
+							|| Collections.max(alphas) == 0.0) {
+						alphas.add(values.get(e));
+					} else {
+						alphas.add(0.0);
+					}
+				}
+			}
+
+			if (condition.isUseThickness()) {
+				elements.forEach(e -> thicknessValues.put(e, thicknessValues.get(e) + values.get(e)));
+			}
+
+			if (condition.getLabelProperty() != null) {
+				String property = condition.getLabelProperty();
+
+				for (E e : elements) {
+					if (values.get(e) != 0.0 && e.getProperties().get(property) != null) {
+						labelLists.put(e, toString(e.getProperties().get(property)));
+					}
+				}
+			}
+		}
+
+		Map<E, String> labels = new LinkedHashMap<>();
+
+		Multimaps.asMap(labelLists).forEach((edge, labelList) -> labels.put(edge, Joiner.on("/").join(labelList)));
+
+		HighlightResult<E> result = new HighlightResult<>();
+
+		result.colors = colors;
+		result.alphaValues = Multimaps.asMap(alphaValues);
+		result.thicknessValues = thicknessValues;
+		result.labels = labels;
+
+		return result;
+	}
+
+	private static class HighlightResult<E extends Element> {
+
+		private List<Color> colors;
+		private Map<E, List<Double>> alphaValues;
+		private Map<E, Double> thicknessValues;
+		private Map<E, String> labels;
 	}
 }
