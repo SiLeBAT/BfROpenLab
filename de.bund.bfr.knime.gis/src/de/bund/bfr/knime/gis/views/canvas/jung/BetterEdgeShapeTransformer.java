@@ -34,9 +34,12 @@ import edu.uci.ics.jung.visualization.decorators.EdgeShape.IndexedRendering;
 public class BetterEdgeShapeTransformer<V, E>
 		implements Transformer<Context<Graph<V, E>, E>, Shape>, IndexedRendering<V, E> {
 
+	private int fontSize;
+
 	private EdgeIndexFunction<V, E> edgeIndexFunction;
 
-	public BetterEdgeShapeTransformer() {
+	public BetterEdgeShapeTransformer(int fontSize) {
+		this.fontSize = fontSize;
 		edgeIndexFunction = null;
 	}
 
@@ -56,11 +59,11 @@ public class BetterEdgeShapeTransformer<V, E>
 		int index = edgeIndexFunction != null ? edgeIndexFunction.getIndex(context.graph, context.element) : 1;
 
 		if (endpoints != null && endpoints.getFirst().equals(endpoints.getSecond())) {
-			float diam = 1.0f + index / 2.0f;
+			float diam = 1.0f + index * fontSize / 40.0f;
 
 			return new Ellipse2D.Float(-diam / 2.0f, -diam / 2.0f, diam, diam);
 		} else {
-			float controlY = 20.f * (index + 1);
+			float controlY = 10.0f + 1.7f * fontSize * index;
 
 			return new QuadCurve2D.Float(0.0f, 0.0f, 0.5f, controlY, 1.0f, 0.0f);
 		}

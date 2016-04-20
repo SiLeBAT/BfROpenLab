@@ -147,7 +147,8 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
-		viewer.getRenderContext().setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>());
+		viewer.getRenderContext()
+				.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
 		viewer.getRenderContext().setVertexFillPaintTransformer(
 				CanvasTransformers.nodeFillTransformer(viewer.getRenderContext(), null, null));
 		viewer.getRenderContext()
@@ -974,8 +975,9 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 	@Override
 	public void fontChanged() {
-		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, optionsPanel.getFontSize());
+		Font font = new Font("default", optionsPanel.isFontBold() ? Font.BOLD : Font.PLAIN, getFontSize());
 
+		viewer.getRenderContext().setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(getFontSize()));
 		viewer.getRenderContext().setVertexFontTransformer(node -> font);
 		viewer.getRenderContext().setEdgeFontTransformer(edge -> font);
 		viewer.repaint();
