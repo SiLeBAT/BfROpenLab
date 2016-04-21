@@ -183,7 +183,7 @@ public class LogicalHighlightCondition implements Serializable {
 			return ((Number) nodeValue).doubleValue() == doubleValue;
 		} else if (nodeValue instanceof String && value != null) {
 			return ((String) nodeValue).equalsIgnoreCase(value);
-		} else if (nodeValue == null || (nodeValue instanceof String && ((String) nodeValue).isEmpty())) {
+		} else if (nodeValue == null || nodeValue.equals("")) {
 			return Strings.isNullOrEmpty(value);
 		} else {
 			return false;
@@ -212,7 +212,7 @@ public class LogicalHighlightCondition implements Serializable {
 			Matcher matcher = Pattern.compile(value, flags).matcher((String) nodeValue);
 
 			return matcher.matches();
-		} else if (nodeValue == null) {
+		} else if (nodeValue == null || nodeValue.equals("")) {
 			return Strings.isNullOrEmpty(value);
 		} else {
 			return false;
