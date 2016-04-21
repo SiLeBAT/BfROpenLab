@@ -67,12 +67,9 @@ public class InputTable extends JTable {
 		for (Element e : elements) {
 			double weight = e.getProperties().get(TracingColumns.WEIGHT) != null
 					? (Double) e.getProperties().get(TracingColumns.WEIGHT) : 0.0;
-			boolean crossContamination = e.getProperties().get(TracingColumns.CROSS_CONTAMINATION) != null
-					? (Boolean) e.getProperties().get(TracingColumns.CROSS_CONTAMINATION) : false;
-			boolean killContamination = e.getProperties().get(TracingColumns.KILL_CONTAMINATION) != null
-					? (Boolean) e.getProperties().get(TracingColumns.KILL_CONTAMINATION) : false;
-			boolean observed = e.getProperties().get(TracingColumns.OBSERVED) != null
-					? (Boolean) e.getProperties().get(TracingColumns.OBSERVED) : false;
+			boolean crossContamination = Boolean.TRUE.equals(e.getProperties().get(TracingColumns.CROSS_CONTAMINATION));
+			boolean killContamination = Boolean.TRUE.equals(e.getProperties().get(TracingColumns.KILL_CONTAMINATION));
+			boolean observed = Boolean.TRUE.equals(e.getProperties().get(TracingColumns.OBSERVED));
 
 			inputs.add(new Input(weight, crossContamination, killContamination, observed));
 		}
@@ -161,30 +158,11 @@ public class InputTable extends JTable {
 			} catch (NumberFormatException ex) {
 			}
 
-			double weight = 0.0;
-			boolean cc = false;
-			boolean kill = false;
-			boolean observed = false;
-
-			try {
-				weight = (Double) weightTable.getValueAt(0, 0);
-			} catch (ClassCastException | NullPointerException e) {
-			}
-
-			try {
-				cc = (Boolean) ccTable.getValueAt(0, 0);
-			} catch (ClassCastException | NullPointerException e) {
-			}
-
-			try {
-				kill = (Boolean) killTable.getValueAt(0, 0);
-			} catch (ClassCastException | NullPointerException e) {
-			}
-
-			try {
-				observed = (Boolean) observedTable.getValueAt(0, 0);
-			} catch (ClassCastException | NullPointerException e) {
-			}
+			double weight = weightTable.getValueAt(0, 0) instanceof Double ? (Double) weightTable.getValueAt(0, 0)
+					: 0.0;
+			boolean cc = Boolean.TRUE.equals(ccTable.getValueAt(0, 0));
+			boolean kill = Boolean.TRUE.equals(killTable.getValueAt(0, 0));
+			boolean observed = Boolean.TRUE.equals(observedTable.getValueAt(0, 0));
 
 			return new Input(weight, cc, kill, observed);
 		}

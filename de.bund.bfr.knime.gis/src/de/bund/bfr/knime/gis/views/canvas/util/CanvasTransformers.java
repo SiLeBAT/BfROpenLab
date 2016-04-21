@@ -87,14 +87,6 @@ public class CanvasTransformers {
 		};
 	}
 
-	public static <V extends Node> Transformer<V, Stroke> nodeStrokeTransformer(String metaNodeProperty) {
-		return node -> {
-			Boolean isMetaNode = (Boolean) node.getProperties().get(metaNodeProperty);
-
-			return isMetaNode != null && isMetaNode ? new BasicStroke(4.0f) : new BasicStroke(1.0f);
-		};
-	}
-
 	public static <V extends Node> Transformer<Edge<V>, Paint> edgeDrawTransformer(
 			RenderContext<V, Edge<V>> renderContext, Map<Edge<V>, List<Double>> alphaValues, List<Color> colors) {
 		Map<Edge<V>, Paint> edgeColors = new LinkedHashMap<>();

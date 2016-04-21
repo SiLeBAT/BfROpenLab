@@ -64,12 +64,9 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 
 		Map<String, Object> values = element.getProperties();
 		double weight = values.get(TracingColumns.WEIGHT) != null ? (Double) values.get(TracingColumns.WEIGHT) : 0.0;
-		boolean crossContamination = values.get(TracingColumns.CROSS_CONTAMINATION) != null
-				? (Boolean) values.get(TracingColumns.CROSS_CONTAMINATION) : false;
-		boolean killContamination = values.get(TracingColumns.KILL_CONTAMINATION) != null
-				? (Boolean) values.get(TracingColumns.KILL_CONTAMINATION) : false;
-		boolean observed = values.get(TracingColumns.OBSERVED) != null ? (Boolean) values.get(TracingColumns.OBSERVED)
-				: false;
+		boolean crossContamination = Boolean.TRUE.equals(values.get(TracingColumns.CROSS_CONTAMINATION));
+		boolean killContamination = Boolean.TRUE.equals(values.get(TracingColumns.KILL_CONTAMINATION));
+		boolean observed = Boolean.TRUE.equals(values.get(TracingColumns.OBSERVED));
 
 		caseField = new JTextField(8);
 		caseField.setText(String.valueOf(weight));

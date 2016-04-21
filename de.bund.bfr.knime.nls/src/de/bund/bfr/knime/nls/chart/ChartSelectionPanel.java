@@ -463,7 +463,7 @@ public class ChartSelectionPanel extends JPanel implements CellEditorListener {
 				setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 			}
 
-			setSelected((value != null && ((Boolean) value).booleanValue()));
+			setSelected(Boolean.TRUE.equals(value));
 			setBorder(hasFocus ? UI.TABLE_CELL_FOCUS_BORDER : UI.TABLE_CELL_BORDER);
 
 			return this;

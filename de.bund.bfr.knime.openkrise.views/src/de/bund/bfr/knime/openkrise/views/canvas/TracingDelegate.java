@@ -462,9 +462,7 @@ public class TracingDelegate<V extends Node> {
 		Set<String> forwardEdges = new LinkedHashSet<>();
 
 		for (V node : canvas.getNodes()) {
-			Boolean value = (Boolean) node.getProperties().get(TracingColumns.OBSERVED);
-
-			if (value != null && value == true) {
+			if (Boolean.TRUE.equals(node.getProperties().get(TracingColumns.OBSERVED))) {
 				backwardNodes.addAll(tracing.getBackwardStationsByStation().get(node.getId()));
 				forwardNodes.addAll(tracing.getForwardStationsByStation().get(node.getId()));
 				backwardEdges.addAll(tracing.getBackwardDeliveriesByStation().get(node.getId()));
@@ -473,9 +471,7 @@ public class TracingDelegate<V extends Node> {
 		}
 
 		for (Edge<V> edge : edges) {
-			Boolean value = (Boolean) edge.getProperties().get(TracingColumns.OBSERVED);
-
-			if (value != null && value == true) {
+			if (Boolean.TRUE.equals(edge.getProperties().get(TracingColumns.OBSERVED))) {
 				backwardNodes.addAll(tracing.getBackwardStationsByDelivery().get(edge.getId()));
 				forwardNodes.addAll(tracing.getForwardStationsByDelivery().get(edge.getId()));
 				backwardEdges.addAll(tracing.getBackwardDeliveriesByDelivery().get(edge.getId()));
@@ -512,15 +508,15 @@ public class TracingDelegate<V extends Node> {
 				edge.getProperties().put(TracingColumns.FORWARD, false);
 
 				for (Edge<V> e : joinMap.get(edge)) {
-					if ((Boolean) e.getProperties().get(TracingColumns.OBSERVED)) {
+					if (Boolean.TRUE.equals(e.getProperties().get(TracingColumns.OBSERVED))) {
 						edge.getProperties().put(TracingColumns.OBSERVED, true);
 					}
 
-					if ((Boolean) e.getProperties().get(TracingColumns.BACKWARD)) {
+					if (Boolean.TRUE.equals(e.getProperties().get(TracingColumns.BACKWARD))) {
 						edge.getProperties().put(TracingColumns.BACKWARD, true);
 					}
 
-					if ((Boolean) e.getProperties().get(TracingColumns.FORWARD)) {
+					if (Boolean.TRUE.equals(e.getProperties().get(TracingColumns.FORWARD))) {
 						edge.getProperties().put(TracingColumns.FORWARD, true);
 					}
 				}
@@ -540,25 +536,21 @@ public class TracingDelegate<V extends Node> {
 		canvas.getCollapsedNodes().forEach((metaId, containedIds) -> tracing.mergeStations(containedIds, metaId));
 
 		for (V node : canvas.getNodes()) {
-			Double caseValue = (Double) node.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) node.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) node.getProperties().get(TracingColumns.KILL_CONTAMINATION);
-
-			tracing.setStationWeight(node.getId(), caseValue != null ? caseValue : 0.0);
-			tracing.setCrossContaminationOfStation(node.getId(),
-					contaminationValue != null && useCrossContamination ? contaminationValue : false);
-			tracing.setKillContaminationOfStation(node.getId(), killValue != null ? killValue : false);
+			tracing.setStationWeight(node.getId(), node.getProperties().get(TracingColumns.WEIGHT) instanceof Double
+					? (Double) node.getProperties().get(TracingColumns.WEIGHT) : 0.0);
+			tracing.setCrossContaminationOfStation(node.getId(), useCrossContamination
+					? Boolean.TRUE.equals(node.getProperties().get(TracingColumns.CROSS_CONTAMINATION)) : false);
+			tracing.setKillContaminationOfStation(node.getId(),
+					Boolean.TRUE.equals(node.getProperties().get(TracingColumns.KILL_CONTAMINATION)));
 		}
 
 		for (Edge<V> edge : edges) {
-			Double caseValue = (Double) edge.getProperties().get(TracingColumns.WEIGHT);
-			Boolean contaminationValue = (Boolean) edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION);
-			Boolean killValue = (Boolean) edge.getProperties().get(TracingColumns.KILL_CONTAMINATION);
-
-			tracing.setDeliveryWeight(edge.getId(), caseValue != null ? caseValue : 0.0);
-			tracing.setCrossContaminationOfDelivery(edge.getId(),
-					contaminationValue != null && useCrossContamination ? contaminationValue : false);
-			tracing.setKillContaminationOfDelivery(edge.getId(), killValue != null ? killValue : false);
+			tracing.setDeliveryWeight(edge.getId(), edge.getProperties().get(TracingColumns.WEIGHT) instanceof Double
+					? (Double) edge.getProperties().get(TracingColumns.WEIGHT) : 0.0);
+			tracing.setCrossContaminationOfDelivery(edge.getId(), useCrossContamination
+					? Boolean.TRUE.equals(edge.getProperties().get(TracingColumns.CROSS_CONTAMINATION)) : false);
+			tracing.setKillContaminationOfDelivery(edge.getId(),
+					Boolean.TRUE.equals(edge.getProperties().get(TracingColumns.KILL_CONTAMINATION)));
 		}
 
 		return tracing.getResult(isEnforceTemporalOrder());

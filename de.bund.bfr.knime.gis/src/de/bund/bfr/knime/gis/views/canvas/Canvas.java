@@ -19,6 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -68,13 +69,10 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterEdgeShapeTransformer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterShapePickSupport;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterVertexLabelRenderer;
 import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
@@ -89,6 +87,7 @@ import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.ListFilterDialog;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
+import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
@@ -147,29 +146,25 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
-		viewer.getRenderContext()
-				.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
-		viewer.getRenderContext().setVertexFillPaintTransformer(
-				CanvasTransformers.nodeFillTransformer(viewer.getRenderContext(), null, null));
-		viewer.getRenderContext()
-				.setVertexStrokeTransformer(CanvasTransformers.nodeStrokeTransformer(metaNodeProperty));
-		viewer.getRenderContext().setEdgeDrawPaintTransformer(
-				CanvasTransformers.edgeDrawTransformer(viewer.getRenderContext(), null, null));
-		viewer.getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
-		viewer.getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>());
-		((MutableAffineTransformer) viewer.getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT))
-				.addChangeListener(e -> {
-					AffineTransform transform = ((MutableAffineTransformer) viewer.getRenderContext()
-							.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).getTransform();
-					boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
-
-					this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
-					applyTransform();
-				});
 		viewer.addPostRenderPaintable(new PostPaintable(false));
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, this.nodes, this.edges));
-		viewer.setPickSupport(new BetterShapePickSupport<>(viewer));
+
+		RenderContext<V, Edge<V>> rc = viewer.getRenderContext();
+
+		rc.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
+		rc.setVertexFillPaintTransformer(CanvasTransformers.nodeFillTransformer(rc, null, null));
+		rc.setVertexStrokeTransformer(node -> Boolean.TRUE.equals(node.getProperties().get(metaNodeProperty))
+				? new BasicStroke(4.0f) : new BasicStroke(1.0f));
+		rc.setEdgeDrawPaintTransformer(CanvasTransformers.edgeDrawTransformer(rc, null, null));
+		((MutableAffineTransformer) rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).addChangeListener(e -> {
+			AffineTransform transform = ((MutableAffineTransformer) rc.getMultiLayerTransformer()
+					.getTransformer(Layer.LAYOUT)).getTransform();
+			boolean transformValid = transform.getScaleX() != 0.0 && transform.getScaleY() != 0.0;
+
+			this.transform = transformValid ? new Transform(transform) : Transform.IDENTITY_TRANSFORM;
+			applyTransform();
+		});
 
 		BetterGraphMouse<V, Edge<V>> graphMouse = new BetterGraphMouse<>(createPickingPlugin(), createScalingPlugin());
 
