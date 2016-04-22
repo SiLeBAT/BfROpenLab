@@ -586,16 +586,17 @@ public class FittingNodeModel extends NodeModel {
 					r.getParameterTValues().put(newName, r.getParameterTValues().remove(oldName));
 					r.getParameterPValues().put(newName, r.getParameterPValues().remove(oldName));
 
-					Map<Pair<String, String>, Double> oldCovariances = new LinkedHashMap<>(r.getCovariances());
+					Map<Pair<String, String>, Double> newCovariances = new LinkedHashMap<>();
 
-					r.getCovariances().clear();
-
-					oldCovariances.forEach((params, cov) -> {
+					r.getCovariances().forEach((params, cov) -> {
 						String param1 = params.getFirst().equals(oldName) ? newName : params.getFirst();
 						String param2 = params.getSecond().equals(oldName) ? newName : params.getSecond();
 
-						r.getCovariances().put(new Pair<>(param1, param2), cov);
+						newCovariances.put(new Pair<>(param1, param2), cov);
 					});
+
+					r.getCovariances().clear();
+					r.getCovariances().putAll(newCovariances);
 				}
 			}
 
