@@ -26,7 +26,7 @@
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.4.0.v201603041808"/>
+<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.4.0.v201604130900"/>
 <repository location="http://tech.knime.org/update/community-contributions/trusted/3.1"/>
 </location>
 </locations>
