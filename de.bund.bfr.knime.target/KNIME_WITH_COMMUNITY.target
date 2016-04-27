@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="KNIME 3.1 TP WITH COMMUNITY" sequenceNumber="22">
+<?pde version="3.8"?><target name="KNIME 3.1 TP WITH COMMUNITY" sequenceNumber="25">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
@@ -13,7 +13,7 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.knime.features.reporting.designer.feature.group" version="3.1.0.v201511131603"/>
 <unit id="org.knime.features.ext.osm.feature.group" version="3.1.0.v201511131603"/>
-<unit id="org.knime.features.js.quickforms.feature.group" version="3.1.1.v201601281239"/>
+<unit id="org.knime.features.js.quickforms.feature.group" version="3.1.3.v201604221432"/>
 <unit id="org.knime.features.core.streaming.feature.group" version="3.1.0.v201511280708"/>
 <unit id="org.knime.features.ext.svg.feature.group" version="3.1.0.v201511232105"/>
 <unit id="org.knime.features.xml.feature.group" version="3.1.2.v201603091103"/>
@@ -26,7 +26,7 @@
 <repository location="http://update.knime.org/analytics-platform/3.1/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.4.0.v201604130900"/>
+<unit id="de.bund.bfr.knime.esri.feature.feature.group" version="1.4.0.v201604250731"/>
 <repository location="http://tech.knime.org/update/community-contributions/trusted/3.1"/>
 </location>
 </locations>
