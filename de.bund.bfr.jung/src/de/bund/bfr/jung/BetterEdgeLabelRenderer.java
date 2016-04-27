@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.jung;
+package de.bund.bfr.jung;
 
 import java.awt.Color;
 import java.awt.Font;

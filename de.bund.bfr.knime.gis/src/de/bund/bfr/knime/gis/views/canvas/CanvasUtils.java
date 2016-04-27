@@ -67,6 +67,8 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.jung.BetterDirectedSparseMultigraph;
+import de.bund.bfr.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -78,8 +80,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterDirectedSparseMultigraph;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterVisualizationViewer;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;

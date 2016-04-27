@@ -21,10 +21,10 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.event.MouseEvent;
 
+import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class CanvasPickingPlugin<V extends Node> extends BetterPickingGraphMousePlugin<V, Edge<V>> {

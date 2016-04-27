@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.jung;
+package de.bund.bfr.jung;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -31,8 +31,7 @@ import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
-import de.bund.bfr.knime.PointUtils;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse.ChangeListener;
+import de.bund.bfr.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
@@ -167,12 +166,12 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		if (vertex != null) {
 			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
 			Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
-			Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
+			Point2D move = JungUtils.substractPoints(graphPoint, graphDown);
 			Layout<V, E> layout = vv.getGraphLayout();
 			PickedState<V> ps = vv.getPickedVertexState();
 
 			for (V v : ps.getPicked()) {
-				layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+				layout.setLocation(v, JungUtils.addPoints(layout.transform(v), move));
 			}
 
 			down = e.getPoint();

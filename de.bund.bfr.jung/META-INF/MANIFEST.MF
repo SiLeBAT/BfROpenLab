@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JUNG Utils
+Bundle-SymbolicName: de.bund.bfr.jung;singleton:=true
+Bundle-Version: 1.1.2.qualifier
+Bundle-Activator: de.bund.bfr.jung.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ com.google.guava.new,
+ edu.uci.ics.jung;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
+Export-Package: de.bund.bfr.jung,
+ de.bund.bfr.jung.layout

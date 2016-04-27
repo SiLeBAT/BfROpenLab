@@ -30,8 +30,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
+import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.Canvas;
-import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 
 public class CanvasPopupMenu extends JPopupMenu {
 

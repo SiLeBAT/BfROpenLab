@@ -24,11 +24,11 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
+import de.bund.bfr.jung.GisScalingGraphMousePlugin;
+import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterScalingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.jung.GisScalingGraphMousePlugin;
-import de.bund.bfr.knime.gis.views.canvas.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;

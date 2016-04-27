@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Polygon;
 
-import de.bund.bfr.knime.PointUtils;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.LocationNode;
@@ -81,7 +81,7 @@ public class LocationOsmCanvas extends OsmCanvas<LocationNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
+		Rectangle2D bounds = JungUtils.getBounds(getNodePositions(nodes).values());
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, 2.0));

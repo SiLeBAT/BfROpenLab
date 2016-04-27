@@ -45,9 +45,9 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 
 import com.google.common.base.Strings;
 
+import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;

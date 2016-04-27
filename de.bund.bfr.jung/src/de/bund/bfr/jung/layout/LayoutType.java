@@ -17,49 +17,39 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.jung.layout;
+package de.bund.bfr.jung.layout;
 
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.DoubleConsumer;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public abstract class Layout<V, E> {
+public enum LayoutType {
+	GRID_LAYOUT("Grid Layout"), CIRCLE_LAYOUT("Circle Layout"), FR_LAYOUT("Fruchterman-Reingold"), ISOM_LAYOUT(
+			"Self-Organizing Map");
 
-	protected Graph<V, E> graph;
-	protected Dimension size;
+	private String name;
 
-	protected Set<V> locked;
-
-	public Layout(Graph<V, E> graph, Dimension size) {
-		this.graph = graph;
-		this.size = size;
-		locked = new LinkedHashSet<>();
+	private LayoutType(String name) {
+		this.name = name;
 	}
 
-	public Graph<V, E> getGraph() {
-		return graph;
-	}
-
-	public Dimension getSize() {
-		return size;
-	}
-
-	public void setLocked(V v, boolean locked) {
-		if (locked) {
-			this.locked.add(v);
-		} else {
-			this.locked.remove(v);
+	public <V, E> Layout<V, E> create(Graph<V, E> graph, Dimension size) {
+		switch (this) {
+		case GRID_LAYOUT:
+			return new GridLayout<>(graph, size);
+		case CIRCLE_LAYOUT:
+			return new CircleLayout<>(graph, size);
+		case FR_LAYOUT:
+			return new FRLayout<>(graph, size);
+		case ISOM_LAYOUT:
+			return new ISOMLayout<>(graph, size);
 		}
+
+		return null;
 	}
 
-	public boolean isLocked(V v) {
-		return locked.contains(v);
+	@Override
+	public String toString() {
+		return name;
 	}
-
-	public abstract Map<V, Point2D> getNodePositions(Map<V, Point2D> initialPositions, DoubleConsumer progressListener);
 }

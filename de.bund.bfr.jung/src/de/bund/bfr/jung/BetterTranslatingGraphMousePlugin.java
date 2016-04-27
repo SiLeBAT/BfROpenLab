@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.jung;
+package de.bund.bfr.jung;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterGraphMouse.ChangeListener;
+import de.bund.bfr.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;

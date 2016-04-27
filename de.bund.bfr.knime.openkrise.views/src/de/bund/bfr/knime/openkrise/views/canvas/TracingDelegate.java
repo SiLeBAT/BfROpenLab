@@ -45,6 +45,7 @@ import javax.swing.JSeparator;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 
+import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
@@ -56,7 +57,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.common.Delivery;

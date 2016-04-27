@@ -43,15 +43,13 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          id="de.bund.bfr.knime.nls"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.math"
@@ -63,8 +61,7 @@ along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;.
          id="de.bund.bfr.knime.chart"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.google.guava.new"

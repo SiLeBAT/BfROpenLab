@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.jung.layout;
+package de.bund.bfr.jung.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
