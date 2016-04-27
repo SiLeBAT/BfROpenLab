@@ -38,15 +38,15 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import de.bund.bfr.jung.JungUtils;
+import de.bund.bfr.jung.JungTransformers;
 import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
+import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.GraphNode;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
-import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -74,7 +74,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
 		viewer.getRenderContext().setVertexShapeTransformer(
-				CanvasTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
+				JungTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
 	}
 
 	public void initLayout() {
@@ -97,7 +97,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 				Set<String> containedNodes = collapsedNodes.get(node.getId());
 
 				if (containedNodes != null) {
-					Point2D center = JungUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
+					Point2D center = PointUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
 
 					if (center != null) {
 						positions.put(node.getId(), center);
@@ -137,7 +137,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void resetLayoutItemClicked() {
-		Rectangle2D bounds = JungUtils.getBounds(getNodePositions(nodes).values());
+		Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
 
 		if (bounds != null) {
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
@@ -184,7 +184,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		GraphNode newNode = new GraphNode(id,
 				CanvasUtils.joinPropertiesOfNodes(nodes, nodeSchema, id, metaNodeProperty));
 
-		viewer.getGraphLayout().setLocation(newNode, JungUtils.getCenter(getNodePositions(nodes).values()));
+		viewer.getGraphLayout().setLocation(newNode, PointUtils.getCenter(getNodePositions(nodes).values()));
 
 		return newNode;
 	}
@@ -220,7 +220,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		final Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
-			initialPositions.put(node, JungUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+			initialPositions.put(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
 
 			if (!nodesForLayout.contains(node)) {
 				layout.setLocked(node, true);
@@ -265,7 +265,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		setNodePositions(newPositions);
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			Rectangle2D bounds = JungUtils.getBounds(getNodePositions(nodes).values());
+			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
 
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
 		} else {
@@ -278,13 +278,13 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	private void updatePositionsOfCollapsedNodes() {
 		collapsedNodes.forEach((metaId, containedIds) -> {
 			Set<GraphNode> newNodes = CanvasUtils.getElementsById(nodeSaveMap, containedIds);
-			Point2D oldCenter = JungUtils.getCenter(getNodePositions(newNodes).values());
+			Point2D oldCenter = PointUtils.getCenter(getNodePositions(newNodes).values());
 			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(metaId));
-			Point2D diff = JungUtils.substractPoints(newCenter, oldCenter);
+			Point2D diff = PointUtils.substractPoints(newCenter, oldCenter);
 
 			for (GraphNode newNode : newNodes) {
 				viewer.getGraphLayout().setLocation(newNode,
-						JungUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff));
+						PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff));
 			}
 		});
 	}

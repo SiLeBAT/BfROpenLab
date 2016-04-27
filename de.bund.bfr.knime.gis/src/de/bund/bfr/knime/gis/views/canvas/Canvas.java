@@ -64,6 +64,7 @@ import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.jung.BetterVisualizationViewer;
+import de.bund.bfr.jung.JungTransformers;
 import de.bund.bfr.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.DefaultPropertySelectorCreator;
@@ -77,7 +78,6 @@ import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
-import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
@@ -153,10 +153,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		RenderContext<V, Edge<V>> rc = viewer.getRenderContext();
 
 		rc.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
-		rc.setVertexFillPaintTransformer(CanvasTransformers.nodeFillTransformer(rc, null, null));
+		rc.setVertexFillPaintTransformer(JungTransformers.nodeFillTransformer(rc, null));
 		rc.setVertexStrokeTransformer(node -> Boolean.TRUE.equals(node.getProperties().get(metaNodeProperty))
 				? new BasicStroke(4.0f) : new BasicStroke(1.0f));
-		rc.setEdgeDrawPaintTransformer(CanvasTransformers.edgeDrawTransformer(rc, null, null));
+		rc.setEdgeDrawPaintTransformer(JungTransformers.edgeDrawTransformer(rc, null));
 		((MutableAffineTransformer) rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).addChangeListener(e -> {
 			AffineTransform transform = ((MutableAffineTransformer) rc.getMultiLayerTransformer()
 					.getTransformer(Layer.LAYOUT)).getTransform();

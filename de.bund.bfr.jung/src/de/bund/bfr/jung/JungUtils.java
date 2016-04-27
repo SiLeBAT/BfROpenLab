@@ -27,7 +27,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -40,51 +39,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 public class JungUtils {
 
 	private JungUtils() {
-	}
-
-	public static Point2D addPoints(Point2D p1, Point2D p2) {
-		return new Point2D.Double(p1.getX() + p2.getX(), p1.getY() + p2.getY());
-	}
-
-	public static Point2D substractPoints(Point2D p1, Point2D p2) {
-		return new Point2D.Double(p1.getX() - p2.getX(), p1.getY() - p2.getY());
-	}
-
-	public static Point2D getCenter(Collection<Point2D> points) {
-		if (points.isEmpty()) {
-			return null;
-		}
-
-		double x = 0.0;
-		double y = 0.0;
-
-		for (Point2D p : points) {
-			if (p == null) {
-				return null;
-			}
-
-			x += p.getX();
-			y += p.getY();
-		}
-
-		x /= points.size();
-		y /= points.size();
-
-		return new Point2D.Double(x, y);
-	}
-
-	public static Rectangle2D getBounds(Collection<Point2D> positions) {
-		Rectangle2D bounds = null;
-
-		for (Point2D p : positions) {
-			if (bounds == null) {
-				bounds = new Rectangle2D.Double(p.getX(), p.getY(), 0, 0);
-			} else {
-				bounds.add(p);
-			}
-		}
-
-		return bounds;
 	}
 
 	public static <V, E> Shape getTransformedEdgeShape(RenderContext<V, E> rc, Layout<V, E> layout, E e) {

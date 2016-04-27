@@ -69,6 +69,7 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.jung.BetterDirectedSparseMultigraph;
 import de.bund.bfr.jung.BetterVisualizationViewer;
+import de.bund.bfr.jung.JungTransformers;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -80,7 +81,6 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.LogicalValueHighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.ValueHighlightCondition;
-import de.bund.bfr.knime.gis.views.canvas.util.CanvasTransformers;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
@@ -373,9 +373,8 @@ public class CanvasUtils {
 		HighlightResult<V> result = getResult(nodes, nodeHighlightConditions);
 
 		renderContext.setVertexShapeTransformer(
-				CanvasTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
-		renderContext.setVertexFillPaintTransformer(
-				CanvasTransformers.nodeFillTransformer(renderContext, result.alphaValues, result.colors));
+				JungTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
+		renderContext.setVertexFillPaintTransformer(JungTransformers.nodeFillTransformer(renderContext, result.colors));
 		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
 	}
 
@@ -390,17 +389,17 @@ public class CanvasUtils {
 			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		HighlightResult<Edge<V>> result = getResult(edges, edgeHighlightConditions);
-		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = CanvasTransformers
+		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = JungTransformers
 				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, result.thicknessValues);
 
-		renderContext.setEdgeDrawPaintTransformer(
-				CanvasTransformers.edgeDrawTransformer(renderContext, result.alphaValues, result.colors));
+		renderContext.setEdgeDrawPaintTransformer(JungTransformers.edgeDrawTransformer(renderContext, result.colors));
 		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
 		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
 		renderContext.setEdgeLabelTransformer(edge -> result.labels.get(edge));
 	}
 
-	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas, boolean forEdges) {
+	public static Paint mixColors(Color backgroundColor, List<Color> colors, List<Double> alphas,
+			boolean checkedInsteadOfStriped) {
 		double rb = backgroundColor.getRed() / 255.0;
 		double gb = backgroundColor.getGreen() / 255.0;
 		double bb = backgroundColor.getBlue() / 255.0;
@@ -427,9 +426,9 @@ public class CanvasUtils {
 		}
 
 		BufferedImage img;
-		int size = cs.size() * (forEdges ? EDGE_TEXTURE_SIZE : NODE_TEXTURE_SIZE);
+		int size = cs.size() * (checkedInsteadOfStriped ? EDGE_TEXTURE_SIZE : NODE_TEXTURE_SIZE);
 
-		if (forEdges) {
+		if (checkedInsteadOfStriped) {
 			img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 
 			for (int i = 0; i < size; i++) {
@@ -573,7 +572,7 @@ public class CanvasUtils {
 
 	private static <E extends Element> HighlightResult<E> getResult(Collection<E> elements,
 			HighlightConditionList highlightConditions) {
-		List<Color> colors = new ArrayList<>();
+		List<Color> colorList = new ArrayList<>();
 		ListMultimap<E, Double> alphaValues = ArrayListMultimap.create();
 		Map<E, Double> thicknessValues = new LinkedHashMap<>();
 		SetMultimap<E, String> labelLists = LinkedHashMultimap.create();
@@ -588,7 +587,7 @@ public class CanvasUtils {
 			Map<E, Double> values = condition.getValues(elements);
 
 			if (condition.getColor() != null) {
-				colors.add(condition.getColor());
+				colorList.add(condition.getColor());
 
 				for (E e : elements) {
 					List<Double> alphas = alphaValues.get(e);
@@ -617,14 +616,16 @@ public class CanvasUtils {
 			}
 		}
 
+		Map<E, Paint> colors = new LinkedHashMap<>();
 		Map<E, String> labels = new LinkedHashMap<>();
 
+		Multimaps.asMap(alphaValues).forEach((e, alphas) -> colors.put(e, CanvasUtils
+				.mixColors(e instanceof Edge ? Color.BLACK : Color.WHITE, colorList, alphas, e instanceof Edge)));
 		Multimaps.asMap(labelLists).forEach((edge, labelList) -> labels.put(edge, Joiner.on("/").join(labelList)));
 
 		HighlightResult<E> result = new HighlightResult<>();
 
 		result.colors = colors;
-		result.alphaValues = Multimaps.asMap(alphaValues);
 		result.thicknessValues = thicknessValues;
 		result.labels = labels;
 
@@ -633,8 +634,7 @@ public class CanvasUtils {
 
 	private static class HighlightResult<E extends Element> {
 
-		private List<Color> colors;
-		private Map<E, List<Double>> alphaValues;
+		private Map<E, Paint> colors;
 		private Map<E, Double> thicknessValues;
 		private Map<E, String> labels;
 	}

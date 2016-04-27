@@ -5,8 +5,8 @@ Bundle-SymbolicName: de.bund.bfr.jung;singleton:=true
 Bundle-Version: 1.1.2.qualifier
 Bundle-Activator: de.bund.bfr.jung.Activator
 Require-Bundle: org.eclipse.core.runtime,
- com.google.guava.new,
- edu.uci.ics.jung;visibility:=reexport
+ edu.uci.ics.jung;visibility:=reexport,
+ de.bund.bfr.knime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)

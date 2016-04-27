@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.util;
+package de.bund.bfr.jung;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -27,40 +27,28 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.element.Edge;
-import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.util.ArrowFactory;
 
-public class CanvasTransformers {
+public class JungTransformers {
 
-	private CanvasTransformers() {
+	private JungTransformers() {
 	}
 
-	public static <V extends Node> Transformer<V, Paint> nodeFillTransformer(RenderContext<V, Edge<V>> renderContext,
-			Map<V, List<Double>> alphaValues, List<Color> colors) {
-		Map<V, Paint> nodeColors = new LinkedHashMap<>();
-
-		if (alphaValues != null && colors != null) {
-			alphaValues.forEach(
-					(node, alphas) -> nodeColors.put(node, CanvasUtils.mixColors(Color.WHITE, colors, alphas, false)));
-		}
-
+	public static <V, E> Transformer<V, Paint> nodeFillTransformer(RenderContext<V, E> renderContext,
+			Map<V, Paint> nodeColors) {
 		return node -> {
 			if (renderContext.getPickedVertexState().getPicked().contains(node)) {
 				return Color.BLUE;
-			} else if (nodeColors.containsKey(node)) {
+			} else if (nodeColors != null && nodeColors.containsKey(node)) {
 				return nodeColors.get(node);
 			} else {
 				return Color.WHITE;
@@ -68,7 +56,7 @@ public class CanvasTransformers {
 		};
 	}
 
-	public static <V extends Node> Transformer<V, Shape> nodeShapeTransformer(int size, Integer maxSize,
+	public static <V> Transformer<V, Shape> nodeShapeTransformer(int size, Integer maxSize,
 			Map<V, Double> thicknessValues) {
 		Map<V, Double> nonNullThicknessValues = KnimeUtils.nullToEmpty(thicknessValues);
 		double denom = getDenominator(nonNullThicknessValues.values());
@@ -87,19 +75,12 @@ public class CanvasTransformers {
 		};
 	}
 
-	public static <V extends Node> Transformer<Edge<V>, Paint> edgeDrawTransformer(
-			RenderContext<V, Edge<V>> renderContext, Map<Edge<V>, List<Double>> alphaValues, List<Color> colors) {
-		Map<Edge<V>, Paint> edgeColors = new LinkedHashMap<>();
-
-		if (alphaValues != null && colors != null) {
-			alphaValues.forEach(
-					(edge, alphas) -> edgeColors.put(edge, CanvasUtils.mixColors(Color.BLACK, colors, alphas, true)));
-		}
-
+	public static <V, E> Transformer<E, Paint> edgeDrawTransformer(RenderContext<V, E> renderContext,
+			Map<E, Paint> edgeColors) {
 		return edge -> {
 			if (renderContext.getPickedEdgeState().getPicked().contains(edge)) {
 				return Color.GREEN;
-			} else if (edgeColors.containsKey(edge)) {
+			} else if (edgeColors != null && edgeColors.containsKey(edge)) {
 				return edgeColors.get(edge);
 			} else {
 				return Color.BLACK;
@@ -107,10 +88,10 @@ public class CanvasTransformers {
 		};
 	}
 
-	public static <V extends Node> Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> edgeStrokeArrowTransformers(
-			int thickness, Integer maxThickness, Map<Edge<V>, Double> thicknessValues) {
+	public static <V, E> Pair<Transformer<E, Stroke>, Transformer<Context<Graph<V, E>, E>, Shape>> edgeStrokeArrowTransformers(
+			int thickness, Integer maxThickness, Map<E, Double> thicknessValues) {
 		double denom = getDenominator(thicknessValues.values());
-		Transformer<Edge<V>, Stroke> strokeTransformer = edge -> {
+		Transformer<E, Stroke> strokeTransformer = edge -> {
 			int max = maxThickness != null ? maxThickness : thickness + 10;
 			Double factor = thicknessValues.get(edge);
 
@@ -120,7 +101,7 @@ public class CanvasTransformers {
 
 			return new BasicStroke((float) (thickness + (max - thickness) * factor / denom));
 		};
-		Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape> arrowTransformer = edge -> {
+		Transformer<Context<Graph<V, E>, E>, Shape> arrowTransformer = edge -> {
 			BasicStroke stroke = (BasicStroke) strokeTransformer.transform(edge.element);
 
 			return ArrowFactory.getNotchedArrow(stroke.getLineWidth() + 8, 2 * stroke.getLineWidth() + 10, 4);
