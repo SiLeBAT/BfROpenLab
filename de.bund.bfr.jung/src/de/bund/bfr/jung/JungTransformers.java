@@ -25,13 +25,11 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
 
-import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Context;
@@ -58,18 +56,12 @@ public class JungTransformers {
 
 	public static <V> Transformer<V, Shape> nodeShapeTransformer(int size, Integer maxSize,
 			Map<V, Double> thicknessValues) {
-		Map<V, Double> nonNullThicknessValues = KnimeUtils.nullToEmpty(thicknessValues);
-		double denom = getDenominator(nonNullThicknessValues.values());
+		double denom = getDenominator(thicknessValues);
 
 		return node -> {
 			int max = maxSize != null ? maxSize : size * 2;
-			Double factor = nonNullThicknessValues.get(node);
-
-			if (factor == null) {
-				factor = 0.0;
-			}
-
-			double s = size + (max - size) * factor / denom;
+			Double factor = thicknessValues != null ? thicknessValues.get(node) : null;
+			double s = factor != null ? size + (max - size) * factor / denom : size;
 
 			return new Ellipse2D.Double(-s / 2, -s / 2, s, s);
 		};
@@ -90,16 +82,13 @@ public class JungTransformers {
 
 	public static <V, E> Pair<Transformer<E, Stroke>, Transformer<Context<Graph<V, E>, E>, Shape>> edgeStrokeArrowTransformers(
 			int thickness, Integer maxThickness, Map<E, Double> thicknessValues) {
-		double denom = getDenominator(thicknessValues.values());
+		double denom = getDenominator(thicknessValues);
 		Transformer<E, Stroke> strokeTransformer = edge -> {
 			int max = maxThickness != null ? maxThickness : thickness + 10;
-			Double factor = thicknessValues.get(edge);
+			Double factor = thicknessValues != null ? thicknessValues.get(edge) : null;
+			double width = factor != null ? thickness + (max - thickness) * factor / denom : thickness;
 
-			if (factor == null) {
-				factor = 0.0;
-			}
-
-			return new BasicStroke((float) (thickness + (max - thickness) * factor / denom));
+			return new BasicStroke((float) width);
 		};
 		Transformer<Context<Graph<V, E>, E>, Shape> arrowTransformer = edge -> {
 			BasicStroke stroke = (BasicStroke) strokeTransformer.transform(edge.element);
@@ -110,12 +99,12 @@ public class JungTransformers {
 		return new Pair<>(strokeTransformer, arrowTransformer);
 	}
 
-	private static double getDenominator(Collection<Double> values) {
-		if (values.isEmpty()) {
+	private static double getDenominator(Map<?, Double> values) {
+		if (values == null || values.isEmpty()) {
 			return 1.0;
 		}
 
-		double max = Collections.max(values);
+		double max = Collections.max(values.values());
 
 		return max != 0.0 ? max : 1.0;
 	}
