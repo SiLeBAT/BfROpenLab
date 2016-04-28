@@ -69,12 +69,12 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-			V node = getPickedNode(e);
-			E edge = getPickedEdge(e);
+			V node;
+			E edge;
 
-			if (node != null) {
+			if ((node = getPickedNode(e)) != null) {
 				call(l -> l.doubleClickedOn(node));
-			} else if (edge != null) {
+			} else if ((edge = getPickedEdge(e)) != null) {
 				call(l -> l.doubleClickedOn(edge));
 			}
 		}

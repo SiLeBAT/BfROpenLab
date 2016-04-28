@@ -52,20 +52,17 @@ public class RegionCanvasUtils {
 
 			@Override
 			protected RegionNode getPickedNode(MouseEvent e) {
-				if (canvas.getViewer().getPickSupport().getEdge(canvas.getViewer().getGraphLayout(), e.getX(),
-						e.getY()) != null) {
+				RegionNode node = super.getPickedNode(e);
+
+				if (node != null) {
+					return node;
+				} else if (getPickedEdge(e) != null) {
 					return null;
 				}
 
 				Point2D p = canvas.getTransform().applyInverse(e.getX(), e.getY());
 
-				for (RegionNode node : canvas.getNodes()) {
-					if (node.containsPoint(p)) {
-						return node;
-					}
-				}
-
-				return null;
+				return canvas.getNodes().stream().filter(n -> n.containsPoint(p)).findAny().orElse(null);
 			}
 		};
 	}
