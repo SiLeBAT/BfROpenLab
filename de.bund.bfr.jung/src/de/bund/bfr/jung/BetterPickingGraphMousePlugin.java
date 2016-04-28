@@ -34,6 +34,7 @@ import javax.swing.event.EventListenerList;
 import de.bund.bfr.knime.PointUtils;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 
@@ -43,23 +44,40 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	protected V vertex;
 	protected E edge;
 
+	private boolean allowMovingNodes;
+
 	private Rectangle2D rect = new Rectangle2D.Float();
 
 	private EventListenerList listeners;
 
 	private boolean nodesMoved;
 
-	public BetterPickingGraphMousePlugin() {
+	public BetterPickingGraphMousePlugin(boolean allowMovingNodes) {
 		super(0);
+		this.allowMovingNodes = allowMovingNodes;
 		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(JungChangeListener listener) {
-		listeners.add(JungChangeListener.class, listener);
+	public void addChangeListener(JungListener listener) {
+		listeners.add(JungListener.class, listener);
 	}
 
-	public void removeChangeListener(JungChangeListener listener) {
-		listeners.remove(JungChangeListener.class, listener);
+	public void removeChangeListener(JungListener listener) {
+		listeners.remove(JungListener.class, listener);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+			V node = getPickedNode(e);
+			E edge = getPickedEdge(e);
+
+			if (node != null) {
+				call(l -> l.doubleClickedOn(node));
+			} else if (edge != null) {
+				call(l -> l.doubleClickedOn(edge));
+			}
+		}
 	}
 
 	@Override
@@ -68,23 +86,20 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		down = e.getPoint();
 		nodesMoved = false;
 
-		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
-		GraphElementAccessor<V, E> pickSupport = vv.getPickSupport();
-		PickedState<V> pickedVertexState = vv.getPickedVertexState();
-		PickedState<E> pickedEdgeState = vv.getPickedEdgeState();
-		Layout<V, E> layout = vv.getGraphLayout();
+		PickedState<V> pickedVertexState = ((VisualizationViewer<V, E>) e.getSource()).getPickedVertexState();
+		PickedState<E> pickedEdgeState = ((VisualizationViewer<V, E>) e.getSource()).getPickedEdgeState();
 
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			rect.setFrameFromDiagonal(down, down);
 
 			if (!e.isShiftDown()) {
-				if ((vertex = pickSupport.getVertex(layout, e.getX(), e.getY())) != null) {
+				if ((vertex = getPickedNode(e)) != null) {
 					if (!pickedVertexState.isPicked(vertex)) {
 						pickedVertexState.clear();
 						pickedVertexState.pick(vertex, true);
 						call(l -> l.nodePickingFinished());
 					}
-				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
+				} else if ((edge = getPickedEdge(e)) != null) {
 					if (!pickedEdgeState.isPicked(edge)) {
 						pickedEdgeState.clear();
 						pickedEdgeState.pick(edge, true);
@@ -107,13 +122,13 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 					}
 				}
 			} else {
-				if ((vertex = pickSupport.getVertex(layout, e.getX(), e.getY())) != null) {
+				if ((vertex = getPickedNode(e)) != null) {
 					if (pickedVertexState.pick(vertex, !pickedVertexState.isPicked(vertex))) {
 						vertex = null;
 					}
 
 					call(l -> l.nodePickingFinished());
-				} else if ((edge = pickSupport.getEdge(layout, e.getX(), e.getY())) != null) {
+				} else if ((edge = getPickedEdge(e)) != null) {
 					if (pickedEdgeState.pick(edge, !pickedEdgeState.isPicked(edge))) {
 						edge = null;
 					}
@@ -164,29 +179,28 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		BetterVisualizationViewer<V, E> vv = (BetterVisualizationViewer<V, E>) e.getSource();
 
 		if (vertex != null) {
-			Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
-			Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
-			Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
-			Layout<V, E> layout = vv.getGraphLayout();
-			PickedState<V> ps = vv.getPickedVertexState();
+			if (allowMovingNodes) {
+				Point2D graphPoint = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint());
+				Point2D graphDown = vv.getRenderContext().getMultiLayerTransformer().inverseTransform(down);
+				Point2D move = PointUtils.substractPoints(graphPoint, graphDown);
+				Layout<V, E> layout = vv.getGraphLayout();
+				PickedState<V> ps = vv.getPickedVertexState();
 
-			for (V v : ps.getPicked()) {
-				layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+				for (V v : ps.getPicked()) {
+					layout.setLocation(v, PointUtils.addPoints(layout.transform(v), move));
+				}
+
+				nodesMoved = true;
+				vv.repaint();
 			}
 
 			down = e.getPoint();
-			nodesMoved = true;
-			vv.repaint();
 		} else if (edge != null) {
 			down = e.getPoint();
 		} else {
 			rect.setFrameFromDiagonal(down, e.getPoint());
 			vv.drawRect(rect);
 		}
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
 	}
 
 	@Override
@@ -203,7 +217,21 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	public void mouseMoved(MouseEvent e) {
 	}
 
-	private void call(Consumer<JungChangeListener> action) {
-		Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(action);
+	@SuppressWarnings("unchecked")
+	protected V getPickedNode(MouseEvent e) {
+		VisualizationViewer<V, E> viewer = (VisualizationViewer<V, E>) e.getSource();
+
+		return viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY());
+	}
+
+	@SuppressWarnings("unchecked")
+	protected E getPickedEdge(MouseEvent e) {
+		VisualizationViewer<V, E> viewer = (VisualizationViewer<V, E>) e.getSource();
+
+		return viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
+	}
+
+	private void call(Consumer<JungListener> action) {
+		Stream.of(listeners.getListeners(JungListener.class)).forEach(action);
 	}
 }

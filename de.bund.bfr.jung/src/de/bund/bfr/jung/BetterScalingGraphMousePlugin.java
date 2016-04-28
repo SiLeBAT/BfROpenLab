@@ -52,12 +52,12 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		lastTask = null;
 	}
 
-	public void addChangeListener(JungChangeListener listener) {
-		listeners.add(JungChangeListener.class, listener);
+	public void addChangeListener(JungListener listener) {
+		listeners.add(JungListener.class, listener);
 	}
 
-	public void removeChangeListener(JungChangeListener listener) {
-		listeners.remove(JungChangeListener.class, listener);
+	public void removeChangeListener(JungListener listener) {
+		listeners.remove(JungListener.class, listener);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		}
 
 		lastTask = scheduler.schedule(
-				() -> Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.transformFinished()),
-				200, TimeUnit.MILLISECONDS);
+				() -> Stream.of(listeners.getListeners(JungListener.class)).forEach(l -> l.transformFinished()), 200,
+				TimeUnit.MILLISECONDS);
 	}
 }

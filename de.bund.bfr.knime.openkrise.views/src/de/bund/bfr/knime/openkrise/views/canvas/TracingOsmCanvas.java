@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.knime.gis.views.canvas.LocationOsmCanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
@@ -225,8 +224,8 @@ public class TracingOsmCanvas extends LocationOsmCanvas implements ITracingGisCa
 	}
 
 	@Override
-	protected BetterPickingGraphMousePlugin<LocationNode, Edge<LocationNode>> createPickingPlugin() {
-		return new TracingDelegate.PickingPlugin<>(this);
+	public void doubleClickedOn(Object obj) {
+		tracing.doubleClickedOn(obj);
 	}
 
 	@Override

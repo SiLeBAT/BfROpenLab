@@ -21,7 +21,7 @@ package de.bund.bfr.jung;
 
 import java.util.EventListener;
 
-public interface JungChangeListener extends EventListener {
+public interface JungListener extends EventListener {
 
 	void pickingFinished();
 
@@ -34,4 +34,6 @@ public interface JungChangeListener extends EventListener {
 	void transformFinished();
 
 	void modeChangeFinished();
+
+	void doubleClickedOn(Object obj);
 }

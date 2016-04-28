@@ -64,7 +64,7 @@ import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.jung.BetterVisualizationViewer;
-import de.bund.bfr.jung.JungChangeListener;
+import de.bund.bfr.jung.JungListener;
 import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.jung.MiddleEdgeArrowRenderingSupport;
 import de.bund.bfr.jung.ZoomingPaintable;
@@ -75,7 +75,9 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightSelectionDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
+import de.bund.bfr.knime.gis.views.canvas.dialogs.SinglePropertiesDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
+import de.bund.bfr.knime.gis.views.canvas.element.Element;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasLegend;
@@ -84,6 +86,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
+import de.bund.bfr.knime.gis.views.canvas.util.PropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.ListFilterDialog;
@@ -97,7 +100,7 @@ import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
 public abstract class Canvas<V extends Node> extends JPanel
-		implements JungChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+		implements JungListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -534,6 +537,23 @@ public abstract class Canvas<V extends Node> extends JPanel
 		optionsPanel.removeChangeListener(this);
 		optionsPanel.setEditingMode(((BetterGraphMouse<V, Edge<V>>) viewer.getGraphMouse()).getMode());
 		optionsPanel.addChangeListener(this);
+	}
+
+	@Override
+	public void doubleClickedOn(Object obj) {
+		PropertySchema schema = null;
+
+		if (obj instanceof Node) {
+			schema = nodeSchema;
+		} else if (obj instanceof Edge) {
+			schema = edgeSchema;
+		}
+
+		if (schema != null) {
+			SinglePropertiesDialog dialog = new SinglePropertiesDialog(viewer, (Element) obj, schema);
+
+			dialog.setVisible(true);
+		}
 	}
 
 	@Override
@@ -1225,7 +1245,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	}
 
 	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
-		return new CanvasPickingPlugin<>(this);
+		return new BetterPickingGraphMousePlugin<>(true);
 	}
 
 	protected BetterScalingGraphMousePlugin createScalingPlugin() {

@@ -103,7 +103,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 
 	@Override
 	protected BetterPickingGraphMousePlugin<RegionNode, Edge<RegionNode>> createPickingPlugin() {
-		return new RegionCanvasPickingPlugin(this);
+		return RegionCanvasUtils.createPickingPlugin(this);
 	}
 
 	@Override

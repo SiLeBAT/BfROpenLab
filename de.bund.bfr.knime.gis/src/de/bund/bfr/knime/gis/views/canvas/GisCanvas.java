@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.jung.GisScalingGraphMousePlugin;
 import de.bund.bfr.jung.ZoomingPaintable;
@@ -68,6 +69,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 			image.flush();
 			image = null;
 		}
+	}
+
+	@Override
+	protected BetterPickingGraphMousePlugin<V, Edge<V>> createPickingPlugin() {
+		return new BetterPickingGraphMousePlugin<>(false);
 	}
 
 	@Override

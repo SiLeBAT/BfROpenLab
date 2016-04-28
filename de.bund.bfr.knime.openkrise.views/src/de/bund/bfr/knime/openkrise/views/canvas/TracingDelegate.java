@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -45,11 +44,9 @@ import javax.swing.JSeparator;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 
-import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
-import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightConditionChecker;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertiesDialog;
@@ -62,7 +59,6 @@ import de.bund.bfr.knime.openkrise.Tracing;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 public class TracingDelegate<V extends Node> {
 
@@ -382,6 +378,39 @@ public class TracingDelegate<V extends Node> {
 		canvas.getViewer().repaint();
 	}
 
+	public void doubleClickedOn(Object obj) {
+		if (obj instanceof Node) {
+			EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
+					(Element) obj, canvas.getNodeSchema().getMap());
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				canvas.applyChanges();
+				Stream.of(canvas.getComponent().getListeners(TracingListener.class))
+						.forEach(l -> l.nodePropertiesChanged(canvas));
+			}
+		} else if (obj instanceof Edge) {
+			if (!canvas.isJoinEdges()) {
+				EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(canvas.getViewer(),
+						(Element) obj, canvas.getEdgeSchema().getMap());
+
+				dialog.setVisible(true);
+
+				if (dialog.isApproved()) {
+					canvas.applyChanges();
+					Stream.of(canvas.getComponent().getListeners(TracingListener.class))
+							.forEach(l -> l.edgePropertiesChanged(canvas));
+				}
+			} else {
+				SinglePropertiesDialog dialog = new SinglePropertiesDialog(canvas.getViewer(), (Element) obj,
+						canvas.getEdgeSchema());
+
+				dialog.setVisible(true);
+			}
+		}
+	}
+
 	private void applyTimeWindow() {
 		if (dateSlider == null) {
 			return;
@@ -698,63 +727,6 @@ public class TracingDelegate<V extends Node> {
 
 			g.setColor(currentColor);
 			g.setFont(currentFont);
-		}
-	}
-
-	public static class PickingPlugin<V extends Node> extends BetterPickingGraphMousePlugin<V, Edge<V>> {
-
-		private ITracingCanvas<V> canvas;
-
-		public PickingPlugin(ITracingCanvas<V> canvas) {
-			this.canvas = canvas;
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			VisualizationViewer<V, Edge<V>> viewer = canvas.getViewer();
-
-			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				V node = viewer.getPickSupport().getVertex(viewer.getGraphLayout(), e.getX(), e.getY());
-				Edge<V> edge = viewer.getPickSupport().getEdge(viewer.getGraphLayout(), e.getX(), e.getY());
-
-				if (node != null) {
-					EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(e.getComponent(), node,
-							canvas.getNodeSchema().getMap());
-
-					dialog.setVisible(true);
-
-					if (dialog.isApproved()) {
-						canvas.applyChanges();
-						Stream.of(canvas.getComponent().getListeners(TracingListener.class))
-								.forEach(l -> l.nodePropertiesChanged(canvas));
-					}
-				} else if (edge != null) {
-					if (!canvas.isJoinEdges()) {
-						EditableSinglePropertiesDialog dialog = new EditableSinglePropertiesDialog(e.getComponent(),
-								edge, canvas.getEdgeSchema().getMap());
-
-						dialog.setVisible(true);
-
-						if (dialog.isApproved()) {
-							canvas.applyChanges();
-							Stream.of(canvas.getComponent().getListeners(TracingListener.class))
-									.forEach(l -> l.edgePropertiesChanged(canvas));
-						}
-					} else {
-						SinglePropertiesDialog dialog = new SinglePropertiesDialog(e.getComponent(), edge,
-								canvas.getEdgeSchema());
-
-						dialog.setVisible(true);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			if (vertex == null || !(canvas instanceof GisCanvas)) {
-				super.mouseDragged(e);
-			}
 		}
 	}
 }

@@ -66,7 +66,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 			}
 		}
 
-		Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.modeChangeFinished());
+		Stream.of(listeners.getListeners(JungListener.class)).forEach(l -> l.modeChangeFinished());
 	}
 
 	@Override
@@ -89,16 +89,16 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addChangeListener(JungChangeListener listener) {
-		listeners.add(JungChangeListener.class, listener);
+	public void addChangeListener(JungListener listener) {
+		listeners.add(JungListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).addChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void removeChangeListener(JungChangeListener listener) {
-		listeners.remove(JungChangeListener.class, listener);
+	public void removeChangeListener(JungListener listener) {
+		listeners.remove(JungListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).removeChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);

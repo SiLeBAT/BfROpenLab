@@ -22,6 +22,8 @@ package de.bund.bfr.knime.gis.views.canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +35,8 @@ import java.util.Set;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.RegionNode;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
@@ -40,6 +44,30 @@ import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 public class RegionCanvasUtils {
 
 	private RegionCanvasUtils() {
+	}
+
+	public static BetterPickingGraphMousePlugin<RegionNode, Edge<RegionNode>> createPickingPlugin(
+			GisCanvas<RegionNode> canvas) {
+		return new BetterPickingGraphMousePlugin<RegionNode, Edge<RegionNode>>(false) {
+
+			@Override
+			protected RegionNode getPickedNode(MouseEvent e) {
+				if (canvas.getViewer().getPickSupport().getEdge(canvas.getViewer().getGraphLayout(), e.getX(),
+						e.getY()) != null) {
+					return null;
+				}
+
+				Point2D p = canvas.getTransform().applyInverse(e.getX(), e.getY());
+
+				for (RegionNode node : canvas.getNodes()) {
+					if (node.containsPoint(p)) {
+						return node;
+					}
+				}
+
+				return null;
+			}
+		};
 	}
 
 	public static Rectangle2D getBounds(Collection<RegionNode> nodes) {

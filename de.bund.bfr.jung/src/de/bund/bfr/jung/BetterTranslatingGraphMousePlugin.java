@@ -45,12 +45,12 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(JungChangeListener listener) {
-		listeners.add(JungChangeListener.class, listener);
+	public void addChangeListener(JungListener listener) {
+		listeners.add(JungListener.class, listener);
 	}
 
-	public void removeChangeListener(JungChangeListener listener) {
-		listeners.remove(JungChangeListener.class, listener);
+	public void removeChangeListener(JungListener listener) {
+		listeners.remove(JungListener.class, listener);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 			vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (changed) {
-				Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.transformFinished());
+				Stream.of(listeners.getListeners(JungListener.class)).forEach(l -> l.transformFinished());
 			}
 		}
 	}
