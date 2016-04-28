@@ -64,8 +64,10 @@ import de.bund.bfr.jung.BetterGraphMouse;
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.jung.BetterVisualizationViewer;
-import de.bund.bfr.jung.JungTransformers;
+import de.bund.bfr.jung.JungChangeListener;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.jung.MiddleEdgeArrowRenderingSupport;
+import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.DefaultPropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightDialog;
@@ -76,13 +78,13 @@ import de.bund.bfr.knime.gis.views.canvas.dialogs.PropertySelectorCreator;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
+import de.bund.bfr.knime.gis.views.canvas.util.CanvasLegend;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasOptionsPanel;
 import de.bund.bfr.knime.gis.views.canvas.util.CanvasPopupMenu;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
-import de.bund.bfr.knime.gis.views.canvas.util.ZoomingPaintable;
 import de.bund.bfr.knime.ui.Dialogs;
 import de.bund.bfr.knime.ui.ListFilterDialog;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -94,8 +96,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeArrowRenderingSupport;
 import edu.uci.ics.jung.visualization.transform.MutableAffineTransformer;
 
-public abstract class Canvas<V extends Node> extends JPanel implements BetterGraphMouse.ChangeListener,
-		CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
+public abstract class Canvas<V extends Node> extends JPanel
+		implements JungChangeListener, CanvasPopupMenu.ClickListener, CanvasOptionsPanel.ChangeListener, ICanvas<V> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String IS_META_NODE = "IsMeta";
@@ -153,10 +155,10 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 		RenderContext<V, Edge<V>> rc = viewer.getRenderContext();
 
 		rc.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
-		rc.setVertexFillPaintTransformer(JungTransformers.nodeFillTransformer(rc, null));
+		rc.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(rc, null));
 		rc.setVertexStrokeTransformer(node -> Boolean.TRUE.equals(node.getProperties().get(metaNodeProperty))
 				? new BasicStroke(4.0f) : new BasicStroke(1.0f));
-		rc.setEdgeDrawPaintTransformer(JungTransformers.edgeDrawTransformer(rc, null));
+		rc.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(rc, null));
 		((MutableAffineTransformer) rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).addChangeListener(e -> {
 			AffineTransform transform = ((MutableAffineTransformer) rc.getMultiLayerTransformer()
 					.getTransformer(Layer.LAYOUT)).getTransform();
@@ -1231,7 +1233,11 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 	}
 
 	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 1.2);
+		ZoomingPaintable zoom = new ZoomingPaintable(viewer, 1.2);
+
+		zoom.addChangeListener(this);
+
+		return zoom;
 	}
 
 	protected abstract void applyTransform();
@@ -1290,7 +1296,7 @@ public abstract class Canvas<V extends Node> extends JPanel implements BetterGra
 			Color currentColor = g.getColor();
 			Font currentFont = g.getFont();
 
-			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
+			g.setColor(ZoomingPaintable.BACKGROUND);
 			g.fillRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);
 			g.setColor(Color.BLACK);
 			g.drawRect(w - sw - 2 * dx, -1, sw + 2 * dx, fontHeight + 2 * dy);

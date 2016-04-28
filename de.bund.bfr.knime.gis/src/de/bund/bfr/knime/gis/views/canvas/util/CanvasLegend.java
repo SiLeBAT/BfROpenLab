@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas;
+package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -34,6 +34,8 @@ import java.util.Map;
 
 import com.google.common.base.Strings;
 
+import de.bund.bfr.jung.ZoomingPaintable;
+import de.bund.bfr.knime.gis.views.canvas.Canvas;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightCondition;
@@ -128,7 +130,7 @@ public class CanvasLegend<V extends Node> {
 		Color currentColor = g.getColor();
 		Font currentFont = g.getFont();
 
-		g.setColor(CanvasUtils.LEGEND_BACKGROUND);
+		g.setColor(ZoomingPaintable.BACKGROUND);
 		g.fillRect(-1, yStart, xEnd, height - yStart);
 		g.setColor(Color.BLACK);
 		g.drawRect(-1, yStart, xEnd, height - yStart);

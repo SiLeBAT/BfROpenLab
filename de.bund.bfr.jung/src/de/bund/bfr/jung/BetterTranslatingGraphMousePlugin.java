@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
-import de.bund.bfr.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
@@ -46,12 +45,12 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(ChangeListener listener) {
-		listeners.add(ChangeListener.class, listener);
+	public void addChangeListener(JungChangeListener listener) {
+		listeners.add(JungChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
-		listeners.remove(ChangeListener.class, listener);
+	public void removeChangeListener(JungChangeListener listener) {
+		listeners.remove(JungChangeListener.class, listener);
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class BetterTranslatingGraphMousePlugin extends AbstractGraphMousePlugin
 			vv.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (changed) {
-				Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.transformFinished());
+				Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.transformFinished());
 			}
 		}
 	}

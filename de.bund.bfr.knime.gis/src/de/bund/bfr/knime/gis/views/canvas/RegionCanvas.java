@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
-import de.bund.bfr.jung.JungTransformers;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.dialogs.HighlightListDialog;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -69,7 +69,7 @@ public class RegionCanvas extends ShapefileCanvas<RegionNode> {
 			flushImage();
 			viewer.repaint();
 		});
-		viewer.getRenderContext().setVertexShapeTransformer(JungTransformers.nodeShapeTransformer(2, null, null));
+		viewer.getRenderContext().setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(2, null, null));
 		viewer.getRenderContext().setVertexDrawPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderContext().setVertexFillPaintTransformer(node -> new Color(0, 0, 0, 0));
 		viewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);

@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.gis.views.canvas.util;
+package de.bund.bfr.jung;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -29,10 +29,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.stream.Stream;
 
-import de.bund.bfr.jung.BetterGraphMouse;
-import de.bund.bfr.knime.gis.views.canvas.Canvas;
-import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
+import javax.swing.event.EventListenerList;
+
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -40,8 +40,12 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseListener {
 
-	private Canvas<?> canvas;
+	public static final Color BACKGROUND = new Color(230, 230, 230);
+
+	private VisualizationViewer<?, ?> viewer;
 	private double zoomFactor;
+
+	private EventListenerList listeners;
 
 	private Rectangle plusRect;
 	private Rectangle minusRect;
@@ -49,22 +53,31 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 	private boolean plusFocused;
 	private boolean minusFocused;
 
-	public ZoomingPaintable(Canvas<?> canvas, double zoomFactor) {
-		this.canvas = canvas;
+	public ZoomingPaintable(VisualizationViewer<?, ?> viewer, double zoomFactor) {
+		this.viewer = viewer;
 		this.zoomFactor = zoomFactor;
+		listeners = new EventListenerList();
 		plusRect = null;
 		minusRect = null;
 		plusFocused = false;
 		minusFocused = false;
 
-		canvas.getViewer().addMouseMotionListener(this);
-		canvas.getViewer().addMouseListener(this);
+		viewer.addMouseMotionListener(this);
+		viewer.addMouseListener(this);
+	}
+
+	public void addChangeListener(JungChangeListener listener) {
+		listeners.add(JungChangeListener.class, listener);
+	}
+
+	public void removeChangeListener(JungChangeListener listener) {
+		listeners.remove(JungChangeListener.class, listener);
 	}
 
 	@Override
 	public void paint(Graphics graphics) {
-		int w = canvas.getCanvasSize().width;
-		int h = canvas.getCanvasSize().height;
+		int w = viewer.getSize().width;
+		int h = viewer.getSize().height;
 		int size = 30;
 		int d = 10;
 		int lineD = 8;
@@ -79,9 +92,9 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 		Color currentColor = g.getColor();
 		Stroke currentStroke = g.getStroke();
 
-		g.setColor(plusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
+		g.setColor(plusFocused ? Color.BLUE : BACKGROUND);
 		g.fillRect(xPlus, yPlus, size, size);
-		g.setColor(minusFocused ? Color.BLUE : CanvasUtils.LEGEND_BACKGROUND);
+		g.setColor(minusFocused ? Color.BLUE : BACKGROUND);
 		g.fillRect(xMinus, yMinus, size, size);
 		g.setColor(Color.BLACK);
 		g.drawRect(xPlus, yPlus, size, size);
@@ -117,17 +130,16 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 		minusFocused = newMinusFocused;
 
 		if (changed) {
-			BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) canvas.getViewer().getGraphMouse();
+			BetterGraphMouse<?, ?> graphMouse = (BetterGraphMouse<?, ?>) viewer.getGraphMouse();
 
 			graphMouse.setPickingDeactivated(plusFocused || minusFocused);
-			paint(canvas.getViewer().getGraphics());
+			paint(viewer.getGraphics());
 		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && (plusFocused || minusFocused)) {
-			VisualizationViewer<?, ?> viewer = canvas.getViewer();
 			Point2D center = viewer.getRenderContext().getMultiLayerTransformer().inverseTransform(Layer.VIEW,
 					viewer.getCenter());
 			MutableTransformer transformer = viewer.getRenderContext().getMultiLayerTransformer()
@@ -141,7 +153,7 @@ public class ZoomingPaintable implements Paintable, MouseMotionListener, MouseLi
 				viewer.repaint();
 			}
 
-			canvas.transformFinished();
+			Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.transformFinished());
 		}
 	}
 

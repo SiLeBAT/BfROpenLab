@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
-import de.bund.bfr.jung.BetterGraphMouse.ChangeListener;
 import de.bund.bfr.knime.PointUtils;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -55,12 +54,12 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 		listeners = new EventListenerList();
 	}
 
-	public void addChangeListener(ChangeListener listener) {
-		listeners.add(ChangeListener.class, listener);
+	public void addChangeListener(JungChangeListener listener) {
+		listeners.add(JungChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
-		listeners.remove(ChangeListener.class, listener);
+	public void removeChangeListener(JungChangeListener listener) {
+		listeners.remove(JungChangeListener.class, listener);
 	}
 
 	@Override
@@ -204,7 +203,7 @@ public class BetterPickingGraphMousePlugin<V, E> extends AbstractGraphMousePlugi
 	public void mouseMoved(MouseEvent e) {
 	}
 
-	private void call(Consumer<ChangeListener> action) {
-		Stream.of(listeners.getListeners(ChangeListener.class)).forEach(action);
+	private void call(Consumer<JungChangeListener> action) {
+		Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(action);
 	}
 }

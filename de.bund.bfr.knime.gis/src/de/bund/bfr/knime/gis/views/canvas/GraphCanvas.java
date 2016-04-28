@@ -38,7 +38,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import de.bund.bfr.jung.JungTransformers;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.jung.layout.Layout;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.PointUtils;
@@ -73,8 +73,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, true, true, allowCollapse));
 		setOptionsPanel(new CanvasOptionsPanel(this, true, true, false, false));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				JungTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
 	}
 
 	public void initLayout() {

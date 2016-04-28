@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
 
-import de.bund.bfr.jung.BetterGraphMouse.ChangeListener;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
@@ -53,12 +52,12 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		lastTask = null;
 	}
 
-	public void addChangeListener(ChangeListener listener) {
-		listeners.add(ChangeListener.class, listener);
+	public void addChangeListener(JungChangeListener listener) {
+		listeners.add(JungChangeListener.class, listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
-		listeners.remove(ChangeListener.class, listener);
+	public void removeChangeListener(JungChangeListener listener) {
+		listeners.remove(JungChangeListener.class, listener);
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class BetterScalingGraphMousePlugin extends AbstractGraphMousePlugin impl
 		}
 
 		lastTask = scheduler.schedule(
-				() -> Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.transformFinished()), 200,
-				TimeUnit.MILLISECONDS);
+				() -> Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.transformFinished()),
+				200, TimeUnit.MILLISECONDS);
 	}
 }

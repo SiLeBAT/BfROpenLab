@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Polygon;
 
-import de.bund.bfr.jung.JungTransformers;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.knime.PointUtils;
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -71,8 +71,8 @@ public class LocationCanvas extends ShapefileCanvas<LocationNode> {
 
 		setPopupMenu(new CanvasPopupMenu(this, allowEdges, false, true));
 		setOptionsPanel(new CanvasOptionsPanel(this, allowEdges, true, true, true));
-		viewer.getRenderContext().setVertexShapeTransformer(
-				JungTransformers.nodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
+		viewer.getRenderContext()
+				.setVertexShapeTransformer(JungUtils.newNodeShapeTransformer(getNodeSize(), getNodeMaxSize(), null));
 
 		for (LocationNode node : this.nodes) {
 			if (node.getCenter() != null) {

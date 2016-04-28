@@ -26,13 +26,13 @@ import java.util.List;
 
 import de.bund.bfr.jung.BetterScalingGraphMousePlugin;
 import de.bund.bfr.jung.GisScalingGraphMousePlugin;
+import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.jung.layout.LayoutType;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
-import de.bund.bfr.knime.gis.views.canvas.util.ZoomingPaintable;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 import edu.uci.ics.jung.visualization.VisualizationServer.Paintable;
 
@@ -77,7 +77,11 @@ public abstract class GisCanvas<V extends Node> extends Canvas<V>implements IGis
 
 	@Override
 	protected ZoomingPaintable createZoomingPaintable() {
-		return new ZoomingPaintable(this, 2.0);
+		ZoomingPaintable zoom = new ZoomingPaintable(viewer, 2.0);
+
+		zoom.addChangeListener(this);
+
+		return zoom;
 	}
 
 	protected abstract void paintGis(Graphics2D g, boolean toSvg, boolean onWhiteBackground);

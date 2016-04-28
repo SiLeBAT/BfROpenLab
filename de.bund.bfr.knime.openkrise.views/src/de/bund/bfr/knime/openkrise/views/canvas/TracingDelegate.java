@@ -46,6 +46,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 
 import de.bund.bfr.jung.BetterPickingGraphMousePlugin;
+import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.CanvasUtils;
 import de.bund.bfr.knime.gis.views.canvas.GisCanvas;
@@ -683,7 +684,7 @@ public class TracingDelegate<V extends Node> {
 			BfrLogo logo2 = new BfrLogo();
 			int iw2 = logo2.getOrigWidth() * logoHeight / logo2.getOrigHeight();
 
-			g.setColor(CanvasUtils.LEGEND_BACKGROUND);
+			g.setColor(ZoomingPaintable.BACKGROUND);
 			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setColor(Color.BLACK);
 			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);

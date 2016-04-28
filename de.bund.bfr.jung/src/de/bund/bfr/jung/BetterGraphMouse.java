@@ -21,7 +21,6 @@ package de.bund.bfr.jung;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import java.util.EventListener;
 import java.util.stream.Stream;
 
 import javax.swing.event.EventListenerList;
@@ -67,7 +66,7 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 			}
 		}
 
-		Stream.of(listeners.getListeners(ChangeListener.class)).forEach(l -> l.modeChangeFinished());
+		Stream.of(listeners.getListeners(JungChangeListener.class)).forEach(l -> l.modeChangeFinished());
 	}
 
 	@Override
@@ -90,16 +89,16 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addChangeListener(ChangeListener listener) {
-		listeners.add(ChangeListener.class, listener);
+	public void addChangeListener(JungChangeListener listener) {
+		listeners.add(JungChangeListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).addChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).addChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).addChangeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void removeChangeListener(ChangeListener listener) {
-		listeners.remove(ChangeListener.class, listener);
+	public void removeChangeListener(JungChangeListener listener) {
+		listeners.remove(JungChangeListener.class, listener);
 		((BetterTranslatingGraphMousePlugin) translatingPlugin).removeChangeListener(listener);
 		((BetterScalingGraphMousePlugin) scalingPlugin).removeChangeListener(listener);
 		((BetterPickingGraphMousePlugin<V, E>) pickingPlugin).removeChangeListener(listener);
@@ -119,20 +118,5 @@ public class BetterGraphMouse<V, E> extends AbstractModalGraphMouse {
 		}
 
 		this.pickingDeactivated = pickingDeactivated;
-	}
-
-	public interface ChangeListener extends EventListener {
-
-		void pickingFinished();
-
-		void nodePickingFinished();
-
-		void edgePickingFinished();
-
-		void nodeMovementFinished();
-
-		void transformFinished();
-
-		void modeChangeFinished();
 	}
 }

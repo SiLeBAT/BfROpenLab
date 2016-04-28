@@ -69,7 +69,7 @@ import com.google.common.collect.Sets;
 
 import de.bund.bfr.jung.BetterDirectedSparseMultigraph;
 import de.bund.bfr.jung.BetterVisualizationViewer;
-import de.bund.bfr.jung.JungTransformers;
+import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.Pair;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
@@ -91,8 +91,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationImageServer;
 
 public class CanvasUtils {
-
-	public static final Color LEGEND_BACKGROUND = new Color(230, 230, 230);
 
 	private static final int NODE_TEXTURE_SIZE = 3;
 	private static final int EDGE_TEXTURE_SIZE = 5;
@@ -373,8 +371,8 @@ public class CanvasUtils {
 		HighlightResult<V> result = getResult(nodes, nodeHighlightConditions);
 
 		renderContext.setVertexShapeTransformer(
-				JungTransformers.nodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
-		renderContext.setVertexFillPaintTransformer(JungTransformers.nodeFillTransformer(renderContext, result.colors));
+				JungUtils.newNodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
+		renderContext.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(renderContext, result.colors));
 		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
 	}
 
@@ -389,10 +387,10 @@ public class CanvasUtils {
 			Collection<Edge<V>> edges, HighlightConditionList edgeHighlightConditions, int edgeThickness,
 			Integer edgeMaxThickness) {
 		HighlightResult<Edge<V>> result = getResult(edges, edgeHighlightConditions);
-		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = JungTransformers
-				.edgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, result.thicknessValues);
+		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = JungUtils
+				.newEdgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, result.thicknessValues);
 
-		renderContext.setEdgeDrawPaintTransformer(JungTransformers.edgeDrawTransformer(renderContext, result.colors));
+		renderContext.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(renderContext, result.colors));
 		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
 		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
 		renderContext.setEdgeLabelTransformer(edge -> result.labels.get(edge));

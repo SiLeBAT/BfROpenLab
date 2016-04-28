@@ -46,6 +46,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
 import com.google.common.base.Strings;
 
 import de.bund.bfr.jung.BetterGraphMouse;
+import de.bund.bfr.jung.ZoomingPaintable;
 import de.bund.bfr.knime.gis.views.canvas.element.Edge;
 import de.bund.bfr.knime.gis.views.canvas.element.Node;
 import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
@@ -212,7 +213,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V>implements T
 				int h = g.getFontMetrics(font).getHeight();
 				int d = 3;
 
-				g.setColor(CanvasUtils.LEGEND_BACKGROUND);
+				g.setColor(ZoomingPaintable.BACKGROUND);
 				g.fillRect(-1, -1, w + 2 * d + 1, h + 1);
 				g.setColor(Color.BLACK);
 				g.drawRect(-1, -1, w + 2 * d + 1, h + 1);
