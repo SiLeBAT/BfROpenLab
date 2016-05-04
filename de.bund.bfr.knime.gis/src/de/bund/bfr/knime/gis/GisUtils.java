@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -107,7 +108,7 @@ public class GisUtils {
 	}
 
 	public static CoordinateReferenceSystem getCoordinateSystem(String shpFile)
-			throws InvalidPathException, MalformedURLException, IOException, FactoryException {
+			throws InvalidPathException, MalformedURLException, IOException, FactoryException, NoSuchFileException {
 		try (Stream<String> stream = Files
 				.lines(KnimeUtils.getFile(FilenameUtils.removeExtension(shpFile) + ".prj").toPath())) {
 			return CRS.parseWKT(stream.collect(Collectors.joining()));

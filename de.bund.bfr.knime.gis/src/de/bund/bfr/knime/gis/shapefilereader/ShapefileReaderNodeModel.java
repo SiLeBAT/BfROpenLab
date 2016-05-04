@@ -21,8 +21,8 @@ package de.bund.bfr.knime.gis.shapefilereader;
 
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -110,7 +110,7 @@ public class ShapefileReaderNodeModel extends NodeModel {
 		try {
 			transform = CRS.findMathTransform(GisUtils.getCoordinateSystem(shpFile.getStringValue()),
 					CRS.decode("EPSG:4326"), true);
-		} catch (FileNotFoundException e) {
+		} catch (NoSuchFileException e) {
 			transform = new AffineTransform2D(0, 1, 1, 0, 0, 0);
 		}
 
