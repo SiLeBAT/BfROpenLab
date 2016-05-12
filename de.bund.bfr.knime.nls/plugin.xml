@@ -1,38 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?>
-<plugin>
+<?eclipse version="3.0"?><plugin>
 
 	<extension point="org.knime.workbench.repository.categories">
-		<category icon="icons/nls.png" level-id="nls" name="Nonlinear Regression" path="/" />
+		<category icon="icons/nls.png" level-id="nls" name="Nonlinear Regression" path="/"/>
 	</extension>
 
 	<extension point="org.knime.workbench.repository.nodes">
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.creator.FunctionCreatorNodeFactory"
-			id="de.bund.bfr.knime.nls.functioncreator.FunctionCreatorNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.FunctionFittingNodeFactory"
-			id="de.bund.bfr.knime.nls.functionfitting.FunctionFittingNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.view.FunctionViewNodeFactory"
-			id="de.bund.bfr.knime.nls.functionview.FunctionViewNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.creator.DiffFunctionCreatorNodeFactory"
-			id="de.bund.bfr.knime.nls.diffcreator.DiffFunctionCreatorNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.DiffFunctionFittingNodeFactory"
-			id="de.bund.bfr.knime.nls.difffitting.DiffFunctionFittingNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.view.DiffFunctionViewNodeFactory"
-			id="de.bund.bfr.knime.nls.diffview.DiffFunctionViewNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory"
-			id="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory" />
-		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory"
-			id="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory" />
-	</extension>
- <extension
-       point="org.knime.core.PortType">
-    <portType
-          hidden="false"
-          name="Function Port"
-          objectClass="de.bund.bfr.knime.nls.functionport.FunctionPortObject"
-          objectSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSerializer"
-          specClass="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec"
-          specSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpecSerializer">
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.creator.FunctionCreatorNodeFactory" id="de.bund.bfr.knime.nls.functioncreator.FunctionCreatorNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.FunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.functionfitting.FunctionFittingNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.view.FunctionViewNodeFactory" id="de.bund.bfr.knime.nls.functionview.FunctionViewNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.creator.DiffFunctionCreatorNodeFactory" id="de.bund.bfr.knime.nls.diffcreator.DiffFunctionCreatorNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.DiffFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.difffitting.DiffFunctionFittingNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.view.DiffFunctionViewNodeFactory" id="de.bund.bfr.knime.nls.diffview.DiffFunctionViewNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.fitting.InteractiveFunctionFittingNodeFactory"/>
+		<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory" id="de.bund.bfr.knime.nls.fitting.InteractiveDiffFunctionFittingNodeFactory"/>
+	<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.predict.FunctionPredictorNodeFactory" id="de.bund.bfr.knime.nls.predict.FunctionPredictorNodeFactory"/>
+<node category-path="/nls" factory-class="de.bund.bfr.knime.nls.predict.DiffFunctionPredictorNodeFactory" id="de.bund.bfr.knime.nls.predict.DiffFunctionPredictorNodeFactory"/>
+</extension>
+ <extension point="org.knime.core.PortType">
+    <portType hidden="false" name="Function Port" objectClass="de.bund.bfr.knime.nls.functionport.FunctionPortObject" objectSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSerializer" specClass="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpec" specSerializer="de.bund.bfr.knime.nls.functionport.FunctionPortObjectSpecSerializer">
     </portType>
  </extension>
 

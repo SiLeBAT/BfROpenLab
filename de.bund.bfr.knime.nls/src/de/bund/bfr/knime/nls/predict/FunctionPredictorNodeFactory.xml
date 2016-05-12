@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./nls.png" type="Visualizer" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>Function Predictor</name>
+
+	<shortDescription>
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Insert long description here...
+		</intro>
+
+		<option name="short name of first option (like in the dialog)">
+			description of first option
+		</option>
+		<option name="short name of second option (like in the dialog)">
+			description of second option
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="In-Port name">
+			0
+		</inPort>
+		<inPort index="1" name="In-Port name">
+			1
+		</inPort>
+		<inPort index="2" name="In-Port name">
+			2
+		</inPort>		
+		<outPort index="0" name="Out-Port name">
+			0
+		</outPort>
+	</ports>
+</knimeNode>
