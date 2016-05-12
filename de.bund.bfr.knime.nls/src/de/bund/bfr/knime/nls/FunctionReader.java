@@ -17,14 +17,14 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.view;
+package de.bund.bfr.knime.nls;
 
 import java.util.List;
 import java.util.Map;
 
 import de.bund.bfr.knime.nls.chart.Plotable;
 
-public interface Reader {
+public interface FunctionReader {
 
 	List<String> getIds();
 

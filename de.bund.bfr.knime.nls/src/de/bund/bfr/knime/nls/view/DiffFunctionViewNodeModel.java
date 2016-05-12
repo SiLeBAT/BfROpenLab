@@ -47,7 +47,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class DiffFunctionViewNodeModel extends NodeModel {
 
-	ViewSettings set;
+	private ViewSettings set;
 
 	/**
 	 * Constructor for the node model.
@@ -63,7 +63,7 @@ public class DiffFunctionViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		DiffFunctionReader reader = new DiffFunctionReader((FunctionPortObject) inObjects[0],
+		DiffFunctionViewReader reader = new DiffFunctionViewReader((FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3],
 				(BufferedDataTable) inObjects[4]);
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());

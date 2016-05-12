@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.nls.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +29,12 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
+import de.bund.bfr.knime.nls.FunctionReader;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class FunctionReader implements Reader {
+public class DiffFunctionViewReader implements FunctionReader {
 
 	private List<String> ids;
 	private String depVar;
@@ -41,12 +43,13 @@ public class FunctionReader implements Reader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable, String indep) {
-		this(functionObject, null, varTable, null, indep);
+	public DiffFunctionViewReader(FunctionPortObject functionObject, BufferedDataTable varTable,
+			BufferedDataTable conditionTable) {
+		this(functionObject, null, varTable, conditionTable, null);
 	}
 
-	public FunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable, BufferedDataTable varTable,
-			BufferedDataTable covarianceTable, String indep) {
+	public DiffFunctionViewReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
+			BufferedDataTable varTable, BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns;
 
@@ -54,10 +57,6 @@ public class FunctionReader implements Reader {
 			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 		} else {
 			qualityColumns = new ArrayList<>();
-		}
-
-		if (indep == null || !f.getIndependentVariables().contains(indep)) {
-			indep = f.getIndependentVariables().get(0);
 		}
 
 		ids = new ArrayList<>();
@@ -70,70 +69,58 @@ public class FunctionReader implements Reader {
 		stringColumns.put(ChartSelectionPanel.STATUS, new ArrayList<>());
 		doubleColumns = new LinkedHashMap<>();
 
-		for (String i : f.getIndependentVariables()) {
-			if (!i.equals(indep)) {
-				doubleColumns.put(i, new ArrayList<>());
-			}
-		}
-
 		for (String column : qualityColumns) {
 			doubleColumns.put(column, new ArrayList<>());
 		}
 
 		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
-			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(varTable, id, f, indep)) {
-				String newId = id;
+			Map<String, Double> qualityValues;
 
-				if (!fixed.isEmpty()) {
-					newId += fixed.toString();
-				}
-
-				Map<String, Double> qualityValues;
-
-				if (paramTable != null) {
-					qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
-				} else {
-					qualityValues = new LinkedHashMap<>();
-				}
-
-				ids.add(newId);
-				legend.put(newId, newId);
-				stringColumns.get(NlsUtils.ID_COLUMN).add(id);
-
-				fixed.forEach((var, value) -> doubleColumns.get(var).add(value));
-				qualityColumns.forEach(column -> doubleColumns.get(column).add(qualityValues.get(column)));
-
-				Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
-				Map<String, Double> variables = new LinkedHashMap<>(fixed);
-
-				variables.put(indep, 0.0);
-
-				plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
-				plotable.setDependentVariable(f.getDependentVariable());
-				plotable.getIndependentVariables().putAll(variables);
-				plotable.getValueLists().putAll(NlsUtils.getVariableValues(varTable, id, f, fixed));
-
-				if (paramTable != null) {
-					plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
-				} else {
-					plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
-				}
-
-				if (covarianceTable != null) {
-					plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
-				}
-
-				if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
-					plotable.setMse(qualityValues.get(NlsUtils.MSE_COLUMN));
-				}
-
-				if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
-					plotable.setDegreesOfFreedom(qualityValues.get(NlsUtils.DOF_COLUMN).intValue());
-				}
-
-				stringColumns.get(ChartSelectionPanel.STATUS).add(plotable.getStatus().toString());
-				plotables.put(newId, plotable);
+			if (paramTable != null) {
+				qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
+			} else {
+				qualityValues = new LinkedHashMap<>();
 			}
+
+			ids.add(id);
+			legend.put(id, id);
+			stringColumns.get(NlsUtils.ID_COLUMN).add(id);
+
+			for (String q : qualityColumns) {
+				doubleColumns.get(q).add(qualityValues.get(q));
+			}
+
+			Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
+
+			plotable.getFunctions().putAll(f.getTerms());
+			plotable.getInitValues().putAll(f.getInitValues());
+			plotable.getInitParameters().putAll(f.getInitParameters());
+			plotable.setDependentVariable(f.getDependentVariable());
+			plotable.setDiffVariable(f.getTimeVariable());
+			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
+			plotable.getValueLists().putAll(NlsUtils.getDiffVariableValues(varTable, id, f));
+			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
+
+			if (paramTable != null) {
+				plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
+			} else {
+				plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
+			}
+
+			if (covarianceTable != null) {
+				plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
+			}
+
+			if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
+				plotable.setMse(qualityValues.get(NlsUtils.MSE_COLUMN));
+			}
+
+			if (qualityValues.get(NlsUtils.DOF_COLUMN) != null) {
+				plotable.setDegreesOfFreedom(qualityValues.get(NlsUtils.DOF_COLUMN).intValue());
+			}
+
+			stringColumns.get(ChartSelectionPanel.STATUS).add(plotable.getStatus().toString());
+			plotables.put(id, plotable);
 		}
 	}
 

@@ -48,7 +48,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private FunctionReader reader;
+	private FunctionViewReader reader;
 	private ViewSettings set;
 
 	private ChartCreator chartCreator;
@@ -79,7 +79,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 		paramTable = (BufferedDataTable) input[1];
 		varTable = (BufferedDataTable) input[2];
 		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
+		reader = new FunctionViewReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -131,7 +131,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
+			reader = new FunctionViewReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {

@@ -22,7 +22,6 @@ package de.bund.bfr.knime.nls.predict;
 import java.io.File;
 import java.io.IOException;
 
-import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -31,9 +30,13 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
+import de.bund.bfr.knime.chart.ChartUtils;
+import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -44,21 +47,30 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class DiffFunctionPredictorNodeModel extends NodeModel {
 
+	private PredictorSettings set;
+
 	/**
 	 * Constructor for the node model.
 	 */
 	protected DiffFunctionPredictorNodeModel() {
 		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
 				BufferedDataTable.TYPE_OPTIONAL }, new PortType[] { ImagePortObject.TYPE });
+		set = new PredictorSettings();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData, final ExecutionContext exec)
-			throws Exception {
-		return new BufferedDataTable[] { null };
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+		DiffFunctionPredictorReader reader = new DiffFunctionPredictorReader((FunctionPortObject) inObjects[0],
+				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3]);
+		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
+
+		creator.setVarY(reader.getDepVar());
+		set.setToChartCreator(creator);
+
+		return new PortObject[] { ChartUtils.getImage(creator.createChart(), set.isExportAsSvg(), 640, 480) };
 	}
 
 	/**
@@ -72,8 +84,8 @@ public class DiffFunctionPredictorNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs) throws InvalidSettingsException {
-		return new DataTableSpec[] { null };
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		return new PortObjectSpec[] { ChartUtils.getImageSpec(set.isExportAsSvg()) };
 	}
 
 	/**
@@ -81,6 +93,7 @@ public class DiffFunctionPredictorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -88,6 +101,7 @@ public class DiffFunctionPredictorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+		set.loadSettings(settings);
 	}
 
 	/**

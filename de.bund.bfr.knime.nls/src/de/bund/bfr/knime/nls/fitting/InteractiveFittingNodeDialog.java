@@ -48,13 +48,13 @@ import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.NlsUtils;
+import de.bund.bfr.knime.nls.FunctionReader;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
-import de.bund.bfr.knime.nls.view.DiffFunctionReader;
-import de.bund.bfr.knime.nls.view.FunctionReader;
-import de.bund.bfr.knime.nls.view.Reader;
+import de.bund.bfr.knime.nls.view.DiffFunctionViewReader;
+import de.bund.bfr.knime.nls.view.FunctionViewReader;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
 
@@ -67,7 +67,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private boolean isDiff;
-	private Reader reader;
+	private FunctionReader reader;
 	private InteractiveFittingSettings set;
 
 	private ChartCreator chartCreator;
@@ -104,9 +104,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		if (isDiff) {
 			conditionTable = (BufferedDataTable) input[2];
-			reader = new DiffFunctionReader(functionObject, varTable, conditionTable);
+			reader = new DiffFunctionViewReader(functionObject, varTable, conditionTable);
 		} else {
-			reader = new FunctionReader(functionObject, varTable, set.getViewSettings().getVarX());
+			reader = new FunctionViewReader(functionObject, varTable, set.getViewSettings().getVarX());
 		}
 
 		((JPanel) getTab("Options")).removeAll();
@@ -243,9 +243,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			set.getViewSettings().setFromConfigPanel(configPanel);
 
 			if (isDiff) {
-				reader = new DiffFunctionReader(functionObject, varTable, conditionTable);
+				reader = new DiffFunctionViewReader(functionObject, varTable, conditionTable);
 			} else {
-				reader = new FunctionReader(functionObject, varTable, set.getViewSettings().getVarX());
+				reader = new FunctionViewReader(functionObject, varTable, set.getViewSettings().getVarX());
 			}
 
 			((JPanel) getTab("Options")).removeAll();

@@ -47,7 +47,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class FunctionViewNodeModel extends NodeModel {
 
-	ViewSettings set;
+	private ViewSettings set;
 
 	/**
 	 * Constructor for the node model.
@@ -63,8 +63,9 @@ public class FunctionViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		FunctionReader reader = new FunctionReader((FunctionPortObject) inObjects[0], (BufferedDataTable) inObjects[1],
-				(BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3], set.getVarX());
+		FunctionViewReader reader = new FunctionViewReader((FunctionPortObject) inObjects[0],
+				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3],
+				set.getVarX());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 
 		creator.setVarY(reader.getDepVar());

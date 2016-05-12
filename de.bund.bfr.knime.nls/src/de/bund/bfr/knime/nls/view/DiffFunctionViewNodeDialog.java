@@ -48,7 +48,7 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
-	private DiffFunctionReader reader;
+	private DiffFunctionViewReader reader;
 	private ViewSettings set;
 
 	private ChartCreator chartCreator;
@@ -81,7 +81,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 		varTable = (BufferedDataTable) input[2];
 		conditionTable = (BufferedDataTable) input[3];
 		covarianceTable = (BufferedDataTable) input[4];
-		reader = new DiffFunctionReader(functionObject, paramTable, varTable, conditionTable, covarianceTable);
+		reader = new DiffFunctionViewReader(functionObject, paramTable, varTable, conditionTable, covarianceTable);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -130,15 +130,7 @@ public class DiffFunctionViewNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void configChanged(ChartConfigPanel source) {
-		if (!configPanel.getVarX().equals(set.getVarX())) {
-			set.setFromConfigPanel(configPanel);
-			set.setFromSelectionPanel(selectionPanel);
-			reader = new DiffFunctionReader(functionObject, paramTable, varTable, conditionTable, covarianceTable);
-			((JPanel) getTab("Options")).removeAll();
-			((JPanel) getTab("Options")).add(createMainComponent());
-		} else {
-			createChart();
-		}
+		createChart();
 	}
 
 	@Override

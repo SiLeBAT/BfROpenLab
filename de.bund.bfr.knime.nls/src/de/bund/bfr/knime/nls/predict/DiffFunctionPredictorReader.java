@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.view;
+package de.bund.bfr.knime.nls.predict;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +29,12 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
+import de.bund.bfr.knime.nls.FunctionReader;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class DiffFunctionReader implements Reader {
+public class DiffFunctionPredictorReader implements FunctionReader {
 
 	private List<String> ids;
 	private String depVar;
@@ -42,21 +43,10 @@ public class DiffFunctionReader implements Reader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public DiffFunctionReader(FunctionPortObject functionObject, BufferedDataTable varTable,
-			BufferedDataTable conditionTable) {
-		this(functionObject, null, varTable, conditionTable, null);
-	}
-
-	public DiffFunctionReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
-			BufferedDataTable varTable, BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
+	public DiffFunctionPredictorReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
+			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
-		List<String> qualityColumns;
-
-		if (paramTable != null) {
-			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
-		} else {
-			qualityColumns = new ArrayList<>();
-		}
+		List<String> qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -72,14 +62,8 @@ public class DiffFunctionReader implements Reader {
 			doubleColumns.put(column, new ArrayList<>());
 		}
 
-		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
-			Map<String, Double> qualityValues;
-
-			if (paramTable != null) {
-				qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
-			} else {
-				qualityValues = new LinkedHashMap<>();
-			}
+		for (String id : NlsUtils.getIds(paramTable)) {
+			Map<String, Double> qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 
 			ids.add(id);
 			legend.put(id, id);
@@ -89,7 +73,7 @@ public class DiffFunctionReader implements Reader {
 				doubleColumns.get(q).add(qualityValues.get(q));
 			}
 
-			Plotable plotable = new Plotable(Plotable.Type.DATA_DIFF);
+			Plotable plotable = new Plotable(Plotable.Type.DIFF);
 
 			plotable.getFunctions().putAll(f.getTerms());
 			plotable.getInitValues().putAll(f.getInitValues());
@@ -97,7 +81,6 @@ public class DiffFunctionReader implements Reader {
 			plotable.setDependentVariable(f.getDependentVariable());
 			plotable.setDiffVariable(f.getTimeVariable());
 			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
-			plotable.getValueLists().putAll(NlsUtils.getDiffVariableValues(varTable, id, f));
 			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
 
 			if (paramTable != null) {

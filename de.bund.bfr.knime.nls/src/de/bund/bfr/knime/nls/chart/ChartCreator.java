@@ -158,8 +158,7 @@ public class ChartCreator extends JPanel {
 				continue;
 			}
 
-			if (plotable.getType() == Plotable.Type.DATA || plotable.getType() == Plotable.Type.DATA_FUNCTION
-					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
+			if (plotable.isDataType()) {
 				double[][] points = plotable.getDataPoints(varX, varY, transformX, transformY);
 
 				if (points != null) {
@@ -170,8 +169,7 @@ public class ChartCreator extends JPanel {
 				}
 			}
 
-			if (plotable.getType() == Plotable.Type.FUNCTION || plotable.getType() == Plotable.Type.DATA_FUNCTION
-					|| plotable.getType() == Plotable.Type.DATA_DIFF) {
+			if (plotable.isParamType()) {
 				Double minArg = transformX.to(plotable.getMinValues().get(varX));
 				Double maxArg = transformX.to(plotable.getMaxValues().get(varX));
 
@@ -229,6 +227,9 @@ public class ChartCreator extends JPanel {
 			case DATA_FUNCTION:
 				plotDataFunction(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
 						usedMaxX);
+				break;
+			case DIFF:
+				plotDiff(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX, usedMaxX);
 				break;
 			case DATA_DIFF:
 				plotDataDiff(plot, plotable, id, defaultColors.get(index), defaultShapes.get(index), usedMinX,
@@ -380,6 +381,16 @@ public class ChartCreator extends JPanel {
 
 			ChartUtils.addDataSetToPlot(plot, functionDataSet, functionRenderer);
 		}
+
+		if (dataSet != null && renderer != null) {
+			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);
+		}
+	}
+
+	private void plotDiff(XYPlot plot, Plotable plotable, String id, Color defaultColor, NamedShape defaultShape,
+			double minX, double maxX) throws ParseException {
+		XYDataset dataSet = createDiffDataSet(plotable, id, minX, maxX);
+		XYItemRenderer renderer = createFunctionRenderer(plotable, id, defaultColor, defaultShape, dataSet);
 
 		if (dataSet != null && renderer != null) {
 			ChartUtils.addDataSetToPlot(plot, dataSet, renderer);

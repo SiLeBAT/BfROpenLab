@@ -39,7 +39,7 @@ public class Plotable {
 	private static final int DEFAULT_FUNCTION_STEPS = 1000;
 
 	public static enum Type {
-		DATA, FUNCTION, DATA_FUNCTION, DATA_DIFF
+		DATA, FUNCTION, DATA_FUNCTION, DIFF, DATA_DIFF
 	}
 
 	public static enum Status {
@@ -442,15 +442,20 @@ public class Plotable {
 		return Status.OK;
 	}
 
-	private boolean isPlotable() {
-		List<Type> typesWithParams = Arrays.asList(Type.FUNCTION, Type.DATA_FUNCTION, Type.DATA_DIFF);
-		List<Type> typesWithData = Arrays.asList(Type.DATA, Type.DATA_FUNCTION, Type.DATA_DIFF);
+	public boolean isDataType() {
+		return Arrays.asList(Type.DATA, Type.DATA_FUNCTION, Type.DATA_DIFF).contains(type);
+	}
 
-		if (typesWithParams.contains(type) && parameters.values().contains(null)) {
+	public boolean isParamType() {
+		return Arrays.asList(Type.FUNCTION, Type.DATA_FUNCTION, Type.DIFF, Type.DATA_DIFF).contains(type);
+	}
+
+	private boolean isPlotable() {
+		if (isParamType() && parameters.values().contains(null)) {
 			return false;
 		}
 
-		if (typesWithData.contains(type)) {
+		if (isDataType()) {
 			if (valueLists.isEmpty()) {
 				return false;
 			}
@@ -508,7 +513,7 @@ public class Plotable {
 		parserConstants.putAll(constants);
 		parserConstants.putAll(parameters);
 
-		if (type != Type.DATA_DIFF) {
+		if (type != Type.DATA_DIFF && type != Type.DIFF) {
 			parserConstants.putAll(independentVariables);
 			parserConstants.remove(varX);
 		}
