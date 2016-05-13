@@ -117,7 +117,7 @@ public class ViewUtils {
 
 	public static Map<String, GraphNode> readGraphNodes(BufferedDataTable nodeTable,
 			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String nodeRegionColumn)
-					throws NotConfigurableException {
+			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
 		KnimeUtils.assertColumnNotMissing(spec, nodeIdColumn, "Node Table");
@@ -169,7 +169,7 @@ public class ViewUtils {
 	public static Map<String, RegionNode> readRegionNodes(BufferedDataTable nodeTable,
 			Map<String, Class<?>> nodeProperties, Map<String, MultiPolygon> polygonMap,
 			Map<String, String> idToRegionMap, String nodeIdColumn, Set<String> nonExistingRegions)
-					throws NotConfigurableException {
+			throws NotConfigurableException {
 		KnimeUtils.assertColumnNotMissing(nodeTable.getSpec(), nodeIdColumn, "Node Table");
 		nodeProperties.put(nodeIdColumn, String.class);
 
@@ -223,7 +223,7 @@ public class ViewUtils {
 
 	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
 			Map<String, Class<?>> nodeProperties, String nodeIdColumn, String latitudeColumn, String longitudeColumn)
-					throws NotConfigurableException {
+			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
 		KnimeUtils.assertColumnNotMissing(spec, latitudeColumn, "Node Table");

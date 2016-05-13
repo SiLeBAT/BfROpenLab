@@ -135,7 +135,7 @@ public class TracingUtils {
 
 	public static Map<String, LocationNode> readLocationNodes(BufferedDataTable nodeTable,
 			NodePropertySchema nodeSchema, Set<RowKey> invalidRows, boolean skipInvalid)
-					throws NotConfigurableException {
+			throws NotConfigurableException {
 		DataTableSpec spec = nodeTable.getSpec();
 
 		KnimeUtils.assertColumnNotMissing(spec, TracingColumns.ID, "Station Table");

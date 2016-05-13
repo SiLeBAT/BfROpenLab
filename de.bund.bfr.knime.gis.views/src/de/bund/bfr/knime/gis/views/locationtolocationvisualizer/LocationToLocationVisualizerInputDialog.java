@@ -100,7 +100,7 @@ public class LocationToLocationVisualizerInputDialog extends KnimeDialog {
 				.add(UI.createOptionsPanel("Node Table",
 						Arrays.asList(new JLabel("Node ID column:"), new JLabel("Latitude column:"),
 								new JLabel("Longitude column:")),
-				Arrays.asList(nodeIdBox, nodeLatitudeBox, nodeLongitudeBox)));
+						Arrays.asList(nodeIdBox, nodeLatitudeBox, nodeLongitudeBox)));
 		mainPanel.add(UI.createOptionsPanel("Edge Table",
 				Arrays.asList(new JLabel("Source Node ID Column:"), new JLabel("Target Node ID Column:")),
 				Arrays.asList(edgeFromBox, edgeToBox)));

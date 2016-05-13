@@ -37,7 +37,7 @@ import com.google.common.collect.Ordering;
 
 import de.bund.bfr.knime.KnimeUtils;
 
-public class AutoSuggestField extends JComboBox<String>implements KeyListener {
+public class AutoSuggestField extends JComboBox<String> implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 

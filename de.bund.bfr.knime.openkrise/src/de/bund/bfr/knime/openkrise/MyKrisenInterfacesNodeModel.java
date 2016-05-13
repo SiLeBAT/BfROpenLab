@@ -309,7 +309,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private BufferedDataTable getStationTable(Connection conn, Map<Integer, String> stationIds,
 			Collection<Delivery> deliveries, ExecutionContext exec, boolean useSerialAsId)
-					throws CanceledExecutionException {
+			throws CanceledExecutionException {
 		SetMultimap<String, String> deliversTo = LinkedHashMultimap.create();
 		SetMultimap<String, String> receivesFrom = LinkedHashMultimap.create();
 
@@ -398,7 +398,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 	private BufferedDataTable getDeliveryTable(Connection conn, Map<Integer, String> stationIds,
 			Map<Integer, String> deliveryIds, ExecutionContext exec, boolean useSerialAsId)
-					throws CanceledExecutionException {
+			throws CanceledExecutionException {
 		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;

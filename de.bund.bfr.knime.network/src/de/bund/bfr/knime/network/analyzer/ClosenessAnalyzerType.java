@@ -43,7 +43,7 @@ import org.knime.network.core.api.Partition;
 import org.knime.network.core.api.PersistentObject;
 import org.knime.network.core.core.exception.PersistenceException;
 
-public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject>implements AnalyzerType<PersistentObject> {
+public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject> implements AnalyzerType<PersistentObject> {
 
 	private static final String ID = "Closeness";
 	private static final String NAME = "Closeness Centrality (BfR)";
@@ -94,7 +94,7 @@ public class ClosenessAnalyzerType extends NumericAnalyzer<PersistentObject>impl
 	@Override
 	protected double[] numericAnalyzeInternal(ExecutionMonitor exec,
 			KPartiteGraphView<PersistentObject, Partition> view, PersistentObject object)
-					throws PersistenceException, CanceledExecutionException {
+			throws PersistenceException, CanceledExecutionException {
 		if (edgeWeights.isEmpty()) {
 			return new double[] { computeWithoutEdgeWeights(object.getId()) };
 		} else {
