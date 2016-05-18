@@ -43,6 +43,7 @@ import javax.swing.JSlider;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 
+import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.VariablePanel;
@@ -214,8 +215,10 @@ public class ChartConfigPanel extends JPanel {
 
 		xBox = new JComboBox<>();
 		xBox.addItemListener(UI.newItemSelectListener(e -> {
-			for (String var : variablePanel.getValues().keySet()) {
-				variablePanel.setEnabled(var, !var.equals(getVarX()));
+			if (variablePanel != null) {
+				for (String var : variablePanel.getValues().keySet()) {
+					variablePanel.setEnabled(var, !var.equals(getVarX()));
+				}
 			}
 
 			fireConfigChanged();
@@ -252,20 +255,16 @@ public class ChartConfigPanel extends JPanel {
 		mainPanel.add(outerVariablesPanel);
 
 		if (allowParameters) {
-			parameterPanel = new VariablePanel(null, null, null, false, true, true);
 			outerParameterPanel = new JPanel();
 			outerParameterPanel.setBorder(BorderFactory.createTitledBorder("Parameter Values"));
 			outerParameterPanel.setLayout(new BorderLayout());
-			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 			mainPanel.add(outerParameterPanel);
 		}
 
 		if (allowVariables) {
-			variablePanel = new VariablePanel(null, null, null, false, true, true);
 			outerVariablePanel = new JPanel();
 			outerVariablePanel.setBorder(BorderFactory.createTitledBorder("Variable Values"));
 			outerVariablePanel.setLayout(new BorderLayout());
-			outerVariablePanel.add(variablePanel, BorderLayout.WEST);
 			mainPanel.add(outerVariablePanel);
 		}
 
@@ -411,23 +410,7 @@ public class ChartConfigPanel extends JPanel {
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public void init(String varY, List<String> variablesX) {
-		init(varY, variablesX, null, null, null, null, null);
-	}
-
-	public void init(String varY, List<String> variablesX, List<String> parameters, Map<String, Double> minParamValues,
-			Map<String, Double> maxParamValues) {
-		init(varY, variablesX, null, null, parameters, minParamValues, maxParamValues);
-	}
-
-	public void init(String varY, List<String> variablesX, Map<String, Double> minVariableValues,
-			Map<String, Double> maxVariableValues) {
-		init(varY, variablesX, minVariableValues, maxVariableValues, null, null, null);
-	}
-
-	private void init(String varY, List<String> variablesX, Map<String, Double> minVariableValues,
-			Map<String, Double> maxVariableValues, List<String> parameters, Map<String, Double> minParamValues,
-			Map<String, Double> maxParamValues) {
+	public void init(String varY, List<String> variablesX, List<String> parameters) {
 		String currentVarX = getVarX();
 
 		yBox.removeAllItems();
@@ -445,11 +428,10 @@ public class ChartConfigPanel extends JPanel {
 			}
 		}
 
-		if (parameterPanel != null && parameters != null && !parameters.isEmpty()) {
-			outerParameterPanel.remove(parameterPanel);
-			parameterPanel = new VariablePanel(
-					Maps.asMap(new LinkedHashSet<>(parameters), Functions.constant(new ArrayList<>())), minParamValues,
-					maxParamValues, false, true, true);
+		if (outerParameterPanel != null) {
+			outerParameterPanel.removeAll();
+			parameterPanel = new VariablePanel(Maps.asMap(new LinkedHashSet<>(KnimeUtils.nullToEmpty(parameters)),
+					Functions.constant(new ArrayList<>())), null, null, false, true, true);
 			parameterPanel.addValueListener(e -> fireConfigChanged());
 			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
 
@@ -465,11 +447,10 @@ public class ChartConfigPanel extends JPanel {
 			}
 		}
 
-		if (variablePanel != null && variablesX != null && variablesX.size() >= 2) {
-			outerVariablePanel.remove(variablePanel);
-			variablePanel = new VariablePanel(
-					Maps.asMap(new LinkedHashSet<>(variablesX), Functions.constant(new ArrayList<>())),
-					minVariableValues, maxVariableValues, false, true, true);
+		if (outerVariablePanel != null) {
+			outerVariablePanel.removeAll();
+			variablePanel = new VariablePanel(Maps.asMap(new LinkedHashSet<>(KnimeUtils.nullToEmpty(variablesX)),
+					Functions.constant(new ArrayList<>())), null, null, false, true, true);
 			variablePanel.setEnabled(getVarX(), false);
 			variablePanel.addValueListener(e -> fireConfigChanged());
 			outerVariablePanel.add(variablePanel, BorderLayout.WEST);
@@ -491,12 +472,6 @@ public class ChartConfigPanel extends JPanel {
 		return parameterPanel != null ? parameterPanel.getValues() : null;
 	}
 
-	public void setParamValues(Map<String, Double> paramValues) {
-		if (parameterPanel != null) {
-			parameterPanel.setValues(paramValues);
-		}
-	}
-
 	public Map<String, Double> getMinParamValues() {
 		return parameterPanel != null ? parameterPanel.getMinValues() : null;
 	}
@@ -505,14 +480,32 @@ public class ChartConfigPanel extends JPanel {
 		return parameterPanel != null ? parameterPanel.getMaxValues() : null;
 	}
 
-	public Map<String, Double> getVariableValues() {
-		return variablePanel != null ? variablePanel.getValues() : null;
+	public void setParamValues(Map<String, Double> values, Map<String, Double> minValues,
+			Map<String, Double> maxValues) {
+		if (outerParameterPanel != null) {
+			outerParameterPanel.removeAll();
+			parameterPanel = new VariablePanel(
+					Maps.asMap(parameterPanel.getValues().keySet(), Functions.constant(new ArrayList<>())), minValues,
+					maxValues, false, true, true);
+			parameterPanel.setValues(values);
+			parameterPanel.addValueListener(e -> fireConfigChanged());
+			outerParameterPanel.add(parameterPanel, BorderLayout.WEST);
+
+			Container container = getParent();
+
+			while (container != null) {
+				if (container instanceof JPanel) {
+					((JPanel) container).revalidate();
+					break;
+				}
+
+				container = container.getParent();
+			}
+		}
 	}
 
-	public void setVariableValues(Map<String, Double> variableValues) {
-		if (variablePanel != null) {
-			variablePanel.setValues(variableValues);
-		}
+	public Map<String, Double> getVariableValues() {
+		return variablePanel != null ? variablePanel.getValues() : null;
 	}
 
 	public Map<String, Double> getMinVariableValues() {
@@ -521,6 +514,31 @@ public class ChartConfigPanel extends JPanel {
 
 	public Map<String, Double> getMaxVariableValues() {
 		return variablePanel != null ? variablePanel.getMaxValues() : null;
+	}
+
+	public void setVariableValues(Map<String, Double> values, Map<String, Double> minValues,
+			Map<String, Double> maxValues) {
+		if (outerVariablePanel != null) {
+			outerVariablePanel.removeAll();
+			variablePanel = new VariablePanel(
+					Maps.asMap(variablePanel.getValues().keySet(), Functions.constant(new ArrayList<>())), minValues,
+					maxValues, false, true, true);
+			variablePanel.setValues(values);
+			variablePanel.setEnabled(getVarX(), false);
+			variablePanel.addValueListener(e -> fireConfigChanged());
+			outerVariablePanel.add(variablePanel, BorderLayout.WEST);
+
+			Container container = getParent();
+
+			while (container != null) {
+				if (container instanceof JPanel) {
+					((JPanel) container).revalidate();
+					break;
+				}
+
+				container = container.getParent();
+			}
+		}
 	}
 
 	private void fireConfigChanged() {
