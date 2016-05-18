@@ -166,7 +166,7 @@ public class VariablePanel extends JPanel {
 		}
 
 		if (rangeButton != null) {
-			rangeButton.setEnabled(false);
+			rangeButton.setEnabled(enabled);
 		}
 
 		if (slider != null && minValues.get(var) != null && maxValues.get(var) != null) {
