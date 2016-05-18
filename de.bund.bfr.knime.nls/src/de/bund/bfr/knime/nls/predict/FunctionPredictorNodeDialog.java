@@ -92,8 +92,6 @@ public class FunctionPredictorNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
 		set.saveSettings(settings);
 	}
 
@@ -120,8 +118,7 @@ public class FunctionPredictorNodeDialog extends DataAwareNodeDialogPane
 		set.setToChartCreator(chartCreator);
 
 		for (Plotable plotable : reader.getPlotables().values()) {
-			plotable.getIndependentVariables().clear();
-			plotable.getIndependentVariables().putAll(configPanel.getVariableValues());
+			set.setToPlotable(plotable);
 		}
 
 		try {

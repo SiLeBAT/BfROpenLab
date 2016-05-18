@@ -94,6 +94,7 @@ public class ChartConfigPanel extends JPanel {
 		showLegendBox.addItemListener(e -> fireConfigChanged());
 		exportAsSvgBox = new JCheckBox("Export as SVG");
 		exportAsSvgBox.setSelected(false);
+		exportAsSvgBox.addItemListener(e -> fireConfigChanged());
 		showConfidenceBox = new JCheckBox("Show Confidence");
 		showConfidenceBox.setSelected(false);
 		showConfidenceBox.addItemListener(e -> fireConfigChanged());

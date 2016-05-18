@@ -93,8 +93,6 @@ public class DiffFunctionPredictorNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
 		set.saveSettings(settings);
 	}
 
