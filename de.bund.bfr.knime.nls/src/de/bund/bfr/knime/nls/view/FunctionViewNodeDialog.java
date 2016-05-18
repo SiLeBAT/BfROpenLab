@@ -92,9 +92,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		configPanel = new ChartConfigPanel(true, true, false, false);
-		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()), null, null,
-				null);
+		configPanel = new ChartConfigPanel(true, true, false, false, false);
+		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()));
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());

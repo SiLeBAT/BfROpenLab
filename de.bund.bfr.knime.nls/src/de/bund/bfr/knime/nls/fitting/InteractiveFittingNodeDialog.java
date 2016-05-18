@@ -137,8 +137,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.setEnforceLimits(enforceLimitsBox.isSelected());
 		set.setMaxLevenbergIterations(maxIterationsField.getValue());
 		set.setStartValues(configPanel.getParamValues());
-		set.setMinStartValues(configPanel.getMinValues());
-		set.setMaxStartValues(configPanel.getMaxValues());
+		set.setMinStartValues(configPanel.getMinParamValues());
+		set.setMaxStartValues(configPanel.getMaxParamValues());
 		set.setStepSize(stepSizeField.getValue());
 		set.setInterpolator(configPanel.getInterpolator());
 		set.saveSettings(settings);
@@ -164,7 +164,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		stepSizeField.setMinValue(Double.MIN_NORMAL);
 		stepSizeField.setValue(set.getStepSize());
 
-		configPanel = new ChartConfigPanel(false, false, true, isDiff);
+		configPanel = new ChartConfigPanel(false, false, true, false, isDiff);
 		configPanel.init(reader.getDepVar(), new ArrayList<>(NlsUtils.getVariables(reader.getPlotables().values())),
 				new ArrayList<>(NlsUtils.getParameters(reader.getPlotables().values())), set.getMinStartValues(),
 				set.getMaxStartValues());

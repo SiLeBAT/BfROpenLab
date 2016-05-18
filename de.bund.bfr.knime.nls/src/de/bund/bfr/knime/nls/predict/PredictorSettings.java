@@ -19,7 +19,82 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.predict;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+
 import de.bund.bfr.knime.nls.view.ViewSettings;
 
 public class PredictorSettings extends ViewSettings {
+
+	private static final String CFG_VARIABLE_VALUES = "VariableValues";
+	private static final String CFG_MIN_VARIABLE_VALUES = "MinVariableValues";
+	private static final String CFG_MAX_VARIABLE_VALUES = "MaxVariableValues";
+
+	private Map<String, Double> variableValues;
+	private Map<String, Double> minVariableValues;
+	private Map<String, Double> maxVariableValues;
+
+	public PredictorSettings() {
+		variableValues = new LinkedHashMap<>();
+		minVariableValues = new LinkedHashMap<>();
+		maxVariableValues = new LinkedHashMap<>();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void loadSettings(NodeSettingsRO settings) {
+		super.loadSettings(settings);
+
+		try {
+			variableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			minVariableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MIN_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			maxVariableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MAX_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+	}
+
+	@Override
+	public void saveSettings(NodeSettingsWO settings) {
+		super.saveSettings(settings);
+
+		settings.addString(CFG_VARIABLE_VALUES, SERIALIZER.toXml(variableValues));
+		settings.addString(CFG_MIN_VARIABLE_VALUES, SERIALIZER.toXml(minVariableValues));
+		settings.addString(CFG_MAX_VARIABLE_VALUES, SERIALIZER.toXml(maxVariableValues));
+	}
+
+	public Map<String, Double> getVariableValues() {
+		return variableValues;
+	}
+
+	public void setVariableValues(Map<String, Double> variableValues) {
+		this.variableValues = variableValues;
+	}
+
+	public Map<String, Double> getMinVariableValues() {
+		return minVariableValues;
+	}
+
+	public void setMinVariableValues(Map<String, Double> minVariableValues) {
+		this.minVariableValues = minVariableValues;
+	}
+
+	public Map<String, Double> getMaxVariableValues() {
+		return maxVariableValues;
+	}
+
+	public void setMaxVariableValues(Map<String, Double> maxVariableValues) {
+		this.maxVariableValues = maxVariableValues;
+	}
 }
