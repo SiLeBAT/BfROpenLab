@@ -68,8 +68,7 @@ public class FunctionPredictorNodeModel extends NodeModel {
 				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
 
 		for (Plotable plotable : reader.getPlotables().values()) {
-			plotable.getIndependentVariables().clear();
-			plotable.getIndependentVariables().putAll(set.getVariableValues());
+			set.setToPlotable(plotable);
 		}
 
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());

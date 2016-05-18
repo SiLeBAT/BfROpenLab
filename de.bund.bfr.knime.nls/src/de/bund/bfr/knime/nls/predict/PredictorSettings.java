@@ -26,6 +26,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
+import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.view.ViewSettings;
 
 public class PredictorSettings extends ViewSettings {
@@ -74,27 +76,24 @@ public class PredictorSettings extends ViewSettings {
 		settings.addString(CFG_MAX_VARIABLE_VALUES, SERIALIZER.toXml(maxVariableValues));
 	}
 
-	public Map<String, Double> getVariableValues() {
-		return variableValues;
+	@Override
+	public void setFromConfigPanel(ChartConfigPanel configPanel) {
+		super.setFromConfigPanel(configPanel);
+
+		variableValues = configPanel.getVariableValues();
+		minVariableValues = configPanel.getMinVariableValues();
+		maxVariableValues = configPanel.getMaxVariableValues();
 	}
 
-	public void setVariableValues(Map<String, Double> variableValues) {
-		this.variableValues = variableValues;
+	@Override
+	public void setToConfigPanel(ChartConfigPanel configPanel) {
+		super.setToConfigPanel(configPanel);
+
+		configPanel.setVariableValues(variableValues, minVariableValues, maxVariableValues);
 	}
 
-	public Map<String, Double> getMinVariableValues() {
-		return minVariableValues;
-	}
-
-	public void setMinVariableValues(Map<String, Double> minVariableValues) {
-		this.minVariableValues = minVariableValues;
-	}
-
-	public Map<String, Double> getMaxVariableValues() {
-		return maxVariableValues;
-	}
-
-	public void setMaxVariableValues(Map<String, Double> maxVariableValues) {
-		this.maxVariableValues = maxVariableValues;
+	public void setToPlotable(Plotable plotable) {
+		plotable.getIndependentVariables().clear();
+		plotable.getIndependentVariables().putAll(variableValues);
 	}
 }

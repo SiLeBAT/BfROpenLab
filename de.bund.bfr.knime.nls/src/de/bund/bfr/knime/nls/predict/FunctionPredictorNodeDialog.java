@@ -94,16 +94,12 @@ public class FunctionPredictorNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.setFromConfigPanel(configPanel);
 		set.setFromSelectionPanel(selectionPanel);
-		set.setVariableValues(configPanel.getVariableValues());
-		set.setMinVariableValues(configPanel.getMinVariableValues());
-		set.setMaxVariableValues(configPanel.getMaxVariableValues());
 		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
 		configPanel = new ChartConfigPanel(true, true, false, true, false);
 		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()), null);
-		configPanel.setVariableValues(set.getVariableValues(), set.getMinVariableValues(), set.getMaxVariableValues());
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
 		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 		chartCreator.setVarY(reader.getDepVar());
