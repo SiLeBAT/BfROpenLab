@@ -28,8 +28,8 @@ import java.util.Map;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
-import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.FunctionReader;
+import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -82,12 +82,7 @@ public class DiffFunctionPredictorReader implements FunctionReader {
 			plotable.setDiffVariable(f.getTimeVariable());
 			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
 			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
-
-			if (paramTable != null) {
-				plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
-			} else {
-				plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
-			}
+			plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
 
 			if (covarianceTable != null) {
 				plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
