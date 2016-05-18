@@ -213,7 +213,13 @@ public class ChartConfigPanel extends JPanel {
 		outerRangePanel.add(rangePanel, BorderLayout.WEST);
 
 		xBox = new JComboBox<>();
-		xBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
+		xBox.addItemListener(UI.newItemSelectListener(e -> {
+			for (String var : variablePanel.getValues().keySet()) {
+				variablePanel.setEnabled(var, !var.equals(getVarX()));
+			}
+
+			fireConfigChanged();
+		}));
 		yBox = new JComboBox<>();
 		xTransBox = new JComboBox<>(Transform.values());
 		xTransBox.addItemListener(UI.newItemSelectListener(e -> fireConfigChanged()));
@@ -422,6 +428,8 @@ public class ChartConfigPanel extends JPanel {
 	private void init(String varY, List<String> variablesX, Map<String, Double> minVariableValues,
 			Map<String, Double> maxVariableValues, List<String> parameters, Map<String, Double> minParamValues,
 			Map<String, Double> maxParamValues) {
+		String currentVarX = getVarX();
+
 		yBox.removeAllItems();
 		yBox.addItem(varY);
 		yBox.setSelectedIndex(0);
@@ -429,7 +437,12 @@ public class ChartConfigPanel extends JPanel {
 
 		if (variablesX != null && !variablesX.isEmpty()) {
 			variablesX.forEach(x -> xBox.addItem(x));
-			xBox.setSelectedIndex(0);
+
+			if (variablesX.contains(currentVarX)) {
+				xBox.setSelectedItem(currentVarX);
+			} else {
+				xBox.setSelectedIndex(0);
+			}
 		}
 
 		if (parameterPanel != null && parameters != null && !parameters.isEmpty()) {
@@ -452,11 +465,12 @@ public class ChartConfigPanel extends JPanel {
 			}
 		}
 
-		if (variablePanel != null && variablesX != null && !variablesX.isEmpty()) {
+		if (variablePanel != null && variablesX != null && variablesX.size() >= 2) {
 			outerVariablePanel.remove(variablePanel);
 			variablePanel = new VariablePanel(
 					Maps.asMap(new LinkedHashSet<>(variablesX), Functions.constant(new ArrayList<>())),
 					minVariableValues, maxVariableValues, false, true, true);
+			variablePanel.setEnabled(getVarX(), false);
 			variablePanel.addValueListener(e -> fireConfigChanged());
 			outerVariablePanel.add(variablePanel, BorderLayout.WEST);
 

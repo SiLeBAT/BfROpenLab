@@ -37,6 +37,7 @@ import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.chart.ChartUtils;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
+import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -65,6 +66,12 @@ public class FunctionPredictorNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		FunctionPredictorReader reader = new FunctionPredictorReader((FunctionPortObject) inObjects[0],
 				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2]);
+
+		for (Plotable plotable : reader.getPlotables().values()) {
+			plotable.getIndependentVariables().clear();
+			plotable.getIndependentVariables().putAll(set.getVariableValues());
+		}
+
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 
 		creator.setVarY(reader.getDepVar());

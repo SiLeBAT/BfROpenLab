@@ -60,6 +60,7 @@ public class VariablePanel extends JPanel {
 	private Map<String, Double> maxValues;
 
 	private Map<String, DoubleTextField> valueFields;
+	private Map<String, JButton> rangeButtons;
 	private Map<String, JSlider> valueSliders;
 
 	public VariablePanel(Map<String, List<Double>> variables, Map<String, Double> minValues,
@@ -69,6 +70,7 @@ public class VariablePanel extends JPanel {
 		this.maxValues = new LinkedHashMap<>(KnimeUtils.nullToEmpty(maxValues));
 		selectedValues = new LinkedHashMap<>();
 		valueFields = new LinkedHashMap<>();
+		rangeButtons = new LinkedHashMap<>();
 		valueSliders = new LinkedHashMap<>();
 		setLayout(new GridBagLayout());
 
@@ -127,6 +129,7 @@ public class VariablePanel extends JPanel {
 				rangeButton.addActionListener(e -> rangeButtonPressed(var));
 
 				valueFields.put(var, input);
+				rangeButtons.put(var, rangeButton);
 				valueSliders.put(var, slider);
 
 				add(label, UI.westConstraints(0, row));
@@ -151,6 +154,24 @@ public class VariablePanel extends JPanel {
 
 	public void removeValueListener(ValueListener listener) {
 		listenerList.remove(ValueListener.class, listener);
+	}
+
+	public void setEnabled(String var, boolean enabled) {
+		DoubleTextField field = valueFields.get(var);
+		JButton rangeButton = rangeButtons.get(var);
+		JSlider slider = valueSliders.get(var);
+
+		if (field != null) {
+			field.setEnabled(enabled);
+		}
+
+		if (rangeButton != null) {
+			rangeButton.setEnabled(false);
+		}
+
+		if (slider != null && minValues.get(var) != null && maxValues.get(var) != null) {
+			slider.setEnabled(enabled);
+		}
 	}
 
 	public Map<String, List<Boolean>> getSelectedValues() {
