@@ -33,6 +33,7 @@ import de.bund.bfr.knime.chart.NamedShape;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.math.InterpolationFactory;
 import de.bund.bfr.math.Transform;
 
@@ -292,6 +293,9 @@ public class ViewSettings extends NlsNodeSettings {
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setSelectedIds(selectedIDs);
+	}
+
+	public void setToPlotable(Plotable plotable) {
 	}
 
 	public boolean isExportAsSvg() {

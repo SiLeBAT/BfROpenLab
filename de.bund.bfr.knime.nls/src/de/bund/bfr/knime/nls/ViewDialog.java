@@ -26,14 +26,17 @@ import javax.swing.JPanel;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
+import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.nls.chart.Plotable;
 
 public abstract class ViewDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
+	protected ViewReader reader;
 	protected ViewSettings set;
 
 	protected ChartCreator chartCreator;
@@ -58,7 +61,21 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 		return new ViewSettings();
 	}
 
-	protected abstract void createChart();
+	protected void createChart() {
+		set.setFromConfigPanel(configPanel);
+		set.setFromSelectionPanel(selectionPanel);
+		set.setToChartCreator(chartCreator);
+
+		for (Plotable plotable : reader.getPlotables().values()) {
+			set.setToPlotable(plotable);
+		}
+
+		try {
+			chartCreator.setChart(chartCreator.createChart());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void selectionChanged(ChartSelectionPanel source) {

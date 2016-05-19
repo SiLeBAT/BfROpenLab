@@ -48,7 +48,7 @@ import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.FunctionReader;
+import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.Plotable;
@@ -67,7 +67,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		implements ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private boolean isDiff;
-	private FunctionReader reader;
+	private ViewReader reader;
 	private InteractiveFittingSettings set;
 
 	private ChartCreator chartCreator;

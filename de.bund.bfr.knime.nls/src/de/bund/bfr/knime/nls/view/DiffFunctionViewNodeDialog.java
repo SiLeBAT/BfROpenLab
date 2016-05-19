@@ -26,7 +26,6 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
-import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.ViewDialog;
@@ -43,23 +42,11 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class DiffFunctionViewNodeDialog extends ViewDialog {
 
-	private DiffFunctionViewReader reader;
-
-	private FunctionPortObject functionObject;
-	private BufferedDataTable paramTable;
-	private BufferedDataTable varTable;
-	private BufferedDataTable conditionTable;
-	private BufferedDataTable covarianceTable;
-
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		set.loadSettings(settings);
-		functionObject = (FunctionPortObject) input[0];
-		paramTable = (BufferedDataTable) input[1];
-		varTable = (BufferedDataTable) input[2];
-		conditionTable = (BufferedDataTable) input[3];
-		covarianceTable = (BufferedDataTable) input[4];
-		reader = new DiffFunctionViewReader(functionObject, paramTable, varTable, conditionTable, covarianceTable);
+		reader = new DiffFunctionViewReader((FunctionPortObject) input[0], (BufferedDataTable) input[1],
+				(BufferedDataTable) input[2], (BufferedDataTable) input[3], (BufferedDataTable) input[4]);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -79,18 +66,5 @@ public class DiffFunctionViewNodeDialog extends ViewDialog {
 		createChart();
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
-	}
-
-	@Override
-	protected void createChart() {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
-		set.setToChartCreator(chartCreator);
-
-		try {
-			chartCreator.setChart(chartCreator.createChart());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 	}
 }

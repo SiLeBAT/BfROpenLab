@@ -92,7 +92,10 @@ public class PredictorSettings extends ViewSettings {
 		configPanel.setVariableValues(variableValues, minVariableValues, maxVariableValues);
 	}
 
+	@Override
 	public void setToPlotable(Plotable plotable) {
+		super.setToPlotable(plotable);
+
 		plotable.getIndependentVariables().clear();
 		plotable.getIndependentVariables().putAll(variableValues);
 	}

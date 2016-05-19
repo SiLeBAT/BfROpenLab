@@ -27,7 +27,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObject;
-import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.ViewDialog;
@@ -36,7 +35,6 @@ import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -52,19 +50,11 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class FunctionPredictorNodeDialog extends ViewDialog {
 
-	private FunctionPredictorReader reader;
-
-	private FunctionPortObject functionObject;
-	private BufferedDataTable paramTable;
-	private BufferedDataTable covarianceTable;
-
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
 		set.loadSettings(settings);
-		functionObject = (FunctionPortObject) input[0];
-		paramTable = (BufferedDataTable) input[1];
-		covarianceTable = (BufferedDataTable) input[2];
-		reader = new FunctionPredictorReader(functionObject, paramTable, covarianceTable);
+		reader = new FunctionPredictorReader((FunctionPortObject) input[0], (BufferedDataTable) input[1],
+				(BufferedDataTable) input[2]);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -89,22 +79,5 @@ public class FunctionPredictorNodeDialog extends ViewDialog {
 		createChart();
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
-	}
-
-	@Override
-	protected void createChart() {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
-		set.setToChartCreator(chartCreator);
-
-		for (Plotable plotable : reader.getPlotables().values()) {
-			((PredictorSettings) set).setToPlotable(plotable);
-		}
-
-		try {
-			chartCreator.setChart(chartCreator.createChart());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 	}
 }

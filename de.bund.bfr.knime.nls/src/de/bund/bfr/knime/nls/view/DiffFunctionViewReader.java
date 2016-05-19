@@ -29,12 +29,12 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.FunctionReader;
+import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class DiffFunctionViewReader implements FunctionReader {
+public class DiffFunctionViewReader implements ViewReader {
 
 	private List<String> ids;
 	private String depVar;

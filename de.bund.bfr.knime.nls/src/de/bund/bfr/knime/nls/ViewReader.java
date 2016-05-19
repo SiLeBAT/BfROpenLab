@@ -24,7 +24,7 @@ import java.util.Map;
 
 import de.bund.bfr.knime.nls.chart.Plotable;
 
-public interface FunctionReader {
+public interface ViewReader {
 
 	List<String> getIds();
 

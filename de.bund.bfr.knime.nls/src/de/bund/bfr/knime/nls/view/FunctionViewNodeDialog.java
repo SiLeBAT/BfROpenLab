@@ -26,7 +26,6 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
-import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.ViewDialog;
@@ -43,21 +42,15 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  */
 public class FunctionViewNodeDialog extends ViewDialog {
 
-	private FunctionViewReader reader;
-
-	private FunctionPortObject functionObject;
-	private BufferedDataTable paramTable;
-	private BufferedDataTable varTable;
-	private BufferedDataTable covarianceTable;
+	private PortObject[] input;
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
+		this.input = input;
+
 		set.loadSettings(settings);
-		functionObject = (FunctionPortObject) input[0];
-		paramTable = (BufferedDataTable) input[1];
-		varTable = (BufferedDataTable) input[2];
-		covarianceTable = (BufferedDataTable) input[3];
-		reader = new FunctionViewReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
+		reader = new FunctionViewReader((FunctionPortObject) input[0], (BufferedDataTable) input[1],
+				(BufferedDataTable) input[2], (BufferedDataTable) input[3], set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}
@@ -80,24 +73,12 @@ public class FunctionViewNodeDialog extends ViewDialog {
 	}
 
 	@Override
-	protected void createChart() {
-		set.setFromConfigPanel(configPanel);
-		set.setFromSelectionPanel(selectionPanel);
-		set.setToChartCreator(chartCreator);
-
-		try {
-			chartCreator.setChart(chartCreator.createChart());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
 	public void configChanged(ChartConfigPanel source) {
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
 			set.setFromSelectionPanel(selectionPanel);
-			reader = new FunctionViewReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
+			reader = new FunctionViewReader((FunctionPortObject) input[0], (BufferedDataTable) input[1],
+					(BufferedDataTable) input[2], (BufferedDataTable) input[3], set.getVarX());
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {
