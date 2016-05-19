@@ -44,7 +44,7 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 	protected ChartConfigPanel configPanel;
 
 	protected ViewDialog() {
-		set = createSettings();
+		set = new ViewSettings();
 
 		JPanel panel = new JPanel();
 
@@ -55,10 +55,6 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		set.saveSettings(settings);
-	}
-
-	protected ViewSettings createSettings() {
-		return new ViewSettings();
 	}
 
 	protected void createChart() {

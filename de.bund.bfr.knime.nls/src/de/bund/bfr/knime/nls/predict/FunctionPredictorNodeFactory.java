@@ -19,9 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.predict;
 
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortType;
+
+import de.bund.bfr.knime.nls.ViewModel;
+import de.bund.bfr.knime.nls.ViewReader;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
  * <code>NodeFactory</code> for the "FunctionPredictor" Node.
@@ -29,14 +36,22 @@ import org.knime.core.node.NodeView;
  *
  * @author Christian Thoens
  */
-public class FunctionPredictorNodeFactory extends NodeFactory<FunctionPredictorNodeModel> {
+public class FunctionPredictorNodeFactory extends NodeFactory<ViewModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FunctionPredictorNodeModel createNodeModel() {
-		return new FunctionPredictorNodeModel();
+	public ViewModel createNodeModel() {
+		return new ViewModel(
+				new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE_OPTIONAL }) {
+
+			@Override
+			protected ViewReader createReader(PortObject[] inObjects) {
+				return new FunctionPredictorReader((FunctionPortObject) inObjects[0], (BufferedDataTable) inObjects[1],
+						(BufferedDataTable) inObjects[2]);
+			}
+		};
 	}
 
 	/**
@@ -51,8 +66,7 @@ public class FunctionPredictorNodeFactory extends NodeFactory<FunctionPredictorN
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FunctionPredictorNodeModel> createNodeView(final int viewIndex,
-			final FunctionPredictorNodeModel nodeModel) {
+	public NodeView<ViewModel> createNodeView(final int viewIndex, final ViewModel nodeModel) {
 		return null;
 	}
 

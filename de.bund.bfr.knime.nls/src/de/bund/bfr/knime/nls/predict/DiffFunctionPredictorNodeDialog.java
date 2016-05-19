@@ -30,7 +30,6 @@ import org.knime.core.node.port.PortObject;
 
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.ViewDialog;
-import de.bund.bfr.knime.nls.ViewSettings;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
@@ -57,11 +56,6 @@ public class DiffFunctionPredictorNodeDialog extends ViewDialog {
 				(BufferedDataTable) input[2], (BufferedDataTable) input[3]);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
-	}
-
-	@Override
-	protected ViewSettings createSettings() {
-		return new PredictorSettings();
 	}
 
 	private JComponent createMainComponent() {

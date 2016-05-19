@@ -26,6 +26,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventListener;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -506,15 +507,15 @@ public class ChartConfigPanel extends JPanel {
 	}
 
 	public Map<String, Double> getVariableValues() {
-		return variablePanel != null ? variablePanel.getValues() : null;
+		return variablePanel != null ? variablePanel.getValues() : new LinkedHashMap<>();
 	}
 
 	public Map<String, Double> getMinVariableValues() {
-		return variablePanel != null ? variablePanel.getMinValues() : null;
+		return variablePanel != null ? variablePanel.getMinValues() : new LinkedHashMap<>();
 	}
 
 	public Map<String, Double> getMaxVariableValues() {
-		return variablePanel != null ? variablePanel.getMaxValues() : null;
+		return variablePanel != null ? variablePanel.getMaxValues() : new LinkedHashMap<>();
 	}
 
 	public void setVariableValues(Map<String, Double> values, Map<String, Double> minValues,

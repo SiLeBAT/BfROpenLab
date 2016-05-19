@@ -19,9 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.view;
 
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortType;
+
+import de.bund.bfr.knime.nls.ViewModel;
+import de.bund.bfr.knime.nls.ViewReader;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
  * <code>NodeFactory</code> for the "FunctionView" Node.
@@ -29,14 +36,22 @@ import org.knime.core.node.NodeView;
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeFactory extends NodeFactory<FunctionViewNodeModel> {
+public class FunctionViewNodeFactory extends NodeFactory<ViewModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FunctionViewNodeModel createNodeModel() {
-		return new FunctionViewNodeModel();
+	public ViewModel createNodeModel() {
+		return new ViewModel(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE_OPTIONAL }) {
+
+			@Override
+			protected ViewReader createReader(PortObject[] inObjects) {
+				return new FunctionViewReader((FunctionPortObject) inObjects[0], (BufferedDataTable) inObjects[1],
+						(BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3], set.getVarX());
+			}
+		};
 	}
 
 	/**
@@ -51,7 +66,7 @@ public class FunctionViewNodeFactory extends NodeFactory<FunctionViewNodeModel> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<FunctionViewNodeModel> createNodeView(final int viewIndex, final FunctionViewNodeModel nodeModel) {
+	public NodeView<ViewModel> createNodeView(final int viewIndex, final ViewModel nodeModel) {
 		return null;
 	}
 

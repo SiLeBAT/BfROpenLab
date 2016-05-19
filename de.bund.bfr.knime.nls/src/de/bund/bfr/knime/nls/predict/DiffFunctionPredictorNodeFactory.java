@@ -19,9 +19,16 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.predict;
 
+import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortType;
+
+import de.bund.bfr.knime.nls.ViewModel;
+import de.bund.bfr.knime.nls.ViewReader;
+import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
  * <code>NodeFactory</code> for the "DiffFunctionPredictor" Node.
@@ -29,14 +36,23 @@ import org.knime.core.node.NodeView;
  *
  * @author Christian Thoens
  */
-public class DiffFunctionPredictorNodeFactory extends NodeFactory<DiffFunctionPredictorNodeModel> {
+public class DiffFunctionPredictorNodeFactory extends NodeFactory<ViewModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DiffFunctionPredictorNodeModel createNodeModel() {
-		return new DiffFunctionPredictorNodeModel();
+	public ViewModel createNodeModel() {
+		return new ViewModel(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
+				BufferedDataTable.TYPE_OPTIONAL }) {
+
+			@Override
+			protected ViewReader createReader(PortObject[] inObjects) {
+				return new DiffFunctionPredictorReader((FunctionPortObject) inObjects[0],
+						(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2],
+						(BufferedDataTable) inObjects[3]);
+			}
+		};
 	}
 
 	/**
@@ -51,8 +67,7 @@ public class DiffFunctionPredictorNodeFactory extends NodeFactory<DiffFunctionPr
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<DiffFunctionPredictorNodeModel> createNodeView(final int viewIndex,
-			final DiffFunctionPredictorNodeModel nodeModel) {
+	public NodeView<ViewModel> createNodeView(final int viewIndex, final ViewModel nodeModel) {
 		return null;
 	}
 

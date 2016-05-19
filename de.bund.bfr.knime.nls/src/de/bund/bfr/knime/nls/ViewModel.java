@@ -17,12 +17,11 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.view;
+package de.bund.bfr.knime.nls;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -36,37 +35,34 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.chart.ChartUtils;
-import de.bund.bfr.knime.nls.ViewSettings;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
-import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
+import de.bund.bfr.knime.nls.chart.Plotable;
 
-/**
- * This is the model implementation of FunctionView.
- * 
- * 
- * @author Christian Thoens
- */
-public class FunctionViewNodeModel extends NodeModel {
+public abstract class ViewModel extends NodeModel {
 
-	private ViewSettings set;
+	protected ViewSettings set;
 
 	/**
 	 * Constructor for the node model.
 	 */
-	protected FunctionViewNodeModel() {
-		super(new PortType[] { FunctionPortObject.TYPE, BufferedDataTable.TYPE, BufferedDataTable.TYPE,
-				BufferedDataTable.TYPE_OPTIONAL }, new PortType[] { ImagePortObject.TYPE });
+	protected ViewModel(PortType[] inPortTypes) {
+		super(inPortTypes, new PortType[] { ImagePortObject.TYPE });
 		set = new ViewSettings();
 	}
+
+	protected abstract ViewReader createReader(PortObject[] inObjects);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		FunctionViewReader reader = new FunctionViewReader((FunctionPortObject) inObjects[0],
-				(BufferedDataTable) inObjects[1], (BufferedDataTable) inObjects[2], (BufferedDataTable) inObjects[3],
-				set.getVarX());
+		ViewReader reader = createReader(inObjects);
+
+		for (Plotable plotable : reader.getPlotables().values()) {
+			set.setToPlotable(plotable);
+		}
+
 		ChartCreator creator = new ChartCreator(reader.getPlotables(), reader.getLegend());
 
 		creator.setVarY(reader.getDepVar());
@@ -128,5 +124,4 @@ public class FunctionViewNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 	}
-
 }

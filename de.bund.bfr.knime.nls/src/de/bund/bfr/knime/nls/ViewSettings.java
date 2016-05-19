@@ -58,6 +58,9 @@ public class ViewSettings extends NlsNodeSettings {
 	private static final String CFG_SELECTED_IDS = "SelectedIDs";
 	private static final String CFG_COLORS = "Colors";
 	private static final String CFG_SHAPES = "Shapes2";
+	private static final String CFG_VARIABLE_VALUES = "VariableValues";
+	private static final String CFG_MIN_VARIABLE_VALUES = "MinVariableValues";
+	private static final String CFG_MAX_VARIABLE_VALUES = "MaxVariableValues";
 
 	private boolean minToZero;
 	private boolean manualRange;
@@ -78,6 +81,9 @@ public class ViewSettings extends NlsNodeSettings {
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
 	private Map<String, NamedShape> shapes;
+	private Map<String, Double> variableValues;
+	private Map<String, Double> minVariableValues;
+	private Map<String, Double> maxVariableValues;
 
 	public ViewSettings() {
 		minToZero = false;
@@ -99,6 +105,9 @@ public class ViewSettings extends NlsNodeSettings {
 		selectedIDs = new ArrayList<>();
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
+		variableValues = new LinkedHashMap<>();
+		minVariableValues = new LinkedHashMap<>();
+		maxVariableValues = new LinkedHashMap<>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -198,6 +207,21 @@ public class ViewSettings extends NlsNodeSettings {
 			shapes = (Map<String, NamedShape>) SERIALIZER.fromXml(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 		}
+
+		try {
+			variableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			minVariableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MIN_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
+
+		try {
+			maxVariableValues = (Map<String, Double>) SERIALIZER.fromXml(settings.getString(CFG_MAX_VARIABLE_VALUES));
+		} catch (InvalidSettingsException e) {
+		}
 	}
 
 	@Override
@@ -221,6 +245,9 @@ public class ViewSettings extends NlsNodeSettings {
 		settings.addString(CFG_SELECTED_IDS, SERIALIZER.toXml(selectedIDs));
 		settings.addString(CFG_COLORS, SERIALIZER.toXml(colors));
 		settings.addString(CFG_SHAPES, SERIALIZER.toXml(shapes));
+		settings.addString(CFG_VARIABLE_VALUES, SERIALIZER.toXml(variableValues));
+		settings.addString(CFG_MIN_VARIABLE_VALUES, SERIALIZER.toXml(minVariableValues));
+		settings.addString(CFG_MAX_VARIABLE_VALUES, SERIALIZER.toXml(maxVariableValues));
 
 	}
 
@@ -261,6 +288,9 @@ public class ViewSettings extends NlsNodeSettings {
 		varX = configPanel.getVarX();
 		transformX = configPanel.getTransformX();
 		transformY = configPanel.getTransformY();
+		variableValues = configPanel.getVariableValues();
+		minVariableValues = configPanel.getMinVariableValues();
+		maxVariableValues = configPanel.getMaxVariableValues();
 	}
 
 	public void setToConfigPanel(ChartConfigPanel configPanel) {
@@ -279,6 +309,7 @@ public class ViewSettings extends NlsNodeSettings {
 		configPanel.setVarX(varX);
 		configPanel.setTransformX(transformX);
 		configPanel.setTransformY(transformY);
+		configPanel.setVariableValues(variableValues, minVariableValues, maxVariableValues);
 	}
 
 	public void setFromSelectionPanel(ChartSelectionPanel selectionPanel) {
@@ -296,6 +327,7 @@ public class ViewSettings extends NlsNodeSettings {
 	}
 
 	public void setToPlotable(Plotable plotable) {
+		plotable.getIndependentVariables().putAll(variableValues);
 	}
 
 	public boolean isExportAsSvg() {
