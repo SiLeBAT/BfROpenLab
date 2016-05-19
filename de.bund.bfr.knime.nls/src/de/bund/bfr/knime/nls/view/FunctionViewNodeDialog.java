@@ -19,21 +19,17 @@
  *******************************************************************************/
 package de.bund.bfr.knime.nls.view;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.DataAwareNodeDialogPane;
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.nls.NlsUtils;
+import de.bund.bfr.knime.nls.ViewDialog;
 import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
@@ -45,32 +41,14 @@ import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
  * 
  * @author Christian Thoens
  */
-public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
-		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
+public class FunctionViewNodeDialog extends ViewDialog {
 
 	private FunctionViewReader reader;
-	private ViewSettings set;
-
-	private ChartCreator chartCreator;
-	private ChartSelectionPanel selectionPanel;
-	private ChartConfigPanel configPanel;
 
 	private FunctionPortObject functionObject;
 	private BufferedDataTable paramTable;
 	private BufferedDataTable varTable;
 	private BufferedDataTable covarianceTable;
-
-	/**
-	 * New pane for configuring the FunctionView node.
-	 */
-	protected FunctionViewNodeDialog() {
-		set = new ViewSettings();
-
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		addTab("Options", panel, false);
-	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
@@ -82,11 +60,6 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 		reader = new FunctionViewReader(functionObject, paramTable, varTable, covarianceTable, set.getVarX());
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
-	}
-
-	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
@@ -106,7 +79,8 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 	}
 
-	private void createChart() {
+	@Override
+	protected void createChart() {
 		set.setFromConfigPanel(configPanel);
 		set.setFromSelectionPanel(selectionPanel);
 		set.setToChartCreator(chartCreator);
@@ -119,11 +93,6 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	@Override
-	public void selectionChanged(ChartSelectionPanel source) {
-		createChart();
-	}
-
-	@Override
 	public void configChanged(ChartConfigPanel source) {
 		if (!configPanel.getVarX().equals(set.getVarX())) {
 			set.setFromConfigPanel(configPanel);
@@ -132,19 +101,7 @@ public class FunctionViewNodeDialog extends DataAwareNodeDialogPane
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());
 		} else {
-			createChart();
+			super.configChanged(source);
 		}
-	}
-
-	@Override
-	public void zoomChanged(ChartCreator source) {
-		configPanel.removeConfigListener(this);
-		configPanel.setManualRange(true);
-		configPanel.setMinX(chartCreator.getMinX());
-		configPanel.setMaxX(chartCreator.getMaxX());
-		configPanel.setMinY(chartCreator.getMinY());
-		configPanel.setMaxY(chartCreator.getMaxY());
-		configPanel.addConfigListener(this);
-		createChart();
 	}
 }

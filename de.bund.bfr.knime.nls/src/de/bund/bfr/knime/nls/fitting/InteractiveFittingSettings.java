@@ -22,7 +22,7 @@ package de.bund.bfr.knime.nls.fitting;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.nls.view.ViewSettings;
+import de.bund.bfr.knime.nls.ViewSettings;
 
 public class InteractiveFittingSettings extends FittingSettings {
 

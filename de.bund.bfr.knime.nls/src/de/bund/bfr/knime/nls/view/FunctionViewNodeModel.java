@@ -36,6 +36,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
 import de.bund.bfr.knime.chart.ChartUtils;
+import de.bund.bfr.knime.nls.ViewSettings;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 

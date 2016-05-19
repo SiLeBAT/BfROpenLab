@@ -26,9 +26,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.nls.ViewSettings;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
-import de.bund.bfr.knime.nls.view.ViewSettings;
 
 public class PredictorSettings extends ViewSettings {
 
