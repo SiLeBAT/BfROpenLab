@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.predict;
+package de.bund.bfr.knime.nls.view;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeDialogPane;
@@ -26,9 +26,6 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.nls.ViewDialog;
-import de.bund.bfr.knime.nls.ViewModel;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 

@@ -26,9 +26,6 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 
-import de.bund.bfr.knime.nls.ViewDialog;
-import de.bund.bfr.knime.nls.ViewModel;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 

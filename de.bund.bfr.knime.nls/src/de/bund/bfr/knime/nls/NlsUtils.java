@@ -21,6 +21,7 @@ package de.bund.bfr.knime.nls;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -69,6 +70,10 @@ public class NlsUtils {
 	}
 
 	public static List<String> getIds(BufferedDataTable table) {
+		if (table == null) {
+			return Collections.emptyList();
+		}
+
 		List<String> ids = new ArrayList<>();
 
 		for (DataRow row : table) {
@@ -83,6 +88,10 @@ public class NlsUtils {
 	}
 
 	public static List<String> getQualityColumns(BufferedDataTable table, Function f) {
+		if (table == null) {
+			return Collections.emptyList();
+		}
+
 		List<String> columns = new ArrayList<>();
 
 		for (DataColumnSpec spec : table.getSpec()) {
@@ -128,7 +137,7 @@ public class NlsUtils {
 			return params;
 		}
 
-		return new LinkedHashMap<>();
+		return createZeroMap(f.getParameters());
 	}
 
 	public static Map<String, Map<String, Double>> getCovariances(BufferedDataTable table, String id, Function f) {
@@ -248,8 +257,18 @@ public class NlsUtils {
 	}
 
 	private static Iterable<DataRow> getRowsById(BufferedDataTable table, String id) {
-		return Iterables.filter(table,
-				row -> id.equals(IO.getString(row.getCell(table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN)))));
+		if (table == null) {
+			return Collections.emptyList();
+		}
+
+		int idColumn = table.getSpec().findColumnIndex(NlsUtils.ID_COLUMN);
+
+		if (idColumn == -1) {
+			return Collections.emptyList();
+		}
+
+		return Iterables.filter(table, row -> id.equals(IO.getString(row.getCell(idColumn))));
+
 	}
 
 	private static Map<String, double[]> convert(ListMultimap<String, Double> map) {

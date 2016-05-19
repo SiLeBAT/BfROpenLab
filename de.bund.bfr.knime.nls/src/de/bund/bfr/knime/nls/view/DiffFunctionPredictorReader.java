@@ -17,9 +17,10 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls.predict;
+package de.bund.bfr.knime.nls.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +28,12 @@ import java.util.Map;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.NlsUtils;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
-public class FunctionPredictorReader implements ViewReader {
+public class DiffFunctionPredictorReader implements ViewReader {
 
 	private List<String> ids;
 	private String depVar;
@@ -42,8 +42,8 @@ public class FunctionPredictorReader implements ViewReader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionPredictorReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
-			BufferedDataTable covarianceTable) {
+	public DiffFunctionPredictorReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
+			BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
 		List<String> qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 
@@ -68,13 +68,19 @@ public class FunctionPredictorReader implements ViewReader {
 			legend.put(id, id);
 			stringColumns.get(NlsUtils.ID_COLUMN).add(id);
 
-			qualityColumns.forEach(column -> doubleColumns.get(column).add(qualityValues.get(column)));
+			for (String q : qualityColumns) {
+				doubleColumns.get(q).add(qualityValues.get(q));
+			}
 
-			Plotable plotable = new Plotable(Plotable.Type.DATA_FUNCTION);
+			Plotable plotable = new Plotable(Plotable.Type.DIFF);
 
-			plotable.setFunction(f.getTerms().get(f.getDependentVariable()));
+			plotable.getFunctions().putAll(f.getTerms());
+			plotable.getInitValues().putAll(f.getInitValues());
+			plotable.getInitParameters().putAll(f.getInitParameters());
 			plotable.setDependentVariable(f.getDependentVariable());
-			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(f.getIndependentVariables()));
+			plotable.setDiffVariable(f.getTimeVariable());
+			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
+			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
 			plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
 
 			if (covarianceTable != null) {

@@ -29,7 +29,6 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -51,13 +50,7 @@ public class DiffFunctionViewReader implements ViewReader {
 	public DiffFunctionViewReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
 			BufferedDataTable varTable, BufferedDataTable conditionTable, BufferedDataTable covarianceTable) {
 		Function f = functionObject.getFunction();
-		List<String> qualityColumns;
-
-		if (paramTable != null) {
-			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
-		} else {
-			qualityColumns = new ArrayList<>();
-		}
+		List<String> qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 
 		ids = new ArrayList<>();
 		depVar = f.getDependentVariable();
@@ -74,13 +67,7 @@ public class DiffFunctionViewReader implements ViewReader {
 		}
 
 		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
-			Map<String, Double> qualityValues;
-
-			if (paramTable != null) {
-				qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
-			} else {
-				qualityValues = new LinkedHashMap<>();
-			}
+			Map<String, Double> qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 
 			ids.add(id);
 			legend.put(id, id);
@@ -100,16 +87,8 @@ public class DiffFunctionViewReader implements ViewReader {
 			plotable.getIndependentVariables().putAll(NlsUtils.createZeroMap(Arrays.asList(f.getTimeVariable())));
 			plotable.getValueLists().putAll(NlsUtils.getDiffVariableValues(varTable, id, f));
 			plotable.getConditionLists().putAll(NlsUtils.getConditionValues(conditionTable, id, f));
-
-			if (paramTable != null) {
-				plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
-			} else {
-				plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
-			}
-
-			if (covarianceTable != null) {
-				plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
-			}
+			plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
+			plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
 
 			if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
 				plotable.setMse(qualityValues.get(NlsUtils.MSE_COLUMN));

@@ -28,7 +28,6 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.nls.Function;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
@@ -42,20 +41,10 @@ public class FunctionViewReader implements ViewReader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> legend;
 
-	public FunctionViewReader(FunctionPortObject functionObject, BufferedDataTable varTable, String indep) {
-		this(functionObject, null, varTable, null, indep);
-	}
-
 	public FunctionViewReader(FunctionPortObject functionObject, BufferedDataTable paramTable,
 			BufferedDataTable varTable, BufferedDataTable covarianceTable, String indep) {
 		Function f = functionObject.getFunction();
-		List<String> qualityColumns;
-
-		if (paramTable != null) {
-			qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
-		} else {
-			qualityColumns = new ArrayList<>();
-		}
+		List<String> qualityColumns = NlsUtils.getQualityColumns(paramTable, f);
 
 		if (indep == null || !f.getIndependentVariables().contains(indep)) {
 			indep = f.getIndependentVariables().get(0);
@@ -83,19 +72,8 @@ public class FunctionViewReader implements ViewReader {
 
 		for (String id : NlsUtils.getIds(paramTable != null ? paramTable : varTable)) {
 			for (Map<String, Double> fixed : NlsUtils.getFixedVariables(varTable, id, f, indep)) {
-				String newId = id;
-
-				if (!fixed.isEmpty()) {
-					newId += fixed.toString();
-				}
-
-				Map<String, Double> qualityValues;
-
-				if (paramTable != null) {
-					qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
-				} else {
-					qualityValues = new LinkedHashMap<>();
-				}
+				String newId = fixed.isEmpty() ? id : id + " " + fixed.toString();
+				Map<String, Double> qualityValues = NlsUtils.getQualityValues(paramTable, id, qualityColumns);
 
 				ids.add(newId);
 				legend.put(newId, newId);
@@ -113,16 +91,8 @@ public class FunctionViewReader implements ViewReader {
 				plotable.setDependentVariable(f.getDependentVariable());
 				plotable.getIndependentVariables().putAll(variables);
 				plotable.getValueLists().putAll(NlsUtils.getVariableValues(varTable, id, f, fixed));
-
-				if (paramTable != null) {
-					plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
-				} else {
-					plotable.getParameters().putAll(NlsUtils.createZeroMap(f.getParameters()));
-				}
-
-				if (covarianceTable != null) {
-					plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
-				}
+				plotable.getParameters().putAll(NlsUtils.getParameters(paramTable, id, f));
+				plotable.getCovariances().putAll(NlsUtils.getCovariances(covarianceTable, id, f));
 
 				if (qualityValues.get(NlsUtils.MSE_COLUMN) != null) {
 					plotable.setMse(qualityValues.get(NlsUtils.MSE_COLUMN));

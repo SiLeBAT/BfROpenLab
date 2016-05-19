@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,13 +47,13 @@ import com.google.common.collect.Lists;
 
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.nls.NlsUtils;
-import de.bund.bfr.knime.nls.ViewReader;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.Plotable;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 import de.bund.bfr.knime.nls.view.DiffFunctionViewReader;
 import de.bund.bfr.knime.nls.view.FunctionViewReader;
+import de.bund.bfr.knime.nls.view.ViewReader;
 import de.bund.bfr.knime.ui.DoubleTextField;
 import de.bund.bfr.knime.ui.IntTextField;
 
@@ -69,6 +68,8 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	private boolean isDiff;
 	private ViewReader reader;
 	private InteractiveFittingSettings set;
+
+	private JPanel mainPanel;
 
 	private ChartCreator chartCreator;
 	private ChartConfigPanel configPanel;
@@ -89,11 +90,9 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 	protected InteractiveFittingNodeDialog(boolean isDiff) {
 		this.isDiff = isDiff;
 		set = new InteractiveFittingSettings();
-
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		addTab("Options", panel, false);
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		addTab("Options", mainPanel, false);
 	}
 
 	@Override
@@ -106,11 +105,10 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			conditionTable = (BufferedDataTable) input[2];
 			reader = new DiffFunctionViewReader(functionObject, varTable, conditionTable);
 		} else {
-			reader = new FunctionViewReader(functionObject, varTable, set.getViewSettings().getVarX());
+			reader = new FunctionViewReader(functionObject, null, varTable, null, set.getViewSettings().getVarX());
 		}
 
-		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createMainComponent());
+		updateChartPanel();
 	}
 
 	@Override
@@ -144,7 +142,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		set.saveSettings(settings);
 	}
 
-	private JComponent createMainComponent() {
+	private void updateChartPanel() {
 		lodField = new DoubleTextField(true, 8);
 		lodField.setValue(set.getLevelOfDetection());
 		lodField.addTextListener(e -> enforceLimitsBox.setEnabled(lodField.getValue() == null));
@@ -175,7 +173,7 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel.addConfigListener(this);
 		chartCreator.addZoomListener(this);
-		createChart();
+		updateChart();
 
 		List<Component> leftComponents = Lists.newArrayList(enforceLimitsBox,
 				new JLabel("Maximal Iterations in each run of Optimization Algorithm"));
@@ -217,10 +215,12 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		panel.add(chartCreator, BorderLayout.CENTER);
 		panel.add(rightPanel, BorderLayout.EAST);
 
-		return panel;
+		mainPanel.removeAll();
+		mainPanel.add(panel);
+		mainPanel.revalidate();
 	}
 
-	private void createChart() {
+	private void updateChart() {
 		set.getViewSettings().setFromConfigPanel(configPanel);
 		set.getViewSettings().setToChartCreator(chartCreator);
 
@@ -244,13 +244,12 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 			if (isDiff) {
 				reader = new DiffFunctionViewReader(functionObject, varTable, conditionTable);
 			} else {
-				reader = new FunctionViewReader(functionObject, varTable, set.getViewSettings().getVarX());
+				reader = new FunctionViewReader(functionObject, null, varTable, null, set.getViewSettings().getVarX());
 			}
 
-			((JPanel) getTab("Options")).removeAll();
-			((JPanel) getTab("Options")).add(createMainComponent());
+			updateChartPanel();
 		} else {
-			createChart();
+			updateChart();
 		}
 	}
 
@@ -263,6 +262,6 @@ public class InteractiveFittingNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setMinY(chartCreator.getMinY());
 		configPanel.setMaxY(chartCreator.getMaxY());
 		configPanel.addConfigListener(this);
-		createChart();
+		updateChart();
 	}
 }

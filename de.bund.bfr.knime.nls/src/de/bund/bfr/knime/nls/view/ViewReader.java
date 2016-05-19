@@ -17,7 +17,7 @@
  * Contributors:
  *     Department Biological Safety - BfR
  *******************************************************************************/
-package de.bund.bfr.knime.nls;
+package de.bund.bfr.knime.nls.view;
 
 import java.util.List;
 import java.util.Map;
