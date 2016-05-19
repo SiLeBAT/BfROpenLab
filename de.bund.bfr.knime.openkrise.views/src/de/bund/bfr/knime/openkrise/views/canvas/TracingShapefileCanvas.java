@@ -215,7 +215,7 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 	public VisualizationImageServer<LocationNode, Edge<LocationNode>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<LocationNode, Edge<LocationNode>> server = super.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
+		server.addPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 
 		return server;
 	}

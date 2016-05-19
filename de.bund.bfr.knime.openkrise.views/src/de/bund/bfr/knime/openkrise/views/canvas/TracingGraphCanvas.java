@@ -213,7 +213,7 @@ public class TracingGraphCanvas extends GraphCanvas implements ITracingCanvas<Gr
 	public VisualizationImageServer<GraphNode, Edge<GraphNode>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<GraphNode, Edge<GraphNode>> server = super.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new TracingDelegate.PostPaintable(this));
+		server.addPostRenderPaintable(new TracingDelegate.PostPaintable(this));
 
 		return server;
 	}

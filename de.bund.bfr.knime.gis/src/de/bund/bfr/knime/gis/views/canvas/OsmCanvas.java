@@ -103,7 +103,7 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 	public VisualizationImageServer<V, Edge<V>> getVisualizationServer(boolean toSvg) {
 		VisualizationImageServer<V, Edge<V>> server = super.getVisualizationServer(toSvg);
 
-		server.prependPostRenderPaintable(new PostPaintable());
+		server.addPostRenderPaintable(new PostPaintable());
 
 		return server;
 	}
