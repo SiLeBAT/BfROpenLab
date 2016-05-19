@@ -214,9 +214,9 @@ public abstract class OsmCanvas<V extends Node> extends GisCanvas<V> implements 
 				int d = 3;
 
 				g.setColor(ZoomingPaintable.BACKGROUND);
-				g.fillRect(-1, -1, w + 2 * d + 1, h + 1);
+				g.fillRect(0, 0, w + 2 * d, h);
 				g.setColor(Color.BLACK);
-				g.drawRect(-1, -1, w + 2 * d + 1, h + 1);
+				g.drawRect(0, 0, w + 2 * d, h);
 				g.setColor(textFocused ? Color.BLUE : Color.BLACK);
 				g.setFont(font);
 				g.drawString(text, d, g.getFontMetrics(font).getAscent());

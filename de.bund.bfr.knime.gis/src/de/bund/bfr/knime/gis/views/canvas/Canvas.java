@@ -151,7 +151,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		viewer = new BetterVisualizationViewer<>();
 		viewer.setBackground(Color.WHITE);
-		viewer.addPostRenderPaintable(new PostPaintable(false));
+		viewer.addPostRenderPaintable(new PostPaintable());
 		viewer.addPostRenderPaintable(createZoomingPaintable());
 		viewer.getGraphLayout().setGraph(CanvasUtils.createGraph(viewer, this.nodes, this.edges));
 
@@ -1050,7 +1050,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		server.setBackground(Color.WHITE);
 		server.setRenderContext(viewer.getRenderContext());
 		server.setRenderer(viewer.getRenderer());
-		server.addPostRenderPaintable(new PostPaintable(true));
+		server.addPostRenderPaintable(new PostPaintable());
 
 		return server;
 	}
@@ -1270,12 +1270,6 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	private class PostPaintable implements Paintable {
 
-		private boolean toImage;
-
-		public PostPaintable(boolean toImage) {
-			this.toImage = toImage;
-		}
-
 		@Override
 		public boolean useTransform() {
 			return false;
@@ -1295,13 +1289,11 @@ public abstract class Canvas<V extends Node> extends JPanel
 						optionsPanel.isFontBold());
 			}
 
-			if (toImage) {
-				Color currentColor = g.getColor();
+			Color currentColor = g.getColor();
 
-				g.setColor(Color.BLACK);
-				g.drawRect(0, 0, getCanvasSize().width - 1, getCanvasSize().height - 1);
-				g.setColor(currentColor);
-			}
+			g.setColor(Color.BLACK);
+			g.drawRect(0, 0, getCanvasSize().width - 1, getCanvasSize().height - 1);
+			g.setColor(currentColor);
 		}
 
 		private void paintLabel(Graphics2D g) {

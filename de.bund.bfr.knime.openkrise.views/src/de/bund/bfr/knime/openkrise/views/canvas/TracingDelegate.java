@@ -716,7 +716,7 @@ public class TracingDelegate<V extends Node> {
 			g.setColor(ZoomingPaintable.BACKGROUND);
 			g.fillRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);
 			g.setColor(Color.BLACK);
-			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx, height);
+			g.drawRect(w - sw1 - iw1 - sw2 - iw2 - 5 * dx, h - height, sw1 + iw1 + sw2 + iw2 + 5 * dx - 1, height - 1);
 			g.setFont(font);
 			g.drawString(s1, w - sw1 - iw1 - sw2 - iw2 - 4 * dx, h - fontHeight - dFont + fontAscent);
 			logo1.setDimension(new Dimension(iw1, logoHeight));
