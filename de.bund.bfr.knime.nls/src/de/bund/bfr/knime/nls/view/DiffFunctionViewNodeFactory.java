@@ -26,8 +26,10 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 
+import de.bund.bfr.knime.nls.ViewDialog;
 import de.bund.bfr.knime.nls.ViewModel;
 import de.bund.bfr.knime.nls.ViewReader;
+import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.functionport.FunctionPortObject;
 
 /**
@@ -84,7 +86,19 @@ public class DiffFunctionViewNodeFactory extends NodeFactory<ViewModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new DiffFunctionViewNodeDialog();
+		return new ViewDialog() {
+
+			@Override
+			protected ViewReader createReader() {
+				return new DiffFunctionViewReader((FunctionPortObject) input[0], (BufferedDataTable) input[1],
+						(BufferedDataTable) input[2], (BufferedDataTable) input[3], (BufferedDataTable) input[4]);
+			}
+
+			@Override
+			protected ChartConfigPanel createConfigPanel() {
+				return new ChartConfigPanel(true, true, false, false, true);
+			}
+		};
 	}
 
 }

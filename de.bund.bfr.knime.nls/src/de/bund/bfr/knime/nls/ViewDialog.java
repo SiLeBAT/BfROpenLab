@@ -25,9 +25,13 @@ import javax.swing.JPanel;
 
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObject;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.nls.chart.ChartAllPanel;
 import de.bund.bfr.knime.nls.chart.ChartConfigPanel;
 import de.bund.bfr.knime.nls.chart.ChartCreator;
 import de.bund.bfr.knime.nls.chart.ChartSelectionPanel;
@@ -36,8 +40,12 @@ import de.bund.bfr.knime.nls.chart.Plotable;
 public abstract class ViewDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
+	protected PortObject[] input;
+
 	protected ViewReader reader;
 	protected ViewSettings set;
+
+	protected JPanel mainPanel;
 
 	protected ChartCreator chartCreator;
 	protected ChartSelectionPanel selectionPanel;
@@ -45,11 +53,18 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 
 	protected ViewDialog() {
 		set = new ViewSettings();
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		addTab("Options", mainPanel, false);
+	}
 
-		JPanel panel = new JPanel();
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings, PortObject[] input) throws NotConfigurableException {
+		this.input = input;
 
-		panel.setLayout(new BorderLayout());
-		addTab("Options", panel, false);
+		set.loadSettings(settings);
+		reader = createReader();
+		updateChartPanel();
 	}
 
 	@Override
@@ -57,7 +72,30 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 		set.saveSettings(settings);
 	}
 
-	protected void createChart() {
+	protected abstract ViewReader createReader();
+
+	protected abstract ChartConfigPanel createConfigPanel();
+
+	protected void updateChartPanel() {
+		configPanel = createConfigPanel();
+		configPanel.init(reader.getDepVar(), NlsUtils.getOrderedVariables(reader.getPlotables().values()), null);
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), reader.getStringColumns(), reader.getDoubleColumns());
+		chartCreator = new ChartCreator(reader.getPlotables(), reader.getLegend());
+		chartCreator.setVarY(reader.getDepVar());
+
+		set.setToConfigPanel(configPanel);
+		set.setToSelectionPanel(selectionPanel);
+		configPanel.addConfigListener(this);
+		selectionPanel.addSelectionListener(this);
+		chartCreator.addZoomListener(this);
+		updateChart();
+
+		mainPanel.removeAll();
+		mainPanel.add(new ChartAllPanel(chartCreator, selectionPanel, configPanel));
+		mainPanel.revalidate();
+	}
+
+	protected void updateChart() {
 		set.setFromConfigPanel(configPanel);
 		set.setFromSelectionPanel(selectionPanel);
 		set.setToChartCreator(chartCreator);
@@ -75,12 +113,12 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void selectionChanged(ChartSelectionPanel source) {
-		createChart();
+		updateChart();
 	}
 
 	@Override
 	public void configChanged(ChartConfigPanel source) {
-		createChart();
+		updateChart();
 	}
 
 	@Override
@@ -92,6 +130,6 @@ public abstract class ViewDialog extends DataAwareNodeDialogPane
 		configPanel.setMinY(chartCreator.getMinY());
 		configPanel.setMaxY(chartCreator.getMaxY());
 		configPanel.addConfigListener(this);
-		createChart();
+		updateChart();
 	}
 }
