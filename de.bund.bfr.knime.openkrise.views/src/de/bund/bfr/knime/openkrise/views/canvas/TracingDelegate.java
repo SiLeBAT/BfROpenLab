@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -39,7 +41,9 @@ import java.util.stream.Stream;
 
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.ScrollPaneConstants;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
@@ -121,7 +125,28 @@ public class TracingDelegate<V extends Node> {
 				applyChanges();
 				call(l -> l.dateSettingsChanged(canvas));
 			});
-			canvas.getComponent().add(dateSlider, BorderLayout.NORTH);
+
+			JScrollPane pane = new JScrollPane(dateSlider, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+			canvas.getComponent().add(pane, BorderLayout.NORTH);
+			pane.addComponentListener(new ComponentAdapter() {
+
+				@Override
+				public void componentResized(ComponentEvent e) {
+					if (pane.getSize().width < pane.getPreferredSize().width) {
+						if (pane.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+							pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+							pane.getParent().revalidate();
+						}
+					} else {
+						if (pane.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+							pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+							pane.getParent().revalidate();
+						}
+					}
+				}
+			});
 		}
 
 		JMenuItem defaultHighlightItem = new JMenuItem("Set default Highlighting");

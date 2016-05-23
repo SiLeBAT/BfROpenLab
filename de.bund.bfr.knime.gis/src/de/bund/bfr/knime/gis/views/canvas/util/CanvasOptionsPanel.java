@@ -21,6 +21,8 @@ package de.bund.bfr.knime.gis.views.canvas.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.EventListener;
 import java.util.Vector;
 import java.util.function.Consumer;
@@ -194,9 +196,24 @@ public class CanvasOptionsPanel extends JScrollPane {
 
 		setViewportView(UI.createWestPanel(UI.createNorthPanel(panel)));
 		setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		setPreferredSize(getPreferredSize());
-		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				if (getSize().width < getPreferredSize().width) {
+					if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+						setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+						getParent().revalidate();
+					}
+				} else {
+					if (getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+						setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+						getParent().revalidate();
+					}
+				}
+			}
+		});
 	}
 
 	public void addChangeListener(ChangeListener listener) {

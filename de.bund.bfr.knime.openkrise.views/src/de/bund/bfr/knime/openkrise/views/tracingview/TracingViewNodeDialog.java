@@ -20,8 +20,8 @@
 package de.bund.bfr.knime.openkrise.views.tracingview;
 
 import java.awt.BorderLayout;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Deque;
@@ -67,8 +67,7 @@ import de.bund.bfr.knime.ui.Dialogs;
  * 
  * @author Christian Thoens
  */
-public class TracingViewNodeDialog extends DataAwareNodeDialogPane
-		implements ComponentListener, CanvasListener, TracingListener {
+public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements CanvasListener, TracingListener {
 
 	private JPanel panel;
 	private ITracingCanvas<?> canvas;
@@ -203,7 +202,29 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 		gisBox.setEnabled(set.isShowGis());
 		exportAsSvgBox.setSelected(set.isExportAsSvg());
 		resized = false;
-		panel.addComponentListener(this);
+		panel.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
+					resized = true;
+				}
+
+				if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
+					if (northScrollPane
+							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS) {
+						northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+						northScrollPane.getParent().revalidate();
+					}
+				} else {
+					if (northScrollPane
+							.getHorizontalScrollBarPolicy() != ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) {
+						northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+						northScrollPane.getParent().revalidate();
+					}
+				}
+			}
+		});
 
 		String warning = createCanvas();
 
@@ -218,33 +239,6 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		updateSettings();
 		set.saveSettings(settings);
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-		if (SwingUtilities.getWindowAncestor(e.getComponent()).isActive()) {
-			resized = true;
-		}
-
-		if (northScrollPane.getSize().width < northScrollPane.getPreferredSize().width) {
-			northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-			northScrollPane.getParent().revalidate();
-		} else {
-			northScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			northScrollPane.getParent().revalidate();
-		}
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
 	}
 
 	@Override
