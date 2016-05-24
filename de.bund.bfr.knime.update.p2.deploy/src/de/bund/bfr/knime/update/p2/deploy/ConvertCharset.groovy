@@ -33,13 +33,13 @@ import java.util.List;
 class ConvertCharset {
 
 	static main(args) {
-		convert(new File(".."));
+		convert(new File(".."))
 	}
 
 	static void convert(File dir) {
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory())
-				convert(f);
+				convert(f)
 			else if (f.name.toLowerCase().endsWith(".java"))
 				f.write(f.getText('windows-1252'), 'utf-8')
 		}
