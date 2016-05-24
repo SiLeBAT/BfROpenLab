@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Federal Institute for Risk Assessment (BfR), Germany
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *     Department Biological Safety - BfR
+ *******************************************************************************/
+package de.bund.bfr.knime.update.p2.deploy
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,52 +36,12 @@ class ConvertCharset {
 		convert(new File(".."));
 	}
 
-	static void convert(File dir) throws IOException {
+	static void convert(File dir) {
 		for (File f : dir.listFiles()) {
-			if (f.isDirectory()) {
+			if (f.isDirectory())
 				convert(f);
-			} else if (f.getName().toLowerCase().endsWith(".java")) {
-				System.out.println(f.getAbsolutePath());
-
-				List<String> lines = new ArrayList<>();
-				List<String> lineEndings = new ArrayList<>();
-				BufferedReader reader1 = new BufferedReader(new InputStreamReader(
-						new FileInputStream(f), "windows-1252"));
-				String line;
-
-				while ((line = reader1.readLine()) != null) {
-					lines.add(line);
-				}
-
-				reader1.close();
-
-				BufferedReader reader2 = new BufferedReader(new InputStreamReader(
-						new FileInputStream(f), "windows-1252"));
-				int character;
-
-				while ((character = reader2.read()) != -1) {
-					if (character == '\n') {
-						lineEndings.add("\n");
-					} else if (character == '\r' && reader2.read() == '\n') {
-						lineEndings.add("\r\n");
-					}
-				}
-
-				reader2.close();
-
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(f), "UTF-8"));
-
-				for (int i = 0; i < lines.size(); i++) {
-					if (i < lineEndings.size()) {
-						writer.write(lines.get(i) + lineEndings.get(i));
-					} else {
-						writer.write(lines.get(i));
-					}
-				}
-
-				writer.close();
-			}
+			else if (f.name.toLowerCase().endsWith(".java"))
+				f.write(f.getText('windows-1252'), 'utf-8')
 		}
 	}
 }
