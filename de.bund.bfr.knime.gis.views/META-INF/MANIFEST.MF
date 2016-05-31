@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME GIS Nodes (Views)
 Bundle-SymbolicName: de.bund.bfr.knime.gis.views; singleton:=true
-Bundle-Version: 1.1.2.qualifier
+Bundle-Version: 1.1.3.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: de.bund.bfr.knime.gis.views.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
