@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.JDialog;
@@ -85,7 +86,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public Map<String, Point2D> getNodePositions() {
 		updatePositionsOfCollapsedNodes();
-		return getNodePositions(nodeSaveMap.values());
+		return getNodePositions(nodeSaveMap.values().stream().filter(n -> !collapsedNodes.containsKey(n.getId()))
+				.collect(Collectors.toList()));
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {

@@ -483,6 +483,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 	@Override
 	public void setCollapsedNodes(Map<String, Set<String>> collapsedNodes) {
+		Sets.difference(this.collapsedNodes.keySet(), collapsedNodes.keySet()).forEach(id -> nodeSaveMap.remove(id));
 		this.collapsedNodes = collapsedNodes;
 		applyChanges();
 		call(l -> l.collapsedNodesChanged(this));
