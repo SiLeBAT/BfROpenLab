@@ -22,8 +22,10 @@ package de.bund.bfr.jung;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
@@ -31,10 +33,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
@@ -51,16 +55,22 @@ public class JungUtils {
 	private JungUtils() {
 	}
 
+	public static <V, E> Transformer<V, Stroke> newNodeStrokeTransformer(RenderContext<V, E> renderContext,
+			Set<V> metaNodes) {
+		return node -> metaNodes.contains(node) || renderContext.getPickedVertexState().isPicked(node)
+				? new BasicStroke(4.0f) : new BasicStroke(1.0f);
+	}
+
+	public static <V, E> Transformer<V, Paint> newNodeDrawTransformer(RenderContext<V, E> renderContext) {
+		return node -> renderContext.getPickedVertexState().isPicked(node) ? Color.BLUE : Color.BLACK;
+	}
+
 	public static <V, E> Transformer<V, Paint> newNodeFillTransformer(RenderContext<V, E> renderContext,
 			Map<V, Paint> nodeColors) {
 		return node -> {
-			if (renderContext.getPickedVertexState().getPicked().contains(node)) {
-				return Color.BLUE;
-			} else if (nodeColors != null && nodeColors.containsKey(node)) {
-				return nodeColors.get(node);
-			} else {
-				return Color.WHITE;
-			}
+			Paint color = nodeColors != null && nodeColors.containsKey(node) ? nodeColors.get(node) : Color.WHITE;
+
+			return renderContext.getPickedVertexState().isPicked(node) ? mixWithBlue(color) : color;
 		};
 	}
 
@@ -80,7 +90,7 @@ public class JungUtils {
 	public static <V, E> Transformer<E, Paint> newEdgeDrawTransformer(RenderContext<V, E> renderContext,
 			Map<E, Paint> edgeColors) {
 		return edge -> {
-			if (renderContext.getPickedEdgeState().getPicked().contains(edge)) {
+			if (renderContext.getPickedEdgeState().isPicked(edge)) {
 				return Color.GREEN;
 			} else if (edgeColors != null && edgeColors.containsKey(edge)) {
 				return edgeColors.get(edge);
@@ -226,5 +236,26 @@ public class JungUtils {
 		float ny2 = ny1 + dx;
 
 		return new Line2D.Float(nx1, ny1, nx2, ny2);
+	}
+
+	private static Paint mixWithBlue(Paint paint) {
+		if (paint instanceof Color) {
+			Color c = (Color) paint;
+
+			return new Color(c.getRed() / 2, c.getGreen() / 2, (c.getBlue() + 255) / 2, (c.getAlpha() + 255) / 2);
+		} else if (paint instanceof TexturePaint) {
+			BufferedImage texture = ((TexturePaint) paint).getImage();
+			BufferedImage mixed = new BufferedImage(texture.getWidth(), texture.getHeight(), texture.getType());
+
+			for (int x = 0; x < texture.getWidth(); x++) {
+				for (int y = 0; y < texture.getHeight(); y++) {
+					mixed.setRGB(x, y, ((Color) mixWithBlue(new Color(texture.getRGB(x, y)))).getRGB());
+				}
+			}
+
+			return new TexturePaint(mixed, new Rectangle(mixed.getWidth(), mixed.getHeight()));
+		} else {
+			return paint;
+		}
 	}
 }

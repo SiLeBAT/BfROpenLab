@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -159,8 +158,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 
 		rc.setEdgeShapeTransformer(new BetterEdgeShapeTransformer<>(CanvasOptionsPanel.DEFAULT_FONT_SIZE));
 		rc.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(rc, null));
-		rc.setVertexStrokeTransformer(node -> Boolean.TRUE.equals(node.getProperties().get(metaNodeProperty))
-				? new BasicStroke(4.0f) : new BasicStroke(1.0f));
+		rc.setVertexStrokeTransformer(JungUtils.newNodeStrokeTransformer(rc, null));
+		rc.setVertexDrawPaintTransformer(JungUtils.newNodeDrawTransformer(rc));
 		rc.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(rc, null));
 		((MutableAffineTransformer) rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).addChangeListener(e -> {
 			AffineTransform transform = ((MutableAffineTransformer) rc.getMultiLayerTransformer()
@@ -1180,7 +1179,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 	@Override
 	public void applyHighlights() {
 		CanvasUtils.applyNodeHighlights(viewer.getRenderContext(), nodes, nodeHighlightConditions, getNodeSize(),
-				getNodeMaxSize());
+				getNodeMaxSize(), metaNodeProperty);
 		CanvasUtils.applyEdgeHighlights(viewer.getRenderContext(), edges, edgeHighlightConditions, getEdgeThickness(),
 				getEdgeMaxThickness());
 	}

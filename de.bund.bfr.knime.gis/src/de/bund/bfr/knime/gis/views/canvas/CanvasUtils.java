@@ -367,13 +367,17 @@ public class CanvasUtils {
 	}
 
 	public static <V extends Node> void applyNodeHighlights(RenderContext<V, Edge<V>> renderContext,
-			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize) {
+			Collection<V> nodes, HighlightConditionList nodeHighlightConditions, int nodeSize, Integer nodeMaxSize,
+			String metaNodeProperty) {
 		HighlightResult<V> result = getResult(nodes, nodeHighlightConditions);
+		Set<V> metaNodes = nodes.stream().filter(n -> Boolean.TRUE.equals(n.getProperties().get(metaNodeProperty)))
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 
 		renderContext.setVertexShapeTransformer(
 				JungUtils.newNodeShapeTransformer(nodeSize, nodeMaxSize, result.thicknessValues));
 		renderContext.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(renderContext, result.colors));
 		renderContext.setVertexLabelTransformer(node -> result.labels.get(node));
+		renderContext.setVertexStrokeTransformer(JungUtils.newNodeStrokeTransformer(renderContext, metaNodes));
 	}
 
 	public static <V extends Node> void applyNodeLabels(RenderContext<V, Edge<V>> renderContext, Collection<V> nodes,
@@ -429,16 +433,16 @@ public class CanvasUtils {
 		if (checkedInsteadOfStriped) {
 			img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 
-			for (int i = 0; i < size; i++) {
-				for (int j = 0; j < size; j++) {
-					img.setRGB(i, j, cs.get((i / EDGE_TEXTURE_SIZE + j / EDGE_TEXTURE_SIZE) % cs.size()).getRGB());
+			for (int x = 0; x < size; x++) {
+				for (int y = 0; y < size; y++) {
+					img.setRGB(x, y, cs.get((x / EDGE_TEXTURE_SIZE + y / EDGE_TEXTURE_SIZE) % cs.size()).getRGB());
 				}
 			}
 		} else {
 			img = new BufferedImage(size, 1, BufferedImage.TYPE_INT_ARGB);
 
-			for (int i = 0; i < size; i++) {
-				img.setRGB(i, 0, cs.get(i / NODE_TEXTURE_SIZE).getRGB());
+			for (int x = 0; x < size; x++) {
+				img.setRGB(x, 0, cs.get(x / NODE_TEXTURE_SIZE).getRGB());
 			}
 		}
 
@@ -619,7 +623,7 @@ public class CanvasUtils {
 
 		Multimaps.asMap(alphaValues).forEach((e, alphas) -> colors.put(e, CanvasUtils
 				.mixColors(e instanceof Edge ? Color.BLACK : Color.WHITE, colorList, alphas, e instanceof Edge)));
-		Multimaps.asMap(labelLists).forEach((edge, labelList) -> labels.put(edge, Joiner.on("/").join(labelList)));
+		Multimaps.asMap(labelLists).forEach((e, labelList) -> labels.put(e, Joiner.on("/").join(labelList)));
 
 		HighlightResult<E> result = new HighlightResult<>();
 

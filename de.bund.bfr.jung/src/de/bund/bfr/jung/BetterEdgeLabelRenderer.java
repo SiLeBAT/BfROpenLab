@@ -64,7 +64,7 @@ public class BetterEdgeLabelRenderer<V, E> implements Renderer.EdgeLabel<V, E> {
 		trans.translate(line.getX1(), line.getY1());
 		trans.rotate(angle);
 		g.setTransform(trans);
-		g.setColor(rc.getPickedEdgeState().getPicked().contains(e) ? Color.GREEN : Color.BLACK);
+		g.setColor(rc.getPickedEdgeState().isPicked(e) ? Color.GREEN : Color.BLACK);
 		g.setFont(rc.getEdgeFontTransformer().transform(e));
 		g.drawString(label, (int) (-width / 2), 0);
 		g.setTransform(old);
