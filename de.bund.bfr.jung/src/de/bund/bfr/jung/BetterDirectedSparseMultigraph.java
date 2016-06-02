@@ -46,4 +46,12 @@ public class BetterDirectedSparseMultigraph<V, E> extends DirectedSparseMultigra
 
 		return Sets.union(unPicked, picked);
 	}
+
+	@Override
+	public Collection<E> getEdges() {
+		Set<E> picked = owner.getPickedEdgeState().getPicked();
+		Set<E> unPicked = Sets.difference(edges.keySet(), picked);
+
+		return Sets.union(unPicked, picked);
+	}
 }
