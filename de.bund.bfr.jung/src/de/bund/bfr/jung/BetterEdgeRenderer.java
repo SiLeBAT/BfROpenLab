@@ -19,7 +19,7 @@
  *******************************************************************************/
 package de.bund.bfr.jung;
 
-import java.awt.Dimension;
+import java.awt.BasicStroke;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -27,8 +27,6 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
-import javax.swing.JComponent;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -55,25 +53,14 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 		float y1 = (float) p1.getY();
 		float x2 = (float) p2.getX();
 		float y2 = (float) p2.getY();
-
-		boolean isLoop = endpoints.getFirst().equals(endpoints.getSecond());
-		Shape s2 = rc.getVertexShapeTransformer().transform(endpoints.getSecond());
 		Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V, E>, E> getInstance(graph, e));
-
-		Rectangle deviceRectangle = null;
-		JComponent vv = rc.getScreenDevice();
-
-		if (vv != null) {
-			Dimension d = vv.getSize();
-			deviceRectangle = new Rectangle(0, 0, d.width, d.height);
-		}
-
+		Rectangle deviceRectangle = new Rectangle(rc.getScreenDevice().getSize());
 		AffineTransform xform = AffineTransform.getTranslateInstance(x1, y1);
 
-		if (isLoop) {
-			Rectangle2D s2Bounds = s2.getBounds2D();
+		if (endpoints.getFirst().equals(endpoints.getSecond())) {
+			Rectangle2D bounds = rc.getVertexShapeTransformer().transform(endpoints.getFirst()).getBounds2D();
 
-			xform.scale(s2Bounds.getWidth(), s2Bounds.getHeight());
+			xform.scale(bounds.getWidth(), bounds.getHeight());
 			xform.translate(0, -edgeShape.getBounds2D().getWidth() / 2);
 		} else {
 			float dx = x2 - x1;
@@ -87,16 +74,20 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 
 		if (rc.getMultiLayerTransformer().getTransformer(Layer.VIEW).transform(edgeShape).intersects(deviceRectangle)) {
 			Paint oldPaint = g.getPaint();
-			Paint fill_paint = rc.getEdgeFillPaintTransformer().transform(e);
+			BasicStroke stroke = (BasicStroke) rc.getEdgeStrokeTransformer().transform(e);
 			Paint draw_paint = rc.getEdgeDrawPaintTransformer().transform(e);
-
-			if (fill_paint != null) {
-				g.setPaint(fill_paint);
-				g.fill(edgeShape);
-			}
+			Paint fill_paint = rc.getEdgeFillPaintTransformer().transform(e);
 
 			if (draw_paint != null) {
+				g.setStroke(new BasicStroke(stroke.getLineWidth() + 4, stroke.getEndCap(), stroke.getLineJoin(),
+						stroke.getMiterLimit(), stroke.getDashArray(), stroke.getDashPhase()));
 				g.setPaint(draw_paint);
+				g.draw(edgeShape);
+			}
+
+			if (fill_paint != null) {
+				g.setStroke(stroke);
+				g.setPaint(fill_paint);
 				g.draw(edgeShape);
 			}
 
@@ -104,11 +95,11 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 				Stroke new_stroke = rc.getEdgeArrowStrokeTransformer().transform(e);
 				Stroke old_stroke = g.getStroke();
 
-				if (new_stroke != null)
+				if (new_stroke != null) {
 					g.setStroke(new_stroke);
+				}
 
 				Shape destVertexShape = rc.getVertexShapeTransformer().transform(graph.getEndpoints(e).getSecond());
-
 				AffineTransform xf = AffineTransform.getTranslateInstance(x2, y2);
 				destVertexShape = xf.createTransformedShape(destVertexShape);
 

@@ -394,7 +394,7 @@ public class CanvasUtils {
 		Pair<Transformer<Edge<V>, Stroke>, Transformer<Context<Graph<V, Edge<V>>, Edge<V>>, Shape>> strokeAndArrowTransformers = JungUtils
 				.newEdgeStrokeArrowTransformers(edgeThickness, edgeMaxThickness, result.thicknessValues);
 
-		renderContext.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(renderContext, result.colors));
+		renderContext.setEdgeFillPaintTransformer(JungUtils.newEdgeFillTransformer(renderContext, result.colors));
 		renderContext.setEdgeStrokeTransformer(strokeAndArrowTransformers.getFirst());
 		renderContext.setEdgeArrowTransformer(strokeAndArrowTransformers.getSecond());
 		renderContext.setEdgeLabelTransformer(edge -> result.labels.get(edge));

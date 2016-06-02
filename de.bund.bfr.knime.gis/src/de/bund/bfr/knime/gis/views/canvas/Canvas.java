@@ -160,7 +160,8 @@ public abstract class Canvas<V extends Node> extends JPanel
 		rc.setVertexFillPaintTransformer(JungUtils.newNodeFillTransformer(rc, null));
 		rc.setVertexStrokeTransformer(JungUtils.newNodeStrokeTransformer(rc, null));
 		rc.setVertexDrawPaintTransformer(JungUtils.newNodeDrawTransformer(rc));
-		rc.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(rc, null));
+		rc.setEdgeDrawPaintTransformer(JungUtils.newEdgeDrawTransformer(rc));
+		rc.setEdgeFillPaintTransformer(JungUtils.newEdgeFillTransformer(rc, null));
 		((MutableAffineTransformer) rc.getMultiLayerTransformer().getTransformer(Layer.LAYOUT)).addChangeListener(e -> {
 			AffineTransform transform = ((MutableAffineTransformer) rc.getMultiLayerTransformer()
 					.getTransformer(Layer.LAYOUT)).getTransform();

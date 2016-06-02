@@ -70,7 +70,7 @@ public class JungUtils {
 		return node -> {
 			Paint color = nodeColors != null && nodeColors.containsKey(node) ? nodeColors.get(node) : Color.WHITE;
 
-			return renderContext.getPickedVertexState().isPicked(node) ? mixWithBlue(color) : color;
+			return renderContext.getPickedVertexState().isPicked(node) ? mixWith(color, Color.BLUE) : color;
 		};
 	}
 
@@ -87,16 +87,18 @@ public class JungUtils {
 		};
 	}
 
-	public static <V, E> Transformer<E, Paint> newEdgeDrawTransformer(RenderContext<V, E> renderContext,
+	public static <V, E> Transformer<E, Paint> newEdgeDrawTransformer(RenderContext<V, E> renderContext) {
+		return edge -> {
+			return renderContext.getPickedEdgeState().isPicked(edge) ? Color.GREEN : null;
+		};
+	}
+
+	public static <V, E> Transformer<E, Paint> newEdgeFillTransformer(RenderContext<V, E> renderContext,
 			Map<E, Paint> edgeColors) {
 		return edge -> {
-			if (renderContext.getPickedEdgeState().isPicked(edge)) {
-				return Color.GREEN;
-			} else if (edgeColors != null && edgeColors.containsKey(edge)) {
-				return edgeColors.get(edge);
-			} else {
-				return Color.BLACK;
-			}
+			Paint color = edgeColors != null && edgeColors.containsKey(edge) ? edgeColors.get(edge) : Color.BLACK;
+
+			return renderContext.getPickedEdgeState().isPicked(edge) ? mixWith(color, Color.GREEN) : color;
 		};
 	}
 
@@ -238,18 +240,19 @@ public class JungUtils {
 		return new Line2D.Float(nx1, ny1, nx2, ny2);
 	}
 
-	private static Paint mixWithBlue(Paint paint) {
+	private static Paint mixWith(Paint paint, Color mix) {
 		if (paint instanceof Color) {
 			Color c = (Color) paint;
 
-			return new Color(c.getRed() / 2, c.getGreen() / 2, (c.getBlue() + 255) / 2, (c.getAlpha() + 255) / 2);
+			return new Color((c.getRed() + mix.getRed()) / 2, (c.getGreen() + mix.getGreen()) / 2,
+					(c.getBlue() + mix.getBlue()) / 2, (c.getAlpha() + mix.getAlpha()) / 2);
 		} else if (paint instanceof TexturePaint) {
 			BufferedImage texture = ((TexturePaint) paint).getImage();
 			BufferedImage mixed = new BufferedImage(texture.getWidth(), texture.getHeight(), texture.getType());
 
 			for (int x = 0; x < texture.getWidth(); x++) {
 				for (int y = 0; y < texture.getHeight(); y++) {
-					mixed.setRGB(x, y, ((Color) mixWithBlue(new Color(texture.getRGB(x, y)))).getRGB());
+					mixed.setRGB(x, y, ((Color) mixWith(new Color(texture.getRGB(x, y)), mix)).getRGB());
 				}
 			}
 
