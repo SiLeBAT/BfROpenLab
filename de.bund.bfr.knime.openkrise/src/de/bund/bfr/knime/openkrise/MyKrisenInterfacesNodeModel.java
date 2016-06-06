@@ -106,7 +106,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		Connection conn = set.isUseExternalDb()
 				? createLocalConnection("SA", "", KnimeUtils.getFile(removeNameOfDB(set.getDbPath())).getAbsolutePath())
 				: DBKernel.getLocalConn(true);
-		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.isSerialPossible(conn);
+		boolean useSerialAsID = !set.isAnonymize() && DeliveryUtils.hasUniqueSerials(conn);
 		Map<Integer, String> stationIds = DeliveryUtils.getStationIds(conn, useSerialAsID);
 		Map<Integer, String> deliveryIds = DeliveryUtils.getDeliveryIds(conn, useSerialAsID);
 		SetMultimap<String, String> warnings = LinkedHashMultimap.create();

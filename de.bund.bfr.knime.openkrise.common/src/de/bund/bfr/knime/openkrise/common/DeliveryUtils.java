@@ -39,7 +39,6 @@ import java.util.Set;
 
 import org.jooq.Record;
 import org.jooq.Record1;
-import org.jooq.Record2;
 import org.jooq.SQLDialect;
 import org.jooq.Select;
 import org.jooq.impl.DSL;
@@ -61,7 +60,7 @@ public class DeliveryUtils {
 	private DeliveryUtils() {
 	}
 
-	public static boolean isSerialPossible(Connection conn) {
+	public static boolean hasUniqueSerials(Connection conn) {
 		Set<String> stationSerials = new LinkedHashSet<>();
 
 		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).select(STATION.SERIAL).from(STATION)) {
@@ -71,26 +70,11 @@ public class DeliveryUtils {
 		}
 
 		Set<String> deliverySerials = new LinkedHashSet<>();
-		boolean alwaysKg = true;
 
-		for (Record2<String, String> r : DSL.using(conn, SQLDialect.HSQLDB)
-				.select(LIEFERUNGEN.SERIAL, LIEFERUNGEN.UNITEINHEIT).from(LIEFERUNGEN)) {
+		for (Record1<String> r : DSL.using(conn, SQLDialect.HSQLDB).select(LIEFERUNGEN.SERIAL).from(LIEFERUNGEN)) {
 			if (r.value1() == null || !deliverySerials.add(r.value1())) {
 				return false;
 			}
-
-			if (!"kg".equals(r.value2())) {
-				alwaysKg = false;
-			}
-		}
-
-		if (alwaysKg) {
-			// beim EFSA Importer wurde immer kg eingetragen, später beim
-			// bfrnewimporter wurde nur noch "numPU" und "typePU" benutzt
-			// und UnitEinheit müsste immer NULL sein, daher ist das ein
-			// sehr gutes Indiz dafür, dass wir es mit alten Daten zu tun
-			// haben
-			return false;
 		}
 
 		return true;
@@ -186,7 +170,7 @@ public class DeliveryUtils {
 	}
 
 	public static Map<String, Set<String>> getWarnings(Connection conn) {
-		boolean useSerialAsID = isSerialPossible(conn);
+		boolean useSerialAsID = hasUniqueSerials(conn);
 		SetMultimap<String, String> warnings = LinkedHashMultimap.create();
 
 		getDeliveries(conn, getStationIds(conn, useSerialAsID), getDeliveryIds(conn, useSerialAsID), warnings);
