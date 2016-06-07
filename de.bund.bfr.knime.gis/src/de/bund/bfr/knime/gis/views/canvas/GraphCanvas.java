@@ -26,6 +26,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,8 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+
+import com.google.common.collect.Sets;
 
 import de.bund.bfr.jung.JungUtils;
 import de.bund.bfr.jung.layout.Layout;
@@ -89,50 +92,43 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
-		Map<String, Point2D> positions = new LinkedHashMap<>(nodePositions);
-		int n = 0;
+		StaticLayout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
+		List<GraphNode> nodesWithoutPos = new ArrayList<>();
 
 		for (GraphNode node : nodeSaveMap.values()) {
-			if (positions.get(node.getId()) == null) {
-				Set<String> containedNodes = collapsedNodes.get(node.getId());
+			if (collapsedNodes.containsKey(node.getId())) {
+				Point2D centerOfCollapsedNodes = PointUtils
+						.getCenter(CanvasUtils.getElementsById(nodePositions, collapsedNodes.get(node.getId())));
 
-				if (containedNodes != null) {
-					Point2D center = PointUtils.getCenter(CanvasUtils.getElementsById(positions, containedNodes));
-
-					if (center != null) {
-						positions.put(node.getId(), center);
-					} else {
-						n++;
-					}
+				if (centerOfCollapsedNodes != null) {
+					layout.setLocation(node, centerOfCollapsedNodes);
+				} else if (nodePositions.containsKey(node.getId())) {
+					layout.setLocation(node, nodePositions.get(node.getId()));
 				} else {
-					n++;
+					nodesWithoutPos.add(node);
+				}
+			} else {
+				if (nodePositions.containsKey(node.getId())) {
+					layout.setLocation(node, nodePositions.get(node.getId()));
+				} else {
+					nodesWithoutPos.add(node);
 				}
 			}
 		}
 
-		StaticLayout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
 		Point2D upperLeft = transform.applyInverse(10, 10);
 		Point2D upperRight = transform.applyInverse(viewer.getPreferredSize().width - 10, 10);
-		double x1 = upperLeft.getX();
-		double x2 = upperRight.getX();
-		double y = upperLeft.getY();
-		int i = 0;
 
-		for (GraphNode node : nodeSaveMap.values()) {
-			Point2D pos = positions.get(node.getId());
+		for (int i = 0; i < nodesWithoutPos.size(); i++) {
+			double x = upperLeft.getX()
+					+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
 
-			if (pos != null) {
-				layout.setLocation(node, pos);
-			} else {
-				double x = x1 + (double) i / (double) n * (x2 - x1);
-
-				layout.setLocation(node, new Point2D.Double(x, y));
-				i++;
-			}
+			layout.setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
 		}
 
 		layout.setSize(viewer.getSize());
 		viewer.setGraphLayout(layout);
+		updatePositionsOfCollapsedNodes();
 	}
 
 	@Override
@@ -255,7 +251,20 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
 		}
 
-		layoutResult.forEach((node, pos) -> viewer.getGraphLayout().setLocation(node, pos));
+		Set<GraphNode> nonCollapsedNodes = CanvasUtils.getElementsById(nodeSaveMap,
+				Sets.difference(nodeSaveMap.keySet(), collapsedNodes.values().stream().flatMap(Set::stream)
+						.collect(Collectors.toCollection(LinkedHashSet::new))));
+
+		for (GraphNode node : nonCollapsedNodes) {
+			if (layoutResult.containsKey(node)) {
+				viewer.getGraphLayout().setLocation(node, layoutResult.get(node));
+			} else {
+				Point2D pos = viewer.getGraphLayout().transform(node);
+
+				viewer.getGraphLayout().setLocation(node, transform.apply(pos.getX(), pos.getY()));
+			}
+		}
+
 		updatePositionsOfCollapsedNodes();
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
