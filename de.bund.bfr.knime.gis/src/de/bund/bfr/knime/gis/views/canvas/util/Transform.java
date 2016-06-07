@@ -19,7 +19,6 @@
  *******************************************************************************/
 package de.bund.bfr.knime.gis.views.canvas.util;
 
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -86,11 +85,11 @@ public class Transform implements Serializable {
 		return new AffineTransform(scaleX, 0, 0, scaleY, translationX, translationY);
 	}
 
-	public Point apply(double x, double y) {
-		return new Point((int) (x * scaleX + translationX), (int) (y * scaleY + translationY));
+	public Point2D apply(double x, double y) {
+		return new Point2D.Double(x * scaleX + translationX, y * scaleY + translationY);
 	}
 
-	public Point2D applyInverse(int x, int y) {
+	public Point2D applyInverse(double x, double y) {
 		return new Point2D.Double((x - translationX) / scaleX, (y - translationY) / scaleY);
 	}
 

@@ -21,7 +21,6 @@ package de.bund.bfr.knime.gis.views.canvas;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.ui.Dialogs;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * @author Christian Thoens
@@ -80,7 +78,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	public void initLayout() {
 		if (!nodes.isEmpty()) {
-			applyLayout(LayoutType.ISOM_LAYOUT, null);
+			applyLayout(LayoutType.ISOM_LAYOUT, nodes, false);
 		}
 	}
 
@@ -151,7 +149,29 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 	@Override
 	public void layoutItemClicked(LayoutType layoutType) {
-		applyLayout(layoutType, getSelectedNodes());
+		Set<GraphNode> selectedNodes = getSelectedNodes();
+		Set<GraphNode> nodesForLayout = nodes;
+
+		if (!selectedNodes.isEmpty()) {
+			switch (Dialogs.showYesNoDialog(this,
+					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Confirm")) {
+			case YES:
+				nodesForLayout = selectedNodes;
+				break;
+			case NO:
+				nodesForLayout = nodes;
+				break;
+			default:
+				return;
+			}
+		}
+
+		if (nodesForLayout.size() < 2) {
+			Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".", "Error");
+			return;
+		}
+
+		applyLayout(layoutType, nodesForLayout, true);
 	}
 
 	@Override
@@ -191,52 +211,24 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		return newNode;
 	}
 
-	private void applyLayout(LayoutType layoutType, Set<GraphNode> selectedNodes) {
-		if (selectedNodes != null && !selectedNodes.isEmpty()) {
-			switch (Dialogs.showYesNoDialog(this,
-					"Should the layout be applied on the selected " + naming.nodes() + " only?", "Confirm")) {
-			case YES:
-				// Do nothing
-				break;
-			case NO:
-				selectedNodes = null;
-				break;
-			default:
-				return;
-			}
-		}
-
-		Set<GraphNode> nodesForLayout = selectedNodes != null && !selectedNodes.isEmpty() ? selectedNodes : nodes;
-
-		if (nodesForLayout.size() < 2) {
-			Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".", "Error");
-			return;
-		}
-
-		Graph<GraphNode, Edge<GraphNode>> graph = viewer.getGraphLayout().getGraph();
-		Point2D move = new Point2D.Double(transform.getTranslationX() / transform.getScaleX(),
-				transform.getTranslationY() / transform.getScaleY());
-		final Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(graph,
-				new Dimension((int) (viewer.getSize().width / transform.getScaleX()),
-						(int) (viewer.getSize().height / transform.getScaleY())));
-		final Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
+	private void applyLayout(LayoutType layoutType, Set<GraphNode> nodesForLayout, boolean showProgressDialog) {
+		Layout<GraphNode, Edge<GraphNode>> layout = layoutType.create(viewer.getGraphLayout().getGraph(),
+				viewer.getSize());
+		Map<GraphNode, Point2D> initialPositions = new LinkedHashMap<>();
 
 		for (GraphNode node : nodes) {
-			initialPositions.put(node, PointUtils.addPoints(viewer.getGraphLayout().transform(node), move));
+			Point2D pos = viewer.getGraphLayout().transform(node);
 
-			if (!nodesForLayout.contains(node)) {
-				layout.setLocked(node, true);
-			}
+			initialPositions.put(node, transform.apply(pos.getX(), pos.getY()));
+			layout.setLocked(node, !nodesForLayout.contains(node));
 		}
 
-		final Map<GraphNode, Point2D> layoutResult = new LinkedHashMap<>();
+		Map<GraphNode, Point2D> layoutResult = new LinkedHashMap<>();
 
-		if (selectedNodes == null) {
-			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
-		} else {
-			final JDialog layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Layout Process",
+		if (showProgressDialog) {
+			JDialog layoutDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Layout Process",
 					Dialog.DEFAULT_MODALITY_TYPE);
-			final JProgressBar progressBar = new JProgressBar();
+			JProgressBar progressBar = new JProgressBar();
 
 			layoutDialog.add(UI.createHorizontalPanel(new JLabel("Waiting for Layout Process")), BorderLayout.NORTH);
 			layoutDialog.add(UI.createHorizontalPanel(progressBar), BorderLayout.CENTER);
@@ -259,19 +251,19 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}).start();
 
 			layoutDialog.setVisible(true);
+		} else {
+			layoutResult.putAll(layout.getNodePositions(initialPositions, null));
 		}
 
-		Map<String, Point2D> newPositions = new LinkedHashMap<>();
-
-		layoutResult.forEach((node, pos) -> newPositions.put(node.getId(), pos));
-		setNodePositions(newPositions);
+		layoutResult.forEach((node, pos) -> viewer.getGraphLayout().setLocation(node, pos));
+		updatePositionsOfCollapsedNodes();
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
 			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
 
 			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
 		} else {
-			setTransform(new Transform(transform.getScaleX(), transform.getScaleY(), 0, 0));
+			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
 
 		Stream.of(getListeners(CanvasListener.class)).forEach(l -> l.layoutProcessFinished(this));
