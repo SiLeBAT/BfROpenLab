@@ -128,7 +128,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 
 		layout.setSize(viewer.getSize());
 		viewer.setGraphLayout(layout);
-		updatePositionsOfCollapsedNodes();
 	}
 
 	@Override
@@ -265,12 +264,9 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			}
 		}
 
-		updatePositionsOfCollapsedNodes();
-
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			Rectangle2D bounds = PointUtils.getBounds(getNodePositions(nodes).values());
-
-			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), bounds, null));
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(),
+					PointUtils.getBounds(getNodePositions(nodes).values()), null));
 		} else {
 			setTransform(Transform.IDENTITY_TRANSFORM);
 		}
@@ -285,9 +281,11 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			Point2D newCenter = viewer.getGraphLayout().transform(nodeSaveMap.get(metaId));
 			Point2D diff = PointUtils.substractPoints(newCenter, oldCenter);
 
-			for (GraphNode newNode : newNodes) {
-				viewer.getGraphLayout().setLocation(newNode,
-						PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff));
+			if (diff.getX() * diff.getX() + diff.getY() * diff.getY() > 1e-10) {
+				for (GraphNode newNode : newNodes) {
+					viewer.getGraphLayout().setLocation(newNode,
+							PointUtils.addPoints(viewer.getGraphLayout().transform(newNode), diff));
+				}
 			}
 		});
 	}
