@@ -20,6 +20,7 @@
 package de.bund.bfr.knime.openkrise;
 
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGEN;
+import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.CHARGENVERBINDUNGEN;
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.EXTRAFIELDS;
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.LIEFERUNGEN;
 import static de.bund.bfr.knime.openkrise.db.generated.public_.Tables.PRODUKTKATALOG;
@@ -44,6 +45,7 @@ import org.jooq.Record1;
 import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
+import org.jooq.SelectJoinStep;
 import org.jooq.TableField;
 import org.jooq.impl.DSL;
 import org.knime.core.data.DataCell;
@@ -253,10 +255,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
 		if (!useSerialAsId && !set.isLotBased())
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
-		if (set.isLotBased())
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
+		if (set.isLotBased())
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE).createSpec());
@@ -325,9 +327,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		DataTableSpec spec = getStationSpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		long index = 0;
+		SelectJoinStep<Record> select = DSL.using(conn, SQLDialect.HSQLDB).select().from(STATION);
 
-		for (Record r : DSL.using(conn, SQLDialect.HSQLDB).select().from(STATION)) {
-			String id = stationIds.get(r.getValue(STATION.ID));
+		if (set.isLotBased()) {
+			select = select.join(PRODUKTKATALOG).on(STATION.ID.equal(PRODUKTKATALOG.STATION)).join(CHARGEN)
+					.on(PRODUKTKATALOG.ID.equal(CHARGEN.ARTIKEL));
+		}
+
+		for (Record r : select) {
+			String stationId = stationIds.get(r.getValue(STATION.ID));
 			String district = clean(r.getValue(STATION.DISTRICT));
 			String state = clean(r.getValue(STATION.BUNDESLAND));
 			String country = clean(r.getValue(STATION.LAND));
@@ -337,7 +345,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					? getISO3166_2(country, state) + "#" + r.getValue(STATION.ID) : clean(r.getValue(STATION.NAME));
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-			fillCell(spec, cells, TracingColumns.ID, createCell(id));
+			fillCell(spec, cells, TracingColumns.ID,
+					!set.isLotBased() ? createCell(stationId) : createCell(String.valueOf(r.getValue(CHARGEN.ID))));
+			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
 			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_STREET,
@@ -362,12 +372,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			fillCell(spec, cells, BackwardUtils.STATION_DATEEND, createCell(r.getValue(STATION.DATUMENDE)));
 			fillCell(spec, cells, BackwardUtils.STATION_SERIAL, createCell(r.getValue(STATION.SERIAL)));
 			fillCell(spec, cells, TracingColumns.STATION_SIMPLESUPPLIER,
-					!receivesFrom.containsKey(id) && deliversTo.get(id).size() == 1 ? BooleanCell.TRUE
+					!receivesFrom.containsKey(stationId) && deliversTo.get(stationId).size() == 1 ? BooleanCell.TRUE
 							: BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.STATION_DEADSTART,
-					!receivesFrom.containsKey(id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					!receivesFrom.containsKey(stationId) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.STATION_DEADEND,
-					!deliversTo.containsKey(id) ? BooleanCell.TRUE : BooleanCell.FALSE);
+					!deliversTo.containsKey(stationId) ? BooleanCell.TRUE : BooleanCell.FALSE);
 			fillCell(spec, cells, TracingColumns.FILESOURCES, createCell(r.getValue(STATION.IMPORTSOURCES)));
 			fillCell(spec, cells, BackwardUtils.STATION_COUNTY,
 					set.isAnonymize() ? DataType.getMissingCell() : createCell(district));
@@ -406,19 +416,28 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;
+		SelectJoinStep<Record> select = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
+				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
+				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
 
-		for (Record r : DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN).leftOuterJoin(CHARGEN)
-				.on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
-				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID)).orderBy(PRODUKTKATALOG.ID)) {
-			String id = deliveryIds.get(r.getValue(LIEFERUNGEN.ID));
-			String fromId = stationIds.get(r.getValue(PRODUKTKATALOG.STATION));
-			String toId = stationIds.get(r.getValue(LIEFERUNGEN.EMPFÄNGER));
+		if (set.isLotBased()) {
+			select = select.join(CHARGENVERBINDUNGEN).on(LIEFERUNGEN.ID.equal(CHARGENVERBINDUNGEN.ZUTAT));
+		}
+
+		for (Record r : select.orderBy(PRODUKTKATALOG.ID)) {
+			String deliveryId = deliveryIds.get(r.getValue(LIEFERUNGEN.ID));
+			String fromId = !set.isLotBased() ? stationIds.get(r.getValue(PRODUKTKATALOG.STATION))
+					: String.valueOf(r.getValue(CHARGEN.ID));
+			String toId = !set.isLotBased() ? stationIds.get(r.getValue(LIEFERUNGEN.EMPFÄNGER))
+					: String.valueOf(r.getValue(CHARGENVERBINDUNGEN.PRODUKT));
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
-			fillCell(spec, cells, TracingColumns.ID, createCell(id));
+			fillCell(spec, cells, TracingColumns.ID,
+					!set.isLotBased() ? createCell(deliveryId) : createCell(deliveryId + "-" + toId));
 			fillCell(spec, cells, TracingColumns.FROM, createCell(fromId));
 			fillCell(spec, cells, TracingColumns.TO, createCell(toId));
 
+			fillCell(spec, cells, TracingColumns.DELIVERY_ID, createCell(deliveryId));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNAME, createCell(r.getValue(PRODUKTKATALOG.BEZEICHNUNG)));
 			fillCell(spec, cells, TracingColumns.DELIVERY_ITEMNUM, set.isAnonymize() ? DataType.getMissingCell()
 					: createCell(r.getValue(PRODUKTKATALOG.ARTIKELNUMMER)));
