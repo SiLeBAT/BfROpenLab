@@ -53,6 +53,7 @@ public interface TracingColumns {
 	public static final String DELIVERY_DEPARTURE = "Date Delivery";
 	public static final String DELIVERY_ARRIVAL = "Date Delivery Arrival";
 
+	public static final String STATION_ID = "Station ID";
 	public static final String STATION_NAME = "Name";
 	public static final String STATION_STREET = "Street";
 	public static final String STATION_HOUSENO = "HouseNumber";
@@ -66,6 +67,7 @@ public interface TracingColumns {
 	public static final String STATION_DEADSTART = "DeadStart";
 	public static final String STATION_DEADEND = "DeadEnd";
 
+	public static final String DELIVERY_ID = "Delivery ID";
 	public static final String DELIVERY_ITEMNUM = "Item Number";
 	public static final String DELIVERY_ITEMNAME = "Name";
 	public static final String DELIVERY_AMOUNT = "Amount [kg]";

@@ -46,6 +46,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private MyKrisenInterfacesSettings set;
 
+	private JCheckBox lotBasedBox;
 	private JCheckBox backwardBox;
 	private JCheckBox anonymizeBox;
 	private JCheckBox dbBox;
@@ -54,9 +55,11 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	protected MyKrisenInterfacesNodeDialog() {
 		JPanel tracingPanel = new JPanel();
 
+		lotBasedBox = new JCheckBox("Read Lot-Based Network");
 		backwardBox = new JCheckBox("Ensure Backward Compatibility");
 		anonymizeBox = new JCheckBox("Anonymize Data");
 		tracingPanel.setLayout(new BoxLayout(tracingPanel, BoxLayout.Y_AXIS));
+		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(lotBasedBox)));
 		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(backwardBox)));
 		tracingPanel.add(UI.createWestPanel(UI.createHorizontalPanel(anonymizeBox)));
 
@@ -78,6 +81,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs) {
 		set.loadSettings(settings);
+		lotBasedBox.setSelected(set.isLotBased());
 		backwardBox.setSelected(set.isEnsureBackwardCompatibility());
 		anonymizeBox.setSelected(set.isAnonymize());
 		dbBox.setSelected(set.isUseExternalDb());
@@ -92,6 +96,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		set.setLotBased(lotBasedBox.isSelected());
 		set.setEnsureBackwardCompatibility(backwardBox.isSelected());
 		set.setAnonymize(anonymizeBox.isSelected());
 		set.setUseExternalDb(dbBox.isSelected());

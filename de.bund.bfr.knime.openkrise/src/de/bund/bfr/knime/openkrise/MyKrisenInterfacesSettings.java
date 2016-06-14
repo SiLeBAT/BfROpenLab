@@ -27,17 +27,20 @@ import de.bund.bfr.knime.NodeSettings;
 
 public class MyKrisenInterfacesSettings extends NodeSettings {
 
+	private static final String CFG_LOT_BASED = "LotBased";
 	private static final String CFG_ENSURE_BACKWARD_COMPATIBILITY = "EnsureBackwardCompatibility";
 	private static final String CFG_ANONYMIZE = "anonymize";
 	private static final String CFG_USE_EXTERNAL_DB = "override";
 	private static final String CFG_DB_PATH = "filename";
 
+	private boolean lotBased;
 	private boolean ensureBackwardCompatibility;
 	private boolean anonymize;
 	private boolean useExternalDb;
 	private String dbPath;
 
 	public MyKrisenInterfacesSettings() {
+		lotBased = false;
 		ensureBackwardCompatibility = false;
 		anonymize = false;
 		useExternalDb = false;
@@ -46,6 +49,11 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 
 	@Override
 	public void loadSettings(NodeSettingsRO settings) {
+		try {
+			lotBased = settings.getBoolean(CFG_LOT_BASED);
+		} catch (InvalidSettingsException e) {
+		}
+
 		try {
 			ensureBackwardCompatibility = settings.getBoolean(CFG_ENSURE_BACKWARD_COMPATIBILITY);
 		} catch (InvalidSettingsException e) {
@@ -69,10 +77,19 @@ public class MyKrisenInterfacesSettings extends NodeSettings {
 
 	@Override
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addBoolean(CFG_LOT_BASED, lotBased);
 		settings.addBoolean(CFG_ENSURE_BACKWARD_COMPATIBILITY, ensureBackwardCompatibility);
 		settings.addBoolean(CFG_ANONYMIZE, anonymize);
 		settings.addBoolean(CFG_USE_EXTERNAL_DB, useExternalDb);
 		settings.addString(CFG_DB_PATH, dbPath);
+	}
+
+	public boolean isLotBased() {
+		return lotBased;
+	}
+
+	public void setLotBased(boolean lotBased) {
+		this.lotBased = lotBased;
 	}
 
 	public boolean isEnsureBackwardCompatibility() {
