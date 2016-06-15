@@ -70,10 +70,14 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
+import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.KnimeUtils;
 import de.bund.bfr.knime.openkrise.common.Delivery;
 import de.bund.bfr.knime.openkrise.common.DeliveryUtils;
@@ -116,7 +120,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		List<Delivery> deliveries = DeliveryUtils.getDeliveries(conn, stationIds, deliveryIds, warnings);
 		BufferedDataTable stationTable = getStationTable(conn, stationIds, deliveries, exec, useSerialAsID);
 		BufferedDataTable deliveryTable = getDeliveryTable(conn, stationIds, deliveryIds, exec, useSerialAsID);
-		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, exec);
+		BufferedDataTable deliveryConnectionsTable = getDeliveryConnectionsTable(deliveries, deliveryTable, exec);
 
 		if (!warnings.isEmpty()) {
 			for (Map.Entry<String, Set<String>> entry : Multimaps.asMap(warnings).entrySet()) {
@@ -508,17 +512,39 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		return container.getTable();
 	}
 
-	private BufferedDataTable getDeliveryConnectionsTable(Collection<Delivery> deliveries, ExecutionContext exec)
-			throws CanceledExecutionException {
+	private BufferedDataTable getDeliveryConnectionsTable(List<Delivery> deliveries, BufferedDataTable deliveryTable,
+			ExecutionContext exec) throws CanceledExecutionException {
 		BufferedDataContainer container = exec.createDataContainer(
 				new DataTableSpec(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec(),
 						new DataColumnSpecCreator(TracingColumns.NEXT, StringCell.TYPE).createSpec()));
 		int index = 0;
 
-		for (Delivery delivery : deliveries) {
-			for (String next : delivery.getAllNextIds()) {
-				container.addRowToTable(new DefaultRow(index++ + "", createCell(delivery.getId()), createCell(next)));
-				exec.checkCanceled();
+		if (!set.isLotBased()) {
+			for (Delivery delivery : deliveries) {
+				for (String next : delivery.getAllNextIds()) {
+					container.addRowToTable(
+							new DefaultRow(index++ + "", createCell(delivery.getId()), createCell(next)));
+					exec.checkCanceled();
+				}
+			}
+		} else {
+			ListMultimap<String, String> incoming = ArrayListMultimap.create();
+			ListMultimap<String, String> outgoing = ArrayListMultimap.create();
+
+			for (DataRow row : deliveryTable) {
+				incoming.put(IO.getString(row.getCell(deliveryTable.getSpec().findColumnIndex(TracingColumns.TO))),
+						IO.getString(row.getCell(deliveryTable.getSpec().findColumnIndex(TracingColumns.ID))));
+				outgoing.put(IO.getString(row.getCell(deliveryTable.getSpec().findColumnIndex(TracingColumns.FROM))),
+						IO.getString(row.getCell(deliveryTable.getSpec().findColumnIndex(TracingColumns.ID))));
+			}
+
+			for (String lot : Sets.intersection(incoming.keySet(), outgoing.keySet())) {
+				for (String in : incoming.get(lot)) {
+					for (String out : outgoing.get(lot)) {
+						container.addRowToTable(new DefaultRow(index++ + "", createCell(in), createCell(out)));
+						exec.checkCanceled();
+					}
+				}
 			}
 		}
 
