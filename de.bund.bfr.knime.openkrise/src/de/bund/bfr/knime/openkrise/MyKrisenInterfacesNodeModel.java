@@ -207,10 +207,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
-		if (!useSerialAsId && !set.isLotBased())
-			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_SERIAL, StringCell.TYPE).createSpec());
-		if (set.isLotBased())
+		if (set.isLotBased()) {
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
 			columns.add(new DataColumnSpecCreator(TracingColumns.STATION_ID, StringCell.TYPE).createSpec());
+		}
+		if (!useSerialAsId)
+			columns.add(new DataColumnSpecCreator(BackwardUtils.STATION_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_NAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_STREET, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.STATION_HOUSENO, StringCell.TYPE).createSpec());
@@ -257,12 +259,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		List<DataColumnSpec> columns = new ArrayList<>();
 
 		columns.add(new DataColumnSpecCreator(TracingColumns.ID, StringCell.TYPE).createSpec());
-		if (!useSerialAsId && !set.isLotBased())
+		if (set.isLotBased())
+			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ID, StringCell.TYPE).createSpec());
+		if (!useSerialAsId)
 			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_SERIAL, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.FROM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.TO, StringCell.TYPE).createSpec());
-		if (set.isLotBased())
-			columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ID, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_ITEMNAME, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_LOTNUM, StringCell.TYPE).createSpec());
 		columns.add(new DataColumnSpecCreator(TracingColumns.DELIVERY_DEPARTURE, StringCell.TYPE).createSpec());
@@ -351,6 +353,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
 			fillCell(spec, cells, TracingColumns.ID,
 					!set.isLotBased() ? createCell(stationId) : createCell(String.valueOf(r.getValue(CHARGEN.ID))));
+			if (set.isLotBased())
+				fillCell(spec, cells, TracingColumns.DELIVERY_LOTNUM, createCell(r.getValue(CHARGEN.CHARGENNR)));
 			fillCell(spec, cells, TracingColumns.STATION_ID, createCell(stationId));
 			fillCell(spec, cells, BackwardUtils.STATION_NODE, createCell(company));
 			fillCell(spec, cells, TracingColumns.STATION_NAME, createCell(company));
