@@ -15,6 +15,10 @@
 		</intro>
 
 		<tab name="Options">
+			<option name="Read Lot-Based Network">
+				If checked, the Supply Chain Reader creates a network of lots and deliveries
+				(instead of stations and deliveries).
+			</option>
 			<option name="Ensure Backward Compatibility">
 				If checked, columns from old FoodChain-Lab versions (e.g. "node", "County")
 				are provided in the output. Otherwise these columns are skipped.
