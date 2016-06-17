@@ -130,4 +130,10 @@ public class Transform implements Serializable {
 		return scaleX == t.scaleX && scaleY == t.scaleY && translationX == t.translationX
 				&& translationY == t.translationY;
 	}
+
+	@Override
+	public String toString() {
+		return "Transform [scaleX=" + scaleX + ", scaleY=" + scaleY + ", translationX=" + translationX
+				+ ", translationY=" + translationY + "]";
+	}
 }

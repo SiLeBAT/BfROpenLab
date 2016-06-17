@@ -55,7 +55,6 @@ import de.bund.bfr.knime.gis.views.canvas.util.Naming;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
 import de.bund.bfr.knime.ui.Dialogs;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 
 /**
  * @author Christian Thoens
@@ -92,7 +91,6 @@ public class GraphCanvas extends Canvas<GraphNode> {
 	}
 
 	public void setNodePositions(Map<String, Point2D> nodePositions) {
-		StaticLayout<GraphNode, Edge<GraphNode>> layout = new StaticLayout<>(viewer.getGraphLayout().getGraph());
 		List<GraphNode> nodesWithoutPos = new ArrayList<>();
 
 		for (GraphNode node : nodeSaveMap.values()) {
@@ -101,15 +99,15 @@ public class GraphCanvas extends Canvas<GraphNode> {
 						.getCenter(CanvasUtils.getElementsById(nodePositions, collapsedNodes.get(node.getId())));
 
 				if (centerOfCollapsedNodes != null) {
-					layout.setLocation(node, centerOfCollapsedNodes);
+					viewer.getGraphLayout().setLocation(node, centerOfCollapsedNodes);
 				} else if (nodePositions.containsKey(node.getId())) {
-					layout.setLocation(node, nodePositions.get(node.getId()));
+					viewer.getGraphLayout().setLocation(node, nodePositions.get(node.getId()));
 				} else {
 					nodesWithoutPos.add(node);
 				}
 			} else {
 				if (nodePositions.containsKey(node.getId())) {
-					layout.setLocation(node, nodePositions.get(node.getId()));
+					viewer.getGraphLayout().setLocation(node, nodePositions.get(node.getId()));
 				} else {
 					nodesWithoutPos.add(node);
 				}
@@ -123,11 +121,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 			double x = upperLeft.getX()
 					+ (double) i / (double) nodesWithoutPos.size() * (upperRight.getX() - upperLeft.getX());
 
-			layout.setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
+			viewer.getGraphLayout().setLocation(nodesWithoutPos.get(i), new Point2D.Double(x, upperLeft.getY()));
 		}
-
-		layout.setSize(viewer.getSize());
-		viewer.setGraphLayout(layout);
 	}
 
 	@Override
@@ -265,8 +260,8 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (layoutType == LayoutType.FR_LAYOUT) {
-			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(),
-					PointUtils.getBounds(getNodePositions(nodes).values()), null));
+			setTransform(CanvasUtils.getTransformForBounds(getCanvasSize(), PointUtils.getBounds(layoutResult.values()),
+					null));
 		} else {
 			setTransform(Transform.IDENTITY_TRANSFORM);
 		}

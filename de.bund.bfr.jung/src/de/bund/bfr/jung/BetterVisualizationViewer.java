@@ -40,7 +40,7 @@ public class BetterVisualizationViewer<V, E> extends VisualizationViewer<V, E> {
 	private static final long serialVersionUID = 1L;
 
 	public BetterVisualizationViewer() {
-		super(new StaticLayout<>(new DirectedSparseMultigraph<>()));
+		super(new ChangeSupportLayout<>(new StaticLayout<>(new DirectedSparseMultigraph<>())));
 		getRenderer().setEdgeRenderer(new BetterEdgeRenderer<>());
 		getRenderer().setEdgeLabelRenderer(new BetterEdgeLabelRenderer<>());
 		getRenderer().setVertexLabelRenderer(new BetterVertexLabelRenderer<>());

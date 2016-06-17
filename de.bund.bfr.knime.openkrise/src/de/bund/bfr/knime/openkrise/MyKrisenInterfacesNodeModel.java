@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -403,6 +404,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		DataTableSpec spec = getDeliverySpec(conn, useSerialAsId);
 		BufferedDataContainer container = exec.createDataContainer(spec);
 		int index = 0;
+		Set<String> ids = new LinkedHashSet<>();
 		SelectJoinStep<Record> select = DSL.using(conn, SQLDialect.HSQLDB).select().from(LIEFERUNGEN)
 				.leftOuterJoin(CHARGEN).on(LIEFERUNGEN.CHARGE.equal(CHARGEN.ID)).leftOuterJoin(PRODUKTKATALOG)
 				.on(CHARGEN.ARTIKEL.equal(PRODUKTKATALOG.ID));
@@ -418,6 +420,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			String toId = !set.isLotBased() ? stationIds.get(r.getValue(LIEFERUNGEN.EMPFÄNGER))
 					: String.valueOf(r.getValue(CHARGENVERBINDUNGEN.PRODUKT));
 			String id = !set.isLotBased() ? deliveryId : deliveryId + "-" + toId;
+
+			if (!ids.add(id)) {
+				continue;
+			}
+
 			DataCell[] cells = new DataCell[spec.getNumColumns()];
 
 			fillCell(spec, cells, TracingColumns.ID, createCell(id));
