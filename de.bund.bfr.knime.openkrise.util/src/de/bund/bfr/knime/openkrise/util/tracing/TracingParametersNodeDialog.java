@@ -64,6 +64,9 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 	private TableInputPanel<Boolean> edgeFilterPanel;
 	private JCheckBox enforceTempBox;
 
+	private JTabbedPane nodePane;
+	private JTabbedPane edgePane;
+
 	/**
 	 * New pane for configuring the TracingVisualizer node.
 	 */
@@ -79,15 +82,13 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		edgeFilterPanel = new TableInputPanel<>(Boolean.class, TableInputPanel.Type.EDGE);
 		enforceTempBox = new JCheckBox("Enforce Temporal Order");
 
-		JTabbedPane nodePane = new JTabbedPane();
-
+		nodePane = new JTabbedPane();
 		nodePane.addTab(TracingColumns.WEIGHT, nodeWeightPanel);
 		nodePane.addTab(TracingColumns.CROSS_CONTAMINATION, nodeContaminationPanel);
 		nodePane.addTab(TracingColumns.KILL_CONTAMINATION, nodeKillPanel);
 		nodePane.addTab(TracingColumns.OBSERVED, nodeFilterPanel);
 
-		JTabbedPane edgePane = new JTabbedPane();
-
+		edgePane = new JTabbedPane();
 		edgePane.addTab(TracingColumns.WEIGHT, edgeWeightPanel);
 		edgePane.addTab(TracingColumns.CROSS_CONTAMINATION, edgeContaminationPanel);
 		edgePane.addTab(TracingColumns.KILL_CONTAMINATION, edgeKillPanel);
@@ -110,6 +111,15 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				TracingColumns.ID);
 		EdgePropertySchema edgeSchema = new EdgePropertySchema(TracingUtils.getTableColumns(edgeTable.getSpec()),
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
+		boolean lotBased = TracingUtils.isLotBased(nodeSchema, edgeSchema);
+
+		removeTab(TracingUtils.NAMING.Node() + " Properties");
+		removeTab(TracingUtils.NAMING.Edge() + " Properties");
+		removeTab(TracingUtils.LOT_NAMING.Node() + " Properties");
+		removeTab(TracingUtils.LOT_NAMING.Edge() + " Properties");
+		addTab((!lotBased ? TracingUtils.NAMING.Node() : TracingUtils.LOT_NAMING.Node()) + " Properties", nodePane);
+		addTab((!lotBased ? TracingUtils.NAMING.Edge() : TracingUtils.LOT_NAMING.Edge()) + " Properties", edgePane);
+
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
 		List<Edge<GraphNode>> edges = TracingUtils.readEdges(edgeTable, edgeSchema, nodes, skippedEdgeRows);

@@ -46,13 +46,14 @@ public class TracingShapefileCanvas extends LocationCanvas implements ITracingGi
 
 	public TracingShapefileCanvas() {
 		this(new ArrayList<>(0), new ArrayList<>(0), new NodePropertySchema(), new EdgePropertySchema(),
-				new ArrayList<>(0), new LinkedHashMap<>(0));
+				new ArrayList<>(0), new LinkedHashMap<>(0), false);
 	}
 
 	public TracingShapefileCanvas(List<LocationNode> nodes, List<Edge<LocationNode>> edges,
 			NodePropertySchema nodeProperties, EdgePropertySchema edgeProperties, List<RegionNode> regions,
-			Map<String, Delivery> deliveries) {
-		super(nodes, edges, nodeProperties, edgeProperties, TracingUtils.NAMING, regions);
+			Map<String, Delivery> deliveries, boolean lotBased) {
+		super(nodes, edges, nodeProperties, edgeProperties, !lotBased ? TracingUtils.NAMING : TracingUtils.LOT_NAMING,
+				regions);
 		tracing = new TracingDelegate<>(this, nodeSaveMap, edgeSaveMap, joinMap, deliveries);
 	}
 

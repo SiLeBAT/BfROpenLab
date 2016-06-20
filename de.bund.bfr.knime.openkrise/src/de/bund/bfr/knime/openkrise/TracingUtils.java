@@ -66,11 +66,18 @@ import de.bund.bfr.knime.openkrise.common.Delivery;
 public class TracingUtils {
 
 	public static final Naming NAMING = new Naming("Station", "Stations", "Delivery", "Deliveries");
+	public static final Naming LOT_NAMING = new Naming("Lot", "Lots", "Delivery", "Deliveries");
 
 	public static final ImmutableSet<DataType> COMPATIBLE_COLUMNS_TYPES = ImmutableSet.of(StringCell.TYPE, IntCell.TYPE,
 			DoubleCell.TYPE, BooleanCell.TYPE);
 
 	private TracingUtils() {
+	}
+
+	public static boolean isLotBased(NodePropertySchema nodeSchema, EdgePropertySchema edgeSchema) {
+		return nodeSchema.getMap().containsKey(TracingColumns.STATION_ID)
+				&& nodeSchema.getMap().containsKey(TracingColumns.DELIVERY_LOTNUM)
+				&& edgeSchema.getMap().containsKey(TracingColumns.DELIVERY_ID);
 	}
 
 	public static Map<String, Class<?>> getTableColumns(DataTableSpec spec) {
