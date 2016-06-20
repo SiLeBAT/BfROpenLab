@@ -95,8 +95,8 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		edgePane.addTab(TracingColumns.OBSERVED, edgeFilterPanel);
 
 		addTab("Options", UI.createNorthPanel(UI.createHorizontalPanel(enforceTempBox)));
-		addTab(TracingUtils.NAMING.Node() + " Properties", nodePane);
-		addTab(TracingUtils.NAMING.Edge() + " Properties", edgePane);
+		addTab(createNodeTabTitle(false), nodePane);
+		addTab(createEdgeTabTitle(false), edgePane);
 	}
 
 	@Override
@@ -113,12 +113,15 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				TracingColumns.ID, TracingColumns.FROM, TracingColumns.TO);
 		boolean lotBased = TracingUtils.isLotBased(nodeSchema, edgeSchema);
 
-		removeTab(TracingUtils.NAMING.Node() + " Properties");
-		removeTab(TracingUtils.NAMING.Edge() + " Properties");
-		removeTab(TracingUtils.LOT_NAMING.Node() + " Properties");
-		removeTab(TracingUtils.LOT_NAMING.Edge() + " Properties");
-		addTab((!lotBased ? TracingUtils.NAMING.Node() : TracingUtils.LOT_NAMING.Node()) + " Properties", nodePane);
-		addTab((!lotBased ? TracingUtils.NAMING.Edge() : TracingUtils.LOT_NAMING.Edge()) + " Properties", edgePane);
+		try {
+			renameTab(createNodeTabTitle(!lotBased), createNodeTabTitle(lotBased));
+		} catch (IllegalArgumentException e) {
+		}
+
+		try {
+			renameTab(createEdgeTabTitle(!lotBased), createEdgeTabTitle(lotBased));
+		} catch (IllegalArgumentException e) {
+		}
 
 		Map<String, GraphNode> nodes = TracingUtils.readGraphNodes(nodeTable, nodeSchema);
 		Set<RowKey> skippedEdgeRows = new LinkedHashSet<>();
@@ -190,5 +193,13 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 		set.setEnforeTemporalOrder(enforceTempBox.isSelected());
 
 		set.saveSettings(settings);
+	}
+
+	private static String createNodeTabTitle(boolean lotBased) {
+		return (!lotBased ? TracingUtils.NAMING.Node() : TracingUtils.LOT_NAMING.Node()) + " Properties";
+	}
+
+	private static String createEdgeTabTitle(boolean lotBased) {
+		return (!lotBased ? TracingUtils.NAMING.Edge() : TracingUtils.LOT_NAMING.Edge()) + " Properties";
 	}
 }
