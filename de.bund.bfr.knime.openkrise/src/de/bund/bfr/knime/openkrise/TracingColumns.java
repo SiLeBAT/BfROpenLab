@@ -90,15 +90,14 @@ public interface TracingColumns {
 	public static final ImmutableList<String> OUTPUT_COLUMNS = ImmutableList.of(SCORE, NORMALIZED_SCORE, POSITIVE_SCORE,
 			NEGATIVE_SCORE, BACKWARD, FORWARD);
 	public static final ImmutableMap<String, DataType> COLUMN_TYPES = new ImmutableMap.Builder<String, DataType>()
-			.put(TracingColumns.WEIGHT, DoubleCell.TYPE).put(TracingColumns.CROSS_CONTAMINATION, BooleanCell.TYPE)
-			.put(TracingColumns.KILL_CONTAMINATION, BooleanCell.TYPE).put(TracingColumns.SCORE, DoubleCell.TYPE)
-			.put(TracingColumns.NORMALIZED_SCORE, DoubleCell.TYPE).put(TracingColumns.POSITIVE_SCORE, DoubleCell.TYPE)
-			.put(TracingColumns.NEGATIVE_SCORE, DoubleCell.TYPE).put(TracingColumns.OBSERVED, BooleanCell.TYPE)
-			.put(TracingColumns.BACKWARD, BooleanCell.TYPE).put(TracingColumns.FORWARD, BooleanCell.TYPE).build();
+			.put(WEIGHT, DoubleCell.TYPE).put(CROSS_CONTAMINATION, BooleanCell.TYPE)
+			.put(KILL_CONTAMINATION, BooleanCell.TYPE).put(SCORE, DoubleCell.TYPE)
+			.put(NORMALIZED_SCORE, DoubleCell.TYPE).put(POSITIVE_SCORE, DoubleCell.TYPE)
+			.put(NEGATIVE_SCORE, DoubleCell.TYPE).put(OBSERVED, BooleanCell.TYPE).put(BACKWARD, BooleanCell.TYPE)
+			.put(FORWARD, BooleanCell.TYPE).build();
 	public static final ImmutableMap<String, Class<?>> COLUMN_CLASSES = new ImmutableMap.Builder<String, Class<?>>()
-			.put(TracingColumns.WEIGHT, Double.class).put(TracingColumns.CROSS_CONTAMINATION, Boolean.class)
-			.put(TracingColumns.KILL_CONTAMINATION, Boolean.class).put(TracingColumns.SCORE, Double.class)
-			.put(TracingColumns.NORMALIZED_SCORE, Double.class).put(TracingColumns.POSITIVE_SCORE, Double.class)
-			.put(TracingColumns.NEGATIVE_SCORE, Double.class).put(TracingColumns.OBSERVED, Boolean.class)
-			.put(TracingColumns.BACKWARD, Boolean.class).put(TracingColumns.FORWARD, Boolean.class).build();
+			.put(WEIGHT, Double.class).put(CROSS_CONTAMINATION, Boolean.class).put(KILL_CONTAMINATION, Boolean.class)
+			.put(SCORE, Double.class).put(NORMALIZED_SCORE, Double.class).put(POSITIVE_SCORE, Double.class)
+			.put(NEGATIVE_SCORE, Double.class).put(OBSERVED, Boolean.class).put(BACKWARD, Boolean.class)
+			.put(FORWARD, Boolean.class).build();
 }
