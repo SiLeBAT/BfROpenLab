@@ -419,7 +419,7 @@ public class VariablePanel extends JPanel {
 		private void okButtonPressed() {
 			if (minField.getValue() != null && maxField.getValue() != null
 					&& minField.getValue() >= maxField.getValue()) {
-				Dialogs.showErrorMessage(this, "Min must be smaller than Max", "Error");
+				Dialogs.showErrorMessage(this, "Min must be smaller than Max");
 			}
 
 			approved = true;

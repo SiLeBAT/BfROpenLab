@@ -157,7 +157,7 @@ public class GraphCanvas extends Canvas<GraphNode> {
 		}
 
 		if (nodesForLayout.size() < 2) {
-			Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".", "Error");
+			Dialogs.showErrorMessage(this, "Layouts can only be applied on 2 or more " + naming.nodes() + ".");
 			return;
 		}
 

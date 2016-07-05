@@ -104,10 +104,10 @@ public class GraphVisualizerInputDialog extends KnimeDialog {
 		DataColumnSpec edgeToColumn = edgeToBox.getSelectedColumn();
 
 		if (nodeIdColumn == null || edgeFromColumn == null || edgeToColumn == null) {
-			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must be selected", "Error");
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must be selected");
 		} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 				|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type");
 		} else {
 			approved = true;
 			set.getGraphSettings().setNodeIdColumn(nodeIdColumn.getName());

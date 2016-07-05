@@ -104,7 +104,7 @@ public class LocationVisualizerNodeDialog extends VisualizerNodeDialog {
 			canvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
+				Dialogs.showErrorMessage(panel, e.getMessage());
 			}
 		}
 

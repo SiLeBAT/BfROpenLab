@@ -579,7 +579,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 				getVisualizationServer(false).paint(img.getGraphics());
 				ImageIO.write(img, "png", file);
 			} catch (IOException e) {
-				Dialogs.showErrorMessage(this, "Error saving png file", "Error");
+				Dialogs.showErrorMessage(this, "Error saving png file");
 			}
 		} else if (file.getName().toLowerCase().endsWith(".svg")) {
 			try (Writer outsvg = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
@@ -589,7 +589,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 				getVisualizationServer(true).paint(g);
 				g.stream(outsvg, true);
 			} catch (IOException e) {
-				Dialogs.showErrorMessage(this, "Error saving svg file", "Error");
+				Dialogs.showErrorMessage(this, "Error saving svg file");
 			}
 		}
 	}
@@ -836,7 +836,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 				break;
 			}
 
-			Dialogs.showErrorMessage(this, "ID already exists, please specify different ID", "Error");
+			Dialogs.showErrorMessage(this, "ID already exists, please specify different ID");
 		}
 
 		for (String id : selectedMetaIds) {
@@ -856,7 +856,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 		Set<String> selectedIds = getSelectedNodeIds();
 
 		if (!Sets.difference(selectedIds, collapsedNodes.keySet()).isEmpty()) {
-			Dialogs.showErrorMessage(this, "Some of the selected " + naming.nodes() + " are not collapsed", "Error");
+			Dialogs.showErrorMessage(this, "Some of the selected " + naming.nodes() + " are not collapsed");
 			return;
 		}
 
@@ -904,7 +904,7 @@ public abstract class Canvas<V extends Node> extends JPanel
 							+ " are already collapsed. You have to clear all collapsed " + naming.nodes() + " before.";
 				}
 
-				Dialogs.showErrorMessage(this, message, "Error");
+				Dialogs.showErrorMessage(this, message);
 				return;
 			}
 		}

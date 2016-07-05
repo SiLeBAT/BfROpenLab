@@ -55,7 +55,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 
 		for (V v : layout.getGraph().getVertices()) {
 			if (!vv.getRenderContext().getVertexIncludePredicate()
-					.evaluate(Context.<Graph<V, E>, V> getInstance(layout.getGraph(), v))) {
+					.evaluate(Context.<Graph<V, E>, V>getInstance(layout.getGraph(), v))) {
 				continue;
 			}
 
@@ -95,7 +95,7 @@ public class BetterShapePickSupport<V, E> implements GraphElementAccessor<V, E> 
 
 		for (V v : layout.getGraph().getVertices()) {
 			if (!vv.getRenderContext().getVertexIncludePredicate()
-					.evaluate(Context.<Graph<V, E>, V> getInstance(layout.getGraph(), v))) {
+					.evaluate(Context.<Graph<V, E>, V>getInstance(layout.getGraph(), v))) {
 				continue;
 			}
 

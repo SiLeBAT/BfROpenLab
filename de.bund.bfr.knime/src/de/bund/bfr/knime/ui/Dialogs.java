@@ -87,19 +87,18 @@ public class Dialogs {
 		return buttons;
 	}
 
-	public static void showErrorMessage(Component parent, String message, String title) {
-		showMessage(parent, message, title, true);
+	public static void showErrorMessage(Component parent, String message) {
+		showMessage(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	public static void showWarningMessage(Component parent, String message, String title) {
-		showMessage(parent, message, title, false);
+	public static void showWarningMessage(Component parent, String message) {
+		showMessage(parent, message, "Warning", JOptionPane.WARNING_MESSAGE);
 	}
 
-	private static void showMessage(Component parent, String message, String title, boolean error) {
+	private static void showMessage(Component parent, String message, String title, int messageType) {
 		Locale oldLocale = disableButtonsAndChangeLocale(parent);
 
-		JOptionPane.showMessageDialog(parent, message, title,
-				error ? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+		JOptionPane.showMessageDialog(parent, message, title, messageType);
 		enableButtonsAndResetLocale(parent, oldLocale);
 	}
 

@@ -110,9 +110,9 @@ public class RegionVisualizerInputDialog extends KnimeDialog {
 		DataColumnSpec nodeRegionColumn = nodeRegionBox.getSelectedColumn();
 
 		if (shapeColumn == null || shapeRegionColumn == null || nodeRegionColumn == null) {
-			Dialogs.showErrorMessage(this, "\"Shape\" and all \"Region ID\" columns must be selected", "Error");
+			Dialogs.showErrorMessage(this, "\"Shape\" and all \"Region ID\" columns must be selected");
 		} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
-			Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type", "Type Error");
+			Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type");
 		} else {
 			approved = true;
 			set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());

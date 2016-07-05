@@ -45,21 +45,21 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 		GraphicsDecorator g = rc.getGraphicsContext();
 		Graph<V, E> graph = layout.getGraph();
 
-		if (!rc.getEdgeIncludePredicate().evaluate(Context.<Graph<V, E>, E> getInstance(graph, e))) {
+		if (!rc.getEdgeIncludePredicate().evaluate(Context.<Graph<V, E>, E>getInstance(graph, e))) {
 			return;
 		}
 
 		Pair<V> endpoints = graph.getEndpoints(e);
 
-		if (!rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V> getInstance(graph, endpoints.getFirst()))
+		if (!rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V>getInstance(graph, endpoints.getFirst()))
 				|| !rc.getVertexIncludePredicate()
-						.evaluate(Context.<Graph<V, E>, V> getInstance(graph, endpoints.getSecond()))) {
+						.evaluate(Context.<Graph<V, E>, V>getInstance(graph, endpoints.getSecond()))) {
 			return;
 		}
 
 		Point2D p1 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(endpoints.getFirst()));
 		Point2D p2 = rc.getMultiLayerTransformer().transform(Layer.LAYOUT, layout.transform(endpoints.getSecond()));
-		Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V, E>, E> getInstance(graph, e));
+		Shape edgeShape = rc.getEdgeShapeTransformer().transform(Context.<Graph<V, E>, E>getInstance(graph, e));
 		Rectangle deviceRectangle = new Rectangle(rc.getScreenDevice().getSize());
 		AffineTransform edgeTransform = AffineTransform.getTranslateInstance(p1.getX(), p1.getY());
 
@@ -96,7 +96,7 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 			g.setPaint(rc.getEdgeFillPaintTransformer().transform(e));
 			g.draw(edgeShape);
 
-			if (rc.getEdgeArrowPredicate().evaluate(Context.<Graph<V, E>, E> getInstance(graph, e))) {
+			if (rc.getEdgeArrowPredicate().evaluate(Context.<Graph<V, E>, E>getInstance(graph, e))) {
 				AffineTransform destVertexTransform = AffineTransform.getTranslateInstance(p2.getX(), p2.getY());
 				Shape destVertexShape = destVertexTransform.createTransformedShape(
 						rc.getVertexShapeTransformer().transform(graph.getEndpoints(e).getSecond()));
@@ -106,7 +106,7 @@ public class BetterEdgeRenderer<V, E> extends BasicEdgeRenderer<V, E> {
 					AffineTransform arrowTransform = edgeArrowRenderingSupport.getArrowTransform(rc, edgeShape,
 							destVertexShape);
 					Shape arrow = arrowTransform.createTransformedShape(
-							rc.getEdgeArrowTransformer().transform(Context.<Graph<V, E>, E> getInstance(graph, e)));
+							rc.getEdgeArrowTransformer().transform(Context.<Graph<V, E>, E>getInstance(graph, e)));
 
 					g.setStroke(rc.getEdgeArrowStrokeTransformer().transform(e));
 					g.setPaint(rc.getArrowFillPaintTransformer().transform(e));

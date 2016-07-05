@@ -47,8 +47,6 @@ import org.knime.core.util.FileUtil;
 
 import com.google.common.collect.Ordering;
 
-import de.bund.bfr.knime.ui.Dialogs;
-
 public class KnimeUtils {
 
 	public static final Ordering<Object> ORDERING = Ordering.from((o1, o2) -> {
@@ -121,13 +119,13 @@ public class KnimeUtils {
 		return map != null ? map : new LinkedHashMap<>(0);
 	}
 
-	public static void showWarningWhenDialogOpens(Component c, String warning) {
+	public static void runWhenDialogOpens(Component c, Runnable doRun) {
 		new Thread(() -> {
 			while (true) {
 				Window window = SwingUtilities.getWindowAncestor(c);
 
 				if (window != null && window.isActive()) {
-					SwingUtilities.invokeLater(() -> Dialogs.showWarningMessage(c, warning, "Warning"));
+					SwingUtilities.invokeLater(doRun);
 					break;
 				}
 

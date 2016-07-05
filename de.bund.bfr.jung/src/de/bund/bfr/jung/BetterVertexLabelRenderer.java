@@ -44,7 +44,7 @@ public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, 
 
 	@Override
 	public void labelVertex(RenderContext<V, E> rc, Layout<V, E> layout, V v, String label) {
-		if (!rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V> getInstance(layout.getGraph(), v))) {
+		if (!rc.getVertexIncludePredicate().evaluate(Context.<Graph<V, E>, V>getInstance(layout.getGraph(), v))) {
 			return;
 		}
 
@@ -52,7 +52,7 @@ public class BetterVertexLabelRenderer<V, E> implements Renderer.VertexLabel<V, 
 		AffineTransform transform = AffineTransform.getTranslateInstance(vPos.getX(), vPos.getY());
 		Shape shape = transform.createTransformedShape(rc.getVertexShapeTransformer().transform(v));
 
-		Component component = rc.getVertexLabelRenderer().<V> getVertexLabelRendererComponent(rc.getScreenDevice(),
+		Component component = rc.getVertexLabelRenderer().<V>getVertexLabelRendererComponent(rc.getScreenDevice(),
 				label, rc.getVertexFontTransformer().transform(v), rc.getPickedVertexState().isPicked(v), v);
 		Dimension size = component.getPreferredSize();
 		Point p = getAnchorPoint(shape.getBounds2D(), size);

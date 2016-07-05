@@ -149,7 +149,7 @@ public class EditableSinglePropertiesDialog extends KnimeDialog {
 			try {
 				element.getProperties().put(TracingColumns.WEIGHT, Double.parseDouble(caseField.getText()));
 			} catch (NumberFormatException ex) {
-				Dialogs.showErrorMessage(this, "Please enter valid number for " + TracingColumns.WEIGHT, "Error");
+				Dialogs.showErrorMessage(this, "Please enter valid number for " + TracingColumns.WEIGHT);
 			}
 		}
 

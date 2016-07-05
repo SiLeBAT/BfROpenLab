@@ -127,13 +127,12 @@ public class RegionToRegionVisualizerInputDialog extends KnimeDialog {
 
 		if (shapeColumn == null || shapeRegionColumn == null || nodeIdColumn == null || nodeRegionColumn == null
 				|| edgeFromColumn == null || edgeToColumn == null) {
-			Dialogs.showErrorMessage(this, "\"Shape\", all \"Region ID\" and all \"Node ID\" columns must be selected",
-					"Error");
+			Dialogs.showErrorMessage(this, "\"Shape\", all \"Region ID\" and all \"Node ID\" columns must be selected");
 		} else if (shapeRegionColumn.getType() != nodeRegionColumn.getType()) {
-			Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type", "Type Error");
+			Dialogs.showErrorMessage(this, "All \"Region ID\" columns must have the same type");
 		} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 				|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type");
 		} else {
 			approved = true;
 			set.getGisSettings().setGisType((GisType) gisBox.getSelectedItem());

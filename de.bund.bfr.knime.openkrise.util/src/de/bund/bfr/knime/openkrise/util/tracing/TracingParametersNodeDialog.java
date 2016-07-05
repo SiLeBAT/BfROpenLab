@@ -44,6 +44,7 @@ import de.bund.bfr.knime.gis.views.canvas.util.EdgePropertySchema;
 import de.bund.bfr.knime.gis.views.canvas.util.NodePropertySchema;
 import de.bund.bfr.knime.openkrise.TracingColumns;
 import de.bund.bfr.knime.openkrise.TracingUtils;
+import de.bund.bfr.knime.ui.Dialogs;
 
 /**
  * <code>NodeDialog</code> for the "TracingVisualizer" Node.
@@ -152,7 +153,7 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 			String warning = "Some rows from the delivery table could not be imported."
 					+ " Execute the Tracing View for more information.";
 
-			KnimeUtils.showWarningWhenDialogOpens(enforceTempBox, warning);
+			KnimeUtils.runWhenDialogOpens(enforceTempBox, () -> Dialogs.showWarningMessage(enforceTempBox, warning));
 		}
 	}
 

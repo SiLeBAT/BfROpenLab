@@ -229,7 +229,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 		String warning = createCanvas();
 
 		if (warning != null) {
-			KnimeUtils.showWarningWhenDialogOpens(panel, warning);
+			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showWarningMessage(panel, warning));
 		}
 
 		updateStatusVariables();

@@ -318,7 +318,7 @@ public class EditablePropertiesDialog<V extends Node> extends KnimeDialog
 			try {
 				value = Double.parseDouble(result.toString());
 			} catch (NumberFormatException ex) {
-				Dialogs.showErrorMessage(this, result.toString() + " is not a valid number", "Error");
+				Dialogs.showErrorMessage(this, result.toString() + " is not a valid number");
 			}
 		}
 

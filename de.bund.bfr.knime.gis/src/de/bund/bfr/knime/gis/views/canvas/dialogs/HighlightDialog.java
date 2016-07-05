@@ -546,7 +546,7 @@ public class HighlightDialog extends KnimeDialog {
 				.filter(Objects::nonNull).findFirst();
 
 		if (error.isPresent()) {
-			Dialogs.showErrorMessage(okButton, error.get(), "Error");
+			Dialogs.showErrorMessage(okButton, error.get());
 		} else {
 			approved = true;
 			dispose();

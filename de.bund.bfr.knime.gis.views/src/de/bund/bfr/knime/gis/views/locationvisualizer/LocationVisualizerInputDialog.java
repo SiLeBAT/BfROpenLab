@@ -113,10 +113,9 @@ public class LocationVisualizerInputDialog extends KnimeDialog {
 
 		if (gisType == GisType.SHAPEFILE
 				&& (shapeColumn == null || nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-			Dialogs.showErrorMessage(this, "\"Shape\", \"Latitude\" and \"Longitude\" columns must be selected",
-					"Error");
+			Dialogs.showErrorMessage(this, "\"Shape\", \"Latitude\" and \"Longitude\" columns must be selected");
 		} else if (gisType != GisType.SHAPEFILE && (nodeLatitudeColumn == null || nodeLongitudeColumn == null)) {
-			Dialogs.showErrorMessage(this, "\"Latitude\" and \"Longitude\" columns must be selected", "Error");
+			Dialogs.showErrorMessage(this, "\"Latitude\" and \"Longitude\" columns must be selected");
 		} else {
 			approved = true;
 			set.getGisSettings().setGisType(gisType);

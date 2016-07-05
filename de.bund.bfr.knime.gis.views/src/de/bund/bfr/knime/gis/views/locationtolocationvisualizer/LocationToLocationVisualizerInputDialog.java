@@ -133,14 +133,13 @@ public class LocationToLocationVisualizerInputDialog extends KnimeDialog {
 		if (gisType == GisType.SHAPEFILE && (shapeColumn == null || nodeIdColumn == null || nodeLatitudeColumn == null
 				|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
 			Dialogs.showErrorMessage(this,
-					"\"Shape\", \"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected", "Error");
+					"\"Shape\", \"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected");
 		} else if (gisType != GisType.SHAPEFILE && (nodeIdColumn == null || nodeLatitudeColumn == null
 				|| nodeLongitudeColumn == null || edgeFromColumn == null || edgeToColumn == null)) {
-			Dialogs.showErrorMessage(this, "\"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected",
-					"Error");
+			Dialogs.showErrorMessage(this, "\"Latitude\", \"Longitude\" and all \"Node ID\" columns must be selected");
 		} else if (nodeIdColumn.getType() != edgeFromColumn.getType()
 				|| nodeIdColumn.getType() != edgeToColumn.getType()) {
-			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type", "Type Error");
+			Dialogs.showErrorMessage(this, "All \"Node ID\" columns must have the same type");
 		} else {
 			approved = true;
 			set.getGisSettings().setGisType(gisType);

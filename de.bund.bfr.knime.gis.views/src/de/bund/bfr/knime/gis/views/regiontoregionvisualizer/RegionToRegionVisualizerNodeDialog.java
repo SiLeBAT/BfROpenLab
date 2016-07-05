@@ -278,8 +278,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 			gisCanvas.addCanvasListener(this);
 
 			if (showWarning && !creator.getNonExistingRegions().isEmpty()) {
-				Dialogs.showWarningMessage(panel, "Some regions from the table are not contained in the shapefile",
-						"Warning");
+				Dialogs.showWarningMessage(panel, "Some regions from the table are not contained in the shapefile");
 			}
 		} catch (NotConfigurableException e) {
 			graphCanvas = new GraphCanvas(false, Naming.DEFAULT_NAMING);
@@ -288,7 +287,7 @@ public class RegionToRegionVisualizerNodeDialog extends VisualizerNodeDialog imp
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
+				Dialogs.showErrorMessage(panel, e.getMessage());
 			}
 		}
 

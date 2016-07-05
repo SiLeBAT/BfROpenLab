@@ -306,7 +306,7 @@ public class LocationToLocationVisualizerNodeDialog extends VisualizerNodeDialog
 			gisCanvas.setCanvasSize(new Dimension(400, 600));
 
 			if (showWarning) {
-				Dialogs.showErrorMessage(panel, e.getMessage(), "Error");
+				Dialogs.showErrorMessage(panel, e.getMessage());
 			}
 		}
 
