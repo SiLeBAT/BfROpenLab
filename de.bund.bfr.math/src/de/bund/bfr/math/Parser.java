@@ -90,7 +90,7 @@ public class Parser {
 
 	@SuppressWarnings("unchecked")
 	public Set<String> getSymbols() {
-		return new LinkedHashSet<>(parser.getSymbolTable().keySet());
+		return (Set<String>) new LinkedHashSet<>(parser.getSymbolTable().keySet());
 	}
 
 	public Node differentiate(Node function, String var) throws ParseException {
