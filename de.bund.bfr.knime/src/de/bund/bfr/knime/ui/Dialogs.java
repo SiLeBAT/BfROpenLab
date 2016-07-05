@@ -95,6 +95,10 @@ public class Dialogs {
 		showMessage(parent, message, "Warning", JOptionPane.WARNING_MESSAGE);
 	}
 
+	public static void showInfoMessage(Component parent, String message) {
+		showMessage(parent, message, "Info", JOptionPane.INFORMATION_MESSAGE);
+	}
+
 	private static void showMessage(Component parent, String message, String title, int messageType) {
 		Locale oldLocale = disableButtonsAndChangeLocale(parent);
 

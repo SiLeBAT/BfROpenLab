@@ -159,4 +159,8 @@ public class TracingViewCanvasCreator {
 	public Set<RowKey> getSkippedShapeRows() {
 		return skippedShapeRows;
 	}
+
+	public boolean isLotBased() {
+		return lotBased;
+	}
 }

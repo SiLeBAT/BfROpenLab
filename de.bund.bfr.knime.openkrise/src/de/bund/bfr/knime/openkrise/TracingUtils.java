@@ -71,6 +71,11 @@ public class TracingUtils {
 	public static final ImmutableSet<DataType> COMPATIBLE_COLUMNS_TYPES = ImmutableSet.of(StringCell.TYPE, IntCell.TYPE,
 			DoubleCell.TYPE, BooleanCell.TYPE);
 
+	public static final String LOT_BASED_INFO = "FoodChain-Lab assumes, that your network is lot-based (and not station-based),\n"
+			+ "since the first input table contains the columns \"" + TracingColumns.STATION_ID + "\" and \""
+			+ TracingColumns.DELIVERY_LOTNUM + "\"\nand the second input table contains the column \""
+			+ TracingColumns.DELIVERY_ID + "\".";
+
 	private TracingUtils() {
 	}
 

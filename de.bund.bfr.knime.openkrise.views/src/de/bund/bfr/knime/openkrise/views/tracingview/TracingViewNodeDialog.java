@@ -58,6 +58,7 @@ import de.bund.bfr.knime.gis.views.canvas.ICanvas;
 import de.bund.bfr.knime.gis.views.canvas.IGisCanvas;
 import de.bund.bfr.knime.gis.views.canvas.highlighting.HighlightConditionList;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
+import de.bund.bfr.knime.openkrise.TracingUtils;
 import de.bund.bfr.knime.openkrise.views.canvas.ITracingCanvas;
 import de.bund.bfr.knime.openkrise.views.canvas.TracingListener;
 import de.bund.bfr.knime.ui.Dialogs;
@@ -226,12 +227,7 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			}
 		});
 
-		String warning = createCanvas();
-
-		if (warning != null) {
-			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showWarningMessage(panel, warning));
-		}
-
+		createCanvas();
 		updateStatusVariables();
 	}
 
@@ -636,11 +632,18 @@ public class TracingViewNodeDialog extends DataAwareNodeDialogPane implements Ca
 			warningTable = "the tracing table";
 		}
 
-		String warning = null;
+		String warning = warningTable != null ? "Some rows from " + warningTable + " could not be imported."
+				+ " Execute the Tracing View for more information." : null;
 
-		if (warningTable != null) {
-			warning = "Some rows from " + warningTable + " could not be imported."
-					+ " Execute the Tracing View for more information.";
+		if (warning != null && creator.isLotBased()) {
+			KnimeUtils.runWhenDialogOpens(panel, () -> {
+				Dialogs.showWarningMessage(panel, warning);
+				Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO);
+			});
+		} else if (warning != null) {
+			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showWarningMessage(panel, warning));
+		} else if (creator.isLotBased()) {
+			KnimeUtils.runWhenDialogOpens(panel, () -> Dialogs.showInfoMessage(panel, TracingUtils.LOT_BASED_INFO));
 		}
 
 		panel.add(canvas.getComponent(), BorderLayout.CENTER);

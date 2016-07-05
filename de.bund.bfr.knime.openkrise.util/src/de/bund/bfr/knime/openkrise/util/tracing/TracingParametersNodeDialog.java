@@ -149,11 +149,19 @@ public class TracingParametersNodeDialog extends DataAwareNodeDialogPane {
 				set.getObservedEdgesConditionValue());
 		enforceTempBox.setSelected(set.isEnforeTemporalOrder());
 
-		if (!skippedEdgeRows.isEmpty()) {
-			String warning = "Some rows from the delivery table could not be imported."
-					+ " Execute the Tracing View for more information.";
+		String warning = !skippedEdgeRows.isEmpty() ? "Some rows from the delivery table could not be imported."
+				+ " Execute the Tracing View for more information." : null;
 
+		if (warning != null && lotBased) {
+			KnimeUtils.runWhenDialogOpens(enforceTempBox, () -> {
+				Dialogs.showWarningMessage(enforceTempBox, warning);
+				Dialogs.showInfoMessage(enforceTempBox, TracingUtils.LOT_BASED_INFO);
+			});
+		} else if (warning != null) {
 			KnimeUtils.runWhenDialogOpens(enforceTempBox, () -> Dialogs.showWarningMessage(enforceTempBox, warning));
+		} else if (lotBased) {
+			KnimeUtils.runWhenDialogOpens(enforceTempBox,
+					() -> Dialogs.showInfoMessage(enforceTempBox, TracingUtils.LOT_BASED_INFO));
 		}
 	}
 
