@@ -57,8 +57,8 @@ public class JungUtils {
 
 	public static <V, E> Transformer<V, Stroke> newNodeStrokeTransformer(RenderContext<V, E> renderContext,
 			Set<V> metaNodes) {
-		return node -> metaNodes.contains(node) || renderContext.getPickedVertexState().isPicked(node)
-				? new BasicStroke(4.0f) : new BasicStroke(1.0f);
+		return node -> (metaNodes != null && metaNodes.contains(node))
+				|| renderContext.getPickedVertexState().isPicked(node) ? new BasicStroke(4.0f) : new BasicStroke(1.0f);
 	}
 
 	public static <V, E> Transformer<V, Paint> newNodeDrawTransformer(RenderContext<V, E> renderContext) {

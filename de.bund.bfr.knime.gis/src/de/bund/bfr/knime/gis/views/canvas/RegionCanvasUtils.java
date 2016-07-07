@@ -91,15 +91,17 @@ public class RegionCanvasUtils {
 		for (HighlightCondition condition : nodeHighlightConditions.getConditions()) {
 			Map<RegionNode, Double> values = condition.getValues(nodes);
 
-			nodeColors.add(condition.getColor());
+			if (condition.getColor() != null) {
+				nodeColors.add(condition.getColor());
 
-			for (RegionNode node : nodes) {
-				List<Double> alphas = nodeAlphas.get(node);
+				for (RegionNode node : nodes) {
+					List<Double> alphas = nodeAlphas.get(node);
 
-				if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
-					alphas.add(values.get(node));
-				} else {
-					alphas.add(0.0);
+					if (!prioritize || alphas.isEmpty() || Collections.max(alphas) == 0.0) {
+						alphas.add(values.get(node));
+					} else {
+						alphas.add(0.0);
+					}
 				}
 			}
 		}

@@ -28,6 +28,7 @@ import java.util.Map;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.TopologyException;
 
 import de.bund.bfr.knime.gis.GisUtils;
 import de.bund.bfr.knime.gis.views.canvas.util.Transform;
@@ -73,7 +74,11 @@ public class RegionNode extends Node {
 	}
 
 	public boolean containsPoint(Point2D point) {
-		return polygon.contains(polygon.getFactory().createPoint(new Coordinate(point.getX(), point.getY())));
+		try {
+			return polygon.contains(polygon.getFactory().createPoint(new Coordinate(point.getX(), point.getY())));
+		} catch (TopologyException e) {
+			return false;
+		}
 	}
 
 	@Override
