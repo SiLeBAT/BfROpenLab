@@ -5,7 +5,7 @@ Bundle-SymbolicName: de.bund.bfr.knime.network;singleton:=true
 Bundle-Version: 1.1.4.qualifier
 Bundle-Activator: de.bund.bfr.knime.network.Activator
 Bundle-Vendor: Federal Institute for Risk Assessment (BfR)
-Require-Bundle: org.knime.base;bundle-version="3.0.0",
+Require-Bundle: org.knime.base;bundle-version="3.1.0",
  org.knime.network.base,
  org.knime.network.core,
  org.knime.timeseries,
