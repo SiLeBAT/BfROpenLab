@@ -24,11 +24,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -65,6 +67,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
@@ -280,7 +283,8 @@ public class GeocodingNodeModel extends NodeModel {
 		String url = uri.toASCIIString() + "&key=" + mapQuestKey + "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
 		int n = getNodeCount(doc, "/response/results/result/locations/location");
 		List<GeocodingResult> results = new ArrayList<>();
 
@@ -314,7 +318,8 @@ public class GeocodingNodeModel extends NodeModel {
 		Document doc = null;
 
 		try {
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
 		} catch (IOException e) {
 			JOptionPane options = new JOptionPane(e.getMessage() + "\nDo you want to continue?",
 					JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
@@ -364,7 +369,8 @@ public class GeocodingNodeModel extends NodeModel {
 		String url = uri.toASCIIString();
 		URLConnection yc = new URL(url).openConnection();
 
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(yc.getInputStream());
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
 		int n = getNodeCount(doc, "/FeatureCollection/featureMember");
 		List<GeocodingResult> results = new ArrayList<>();
 
