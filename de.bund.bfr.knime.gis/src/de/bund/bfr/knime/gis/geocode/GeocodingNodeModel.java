@@ -22,18 +22,20 @@ package de.bund.bfr.knime.gis.geocode;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -73,11 +75,14 @@ import org.xml.sax.SAXException;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Doubles;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 
 import de.bund.bfr.knime.IO;
 import de.bund.bfr.knime.UI;
 import de.bund.bfr.knime.gis.Activator;
 import de.bund.bfr.knime.gis.GisUtils;
+import net.minidev.json.JSONArray;
 
 /**
  * This is the model implementation of Geocoding.
@@ -279,8 +284,9 @@ public class GeocodingNodeModel extends NodeModel {
 					"MapQuest key in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		URI uri = new URI("http", "open.mapquestapi.com", "/geocoding/v1/address", "location=" + address, null);
-		String url = uri.toASCIIString() + "&key=" + mapQuestKey + "&outFormat=xml";
+		String url = "https://open.mapquestapi.com/geocoding/v1/address?key="
+				+ URLEncoder.encode(mapQuestKey, StandardCharsets.UTF_8.name()) + "&location="
+				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name()) + "&outFormat=xml";
 		URLConnection yc = new URL(url).openConnection();
 
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -308,12 +314,8 @@ public class GeocodingNodeModel extends NodeModel {
 			return new GeocodingResult();
 		}
 
-		String server = set.getGisgraphyServer().replace("http://", "");
-		String authority = server.substring(0, server.indexOf("/"));
-		String path = server.substring(server.indexOf("/"));
-		URI uri = new URI("http", authority, path, "address=" + address + "&country=" + countryCode + "&postal=true",
-				null);
-		String url = uri.toASCIIString();
+		String url = set.getGisgraphyServer() + "?address=" + URLEncoder.encode(address, StandardCharsets.UTF_8.name())
+				+ "&country=" + URLEncoder.encode(countryCode, StandardCharsets.UTF_8.name());
 		URLConnection yc = new URL(url).openConnection();
 		Document doc = null;
 
@@ -352,8 +354,7 @@ public class GeocodingNodeModel extends NodeModel {
 	}
 
 	private GeocodingResult performBkgGeocoding(String address)
-			throws MalformedURLException, IOException, ParserConfigurationException, XPathExpressionException,
-			URISyntaxException, SAXException, InvalidSettingsException, CanceledExecutionException {
+			throws MalformedURLException, IOException, InvalidSettingsException, CanceledExecutionException {
 		if (address == null) {
 			return new GeocodingResult();
 		}
@@ -364,27 +365,26 @@ public class GeocodingNodeModel extends NodeModel {
 			throw new InvalidSettingsException("UUID in preferences missing. Please enter it under KNIME->Geocoding.");
 		}
 
-		URI uri = new URI("http", "sg.geodatenzentrum.de", "/gdz_geokodierung__" + uuid + "/geosearch",
-				"query=" + address + "&outputformat=xml", null);
-		String url = uri.toASCIIString();
-		URLConnection yc = new URL(url).openConnection();
+		String url = "https://sg.geodatenzentrum.de/gdz_geokodierung__"
+				+ URLEncoder.encode(uuid, StandardCharsets.UTF_8.name()) + "/geosearch?query="
+				+ URLEncoder.encode(address, StandardCharsets.UTF_8.name());
 
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				.parse(new InputSource(new InputStreamReader(yc.getInputStream(), StandardCharsets.UTF_8.name())));
-		int n = getNodeCount(doc, "/FeatureCollection/featureMember");
-		List<GeocodingResult> results = new ArrayList<>();
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(new URL(url).openConnection().getInputStream(), StandardCharsets.UTF_8.name()))) {
+			String json = buffer.lines().collect(Collectors.joining("\n"));
+			JSONArray jsonResults = JsonPath.parse(json).read("$.features[*]");
+			List<GeocodingResult> results = new ArrayList<>();
 
-		for (int i = 0; i < n; i++) {
-			String location = "/FeatureCollection/featureMember[" + (i + 1) + "]/Ortsangabe";
-			String[] pos = getValue(doc, location + "/geometry/Point/pos").split(" ");
+			for (Object jsonResult : jsonResults) {
+				DocumentContext r = JsonPath.parse(jsonResult);
 
-			results.add(new GeocodingResult(url.replace(uuid, "XXXXXX"), getValue(doc, location + "/strasse"),
-					getValue(doc, location + "/ort"), getValue(doc, location + "/kreis"),
-					getValue(doc, location + "/bundesland"), DE, getValue(doc, location + "/plz"),
-					Doubles.tryParse(pos[1]), Doubles.tryParse(pos[0])));
+				results.add(new GeocodingResult(url, r.read("$.properties.strasse"), r.read("$.properties.ort"),
+						r.read("$.properties.kreis"), r.read("$.properties.bundesland"), DE, r.read("$.properties.plz"),
+						r.read("$.geometry.coordinates[1]"), r.read("$.geometry.coordinates[0]")));
+			}
+
+			return getIndex(address, results, new GeocodingResult(url.replace(uuid, "XXXXXX")));
 		}
-
-		return getIndex(address, results, new GeocodingResult(url.replace(uuid, "XXXXXX")));
 	}
 
 	private GeocodingResult getIndex(String address, List<GeocodingResult> choices, GeocodingResult defaultValue)

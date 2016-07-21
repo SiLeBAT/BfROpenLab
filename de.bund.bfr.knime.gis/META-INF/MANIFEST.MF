@@ -9,6 +9,8 @@ Bundle-Vendor: German Federal Institute for Risk Assessment (BfR)
 Require-Bundle: org.knime.base;bundle-version="3.0.0",
  org.eclipse.ui,
  org.knime.ext.svg,
+ com.jayway.jsonpath.json-path,
+ net.minidev.json-smart,
  org.geotools;visibility:=reexport,
  org.openstreetmap.josm;visibility:=reexport,
  de.bund.bfr.knime;visibility:=reexport,
